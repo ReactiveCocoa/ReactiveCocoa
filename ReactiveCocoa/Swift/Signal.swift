@@ -415,6 +415,8 @@ public func takeUntil<T>(trigger: Signal<()>)(signal: Signal<T>) -> Signal<T> {
 }
 
 /*
+TODO
+
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
@@ -424,8 +426,8 @@ public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func takeUntilReplacement<T>(replacement: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
-public func timeoutWithError<T>(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
+public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
+public func timeoutWithError<T>(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func try<T>(operation: (T, NSErrorPointer) -> Bool)(signal: Signal<T>) -> Signal<T>
 public func try<T>(operation: T -> Result<()>)(signal: Signal<T>) -> Signal<T>
 public func tryMap<T, U>(operation: (T, NSErrorPointer) -> U?)(signal: Signal<T>) -> Signal<U>

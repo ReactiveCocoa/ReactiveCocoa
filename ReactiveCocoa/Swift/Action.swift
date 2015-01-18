@@ -82,6 +82,6 @@ public final class Action<Input, Output> {
 	/// `RACError.ActionNotEnabled`, and nothing will be sent upon `values` or
 	/// `errors` for that particular signal.
 	public func apply(input: Input) -> SignalProducer<Output> {
-		fatalError()
+		fatalError("TODO")
 	}
 }

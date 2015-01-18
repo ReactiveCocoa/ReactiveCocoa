@@ -129,7 +129,7 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>) -> Disposabl
 }
 
 /*
-DISABLED DUE TO COMPILER BUG
+FIXME: DISABLED DUE TO COMPILER BUG
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent

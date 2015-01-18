@@ -420,12 +420,14 @@ public func takeUntil<T>(trigger: SignalProducer<()>)(producer: SignalProducer<T
 }
 
 /*
+TODO
+
 public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
+public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-public func switchToLatest<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 
 public func catch<T>(handler: NSError -> SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>

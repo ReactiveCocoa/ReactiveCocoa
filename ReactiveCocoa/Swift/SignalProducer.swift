@@ -236,7 +236,7 @@ public struct SignalProducer<T> {
 		return start(Event.sink(next: next, error: error, completed: completed))
 	}
 
-	/// Lifts a Signal operator to operate upon SignalProducers instead.
+	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
 	///
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ created Signal, just as if the
@@ -250,6 +250,29 @@ public struct SignalProducer<T> {
 				outerDisposable.addDisposable(signalDisposable)
 
 				return
+			}
+		}
+	}
+
+	/// Lifts a binary Signal operator to operate upon SignalProducers instead.
+	///
+	/// In other words, this will create a new SignalProducer which will apply
+	/// the given Signal operator to _every_ Signal created from the two
+	/// producers, just as if the operator had been applied to each Signal
+	/// yielded from start().
+	public func lift<U, V>(transform: Signal<U> -> Signal<T> -> Signal<V>) -> SignalProducer<U> -> SignalProducer<V> {
+		return { otherProducer in
+			return SignalProducer<V> { observer, outerDisposable in
+				self.startWithSignal { signal, disposable in
+					outerDisposable.addDisposable(disposable)
+
+					otherProducer.startWithSignal { otherSignal, otherDisposable in
+						outerDisposable.addDisposable(otherDisposable)
+
+						let signalDisposable = transform(otherSignal)(signal).observe(observer)
+						outerDisposable.addDisposable(signalDisposable)
+					}
+				}
 			}
 		}
 	}
@@ -372,21 +395,20 @@ public func startOn<T>(scheduler: SchedulerType)(producer: SignalProducer<T>) ->
 /// Signals started by the returned producer will not send a value until both
 /// inputs have sent at least one value each.
 public func combineLatestWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)> {
-	return SignalProducer<(T, U)> { observer, outerDisposable in
-		producer.startWithSignal { signal, disposable in
-			outerDisposable.addDisposable(disposable)
+	return producer.lift(combineLatestWith)(otherSignalProducer)
+}
 
-			otherSignalProducer.startWithSignal { otherSignal, otherDisposable in
-				outerDisposable.addDisposable(otherDisposable)
-
-				let signalDisposable = signal
-					|> combineLatestWith(otherSignal)
-					|> observe(observer)
-
-				outerDisposable.addDisposable(signalDisposable)
-			}
-		}
-	}
+/// Forwards the latest value from `producer` whenever `sampler` sends a Next
+/// event.
+///
+/// If `sampler` fires before a value has been observed on `producer`, nothing
+/// happens.
+///
+/// Returns a producer that will send values from `producer`, sampled (possibly
+/// multiple times) by `sampler`, then error if either input errors, and
+/// complete once both inputs have completed.
+public func sampleOn<T>(sampler: SignalProducer<()>)(producer: SignalProducer<T>) -> SignalProducer<T> {
+	return producer.lift(sampleOn)(sampler)
 }
 
 /*

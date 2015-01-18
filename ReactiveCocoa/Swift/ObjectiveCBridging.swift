@@ -128,7 +128,14 @@ extension RACCommand {
 	/// the RACCommand will always be marked as executing when the action is.
 	public func asAction() -> Action<AnyObject?, AnyObject?> {
 		let enabledProperty = MutableProperty(true)
-		enabledProperty <~ self.enabled.asSignalProducer() |> map { $0 as Bool }
+
+		self.enabled.asSignalProducer()
+			|> map { $0 as Bool }
+			// Workaround for <~ being disabled on SignalProducers.
+			|> startWithSignal { signal, disposable in
+				let bindDisposable = enabledProperty <~ signal
+				disposable.addDisposable(bindDisposable)
+			}
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?> in
 			let executionSignal = RACSignal.defer {

@@ -200,9 +200,6 @@ public struct SignalProducer<T> {
 	/// the work associated with the signal, and prevent any future events from
 	/// being sent. Add other disposables to the CompositeDisposable to perform
 	/// additional cleanup upon termination or cancellation.
-	///
-	/// Returns a Disposable which can be used to cancel the work associated
-	/// with the Signal, and prevent any future events from being sent.
 	public func startWithSignal(setUp: (Signal<T>, CompositeDisposable) -> ()) {
 		let (signal, observer, disposable) = Signal<T>.disposablePipe()
 		setUp(signal, disposable)

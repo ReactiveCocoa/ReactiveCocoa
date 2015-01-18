@@ -44,7 +44,7 @@ public final class Action<Input, Output> {
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
 		executeClosure = execute
-	
+
 		let (vSig, vSink) = Signal<Output>.pipe()
 		valuesObserver = vSink
 		values = vSig
@@ -53,9 +53,14 @@ public final class Action<Input, Output> {
 		errorsObserver = eSink
 		errors = eSig
 
-		_enabled <~ enabledIf.producer
+		enabledIf.producer
 			|> combineLatestWith(executing.producer)
 			|> map(shouldBeEnabled)
+			// Workaround for <~ being disabled on SignalProducers.
+			|> startWithSignal { signal, disposable in
+				let bindDisposable = self._enabled <~ signal
+				disposable.addDisposable(bindDisposable)
+			}
 	}
 
 	/// Initializes an action that will be enabled by default, and create a

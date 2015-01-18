@@ -128,6 +128,9 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>) -> Disposabl
 	return disposable
 }
 
+/*
+DISABLED DUE TO COMPILER BUG
+
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
@@ -186,3 +189,4 @@ public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: Muta
 
 	return disposable
 }
+*/

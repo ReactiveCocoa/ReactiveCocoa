@@ -131,7 +131,7 @@ extension RACCommand {
 
 		self.enabled.asSignalProducer()
 			|> map { $0 as Bool }
-			// Workaround for <~ being disabled on SignalProducers.
+			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = enabledProperty <~ signal
 				disposable.addDisposable(bindDisposable)

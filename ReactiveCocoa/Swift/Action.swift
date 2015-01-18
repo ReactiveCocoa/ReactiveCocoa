@@ -56,7 +56,7 @@ public final class Action<Input, Output> {
 		enabledIf.producer
 			|> combineLatestWith(executing.producer)
 			|> map(shouldBeEnabled)
-			// Workaround for <~ being disabled on SignalProducers.
+			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = self._enabled <~ signal
 				disposable.addDisposable(bindDisposable)

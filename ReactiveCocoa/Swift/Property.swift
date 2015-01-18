@@ -62,7 +62,7 @@ public final class MutableProperty<T>: PropertyType {
 	public var value: T {
 		get {
 			let result = producer |> first
-			return result.value!
+			return result!.value!
 		}
 
 		set(x) {

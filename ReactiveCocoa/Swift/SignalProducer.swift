@@ -224,7 +224,7 @@ public struct SignalProducer<T, E> {
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ created Signal, just as if the
 	/// operator had been applied to each Signal yielded from start().
-	public func lift<E, U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
+	public func lift<U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer<U, F> { observer, outerDisposable in
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable.addDisposable(innerDisposable)
@@ -243,7 +243,7 @@ public struct SignalProducer<T, E> {
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
 	/// yielded from start().
-	public func lift<E, U, F, V, G>(transform: Signal<U, F> -> Signal<T, E> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+	public func lift<U, F, V, G>(transform: Signal<U, F> -> Signal<T, E> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer<V, G> { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
@@ -267,13 +267,13 @@ public struct SignalProducer<T, E> {
 /// If the returned value is not nil, the signal will send that value then
 /// complete. If nil is returned, the signal will send the error that was
 /// returned by reference, or RACError.Empty otherwise.
-public func try<T>(operation: NSErrorPointer -> T?) -> SignalProducer<T, NSError> {
-	return try {
+public func try<T>(operation: NSErrorPointer -> T?) -> SignalProducer<T, NSError?> {
+	return SignalProducer.try {
 		var error: NSError?
 		if let value = operation(&error) {
 			return success(value)
 		} else {
-			return failure(error ?? RACError.Empty.error)
+			return failure(error)
 		}
 	}
 }
@@ -426,17 +426,15 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 		producer.startWithSignal { signal, signalDisposable in
 			serialDisposable.innerDisposable = signalDisposable
 
-			signal.observe(SinkOf { event in
-				switch event {
-				case .Error(err):
-					handler(err.unbox).startWithSignal { signal, signalDisposable in
-						serialDisposable.innerDisposable = signalDisposable
-						signal.observe(observer)
-					}
-
-				default:
-					observer.put(event)
+			signal.observe(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				handler(error).startWithSignal { signal, signalDisposable in
+					serialDisposable.innerDisposable = signalDisposable
+					signal.observe(observer)
 				}
+			}, completed: {
+				sendCompleted(observer)
 			})
 		}
 	}
@@ -461,9 +459,9 @@ public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: Sign
 */
 
 /// Starts the producer, then blocks, waiting for the first value.
-public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T?, E> {
+public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T?, E> = success(nil)
+	var result: Result<T, E>? = nil
 
 	producer
 		|> take(1)

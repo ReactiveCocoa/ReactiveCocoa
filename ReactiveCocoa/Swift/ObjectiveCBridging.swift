@@ -130,6 +130,7 @@ extension RACCommand {
 
 		self.enabled.asSignalProducer()
 			|> map { $0 as Bool }
+			|> catch { _ in SignalProducer<Bool, NoError>(value: false) }
 			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = enabledProperty <~ signal
@@ -153,6 +154,7 @@ extension RACCommand {
 /// the Action will always be marked as executing when the RACCommand is.
 public func asRACCommand<Output: AnyObject>(action: Action<AnyObject?, Output?, NSError?>) -> RACCommand {
 	let enabled = action.enabled.producer
+		|> catch { _ in SignalProducer<Bool, NSError?>(value: false) }
 		|> map { $0 as NSNumber }
 
 	return RACCommand(enabled: asRACSignal(enabled)) { (input: AnyObject?) -> RACSignal in

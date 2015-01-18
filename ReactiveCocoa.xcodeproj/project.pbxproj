@@ -7,13 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		270DE4451A1EAB4600151031 /* ObservablePropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */; };
-		270DE4461A1EACA200151031 /* ObservablePropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */; };
-		5FABB3171A4BDE9700DF4DA1 /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
 		D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D000040A1A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
-		D01792021A34D79100A7B229 /* ColdSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01792011A34D79100A7B229 /* ColdSignalSpec.swift */; };
-		D01792031A34D79100A7B229 /* ColdSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01792011A34D79100A7B229 /* ColdSignalSpec.swift */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6419EDD94B00D26E01 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -393,8 +388,6 @@
 		D04725F019E49ED7006002AA /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
 		D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
-		D052D6B21A3A54CB007CAD68 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */; };
-		D052D6B31A3A54CB007CAD68 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */; };
 		D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D08C54B31A69A2AE00AD8286 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
@@ -439,7 +432,6 @@
 		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D0D11AB91A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
 		D0D11ABA1A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
-		F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
 		F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -1696,17 +1688,14 @@
 				D03766DD19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
 				D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */,
 				D037670919EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
-				D052D6B21A3A54CB007CAD68 /* ActionSpec.swift in Sources */,
 				D03766EB19EDA60000A782A9 /* RACKVOWrapperSpec.m in Sources */,
 				D03766E719EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F719EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
 				D03766C919EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
-				270DE4461A1EACA200151031 /* ObservablePropertySpec.swift in Sources */,
 				D03766C319EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CD19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
-				D01792021A34D79100A7B229 /* ColdSignalSpec.swift in Sources */,
 				D037671519EDA60000A782A9 /* RACTupleSpec.m in Sources */,
 				D03766C519EDA60000A782A9 /* NSObjectRACLiftingSpec.m in Sources */,
 				D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
@@ -1719,7 +1708,6 @@
 				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D0C3132219EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
-				F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */,
 				D0C3130C19EF2B1F00984962 /* DisposableSpec.swift in Sources */,
 				D03766D719EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D03766FF19EDA60000A782A9 /* RACStreamExamples.m in Sources */,
@@ -1867,13 +1855,11 @@
 				D03766EC19EDA60000A782A9 /* RACKVOWrapperSpec.m in Sources */,
 				D03766E819EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F819EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
-				D01792031A34D79100A7B229 /* ColdSignalSpec.swift in Sources */,
 				D037671E19EDA60000A782A9 /* UIBarButtonItemRACSupportSpec.m in Sources */,
 				D03766CA19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D0C3131319EF2B2000984962 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D0C3132319EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
 				D03766C419EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
-				270DE4451A1EAB4600151031 /* ObservablePropertySpec.swift in Sources */,
 				D03766BE19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				D037672019EDA60000A782A9 /* UIButtonRACSupportSpec.m in Sources */,
 				D0C3132519EF2D9700984962 /* RACTestUIButton.m in Sources */,
@@ -1887,7 +1873,6 @@
 				D0C3131419EF2B2000984962 /* SchedulerSpec.swift in Sources */,
 				D0C3131219EF2B2000984962 /* DisposableSpec.swift in Sources */,
 				D03766EE19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
-				D052D6B31A3A54CB007CAD68 /* ActionSpec.swift in Sources */,
 				D03766EA19EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
 				D0C3132119EF2D9700984962 /* RACTestObject.m in Sources */,
 				D03766FC19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
@@ -1910,7 +1895,6 @@
 				D037671A19EDA60000A782A9 /* UIActionSheetRACSupportSpec.m in Sources */,
 				D03766DA19EDA60000A782A9 /* RACChannelExamples.m in Sources */,
 				D03766F619EDA60000A782A9 /* RACSequenceExamples.m in Sources */,
-				5FABB3171A4BDE9700DF4DA1 /* HotSignalSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

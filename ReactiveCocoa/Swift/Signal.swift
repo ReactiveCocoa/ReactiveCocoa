@@ -277,6 +277,32 @@ public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedu
 	}
 }
 
+/// Returns a signal that will skip the first `count` values, then forward
+/// everything afterward.
+public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
+	precondition(count >= 0)
+
+	if (count == 0) {
+		return signal
+	}
+
+	return Signal { observer in
+		var skipped = 0
+
+		return signal.observe(next: { value in
+			if skipped >= count {
+				sendNext(observer, value)
+			} else {
+				skipped++
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
@@ -284,7 +310,6 @@ public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
 public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>

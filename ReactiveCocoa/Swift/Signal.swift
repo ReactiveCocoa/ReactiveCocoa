@@ -333,10 +333,69 @@ public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T> {
 	}
 }
 
+private struct SampleState<T> {
+	var latestValue: T? = nil
+	var signalCompleted: Bool = false
+	var samplerCompleted: Bool = false
+}
+
+/// Forwards the latest value from `signal` whenever `sampler` sends a Next
+/// event.
+///
+/// If `sampler` fires before a value has been observed on `signal`, nothing
+/// happens.
+///
+/// Returns a signal that will send values from `signal`, sampled (possibly
+/// multiple times) by `sampler`, then error if either input signal errors, and
+/// complete once both input signals have completed.
+public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T> {
+	return Signal { observer in
+		let state = Atomic(SampleState<T>())
+
+		let signalDisposable = signal.observe(next: { value in
+			state.modify { (var st) in
+				st.latestValue = value
+				return st
+			}
+
+			return
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			let oldState = state.modify { (var st) in
+				st.signalCompleted = true
+				return st
+			}
+
+			if oldState.samplerCompleted {
+				sendCompleted(observer)
+			}
+		})
+
+		let samplerDisposable = sampler.observe(next: { _ in
+			if let value = state.value.latestValue {
+				sendNext(observer, value)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			let oldState = state.modify { (var st) in
+				st.samplerCompleted = true
+				return st
+			}
+
+			if oldState.signalCompleted {
+				sendCompleted(observer)
+			}
+		})
+
+		return CompositeDisposable([ signalDisposable, samplerDisposable ])
+	}
+}
+
 /*
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>

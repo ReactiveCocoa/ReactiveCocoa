@@ -303,10 +303,38 @@ public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 	}
 }
 
+/// Treats all Events from the input signal as plain values, allowing them to be
+/// manipulated just like any other value.
+///
+/// In other words, this brings Events “into the monad.”
+public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>> {
+	return Signal { observer in
+		return signal.observe(SinkOf { event in
+			sendNext(observer, event)
+
+			if event.isTerminating {
+				sendCompleted(observer)
+			}
+		})
+	}
+}
+
+/// The inverse of materialize(), this will translate a signal of `Event`
+/// _values_ into a signal of those events themselves.
+public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T> {
+	return Signal { observer in
+		return signal.observe(next: { event in
+			observer.put(event)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
-public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
-public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>

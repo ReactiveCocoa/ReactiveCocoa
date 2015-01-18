@@ -7,7 +7,7 @@ public protocol PropertyType {
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time.
-	var producer: SignalProducer<Value> { get }
+	var producer: SignalProducer<Value, NoError> { get }
 }
 
 /// Represents a read-only view to a property of type T that allows observation
@@ -16,13 +16,13 @@ public struct PropertyOf<T>: PropertyType {
 	public typealias Value = T
 
 	private let _value: () -> T
-	private let _producer: () -> SignalProducer<T>
+	private let _producer: () -> SignalProducer<T, NoError>
 
 	public var value: T {
 		return _value()
 	}
 
-	public var producer: SignalProducer<T> {
+	public var producer: SignalProducer<T, NoError> {
 		return _producer()
 	}
 
@@ -38,7 +38,7 @@ internal struct ConstantProperty<T>: PropertyType {
 	typealias Value = T
 
 	let value: T
-	let producer: SignalProducer<T>
+	let producer: SignalProducer<T, NoError>
 
 	/// Initializes the property to have the given value.
 	init(_ value: T) {
@@ -53,7 +53,7 @@ internal struct ConstantProperty<T>: PropertyType {
 public final class MutableProperty<T>: PropertyType {
 	public typealias Value = T
 
-	private let observer: Signal<T>.Observer
+	private let observer: Signal<T, NoError>.Observer
 
 	/// The current value of the property.
 	///
@@ -73,11 +73,11 @@ public final class MutableProperty<T>: PropertyType {
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public let producer: SignalProducer<T>
+	public let producer: SignalProducer<T, NoError>
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: T) {
-		let (producer, observer) = SignalProducer<T>.buffer(1)
+		let (producer, observer) = SignalProducer<T, NoError>.buffer(1)
 		self.producer = producer
 		self.observer = observer
 
@@ -103,11 +103,9 @@ infix operator <~ {
 /// Binds a signal to a property, updating the property's value to the latest
 /// value sent by the signal.
 ///
-/// The signal MUST NOT send an error. The behavior of doing so is undefined.
-///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>) -> Disposable {
+public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -118,8 +116,6 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>) -> Disposabl
 	let signalDisposable = signal.observe(next: { [weak property] value in
 		property?.value = value
 		return
-	}, error: { error in
-		fatalError("Unhandled error in MutableProperty <~ Signal binding: \(error)")
 	}, completed: {
 		disposable.dispose()
 	})

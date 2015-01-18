@@ -48,14 +48,13 @@ extension QueueScheduler {
 extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
-	public func asSignalProducer() -> SignalProducer<AnyObject?> {
+	public func asSignalProducer() -> SignalProducer<AnyObject?, NSError?> {
 		return SignalProducer { observer, disposable in
 			let next = { (obj: AnyObject?) -> () in
 				sendNext(observer, obj)
 			}
 
-			let error = { (maybeError: NSError?) -> () in
-				let nsError = maybeError.orDefault(RACError.Empty.error)
+			let error = { (nsError: NSError?) -> () in
 				sendError(observer, nsError)
 			}
 
@@ -70,19 +69,19 @@ extension RACSignal {
 }
 
 /// Turns each value into an Optional.
-private func optionalize<T>(signal: Signal<T>) -> Signal<T?> {
+private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
 	return signal |> map { Optional.Some($0) }
 }
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
-public func asRACSignal<T: AnyObject>(producer: SignalProducer<T>) -> RACSignal {
+public func asRACSignal<T: AnyObject>(producer: SignalProducer<T, NSError?>) -> RACSignal {
 	return asRACSignal(producer |> optionalize)
 }
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
-public func asRACSignal<T: AnyObject>(producer: SignalProducer<T?>) -> RACSignal {
+public func asRACSignal<T: AnyObject>(producer: SignalProducer<T?, NSError?>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
@@ -99,12 +98,12 @@ public func asRACSignal<T: AnyObject>(producer: SignalProducer<T?>) -> RACSignal
 }
 
 /// Creates a RACSignal that will observe the given signal.
-public func asRACSignal<T: AnyObject>(signal: Signal<T>) -> RACSignal {
+public func asRACSignal<T: AnyObject>(signal: Signal<T, NSError?>) -> RACSignal {
 	return asRACSignal(signal |> optionalize)
 }
 
 /// Creates a RACSignal that will observe the given signal.
-public func asRACSignal<T: AnyObject>(signal: Signal<T?>) -> RACSignal {
+public func asRACSignal<T: AnyObject>(signal: Signal<T?, NSError?>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)
@@ -126,7 +125,7 @@ extension RACCommand {
 	/// Note that the returned Action will not necessarily be marked as
 	/// executing when the command is. However, the reverse is always true:
 	/// the RACCommand will always be marked as executing when the action is.
-	public func asAction() -> Action<AnyObject?, AnyObject?> {
+	public func asAction() -> Action<AnyObject?, AnyObject?, NSError?> {
 		let enabledProperty = MutableProperty(true)
 
 		self.enabled.asSignalProducer()
@@ -137,7 +136,7 @@ extension RACCommand {
 				disposable.addDisposable(bindDisposable)
 			}
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?> in
+		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError?> in
 			let executionSignal = RACSignal.defer {
 				return self.execute(input)
 			}
@@ -152,7 +151,7 @@ extension RACCommand {
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func asRACCommand<Output: AnyObject>(action: Action<AnyObject?, Output?>) -> RACCommand {
+public func asRACCommand<Output: AnyObject>(action: Action<AnyObject?, Output?, NSError?>) -> RACCommand {
 	let enabled = action.enabled.producer
 		|> map { $0 as NSNumber }
 

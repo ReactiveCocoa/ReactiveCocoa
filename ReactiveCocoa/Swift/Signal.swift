@@ -11,8 +11,8 @@
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated, or until the operation which
 /// yielded the Signal (e.g., SignalProducer.start) has been cancelled.
-public final class Signal<T> {
-	public typealias Observer = SinkOf<Event<T>>
+public final class Signal<T, E> {
+	public typealias Observer = SinkOf<Event<T, E>>
 
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()
@@ -89,7 +89,7 @@ public final class Signal<T> {
 	///
 	/// Returns a Disposable which can be used to disconnect the sink. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
-	public func observe<S: SinkType where S.Element == Event<T>>(observer: S) -> Disposable {
+	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable {
 		let sink = Observer(observer)
 
 		lock.lock()
@@ -112,7 +112,7 @@ public final class Signal<T> {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
+	public func observe(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
 		return observe(Event.sink(next: next, error: error, completed: completed))
 	}
 }
@@ -132,12 +132,12 @@ infix operator |> {
 /// 	|> filter { num in num % 2 == 0 }
 /// 	|> map(toString)
 /// 	|> observe(next: { string in println(string) })
-public func |> <T, U>(signal: Signal<T>, transform: Signal<T> -> U) -> U {
+public func |> <T, E, X>(signal: Signal<T, E>, transform: Signal<T, E> -> X) -> X {
 	return transform(signal)
 }
 
 /// Maps each value in the signal to a new value.
-public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U> {
+public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
 			observer.put(event.map(transform))
@@ -146,7 +146,7 @@ public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U> {
 }
 
 /// Preserves only the values of the signal that pass the given predicate.
-public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
+public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(next: { value in
 			if predicate(value) {
@@ -162,7 +162,7 @@ public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
 
 /// Returns a signal that will yield the first `count` values from the
 /// input signal.
-public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
+public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
 	return Signal { observer in
@@ -185,7 +185,7 @@ public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
-public func observeOn<T>(scheduler: SchedulerType)(signal: Signal<T>) -> Signal<T> {
+public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
 			scheduler.schedule {
@@ -202,7 +202,7 @@ private class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ())(signal: Signal<T>) -> Disposable {
+private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> ())(signal: Signal<T, E>) -> Disposable {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -229,7 +229,7 @@ private func observeWithStates<T, U>(signalState: CombineLatestState<T>, otherSt
 ///
 /// The returned signal will not send a value until both inputs have sent
 /// at least one value each.
-public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)> {
+public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
 		let lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
@@ -256,7 +256,7 @@ public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -
 /// them on the given scheduler.
 ///
 /// `Error` events are always scheduled immediately.
-public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T> {
+public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 
 	return Signal { observer in
@@ -279,7 +279,7 @@ public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedu
 
 /// Returns a signal that will skip the first `count` values, then forward
 /// everything afterward.
-public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
+public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
 	if (count == 0) {
@@ -307,7 +307,7 @@ public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 /// manipulated just like any other value.
 ///
 /// In other words, this brings Events “into the monad.”
-public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>> {
+public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
 			sendNext(observer, event)
@@ -321,12 +321,10 @@ public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>> {
 
 /// The inverse of materialize(), this will translate a signal of `Event`
 /// _values_ into a signal of those events themselves.
-public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T> {
+public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(next: { event in
 			observer.put(event)
-		}, error: { error in
-			sendError(observer, error)
 		}, completed: {
 			sendCompleted(observer)
 		})
@@ -346,9 +344,9 @@ private struct SampleState<T> {
 /// happens.
 ///
 /// Returns a signal that will send values from `signal`, sampled (possibly
-/// multiple times) by `sampler`, then error if either input signal errors, and
-/// complete once both input signals have completed.
-public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T> {
+/// multiple times) by `sampler`, then complete once both input signals have
+/// completed.
+public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let state = Atomic(SampleState<T>())
 
@@ -376,8 +374,6 @@ public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T> {
 			if let value = state.value.latestValue {
 				sendNext(observer, value)
 			}
-		}, error: { error in
-			sendError(observer, error)
 		}, completed: {
 			let oldState = state.modify { (var st) in
 				st.samplerCompleted = true
@@ -395,9 +391,7 @@ public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T> {
 
 /// Forwards events from `signal` until `trigger` sends a Next or Completed
 /// event, at which point the returned signal will complete.
-///
-/// Errors from `trigger` will be ignored.
-public func takeUntil<T>(trigger: Signal<()>)(signal: Signal<T>) -> Signal<T> {
+public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let signalDisposable = signal.observe(observer)
 		let triggerDisposable = trigger.observe(SinkOf { event in
@@ -436,11 +430,11 @@ public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(
 */
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, S: SinkType where S.Element == Event<T>>(sink: S)(signal: Signal<T>) -> Disposable {
+public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(signal: Signal<T, E>) -> Disposable {
 	return signal.observe(sink)
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing)(signal: Signal<T>) -> Disposable {
+public func observe<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing)(signal: Signal<T, E>) -> Disposable {
 	return signal.observe(next: next, error: error, completed: completed)
 }

@@ -26,17 +26,34 @@ public final class Action<Input, Output> {
 		return PropertyOf(_executing)
 	}
 
+	private let _executing: MutableProperty<Bool> = MutableProperty(false)
+
 	/// Whether the action is currently enabled.
 	public var enabled: PropertyOf<Bool> {
-		return PropertyOf(_enabled)
+		let property = MutableProperty(false)
+
+		userEnabled.producer
+			|> combineLatestWith(executing.producer)
+			|> map(self.dynamicType.shouldBeEnabled)
+			// FIXME: Workaround for <~ being disabled on SignalProducers.
+			|> startWithSignal { signal, disposable in
+				let bindDisposable = property <~ signal
+				disposable.addDisposable(bindDisposable)
+			}
+
+		return PropertyOf(property)
 	}
 
-	private let _executing: MutableProperty<Bool> = MutableProperty(false)
-	private let _enabled: MutableProperty<Bool> = MutableProperty(true)
+	/// Whether the instantiator of this action wants it to be enabled.
+	private let userEnabled: PropertyOf<Bool>
+
+	/// This queue is used for read-modify-write operations on the `_executing`
+	/// property.
+	private let executingQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Action.executingQueue", DISPATCH_QUEUE_SERIAL)
 
 	/// Whether the action should be enabled for the given combination of user
 	/// enabledness and executing status.
-	private func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
+	private class func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
 		return userEnabled && !executing
 	}
 
@@ -44,6 +61,7 @@ public final class Action<Input, Output> {
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
 		executeClosure = execute
+		userEnabled = PropertyOf(enabledIf)
 
 		let (vSig, vSink) = Signal<Output>.pipe()
 		valuesObserver = vSink
@@ -52,15 +70,6 @@ public final class Action<Input, Output> {
 		let (eSig, eSink) = Signal<NSError>.pipe()
 		errorsObserver = eSink
 		errors = eSig
-
-		enabledIf.producer
-			|> combineLatestWith(executing.producer)
-			|> map(shouldBeEnabled)
-			// FIXME: Workaround for <~ being disabled on SignalProducers.
-			|> startWithSignal { signal, disposable in
-				let bindDisposable = self._enabled <~ signal
-				disposable.addDisposable(bindDisposable)
-			}
 	}
 
 	/// Initializes an action that will be enabled by default, and create a
@@ -82,6 +91,35 @@ public final class Action<Input, Output> {
 	/// `RACError.ActionNotEnabled`, and nothing will be sent upon `values` or
 	/// `errors` for that particular signal.
 	public func apply(input: Input) -> SignalProducer<Output> {
-		fatalError("TODO")
+		return SignalProducer { observer, disposable in
+			var startedExecuting = false
+
+			dispatch_sync(self.executingQueue) {
+				if self.dynamicType.shouldBeEnabled(userEnabled: self.userEnabled.value, executing: self._executing.value) {
+					self._executing.value = true
+					startedExecuting = true
+				}
+			}
+
+			if !startedExecuting {
+				sendError(observer, RACError.ActionNotEnabled.error)
+				return
+			}
+
+			self.executeClosure(input).startWithSignal { signal, signalDisposable in
+				disposable.addDisposable(signalDisposable)
+				signal.observe(observer)
+
+				signal.observe(next: { value in
+					sendNext(self.valuesObserver, value)
+				}, error: { error in
+					sendNext(self.errorsObserver, error)
+				})
+			}
+
+			disposable.addDisposable {
+				self._executing.value = false
+			}
+		}
 	}
 }

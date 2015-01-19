@@ -45,18 +45,23 @@ extension QueueScheduler {
 	}
 }
 
+private func defaultNSError(message: String, #file: String, #line: Int) -> NSError {
+	// lol hax
+	let result: Result<(), NSError> = failure(message, file: file, line: line)
+	return result.error!
+}
+
 extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
-	public func asSignalProducer() -> SignalProducer<AnyObject?> {
+	public func asSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { (obj: AnyObject?) -> () in
 				sendNext(observer, obj)
 			}
 
-			let error = { (maybeError: NSError?) -> () in
-				let nsError = maybeError.orDefault(RACError.Empty.error)
-				sendError(observer, nsError)
+			let error = { (nsError: NSError?) -> () in
+				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
@@ -70,24 +75,24 @@ extension RACSignal {
 }
 
 /// Turns each value into an Optional.
-private func optionalize<T>(signal: Signal<T>) -> Signal<T?> {
+private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
 	return signal |> map { Optional.Some($0) }
 }
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
-public func asRACSignal<T: AnyObject>(producer: SignalProducer<T>) -> RACSignal {
+public func asRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACSignal {
 	return asRACSignal(producer |> optionalize)
 }
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
-public func asRACSignal<T: AnyObject>(producer: SignalProducer<T?>) -> RACSignal {
+public func asRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
 		}, error: { error in
-			subscriber.sendError(error)
+			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()
 		})
@@ -99,17 +104,17 @@ public func asRACSignal<T: AnyObject>(producer: SignalProducer<T?>) -> RACSignal
 }
 
 /// Creates a RACSignal that will observe the given signal.
-public func asRACSignal<T: AnyObject>(signal: Signal<T>) -> RACSignal {
+public func asRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
 	return asRACSignal(signal |> optionalize)
 }
 
 /// Creates a RACSignal that will observe the given signal.
-public func asRACSignal<T: AnyObject>(signal: Signal<T?>) -> RACSignal {
+public func asRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)
 		}, error: { error in
-			subscriber.sendError(error)
+			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()
 		})
@@ -126,24 +131,32 @@ extension RACCommand {
 	/// Note that the returned Action will not necessarily be marked as
 	/// executing when the command is. However, the reverse is always true:
 	/// the RACCommand will always be marked as executing when the action is.
-	public func asAction() -> Action<AnyObject?, AnyObject?> {
+	public func asAction(file: String = __FILE__, line: Int = __LINE__) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
 		self.enabled.asSignalProducer()
 			|> map { $0 as Bool }
+			|> catch { _ in SignalProducer<Bool, NoError>(value: false) }
 			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = enabledProperty <~ signal
 				disposable.addDisposable(bindDisposable)
 			}
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?> in
+		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.defer {
 				return self.execute(input)
 			}
 
-			return executionSignal.asSignalProducer()
+			return executionSignal.asSignalProducer(file: file, line: line)
 		}
+	}
+}
+
+extension Action {
+	private var commandEnabled: RACSignal {
+		let enabled = self.enabled.producer |> map { $0 as NSNumber }
+		return asRACSignal(enabled)
 	}
 }
 
@@ -152,11 +165,19 @@ extension RACCommand {
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func asRACCommand<Output: AnyObject>(action: Action<AnyObject?, Output?>) -> RACCommand {
-	let enabled = action.enabled.producer
-		|> map { $0 as NSNumber }
+public func asRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
+	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+		return asRACSignal(action.apply(input))
+	}
+}
 
-	return RACCommand(enabled: asRACSignal(enabled)) { (input: AnyObject?) -> RACSignal in
+/// Creates a RACCommand that will execute the action.
+///
+/// Note that the returned command will not necessarily be marked as
+/// executing when the action is. However, the reverse is always true:
+/// the Action will always be marked as executing when the RACCommand is.
+public func asRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
+	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
 		return asRACSignal(action.apply(input))
 	}
 }

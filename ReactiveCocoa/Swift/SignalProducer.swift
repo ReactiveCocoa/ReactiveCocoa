@@ -1,6 +1,8 @@
 import LlamaKit
 
-/// A SignalProducer creates Signals that can produce values of type T.
+/// A SignalProducer creates Signals that can produce values of type `T` and/or
+/// error out with errors of type `E`. If no errors should be possible, NoError
+/// can be specified for `E`.
 ///
 /// SignalProducers can be used to represent operations or tasks, like network
 /// requests, where each invocation of start() will create a new underlying

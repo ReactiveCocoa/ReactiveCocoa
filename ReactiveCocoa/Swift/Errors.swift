@@ -23,7 +23,8 @@ extension NSError: ErrorType {
 /// An “error” that is impossible to construct.
 ///
 /// This can be used to describe signals or producers where errors will never
-/// be generated.
+/// be generated. For example, `Signal<Int, NoError>` describes a signal that
+/// sends integers and is guaranteed never to error out.
 public enum NoError {}
 
 extension NoError: ErrorType {

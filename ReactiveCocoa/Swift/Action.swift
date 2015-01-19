@@ -1,5 +1,7 @@
-/// Represents an action that will perform side effects or a transformation when
-/// executed with an input.
+/// Represents an action that will do some work when executed with a value of
+/// type `Input`, then return zero or more values of type `Output` and/or error
+/// out with an error of type `Error`. If no errors should be possible, NoError
+/// can be specified for the `Error` parameter.
 ///
 /// Actions enforce serial execution. Any attempt to execute an action multiple
 /// times concurrently will return an error.

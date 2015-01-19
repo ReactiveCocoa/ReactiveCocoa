@@ -1,4 +1,6 @@
-/// A push-driven stream that sends Events over time.
+/// A push-driven stream that sends Events over time, parameterized by the type
+/// of values being sent (`T`) and the type of error that can occur (`E`). If no
+/// errors should be possible, NoError can be specified for `E`.
 ///
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the

@@ -14,7 +14,7 @@ import ReactiveCocoa
 class ActionSpec: QuickSpec {
 	override func spec() {
 		describe("Action") {
-			var action: Action<Int, String>!
+			var action: Action<Int, String, NSError>!
 			var enabled: MutableProperty<Bool>!
 
 			var executionCount = 0
@@ -22,7 +22,7 @@ class ActionSpec: QuickSpec {
 			var errors: [NSError] = []
 
 			var scheduler: TestScheduler!
-			let testError = RACError.Empty.error
+			let testError = NSError(domain: "ActionSpec", code: 1, userInfo: nil)
 
 			beforeEach {
 				executionCount = 0
@@ -60,12 +60,16 @@ class ActionSpec: QuickSpec {
 			}
 
 			it("should error if executed while disabled") {
-				var receivedError: NSError?
+				var receivedError: ActionError<NSError>?
 				action.apply(0).start(error: {
 					receivedError = $0
 				})
 
-				expect(receivedError).to(equal(RACError.ActionNotEnabled.error))
+				expect(receivedError).notTo(beNil())
+				if let error = receivedError {
+					let expectedError = ActionError<NSError>.NotEnabled
+					expect(error == expectedError).to(beTruthy())
+				}
 			}
 
 			it("should enable and disable based on the given property") {
@@ -107,7 +111,7 @@ class ActionSpec: QuickSpec {
 				}
 
 				it("should execute with an error") {
-					var receivedError: NSError?
+					var receivedError: ActionError<NSError>?
 
 					action.apply(1).start(error: {
 						receivedError = $0
@@ -120,6 +124,12 @@ class ActionSpec: QuickSpec {
 					scheduler.run()
 					expect(action.executing.value).to(beFalsy())
 					expect(action.enabled.value).to(beTruthy())
+
+					expect(receivedError).notTo(beNil())
+					if let error = receivedError {
+						let expectedError = ActionError<NSError>.ProducerError(testError)
+						expect(error == expectedError).to(beTruthy())
+					}
 
 					expect(values).to(equal([]))
 					expect(errors).to(equal([ testError ]))

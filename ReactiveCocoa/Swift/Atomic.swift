@@ -1,4 +1,3 @@
-
 //
 //  Atomic.swift
 //  ReactiveCocoa

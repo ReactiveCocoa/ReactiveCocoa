@@ -261,23 +261,6 @@ public struct SignalProducer<T, E> {
 	}
 }
 
-/// Creates a SignalProducer that will attempt the given operation once for
-/// each invocation of start().
-///
-/// If the returned value is not nil, the signal will send that value then
-/// complete. If nil is returned, the signal will send the error that was
-/// returned by reference, or RACError.Empty otherwise.
-public func try<T>(operation: NSErrorPointer -> T?) -> SignalProducer<T, NSError?> {
-	return SignalProducer.try {
-		var error: NSError?
-		if let value = operation(&error) {
-			return success(value)
-		} else {
-			return failure(error)
-		}
-	}
-}
-
 /// Applies a Signal operator to a SignalProducer (equivalent to
 /// SignalProducer.lift).
 ///

@@ -55,8 +55,7 @@ extension RACSignal {
 			}
 
 			let error = { (maybeError: NSError?) -> () in
-				let nsError = maybeError.orDefault(RACError.Empty.error)
-				sendError(observer, nsError)
+				sendError(observer, maybeError ?? RACError.Empty.error)
 			}
 
 			let completed = {

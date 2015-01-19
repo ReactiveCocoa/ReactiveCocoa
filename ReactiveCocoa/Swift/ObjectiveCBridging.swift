@@ -45,17 +45,23 @@ extension QueueScheduler {
 	}
 }
 
+private func defaultNSError(message: String, #file: String, #line: Int) -> NSError {
+	// lol hax
+	let result: Result<(), NSError> = failure(message, file: file, line: line)
+	return result.error!
+}
+
 extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
-	public func asSignalProducer() -> SignalProducer<AnyObject?, NSError?> {
+	public func asSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { (obj: AnyObject?) -> () in
 				sendNext(observer, obj)
 			}
 
 			let error = { (nsError: NSError?) -> () in
-				sendError(observer, nsError)
+				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
@@ -125,7 +131,7 @@ extension RACCommand {
 	/// Note that the returned Action will not necessarily be marked as
 	/// executing when the command is. However, the reverse is always true:
 	/// the RACCommand will always be marked as executing when the action is.
-	public func asAction() -> Action<AnyObject?, AnyObject?, NSError?> {
+	public func asAction(file: String = __FILE__, line: Int = __LINE__) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
 		self.enabled.asSignalProducer()
@@ -137,12 +143,12 @@ extension RACCommand {
 				disposable.addDisposable(bindDisposable)
 			}
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError?> in
+		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.defer {
 				return self.execute(input)
 			}
 
-			return executionSignal.asSignalProducer()
+			return executionSignal.asSignalProducer(file: file, line: line)
 		}
 	}
 }

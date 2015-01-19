@@ -3,7 +3,7 @@
 ///
 /// Actions enforce serial execution. Any attempt to execute an action multiple
 /// times concurrently will return an error.
-public final class Action<Input, Output, Error> {
+public final class Action<Input, Output, Error: ErrorType> {
 	private let executeClosure: Input -> SignalProducer<Output, Error>
 	private let valuesObserver: Signal<Output, NoError>.Observer
 	private let errorsObserver: Signal<Error, NoError>.Observer

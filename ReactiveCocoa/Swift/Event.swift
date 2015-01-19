@@ -15,7 +15,7 @@ internal func doNothing() {}
 ///
 /// Signals must conform to the grammar:
 /// `Next* (Error | Completed)?`
-public enum Event<T, E> {
+public enum Event<T, E: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Box<T>)
 

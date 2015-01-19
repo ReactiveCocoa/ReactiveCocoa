@@ -12,7 +12,7 @@ import LlamaKit
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
-public struct SignalProducer<T, E> {
+public struct SignalProducer<T, E: ErrorType> {
 	private let startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()
 
 	/// Initializes a SignalProducer that will invoke the given closure once

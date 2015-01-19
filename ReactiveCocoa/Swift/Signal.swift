@@ -11,7 +11,7 @@
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated, or until the operation which
 /// yielded the Signal (e.g., SignalProducer.start) has been cancelled.
-public final class Signal<T, E> {
+public final class Signal<T, E: ErrorType> {
 	public typealias Observer = SinkOf<Event<T, E>>
 
 	private let lock = NSRecursiveLock()

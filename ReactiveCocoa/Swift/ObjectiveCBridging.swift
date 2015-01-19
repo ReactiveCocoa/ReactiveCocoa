@@ -165,6 +165,17 @@ extension Action {
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
+public func asRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
+	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+		return asRACSignal(action.apply(input))
+	}
+}
+
+/// Creates a RACCommand that will execute the action.
+///
+/// Note that the returned command will not necessarily be marked as
+/// executing when the action is. However, the reverse is always true:
+/// the Action will always be marked as executing when the RACCommand is.
 public func asRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
 	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
 		return asRACSignal(action.apply(input))

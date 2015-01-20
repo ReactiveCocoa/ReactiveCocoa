@@ -410,10 +410,34 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 	}
 }
 
+/// Forwards events from `signal` with history: values of the returned signal
+/// are a tuple whose first member is the previous value and whose second member
+/// is the current value. `initial` is supplied as the first member when `signal`
+/// sends its first value.
+public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
+	return Signal { observer in
+		let previousValueState = Atomic<T?>(nil)
+		return signal.observe(next: { value in
+			previousValueState.modify { previousValue in
+				if let previousValue = previousValue {
+					sendNext(observer, (previousValue, value))
+				} else {
+					sendNext(observer, (initial, value))
+				}
+				return value
+			}
+			return
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 TODO
 
-public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>

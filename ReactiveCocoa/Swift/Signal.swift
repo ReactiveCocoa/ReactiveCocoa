@@ -415,7 +415,7 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 /// is the current value. `initial` is supplied as the first member when `signal`
 /// sends its first value.
 public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
-	return signal |> reduce((initial, initial)) { previousCombinedValues, newValue in
+	return signal |> scan((initial, initial)) { previousCombinedValues, newValue in
 		return (previousCombinedValues.1, newValue)
 	}
 }

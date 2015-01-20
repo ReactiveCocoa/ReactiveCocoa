@@ -418,7 +418,7 @@ public func concat<T, E>(nextSignal: Signal<T, E>)(signal: Signal<T, E>) -> Sign
 		serialDisposable.innerDisposable = signal.observe(next: { value in
 			sendNext(observer, value)
 		}, error: { error in
-			sendNext(observer, error)
+			sendError(observer, error)
 		}, completed: {
 			serialDisposable.innerDisposable = nextSignal.observe(observer)
 		})

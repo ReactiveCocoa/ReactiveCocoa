@@ -410,23 +410,6 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 	}
 }
 
-/// Appends the events of `nextSignal` to the events of `signal`.
-public func concat<T, E>(nextSignal: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		let serialDisposable = SerialDisposable()
-
-		serialDisposable.innerDisposable = signal.observe(next: { value in
-			sendNext(observer, value)
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			serialDisposable.innerDisposable = nextSignal.observe(observer)
-		})
-
-		return serialDisposable
-	}
-}
-
 /// Forwards events from `signal` until `replacement` begins sending events.
 ///
 /// Returns a signal which passes through `next`s and `error` from `signal`
@@ -434,10 +417,10 @@ public func concat<T, E>(nextSignal: Signal<T, E>)(signal: Signal<T, E>) -> Sign
 /// send that event and switch to passing through events from `replacement`
 /// instead, regardless of whether `signal` has sent events already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
-    return Signal { observer in
+	return Signal { observer in
 		let signalDisposable = SerialDisposable()
 
-        let replacementDisposable = replacement.observe(next: { value in
+		let replacementDisposable = replacement.observe(next: { value in
 			signalDisposable.dispose()
 			sendNext(observer, value)
 		}, error: { error in
@@ -447,13 +430,15 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 		})
 
 		if !signalDisposable.disposed {
-			signalDisposable.innerDisposable = signal
-				|> concat(Signal.never)
-				|> observe(observer)
+			signalDisposable.innerDisposable = signal.observe(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				sendError(observer, error)
+			})
 		}
 
-		return CompositeDisposable([signalDisposable, replacementDisposable])
-    }
+		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+	}
 }
 
 /*

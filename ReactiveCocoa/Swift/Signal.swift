@@ -434,18 +434,12 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 /// first argument when the next value is emitted, and so on.
 public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
-		let accumulatorState = Atomic(initial)
-		return signal.observe(next: { value in
-			accumulatorState.modify { accumulator in
-				let newAccumulatorValue = combine(accumulator, value)
-				sendNext(observer, newAccumulatorValue)
-				return newAccumulatorValue
-			}
-			return
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
+		var accumulator = initial
+		return signal.observe(Signal.Observer { event in
+			observer.put(event.map { value in
+				accumulator = combine(accumulator, value)
+				return accumulator
+			})
 		})
 	}
 }
@@ -477,16 +471,12 @@ public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) ->
 /// at which point the returned signal behaves exactly like `signal`.
 public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let isSkipping = Atomic(true)
+		var shouldSkip = true
 		return signal.observe(next: { value in
-			isSkipping.modify { wasSkipping in
-				var shouldSkip = wasSkipping && predicate(value)
-				if !shouldSkip {
-					sendNext(observer, value)
-				}
-				return shouldSkip
+			shouldSkip = shouldSkip && predicate(value)
+			if !shouldSkip {
+				sendNext(observer, value)
 			}
-			return
 		}, error: { error in
 			sendError(observer, error)
 		}, completed: {
@@ -499,27 +489,19 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// on the returned signal.
 public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 	return Signal { observer in
-		let buffer = Atomic<[T]>({
-			var bufferArray = [T]()
-			bufferArray.reserveCapacity(count)
-			return bufferArray
-		}())
-		
+		var buffer = [T]()
+		buffer.reserveCapacity(count)
+
 		return signal.observe(next: { value in
-			buffer.modify { oldBuffer in
-				var newBuffer = oldBuffer
-				newBuffer.append(value)
-				
-				while newBuffer.count > count {
-					newBuffer.removeAtIndex(0)
-				}
-				return newBuffer
+			buffer.append(value)
+
+			while buffer.count > count {
+				buffer.removeAtIndex(0)
 			}
-			return
 		}, error: { error in
 			sendError(observer, error)
 		}, completed: {
-			for bufferedValue in buffer.value {
+			for bufferedValue in buffer {
 				sendNext(observer, bufferedValue)
 			}
 			

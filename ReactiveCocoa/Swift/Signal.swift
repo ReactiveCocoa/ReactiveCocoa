@@ -442,10 +442,88 @@ public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>
 				return newAccumulatorValue
 			}
 			return
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				sendCompleted(observer)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
+/// Forwards only those values from `signal` which are not duplicates of the
+/// immedately preceding value. The first value is always forwarded.
+public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> skipRepeats { $0 == $1 }
+}
+
+/// Forwards only those values from `signal` which do not pass `isRepeat` with
+/// respect to the previous value. The first value is always forwarded.
+public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal
+		|> map { Optional($0) }
+		|> combinePrevious(nil)
+		|> filter {
+			switch $0 {
+			case let (.Some(a), .Some(b)) where isRepeat(a, b):
+				return false
+			default:
+				return true
+			}
+		}
+		|> map { $0.1! }
+}
+
+/// Does not forward any values from `signal` until `predicate` returns false,
+/// at which point the returned signal behaves exactly like `signal`.
+public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		let isSkipping = Atomic(true)
+		return signal.observe(next: { value in
+			isSkipping.modify { wasSkipping in
+				var shouldSkip = wasSkipping && predicate(value)
+				if !shouldSkip {
+					sendNext(observer, value)
+				}
+				return shouldSkip
+			}
+			return
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
+/// Waits until `signal` completes and then forwards the final `count` values
+/// on the returned signal.
+public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
+	return Signal { observer in
+		let buffer = Atomic<[T]>({
+			var bufferArray = [T]()
+			bufferArray.reserveCapacity(count)
+			return bufferArray
+		}())
+		
+		return signal.observe(next: { value in
+			buffer.modify { oldBuffer in
+				var newBuffer = oldBuffer
+				newBuffer.append(value)
+				
+				while newBuffer.count > count {
+					newBuffer.removeAtIndex(0)
+				}
+				return newBuffer
+			}
+			return
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			for bufferedValue in buffer.value {
+				sendNext(observer, bufferedValue)
+			}
+			
+			sendCompleted(observer)
 		})
 	}
 }
@@ -453,10 +531,6 @@ public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>
 /*
 TODO
 
-public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
-public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
-public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func takeUntilReplacement<T>(replacement: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>

@@ -415,22 +415,37 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 /// is the current value. `initial` is supplied as the first member when `signal`
 /// sends its first value.
 public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
+	return signal |> reduce((initial, initial)) { previousCombinedValues, newValue in
+		return (previousCombinedValues.1, newValue)
+	}
+}
+
+/// Like `scan`, but sends only the final value and then immediately completes.
+public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
+	return signal
+		|> scan(initial, combine)
+		|> takeLast(1)
+}
+
+/// Aggregates `signal`'s values into a single combined value. When `signal` emits
+/// its first value, `combine` is invoked with `initial` as the first argument and
+/// that emitted value as the second argument. The result is emitted from the
+/// signal returned from `reduce`. That result is then passed to `combine` as the
+/// first argument when the next value is emitted, and so on.
+public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
-		let previousValueState = Atomic<T?>(nil)
+		let accumulatorState = Atomic(initial)
 		return signal.observe(next: { value in
-			previousValueState.modify { previousValue in
-				if let previousValue = previousValue {
-					sendNext(observer, (previousValue, value))
-				} else {
-					sendNext(observer, (initial, value))
-				}
-				return value
+			accumulatorState.modify { accumulator in
+				let newAccumulatorValue = combine(accumulator, value)
+				sendNext(observer, newAccumulatorValue)
+				return newAccumulatorValue
 			}
 			return
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				sendCompleted(observer)
 		})
 	}
 }
@@ -438,8 +453,6 @@ public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T
 /*
 TODO
 
-public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
 public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>

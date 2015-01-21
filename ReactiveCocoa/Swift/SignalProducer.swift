@@ -425,17 +425,127 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 	}
 }
 
+/// Returns a signal which sends all the values from each signal emitted from
+/// `producer`, waiting until each inner signal completes before beginning to
+/// send the values from the next inner signal.
+///
+/// If any of the inner signals emit an error, the returned signal will emit
+/// that error.
+///
+/// The returned signal completes only when `producer` and all signals
+/// emitted from `producer` complete.
+public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer { observer, disposable in
+		let state = Atomic(ConcatState<T, E>())
+		
+		/// Subscribes to the given signal producer.
+		var subscribeToSignalProducer: (SignalProducer<T, E> -> Void)?
+		
+		/// Sends completed to the subscriber if all signals are finished.
+		let completeIfAllowed = { (concatState: ConcatState<T, E>) -> Void in
+			if concatState.selfCompleted && concatState.activeDisposables.count == 0 {
+				sendCompleted(observer)
+				
+				// A strong reference is held to `subscribeToSignalProducer` until
+				// completion, preventing it from deallocating early.
+				subscribeToSignalProducer = nil
+			}
+		}
+		
+		subscribeToSignalProducer = Z { recur, signalProducer in
+			let serialDisposable = SerialDisposable()
+			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+			state.modify { oldState in
+				var newState = oldState
+				newState.activeDisposables.append(serialDisposable)
+				return newState
+			}
+			
+			serialDisposable.innerDisposable = signalProducer.start(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				var nextSignalProducer: SignalProducer<T, E>?
+				
+				serialDisposableCompositeHandle.remove()
+				state.modify { oldState in
+					var newState = oldState
+					newState.activeDisposables.filter { $0 !== serialDisposable }
+					if newState.queuedSignalProducers.count == 0 {
+						completeIfAllowed(newState)
+					} else {
+						nextSignalProducer = newState.queuedSignalProducers[0]
+						newState.queuedSignalProducers.removeAtIndex(0)
+					}
+					return newState
+				}
+				
+				if let nextSignalProducer = nextSignalProducer {
+					recur(nextSignalProducer)
+				}
+			})
+		}
+		
+		producer.startWithSignal { signal, signalDisposable in
+			let outerSignalDisposable = signal.observe(next: { innerSignalProducer in
+				var shouldSubscribe: Bool = true
+				state.modify { oldState in
+					if oldState.activeDisposables.count >= 1 {
+						var newState = oldState
+						newState.queuedSignalProducers.append(innerSignalProducer)
+						shouldSubscribe = false
+						return newState
+					} else {
+						return oldState
+					}
+				}
+				
+				if shouldSubscribe {
+					subscribeToSignalProducer!(innerSignalProducer)
+				}
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				sendCompleted(observer)
+			})
+				
+			disposable.addDisposable(outerSignalDisposable)
+		}
+	}
+}
+
+private struct ConcatState<T, E: ErrorType> {
+	/// Whether the signal-of-signals has completed yet.
+	var selfCompleted = false
+	
+	/// The signals waiting to be started.
+	var queuedSignalProducers = Array<SignalProducer<T, E>>()
+	
+	/// Contains disposables for the currently active subscriptions.
+	var activeDisposables = Array<SerialDisposable>()
+}
+
+/// The Z combinator, which we use to make a recursive closure that we can
+/// nil out to avoid a retain cycle.
+private func Z<T, U>(f: (T -> U, T) -> U)(x: T) -> U {
+	return f(Z(f), x)
+}
+
+/// `concat`s `next` onto `producer`.
+public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	return SignalProducer(values: [producer, next]) |> concat
+}
+
 /*
 TODO
 
-public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
-public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>

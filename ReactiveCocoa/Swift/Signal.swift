@@ -421,10 +421,27 @@ public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T
 }
 
 /// Like `scan`, but sends only the final value and then immediately completes.
+/// If `signal` completes before you observe the resulting signal, the resulting
+/// signal may send no values before completing.
 public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
-	return signal
-		|> scan(initial, combine)
+	// We need to handle the special case in which `signal` sends no values.
+	// We'll do that by sending `initial` on the resulting signal (before taking
+	// the last value).
+	let scannedSignal = signal |> scan(initial, combine)
+	let (liftingProducerForScannedSignal, liftingProducerSink: Signal<U, E>.Observer) = SignalProducer.buffer(0)
+	let liftingDisposable = scannedSignal.observe(liftingProducerSink)
+	
+	var outputSignal: Signal<U, E>!
+	let producerOfLastValue = SignalProducer(value: initial)
+		|> concat(liftingProducerForScannedSignal)
 		|> takeLast(1)
+	producerOfLastValue.startWithSignal { startedOutputSignal, disposable in
+		disposable.addDisposable(liftingDisposable)
+		outputSignal = startedOutputSignal
+		// No guarantee here that outputSignal won't already have completed by
+		// the time the caller observes it.
+	}
+	return outputSignal
 }
 
 /// Aggregates `signal`'s values into a single combined value. When `signal` emits

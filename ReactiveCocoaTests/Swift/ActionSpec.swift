@@ -136,5 +136,64 @@ class ActionSpec: QuickSpec {
 				}
 			}
 		}
+
+		describe("CocoaAction") {
+			var action: Action<Int, Int, NoError>!
+			var cocoaAction: CocoaAction!
+
+			beforeEach {
+				action = Action { value in SignalProducer(value: value + 1) }
+
+				cocoaAction = CocoaAction(action, input: 0)
+				expect(cocoaAction.enabled).toEventually(beTruthy())
+			}
+
+			#if os(OSX)
+				it("should be compatible with AppKit") {
+					let control = NSControl(frame: NSZeroRect)
+					control.target = cocoaAction
+					control.action = CocoaAction.selector
+					control.performClick(nil)
+				}
+			#elseif os(iOS)
+				it("should be compatible with UIKit") {
+					let control = UIControl(frame: CGRectZero)
+					control.addTarget(cocoaAction, action: cocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
+					control.sendActionsForControlEvents(UIControlEvents.TouchDown)
+				}
+			#endif
+
+			it("should generate KVO notifications for enabled") {
+				var values: [Bool] = []
+
+				cocoaAction
+					.rac_valuesForKeyPath("enabled", observer: nil)
+					.asSignalProducer()
+					|> map { $0! as Bool }
+					|> start(Event.sink(next: { values.append($0) }))
+
+				expect(values).to(equal([ true ]))
+
+				let result = action.apply(0) |> first
+				expect(result?.value).to(equal(1))
+				expect(values).toEventually(equal([ true, false, true ]))
+			}
+
+			it("should generate KVO notifications for executing") {
+				var values: [Bool] = []
+
+				cocoaAction
+					.rac_valuesForKeyPath("executing", observer: nil)
+					.asSignalProducer()
+					|> map { $0! as Bool }
+					|> start(Event.sink(next: { values.append($0) }))
+
+				expect(values).to(equal([ false ]))
+
+				let result = action.apply(0) |> first
+				expect(result?.value).to(equal(1))
+				expect(values).toEventually(equal([ false, true, false ]))
+			}
+		}
 	}
 }

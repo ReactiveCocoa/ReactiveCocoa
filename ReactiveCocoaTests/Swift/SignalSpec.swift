@@ -13,7 +13,7 @@ import ReactiveCocoa
 
 class SignalSpec: QuickSpec {
 	override func spec() {
-		describe("Signal.init") {
+		describe("init") {
 			pending("should run the generator immediately") {
 			}
 
@@ -28,9 +28,15 @@ class SignalSpec: QuickSpec {
 
 			pending("should forward events to observers") {
 			}
+
+			pending("should dispose of returned disposable upon error") {
+			}
+
+			pending("should dispose of returned disposable upon completion") {
+			}
 		}
 
-		describe("pipe()") {
+		describe("Signal.pipe") {
 			pending("should keep signal alive if not terminated") {
 			}
 

@@ -404,6 +404,8 @@
 		D0A226091A72E0E900D33B74 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A226071A72E0E900D33B74 /* SignalSpec.swift */; };
 		D0A2260B1A72E6C500D33B74 /* SignalProducerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */; };
 		D0A2260C1A72E6C500D33B74 /* SignalProducerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */; };
+		D0A2260E1A72F16D00D33B74 /* PropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */; };
+		D0A2260F1A72F16D00D33B74 /* PropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */; };
 		D0C312CD19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CE19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CF19EF2A5800984962 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
@@ -756,6 +758,7 @@
 		D08C54B51A69A3DB00AD8286 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		D0A226071A72E0E900D33B74 /* SignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalSpec.swift; sourceTree = "<group>"; };
 		D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerSpec.swift; sourceTree = "<group>"; };
+		D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertySpec.swift; sourceTree = "<group>"; };
 		D0C312BB19EF2A5800984962 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		D0C312BC19EF2A5800984962 /* Bag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bag.swift; sourceTree = "<group>"; };
 		D0C312BE19EF2A5800984962 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
@@ -1274,6 +1277,7 @@
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
+				D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
 				D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */,
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
@@ -1670,6 +1674,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0A2260E1A72F16D00D33B74 /* PropertySpec.swift in Sources */,
 				D03766C719EDA60000A782A9 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				D03766E319EDA60000A782A9 /* RACDelegateProxySpec.m in Sources */,
 				D021671D1A6CD50500987861 /* ActionSpec.swift in Sources */,
@@ -1839,6 +1844,7 @@
 				D03766C819EDA60000A782A9 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				D037672419EDA60000A782A9 /* UIImagePickerControllerRACSupportSpec.m in Sources */,
 				D03766E419EDA60000A782A9 /* RACDelegateProxySpec.m in Sources */,
+				D0A2260F1A72F16D00D33B74 /* PropertySpec.swift in Sources */,
 				D03766FA19EDA60000A782A9 /* RACSerialDisposableSpec.m in Sources */,
 				D0A226091A72E0E900D33B74 /* SignalSpec.swift in Sources */,
 				D037670C19EDA60000A782A9 /* RACTargetQueueSchedulerSpec.m in Sources */,

@@ -406,6 +406,8 @@
 		D0A2260C1A72E6C500D33B74 /* SignalProducerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */; };
 		D0A2260E1A72F16D00D33B74 /* PropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */; };
 		D0A2260F1A72F16D00D33B74 /* PropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */; };
+		D0A226111A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */; };
+		D0A226121A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */; };
 		D0C312CD19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CE19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CF19EF2A5800984962 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
@@ -759,6 +761,7 @@
 		D0A226071A72E0E900D33B74 /* SignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalSpec.swift; sourceTree = "<group>"; };
 		D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerSpec.swift; sourceTree = "<group>"; };
 		D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertySpec.swift; sourceTree = "<group>"; };
+		D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
 		D0C312BB19EF2A5800984962 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		D0C312BC19EF2A5800984962 /* Bag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bag.swift; sourceTree = "<group>"; };
 		D0C312BE19EF2A5800984962 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
@@ -1277,6 +1280,7 @@
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
+				D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
 				D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */,
@@ -1720,6 +1724,7 @@
 				D03766D319EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m in Sources */,
 				D03766C119EDA60000A782A9 /* NSObjectRACAppKitBindingsSpec.m in Sources */,
 				D03766DB19EDA60000A782A9 /* RACChannelSpec.m in Sources */,
+				D0A226111A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D03766D919EDA60000A782A9 /* RACChannelExamples.m in Sources */,
 				D03766F519EDA60000A782A9 /* RACSequenceExamples.m in Sources */,
 				D03766B919EDA60000A782A9 /* NSControllerRACSupportSpec.m in Sources */,
@@ -1854,6 +1859,7 @@
 				D021671E1A6CD50500987861 /* ActionSpec.swift in Sources */,
 				D03766E819EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F819EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
+				D0A226121A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D037671E19EDA60000A782A9 /* UIBarButtonItemRACSupportSpec.m in Sources */,
 				D03766CA19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D0C3132319EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,

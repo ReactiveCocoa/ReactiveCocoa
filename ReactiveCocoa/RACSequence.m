@@ -365,38 +365,16 @@
 }
 
 + (instancetype)generateWithStart:(id)state
-                          iterate:(id (^)(id value))iterate
-                              map:(id (^)(id value))transform
-                            until:(BOOL (^)(id x))predicate
+						  iterate:(id (^)(id value))iterate
 {
 	NSCParameterAssert(iterate != NULL);
 
-    RACSequence *sequence;
-
-    if(predicate != NULL && predicate(state)) {
-        sequence = [RACSequence empty];
-    } else {
-        sequence = [RACSequence sequenceWithHeadBlock: ^{
-            return transform != NULL ? transform(state) : state;
-        } tailBlock: ^{
-            return [RACSequence generateWithStart:iterate(state)
-                                          iterate:iterate
-                                              map:transform
-                                            until:predicate];
-        }];
-    }
-
-    return sequence;
-}
-
-+ (instancetype)generateWithStart:(id)start iterate:(id (^)(id value))iterate until:(BOOL (^)(id x))predicate
-{
-    return [self generateWithStart:start iterate:iterate map:NULL until:predicate];
-}
-
-+ (instancetype)generateWithStart:(id)start iterate:(id (^)(id value))iterate
-{
-    return [self generateWithStart:start iterate:iterate map:NULL until:NULL];
+	return [RACSequence sequenceWithHeadBlock: ^{
+			return state;
+		} tailBlock: ^{
+			return [RACSequence generateWithStart:iterate(state)
+										  iterate:iterate];
+		}];
 }
 
 @end

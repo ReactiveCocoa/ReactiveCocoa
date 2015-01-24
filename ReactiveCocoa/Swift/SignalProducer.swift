@@ -486,7 +486,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		}
 		
 		producer.startWithSignal { signal, signalDisposable in
-			let outerSignalDisposable = signal.observe(next: { innerSignalProducer in
+			signal.observe(next: { innerSignalProducer in
 				var shouldSubscribe: Bool = true
 				state.modify { (var state) in
 					if state.activeDisposables.count >= 1 {
@@ -507,7 +507,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				sendCompleted(observer)
 			})
 				
-			disposable.addDisposable(outerSignalDisposable)
+			disposable.addDisposable(signalDisposable)
 		}
 	}
 }

@@ -500,11 +500,13 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 		buffer.reserveCapacity(count)
 
 		return signal.observe(next: { value in
-			buffer.append(value)
-
-			while buffer.count > count {
+			// To avoid exceeding the reserved capacity of the buffer, we remove then add.
+			// Remove elements until we have room to add one more.
+			while (buffer.count + 1) > count {
 				buffer.removeAtIndex(0)
 			}
+
+			buffer.append(value)
 		}, error: { error in
 			sendError(observer, error)
 		}, completed: {

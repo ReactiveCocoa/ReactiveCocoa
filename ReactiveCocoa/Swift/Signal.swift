@@ -428,7 +428,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
 	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
 	sendNext(outputSignalObserver, initial)
-	// TODO handle disposable
+	// TODO entangle this observation's disposable with the returned signal. Not clear how.
 	(signal |> scan(initial, combine)).observe(outputSignalObserver)
 	return outputSignal
 }

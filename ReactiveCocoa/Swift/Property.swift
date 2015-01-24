@@ -131,12 +131,9 @@ FIXME: DISABLED DUE TO COMPILER BUG
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
 ///
-/// The created signal MUST NOT send an error. The behavior of doing so is
-/// undefined.
-///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>) -> Disposable {
+public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -150,8 +147,6 @@ public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>) ->
 		signal.observe(next: { [weak property] value in
 			property?.value = value
 			return
-		}, error: { error in
-			fatalError("Unhandled error in MutableProperty <~ SignalProducer binding: \(error)")
 		}, completed: {
 			disposable.dispose()
 		})

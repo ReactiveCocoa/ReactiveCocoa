@@ -504,7 +504,12 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {
-				sendCompleted(observer)
+				state.modify { (var state) in
+					state.selfCompleted = true
+					completeIfAllowed(state)
+					return state
+				}
+				return
 			})
 				
 			disposable.addDisposable(signalDisposable)

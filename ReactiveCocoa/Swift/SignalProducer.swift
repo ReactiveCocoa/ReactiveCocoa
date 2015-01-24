@@ -522,10 +522,10 @@ private struct ConcatState<T, E: ErrorType> {
 	var selfCompleted = false
 	
 	/// The signals waiting to be started.
-	var queuedSignalProducers = Array<SignalProducer<T, E>>()
+	var queuedSignalProducers: [SignalProducer<T, E>] = []
 	
 	/// Contains disposables for the currently active subscriptions.
-	var activeDisposables = Array<SerialDisposable>()
+	var activeDisposables: [SerialDisposable] = []
 }
 
 /// The Z combinator, which we use to make a recursive closure that we can

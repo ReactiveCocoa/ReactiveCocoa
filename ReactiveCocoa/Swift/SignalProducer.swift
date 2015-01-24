@@ -441,14 +441,19 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		/// Subscribes to the given signal producer.
 		var subscribeToSignalProducer: (SignalProducer<T, E> -> Void)?
 		
-		/// Sends completed to the subscriber if all signals are finished.
-		let completeIfAllowed = { (concatState: ConcatState<T, E>) -> Void in
-			if concatState.selfCompleted && concatState.activeDisposables.count == 0 {
+		/// Sends completed to the subscriber if all signals are finished. Returns whether
+		/// the outer signal was completed.
+		let completeIfAllowed = { (concatState: ConcatState<T, E>) -> Bool in
+			if concatState.selfCompleted && concatState.latestSignalCompleted {
 				sendCompleted(observer)
 				
 				// A strong reference is held to `subscribeToSignalProducer` until
 				// completion, preventing it from deallocating early.
 				subscribeToSignalProducer = nil
+
+				return true
+			} else {
+				return false
 			}
 		}
 		
@@ -456,7 +461,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			let serialDisposable = SerialDisposable()
 			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
 			state.modify { (var state) in
-				state.activeDisposables.append(serialDisposable)
+				state.latestSignalCompleted = false
 				return state
 			}
 			
@@ -469,10 +474,9 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				
 				serialDisposableCompositeHandle.remove()
 				state.modify { (var state) in
-					state.activeDisposables.filter { $0 !== serialDisposable }
-					if state.queuedSignalProducers.count == 0 {
-						completeIfAllowed(state)
-					} else {
+					state.latestSignalCompleted = true
+					let outerSignalIsComplete = completeIfAllowed(state)
+					if !outerSignalIsComplete {
 						nextSignalProducer = state.queuedSignalProducers[0]
 						state.queuedSignalProducers.removeAtIndex(0)
 					}
@@ -489,7 +493,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			signal.observe(next: { innerSignalProducer in
 				var shouldSubscribe: Bool = true
 				state.modify { (var state) in
-					if state.activeDisposables.count >= 1 {
+					if !state.latestSignalCompleted {
 						state.queuedSignalProducers.append(innerSignalProducer)
 						shouldSubscribe = false
 						return state
@@ -524,8 +528,8 @@ private struct ConcatState<T, E: ErrorType> {
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []
 	
-	/// Contains disposables for the currently active subscriptions.
-	var activeDisposables: [SerialDisposable] = []
+	/// Indicates whether the most recently processed inner signal has completed yet.
+	var latestSignalCompleted: Bool = true
 }
 
 /// The Z combinator, which we use to make a recursive closure that we can

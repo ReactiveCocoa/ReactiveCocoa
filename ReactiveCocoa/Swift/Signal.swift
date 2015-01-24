@@ -421,8 +421,6 @@ public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T
 }
 
 /// Like `scan`, but sends only the final value and then immediately completes.
-/// If `signal` completes before you observe the resulting signal, the resulting
-/// signal may send no values before completing.
 public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
 	// We need to handle the special case in which `signal` sends no values.
 	// We'll do that by sending `initial` on the output signal (before taking

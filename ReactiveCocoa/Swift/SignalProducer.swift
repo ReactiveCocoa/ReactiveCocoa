@@ -455,10 +455,9 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		subscribeToSignalProducer = Z { recur, signalProducer in
 			let serialDisposable = SerialDisposable()
 			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
-			state.modify { oldState in
-				var newState = oldState
-				newState.activeDisposables.append(serialDisposable)
-				return newState
+			state.modify { (var state) in
+				state.activeDisposables.append(serialDisposable)
+				return state
 			}
 			
 			serialDisposable.innerDisposable = signalProducer.start(next: { value in
@@ -469,16 +468,15 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				var nextSignalProducer: SignalProducer<T, E>?
 				
 				serialDisposableCompositeHandle.remove()
-				state.modify { oldState in
-					var newState = oldState
-					newState.activeDisposables.filter { $0 !== serialDisposable }
-					if newState.queuedSignalProducers.count == 0 {
-						completeIfAllowed(newState)
+				state.modify { (var state) in
+					state.activeDisposables.filter { $0 !== serialDisposable }
+					if state.queuedSignalProducers.count == 0 {
+						completeIfAllowed(state)
 					} else {
-						nextSignalProducer = newState.queuedSignalProducers[0]
-						newState.queuedSignalProducers.removeAtIndex(0)
+						nextSignalProducer = state.queuedSignalProducers[0]
+						state.queuedSignalProducers.removeAtIndex(0)
 					}
-					return newState
+					return state
 				}
 				
 				if let nextSignalProducer = nextSignalProducer {
@@ -490,14 +488,13 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		producer.startWithSignal { signal, signalDisposable in
 			let outerSignalDisposable = signal.observe(next: { innerSignalProducer in
 				var shouldSubscribe: Bool = true
-				state.modify { oldState in
-					if oldState.activeDisposables.count >= 1 {
-						var newState = oldState
-						newState.queuedSignalProducers.append(innerSignalProducer)
+				state.modify { (var state) in
+					if state.activeDisposables.count >= 1 {
+						state.queuedSignalProducers.append(innerSignalProducer)
 						shouldSubscribe = false
-						return newState
+						return state
 					} else {
-						return oldState
+						return state
 					}
 				}
 				

@@ -34,14 +34,14 @@ public struct PropertyOf<T>: PropertyType {
 }
 
 /// A property that never changes.
-internal struct ConstantProperty<T>: PropertyType {
+public struct ConstantProperty<T>: PropertyType {
 	typealias Value = T
 
-	let value: T
-	let producer: SignalProducer<T, NoError>
+	public let value: T
+	public let producer: SignalProducer<T, NoError>
 
 	/// Initializes the property to have the given value.
-	init(_ value: T) {
+	public init(_ value: T) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
 	}

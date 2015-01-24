@@ -144,6 +144,22 @@
 /// tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
 
+/// Generate a sequence from start value and iterate block.
+///
+/// This method creates a sequence from an initial value and an
+/// iterate block, which calculate the next value.
+///
+/// The method corresponds to Rx `IObservable.Generate`.
+///
+/// The resulting sequence is inifinite and can be terminated by other
+/// means, i.e. `-take:` or `-takeUntilBlock:` if necessary.
+///
+/// state     – Initial state value.
+/// iterate   – Invoked on state to calculate the next state.
+///
+/// Returns a lazy sequence.
++ (instancetype)generateWithStart:(id)state iterate:(id (^)(id value))iterate;
+
 @end
 
 @interface RACSequence (Deprecated)

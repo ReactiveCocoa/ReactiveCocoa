@@ -364,6 +364,19 @@
 	return (seq.head == nil);
 }
 
++ (instancetype)generateWithStart:(id)state
+						  iterate:(id (^)(id value))iterate
+{
+	NSCParameterAssert(iterate != NULL);
+
+	return [RACSequence sequenceWithHeadBlock: ^{
+			return state;
+		} tailBlock: ^{
+			return [RACSequence generateWithStart:iterate(state)
+										  iterate:iterate];
+		}];
+}
+
 @end
 
 @implementation RACSequence (Deprecated)

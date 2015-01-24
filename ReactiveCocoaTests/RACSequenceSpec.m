@@ -96,6 +96,19 @@ qck_describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 });
 
+qck_describe(@"-generateWithStart:iterate:", ^{
+    qck_it(@"should generate sequence", ^{
+        RACSequence *sequence = [RACSequence generateWithStart:@1
+                                                       iterate: ^ (NSNumber *number) {
+                                                           return @(number.integerValue * 2);
+                                                       }];
+
+        NSArray *result = [[sequence take:6] array];
+
+        expect(result).to(equal(@[@1, @2, @4, @8, @16, @32]));
+    });
+});
+
 qck_describe(@"empty sequences", ^{
 	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{

@@ -144,6 +144,52 @@
 /// tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
 
+/// Generate sequence from start value and iterate block.
+///
+/// This method creates a sequence from an initial state and an
+/// interate block, which calculate the next state value. The
+/// predicate block test the state value and terminates the sequence
+/// if true. The state value is transformed to a result value if a
+/// transform block is given.
+///
+/// The method corresponds to Rx `IObservable.Generate`.
+///
+/// start     – Initial state value.
+/// until     – Invoke on state to test if the sequence ends. Optional.
+/// iterate   – Invoked on state to calculate the next state.
+/// transform – Invoked to map state to result value. Optional.
+///
+/// Returns a lazy sequence.
++ (instancetype)generateWithStart:(id)state iterate:(id (^)(id value))iterate map:(id (^)(id value))transform until:(BOOL (^)(id x))predicate;
+
+/// Generate a sequence from start value and iterate block.
+///
+/// This method is equivalent to
+/// `+generateWithStart:iterate:map:until:`, but doesn't transform the
+/// state values.
+///
+/// state     – Initial state value.
+/// until     – Invoke on state to test if the sequence ends. Optional.
+/// iterate   – Invoked on state to calculate the next state.
+///
+/// Returns a lazy sequence.
++ (instancetype)generateWithStart:(id)state iterate:(id (^)(id value))iterate until:(BOOL (^)(id x))predicate;
+
+/// Generate a sequence from start value and iterate block.
+///
+/// This method is equivalent to
+/// `+generateWithStart:iterate:map:until:`, but doesn't terminate the
+/// sequence nor transforms the state values.
+///
+/// The resulting sequence is inifinite and can be terminated by other
+/// means, i.e. `-take:` or `-takeUntilBlock:` if necessary.
+///
+/// state     – Initial state value.
+/// iterate   – Invoked on state to calculate the next state.
+///
+/// Returns a lazy sequence.
++ (instancetype)generateWithStart:(id)state iterate:(id (^)(id value))iterate;
+
 @end
 
 @interface RACSequence (Deprecated)

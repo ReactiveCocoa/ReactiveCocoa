@@ -96,6 +96,51 @@ qck_describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 });
 
+qck_describe(@"-generateWithStart:iterate:map:until:", ^{
+    qck_it(@"should generate and terminate sequence", ^{
+        RACSequence *sequence = [RACSequence generateWithStart:@1
+                                                       iterate: ^ (NSNumber *number) {
+                                                           return @(number.integerValue * 2);
+                                                       } map: ^ (NSNumber *input) {
+                                                           return @(input.integerValue + 1);
+                                                       } until: ^ BOOL (NSNumber *number) {
+                                                           return number.integerValue > 10;
+                                                       }];
+
+        NSArray *result = [sequence array];
+
+        expect(result).to(equal(@[@2, @3, @5, @9]));
+    });
+});
+
+qck_describe(@"-generateWithStart:iterate:until:", ^{
+    qck_it(@"should generate and terminate sequence", ^{
+        RACSequence *sequence = [RACSequence generateWithStart:@1
+                                                       iterate: ^ (NSNumber *number) {
+                                                           return @(number.integerValue * 2);
+                                                       } until: ^ BOOL (NSNumber *number) {
+                                                           return number.integerValue > 10;
+                                                       }];
+
+        NSArray *result = [sequence array];
+
+        expect(result).to(equal(@[@1, @2, @4, @8]));
+    });
+});
+
+qck_describe(@"-generateWithStart:iterate:", ^{
+    qck_it(@"should generate sequence", ^{
+        RACSequence *sequence = [RACSequence generateWithStart:@1
+                                                       iterate: ^ (NSNumber *number) {
+                                                           return @(number.integerValue * 2);
+                                                       }];
+
+        NSArray *result = [[sequence take:6] array];
+
+        expect(result).to(equal(@[@1, @2, @4, @8, @16, @32]));
+    });
+});
+
 qck_describe(@"empty sequences", ^{
 	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{

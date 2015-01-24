@@ -425,12 +425,11 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 	// We need to handle the special case in which `signal` sends no values.
 	// We'll do that by sending `initial` on the output signal (before taking
 	// the last value).
-	let (signalWithInitialValue, outputSignalObserver) = Signal.pipe()
-	let outputSignal = signalWithInitialValue
-		|> scan(initial, combine)
-		|> takeLast(1)
-	outputSignalObserver.put(initial)
-	signal.observe(outputSignalObserver)
+	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
+	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
+	sendNext(outputSignalObserver, initial)
+	// TODO handle disposable
+	(signal |> scan(initial, combine)).observe(outputSignalObserver)
 	return outputSignal
 }
 

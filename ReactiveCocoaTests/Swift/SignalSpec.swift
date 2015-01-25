@@ -97,7 +97,33 @@ class SignalSpec: QuickSpec {
 				expect(dealloced).to(beTrue())
 			}
 
-			pending("should forward events to observers") {
+			it("should forward events to observers") {
+				let numbers = [ 1, 2, 5 ]
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var fromSignal: [Int] = []
+				
+				signal.observe(
+					next: { number in
+						fromSignal.append(number)
+					},
+					error: { _ in },
+					completed: {}
+				)
+				
+				expect(fromSignal).to(beEmpty())
+				
+				testScheduler.run()
+				
+				expect(fromSignal).toEventually(equal(numbers))
 			}
 
 			pending("should dispose of returned disposable upon error") {

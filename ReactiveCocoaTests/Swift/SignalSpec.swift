@@ -15,6 +15,11 @@ class SignalSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
 			let testError = NSError(domain: "SignalSpec", code: 1, userInfo: nil)
+			var testScheduler: TestScheduler!
+			
+			beforeEach {
+				testScheduler = TestScheduler()
+			}
 			
 			it("should run the generator immediately") {
 				var didRunGenerator = false
@@ -35,11 +40,10 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate after erroring") {
-				let scheduler = TestScheduler()
 				var dealloced = false
 				
 				let signal: Signal<Int, NSError> = Signal { observer in
-					scheduler.schedule {
+					testScheduler.schedule {
 						sendError(observer, testError)
 					}
 					return ActionDisposable {
@@ -58,18 +62,17 @@ class SignalSpec: QuickSpec {
 				expect(errored).to(beFalse())
 				expect(dealloced).to(beFalse())
 				
-				scheduler.run()
+				testScheduler.run()
 				
 				expect(errored).to(beTrue())
 				expect(dealloced).to(beTrue())
 			}
 
 			it("should deallocate after completing") {
-				let scheduler = TestScheduler()
 				var dealloced = false
 				
 				let signal: Signal<Int, NSError> = Signal { observer in
-					scheduler.schedule {
+					testScheduler.schedule {
 						sendCompleted(observer)
 					}
 					return ActionDisposable {
@@ -88,7 +91,7 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beFalse())
 				expect(dealloced).to(beFalse())
 				
-				scheduler.run()
+				testScheduler.run()
 				
 				expect(completed).to(beTrue())
 				expect(dealloced).to(beTrue())

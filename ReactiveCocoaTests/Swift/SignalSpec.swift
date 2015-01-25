@@ -14,16 +14,84 @@ import ReactiveCocoa
 class SignalSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
-			pending("should run the generator immediately") {
+			let testError = NSError(domain: "SignalSpec", code: 1, userInfo: nil)
+			
+			it("should run the generator immediately") {
+				var didRunGenerator = false
+				Signal<Int, NoError> { observer in
+					didRunGenerator = true
+					return nil
+				}
+				
+				expect(didRunGenerator).to(beTrue())
 			}
 
-			pending("should keep signal alive if not terminated") {
+			it("should keep signal alive if not terminated") {
+				let signal: Signal<Int, NoError> = Signal { observer in
+					return nil
+				}
+				
+				expect(signal).toNot(beNil())
 			}
 
-			pending("should deallocate after erroring") {
+			it("should deallocate after erroring") {
+				let scheduler = TestScheduler()
+				var dealloced = false
+				
+				let signal: Signal<Int, NSError> = Signal { observer in
+					scheduler.schedule {
+						sendError(observer, testError)
+					}
+					return ActionDisposable {
+						dealloced = true
+					}
+				}
+				
+				var errored = false
+				
+				signal.observe(
+					next: { _ in},
+					error: { _ in errored = true },
+					completed: {}
+				)
+				
+				expect(errored).to(beFalse())
+				expect(dealloced).to(beFalse())
+				
+				scheduler.run()
+				
+				expect(errored).to(beTrue())
+				expect(dealloced).to(beTrue())
 			}
 
-			pending("should deallocate after completing") {
+			it("should deallocate after completing") {
+				let scheduler = TestScheduler()
+				var dealloced = false
+				
+				let signal: Signal<Int, NSError> = Signal { observer in
+					scheduler.schedule {
+						sendCompleted(observer)
+					}
+					return ActionDisposable {
+						dealloced = true
+					}
+				}
+				
+				var completed = false
+				
+				signal.observe(
+					next: { _ in},
+					error: { _ in },
+					completed: { completed = true }
+				)
+				
+				expect(completed).to(beFalse())
+				expect(dealloced).to(beFalse())
+				
+				scheduler.run()
+				
+				expect(completed).to(beTrue())
+				expect(dealloced).to(beTrue())
 			}
 
 			pending("should forward events to observers") {

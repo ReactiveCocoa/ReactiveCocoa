@@ -10,11 +10,54 @@ import LlamaKit
 import Nimble
 import Quick
 import ReactiveCocoa
+import Foundation
+
+private func startSignalProducer<T: Equatable, E: Equatable>(signalProducer: SignalProducer<T, E>, #expectSentValue: T?, sentError expectSentError: E?, #complete: Bool) {
+	startSignalProducer(signalProducer, expectSentValues: expectSentValue.map { [$0] } ?? [], sentError: expectSentError, complete: complete)
+}
+
+private func startSignalProducer<T: Equatable, E: Equatable>(signalProducer: SignalProducer<T, E>, expectSentValues: [T] = [], sentError expectSentError: E?, #complete: Bool) {
+	var sentValues: [T] = []
+	var sentError: E?
+	var signalCompleted = false
+
+	signalProducer.start(next: { value in
+		sentValues.append(value)
+	},
+	error: { error in
+		sentError = error
+	},
+	completed: {
+		signalCompleted = true
+	})
+
+	expect(sentValues).to(equal(expectSentValues))
+
+	if let error = expectSentError {
+		expect(sentError).to(equal(expectSentError))
+	}
+	else {
+		expect(sentError).to(beNil())
+	}
+
+	expect(signalCompleted).to(equal(complete))
+}
 
 class SignalProducerSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
-			pending("should run the handler once per start()") {
+			it("should run the handler once per start()") {
+				var handlerCalledTimes = 0
+				let signalProducer = SignalProducer<String, NSError>({ observer, disposable in
+					handlerCalledTimes++
+
+					return
+				})
+
+				signalProducer.start()
+				signalProducer.start()
+
+				expect(handlerCalledTimes).to(equal(2))
 			}
 
 			pending("should release signal observers when given disposable is disposed") {
@@ -31,35 +74,72 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("init(value:)") {
-			pending("should immediately send the value then complete") {
+			it("should immediately send the value then complete") {
+				let producerValue = "StringValue"
+				let signalProducer = SignalProducer<String, NSError>(value: producerValue)
+
+				startSignalProducer(signalProducer, expectSentValue: producerValue, sentError: nil, complete: true)
 			}
 		}
 
 		describe("init(error:)") {
-			pending("should immediately send the error") {
+			it("should immediately send the error") {
+				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let signalProducer = SignalProducer<Int, NSError>(error: producerError)
+
+				// This is not the current behavior, but should it?
+				let expectToComplete = true
+
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: expectToComplete)
 			}
 		}
 
 		describe("init(result:)") {
-			pending("should immediately send the value then complete") {
+			it("should immediately send the value then complete") {
+				let producerValue = "StringValue"
+				let producerResult = Result<String, NSError>.Success(Box(producerValue))
+				let signalProducer = SignalProducer(result: producerResult)
+
+				startSignalProducer(signalProducer, expectSentValue: producerValue, sentError: nil, complete: true)
 			}
 
-			pending("should immediately send the error") {
+			it("should immediately send the error") {
+				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let producerResult = Result<Int, NSError>.Failure(Box(producerError))
+				let signalProducer = SignalProducer(result: producerResult)
+
+				// This is not the current behavior, but should it?
+				let expectToComplete = true
+
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: expectToComplete)
 			}
 		}
 
 		describe("init(values:)") {
-			pending("should immediately send the sequence of values") {
+			it("should immediately send the sequence of values") {
+				let sequenceValues = [1, 2, 3]
+				let signalProducer = SignalProducer<Int, NSError>(values: sequenceValues)
+
+				// This is not the current behavior, but should it?
+				let expectToComplete = true
+
+				startSignalProducer(signalProducer, expectSentValues: sequenceValues, sentError: nil, complete: expectToComplete)
 			}
 		}
 
 		describe("SignalProducer.empty") {
-			pending("should immediately complete") {
+			it("should immediately complete") {
+				let signalProducer = SignalProducer<Int, NSError>.empty
+
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: nil, complete: true)
 			}
 		}
 
 		describe("SignalProducer.never") {
-			pending("should not send any events") {
+			it("should not send any events") {
+				let signalProducer = SignalProducer<Int, NSError>.never
+
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: nil, complete: false)
 			}
 		}
 
@@ -72,13 +152,42 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("SignalProducer.try") {
-			pending("should run the operation once per start()") {
+			it("should run the operation once per start()") {
+				var operationRunTimes = 0
+				let operation: () -> Result<String, NSError> = {
+					operationRunTimes++
+
+					return Result<String, NSError>.Success(Box("OperationValue"))
+				}
+
+				SignalProducer.try(operation).start()
+				SignalProducer.try(operation).start()
+
+				expect(operationRunTimes).to(equal(2))
 			}
 
-			pending("should send the value then complete") {
+			it("should send the value then complete") {
+				let operationReturnValue = "OperationValue"
+				let operation: () -> Result<String, NSError> = {
+					return Result<String, NSError>.Success(Box(operationReturnValue))
+				}
+
+				let signalProducer = SignalProducer.try(operation)
+
+				startSignalProducer(signalProducer, expectSentValue: operationReturnValue, sentError: nil, complete: true)
 			}
 
-			pending("should send the error") {
+			it("should send the error") {
+				let operationError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let operation: () -> Result<String, NSError> = {
+					return Result<String, NSError>.Failure(Box(operationError))
+				}
+
+				let signalProducer = SignalProducer.try(operation)
+
+				// This is not the current behavior, but should it?
+				let expectToComplete = true
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: operationError, complete: expectToComplete)
 			}
 		}
 

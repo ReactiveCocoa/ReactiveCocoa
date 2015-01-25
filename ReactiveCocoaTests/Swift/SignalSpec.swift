@@ -62,9 +62,7 @@ class SignalSpec: QuickSpec {
 				signal.observe(
 					next: { number in
 						fromSignal.append(number)
-					},
-					error: { _ in },
-					completed: {}
+					}
 				)
 				
 				expect(fromSignal).to(beEmpty())
@@ -89,9 +87,7 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				
 				signal.observe(
-					next: { _ in},
-					error: { _ in errored = true },
-					completed: {}
+					error: { _ in errored = true }
 				)
 				
 				expect(errored).to(beFalse())
@@ -118,8 +114,6 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				
 				signal.observe(
-					next: { _ in},
-					error: { _ in },
 					completed: { completed = true }
 				)
 				

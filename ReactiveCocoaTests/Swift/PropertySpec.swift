@@ -25,17 +25,17 @@ class PropertySpec: QuickSpec {
 				let propertyValue = "StringValue"
 				let constantProperty = ConstantProperty(propertyValue)
 
-				var valueSent: String?
+				var sentValue: String?
 				var signalCompleted = false
 
 				constantProperty.producer.start(next: { value in
-					valueSent = value
+					sentValue = value
 				},
 				completed: {
 					signalCompleted = true
 				})
 
-				expect(valueSent).to(equal(propertyValue))
+				expect(sentValue).to(equal(propertyValue))
 				expect(signalCompleted).to(beTruthy())
 			}
 		}
@@ -54,22 +54,22 @@ class PropertySpec: QuickSpec {
 
 				let mutableProperty = MutableProperty(initialValue)
 
-				var valueSent: String?
+				var sentValue: String?
 				var signalCompleted = false
 
 				mutableProperty.producer.start(next: { value in
-					valueSent = value
+					sentValue = value
 				},
 				completed: {
 					signalCompleted = true
 				})
 
-				expect(valueSent).to(equal(initialValue))
+				expect(sentValue).to(equal(initialValue))
 				expect(signalCompleted).to(beFalsy())
 
 				mutableProperty.value = subsequentValue
 
-				expect(valueSent).to(equal(subsequentValue))
+				expect(sentValue).to(equal(subsequentValue))
 				expect(signalCompleted).to(beFalsy())
 			}
 
@@ -97,13 +97,13 @@ class PropertySpec: QuickSpec {
 				let constantProperty = ConstantProperty(propertyValue)
 				let propertyOf = PropertyOf(constantProperty)
 
-				var valueSent: String?
+				var sentValue: String?
 
 				propertyOf.producer.start(next: { value in
-					valueSent = value
+					sentValue = value
 				})
 
-				expect(valueSent).to(equal(propertyValue))
+				expect(sentValue).to(equal(propertyValue))
 			}
 		}
 

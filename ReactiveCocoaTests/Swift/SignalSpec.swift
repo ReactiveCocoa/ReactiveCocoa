@@ -39,62 +39,10 @@ class SignalSpec: QuickSpec {
 				expect(signal).toNot(beNil())
 			}
 
-			it("should deallocate after erroring") {
-				var dealloced = false
-				
-				let signal: Signal<Int, NSError> = Signal { observer in
-					testScheduler.schedule {
-						sendError(observer, testError)
-					}
-					return ActionDisposable {
-						dealloced = true
-					}
-				}
-				
-				var errored = false
-				
-				signal.observe(
-					next: { _ in},
-					error: { _ in errored = true },
-					completed: {}
-				)
-				
-				expect(errored).to(beFalse())
-				expect(dealloced).to(beFalse())
-				
-				testScheduler.run()
-				
-				expect(errored).to(beTrue())
-				expect(dealloced).to(beTrue())
+			pending("should deallocate after erroring") {
 			}
 
-			it("should deallocate after completing") {
-				var dealloced = false
-				
-				let signal: Signal<Int, NSError> = Signal { observer in
-					testScheduler.schedule {
-						sendCompleted(observer)
-					}
-					return ActionDisposable {
-						dealloced = true
-					}
-				}
-				
-				var completed = false
-				
-				signal.observe(
-					next: { _ in},
-					error: { _ in },
-					completed: { completed = true }
-				)
-				
-				expect(completed).to(beFalse())
-				expect(dealloced).to(beFalse())
-				
-				testScheduler.run()
-				
-				expect(completed).to(beTrue())
-				expect(dealloced).to(beTrue())
+			pending("should deallocate after completing") {
 			}
 
 			it("should forward events to observers") {
@@ -126,10 +74,62 @@ class SignalSpec: QuickSpec {
 				expect(fromSignal).toEventually(equal(numbers))
 			}
 
-			pending("should dispose of returned disposable upon error") {
+			it("should dispose of returned disposable upon error") {
+				var disposed = false
+				
+				let signal: Signal<Int, NSError> = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, testError)
+					}
+					return ActionDisposable {
+						disposed = true
+					}
+				}
+				
+				var errored = false
+				
+				signal.observe(
+					next: { _ in},
+					error: { _ in errored = true },
+					completed: {}
+				)
+				
+				expect(errored).to(beFalse())
+				expect(disposed).to(beFalse())
+				
+				testScheduler.run()
+				
+				expect(errored).to(beTrue())
+				expect(disposed).to(beTrue())
 			}
 
-			pending("should dispose of returned disposable upon completion") {
+			it("should dispose of returned disposable upon completion") {
+				var disposed = false
+				
+				let signal: Signal<Int, NSError> = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return ActionDisposable {
+						disposed = true
+					}
+				}
+				
+				var completed = false
+				
+				signal.observe(
+					next: { _ in},
+					error: { _ in },
+					completed: { completed = true }
+				)
+				
+				expect(completed).to(beFalse())
+				expect(disposed).to(beFalse())
+				
+				testScheduler.run()
+				
+				expect(completed).to(beTrue())
+				expect(disposed).to(beTrue())
 			}
 		}
 

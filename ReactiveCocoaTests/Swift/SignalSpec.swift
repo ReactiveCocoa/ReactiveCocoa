@@ -69,7 +69,7 @@ class SignalSpec: QuickSpec {
 				
 				testScheduler.run()
 				
-				expect(fromSignal).toEventually(equal(numbers))
+				expect(fromSignal).to(equal(numbers))
 			}
 
 			it("should dispose of returned disposable upon error") {

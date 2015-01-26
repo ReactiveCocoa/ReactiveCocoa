@@ -571,47 +571,6 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 	}
 }
 
-public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		/// When this disposable is disposed, we'll stop forwarding events from `signal` to
-		/// the observer. It's atomic because we need to defend against the case that the
-		/// replacement signal sends an event while we're starting to observe `signal`.
-		let signalDisposableAtomic = Atomic(SerialDisposable())
-
-		// When the replacement signal sends an event, make sure we're no longer forwarding
-		// events from `signal`, then forward that event.
-		let replacementDisposable = replacement.observe(SinkOf { event in
-			signalDisposableAtomic.modify { signalDisposable in
-				signalDisposable.dispose()
-				return signalDisposable
-			}
-			observer.put(event)
-		})
-
-		// If `replacement` hasn't already sent an event, start observing `signal`.
-		signalDisposableAtomic.modify { signalDisposable in
-			if !signalDisposable.disposed {
-				// Forard values and errors, but not completion events, to the observer.
-				signalDisposable.innerDisposable = signal.observe(next: { value in
-					sendNext(observer, value)
-				}, error: { error in
-					sendError(observer, error)
-				})
-			}
-			return signalDisposable
-		}
-
-		// Stop both observations when the observation on the output signal is disposed.
-		return ActionDisposable {
-			signalDisposableAtomic.modify { signalDisposable in
-				signalDisposable.dispose()
-				return signalDisposable
-			}
-			replacementDisposable.dispose()
-		}
-	}
-}
-
 /*
 TODO
 

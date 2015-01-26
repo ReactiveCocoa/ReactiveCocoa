@@ -557,6 +557,10 @@ public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
+
+public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
+public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
+public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
 
 /// Starts the producer, then blocks, waiting for the first value.

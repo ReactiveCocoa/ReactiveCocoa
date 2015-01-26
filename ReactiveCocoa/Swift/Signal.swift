@@ -435,7 +435,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 	let scannedInputSignal = signal |> scan(initial, combine)
 	let inputSignalPipeDisposable = scannedInputSignal.observe(outputSignalObserver)
 	outputSignalDisposable.addDisposable(inputSignalPipeDisposable)
-	
+
 	return outputSignal
 }
 
@@ -497,6 +497,37 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Forwards events from `signal` until `replacement` begins sending events.
+///
+/// Returns a signal which passes through `next`s and `error` from `signal`
+/// until `replacement` sends an event, at which point the returned signal will
+/// send that event and switch to passing through events from `replacement`
+/// instead, regardless of whether `signal` has sent events already.
+public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		let signalDisposable = SerialDisposable()
+
+		let replacementDisposable = replacement.observe(next: { value in
+			signalDisposable.dispose()
+			sendNext(observer, value)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		if !signalDisposable.disposed {
+			signalDisposable.innerDisposable = signal.observe(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				sendError(observer, error)
+			})
+		}
+
+		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+	}
+}
+
 /// Waits until `signal` completes and then forwards the final `count` values
 /// on the returned signal.
 public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
@@ -518,7 +549,7 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 			for bufferedValue in buffer {
 				sendNext(observer, bufferedValue)
 			}
-			
+
 			sendCompleted(observer)
 		})
 	}
@@ -527,7 +558,6 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 /*
 TODO
 
-public func takeUntilReplacement<T>(replacement: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>

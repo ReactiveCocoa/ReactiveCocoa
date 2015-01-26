@@ -523,7 +523,7 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 		// If `replacement` hasn't already sent an event, start observing `signal`.
 		signalDisposableAtomic.modify { signalDisposable in
 			if !signalDisposable.disposed {
-				// Forard values and errors, but not completion events, to the observer.
+				// Forward values and errors, but not completion events, to the observer.
 				signalDisposable.innerDisposable = signal.observe(next: { value in
 					sendNext(observer, value)
 					}, error: { error in

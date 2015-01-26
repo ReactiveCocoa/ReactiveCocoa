@@ -10,17 +10,11 @@ import Foundation
 import ReactiveCocoa
 
 enum TestError {
-	case Empty
-	case WithCode(Int)
+	case Default
 }
 
 extension TestError: ErrorType {
 	var nsError: NSError {
-		switch self {
-		case .Empty:
-			return NSError(domain: "", code: 0, userInfo: nil)
-		case let .WithCode(code):
-			return NSError(domain: "", code: code, userInfo: nil)
-		}
+		return NSError(domain: "", code: 0, userInfo: nil)
 	}
 }

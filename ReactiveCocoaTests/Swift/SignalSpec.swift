@@ -89,26 +89,26 @@ class SignalSpec: QuickSpec {
 						for number in numbers {
 							sendNext(observer, number)
 						}
-                        sendCompleted(observer)
+						sendCompleted(observer)
 					}
 					return nil
 				}
 				
 				var fromSignal: [Int] = []
-                var completed = false
+				var completed = false
 				
 				signal.observe(next: { number in
-                    fromSignal.append(number)
-                }, completed: {
-                    completed = true
-                })
+					fromSignal.append(number)
+				}, completed: {
+					completed = true
+				})
 				
-                expect(completed).to(beFalsy())
+				expect(completed).to(beFalsy())
 				expect(fromSignal).to(beEmpty())
 				
 				testScheduler.run()
 				
-                expect(completed).to(beTruthy())
+				expect(completed).to(beTruthy())
 				expect(fromSignal).to(equal(numbers))
 			}
 

@@ -94,7 +94,7 @@ class SignalProducerSpec: QuickSpec {
 		describe("init(result:)") {
 			it("should immediately send the value then complete") {
 				let producerValue = "StringValue"
-				let producerResult = Result<String, NSError>.Success(Box(producerValue))
+				let producerResult = success(producerValue) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
 				startSignalProducer(signalProducer, expectSentValue: producerValue, sentError: nil, complete: true)
@@ -102,7 +102,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should immediately send the error") {
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
-				let producerResult = Result<Int, NSError>.Failure(Box(producerError))
+				let producerResult = failure(producerError) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
 				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: false)
@@ -148,7 +148,7 @@ class SignalProducerSpec: QuickSpec {
 				let operation: () -> Result<String, NSError> = {
 					operationRunTimes++
 
-					return Result<String, NSError>.Success(Box("OperationValue"))
+					return success("OperationValue")
 				}
 
 				SignalProducer.try(operation).start()
@@ -160,7 +160,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should send the value then complete") {
 				let operationReturnValue = "OperationValue"
 				let operation: () -> Result<String, NSError> = {
-					return Result<String, NSError>.Success(Box(operationReturnValue))
+					return success(operationReturnValue)
 				}
 
 				let signalProducer = SignalProducer.try(operation)
@@ -171,7 +171,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should send the error") {
 				let operationError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
 				let operation: () -> Result<String, NSError> = {
-					return Result<String, NSError>.Failure(Box(operationError))
+					return failure(operationError)
 				}
 
 				let signalProducer = SignalProducer.try(operation)

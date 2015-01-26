@@ -15,6 +15,6 @@ enum TestError {
 
 extension TestError: ErrorType {
 	var nsError: NSError {
-		return NSError(domain: "", code: 0, userInfo: nil)
+		return NSError(domain: "org.reactivecocoa.ReactiveCocoa.Tests", code: 0, userInfo: nil)
 	}
 }

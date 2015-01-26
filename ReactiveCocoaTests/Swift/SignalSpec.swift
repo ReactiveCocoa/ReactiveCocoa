@@ -158,7 +158,11 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("Signal.pipe") {
-			pending("should keep signal alive if not terminated") {
+			
+			it("should keep signal alive if not terminated") {
+				weak var signal = Signal<(), NoError>.pipe().0
+				
+				expect(signal).toNot(beNil())
 			}
 
 			pending("should deallocate after erroring") {
@@ -167,7 +171,30 @@ class SignalSpec: QuickSpec {
 			pending("should deallocate after completing") {
 			}
 
-			pending("should forward events to observers") {
+			it("should forward events to observers") {
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+				
+				var fromSignal: [Int] = []
+				var completed = false
+				
+				signal.observe(next: { number in
+					fromSignal.append(number)
+				}, completed: {
+					completed = true
+				})
+				
+				expect(fromSignal).to(beEmpty())
+				expect(completed).to(beFalsy())
+				
+				sendNext(observer, 1)
+				expect(fromSignal).to(equal([1]))
+				expect(completed).to(beFalsy())
+				
+				sendNext(observer, 2)
+				expect(fromSignal).to(equal([1, 2]))
+				
+				sendCompleted(observer)
+				expect(completed).to(beTruthy())
 			}
 		}
 

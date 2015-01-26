@@ -37,12 +37,7 @@ public func sendValues<T: Equatable, E: Equatable>(values: [T], sendError maybeS
 				return false
 			}
 
-			if let error = maybeSendError {
-				if error != sentError {
-					return false
-				}
-			}
-			else if sentError != nil {
+			if sentError != maybeSendError {
 				return false
 			}
 

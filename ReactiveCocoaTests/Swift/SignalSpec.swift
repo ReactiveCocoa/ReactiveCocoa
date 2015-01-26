@@ -28,7 +28,7 @@ class SignalSpec: QuickSpec {
 					return nil
 				}
 				
-				expect(didRunGenerator).to(beTrue())
+				expect(didRunGenerator).to(beTruthy())
 			}
 
 			it("should keep signal alive if not terminated") {
@@ -90,13 +90,13 @@ class SignalSpec: QuickSpec {
 					error: { _ in errored = true }
 				)
 				
-				expect(errored).to(beFalse())
-				expect(disposed).to(beFalse())
+				expect(errored).to(beFalsy())
+				expect(disposed).to(beFalsy())
 				
 				testScheduler.run()
 				
-				expect(errored).to(beTrue())
-				expect(disposed).to(beTrue())
+				expect(errored).to(beTruthy())
+				expect(disposed).to(beTruthy())
 			}
 
 			it("should dispose of returned disposable upon completion") {
@@ -117,13 +117,13 @@ class SignalSpec: QuickSpec {
 					completed: { completed = true }
 				)
 				
-				expect(completed).to(beFalse())
-				expect(disposed).to(beFalse())
+				expect(completed).to(beFalsy())
+				expect(disposed).to(beFalsy())
 				
 				testScheduler.run()
 				
-				expect(completed).to(beTrue())
-				expect(disposed).to(beTrue())
+				expect(completed).to(beTruthy())
+				expect(disposed).to(beTruthy())
 			}
 		}
 

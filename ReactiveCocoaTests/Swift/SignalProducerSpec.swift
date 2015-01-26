@@ -87,10 +87,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
 				let signalProducer = SignalProducer<Int, NSError>(error: producerError)
 
-				// This is not the current behavior, but should it?
-				let expectToComplete = true
-
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: expectToComplete)
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: false)
 			}
 		}
 
@@ -108,10 +105,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerResult = Result<Int, NSError>.Failure(Box(producerError))
 				let signalProducer = SignalProducer(result: producerResult)
 
-				// This is not the current behavior, but should it?
-				let expectToComplete = true
-
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: expectToComplete)
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: false)
 			}
 		}
 
@@ -120,10 +114,7 @@ class SignalProducerSpec: QuickSpec {
 				let sequenceValues = [1, 2, 3]
 				let signalProducer = SignalProducer<Int, NSError>(values: sequenceValues)
 
-				// This is not the current behavior, but should it?
-				let expectToComplete = true
-
-				startSignalProducer(signalProducer, expectSentValues: sequenceValues, sentError: nil, complete: expectToComplete)
+				startSignalProducer(signalProducer, expectSentValues: sequenceValues, sentError: nil, complete: false)
 			}
 		}
 
@@ -185,9 +176,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let signalProducer = SignalProducer.try(operation)
 
-				// This is not the current behavior, but should it?
-				let expectToComplete = true
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: operationError, complete: expectToComplete)
+				startSignalProducer(signalProducer, expectSentValue: nil, sentError: operationError, complete: false)
 			}
 		}
 

@@ -23,7 +23,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should run the generator immediately") {
 				var didRunGenerator = false
-				Signal<Int, NoError> { observer in
+				Signal<AnyObject, NoError> { observer in
 					didRunGenerator = true
 					return nil
 				}
@@ -32,7 +32,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should keep signal alive if not terminated") {
-				weak var signal: Signal<Int, NoError>? = Signal { observer in
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
 					return nil
 				}
 				
@@ -40,7 +40,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate after erroring") {
-				weak var signal: Signal<Int, NSError>? = Signal { observer in
+				weak var signal: Signal<AnyObject, NSError>? = Signal { observer in
 					testScheduler.schedule {
 						sendError(observer, testError)
 					}
@@ -61,7 +61,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate after completing") {
-				weak var signal: Signal<Int, NSError>? = Signal { observer in
+				weak var signal: Signal<AnyObject, NSError>? = Signal { observer in
 					testScheduler.schedule {
 						sendCompleted(observer)
 					}
@@ -115,7 +115,7 @@ class SignalSpec: QuickSpec {
 			it("should dispose of returned disposable upon error") {
 				let disposable = SimpleDisposable()
 				
-				let signal: Signal<Int, NSError> = Signal { observer in
+				let signal: Signal<AnyObject, NSError> = Signal { observer in
 					testScheduler.schedule {
 						sendError(observer, testError)
 					}
@@ -138,7 +138,7 @@ class SignalSpec: QuickSpec {
 			it("should dispose of returned disposable upon completion") {
 				let disposable = SimpleDisposable()
 				
-				let signal: Signal<Int, NSError> = Signal { observer in
+				let signal: Signal<AnyObject, NSError> = Signal { observer in
 					testScheduler.schedule {
 						sendCompleted(observer)
 					}

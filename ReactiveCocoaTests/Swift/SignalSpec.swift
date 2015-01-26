@@ -39,10 +39,46 @@ class SignalSpec: QuickSpec {
 				expect(signal).toNot(beNil())
 			}
 
-			pending("should deallocate after erroring") {
+			it("should deallocate after erroring") {
+				weak var signal: Signal<Int, NSError>? = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, testError)
+					}
+					return nil
+				}
+				
+				var errored = false
+				
+				signal!.observe(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				expect(signal).toNot(beNil())
+				
+				testScheduler.run()
+				
+				expect(errored).to(beTruthy())
+				expect(signal).to(beNil())
 			}
 
-			pending("should deallocate after completing") {
+			it("should deallocate after completing") {
+				weak var signal: Signal<Int, NSError>? = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				var completed = false
+				
+				signal!.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				expect(signal).toNot(beNil())
+				
+				testScheduler.run()
+				
+				expect(completed).to(beTruthy())
+				expect(signal).to(beNil())
 			}
 
 			it("should forward events to observers") {

@@ -6,53 +6,23 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+import Foundation
+
 import LlamaKit
 import Nimble
 import Quick
 import ReactiveCocoa
-import Foundation
-
-private func startSignalProducer<T: Equatable, E: Equatable>(signalProducer: SignalProducer<T, E>, #expectSentValue: T?, sentError expectSentError: E?, #complete: Bool) {
-	startSignalProducer(signalProducer, expectSentValues: expectSentValue.map { [$0] } ?? [], sentError: expectSentError, complete: complete)
-}
-
-private func startSignalProducer<T: Equatable, E: Equatable>(signalProducer: SignalProducer<T, E>, expectSentValues: [T] = [], sentError expectSentError: E?, #complete: Bool) {
-	var sentValues: [T] = []
-	var sentError: E?
-	var signalCompleted = false
-
-	signalProducer.start(next: { value in
-		sentValues.append(value)
-	},
-	error: { error in
-		sentError = error
-	},
-	completed: {
-		signalCompleted = true
-	})
-
-	expect(sentValues).to(equal(expectSentValues))
-
-	if let error = expectSentError {
-		expect(sentError).to(equal(expectSentError))
-	}
-	else {
-		expect(sentError).to(beNil())
-	}
-
-	expect(signalCompleted).to(equal(complete))
-}
 
 class SignalProducerSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
 			it("should run the handler once per start()") {
 				var handlerCalledTimes = 0
-				let signalProducer = SignalProducer<String, NSError>({ observer, disposable in
+				let signalProducer = SignalProducer<String, NSError>() { observer, disposable in
 					handlerCalledTimes++
 
 					return
-				})
+				}
 
 				signalProducer.start()
 				signalProducer.start()
@@ -78,7 +48,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerValue = "StringValue"
 				let signalProducer = SignalProducer<String, NSError>(value: producerValue)
 
-				startSignalProducer(signalProducer, expectSentValue: producerValue, sentError: nil, complete: true)
+				expect(signalProducer).to(sendValue(producerValue, sendError: nil, complete: true))
 			}
 		}
 
@@ -87,7 +57,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
 				let signalProducer = SignalProducer<Int, NSError>(error: producerError)
 
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: false)
+				expect(signalProducer).to(sendValue(nil, sendError: producerError, complete: false))
 			}
 		}
 
@@ -97,7 +67,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerResult = success(producerValue) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
-				startSignalProducer(signalProducer, expectSentValue: producerValue, sentError: nil, complete: true)
+				expect(signalProducer).to(sendValue(producerValue, sendError: nil, complete: true))
 			}
 
 			it("should immediately send the error") {
@@ -105,7 +75,7 @@ class SignalProducerSpec: QuickSpec {
 				let producerResult = failure(producerError) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: producerError, complete: false)
+				expect(signalProducer).to(sendValue(nil, sendError: producerError, complete: false))
 			}
 		}
 
@@ -114,7 +84,7 @@ class SignalProducerSpec: QuickSpec {
 				let sequenceValues = [1, 2, 3]
 				let signalProducer = SignalProducer<Int, NSError>(values: sequenceValues)
 
-				startSignalProducer(signalProducer, expectSentValues: sequenceValues, sentError: nil, complete: false)
+				expect(signalProducer).to(sendValues(sequenceValues, sendError: nil, complete: true))
 			}
 		}
 
@@ -122,7 +92,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should immediately complete") {
 				let signalProducer = SignalProducer<Int, NSError>.empty
 
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: nil, complete: true)
+				expect(signalProducer).to(sendValue(nil, sendError: nil, complete: true))
 			}
 		}
 
@@ -130,7 +100,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should not send any events") {
 				let signalProducer = SignalProducer<Int, NSError>.never
 
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: nil, complete: false)
+				expect(signalProducer).to(sendValue(nil, sendError: nil, complete: false))
 			}
 		}
 
@@ -165,7 +135,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let signalProducer = SignalProducer.try(operation)
 
-				startSignalProducer(signalProducer, expectSentValue: operationReturnValue, sentError: nil, complete: true)
+				expect(signalProducer).to(sendValue(operationReturnValue, sendError: nil, complete: true))
 			}
 
 			it("should send the error") {
@@ -176,7 +146,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let signalProducer = SignalProducer.try(operation)
 
-				startSignalProducer(signalProducer, expectSentValue: nil, sentError: operationError, complete: false)
+				expect(signalProducer).to(sendValue(nil, sendError: operationError, complete: false))
 			}
 		}
 

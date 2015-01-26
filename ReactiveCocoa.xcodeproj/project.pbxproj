@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D000040A1A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -474,6 +476,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SignalProducerNimbleMatchers.swift; path = Swift/SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
 		D00004081A46864E000E7D41 /* TupleExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TupleExtensions.swift; sourceTree = "<group>"; };
 		D021671C1A6CD50500987861 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
 		D037642A19EDA41200A782A9 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
@@ -1187,6 +1190,7 @@
 				D05E662419EDD82000904ACA /* Nimble.framework */,
 				D037672B19EDA75D00A782A9 /* Quick.framework */,
 				D03766B119EDA60000A782A9 /* test-data.json */,
+				BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */,
 				D04725FB19E49ED7006002AA /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -1688,6 +1692,7 @@
 				D03766DD19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
 				D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */,
 				D037670919EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
+				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				D03766EB19EDA60000A782A9 /* RACKVOWrapperSpec.m in Sources */,
 				D03766E719EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F719EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
@@ -1861,6 +1866,7 @@
 				D03766F819EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
 				D0A226121A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D037671E19EDA60000A782A9 /* UIBarButtonItemRACSupportSpec.m in Sources */,
+				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				D03766CA19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D0C3132319EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
 				D03766C419EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,

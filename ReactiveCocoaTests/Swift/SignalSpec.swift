@@ -77,15 +77,13 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should dispose of returned disposable upon error") {
-				var disposed = false
+				let disposable = SimpleDisposable()
 				
 				let signal: Signal<Int, NSError> = Signal { observer in
 					testScheduler.schedule {
 						sendError(observer, testError)
 					}
-					return ActionDisposable {
-						disposed = true
-					}
+					return disposable
 				}
 				
 				var errored = false
@@ -93,24 +91,22 @@ class SignalSpec: QuickSpec {
 				signal.observe(error: { _ in errored = true })
 				
 				expect(errored).to(beFalsy())
-				expect(disposed).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 				
 				testScheduler.run()
 				
 				expect(errored).to(beTruthy())
-				expect(disposed).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 
 			it("should dispose of returned disposable upon completion") {
-				var disposed = false
+				let disposable = SimpleDisposable()
 				
 				let signal: Signal<Int, NSError> = Signal { observer in
 					testScheduler.schedule {
 						sendCompleted(observer)
 					}
-					return ActionDisposable {
-						disposed = true
-					}
+					return disposable
 				}
 				
 				var completed = false
@@ -118,12 +114,12 @@ class SignalSpec: QuickSpec {
 				signal.observe(completed: { completed = true })
 				
 				expect(completed).to(beFalsy())
-				expect(disposed).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 				
 				testScheduler.run()
 				
 				expect(completed).to(beTruthy())
-				expect(disposed).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 		}
 

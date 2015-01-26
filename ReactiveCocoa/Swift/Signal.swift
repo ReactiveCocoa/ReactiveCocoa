@@ -513,34 +513,27 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 		// When the replacement signal sends an event, make sure we're no longer forwarding
 		// events from `signal`, then forward that event.
 		let replacementDisposable = replacement.observe(SinkOf { event in
-			signalDisposableAtomic.modify { signalDisposable in
+			signalDisposableAtomic.withValue { signalDisposable in
 				signalDisposable.dispose()
-				return signalDisposable
 			}
 			observer.put(event)
-			})
+		})
 
 		// If `replacement` hasn't already sent an event, start observing `signal`.
-		signalDisposableAtomic.modify { signalDisposable in
+		signalDisposableAtomic.withValue { signalDisposable -> Void in
 			if !signalDisposable.disposed {
 				// Forward values and errors, but not completion events, to the observer.
 				signalDisposable.innerDisposable = signal.observe(next: { value in
 					sendNext(observer, value)
-					}, error: { error in
-						sendError(observer, error)
+				}, error: { error in
+					sendError(observer, error)
 				})
 			}
-			return signalDisposable
 		}
 
 		// Stop both observations when the observation on the output signal is disposed.
-		return ActionDisposable {
-			signalDisposableAtomic.modify { signalDisposable in
-				signalDisposable.dispose()
-				return signalDisposable
-			}
-			replacementDisposable.dispose()
-		}
+		// No need to lock `signalDisposableAtomic` because the critical region has already run.
+		return CompositeDisposable([ signalDisposableAtomic.value, replacementDisposable ])
 	}
 }
 

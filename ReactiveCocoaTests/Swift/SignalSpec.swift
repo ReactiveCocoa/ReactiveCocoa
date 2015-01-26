@@ -47,7 +47,7 @@ class SignalSpec: QuickSpec {
 				
 				var errored = false
 				
-				signal!.observe(error: { _ in errored = true })
+				signal?.observe(error: { _ in errored = true })
 				
 				expect(errored).to(beFalsy())
 				expect(signal).toNot(beNil())
@@ -68,7 +68,7 @@ class SignalSpec: QuickSpec {
 				
 				var completed = false
 				
-				signal!.observe(completed: { completed = true })
+				signal?.observe(completed: { completed = true })
 				
 				expect(completed).to(beFalsy())
 				expect(signal).toNot(beNil())

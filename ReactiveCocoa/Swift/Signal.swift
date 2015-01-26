@@ -410,6 +410,93 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 	}
 }
 
+/// Forwards events from `signal` with history: values of the returned signal
+/// are a tuple whose first member is the previous value and whose second member
+/// is the current value. `initial` is supplied as the first member when `signal`
+/// sends its first value.
+public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
+	return signal |> scan((initial, initial)) { previousCombinedValues, newValue in
+		return (previousCombinedValues.1, newValue)
+	}
+}
+
+/// Like `scan`, but sends only the final value and then immediately completes.
+public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
+	// We need to handle the special case in which `signal` sends no values.
+	// We'll do that by sending `initial` on the output signal (before taking
+	// the last value).
+	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver, outputSignalDisposable) = Signal.disposablePipe()
+	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
+
+	// Now that we've got takeLast() listening to the piped signal, send that initial value.
+	sendNext(outputSignalObserver, initial)
+
+	// Pipe the scanned input signal into the output signal.
+	let scannedInputSignal = signal |> scan(initial, combine)
+	let inputSignalPipeDisposable = scannedInputSignal.observe(outputSignalObserver)
+	outputSignalDisposable.addDisposable(inputSignalPipeDisposable)
+
+	return outputSignal
+}
+
+/// Aggregates `signal`'s values into a single combined value. When `signal` emits
+/// its first value, `combine` is invoked with `initial` as the first argument and
+/// that emitted value as the second argument. The result is emitted from the
+/// signal returned from `reduce`. That result is then passed to `combine` as the
+/// first argument when the next value is emitted, and so on.
+public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
+	return Signal { observer in
+		var accumulator = initial
+		return signal.observe(Signal.Observer { event in
+			observer.put(event.map { value in
+				accumulator = combine(accumulator, value)
+				return accumulator
+			})
+		})
+	}
+}
+
+/// Forwards only those values from `signal` which are not duplicates of the
+/// immedately preceding value. The first value is always forwarded.
+public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> skipRepeats { $0 == $1 }
+}
+
+/// Forwards only those values from `signal` which do not pass `isRepeat` with
+/// respect to the previous value. The first value is always forwarded.
+public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal
+		|> map { Optional($0) }
+		|> combinePrevious(nil)
+		|> filter {
+			switch $0 {
+			case let (.Some(a), .Some(b)) where isRepeat(a, b):
+				return false
+			default:
+				return true
+			}
+		}
+		|> map { $0.1! }
+}
+
+/// Does not forward any values from `signal` until `predicate` returns false,
+/// at which point the returned signal behaves exactly like `signal`.
+public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		var shouldSkip = true
+		return signal.observe(next: { value in
+			shouldSkip = shouldSkip && predicate(value)
+			if !shouldSkip {
+				sendNext(observer, value)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /// Forwards events from `signal` until `replacement` begins sending events.
 ///
 /// Returns a signal which passes through `next`s and `error` from `signal`
@@ -441,16 +528,36 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 	}
 }
 
+/// Waits until `signal` completes and then forwards the final `count` values
+/// on the returned signal.
+public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
+	return Signal { observer in
+		var buffer = [T]()
+		buffer.reserveCapacity(count)
+
+		return signal.observe(next: { value in
+			// To avoid exceeding the reserved capacity of the buffer, we remove then add.
+			// Remove elements until we have room to add one more.
+			while (buffer.count + 1) > count {
+				buffer.removeAtIndex(0)
+			}
+
+			buffer.append(value)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			for bufferedValue in buffer {
+				sendNext(observer, bufferedValue)
+			}
+
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 TODO
 
-public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
-public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
-public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
-public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>

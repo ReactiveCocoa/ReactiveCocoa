@@ -32,7 +32,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should keep signal alive if not terminated") {
-				let signal: Signal<Int, NoError> = Signal { observer in
+				weak var signal: Signal<Int, NoError>? = Signal { observer in
 					return nil
 				}
 				

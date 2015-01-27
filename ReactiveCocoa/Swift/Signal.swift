@@ -505,42 +505,26 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// instead, regardless of whether `signal` has sent events already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		/// When this disposable is disposed, we'll stop forwarding events from `signal` to
-		/// the observer. It's atomic because we need to defend against the case that the
-		/// replacement signal sends an event while we're starting to observe `signal`.
-		let signalDisposableAtomic = Atomic(SerialDisposable())
+		let signalDisposable = SerialDisposable()
 
-		// When the replacement signal sends an event, make sure we're no longer forwarding
-		// events from `signal`, then forward that event.
-		let replacementDisposable = replacement.observe(SinkOf { event in
-			signalDisposableAtomic.modify { signalDisposable in
-				signalDisposable.dispose()
-				return signalDisposable
-			}
-			observer.put(event)
+		let replacementDisposable = replacement.observe(next: { value in
+			signalDisposable.dispose()
+			sendNext(observer, value)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		if !signalDisposable.disposed {
+			signalDisposable.innerDisposable = signal.observe(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				sendError(observer, error)
 			})
-
-		// If `replacement` hasn't already sent an event, start observing `signal`.
-		signalDisposableAtomic.modify { signalDisposable in
-			if !signalDisposable.disposed {
-				// Forard values and errors, but not completion events, to the observer.
-				signalDisposable.innerDisposable = signal.observe(next: { value in
-					sendNext(observer, value)
-					}, error: { error in
-						sendError(observer, error)
-				})
-			}
-			return signalDisposable
 		}
 
-		// Stop both observations when the observation on the output signal is disposed.
-		return ActionDisposable {
-			signalDisposableAtomic.modify { signalDisposable in
-				signalDisposable.dispose()
-				return signalDisposable
-			}
-			replacementDisposable.dispose()
-		}
+		return CompositeDisposable([ signalDisposable, replacementDisposable ])
 	}
 }
 

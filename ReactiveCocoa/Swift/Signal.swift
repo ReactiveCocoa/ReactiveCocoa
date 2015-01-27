@@ -505,7 +505,11 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// instead, regardless of whether `signal` has sent events already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let signalDisposable = SerialDisposable()
+		let signalDisposable = signal.observe(next: { value in
+			sendNext(observer, value)
+		}, error: { error in
+			sendError(observer, error)
+		})
 
 		let replacementDisposable = replacement.observe(next: { value in
 			signalDisposable.dispose()
@@ -515,14 +519,6 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 		}, completed: {
 			sendCompleted(observer)
 		})
-
-		if !signalDisposable.disposed {
-			signalDisposable.innerDisposable = signal.observe(next: { value in
-				sendNext(observer, value)
-			}, error: { error in
-				sendError(observer, error)
-			})
-		}
 
 		return CompositeDisposable([ signalDisposable, replacementDisposable ])
 	}

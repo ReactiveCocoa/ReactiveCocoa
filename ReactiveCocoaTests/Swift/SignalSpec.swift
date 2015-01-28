@@ -318,10 +318,50 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("reduce") {
-			pending("should accumulate one value") {
+			it("should accumulate one value") {
+				let numbers = [ 1, 2, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> reduce(0) { $0 + $1 }
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				
+				// using array to make sure only one value sent
+				expect(result).to(equal([12]))
 			}
 
-			pending("should send the initial value if none are received") {
+			it("should send the initial value if none are received") {
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> reduce(99) { $0 + $1 }
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([99]))
 			}
 		}
 

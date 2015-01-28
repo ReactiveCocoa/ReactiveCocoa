@@ -187,11 +187,11 @@ class SignalSpec: QuickSpec {
 				
 				sendNext(observer, 1)
 				expect(fromSignal).to(equal([1]))
-				expect(completed).to(beFalsy())
 				
 				sendNext(observer, 2)
 				expect(fromSignal).to(equal([1, 2]))
 				
+				expect(completed).to(beFalsy())
 				sendCompleted(observer)
 				expect(completed).to(beTruthy())
 			}

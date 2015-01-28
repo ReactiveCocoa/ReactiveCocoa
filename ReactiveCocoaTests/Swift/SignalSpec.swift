@@ -268,7 +268,27 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("filter") {
-			pending("should omit values from the signal") {
+			it("should omit values from the signal") {
+				let numbers = [ 1, 2, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var afterFilter: [Int] = []
+				
+				signal
+				|> filter { $0 % 2 == 0 }
+				|> observe(next: { afterFilter.append($0) })
+				
+				testScheduler.run()
+				expect(afterFilter).to(equal([2, 4]))
 			}
 		}
 

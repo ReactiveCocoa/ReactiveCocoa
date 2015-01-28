@@ -14,7 +14,6 @@ import ReactiveCocoa
 class SignalSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
-			let testError = NSError(domain: "SignalSpec", code: 1, userInfo: nil)
 			var testScheduler: TestScheduler!
 			
 			beforeEach {
@@ -38,9 +37,9 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate after erroring") {
-				weak var signal: Signal<AnyObject, NSError>? = Signal { observer in
+				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, testError)
+						sendError(observer, TestError.Default)
 					}
 					return nil
 				}
@@ -59,7 +58,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate after completing") {
-				weak var signal: Signal<AnyObject, NSError>? = Signal { observer in
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
 					testScheduler.schedule {
 						sendCompleted(observer)
 					}
@@ -113,9 +112,9 @@ class SignalSpec: QuickSpec {
 			it("should dispose of returned disposable upon error") {
 				let disposable = SimpleDisposable()
 				
-				let signal: Signal<AnyObject, NSError> = Signal { observer in
+				let signal: Signal<AnyObject, TestError> = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, testError)
+						sendError(observer, TestError.Default)
 					}
 					return disposable
 				}
@@ -136,7 +135,7 @@ class SignalSpec: QuickSpec {
 			it("should dispose of returned disposable upon completion") {
 				let disposable = SimpleDisposable()
 				
-				let signal: Signal<AnyObject, NSError> = Signal { observer in
+				let signal: Signal<AnyObject, NoError> = Signal { observer in
 					testScheduler.schedule {
 						sendCompleted(observer)
 					}

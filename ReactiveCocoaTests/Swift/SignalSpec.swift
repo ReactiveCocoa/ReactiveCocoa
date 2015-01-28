@@ -243,7 +243,27 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("map") {
-			pending("should transform the values of the signal") {
+			it("should transform the values of the signal") {
+				let numbers = [ 1, 2, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var afterMap: [Int] = []
+				
+				signal
+				|> map { $0 * 2 }
+				|> observe(next: { afterMap.append($0) })
+				
+				testScheduler.run()
+				expect(afterMap).to(equal([2, 4, 10]))
 			}
 		}
 

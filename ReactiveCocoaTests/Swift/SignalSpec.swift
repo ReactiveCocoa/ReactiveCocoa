@@ -198,7 +198,38 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("observe") {
-			pending("should stop forwarding events when disposed") {
+			var testScheduler: TestScheduler!
+			
+			beforeEach {
+				testScheduler = TestScheduler()
+			}
+			
+			it("should stop forwarding events when disposed") {
+				let disposable = SimpleDisposable()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in [1, 2] {
+							sendNext(observer, number)
+						}
+						sendCompleted(observer)
+						sendNext(observer, 4)
+					}
+					return disposable
+				}
+				
+				var fromSignal: [Int] = []
+				signal.observe(next: { number in
+					fromSignal.append(number)
+				})
+				
+				expect(disposable.disposed).to(beFalsy())
+				expect(fromSignal).to(beEmpty())
+				
+				testScheduler.run()
+				
+				expect(disposable.disposed).to(beTruthy())
+				expect(fromSignal).to(equal([1, 2]))
 			}
 
 			pending("should not trigger side effects") {

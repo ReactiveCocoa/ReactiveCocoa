@@ -293,7 +293,27 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("scan") {
-			pending("should incrementally accumulate a value") {
+			it("should incrementally accumulate a value") {
+				let numbers = [ 1, 2, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var scanned: [Int] = []
+				
+				signal
+				|> scan(0) { $0 + $1 }
+				|> observe(next: { scanned.append($0) })
+				
+				testScheduler.run()
+				expect(scanned).to(equal([1, 3, 7, 12]))
 			}
 		}
 

@@ -596,7 +596,7 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 /// Starts the producer, then blocks, waiting for the last value.
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer |> takeLast(1) |> first
+	return producer |> takeLast(1) |> single
 }
 
 /// Starts the producer, then blocks, waiting for completion.

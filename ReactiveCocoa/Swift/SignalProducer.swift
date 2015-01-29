@@ -558,7 +558,6 @@ public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: Si
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 
-public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
 
@@ -602,6 +601,28 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 			}
 
 			result = success(value)
+		}, error: { error in
+			result = failure(error)
+			dispatch_semaphore_signal(semaphore)
+		}, completed: {
+			dispatch_semaphore_signal(semaphore)
+			return
+		})
+
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+	return result
+}
+
+/// Starts the producer, then blocks, waiting for the last value.
+public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	let semaphore = dispatch_semaphore_create(0)
+	var result: Result<T, E>?
+
+	producer
+		|> takeLast(1)
+		|> start(next: { value in
+			result = success(value)
+			dispatch_semaphore_signal(semaphore)
 		}, error: { error in
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)

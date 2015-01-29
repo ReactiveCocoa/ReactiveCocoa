@@ -159,7 +159,7 @@ class ActionSpec: QuickSpec {
 			#elseif os(iOS)
 				it("should be compatible with UIKit") {
 					let control = UIControl(frame: CGRectZero)
-					control.addTarget(cocoaAction, action: cocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
+					control.addTarget(cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
 					control.sendActionsForControlEvents(UIControlEvents.TouchDown)
 				}
 			#endif

@@ -233,13 +233,32 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("first") {
-			pending("should start a signal then block on the first value") {
+			it("should start a signal then block on the first value") {
+				var sink: Signal<Int, NoError>.Observer!
+				let producer = SignalProducer<Int, NoError> { observer, _ in
+					sink = observer
+				}
+				expect(sink).to(beNil())
+
+				var result: Result<Int, NoError>?
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> first
+				}
+				expect(sink).toEventuallyNot(beNil())
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				expect(result?.value).to(equal(1))
 			}
 
-			pending("should return a nil result if no values are sent before completion") {
+			it("should return a nil result if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> first
+				expect(result).to(beNil())
 			}
 
-			pending("should return an error if one occurs before the first value") {
+			it("should return an error if one occurs before the first value") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 		}
 

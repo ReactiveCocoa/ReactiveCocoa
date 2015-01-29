@@ -143,6 +143,7 @@ class ActionSpec: QuickSpec {
 
 			beforeEach {
 				action = Action { value in SignalProducer(value: value + 1) }
+				expect(action.enabled.value).to(beTruthy())
 
 				cocoaAction = CocoaAction(action, input: 0)
 				expect(cocoaAction.enabled).toEventually(beTruthy())

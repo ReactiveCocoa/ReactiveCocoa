@@ -31,19 +31,10 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 	/// Whether the action is currently enabled.
 	public var enabled: PropertyOf<Bool> {
-		let property = MutableProperty(false)
-
-		userEnabled.producer
-			|> combineLatestWith(executing.producer)
-			|> map(self.dynamicType.shouldBeEnabled)
-			// FIXME: Workaround for <~ being disabled on SignalProducers.
-			|> startWithSignal { signal, disposable in
-				let bindDisposable = property <~ signal
-				disposable.addDisposable(bindDisposable)
-			}
-
-		return PropertyOf(property)
+		return PropertyOf(_enabled)
 	}
+
+	private let _enabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
 	private let userEnabled: PropertyOf<Bool>
@@ -71,6 +62,15 @@ public final class Action<Input, Output, Error: ErrorType> {
 		let (eSig, eSink) = Signal<Error, NoError>.pipe()
 		errorsObserver = eSink
 		errors = eSig
+
+		enabledIf.producer
+			|> combineLatestWith(executing.producer)
+			|> map(self.dynamicType.shouldBeEnabled)
+			// FIXME: Workaround for <~ being disabled on SignalProducers.
+			|> startWithSignal { signal, disposable in
+				let bindDisposable = self._enabled <~ signal
+				disposable.addDisposable(bindDisposable)
+			}
 	}
 
 	/// Initializes an action that will be enabled by default, and create a

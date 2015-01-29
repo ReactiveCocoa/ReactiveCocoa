@@ -618,19 +618,8 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 /// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
-	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<(), E>!
-
-	producer.start(error: { error in
-		result = failure(error)
-		dispatch_semaphore_signal(semaphore)
-	}, completed: {
-		result = success(())
-		dispatch_semaphore_signal(semaphore)
-	})
-
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-	return result
+	let result = producer |> map { _ in () } |> last
+	return result ?? success(())
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

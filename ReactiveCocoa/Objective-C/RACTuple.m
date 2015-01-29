@@ -175,7 +175,7 @@
 
 - (instancetype)tupleByAddingObject:(id)obj {
 	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
-	return [self.class tupleWithObjectsFromArray:newArray convertNullsToNils:NO];
+	return [self.class tupleWithObjectsFromArray:newArray];
 }
 
 - (NSUInteger)count {

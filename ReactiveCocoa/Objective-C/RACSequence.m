@@ -198,7 +198,7 @@
 			sequence = sequence.tail;
 			reschedule();
 		}];
-	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
+	}] setNameWithFormat:@"[%@] -signalWithScheduler: %@", self.name, scheduler];
 }
 
 - (id)foldLeftWithStart:(id)start reduce:(id (^)(id, id))reduce {

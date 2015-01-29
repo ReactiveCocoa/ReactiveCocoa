@@ -103,7 +103,7 @@ qck_describe(@"NSDictionary sequences", ^{
 
 		tuples = [NSMutableArray array];
 		for (id key in dict) {
-			RACTuple *tuple = [RACTuple tupleWithObjects:key, dict[key], nil];
+			RACTuple *tuple = RACTuplePack(key, dict[key]);
 			[tuples addObject:tuple];
 		}
 

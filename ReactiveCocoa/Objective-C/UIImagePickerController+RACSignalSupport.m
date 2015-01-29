@@ -43,7 +43,7 @@ static void RACUseDelegateProxy(UIImagePickerController *self) {
 			return userInfo;
 		}]
 		takeUntil:pickerCancelledSignal]
-		setNameWithFormat:@"%@ -rac_imageSelectedSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_imageSelectedSignal", self.rac_description];
     
 	RACUseDelegateProxy(self);
     

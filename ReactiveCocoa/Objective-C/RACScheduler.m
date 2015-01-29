@@ -199,7 +199,9 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	RACScheduler *previousScheduler = RACScheduler.currentScheduler;
 	NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
 
-	block();
+	@autoreleasepool {
+		block();
+	}
 
 	if (previousScheduler != nil) {
 		NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = previousScheduler;

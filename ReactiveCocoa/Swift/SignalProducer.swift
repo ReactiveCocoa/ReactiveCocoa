@@ -558,7 +558,6 @@ public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: Si
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 
-public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
@@ -566,13 +565,43 @@ public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>? = nil
+	var result: Result<T, E>?
 
 	producer
 		|> take(1)
 		|> start(next: { value in
 			result = success(value)
 			dispatch_semaphore_signal(semaphore)
+		}, error: { error in
+			result = failure(error)
+			dispatch_semaphore_signal(semaphore)
+		}, completed: {
+			dispatch_semaphore_signal(semaphore)
+			return
+		})
+
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+	return result
+}
+
+/// Starts the producer, then blocks, waiting for events: Next and Completed.
+/// When a single value or error is sent, the returned `Result` will represent
+/// those cases. However, when no values are sent, or when more than one value
+/// is sent, `nil` will be returned.
+public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	let semaphore = dispatch_semaphore_create(0)
+	var result: Result<T, E>?
+
+	producer
+		|> take(2)
+		|> start(next: { value in
+			if result != nil {
+				// Move into failure state after recieving another value.
+				result = nil
+				return
+			}
+
+			result = success(value)
 		}, error: { error in
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)

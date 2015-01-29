@@ -263,16 +263,40 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("single") {
-			pending("should start a signal then block until completion") {
+			it("should start a signal then block until completion") {
+				var sink: Signal<Int, NoError>.Observer!
+				let producer = SignalProducer<Int, NoError> { observer, _ in
+					sink = observer
+				}
+				expect(sink).to(beNil())
+
+				var result: Result<Int, NoError>?
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> single
+				}
+				expect(sink).toEventuallyNot(beNil())
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				expect(result?.value).to(equal(1))
 			}
 
-			pending("should return a nil result if no values are sent before completion") {
+			it("should return a nil result if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> single
+				expect(result).to(beNil())
 			}
 
-			pending("should return a nil result if too many values are sent before completion") {
+			it("should return a nil result if more than one value is sent before completion") {
+				let result = SignalProducer<Int, NoError>(values: [1, 2]) |> single
+				expect(result).to(beNil())
 			}
 
-			pending("should return an error if one occurs") {
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> single
+				expect(result?.error).to(equal(TestError.Default))
 			}
 		}
 

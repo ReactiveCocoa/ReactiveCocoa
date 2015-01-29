@@ -335,10 +335,27 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("wait") {
-			pending("should start a signal then block until completion") {
+			it("should start a signal then block until completion") {
+				var sink: Signal<Int, NoError>.Observer!
+				let producer = SignalProducer<Int, NoError> { observer, _ in
+					sink = observer
+				}
+				expect(sink).to(beNil())
+
+				var result: Result<(), NoError>?
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> wait
+				}
+				expect(sink).toEventuallyNot(beNil())
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				expect(result?.value).toNot(beNil())
 			}
 			
-			pending("should return an error if one occurs") {
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> wait
+				expect(result.error).to(equal(TestError.Default))
 			}
 		}
 	}

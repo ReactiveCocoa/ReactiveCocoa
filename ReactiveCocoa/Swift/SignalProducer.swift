@@ -557,8 +557,6 @@ public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
-
-public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
 
 /// Starts the producer, then blocks, waiting for the first value.
@@ -630,6 +628,22 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 			dispatch_semaphore_signal(semaphore)
 			return
 		})
+
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+	return result
+}
+
+public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
+	let semaphore = dispatch_semaphore_create(0)
+	var result: Result<(), E>!
+
+	producer.start(error: { error in
+		result = failure(error)
+		dispatch_semaphore_signal(semaphore)
+	}, completed: {
+		result = success(())
+		dispatch_semaphore_signal(semaphore)
+	})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	return result

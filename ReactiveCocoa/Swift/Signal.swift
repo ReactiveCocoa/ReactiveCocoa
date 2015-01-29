@@ -56,6 +56,14 @@ public final class Signal<T, E: ErrorType> {
 		}
 	}
 
+	/// A Signal that completes immediately.
+	public class var empty: Signal {
+		return self {
+			sendCompleted($0)
+			return nil
+		}
+	}
+
 	/// A Signal that never sends any events.
 	public class var never: Signal {
 		return self { _ in nil }

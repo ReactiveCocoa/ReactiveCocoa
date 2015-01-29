@@ -633,6 +633,7 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return result
 }
 
+/// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 	let semaphore = dispatch_semaphore_create(0)
 	var result: Result<(), E>!

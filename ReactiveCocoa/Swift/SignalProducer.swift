@@ -561,24 +561,7 @@ public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: Sign
 
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>?
-
-	producer
-		|> take(1)
-		|> start(next: { value in
-			result = success(value)
-			dispatch_semaphore_signal(semaphore)
-		}, error: { error in
-			result = failure(error)
-			dispatch_semaphore_signal(semaphore)
-		}, completed: {
-			dispatch_semaphore_signal(semaphore)
-			return
-		})
-
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-	return result
+	return producer |> take(1) |> single
 }
 
 /// Starts the producer, then blocks, waiting for events: Next and Completed.

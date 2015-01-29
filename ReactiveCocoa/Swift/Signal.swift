@@ -175,15 +175,16 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
+	if count == 0 {
+		return Signal.empty
+	}
+
 	return Signal { observer in
 		var taken = 0
 
 		return signal.observe(next: { value in
-			if taken < count {
-				taken++
-				sendNext(observer, value)
-			}
-			if taken == count {
+			sendNext(observer, value)
+			if ++taken == count {
 				sendCompleted(observer)
 			}
 		}, error: { error in

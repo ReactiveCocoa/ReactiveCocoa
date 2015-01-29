@@ -613,24 +613,7 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 /// Starts the producer, then blocks, waiting for the last value.
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>?
-
-	producer
-		|> takeLast(1)
-		|> start(next: { value in
-			result = success(value)
-			dispatch_semaphore_signal(semaphore)
-		}, error: { error in
-			result = failure(error)
-			dispatch_semaphore_signal(semaphore)
-		}, completed: {
-			dispatch_semaphore_signal(semaphore)
-			return
-		})
-
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-	return result
+	return producer |> takeLast(1) |> first
 }
 
 /// Starts the producer, then blocks, waiting for completion.

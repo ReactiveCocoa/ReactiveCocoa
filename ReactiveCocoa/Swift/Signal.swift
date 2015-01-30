@@ -56,14 +56,6 @@ public final class Signal<T, E: ErrorType> {
 		}
 	}
 
-	/// A Signal that completes immediately.
-	public class var empty: Signal {
-		return self {
-			sendCompleted($0)
-			return nil
-		}
-	}
-
 	/// A Signal that never sends any events.
 	public class var never: Signal {
 		return self { _ in nil }
@@ -175,16 +167,15 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
-	if count == 0 {
-		return Signal.empty
-	}
-
 	return Signal { observer in
 		var taken = 0
 
 		return signal.observe(next: { value in
-			sendNext(observer, value)
-			if ++taken == count {
+			if taken < count {
+				taken++
+				sendNext(observer, value)
+			}
+			if taken == count {
 				sendCompleted(observer)
 			}
 		}, error: { error in

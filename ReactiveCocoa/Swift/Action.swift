@@ -31,19 +31,10 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 	/// Whether the action is currently enabled.
 	public var enabled: PropertyOf<Bool> {
-		let property = MutableProperty(false)
-
-		userEnabled.producer
-			|> combineLatestWith(executing.producer)
-			|> map(self.dynamicType.shouldBeEnabled)
-			// FIXME: Workaround for <~ being disabled on SignalProducers.
-			|> startWithSignal { signal, disposable in
-				let bindDisposable = property <~ signal
-				disposable.addDisposable(bindDisposable)
-			}
-
-		return PropertyOf(property)
+		return PropertyOf(_enabled)
 	}
+
+	private let _enabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
 	private let userEnabled: PropertyOf<Bool>
@@ -71,6 +62,15 @@ public final class Action<Input, Output, Error: ErrorType> {
 		let (eSig, eSink) = Signal<Error, NoError>.pipe()
 		errorsObserver = eSink
 		errors = eSig
+
+		enabledIf.producer
+			|> combineLatestWith(executing.producer)
+			|> map(self.dynamicType.shouldBeEnabled)
+			// FIXME: Workaround for <~ being disabled on SignalProducers.
+			|> startWithSignal { signal, disposable in
+				let bindDisposable = self._enabled <~ signal
+				disposable.addDisposable(bindDisposable)
+			}
 	}
 
 	/// Initializes an action that will be enabled by default, and create a
@@ -124,6 +124,101 @@ public final class Action<Input, Output, Error: ErrorType> {
 				self._executing.value = false
 			}
 		}
+	}
+}
+
+/// Wraps an Action for use by a GUI control (such as `NSControl` or
+/// `UIControl`), with KVO, or with Cocoa Bindings.
+public final class CocoaAction: NSObject {
+	/// The selector that a caller should invoke upon a CocoaAction in order to
+	/// execute it.
+	public class var selector: Selector {
+		return "execute:"
+	}
+
+	/// Whether the action is enabled.
+	///
+	/// This property will only change on the main thread, and will generate a
+	/// KVO notification for every change.
+	public var enabled: Bool {
+		return _enabled
+	}
+
+	/// Whether the action is executing.
+	///
+	/// This property will only change on the main thread, and will generate a
+	/// KVO notification for every change.
+	public var executing: Bool {
+		return _executing
+	}
+
+	private var _enabled = false
+	private var _executing = false
+	private let _execute: AnyObject? -> ()
+	private let disposable = CompositeDisposable()
+
+	/// Initializes a Cocoa action that will invoke the given Action by
+	/// transforming the object given to execute().
+	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: AnyObject? -> Input) {
+		_execute = { input in
+			let producer = action.apply(inputTransform(input))
+			producer.start()
+		}
+
+		super.init()
+
+		let enabledDisposable = action.enabled.producer
+			|> observeOn(UIScheduler())
+			|> start(Event.sink(next: { [weak self] value in
+				self?.willChangeValueForKey("enabled")
+				self?._enabled = value
+				self?.didChangeValueForKey("enabled")
+			}))
+
+		disposable.addDisposable(enabledDisposable)
+
+		let executingDisposable = action.executing.producer
+			|> observeOn(UIScheduler())
+			|> start(Event.sink(next: { [weak self] value in
+				self?.willChangeValueForKey("executing")
+				self?._executing = value
+				self?.didChangeValueForKey("executing")
+			}))
+
+		disposable.addDisposable(executingDisposable)
+	}
+
+	/// Initializes a Cocoa action that will invoke the given Action by
+	/// always providing the given input.
+	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
+		self.init(action, { _ in input })
+	}
+
+	/// Initializes a Cocoa action that will invoke the given Action with the
+	/// object given to execute(), if it can be downcast successfully, or nil
+	/// otherwise.
+	public convenience init<Input: AnyObject, Output, Error>(_ action: Action<Input?, Output, Error>) {
+		self.init(action, { input in
+			if let input: AnyObject = input {
+				return input as? Input
+			} else {
+				return nil
+			}
+		})
+	}
+
+	deinit {
+		disposable.dispose()
+	}
+
+	/// Attempts to execute the underlying action with the given input, subject
+	/// to the behavior described by the initializer that was used.
+	@IBAction public func execute(input: AnyObject?) {
+		_execute(input)
+	}
+
+	public override class func automaticallyNotifiesObserversForKey(key: String) -> Bool {
+		return false
 	}
 }
 

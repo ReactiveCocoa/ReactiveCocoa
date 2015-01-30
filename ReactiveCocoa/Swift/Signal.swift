@@ -174,10 +174,10 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			if taken < count {
 				taken++
 				sendNext(observer, value)
+			}
 
-				if taken == count {
-					sendCompleted(observer)
-				}
+			if taken == count {
+				sendCompleted(observer)
 			}
 		}, error: { error in
 			sendError(observer, error)

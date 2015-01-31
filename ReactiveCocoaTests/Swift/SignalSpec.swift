@@ -460,10 +460,50 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skipRepeats") {
-			pending("should skip duplicate Equatable values") {
+			it("should skip duplicate Equatable values") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> skipRepeats
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([1, 2, 4, 5]))
 			}
 
-			pending("should skip values according to a predicate") {
+			it("should skip values according to a predicate") {
+				let letters = [ "A", "a", "b", "c", "C", "V" ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<String, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for letter in letters {
+							sendNext(observer, letter)
+						}
+					}
+					return nil
+				}
+				
+				var result: [String] = []
+				
+				signal
+				|> skipRepeats { $0.lowercaseString == $1.lowercaseString }
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([ "A", "b", "c", "V" ]))
 			}
 		}
 

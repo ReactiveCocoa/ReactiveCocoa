@@ -412,10 +412,50 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skip") {
-			pending("should skip initial values") {
+			it("should skip initial values") {
+				let numbers = [ 1, 2, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> skip(2)
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([4, 5]))
 			}
 
-			pending("should not skip any values when 0") {
+			it("should not skip any values when 0") {
+				let numbers = [ 1, 2, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> skip(0)
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal(numbers))
 			}
 		}
 

@@ -526,7 +526,7 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 
 /// Waits until `signal` completes and then forwards the final `count` values
 /// on the returned signal.
-public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
+public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var buffer = [T]()
 		buffer.reserveCapacity(count)
@@ -553,7 +553,7 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 
 /// Forwards any values from `signal` until `predicate` returns false,
 /// at which point the returned signal will complete.
-public func takeWhile<T,E>(predicate: T -> Bool)(signal: Signal<T,E>) -> Signal<T,E> {
+public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(next: { value in
 			if predicate(value) {

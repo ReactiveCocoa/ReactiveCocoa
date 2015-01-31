@@ -509,7 +509,7 @@ class SignalSpec: QuickSpec {
 
 		describe("skipWhile") {
 			it("should skip while the predicate is true") {
-				let numbers = [ 1, 2, 4, 4, 5 ]
+				let numbers = [ 1, 2, 4, 4, 5, 2 ]
 				var testScheduler = TestScheduler()
 				
 				let signal: Signal<Int, NoError> = Signal { observer in
@@ -528,7 +528,7 @@ class SignalSpec: QuickSpec {
 				|> observe(next: { result.append($0) })
 				
 				testScheduler.run()
-				expect(result).to(equal([ 4, 4, 5 ]))
+				expect(result).to(equal([ 4, 4, 5, 2 ]))
 			}
 
 			it("should not skip any values when the predicate starts false") {

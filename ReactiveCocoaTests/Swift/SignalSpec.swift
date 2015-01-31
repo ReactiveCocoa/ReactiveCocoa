@@ -556,10 +556,59 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("take") {
-			pending("should take initial values") {
+			it("should take initial values") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> take(3)
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([ 1, 2, 4 ]))
 			}
 
-			pending("should complete when 0") {
+			it("should complete when 0") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				var completed = false
+				
+				signal
+				|> take(0)
+				|> observe(next: { number in
+						result.append(number)
+					}, completed: {
+						completed = true
+					})
+				
+				expect(completed).to(beFalsy())
+				
+				testScheduler.run()
+				
+				expect(result).to(beEmpty())
+				expect(completed).to(beTruthy())
 			}
 		}
 

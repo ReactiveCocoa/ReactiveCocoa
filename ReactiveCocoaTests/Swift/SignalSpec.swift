@@ -232,7 +232,17 @@ class SignalSpec: QuickSpec {
 				expect(fromSignal).to(equal([1, 2]))
 			}
 
-			pending("should not trigger side effects") {
+			it("should not trigger side effects") {
+				var runCount = 0
+				let signal: Signal<(), NoError> = Signal { observer in
+					runCount += 1
+					return nil
+				}
+				
+				expect(runCount).to(equal(1))
+				
+				signal.observe()
+				expect(runCount).to(equal(1))
 			}
 
 			pending("should release observer after termination") {

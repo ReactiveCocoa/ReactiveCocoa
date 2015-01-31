@@ -551,10 +551,27 @@ public func takeLast<T,E>(count: Int)(signal: Signal<T,E>) -> Signal<T,E> {
 	}
 }
 
+/// Forwards any values from `signal` until `predicate` returns false,
+/// at which point the returned signal will complete.
+public func takeWhile<T,E>(predicate: T -> Bool)(signal: Signal<T,E>) -> Signal<T,E> {
+	return Signal { observer in
+		return signal.observe(next: { value in
+			if predicate(value) {
+				sendNext(observer, value)
+			} else {
+				sendCompleted(observer)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 TODO
 
-public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
 public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>

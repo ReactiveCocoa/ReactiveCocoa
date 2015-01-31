@@ -508,10 +508,50 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skipWhile") {
-			pending("should skip while the predicate is true") {
+			it("should skip while the predicate is true") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> skipWhile { $0 < 4 }
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([ 4, 4, 5 ]))
 			}
 
-			pending("should not skip any values when the predicate starts false") {
+			it("should not skip any values when the predicate starts false") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var result: [Int] = []
+				
+				signal
+				|> skipWhile { _ in return false }
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([ 1, 2, 4, 4, 5 ]))
 			}
 		}
 

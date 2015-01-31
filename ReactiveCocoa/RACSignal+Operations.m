@@ -141,14 +141,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(predicate != nil);
 
 	return [[[self map:^(id value) {
-        if (predicate(value)) {
-            return [[RACSignal return:value] delay:interval];
-        } else {
-            return [RACSignal return:value];
-        }
-    }]
-    switchToLatest]
-    setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+		if (predicate(value)) {
+			return [[RACSignal return:value] delay:interval];
+		} else {
+			return [RACSignal return:value];
+		}
+	}]
+	switchToLatest]
+	setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {

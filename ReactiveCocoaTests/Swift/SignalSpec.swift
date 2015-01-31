@@ -689,7 +689,34 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeUntilReplacement") {
-			pending("should take values from the original then the replacement") {
+			it("should take values from the original then the replacement") {
+				var testScheduler = TestScheduler()
+				let originalSignal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendNext(observer, 1)
+					}
+					testScheduler.scheduleAfter(5, action: {
+						sendNext(observer, 2)
+					})
+					return nil
+				}
+				let replacementSignal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.scheduleAfter(2, action: {
+						sendNext(observer, 3)
+					})
+					testScheduler.scheduleAfter(6, action: {
+						sendNext(observer, 4)
+					})
+					return nil
+				}
+				
+				var result: [Int] = []
+				originalSignal
+				|> takeUntilReplacement(replacementSignal)
+				|> observe(next: { result.append($0) })
+				
+				testScheduler.run()
+				expect(result).to(equal([ 1, 3, 4 ]))
 			}
 		}
 

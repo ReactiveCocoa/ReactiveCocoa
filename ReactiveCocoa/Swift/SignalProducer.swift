@@ -476,9 +476,8 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				state.modify { (var state) in
 					state.latestSignalCompleted = true
 					let outerSignalIsComplete = completeIfAllowed(state)
-					if !outerSignalIsComplete {
-						nextSignalProducer = state.queuedSignalProducers[0]
-						state.queuedSignalProducers.removeAtIndex(0)
+					if !outerSignalIsComplete && !state.queuedSignalProducers.isEmpty {
+						nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
 					}
 					return state
 				}

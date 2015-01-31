@@ -613,10 +613,78 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeUntil") {
-			pending("should take values until the trigger fires") {
+			it("should take values until the trigger fires") {
+				var testScheduler = TestScheduler()
+				let triggerSignal: Signal<(), NoError> = Signal { observer in
+					testScheduler.scheduleAfter(2, action: {
+						sendCompleted(observer)
+					})
+					return nil
+				}
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.scheduleAfter(1, action: {
+						sendNext(observer, 3)
+					})
+					testScheduler.scheduleAfter(3, action: {
+						sendNext(observer, 5)
+					})
+					return nil
+				}
+				
+				var result: [Int] = []
+				var completed = false
+				
+				signal
+				|> takeUntil(triggerSignal)
+				|> observe(next: { number in
+					result.append(number)
+				}, completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beFalsy())
+				
+				testScheduler.run()
+				expect(result).to(equal([3]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should complete if the trigger fires immediately") {
+			it("should complete if the trigger fires immediately") {
+				var testScheduler = TestScheduler()
+				let triggerSignal: Signal<(), NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.scheduleAfter(2, action: {
+						sendNext(observer, 3)
+					})
+					testScheduler.scheduleAfter(3, action: {
+						sendNext(observer, 5)
+					})
+					return nil
+				}
+				
+				var result: [Int] = []
+				var completed = false
+				
+				signal
+				|> takeUntil(triggerSignal)
+				|> observe(next: { number in
+					result.append(number)
+				}, completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beFalsy())
+				
+				testScheduler.run()
+				expect(result).to(beEmpty())
+				expect(completed).to(beTruthy())
 			}
 		}
 

@@ -133,10 +133,43 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeWhile") {
-			pending("should take while the predicate is true") {
+			var signal: Signal<Int, NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+
+			beforeEach {
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				signal = baseSignal |> takeWhile { $0 <= 4 }
+				observer = sink
 			}
 
-			pending("should complete if the predicate starts false") {
+			it("should take while the predicate is true") {
+				var latestValue: Int!
+				var completed = false
+
+				signal.observe(next: { value in
+					latestValue = value
+				}, completed: {
+					completed = true
+				})
+
+				sendNext(observer, 4)
+				expect(latestValue).to(equal(4))
+				expect(completed).to(beFalse())
+
+				sendNext(observer, 5)
+				expect(latestValue).to(equal(4))
+				expect(completed).to(beTrue())
+			}
+
+			it("should complete if the predicate starts false") {
+				var completed = false
+
+				signal.observe(completed: {
+					completed = true
+				})
+
+				sendNext(observer, 5)
+				expect(completed).to(beTrue())
 			}
 		}
 

@@ -475,8 +475,9 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				serialDisposableCompositeHandle.remove()
 				state.modify { (var state) in
 					state.latestSignalCompleted = true
-					let outerSignalIsComplete = completeIfAllowed(state)
-					if !outerSignalIsComplete && !state.queuedSignalProducers.isEmpty {
+					if state.queuedSignalProducers.isEmpty {
+						completeIfAllowed(state)
+					} else {
 						nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
 					}
 					return state

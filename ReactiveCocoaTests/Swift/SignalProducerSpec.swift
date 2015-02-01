@@ -219,16 +219,62 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("then") {
-			pending("should start the subsequent signal after the completion of the original") {
+			it("should start the subsequent producer after the completion of the original") {
+				var sink: Signal<Int, NoError>.Observer!
+				let original = SignalProducer<Int, NoError> { observer, _ in
+					sink = observer
+				}
+
+				var subsequentStarted = false
+				let subsequent = SignalProducer<Int, NoError> { observer, _ in
+					subsequentStarted = true
+				}
+
+				let producer = original |> then(subsequent)
+
+				producer.start()
+				expect(subsequentStarted).to(beFalse())
+				sendCompleted(sink)
+				expect(subsequentStarted).to(beTrue())
 			}
 
-			pending("should forward errors from the original signal") {
+			it("should forward errors from the original producer") {
+				let original = SignalProducer<Int, TestError>(error: .Default)
+				let subsequent = SignalProducer<Int, TestError>.empty
+
+				let result = original |> then(subsequent) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should forward errors from the subsequent signal") {
+			it("should forward errors from the subsequent producer") {
+				let original = SignalProducer<Int, TestError>.empty
+				let subsequent = SignalProducer<Int, TestError>(error: .Default)
+
+				let result = original |> then(subsequent) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				var originalSink: Signal<Int, NoError>.Observer!
+				let original = SignalProducer<Int, NoError> { observer, _ in
+					originalSink = observer
+				}
+				var subsequentSink: Signal<String, NoError>.Observer!
+				let subsequent = SignalProducer<String, NoError> { observer, _ in
+					subsequentSink = observer
+				}
+
+				let producer = original |> then(subsequent)
+
+				var completed = false
+				producer.start(completed: {
+					completed = true
+				})
+
+				sendCompleted(originalSink)
+				expect(completed).to(beFalse())
+				sendCompleted(subsequentSink)
+				expect(completed).to(beTrue())
 			}
 		}
 

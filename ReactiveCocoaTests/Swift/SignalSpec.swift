@@ -583,7 +583,7 @@ class SignalSpec: QuickSpec {
 				let numbers = [ 1, 2, 4, 4, 5 ]
 				var testScheduler = TestScheduler()
 				
-				let signal: Signal<Int, NoError> = Signal { observer in
+				var signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in numbers {
 							sendNext(observer, number)
@@ -594,8 +594,8 @@ class SignalSpec: QuickSpec {
 				
 				var completed = false
 				
-				(signal |> take(numbers.count))
-				.observe(completed: { completed = true })
+				signal = signal |> take(numbers.count)
+				signal.observe(completed: { completed = true })
 				
 				expect(completed).to(beFalsy())
 				testScheduler.run()

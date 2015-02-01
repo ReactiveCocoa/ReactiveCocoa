@@ -713,7 +713,7 @@ class SignalSpec: QuickSpec {
 
 		describe("takeUntilReplacement") {
 			it("should take values from the original then the replacement") {
-				var testScheduler = TestScheduler()
+				let testScheduler = TestScheduler()
 				let originalSignal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						sendNext(observer, 1)
@@ -772,7 +772,22 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("observeOn") {
-			pending("should send events on the given scheduler") {
+			it("should send events on the given scheduler") {
+				let testScheduler = TestScheduler()
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+				
+				var result: [Int] = []
+				
+				signal
+				|> observeOn(testScheduler)
+				|> observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(observer, 2)
+				expect(result).to(beEmpty())
+				
+				testScheduler.run()
+				expect(result).to(equal([ 1, 2 ]))
 			}
 		}
 

@@ -594,9 +594,8 @@ class SignalSpec: QuickSpec {
 				
 				var completed = false
 				
-				signal
-				|> take(numbers.count)
-				|> observe(completed: { completed = true })
+				(signal |> take(numbers.count))
+				.observe(completed: { completed = true })
 				
 				expect(completed).to(beFalsy())
 				testScheduler.run()

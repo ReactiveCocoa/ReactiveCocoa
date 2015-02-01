@@ -792,10 +792,59 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("delay") {
-			pending("should send events on the given scheduler after the interval") {
+			it("should send events on the given scheduler after the interval") {
+				let testScheduler = TestScheduler()
+				var signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendNext(observer, 1)
+					}
+					testScheduler.scheduleAfter(5, {
+						sendNext(observer, 2)
+						sendCompleted(observer)
+					})
+					return nil
+				}
+				
+				var result: [Int] = []
+				var completed = false
+				
+				signal
+				|> delay(10, onScheduler: testScheduler)
+				|> observe(next: { number in
+						result.append(number)
+					}, completed: {
+						completed = true
+					})
+				
+				testScheduler.advanceByInterval(4) // send initial value
+				expect(result).to(beEmpty())
+				
+				testScheduler.advanceByInterval(10) // send second value and receive first
+				expect(result).to(equal([ 1 ]))
+				expect(completed).to(beFalsy())
+				
+				testScheduler.advanceByInterval(10) // send second value and receive first
+				expect(result).to(equal([ 1, 2 ]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should schedule errors immediately") {
+			it("should schedule errors immediately") {
+				let testScheduler = TestScheduler()
+				var signal: Signal<Int, TestError> = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, TestError.Default)
+					}
+					return nil
+				}
+				
+				var errored = false
+				
+				signal
+				|> delay(10, onScheduler: testScheduler)
+				|> observe(error: { _ in errored = true })
+				
+				testScheduler.advance()
+				expect(errored).to(beTruthy())
 			}
 		}
 

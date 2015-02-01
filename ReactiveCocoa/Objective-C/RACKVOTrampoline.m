@@ -9,8 +9,7 @@
 #import "RACKVOTrampoline.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
-
-static void *RACKVOWrapperContext = &RACKVOWrapperContext;
+#import "RACKVOProxy.h"
 
 @interface RACKVOTrampoline ()
 
@@ -47,7 +46,9 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	_unsafeTarget = strongTarget;
 	_observer = observer;
 
-	[strongTarget addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
+	[RACKVOProxy.sharedProxy addObserver:self forContext:(__bridge void *)self];
+	[strongTarget addObserver:RACKVOProxy.sharedProxy forKeyPath:self.keyPath options:options context:(__bridge void *)self];
+
 	[strongTarget.rac_deallocDisposable addDisposable:self];
 	[self.observer.rac_deallocDisposable addDisposable:self];
 
@@ -81,11 +82,12 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	[target.rac_deallocDisposable removeDisposable:self];
 	[observer.rac_deallocDisposable removeDisposable:self];
 
-	[target removeObserver:self forKeyPath:self.keyPath context:&RACKVOWrapperContext];
+	[target removeObserver:RACKVOProxy.sharedProxy forKeyPath:self.keyPath context:(__bridge void *)self];
+	[RACKVOProxy.sharedProxy removeObserver:self forContext:(__bridge void *)self];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-	if (context != &RACKVOWrapperContext) {
+	if (context != (__bridge void *)self) {
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 		return;
 	}

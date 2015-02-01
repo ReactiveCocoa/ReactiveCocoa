@@ -46,7 +46,7 @@ static void RACUseDelegateProxy(UITextView *self) {
 			return x.text;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_textSignal", self.rac_description];
 
 	RACUseDelegateProxy(self);
 

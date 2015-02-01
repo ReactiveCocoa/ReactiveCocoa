@@ -3196,7 +3196,7 @@ qck_describe(@"-collect", ^{
 	});
 });
 
-qck_describe(@"-bufferWithTime:", ^{
+qck_describe(@"-bufferWithTime:onScheduler:", ^{
 	__block RACTestScheduler *scheduler;
 
 	__block RACSubject *input;

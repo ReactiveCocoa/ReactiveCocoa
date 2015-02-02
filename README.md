@@ -547,17 +547,7 @@ are some resources related to FRP:
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
 [GroceryList]:  https://github.com/jspahrsummers/GroceryList
-[Memory Management]: Documentation/MemoryManagement.md
-[NSObject+RACLifting]: ReactiveCocoa/NSObject+RACLifting.h
-[RACDisposable]: ReactiveCocoa/RACDisposable.h
-[RACEvent]: ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ReactiveCocoa/RACMulticastConnection.h
-[RACScheduler]: ReactiveCocoa/RACScheduler.h
 [RACSequence]: ReactiveCocoa/RACSequence.h
-[RACSignal+Operations]: ReactiveCocoa/RACSignal+Operations.h
 [RACSignal]: ReactiveCocoa/RACSignal.h
-[RACStream]: ReactiveCocoa/RACStream.h
-[RACSubscriber]: ReactiveCocoa/RACSubscriber.h
-[RAC]: ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [C-41]: https://github.com/AshFurrow/C-41

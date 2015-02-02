@@ -187,7 +187,45 @@ class SignalProducerSpec: QuickSpec {
 				expect(error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when all signals have completed") {
+			context("completion") {
+				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
+				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
+
+				var innerSink: Signal<Int, NoError>.Observer!
+				var innerProducer: SignalProducer<Int, NoError>!
+
+				var completed = false
+
+				beforeEach {
+					outerProducer = SignalProducer { observer, _ in
+						outerSink = observer
+					}
+					innerProducer = SignalProducer { observer, _ in
+						innerSink = observer
+					}
+
+					completed = false
+					concat(outerProducer).start(completed: {
+						completed = true
+					})
+					sendNext(outerSink, innerProducer)
+				}
+
+				it("should complete when inner producers complete, then outer producer completes") {
+					sendCompleted(innerSink)
+					expect(completed).to(beFalse())
+
+					sendCompleted(outerSink)
+					expect(completed).to(beTrue())
+				}
+
+				it("should complete when outer producers completes, then inner producers complete") {
+					sendCompleted(outerSink)
+					expect(completed).to(beFalse())
+
+					sendCompleted(innerSink)
+					expect(completed).to(beTrue())
+				}
 			}
 		}
 

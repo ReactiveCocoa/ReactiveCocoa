@@ -164,7 +164,19 @@ class SignalProducerSpec: QuickSpec {
 			pending("should forward an error from an inner signal") {
 			}
 
-			pending("should forward an error from the outer signal") {
+			it("should forward an error from the outer producer") {
+				var sink: Signal<SignalProducer<Int, TestError>, TestError>.Observer!
+				let outerProducer = SignalProducer { observer, _ in
+					sink = observer
+				}
+
+				var error: TestError?
+				concat(outerProducer).start(error: { e in
+					error = e
+				})
+
+				sendError(sink, TestError.Default)
+				expect(error).to(equal(TestError.Default))
 			}
 
 			pending("should complete when all signals have completed") {

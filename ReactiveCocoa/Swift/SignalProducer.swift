@@ -543,6 +543,18 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
+public func canError<T, E>(producer: SignalProducer<T, NoError>) -> SignalProducer<T, E> {
+	return SignalProducer { observer, disposable in
+		let producerDisposable = producer.start(next: { value in
+			sendNext(observer, value)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		disposable.addDisposable(producerDisposable)
+	}
+}
+
 /*
 TODO
 
@@ -562,6 +574,11 @@ public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: Sign
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return producer |> take(1) |> single
+}
+
+public func first<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> first
+	return result?.value
 }
 
 /// Starts the producer, then blocks, waiting for events: Next and Completed.
@@ -594,15 +611,30 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return result
 }
 
+public func single<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> single
+	return result?.value
+}
+
 /// Starts the producer, then blocks, waiting for the last value.
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return producer |> takeLast(1) |> single
+}
+
+public func last<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> last
+	return result?.value
 }
 
 /// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 	let result = producer |> map { _ in () } |> last
 	return result ?? success(())
+}
+
+public func wait<T, E: ErrorType>(producer: SignalProducer<T, NoError>)  {
+	// The result isn't used, but its type helps out the compiler.
+	let result: Result<(), E> = producer |> canError |> wait 
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

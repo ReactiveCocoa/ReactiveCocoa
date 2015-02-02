@@ -161,7 +161,15 @@ class SignalProducerSpec: QuickSpec {
 			pending("should start subsequent inner signals upon completion") {
 			}
 
-			pending("should forward an error from an inner signal") {
+			it("should forward an error from an inner producer") {
+				let errorProducer = SignalProducer<Int, TestError>(error: TestError.Default)
+				let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
+
+				var error: TestError?
+				concat(outerProducer).start(error: { e in
+					error = e
+				})
+				expect(error).to(equal(TestError.Default))
 			}
 
 			it("should forward an error from the outer producer") {

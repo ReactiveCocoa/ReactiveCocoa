@@ -491,7 +491,7 @@ To add RAC to your application:
  1. Add the ReactiveCocoa repository as a submodule of your application's
     repository.
  1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
+ 1. Drag and drop `ReactiveCocoa.xcodeproj` into your
     application's Xcode project or workspace.
  1. On the "Build Phases" tab of your application target, add RAC to the "Link
     Binary With Libraries" phase.
@@ -517,7 +517,7 @@ which are real iOS apps written using ReactiveCocoa.
 
 ## Standalone Development
 
-If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoaFramework/ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
+If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
 
 ## More Info
 
@@ -548,16 +548,16 @@ are some resources related to FRP:
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
 [GroceryList]:  https://github.com/jspahrsummers/GroceryList
 [Memory Management]: Documentation/MemoryManagement.md
-[NSObject+RACLifting]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
-[RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
-[RACEvent]: ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
-[RACScheduler]: ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
-[RACSignal+Operations]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
-[RACSignal]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
-[RACStream]: ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
-[RACSubscriber]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
-[RAC]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
+[NSObject+RACLifting]: ReactiveCocoa/NSObject+RACLifting.h
+[RACDisposable]: ReactiveCocoa/RACDisposable.h
+[RACEvent]: ReactiveCocoa/RACEvent.h
+[RACMulticastConnection]: ReactiveCocoa/RACMulticastConnection.h
+[RACScheduler]: ReactiveCocoa/RACScheduler.h
+[RACSequence]: ReactiveCocoa/RACSequence.h
+[RACSignal+Operations]: ReactiveCocoa/RACSignal+Operations.h
+[RACSignal]: ReactiveCocoa/RACSignal.h
+[RACStream]: ReactiveCocoa/RACStream.h
+[RACSubscriber]: ReactiveCocoa/RACSubscriber.h
+[RAC]: ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [C-41]: https://github.com/AshFurrow/C-41

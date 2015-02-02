@@ -19,7 +19,7 @@ If you want to learn more, we recommend these resources, roughly in order:
  1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
  1. [Framework Overview][]
  1. [Basic Operators][]
- 1. [Header documentation](ReactiveCocoaFramework/ReactiveCocoa)
+ 1. [Header documentation](ReactiveCocoa)
  1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
     questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
  1. The rest of the [Documentation][] folder

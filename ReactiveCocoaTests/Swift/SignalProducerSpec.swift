@@ -158,7 +158,59 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("concat") {
-			pending("should start subsequent inner signals upon completion") {
+			context("sequencing") {
+				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
+				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
+
+				var previousSink: Signal<Int, NoError>.Observer!
+				var previousProducer: SignalProducer<Int, NoError>!
+
+				var subsequentSink: Signal<Int, NoError>.Observer!
+				var subsequentProducer: SignalProducer<Int, NoError>!
+				var subsequentStarted = false
+
+				beforeEach {
+					outerProducer = SignalProducer { observer, _ in
+						outerSink = observer
+					}
+
+					previousProducer = SignalProducer { observer, _ in
+						previousSink = observer
+					}
+
+					subsequentStarted = false
+					subsequentProducer = SignalProducer<Int, NoError> { observer, _ in
+						subsequentStarted = true
+					}
+
+					concat(outerProducer).start()
+					sendNext(outerSink, previousProducer)
+				}
+
+				it("should immediately start subsequent inner producers if previous inner producer has already completed") {
+					sendCompleted(previousSink)
+					sendNext(outerSink, subsequentProducer)
+					expect(subsequentStarted).to(beTrue())
+				}
+
+				context("with queued producers") {
+					beforeEach {
+						// Place the subsequent producer into `concat`'s queue.
+						sendNext(outerSink, subsequentProducer)
+						expect(subsequentStarted).to(beFalse())
+					}
+
+					it("should start subsequent inner producer upon completion of previous inner producer") {
+						sendCompleted(previousSink)
+						expect(subsequentStarted).to(beTrue())
+					}
+
+					it("should start subsequent inner producer upon completion of previous inner producer and completion of outer producer") {
+						sendCompleted(outerSink)
+						sendCompleted(previousSink)
+						expect(subsequentStarted).to(beTrue())
+					}
+				}
 			}
 
 			it("should forward an error from an inner producer") {

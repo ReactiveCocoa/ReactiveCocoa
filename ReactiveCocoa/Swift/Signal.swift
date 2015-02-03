@@ -569,10 +569,80 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Throttles values for which `predicate` returns true.
+///
+/// When `predicate` returns true for a value:
+///
+///  1. If another value is received before `interval` seconds have passed, the
+///     prior value is discarded. This happens regardless of whether the new
+///     value will be throttled.
+///  2. After `interval` seconds have passed since the value was originally
+///     received, it will be forwarded on `scheduler`.
+///
+/// When `predicate` returns false, the value is forwarded immediately,
+/// without any throttling.
+///
+/// interval  - The number of seconds for which to buffer the latest value that
+///             passes `predicate`.
+/// predicate - Passed each value from the receiver, this closure returns
+///             whether the given value should be throttled. By default, this
+/// 			argument always returns true.
+///
+/// Returns a signal which sends values throttled when `predicate`
+/// returns true. Completion and errors are always forwarded immediately.
+public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, predicate: T -> Bool = {_ in true })(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		let lock = NSRecursiveLock()
+		let compositeDisposable = CompositeDisposable()
+		let nextDisposable = SerialDisposable()
+		var throttledValue: T?
+
+		let flushNext: (send: Bool) -> Void = { send in
+			lock.lock()
+			
+			nextDisposable.innerDisposable?.dispose()
+			if let throttledValueUnwrapped = throttledValue {
+				if send {
+					sendNext(observer, throttledValueUnwrapped)
+				}
+				throttledValue = nil
+			}
+			
+			lock.unlock()
+		}
+
+		let subscriptionDisposable = signal.observe(next: { value in
+			let shouldThrottle = predicate(value)
+			lock.lock()
+			
+			flushNext(send: false)
+			if !shouldThrottle {
+				sendNext(observer, value)
+			} else {
+				throttledValue = value
+				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+				nextDisposable.innerDisposable = scheduler.scheduleAfter(date) {
+					flushNext(send: true)
+				}
+			}
+			
+			lock.unlock()
+		}, error: { error in
+			compositeDisposable.dispose()
+			sendError(observer, error)
+		}, completed: {
+			flushNext(send: true)
+			sendCompleted(observer)
+		})
+		compositeDisposable.addDisposable(subscriptionDisposable)
+		
+		return compositeDisposable
+	}
+}
+
 /*
 TODO
 
-public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
 public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>
 public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E>

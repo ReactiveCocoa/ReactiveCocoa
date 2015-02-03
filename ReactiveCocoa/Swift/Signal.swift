@@ -569,6 +569,70 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Throttle values sent by the receiver, so that at least `interval`
+/// seconds pass between each, then forwards them on the given scheduler.
+///
+/// If the receiver completes before the last throttled value is sent,
+/// it will be sent immediately.
+///
+/// If multiple values are received before the interval has elapsed, the
+/// latest value is the one that will be passed on.
+public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, predicate: T -> Bool = { _ in true })(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let state = Atomic(ThrottleState<T>())
+		let flush = {
+			state.modify { state in
+				if let value = state.pendingValue {
+					let date = scheduler.currentDate
+					sendNext(observer, value)
+					return ThrottleState(previousDate: date, pendingValue: nil, schedulerDisposable: nil)
+				} else {
+					return state
+				}
+			}
+		}
+		return signal.observe(next: { value in
+			state.modify { state in
+				var newState = state
+				newState.pendingValue = value
+
+				let now = scheduler.currentDate
+				let prev = state.previousDate
+				var scheduleDate: NSDate
+				if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
+					scheduleDate = now
+				} else {
+					scheduleDate = prev!.dateByAddingTimeInterval(interval)
+				}
+				
+				let schedulerDisposable = scheduler.scheduleAfter(scheduleDate) {
+					flush()
+					return
+				}
+				newState.schedulerDisposable = schedulerDisposable != nil ? ScopedDisposable(schedulerDisposable!) : nil
+				return newState
+			}
+			return
+		}, error: { error in
+			state.swap(ThrottleState())
+			sendError(observer, error)
+		}, completed: {
+			flush()
+			sendCompleted(observer)
+		})
+	}
+}
+
+// TODO: Move this inside function and rename when compiler stops segfaulting
+private struct ThrottleState<T> {
+	var previousDate: NSDate? = nil
+	var pendingValue: T? = nil
+	var schedulerDisposable: ScopedDisposable? = nil
+}
+
+
 /*
 TODO
 

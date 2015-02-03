@@ -585,9 +585,15 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 		let flush = {
 			state.modify { state in
 				if let value = state.pendingValue {
-					let date = scheduler.currentDate
-					sendNext(observer, value)
-					return ThrottleState(previousDate: date, pendingValue: nil, schedulerDisposable: nil)
+					let now = scheduler.currentDate
+					
+					// we need to check date again, to handle schedulers that don't give us Disposables
+					if state.previousDate == nil || now.timeIntervalSinceDate(state.previousDate!) >= interval {
+						sendNext(observer, value)
+						return ThrottleState(previousDate: now, pendingValue: nil, schedulerDisposable: nil)
+					} else {
+						return state
+					}
 				} else {
 					return state
 				}

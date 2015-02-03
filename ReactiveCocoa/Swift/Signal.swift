@@ -593,7 +593,6 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, predicate: T -> Bool = {_ in true })(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let lock = NSRecursiveLock()
-		let compositeDisposable = CompositeDisposable()
 		let nextDisposable = SerialDisposable()
 		var throttledValue: T?
 
@@ -611,7 +610,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			lock.unlock()
 		}
 
-		let subscriptionDisposable = signal.observe(next: { value in
+		return signal.observe(next: { value in
 			let shouldThrottle = predicate(value)
 			lock.lock()
 			
@@ -628,15 +627,12 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			
 			lock.unlock()
 		}, error: { error in
-			compositeDisposable.dispose()
+			nextDisposable.dispose()
 			sendError(observer, error)
 		}, completed: {
 			flushNext(send: true)
 			sendCompleted(observer)
 		})
-		compositeDisposable.addDisposable(subscriptionDisposable)
-		
-		return compositeDisposable
 	}
 }
 

@@ -543,6 +543,18 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
+public func canError<T, E>(producer: SignalProducer<T, NoError>) -> SignalProducer<T, E> {
+	return SignalProducer { observer, disposable in
+		let producerDisposable = producer.start(next: { value in
+			sendNext(observer, value)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		disposable.addDisposable(producerDisposable)
+	}
+}
+
 /*
 TODO
 
@@ -557,22 +569,36 @@ public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
-
-public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
-public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
-public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
 
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	return producer |> take(1) |> single
+}
+
+public func first<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> first
+	return result?.value
+}
+
+/// Starts the producer, then blocks, waiting for events: Next and Completed.
+/// When a single value or error is sent, the returned `Result` will represent
+/// those cases. However, when no values are sent, or when more than one value
+/// is sent, `nil` will be returned.
+public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>? = nil
+	var result: Result<T, E>?
 
 	producer
-		|> take(1)
+		|> take(2)
 		|> start(next: { value in
+			if result != nil {
+				// Move into failure state after recieving another value.
+				result = nil
+				return
+			}
+
 			result = success(value)
-			dispatch_semaphore_signal(semaphore)
 		}, error: { error in
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)
@@ -583,6 +609,32 @@ public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	return result
+}
+
+public func single<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> single
+	return result?.value
+}
+
+/// Starts the producer, then blocks, waiting for the last value.
+public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	return producer |> takeLast(1) |> single
+}
+
+public func last<T, E: ErrorType>(producer: SignalProducer<T, NoError>) -> T? {
+	let result: Result<T, E>? = producer |> canError |> last
+	return result?.value
+}
+
+/// Starts the producer, then blocks, waiting for completion.
+public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
+	let result = producer |> map { _ in () } |> last
+	return result ?? success(())
+}
+
+public func wait<T, E: ErrorType>(producer: SignalProducer<T, NoError>)  {
+	// The result isn't used, but its type helps out the compiler.
+	let result: Result<(), E> = producer |> canError |> wait 
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

@@ -940,7 +940,34 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("materialize") {
-			pending("should reify events from the signal") {
+			it("should reify events from the signal") {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+				var latestEvent: Event<Int, TestError>?
+				signal
+				|> materialize
+				|> observe(next: { latestEvent = $0 })
+				
+				sendNext(observer, 2)
+				
+				expect(latestEvent).toNot(beNil())
+				if let latestEvent = latestEvent {
+					switch latestEvent {
+					case let .Next(box):
+						expect(box.unbox).to(equal(2))
+					default:
+						fail()
+					}
+				}
+				
+				sendError(observer, TestError.Default)
+				if let latestEvent = latestEvent {
+					switch latestEvent {
+					case .Error(_):
+						()
+					default:
+						fail()
+					}
+				}
 			}
 		}
 

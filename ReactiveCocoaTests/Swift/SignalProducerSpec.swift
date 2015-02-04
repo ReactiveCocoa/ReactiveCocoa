@@ -234,21 +234,16 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("first") {
 			it("should start a signal then block on the first value") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> first
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
-				expect(result?.value).to(equal(1))
+				expect(result?.value).toEventually(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -264,24 +259,19 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("single") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> single
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).to(equal(1))
+				expect(result?.value).toEventually(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -302,17 +292,12 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("last") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> last
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
@@ -320,7 +305,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).to(equal(2))
+				expect(result?.value).toEventually(equal(2))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -336,21 +321,16 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("wait") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<(), NoError>?
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> wait
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).toNot(beNil())
+				expect(result?.value).toEventuallyNot(beNil())
 			}
 			
 			it("should return an error if one occurs") {

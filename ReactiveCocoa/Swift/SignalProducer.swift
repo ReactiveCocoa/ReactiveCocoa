@@ -530,7 +530,7 @@ private struct ConcatState<T, E: ErrorType> {
 	/// Indicates whether the most recently processed inner signal has completed yet.
 	var latestSignalCompleted = true
 
-	/// Determination `concat` completion in its entirety.
+	/// Determines `concat` completion in its entirety.
 	var isComplete: Bool {
 		return selfCompleted && latestSignalCompleted
 	}

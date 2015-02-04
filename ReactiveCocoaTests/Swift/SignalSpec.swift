@@ -745,26 +745,6 @@ class SignalSpec: QuickSpec {
 
 		describe("takeWhile") {
 			pending("should take while the predicate is true") {
-//				let numbers = [ 1, 2, 4, 4, 5, 2 ]
-//				var testScheduler = TestScheduler()
-//				
-//				let signal: Signal<Int, NoError> = Signal { observer in
-//					testScheduler.schedule {
-//						for number in numbers {
-//							sendNext(observer, number)
-//						}
-//					}
-//					return nil
-//				}
-//				
-//				var result: [Int] = []
-//				
-//				signal
-//				|> takeWhile { $0 < 4 }
-//				|> observe(next: { result.append($0) })
-//				
-//				testScheduler.run()
-//				expect(result).to(equal([ 1, 2 ]))
 			}
 
 			pending("should complete if the predicate starts false") {

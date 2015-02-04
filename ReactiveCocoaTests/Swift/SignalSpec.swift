@@ -890,10 +890,44 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("combineLatestWith") {
-			pending("should forward the latest values from both inputs") {
+			var combinedSignal: Signal<(Int, Double), NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var otherObserver: Signal<Double, NoError>.Observer!
+			
+			beforeEach {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let (otherSignal, otherSink) = Signal<Double, NoError>.pipe()
+				combinedSignal = signal |> combineLatestWith(otherSignal)
+				observer = sink
+				otherObserver = otherSink
+			}
+			
+			it("should forward the latest values from both inputs") {
+				var latest: (Int, Double)?
+				combinedSignal.observe(next: { latest = $0 })
+				
+				sendNext(observer, 1)
+				expect(latest).to(beNil())
+				
+				// is there a better way to test tuples?
+				sendNext(otherObserver, 1.5)
+				expect(latest?.0).to(equal(1))
+				expect(latest?.1).to(equal(1.5))
+				
+				sendNext(observer, 2)
+				expect(latest?.0).to(equal(2))
+				expect(latest?.1).to(equal(1.5))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				var completed = false
+				combinedSignal.observe(completed: { completed = true })
+				
+				sendCompleted(observer)
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(otherObserver)
+				expect(completed).to(beTruthy())
 			}
 		}
 

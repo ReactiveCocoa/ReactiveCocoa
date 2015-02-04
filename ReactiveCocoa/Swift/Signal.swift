@@ -569,8 +569,13 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
-/// Throttle values sent by the receiver, so that at least `interval`
-/// seconds pass between each, then forwards them on the given scheduler.
+/// Throttle values sent by the receiver for which `predicate` returns true,
+/// so that at least `interval`seconds pass between each, then forwards
+/// them on the given scheduler.
+/// 
+/// Values that do not pass `predicate`, Errors, and Completed events
+/// are forwarded immediately. If an unthrottled value is forwarded while
+/// a throttled value is pending, the throttled value is discarded.
 ///
 /// If the receiver completes before the last throttled value is sent,
 /// it will be sent immediately.
@@ -594,30 +599,38 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			}
 		}
 		return signal.observe(next: { value in
-			state.modify { state in
-				var newState = state
-				newState.pendingValue = value
+			let shouldThrottle = predicate(value)
+			if shouldThrottle {
+				state.modify { state in
+					var newState = state
+					newState.pendingValue = value
 
-				let now = scheduler.currentDate
-				let prev = state.previousDate
-				var scheduleDate: NSDate
-				if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
-					scheduleDate = now
-				} else {
-					scheduleDate = prev!.dateByAddingTimeInterval(interval)
-				}
-				
-				let compositeDisposable = CompositeDisposable()
-				
-				let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
-					if !compositeDisposable.disposed {
-						flush()
+					let now = scheduler.currentDate
+					let prev = state.previousDate
+					var scheduleDate: NSDate
+					if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
+						scheduleDate = now
+					} else {
+						scheduleDate = prev!.dateByAddingTimeInterval(interval)
 					}
+					
+					let compositeDisposable = CompositeDisposable()
+					let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
+						if !compositeDisposable.disposed {
+							flush()
+						}
+					}
+					compositeDisposable.addDisposable(disposableFromScheduler)
+					newState.scheduleDisposable = ScopedDisposable(compositeDisposable)
+					return newState
 				}
-				compositeDisposable.addDisposable(disposableFromScheduler)
-				
-				newState.scheduleDisposable = ScopedDisposable(compositeDisposable)
-				return newState
+			} else {
+				state.modify { (var state) in
+					sendNext(observer, value)
+					state.pendingValue = nil
+					state.scheduleDisposable = nil
+					return state
+				}
 			}
 			return
 		}, error: { error in

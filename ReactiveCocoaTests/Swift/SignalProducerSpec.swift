@@ -158,56 +158,51 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("concat") {
-				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
-				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
-
-				var previousSink: Signal<Int, NoError>.Observer!
-				var previousProducer: SignalProducer<Int, NoError>!
 			describe("sequencing") {
+				var completePrevious: (Void -> Void)!
+				var sendSubsequent: (Void -> Void)!
+				var completeOuter: (Void -> Void)!
 
-				var subsequentSink: Signal<Int, NoError>.Observer!
-				var subsequentProducer: SignalProducer<Int, NoError>!
 				var subsequentStarted = false
 
 				beforeEach {
-					outerProducer = SignalProducer { observer, _ in
-						outerSink = observer
-					}
-
-					previousProducer = SignalProducer { observer, _ in
-						previousSink = observer
-					}
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+					let (previousProducer, previousSink) = SignalProducer<Int, NoError>.buffer()
 
 					subsequentStarted = false
-					subsequentProducer = SignalProducer<Int, NoError> { observer, _ in
+					let subsequentProducer = SignalProducer<Int, NoError> { _ in
 						subsequentStarted = true
 					}
+
+					completePrevious = { sendCompleted(previousSink) }
+					sendSubsequent = { sendNext(outerSink, subsequentProducer) }
+					completeOuter = { sendCompleted(outerSink) }
 
 					concat(outerProducer).start()
 					sendNext(outerSink, previousProducer)
 				}
 
-				it("should immediately start subsequent inner producers if previous inner producer has already completed") {
-					sendCompleted(previousSink)
-					sendNext(outerSink, subsequentProducer)
+				it("should immediately start subsequent inner producer if previous inner producer has already completed") {
+					completePrevious()
+					sendSubsequent()
 					expect(subsequentStarted).to(beTrue())
 				}
 
 				context("with queued producers") {
 					beforeEach {
 						// Place the subsequent producer into `concat`'s queue.
-						sendNext(outerSink, subsequentProducer)
+						sendSubsequent()
 						expect(subsequentStarted).to(beFalse())
 					}
 
 					it("should start subsequent inner producer upon completion of previous inner producer") {
-						sendCompleted(previousSink)
+						completePrevious()
 						expect(subsequentStarted).to(beTrue())
 					}
 
 					it("should start subsequent inner producer upon completion of previous inner producer and completion of outer producer") {
-						sendCompleted(outerSink)
-						sendCompleted(previousSink)
+						completeOuter()
+						completePrevious()
 						expect(subsequentStarted).to(beTrue())
 					}
 				}
@@ -225,57 +220,51 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should forward an error from the outer producer") {
-				var sink: Signal<SignalProducer<Int, TestError>, TestError>.Observer!
-				let outerProducer = SignalProducer { observer, _ in
-					sink = observer
-				}
+				let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 				var error: TestError?
 				concat(outerProducer).start(error: { e in
 					error = e
 				})
 
-				sendError(sink, TestError.Default)
+				sendError(outerSink, TestError.Default)
 				expect(error).to(equal(TestError.Default))
 			}
 
 			describe("completion") {
-				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
-				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
-
-				var innerSink: Signal<Int, NoError>.Observer!
-				var innerProducer: SignalProducer<Int, NoError>!
+				var completeOuter: (Void -> Void)!
+				var completeInner: (Void -> Void)!
 
 				var completed = false
 
 				beforeEach {
-					outerProducer = SignalProducer { observer, _ in
-						outerSink = observer
-					}
-					innerProducer = SignalProducer { observer, _ in
-						innerSink = observer
-					}
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+					let (innerProducer, innerSink) = SignalProducer<Int, NoError>.buffer()
+
+					completeOuter = { sendCompleted(outerSink) }
+					completeInner = { sendCompleted(innerSink) }
 
 					completed = false
 					concat(outerProducer).start(completed: {
 						completed = true
 					})
+
 					sendNext(outerSink, innerProducer)
 				}
 
 				it("should complete when inner producers complete, then outer producer completes") {
-					sendCompleted(innerSink)
+					completeInner()
 					expect(completed).to(beFalse())
 
-					sendCompleted(outerSink)
+					completeOuter()
 					expect(completed).to(beTrue())
 				}
 
 				it("should complete when outer producers completes, then inner producers complete") {
-					sendCompleted(outerSink)
+					completeOuter()
 					expect(completed).to(beFalse())
 
-					sendCompleted(innerSink)
+					completeInner()
 					expect(completed).to(beTrue())
 				}
 			}

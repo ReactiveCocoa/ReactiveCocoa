@@ -586,14 +586,8 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			state.modify { state in
 				if let value = state.pendingValue {
 					let now = scheduler.currentDate
-					
-					// we need to check date again, to handle schedulers that don't give us Disposables
-					if state.previousDate == nil || now.timeIntervalSinceDate(state.previousDate!) >= interval {
-						sendNext(observer, value)
-						return ThrottleState(previousDate: now, pendingValue: nil, schedulerDisposable: nil)
-					} else {
-						return state
-					}
+					sendNext(observer, value)
+					return ThrottleState(previousDate: now, pendingValue: nil, scheduleDisposable: nil)
 				} else {
 					return state
 				}
@@ -613,11 +607,16 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 					scheduleDate = prev!.dateByAddingTimeInterval(interval)
 				}
 				
-				let schedulerDisposable = scheduler.scheduleAfter(scheduleDate) {
-					flush()
-					return
+				let compositeDisposable = CompositeDisposable()
+				
+				let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
+					if !compositeDisposable.disposed {
+						flush()
+					}
 				}
-				newState.schedulerDisposable = schedulerDisposable != nil ? ScopedDisposable(schedulerDisposable!) : nil
+				compositeDisposable.addDisposable(disposableFromScheduler)
+				
+				newState.scheduleDisposable = ScopedDisposable(compositeDisposable)
 				return newState
 			}
 			return
@@ -635,7 +634,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 private struct ThrottleState<T> {
 	var previousDate: NSDate? = nil
 	var pendingValue: T? = nil
-	var schedulerDisposable: ScopedDisposable? = nil
+	var scheduleDisposable: ScopedDisposable? = nil
 }
 
 

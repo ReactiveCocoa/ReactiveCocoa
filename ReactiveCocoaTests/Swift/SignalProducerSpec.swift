@@ -158,12 +158,12 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("concat") {
-			context("sequencing") {
 				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
 				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
 
 				var previousSink: Signal<Int, NoError>.Observer!
 				var previousProducer: SignalProducer<Int, NoError>!
+			describe("sequencing") {
 
 				var subsequentSink: Signal<Int, NoError>.Observer!
 				var subsequentProducer: SignalProducer<Int, NoError>!
@@ -239,7 +239,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(error).to(equal(TestError.Default))
 			}
 
-			context("completion") {
+			describe("completion") {
 				var outerSink: Signal<SignalProducer<Int, NoError>, NoError>.Observer!
 				var outerProducer: SignalProducer<SignalProducer<Int, NoError>, NoError>!
 

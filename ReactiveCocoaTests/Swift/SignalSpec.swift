@@ -837,10 +837,55 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("sampleOn") {
-			pending("should forward the latest value when the sampler fires") {
+			var sampledSignal: Signal<Int, NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var samplerObserver: Signal<(), NoError>.Observer!
+			
+			beforeEach {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let (sampler, samplesSink) = Signal<(), NoError>.pipe()
+				sampledSignal = signal |> sampleOn(sampler)
+				observer = sink
+				samplerObserver = samplesSink
+			}
+			
+			it("should forward the latest value when the sampler fires") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(observer, 2)
+				sendNext(samplerObserver, ())
+				expect(result).to(equal([ 2 ]))
+			}
+			
+			it("should do nothing if sampler fires before signal receives value") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(samplerObserver, ())
+				expect(result).to(beEmpty())
+			}
+			
+			it("should send lates value multiple times when sampler fires multiple times") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(samplerObserver, ())
+				sendNext(samplerObserver, ())
+				expect(result).to(equal([ 1, 1 ]))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				var completed = false
+				sampledSignal.observe(completed: { completed = true })
+				
+				sendCompleted(observer)
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(samplerObserver)
+				expect(completed).to(beTruthy())
 			}
 		}
 

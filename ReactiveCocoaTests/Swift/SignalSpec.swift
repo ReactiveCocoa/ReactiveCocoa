@@ -162,13 +162,17 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should complete if the predicate starts false") {
+				var latestValue: Int?
 				var completed = false
 
-				signal.observe(completed: {
+				signal.observe(next: { value in
+					latestValue = value
+				}, completed: {
 					completed = true
 				})
 
 				sendNext(observer, 5)
+				expect(latestValue).to(beNil())
 				expect(completed).to(beTrue())
 			}
 		}

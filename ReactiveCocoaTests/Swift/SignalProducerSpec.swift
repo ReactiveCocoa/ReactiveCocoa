@@ -290,7 +290,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should return a nil result if more than one value is sent before completion") {
-				let result = SignalProducer<Int, NoError>(values: [1, 2]) |> single
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> single
 				expect(result).to(beNil())
 			}
 

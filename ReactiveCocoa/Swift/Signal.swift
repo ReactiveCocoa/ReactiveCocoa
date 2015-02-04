@@ -570,7 +570,7 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 }
 
 /// Throttle values sent by the receiver for which `predicate` returns true,
-/// so that at least `interval`seconds pass between each, then forwards
+/// so that at least `interval` seconds pass between each, then forwards
 /// them on the given scheduler.
 /// 
 /// Values that do not pass `predicate`, Errors, and Completed events

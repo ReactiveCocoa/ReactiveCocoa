@@ -318,7 +318,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 			}
 
-			it("should return a the last value if more than one value is sent") {
+			it("should return the last value if more than one value is sent") {
 				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> last
 				expect(result?.value).to(equal(2))
 			}

@@ -251,6 +251,11 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 			}
 
+			it("should return the first value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> first
+				expect(result?.value).to(equal(1))
+			}
+
 			it("should return an error if one occurs before the first value") {
 				let result = SignalProducer<Int, TestError>(error: .Default) |> first
 				expect(result?.error).to(equal(TestError.Default))
@@ -311,6 +316,11 @@ class SignalProducerSpec: QuickSpec {
 			it("should return a nil result if no values are sent before completion") {
 				let result = SignalProducer<Int, NoError>.empty |> last
 				expect(result).to(beNil())
+			}
+
+			it("should return a the last value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> last
+				expect(result?.value).to(equal(2))
 			}
 
 			it("should return an error if one occurs") {

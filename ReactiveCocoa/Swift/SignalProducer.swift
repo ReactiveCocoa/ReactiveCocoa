@@ -437,43 +437,7 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, disposable in
 		let state = Atomic(ConcatState<T, E>())
-		
-		/// Subscribes to the given signal producer.
-		let subscribeToSignalProducer: (SignalProducer<T, E> -> Void) = Z { recur, signalProducer in
-			let serialDisposable = SerialDisposable()
-			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
-			state.modify { (var state) in
-				state.latestSignalCompleted = false
-				return state
-			}
-			
-			serialDisposable.innerDisposable = signalProducer.start(next: { value in
-				sendNext(observer, value)
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				var nextSignalProducer: SignalProducer<T, E>?
-				var isComplete = false
 
-				serialDisposableCompositeHandle.remove()
-				state.modify { (var state) in
-					state.latestSignalCompleted = true
-					if state.queuedSignalProducers.isEmpty {
-						isComplete = state.isComplete
-					} else {
-						nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
-					}
-					return state
-				}
-				
-				if let nextSignalProducer = nextSignalProducer {
-					recur(nextSignalProducer)
-				} else if isComplete {
-					sendCompleted(observer)
-				}
-			})
-		}
-		
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
 				var shouldSubscribe: Bool = true
@@ -488,7 +452,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}
 				
 				if shouldSubscribe {
-					subscribeToSignalProducer(innerSignalProducer)
+					subscribeToSignalProducer(innerSignalProducer, state, observer, disposable)
 				}
 			}, error: { error in
 				sendError(observer, error)
@@ -511,6 +475,42 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	}
 }
 
+/// Subscribes to the given signal producer.
+private func subscribeToSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: Atomic<ConcatState<T, E>>, observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+	let serialDisposable = SerialDisposable()
+	let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+	state.modify { (var state) in
+		state.latestSignalCompleted = false
+		return state
+	}
+	
+	serialDisposable.innerDisposable = signalProducer.start(next: { value in
+		sendNext(observer, value)
+	}, error: { error in
+		sendError(observer, error)
+	}, completed: {
+		var nextSignalProducer: SignalProducer<T, E>?
+		var isComplete = false
+
+		serialDisposableCompositeHandle.remove()
+		state.modify { (var state) in
+			state.latestSignalCompleted = true
+			if state.queuedSignalProducers.isEmpty {
+				isComplete = state.isComplete
+			} else {
+				nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
+			}
+			return state
+		}
+		
+		if let nextSignalProducer = nextSignalProducer {
+			subscribeToSignalProducer(nextSignalProducer, state, observer, disposable)
+		} else if isComplete {
+			sendCompleted(observer)
+		}
+	})
+}
+
 private struct ConcatState<T, E: ErrorType> {
 	/// Whether the signal-of-signals has completed yet.
 	var selfCompleted = false
@@ -525,12 +525,6 @@ private struct ConcatState<T, E: ErrorType> {
 
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []
-}
-
-/// The Z combinator, which we use to make a recursive closure that we can
-/// nil out to avoid a retain cycle.
-private func Z<T, U>(f: (T -> U, T) -> U)(x: T) -> U {
-	return f(Z(f), x)
 }
 
 /// `concat`s `next` onto `producer`.

@@ -603,29 +603,29 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 		return signal.observe(next: { value in
 			let shouldThrottle = predicate(value)
 			if shouldThrottle {
+				var scheduleDate: NSDate?, compositeDisposable: CompositeDisposable?
 				state.modify { state in
 					var newState = state
 					newState.pendingValue = value
 
 					let now = scheduler.currentDate
 					let prev = state.previousDate
-					var scheduleDate: NSDate
 					if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
 						scheduleDate = now
 					} else {
 						scheduleDate = prev!.dateByAddingTimeInterval(interval)
 					}
 					
-					let compositeDisposable = CompositeDisposable()
-					let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
-						if !compositeDisposable.disposed {
-							flush()
-						}
-					}
-					compositeDisposable.addDisposable(disposableFromScheduler)
-					newState.scheduleDisposable = ScopedDisposable(compositeDisposable)
+					compositeDisposable = CompositeDisposable()
+					newState.scheduleDisposable = ScopedDisposable(compositeDisposable!)
 					return newState
 				}
+				let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate!) {
+					if !compositeDisposable!.disposed {
+						flush()
+					}
+				}
+				compositeDisposable!.addDisposable(disposableFromScheduler)
 			} else {
 				var doSend: (() -> Void)?
 				state.modify { (var state) in
@@ -636,7 +636,6 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				}
 				doSend?()
 			}
-			return
 		}, error: { error in
 			state.swap(ThrottleState())
 			sendError(observer, error)

@@ -587,16 +587,18 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 
 	return Signal { observer in
 		let state = Atomic(ThrottleState<T>())
-		let flush = {
+		let flush: () -> Void = {
+			var doSend: (() -> Void)?
 			state.modify { state in
 				if let value = state.pendingValue {
 					let now = scheduler.currentDate
-					sendNext(observer, value)
+					doSend = { sendNext(observer, value) }
 					return ThrottleState(previousDate: now, pendingValue: nil, scheduleDisposable: nil)
 				} else {
 					return state
 				}
 			}
+			doSend?()
 		}
 		return signal.observe(next: { value in
 			let shouldThrottle = predicate(value)
@@ -625,12 +627,14 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 					return newState
 				}
 			} else {
+				var doSend: (() -> Void)?
 				state.modify { (var state) in
-					sendNext(observer, value)
+					doSend = { sendNext(observer, value) }
 					state.pendingValue = nil
 					state.scheduleDisposable = nil
 					return state
 				}
+				doSend?()
 			}
 			return
 		}, error: { error in

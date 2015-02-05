@@ -439,19 +439,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		let state = Atomic(ConcatState<T, E>())
 		
 		/// Subscribes to the given signal producer.
-		var subscribeToSignalProducer: (SignalProducer<T, E> -> Void)?
-		
-		/// Sends completed to the subscriber if all signals are finished. Returns whether
-		/// the outer signal was completed.
-		let complete💯: Void -> Void = {
-			sendCompleted(observer)
-			
-			// A strong reference is held to `subscribeToSignalProducer` until
-			// completion, preventing it from deallocating early.
-			subscribeToSignalProducer = nil
-		}
-		
-		subscribeToSignalProducer = Z { recur, signalProducer in
+		let subscribeToSignalProducer: (SignalProducer<T, E> -> Void) = Z { recur, signalProducer in
 			let serialDisposable = SerialDisposable()
 			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
 			state.modify { (var state) in
@@ -481,7 +469,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				if let nextSignalProducer = nextSignalProducer {
 					recur(nextSignalProducer)
 				} else if isComplete {
-					complete💯()
+					sendCompleted(observer)
 				}
 			})
 		}
@@ -500,7 +488,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}
 				
 				if shouldSubscribe {
-					subscribeToSignalProducer!(innerSignalProducer)
+					subscribeToSignalProducer(innerSignalProducer)
 				}
 			}, error: { error in
 				sendError(observer, error)
@@ -514,7 +502,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}
 
 				if isComplete {
-					complete💯()
+					sendCompleted(observer)
 				}
 			})
 				

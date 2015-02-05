@@ -132,16 +132,11 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> 
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-	let propertyDisposable = property.producer.start(completed: {
-		disposable.dispose()
-	})
-	
-	disposable.addDisposable(propertyDisposable)
+	var disposable: Disposable!
 	
 	producer.startWithSignal { signal, signalDisposable in
-		disposable.addDisposable(signalDisposable)
 		property <~ signal
+		disposable = signalDisposable
 	}
 	
 	return disposable

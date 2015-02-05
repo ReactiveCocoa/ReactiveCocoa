@@ -436,7 +436,7 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 /// emitted from `producer` complete.
 public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, disposable in
-		let state = Atomic(ConcatState<T, E>())
+		let state = Atomic(ConcatState(observer: observer, disposable: disposable))
 
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
@@ -452,7 +452,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}
 				
 				if shouldSubscribe {
-					subscribeToSignalProducer(innerSignalProducer, state, observer, disposable)
+					subscribeToSignalProducer(innerSignalProducer, state)
 				}
 			}, error: { error in
 				sendError(observer, error)
@@ -476,18 +476,18 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 }
 
 /// Subscribes to the given signal producer.
-private func subscribeToSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: Atomic<ConcatState<T, E>>, observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+private func subscribeToSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: Atomic<ConcatState<T, E>>) {
 	let serialDisposable = SerialDisposable()
-	let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+	let serialDisposableCompositeHandle = state.value.disposable.addDisposable(serialDisposable)
 	state.modify { (var state) in
 		state.latestSignalCompleted = false
 		return state
 	}
 	
 	serialDisposable.innerDisposable = signalProducer.start(next: { value in
-		sendNext(observer, value)
+		sendNext(state.value.observer, value)
 	}, error: { error in
-		sendError(observer, error)
+		sendError(state.value.observer, error)
 	}, completed: {
 		var nextSignalProducer: SignalProducer<T, E>?
 		var isComplete = false
@@ -504,14 +504,25 @@ private func subscribeToSignalProducer<T, E>(signalProducer: SignalProducer<T, E
 		}
 		
 		if let nextSignalProducer = nextSignalProducer {
-			subscribeToSignalProducer(nextSignalProducer, state, observer, disposable)
+			subscribeToSignalProducer(nextSignalProducer, state)
 		} else if isComplete {
-			sendCompleted(observer)
+			sendCompleted(state.value.observer)
 		}
 	})
 }
 
 private struct ConcatState<T, E: ErrorType> {
+	/// The observer of a started `concat` producer.
+	let observer: Signal<T, E>.Observer
+
+	/// The top level disposable of a started `concat` producer.
+	let disposable: CompositeDisposable
+
+	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+		self.observer = observer
+		self.disposable = disposable
+	}
+
 	/// Whether the signal-of-signals has completed yet.
 	var selfCompleted = false
 	

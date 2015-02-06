@@ -220,10 +220,7 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("then") {
 			it("should start the subsequent producer after the completion of the original") {
-				var sink: Signal<Int, NoError>.Observer!
-				let original = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
+				let (original, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var subsequentStarted = false
 				let subsequent = SignalProducer<Int, NoError> { observer, _ in
@@ -231,9 +228,9 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				let producer = original |> then(subsequent)
-
 				producer.start()
 				expect(subsequentStarted).to(beFalse())
+
 				sendCompleted(sink)
 				expect(subsequentStarted).to(beTrue())
 			}
@@ -255,14 +252,8 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should complete when both inputs have completed") {
-				var originalSink: Signal<Int, NoError>.Observer!
-				let original = SignalProducer<Int, NoError> { observer, _ in
-					originalSink = observer
-				}
-				var subsequentSink: Signal<String, NoError>.Observer!
-				let subsequent = SignalProducer<String, NoError> { observer, _ in
-					subsequentSink = observer
-				}
+				let (original, originalSink) = SignalProducer<Int, NoError>.buffer()
+				let (subsequent, subsequentSink) = SignalProducer<String, NoError>.buffer()
 
 				let producer = original |> then(subsequent)
 
@@ -273,6 +264,7 @@ class SignalProducerSpec: QuickSpec {
 
 				sendCompleted(originalSink)
 				expect(completed).to(beFalse())
+
 				sendCompleted(subsequentSink)
 				expect(completed).to(beTrue())
 			}

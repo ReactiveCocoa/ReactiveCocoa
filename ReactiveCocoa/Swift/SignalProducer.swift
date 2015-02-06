@@ -468,13 +468,7 @@ private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>,
 	}, completed: {
 		serialDisposableCompositeHandle.remove()
 
-		var nextSignalProducer: SignalProducer<T, E>?
-		state.atomic.modify {
-			state.queuedSignalProducers.removeAtIndex(0)
-			nextSignalProducer = state.queuedSignalProducers.first
-		}
-		
-		if let nextSignalProducer = nextSignalProducer {
+		if let nextSignalProducer = state.dequeueSignalProducer() {
 			startNextSignalProducer(nextSignalProducer, state)
 		}
 	})
@@ -507,6 +501,16 @@ private final class ConcatState<T, E: ErrorType> {
 		if shouldStart {
 			startNextSignalProducer(producer, self)
 		}
+	}
+
+	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		var nextSignalProducer: SignalProducer<T, E>?
+		atomic.modify {
+			self.queuedSignalProducers.removeAtIndex(0)
+			nextSignalProducer = self.queuedSignalProducers.first
+		}
+
+		return nextSignalProducer
 	}
 }
 

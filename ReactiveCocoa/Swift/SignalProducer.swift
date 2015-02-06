@@ -562,9 +562,12 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
 
-/// Forwards errors and completion only from `producer`, values are omitted.
-public func ignoreValues<T, U, E>(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return SignalProducer { observer, disposable in
+/// Waits for completion of `producer`, *then* forwards all events from
+/// `replacement`. Any error sent from `producer` is forwarded immediately, in
+/// which case `replacement` will not be started, and none of its events will be
+/// be forwarded. All values sent from `producer` are ignored.
+public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	let relay = SignalProducer<U, E> { observer, disposable in
 		let producerDisposable = producer.start(error: { error in
 			sendError(observer, error)
 		}, completed: {
@@ -573,14 +576,8 @@ public func ignoreValues<T, U, E>(producer: SignalProducer<T, E>) -> SignalProdu
 
 		disposable.addDisposable(producerDisposable)
 	}
-}
 
-/// Waits for completion of `producer`, *then* forwards all events from
-/// `replacement`. Any error sent from `producer` is forwarded immediately, in
-/// which case `replacement` will not be started, and none of its events will be
-/// be forwarded. All values sent from `producer` are ignored.
-public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> ignoreValues |> concat(replacement)
+	return relay |> concat(replacement)
 }
 
 /// Starts the producer, then blocks, waiting for the first value.

@@ -218,29 +218,6 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("ignoreValues") {
-			it("should not forward values from original producer") {
-				let producer: SignalProducer<Int, NoError> = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> ignoreValues
-				var valueObserved = false
-				producer.start(next: { _ in valueObserved = true })
-				expect(valueObserved).to(beFalse())
-			}
-
-			it("should forward errors from original producer") {
-				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, TestError>(error: .Default) |> ignoreValues
-				var errorObserved = false
-				producer.start(error: { _ in errorObserved = true })
-				expect(errorObserved).to(beTrue())
-			}
-
-			it("should complete when original producer completes") {
-				let producer: SignalProducer<Int, NoError> = SignalProducer<Int, NoError>.empty |> ignoreValues
-				var completionObserved = false
-				producer.start(completed: { _ in completionObserved = true })
-				expect(completionObserved).to(beTrue())
-			}
-		}
-
 		describe("then") {
 			it("should start the subsequent producer after the completion of the original") {
 				var sink: Signal<Int, NoError>.Observer!

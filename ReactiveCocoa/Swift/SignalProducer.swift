@@ -438,16 +438,18 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	return SignalProducer { observer, disposable in
 		let state = ConcatState(observer: observer, disposable: disposable)
 
-		let completion: SignalProducer<T, E> = .empty |> on(completed: {
-			sendCompleted(observer)
-		})
-
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
 				state.enqueueSignalProducer(innerSignalProducer)
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {
+				// Add one last producer to the queue, whose sole job is to
+				// "turn out the lights" by completing `observer`.
+				let completion: SignalProducer<T, E> = .empty |> on(completed: {
+					sendCompleted(observer)
+				})
+
 				state.enqueueSignalProducer(completion)
 			})
 				

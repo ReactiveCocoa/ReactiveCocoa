@@ -475,10 +475,10 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				serialDisposableCompositeHandle.remove()
 				state.modify { (var state) in
 					state.latestSignalCompleted = true
-					let outerSignalIsComplete = completeIfAllowed(state)
-					if !outerSignalIsComplete {
-						nextSignalProducer = state.queuedSignalProducers[0]
-						state.queuedSignalProducers.removeAtIndex(0)
+					if state.queuedSignalProducers.isEmpty {
+						completeIfAllowed(state)
+					} else {
+						nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
 					}
 					return state
 				}
@@ -555,9 +555,26 @@ public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalP
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 */
+
+/// Waits for completion of `producer`, *then* forwards all events from
+/// `replacement`. Any error sent from `producer` is forwarded immediately, in
+/// which case `replacement` will not be started, and none of its events will be
+/// be forwarded. All values sent from `producer` are ignored.
+public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	let relay = SignalProducer<U, E> { observer, disposable in
+		let producerDisposable = producer.start(error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		disposable.addDisposable(producerDisposable)
+	}
+
+	return relay |> concat(replacement)
+}
 
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {

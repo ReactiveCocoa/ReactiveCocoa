@@ -477,6 +477,8 @@ private final class ConcatState<T, E: ErrorType> {
 		var shouldStart = true
 
 		lock()
+		// An empty queue means the concat is idle, ready & waiting to start the
+		// next producer given.
 		shouldStart = self.queuedSignalProducers.isEmpty
 		self.queuedSignalProducers.append(producer)
 		unlock()
@@ -490,6 +492,9 @@ private final class ConcatState<T, E: ErrorType> {
 		var nextSignalProducer: SignalProducer<T, E>?
 
 		lock()
+		// Active producers are left in the queue until completion. Dequeueing
+		// only happens when the last active producer has completed, so it can
+		// be removed from the queue.
 		self.queuedSignalProducers.removeAtIndex(0)
 		nextSignalProducer = self.queuedSignalProducers.first
 		unlock()

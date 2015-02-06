@@ -463,22 +463,12 @@ private final class ConcatState<T, E: ErrorType> {
 	/// The top level disposable of a started `concat` producer.
 	let disposable: CompositeDisposable
 
-	var spinlock = OS_SPINLOCK_INIT
+	/// The signals waiting to be started.
+	var queuedSignalProducers: [SignalProducer<T, E>] = []
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
 		self.disposable = disposable
-	}
-
-	/// The signals waiting to be started.
-	var queuedSignalProducers: [SignalProducer<T, E>] = []
-
-	func lock() {
-		withUnsafeMutablePointer(&spinlock, OSSpinLockLock)
-	}
-
-	func unlock() {
-		withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock)
 	}
 
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
@@ -522,6 +512,10 @@ private final class ConcatState<T, E: ErrorType> {
 			}
 		})
 	}
+
+	var spinlock = OS_SPINLOCK_INIT
+	func lock() { withUnsafeMutablePointer(&spinlock, OSSpinLockLock) }
+	func unlock() { withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock) }
 }
 
 /// `concat`s `next` onto `producer`.

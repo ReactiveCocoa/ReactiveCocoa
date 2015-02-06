@@ -440,17 +440,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
-				var shouldStart = true
-				state.atomic.modify {
-					if !state.latestSignalCompleted {
-						state.queuedSignalProducers.append(innerSignalProducer)
-						shouldStart = false
-					}
-				}
-				
-				if shouldStart {
-					startNextSignalProducer(innerSignalProducer, state)
-				}
+				state.enqueueSignalProducer(innerSignalProducer)
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {
@@ -532,6 +522,20 @@ private final class ConcatState<T, E: ErrorType> {
 
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []
+
+	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		var shouldStart = true
+		atomic.modify {
+			if !self.latestSignalCompleted {
+				self.queuedSignalProducers.append(producer)
+				shouldStart = false
+			}
+		}
+
+		if shouldStart {
+			startNextSignalProducer(producer, self)
+		}
+	}
 }
 
 /// `concat`s `next` onto `producer`.

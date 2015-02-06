@@ -580,20 +580,18 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 	return Signal { observer in
 		let state = Atomic(ThrottleState<T>())
 		let flush: () -> Void = {
-			var doSend: (() -> Void)?
-			state.modify { state in
+			let (_, doSend: (() -> Void)?) = state.modify { state in
 				if let value = state.pendingValue {
 					let now = scheduler.currentDate
-					doSend = { sendNext(observer, value) }
-					return ThrottleState(previousDate: now, pendingValue: nil, scheduleDisposable: nil)
+					return (ThrottleState(previousDate: now, pendingValue: nil, scheduleDisposable: nil), { sendNext(observer, value) })
 				} else {
-					return state
+					return (state, nil)
 				}
 			}
 			doSend?()
 		}
 		return signal.observe(next: { value in
-			let (_ ,(scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { state in
+			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { state in
 				
 				var newState = state
 				newState.pendingValue = value

@@ -237,13 +237,16 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> first
 				}
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
-				expect(result?.value).toEventually(equal(1))
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -267,7 +270,9 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> single
 				}
 				expect(result).to(beNil())
@@ -276,7 +281,8 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).toEventually(equal(1))
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -300,7 +306,9 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> last
 				}
 				expect(result).to(beNil())
@@ -310,7 +318,8 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).toEventually(equal(2))
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(2))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -334,13 +343,16 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<(), NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> wait
 				}
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
-				expect(result?.value).toEventuallyNot(beNil())
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).toNot(beNil())
 			}
 			
 			it("should return an error if one occurs") {

@@ -438,22 +438,17 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	return SignalProducer { observer, disposable in
 		let state = ConcatState(observer: observer, disposable: disposable)
 
+		let completion: SignalProducer<T, E> = .empty |> on(completed: {
+			sendCompleted(observer)
+		})
+
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
 				state.enqueueSignalProducer(innerSignalProducer)
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {
-				var isComplete = false
-
-				state.atomic.modify {
-					state.selfCompleted = true
-					isComplete = state.isComplete
-				}
-
-				if isComplete {
-					sendCompleted(observer)
-				}
+				state.enqueueSignalProducer(completion)
 			})
 				
 			disposable.addDisposable(signalDisposable)
@@ -475,22 +470,17 @@ private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>,
 		sendError(state.observer, error)
 	}, completed: {
 		var nextSignalProducer: SignalProducer<T, E>?
-		var isComplete = false
 
 		serialDisposableCompositeHandle.remove()
 		state.atomic.modify {
 			state.latestSignalCompleted = true
-			if state.queuedSignalProducers.isEmpty {
-				isComplete = state.isComplete
-			} else {
+			if !state.queuedSignalProducers.isEmpty {
 				nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
 			}
 		}
 		
 		if let nextSignalProducer = nextSignalProducer {
 			startNextSignalProducer(nextSignalProducer, state)
-		} else if isComplete {
-			sendCompleted(state.observer)
 		}
 	})
 }
@@ -509,16 +499,8 @@ private final class ConcatState<T, E: ErrorType> {
 
 	let atomic = Atomic()
 
-	/// Whether the signal-of-signals has completed yet.
-	var selfCompleted = false
-	
 	/// Indicates whether the most recently processed inner signal has completed yet.
 	var latestSignalCompleted = true
-
-	/// Determines `concat` completion in its entirety.
-	var isComplete: Bool {
-		return selfCompleted && latestSignalCompleted
-	}
 
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []

@@ -460,23 +460,18 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: ConcatState<T, E>) {
 	let serialDisposable = SerialDisposable()
 	let serialDisposableCompositeHandle = state.disposable.addDisposable(serialDisposable)
-	state.atomic.modify {
-		state.latestSignalCompleted = false
-	}
-	
+
 	serialDisposable.innerDisposable = signalProducer.start(next: { value in
 		sendNext(state.observer, value)
 	}, error: { error in
 		sendError(state.observer, error)
 	}, completed: {
-		var nextSignalProducer: SignalProducer<T, E>?
-
 		serialDisposableCompositeHandle.remove()
+
+		var nextSignalProducer: SignalProducer<T, E>?
 		state.atomic.modify {
-			state.latestSignalCompleted = true
-			if !state.queuedSignalProducers.isEmpty {
-				nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
-			}
+			state.queuedSignalProducers.removeAtIndex(0)
+			nextSignalProducer = state.queuedSignalProducers.first
 		}
 		
 		if let nextSignalProducer = nextSignalProducer {
@@ -499,19 +494,14 @@ private final class ConcatState<T, E: ErrorType> {
 
 	let atomic = Atomic()
 
-	/// Indicates whether the most recently processed inner signal has completed yet.
-	var latestSignalCompleted = true
-
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []
 
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
 		var shouldStart = true
 		atomic.modify {
-			if !self.latestSignalCompleted {
-				self.queuedSignalProducers.append(producer)
-				shouldStart = false
-			}
+			shouldStart = self.queuedSignalProducers.isEmpty
+			self.queuedSignalProducers.append(producer)
 		}
 
 		if shouldStart {

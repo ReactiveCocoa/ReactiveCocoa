@@ -463,22 +463,31 @@ private final class ConcatState<T, E: ErrorType> {
 	/// The top level disposable of a started `concat` producer.
 	let disposable: CompositeDisposable
 
+	var spinlock = OS_SPINLOCK_INIT
+
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
 		self.disposable = disposable
 	}
 
-	let atomic = Atomic()
-
 	/// The signals waiting to be started.
 	var queuedSignalProducers: [SignalProducer<T, E>] = []
 
+	func lock() {
+		withUnsafeMutablePointer(&spinlock, OSSpinLockLock)
+	}
+
+	func unlock() {
+		withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock)
+	}
+
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
 		var shouldStart = true
-		atomic.modify {
-			shouldStart = self.queuedSignalProducers.isEmpty
-			self.queuedSignalProducers.append(producer)
-		}
+
+		lock()
+		shouldStart = self.queuedSignalProducers.isEmpty
+		self.queuedSignalProducers.append(producer)
+		unlock()
 
 		if shouldStart {
 			startNextSignalProducer(producer)
@@ -487,10 +496,11 @@ private final class ConcatState<T, E: ErrorType> {
 
 	func dequeueSignalProducer() -> SignalProducer<T, E>? {
 		var nextSignalProducer: SignalProducer<T, E>?
-		atomic.modify {
-			self.queuedSignalProducers.removeAtIndex(0)
-			nextSignalProducer = self.queuedSignalProducers.first
-		}
+
+		lock()
+		self.queuedSignalProducers.removeAtIndex(0)
+		nextSignalProducer = self.queuedSignalProducers.first
+		unlock()
 
 		return nextSignalProducer
 	}

@@ -152,9 +152,11 @@ class SignalSpec: QuickSpec {
 					completed = true
 				})
 
-				sendNext(observer, 4)
-				expect(latestValue).to(equal(4))
-				expect(completed).to(beFalse())
+				for value in -1...4 {
+					sendNext(observer, value)
+					expect(latestValue).to(equal(value))
+					expect(completed).to(beFalse())
+				}
 
 				sendNext(observer, 5)
 				expect(latestValue).to(equal(4))

@@ -436,18 +436,15 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 /// emitted from `producer` complete.
 public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, disposable in
-		let state = Atomic(ConcatState(observer: observer, disposable: disposable))
+		let state = ConcatState(observer: observer, disposable: disposable)
 
 		producer.startWithSignal { signal, signalDisposable in
 			signal.observe(next: { innerSignalProducer in
 				var shouldStart = true
-				state.modify { (var state) in
+				state.atomic.modify {
 					if !state.latestSignalCompleted {
 						state.queuedSignalProducers.append(innerSignalProducer)
 						shouldStart = false
-						return state
-					} else {
-						return state
 					}
 				}
 				
@@ -459,10 +456,9 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			}, completed: {
 				var isComplete = false
 
-				state.modify { (var state) in
+				state.atomic.modify {
 					state.selfCompleted = true
 					isComplete = state.isComplete
-					return state
 				}
 
 				if isComplete {
@@ -476,42 +472,40 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 }
 
 /// Subscribes to the given signal producer.
-private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: Atomic<ConcatState<T, E>>) {
+private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: ConcatState<T, E>) {
 	let serialDisposable = SerialDisposable()
-	let serialDisposableCompositeHandle = state.value.disposable.addDisposable(serialDisposable)
-	state.modify { (var state) in
+	let serialDisposableCompositeHandle = state.disposable.addDisposable(serialDisposable)
+	state.atomic.modify {
 		state.latestSignalCompleted = false
-		return state
 	}
 	
 	serialDisposable.innerDisposable = signalProducer.start(next: { value in
-		sendNext(state.value.observer, value)
+		sendNext(state.observer, value)
 	}, error: { error in
-		sendError(state.value.observer, error)
+		sendError(state.observer, error)
 	}, completed: {
 		var nextSignalProducer: SignalProducer<T, E>?
 		var isComplete = false
 
 		serialDisposableCompositeHandle.remove()
-		state.modify { (var state) in
+		state.atomic.modify {
 			state.latestSignalCompleted = true
 			if state.queuedSignalProducers.isEmpty {
 				isComplete = state.isComplete
 			} else {
 				nextSignalProducer = state.queuedSignalProducers.removeAtIndex(0)
 			}
-			return state
 		}
 		
 		if let nextSignalProducer = nextSignalProducer {
 			startNextSignalProducer(nextSignalProducer, state)
 		} else if isComplete {
-			sendCompleted(state.value.observer)
+			sendCompleted(state.observer)
 		}
 	})
 }
 
-private struct ConcatState<T, E: ErrorType> {
+private final class ConcatState<T, E: ErrorType> {
 	/// The observer of a started `concat` producer.
 	let observer: Signal<T, E>.Observer
 
@@ -522,6 +516,8 @@ private struct ConcatState<T, E: ErrorType> {
 		self.observer = observer
 		self.disposable = disposable
 	}
+
+	let atomic = Atomic()
 
 	/// Whether the signal-of-signals has completed yet.
 	var selfCompleted = false

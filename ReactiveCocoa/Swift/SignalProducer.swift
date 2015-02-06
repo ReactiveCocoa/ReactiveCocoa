@@ -456,24 +456,6 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	}
 }
 
-/// Subscribes to the given signal producer.
-private func startNextSignalProducer<T, E>(signalProducer: SignalProducer<T, E>, state: ConcatState<T, E>) {
-	let serialDisposable = SerialDisposable()
-	let serialDisposableCompositeHandle = state.disposable.addDisposable(serialDisposable)
-
-	serialDisposable.innerDisposable = signalProducer.start(next: { value in
-		sendNext(state.observer, value)
-	}, error: { error in
-		sendError(state.observer, error)
-	}, completed: {
-		serialDisposableCompositeHandle.remove()
-
-		if let nextSignalProducer = state.dequeueSignalProducer() {
-			startNextSignalProducer(nextSignalProducer, state)
-		}
-	})
-}
-
 private final class ConcatState<T, E: ErrorType> {
 	/// The observer of a started `concat` producer.
 	let observer: Signal<T, E>.Observer
@@ -499,7 +481,7 @@ private final class ConcatState<T, E: ErrorType> {
 		}
 
 		if shouldStart {
-			startNextSignalProducer(producer, self)
+			startNextSignalProducer(producer)
 		}
 	}
 
@@ -511,6 +493,24 @@ private final class ConcatState<T, E: ErrorType> {
 		}
 
 		return nextSignalProducer
+	}
+
+	/// Subscribes to the given signal producer.
+	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+		let serialDisposable = SerialDisposable()
+		let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+
+		serialDisposable.innerDisposable = signalProducer.start(next: { value in
+			sendNext(self.observer, value)
+		}, error: { error in
+			sendError(self.observer, error)
+		}, completed: {
+			serialDisposableCompositeHandle.remove()
+
+			if let nextSignalProducer = self.dequeueSignalProducer() {
+				self.startNextSignalProducer(nextSignalProducer)
+			}
+		})
 	}
 }
 

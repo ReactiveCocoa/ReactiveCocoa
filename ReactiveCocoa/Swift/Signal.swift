@@ -580,10 +580,12 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 	return Signal { observer in
 		let state = Atomic(ThrottleState<T>())
 		let flush: () -> Void = {
-			let (_, doSend: (() -> Void)?) = state.modify { state in
+			let (_, doSend: (() -> Void)?) = state.modify { (var state) in
 				if let value = state.pendingValue {
 					let now = scheduler.currentDate
-					return (ThrottleState(previousDate: now, pendingValue: nil, scheduleDisposable: nil), { sendNext(observer, value) })
+					state.pendingValue = nil
+					state.scheduleDisposable = nil
+					return (state, { sendNext(observer, value) })
 				} else {
 					return (state, nil)
 				}
@@ -591,10 +593,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			doSend?()
 		}
 		return signal.observe(next: { value in
-			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { state in
-				
-				var newState = state
-				newState.pendingValue = value
+			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { ( var state) in
 				
 				let now = scheduler.currentDate
 				let prev = state.previousDate
@@ -606,8 +605,9 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				}
 				
 				let compositeDisposable = CompositeDisposable()
-				newState.scheduleDisposable = ScopedDisposable(compositeDisposable)
-				return (newState, (scheduleDate, compositeDisposable))
+				state.scheduleDisposable = ScopedDisposable(compositeDisposable)
+				state.pendingValue = value
+				return (state, (scheduleDate, compositeDisposable))
 			}
 
 			let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {

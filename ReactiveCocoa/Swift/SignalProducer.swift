@@ -567,14 +567,16 @@ public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 /// which case `replacement` will not be started, and none of its events will be
 /// be forwarded. All values sent from `producer` are ignored.
 public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	let relay = SignalProducer<U, E> { observer, disposable in
-		let producerDisposable = producer.start(error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
-		})
+	let relay = SignalProducer<U, E> { observer, observerDisposable in
+		producer.startWithSignal { signal, signalDisposable in
+			observerDisposable.addDisposable(signalDisposable)
 
-		disposable.addDisposable(producerDisposable)
+			signal.observe(error: { error in
+				sendError(observer, error)
+			}, completed: {
+				sendCompleted(observer)
+			})
+		}
 	}
 
 	return relay |> concat(replacement)

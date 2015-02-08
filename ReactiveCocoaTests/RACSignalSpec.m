@@ -3664,7 +3664,7 @@ qck_describe(@"-groupBy:", ^{
 	});
 
 
-	qck_it(@"should send completed in the order grouped signaled were created.", ^{
+	qck_it(@"should send completed in the order grouped signals were created.", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 
 		NSMutableArray *startedSignals = [NSMutableArray array];

@@ -137,6 +137,10 @@ public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoE
 	producer.startWithSignal { signal, signalDisposable in
 		property <~ signal
 		disposable = signalDisposable
+		
+		property.producer.start(completed: {
+			signalDisposable.dispose()
+		})
 	}
 	
 	return disposable

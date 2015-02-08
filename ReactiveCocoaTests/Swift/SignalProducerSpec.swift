@@ -229,10 +229,10 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = original |> then(subsequent)
 				producer.start()
-				expect(subsequentStarted).to(beFalse())
+				expect(subsequentStarted).to(beFalsy())
 
 				sendCompleted(sink)
-				expect(subsequentStarted).to(beTrue())
+				expect(subsequentStarted).to(beTruthy())
 			}
 
 			it("should forward errors from the original producer") {
@@ -263,10 +263,10 @@ class SignalProducerSpec: QuickSpec {
 				})
 
 				sendCompleted(originalSink)
-				expect(completed).to(beFalse())
+				expect(completed).to(beFalsy())
 
 				sendCompleted(subsequentSink)
-				expect(completed).to(beTrue())
+				expect(completed).to(beTruthy())
 			}
 		}
 

@@ -506,20 +506,19 @@ private final class ConcatState<T, E: ErrorType> {
 
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
-		let serialDisposable = SerialDisposable()
-		let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+		signalProducer.startWithSignal { signal, disposable in
+			self.disposable.addDisposable(disposable)
 
-		serialDisposable.innerDisposable = signalProducer.start(next: { value in
-			sendNext(self.observer, value)
-		}, error: { error in
-			sendError(self.observer, error)
-		}, completed: {
-			serialDisposableCompositeHandle.remove()
-
-			if let nextSignalProducer = self.dequeueSignalProducer() {
-				self.startNextSignalProducer(nextSignalProducer)
-			}
-		})
+			signal.observe(next: { value in
+				sendNext(self.observer, value)
+			}, error: { error in
+				sendError(self.observer, error)
+			}, completed: {
+				if let nextSignalProducer = self.dequeueSignalProducer() {
+					self.startNextSignalProducer(nextSignalProducer)
+				}
+			})
+		}
 	}
 }
 

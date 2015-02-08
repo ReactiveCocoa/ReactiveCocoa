@@ -466,7 +466,7 @@ private final class ConcatState<T, E: ErrorType> {
 	let disposable: CompositeDisposable
 
 	/// The signals waiting to be started.
-	var queuedSignalProducers: [SignalProducer<T, E>] = []
+	var queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
@@ -476,12 +476,13 @@ private final class ConcatState<T, E: ErrorType> {
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
 		var shouldStart = true
 
-		lock()
-		// An empty queue means the concat is idle, ready & waiting to start the
-		// next producer given.
-		shouldStart = self.queuedSignalProducers.isEmpty
-		self.queuedSignalProducers.append(producer)
-		unlock()
+		queuedSignalProducers.modify { (var queue) in
+			// An empty queue means the concat is idle, ready & waiting to start the
+			// next producer given.
+			shouldStart = queue.isEmpty
+			queue.append(producer)
+			return queue
+		}
 
 		if shouldStart {
 			startNextSignalProducer(producer)
@@ -491,13 +492,14 @@ private final class ConcatState<T, E: ErrorType> {
 	func dequeueSignalProducer() -> SignalProducer<T, E>? {
 		var nextSignalProducer: SignalProducer<T, E>?
 
-		lock()
-		// Active producers are left in the queue until completion. Dequeueing
-		// only happens when the last active producer has completed, so it can
-		// be removed from the queue.
-		self.queuedSignalProducers.removeAtIndex(0)
-		nextSignalProducer = self.queuedSignalProducers.first
-		unlock()
+		queuedSignalProducers.modify { (var queue) in
+			// Active producers are left in the queue until completion. Dequeueing
+			// only happens when the last active producer has completed, so it can
+			// be removed from the queue.
+			queue.removeAtIndex(0)
+			nextSignalProducer = queue.first
+			return queue
+		}
 
 		return nextSignalProducer
 	}
@@ -519,10 +521,6 @@ private final class ConcatState<T, E: ErrorType> {
 			}
 		})
 	}
-
-	var spinlock = OS_SPINLOCK_INIT
-	func lock() { withUnsafeMutablePointer(&spinlock, OSSpinLockLock) }
-	func unlock() { withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock) }
 }
 
 /// `concat`s `next` onto `producer`.

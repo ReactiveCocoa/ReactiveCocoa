@@ -458,7 +458,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	}
 }
 
-private struct ConcatState<T, E: ErrorType> {
+private final class ConcatState<T, E: ErrorType> {
 	/// The observer of a started `concat` producer.
 	let observer: Signal<T, E>.Observer
 

@@ -458,7 +458,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	}
 }
 
-private final class ConcatState<T, E: ErrorType> {
+private struct ConcatState<T, E: ErrorType> {
 	/// The observer of a started `concat` producer.
 	let observer: Signal<T, E>.Observer
 
@@ -466,7 +466,7 @@ private final class ConcatState<T, E: ErrorType> {
 	let disposable: CompositeDisposable
 
 	/// The active producer, if any, and the producers waiting to be started.
-	var queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer

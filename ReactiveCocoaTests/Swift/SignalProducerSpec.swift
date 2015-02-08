@@ -185,25 +185,25 @@ class SignalProducerSpec: QuickSpec {
 				it("should immediately start subsequent inner producer if previous inner producer has already completed") {
 					completePrevious()
 					sendSubsequent()
-					expect(subsequentStarted).to(beTrue())
+					expect(subsequentStarted).to(beTruthy())
 				}
 
 				context("with queued producers") {
 					beforeEach {
 						// Place the subsequent producer into `concat`'s queue.
 						sendSubsequent()
-						expect(subsequentStarted).to(beFalse())
+						expect(subsequentStarted).to(beFalsy())
 					}
 
 					it("should start subsequent inner producer upon completion of previous inner producer") {
 						completePrevious()
-						expect(subsequentStarted).to(beTrue())
+						expect(subsequentStarted).to(beTruthy())
 					}
 
 					it("should start subsequent inner producer upon completion of previous inner producer and completion of outer producer") {
 						completeOuter()
 						completePrevious()
-						expect(subsequentStarted).to(beTrue())
+						expect(subsequentStarted).to(beTruthy())
 					}
 				}
 			}
@@ -254,18 +254,18 @@ class SignalProducerSpec: QuickSpec {
 
 				it("should complete when inner producers complete, then outer producer completes") {
 					completeInner()
-					expect(completed).to(beFalse())
+					expect(completed).to(beFalsy())
 
 					completeOuter()
-					expect(completed).to(beTrue())
+					expect(completed).to(beTruthy())
 				}
 
 				it("should complete when outer producers completes, then inner producers complete") {
 					completeOuter()
-					expect(completed).to(beFalse())
+					expect(completed).to(beFalsy())
 
 					completeInner()
-					expect(completed).to(beTrue())
+					expect(completed).to(beTruthy())
 				}
 			}
 		}

@@ -18,17 +18,17 @@ public final class Signal<T, E: ErrorType> {
 
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()
-	private let disposable = CompositeDisposable()
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent, or until the signal's `disposable` has been disposed, at which
-	/// point the disposable returned from the closure will be disposed as well.
+	/// The Signal will remain alive until a terminating event is sent to the
+	/// observer, at which point the disposable returned from the closure will
+	/// be disposed as well.
 	public init(_ generator: Observer -> Disposable?) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
+		let generatorDisposable = SerialDisposable()
 		let sink = Observer { event in
 			self.lock.lock()
 
@@ -38,34 +38,31 @@ public final class Signal<T, E: ErrorType> {
 				}
 
 				if event.isTerminating {
-					self.disposable.dispose()
+					generatorDisposable.dispose()
+					self.observers = nil
 				}
 			}
 
 			self.lock.unlock()
 		}
 
-		disposable.addDisposable {
-			self.lock.lock()
-			self.observers = nil
-			self.lock.unlock()
-		}
-
-		if let d = generator(sink) {
-			disposable.addDisposable(d)
-		}
+		generatorDisposable.innerDisposable = generator(sink)
 	}
 
-	/// A Signal that never sends any events.
+	/// A Signal that immediately cancels itself, so that it never sends
+	/// meaningful events to new observers.
 	public class var never: Signal {
-		return self { _ in nil }
+		return self { observer in
+			observer.put(.Cancelled)
+			return nil
+		}
 	}
 
 	/// Creates a Signal that will be controlled by sending events to the given
 	/// observer (sink).
 	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent to the observer.
+	/// The Signal will remain alive until a terminating event is sent to the
+	/// observer.
 	public class func pipe() -> (Signal, Observer) {
 		var sink: Observer!
 		let signal = self { innerSink in
@@ -76,46 +73,40 @@ public final class Signal<T, E: ErrorType> {
 		return (signal, sink)
 	}
 
-	/// Creates a Signal that will be controlled by sending events to the given
-	/// observer, and which can be disposed using the returned disposable.
-	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent to the observer, or until the disposable is used.
-	internal class func disposablePipe() -> (Signal, Observer, CompositeDisposable) {
-		let (signal, observer) = pipe()
-		return (signal, observer, signal.disposable)
-	}
-
 	/// Observes the Signal by sending any future events to the given sink. If
-	/// the Signal has already terminated, the sink will not receive any events.
+	/// the Signal has already terminated, the sink will immediately receive a
+	/// `Cancelled` event.
 	///
 	/// Returns a Disposable which can be used to disconnect the sink. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
-	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable {
+	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable? {
 		let sink = Observer(observer)
 
 		lock.lock()
 		let token = self.observers?.insert(sink)
 		lock.unlock()
 
-		return ActionDisposable {
-			if let token = token {
+		if token == nil {
+			sink.put(.Cancelled)
+			return nil
+		} else {
+			return ActionDisposable {
 				self.lock.lock()
-				self.observers?.removeValueForToken(token)
+				self.observers?.removeValueForToken(token!)
 				self.lock.unlock()
 			}
 		}
 	}
 
 	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, none of the specified
-	/// callbacks will be invoked.
+	/// received. If the Signal has already terminated, the `cancelled` callback
+	/// will be invoked immediately.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return observe(Event.sink(next: next, error: error, completed: completed))
+	public func observe(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, cancelled: () -> () = doNothing) -> Disposable? {
+		return observe(Event.sink(next: next, error: error, completed: completed, cancelled: cancelled))
 	}
 }
 

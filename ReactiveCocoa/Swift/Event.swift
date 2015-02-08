@@ -137,3 +137,8 @@ public func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: E) {
 public func sendCompleted<T, E>(sink: SinkOf<Event<T, E>>) {
 	sink.put(Event<T, E>.Completed)
 }
+
+/// Puts a `Cancelled` event into the given sink.
+public func sendCancelled<T, E>(sink: SinkOf<Event<T, E>>) {
+	sink.put(Event<T, E>.Cancelled)
+}

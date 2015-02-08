@@ -465,7 +465,7 @@ private final class ConcatState<T, E: ErrorType> {
 	/// The top level disposable of a started `concat` producer.
 	let disposable: CompositeDisposable
 
-	/// The signals waiting to be started.
+	/// The active producer, if any, and the producers waiting to be started.
 	var queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {

@@ -124,8 +124,6 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> 
 	return disposable
 }
 
-/*
-FIXME: DISABLED DUE TO COMPILER BUG
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
@@ -134,50 +132,25 @@ FIXME: DISABLED DUE TO COMPILER BUG
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-	let propertyDisposable = property.producer.start(completed: {
-		disposable.dispose()
-	})
-
-	disposable.addDisposable(propertyDisposable)
-
+	var disposable: Disposable!
+	
 	producer.startWithSignal { signal, signalDisposable in
-		disposable.addDisposable(signalDisposable)
-
-		signal.observe(next: { [weak property] value in
-			property?.value = value
-			return
-		}, completed: {
-			disposable.dispose()
+		property <~ signal
+		disposable = signalDisposable
+		
+		property.producer.start(completed: {
+			signalDisposable.dispose()
 		})
 	}
-
+	
 	return disposable
 }
+
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: MutableProperty<T>, sourceProperty: P) -> Disposable {
-	let disposable = CompositeDisposable()
-	let destinationDisposable = destinationProperty.producer.start(completed: {
-		disposable.dispose()
-	})
-
-	disposable.addDisposable(destinationDisposable)
-
-	sourceProperty.producer.startWithSignal { signal, sourceDisposable in
-		disposable.addDisposable(sourceDisposable)
-
-		signal.observe(next: { [weak destinationProperty] value in
-			destinationProperty?.value = value
-			return
-		}, completed: {
-			disposable.dispose()
-		})
-	}
-
-	return disposable
+	return destinationProperty <~ sourceProperty.producer
 }
-*/

@@ -135,99 +135,99 @@ class PropertySpec: QuickSpec {
 			}
 
 			describe("from a SignalProducer") {
-				pending("should start a signal and update the property with its values") {
-//					let signalValues = [initialPropertyValue, subsequentPropertyValue]
-//					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-//
-//					let mutableProperty = MutableProperty(initialPropertyValue)
-//
-//					mutableProperty <~ signalProducer
-//
-//					expect(mutableProperty.value).to(equal(signalValues.last!))
+				it("should start a signal and update the property with its values") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					mutableProperty <~ signalProducer
+
+					expect(mutableProperty.value).to(equal(signalValues.last!))
 				}
 
-				pending("should tear down the binding when disposed") {
-//					let signalValues = [initialPropertyValue, subsequentPropertyValue]
-//					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-//
-//					let mutableProperty = MutableProperty(initialPropertyValue)
-//
-//					let disposable = mutableProperty <~ signalProducer
-//
-//					disposable.dispose()
-//					// TODO: Assert binding was teared-down?
+				it("should tear down the binding when disposed") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					let disposable = mutableProperty <~ signalProducer
+
+					disposable.dispose()
+					// TODO: Assert binding was teared-down?
 				}
 
-				pending("should tear down the binding when the property deallocates") {
-//					let signalValues = [initialPropertyValue, subsequentPropertyValue]
-//					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-//
-//					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
-//
-//					let disposable = mutableProperty! <~ signalProducer
-//
-//					mutableProperty = nil
-//					expect(disposable.disposed).to(beTruthy())
+				it("should tear down the binding when the property deallocates") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+
+					let disposable = mutableProperty! <~ signalProducer
+
+					mutableProperty = nil
+					expect(disposable.disposed).to(beTruthy())
 				}
 			}
 
 			describe("from another property") {
-				pending("should take the source property's current value") {
-//					let sourceProperty = ConstantProperty(initialPropertyValue)
-//
-//					let destinationProperty = MutableProperty("")
-//
-//					destinationProperty <~ sourceProperty.producer
-//
-//					expect(destinationProperty.value).to(equal(initialPropertyValue))
+				it("should take the source property's current value") {
+					let sourceProperty = ConstantProperty(initialPropertyValue)
+
+					let destinationProperty = MutableProperty("")
+
+					destinationProperty <~ sourceProperty.producer
+
+					expect(destinationProperty.value).to(equal(initialPropertyValue))
 				}
 
-			pending("should update with changes to the source property's value") {
-//					let sourceProperty = MutableProperty(initialPropertyValue)
-//
-//					let destinationProperty = MutableProperty("")
-//
-//					destinationProperty <~ sourceProperty.producer
-//
-//					destinationProperty.value = subsequentPropertyValue
-//					expect(destinationProperty.value).to(equal(subsequentPropertyValue))
+				it("should update with changes to the source property's value") {
+					let sourceProperty = MutableProperty(initialPropertyValue)
+
+					let destinationProperty = MutableProperty("")
+
+					destinationProperty <~ sourceProperty.producer
+
+					destinationProperty.value = subsequentPropertyValue
+					expect(destinationProperty.value).to(equal(subsequentPropertyValue))
 				}
 
-				pending("should tear down the binding when disposed") {
-//					let sourceProperty = MutableProperty(initialPropertyValue)
-//
-//					let destinationProperty = MutableProperty("")
-//
-//					let bindingDisposable = destinationProperty <~ sourceProperty.producer
-//					bindingDisposable.dispose()
-//
-//					sourceProperty.value = subsequentPropertyValue
-//
-//					expect(destinationProperty.value).to(equal(initialPropertyValue))
+				it("should tear down the binding when disposed") {
+					let sourceProperty = MutableProperty(initialPropertyValue)
+
+					let destinationProperty = MutableProperty("")
+
+					let bindingDisposable = destinationProperty <~ sourceProperty.producer
+					bindingDisposable.dispose()
+
+					sourceProperty.value = subsequentPropertyValue
+
+					expect(destinationProperty.value).to(equal(initialPropertyValue))
 				}
 
-				pending("should tear down the binding when the source property deallocates") {
-//					var sourceProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
-//
-//					let destinationProperty = MutableProperty("")
-//
-//					let bindingDisposable = destinationProperty <~ sourceProperty!.producer
-//
-//					sourceProperty = nil
-//
-//					expect(bindingDisposable.disposed).to(beTruthy())
+				it("should tear down the binding when the source property deallocates") {
+					var sourceProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+
+					let destinationProperty = MutableProperty("")
+
+					let bindingDisposable = destinationProperty <~ sourceProperty!.producer
+
+					sourceProperty = nil
+
+					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 
-				pending("should tear down the binding when the destination property deallocates") {
-//					let sourceProperty = MutableProperty(initialPropertyValue)
-//
-//					var destinationProperty: MutableProperty<String>? = MutableProperty("")
-//
-//					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
-//
-//					destinationProperty = nil
-//
-//					expect(bindingDisposable.disposed).to(beTruthy())
+				it("should tear down the binding when the destination property deallocates") {
+					let sourceProperty = MutableProperty(initialPropertyValue)
+
+					var destinationProperty: MutableProperty<String>? = MutableProperty("")
+
+					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
+
+					destinationProperty = nil
+
+					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 			}
 		}

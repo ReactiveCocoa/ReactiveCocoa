@@ -486,34 +486,18 @@ ReactiveCocoa supports OS X 10.8+ and iOS 8.0+.
 
 ## Importing ReactiveCocoa
 
-To add RAC to your application:
+We recommend using [Carthage](https://github.com/Carthage/Carthage) to add ReactiveCocoa to your project. Simply install Carthage, then add the following to your `Cartfile`:
 
- 1. Add the ReactiveCocoa repository as a submodule of your application's
-    repository.
- 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Drag and drop `ReactiveCocoa.xcodeproj` into your
-    application's Xcode project or workspace.
- 1. On the "Build Phases" tab of your application target, add RAC to the "Link
-    Binary With Libraries" phase.
-    * **On iOS**, add `libReactiveCocoa-iOS.a`.
-    * **On OS X**, add `ReactiveCocoa.framework`. RAC must also be added to any
-      "Copy Frameworks" build phase. If you don't already have one, simply add
-      a "Copy Files" build phase and target the "Frameworks" destination.
- 1. Add `"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include"
-    $(inherited)` to the "Header Search Paths" build setting (this is only
-    necessary for archive builds, but it has no negative effect otherwise).
- 1. **For iOS targets**, add `-ObjC` to the "Other Linker Flags" build setting.
- 1. **If you added RAC to a project (not a workspace)**, you will also need to
-    add the appropriate RAC target to the "Target Dependencies" of your
-    application.
+```
+github "ReactiveCocoa/ReactiveCocoa"
+```
+
+If you don’t want to use Carthage, you can also add ReactiveCocoa as a Git submodule. If you do this, make sure to use `git submodule update --init --recursive` to pull in ReactiveCocoa’s dependencies as well.
 
 If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
 [ReactiveCocoa
 podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that
 have been generously contributed by third parties.
-
-To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
-which are real iOS apps written using ReactiveCocoa.
 
 ## Standalone Development
 

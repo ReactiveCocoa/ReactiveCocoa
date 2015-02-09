@@ -486,11 +486,13 @@ ReactiveCocoa supports OS X 10.8+ and iOS 8.0+.
 
 ## Importing ReactiveCocoa
 
-We recommend using [Carthage](https://github.com/Carthage/Carthage) to add ReactiveCocoa to your project. Simply install Carthage, then add the following to your `Cartfile`:
+We recommend using [Carthage](https://github.com/Carthage/Carthage) to add ReactiveCocoa to your project. Simply install Carthage, add the following to your `Cartfile`:
 
 ```
 github "ReactiveCocoa/ReactiveCocoa"
 ```
+
+… then run `carthage update`.
 
 If you don’t want to use Carthage, you can also add ReactiveCocoa as a Git submodule. If you do this, make sure to use `git submodule update --init --recursive` to pull in ReactiveCocoa’s dependencies as well.
 

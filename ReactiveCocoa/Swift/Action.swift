@@ -69,7 +69,12 @@ public final class Action<Input, Output, Error: ErrorType> {
 			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = self._enabled <~ signal
-				disposable.addDisposable(bindDisposable)
+
+				signal.observe(SinkOf { event in
+					if event.isTerminating {
+						bindDisposable.dispose()
+					}
+				})
 			}
 	}
 

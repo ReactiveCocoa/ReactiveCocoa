@@ -81,12 +81,16 @@ private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
+///
+/// Any `Interrupted` events will be silently discarded.
 public func asRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACSignal {
 	return asRACSignal(producer |> optionalize)
 }
 
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
+///
+/// Any `Interrupted` events will be silently discarded.
 public func asRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
@@ -104,11 +108,15 @@ public func asRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 }
 
 /// Creates a RACSignal that will observe the given signal.
+///
+/// Any `Interrupted` event will be silently discarded.
 public func asRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
 	return asRACSignal(signal |> optionalize)
 }
 
 /// Creates a RACSignal that will observe the given signal.
+///
+/// Any `Interrupted` event will be silently discarded.
 public func asRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
@@ -120,7 +128,8 @@ public func asRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 		})
 
 		return RACDisposable {
-			selfDisposable.dispose()
+			selfDisposable?.dispose()
+			return
 		}
 	}
 }
@@ -140,7 +149,12 @@ extension RACCommand {
 			// FIXME: Workaround for <~ being disabled on SignalProducers.
 			|> startWithSignal { signal, disposable in
 				let bindDisposable = enabledProperty <~ signal
-				disposable.addDisposable(bindDisposable)
+				
+				signal.observe(SinkOf { event in
+					if event.isTerminating {
+						bindDisposable.dispose()
+					}
+				})
 			}
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in

@@ -194,7 +194,8 @@ public struct SignalProducer<T, E: ErrorType> {
 		if !disposable.disposed {
 			// Create a composite disposable that will automatically be torn
 			// down when the signal terminates.
-			let compositeDisposable = CompositeDisposable(disposable)
+			let compositeDisposable = CompositeDisposable()
+			compositeDisposable.addDisposable(disposable)
 
 			signal.observe(SinkOf { event in
 				if event.isTerminating {
@@ -608,7 +609,7 @@ public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.
-public func startWithSignal<T, E>(setUp: (Signal<T, E>, CompositeDisposable) -> ())(producer: SignalProducer<T, E>) -> () {
+public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ())(producer: SignalProducer<T, E>) -> () {
 	return producer.startWithSignal(setUp)
 }
 

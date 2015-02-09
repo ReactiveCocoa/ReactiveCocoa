@@ -141,14 +141,16 @@ public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E
 /// Preserves only the values of the signal that pass the given predicate.
 public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(next: { value in
-			if predicate(value) {
-				sendNext(observer, value)
+		return signal.observe(Signal.Observer { event in
+			switch event {
+			case let .Next(value):
+				if predicate(value.unbox) {
+					sendNext(observer, value.unbox)
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
@@ -161,23 +163,25 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var taken = 0
 
-		return signal.observe(next: { value in
-			if taken < count {
-				taken++
-				sendNext(observer, value)
-			} else {
-				sendCompleted(observer)
+		return signal.observe(Signal.Observer { event in
+			switch event {
+			case let .Next(value):
+				if taken < count {
+					taken++
+					fallthrough
+				} else {
+					sendCompleted(observer)
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
 
-/// Forwards all events onto the given scheduler, instead of whichever
-/// scheduler they originally arrived upon.
+/// Forwards all events onto the given scheduler, instead of whichever scheduler
+/// they originally arrived upon.
 public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
@@ -195,7 +199,7 @@ private class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> ())(signal: Signal<T, E>) -> Disposable {
+private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onCancelled: () -> ())(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -214,14 +218,15 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 		}
 
 		lock.unlock()
-	})
+	}, cancelled: onCancelled)
 }
 
 /// Combines the latest value of the receiver with the latest value from
 /// the given signal.
 ///
 /// The returned signal will not send a value until both inputs have sent
-/// at least one value each.
+/// at least one value each. If either signal is cancelled, the returned signal
+/// will also be cancelled.
 public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
 		let lock = NSRecursiveLock()
@@ -237,9 +242,10 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 
 		let onError = { sendError(observer, $0) }
 		let onBothCompleted = { sendCompleted(observer) }
+		let onCancelled = { sendCancelled(observer) }
 
-		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted)
-		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted)
+		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onCancelled)
+		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onCancelled)
 
 		return CompositeDisposable([ signalDisposable, otherDisposable ])
 	}
@@ -248,14 +254,14 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 /// Delays `Next` and `Completed` events by the given interval, forwarding
 /// them on the given scheduler.
 ///
-/// `Error` events are always scheduled immediately.
+/// `Error` and `Cancelled` events are always scheduled immediately.
 public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
 			switch event {
-			case .Error:
+			case .Error, .Cancelled:
 				scheduler.schedule {
 					observer.put(event)
 				}
@@ -282,16 +288,17 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var skipped = 0
 
-		return signal.observe(next: { value in
-			if skipped >= count {
-				sendNext(observer, value)
-			} else {
-				skipped++
-			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				if skipped >= count {
+					fallthrough
+				} else {
+					skipped++
+				}
+
+			default:
+				observer.put(event)
 		})
 	}
 }
@@ -316,10 +323,14 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(next: { event in
-			observer.put(event)
-		}, completed: {
-			sendCompleted(observer)
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(innerEvent):
+				observer.put(innerEvent.unbox)
+
+			default:
+				observer.put(event)
+			}
 		})
 	}
 }
@@ -338,7 +349,7 @@ private struct SampleState<T> {
 ///
 /// Returns a signal that will send values from `signal`, sampled (possibly
 /// multiple times) by `sampler`, then complete once both input signals have
-/// completed.
+/// completed, or cancel if either input signal is cancelled.
 public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let state = Atomic(SampleState<T>())
@@ -361,6 +372,8 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 			if oldState.samplerCompleted {
 				sendCompleted(observer)
 			}
+		}, cancelled: {
+			sendCancelled(observer)
 		})
 
 		let samplerDisposable = sampler.observe(next: { _ in
@@ -376,6 +389,8 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 			if oldState.signalCompleted {
 				sendCompleted(observer)
 			}
+		}, cancelled: {
+			sendCancelled(observer)
 		})
 
 		return CompositeDisposable([ signalDisposable, samplerDisposable ])

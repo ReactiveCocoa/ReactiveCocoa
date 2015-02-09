@@ -14,7 +14,7 @@ internal func doNothing() {}
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
-/// `Next* (Error | Completed | Cancelled)?`
+/// `Next* (Error | Completed | Interrupted)?`
 public enum Event<T, E: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Box<T>)
@@ -26,12 +26,12 @@ public enum Event<T, E: ErrorType> {
 	/// The signal successfully terminated. No further events will be received.
 	case Completed
 
-	/// Event production on the signal has been cancelled. No further events
+	/// Event production on the signal has been interrupted. No further events
 	/// will be received.
-	case Cancelled
+	case Interrupted
 
-	/// Whether this event indicates signal termination (from success or
-	/// failure).
+	/// Whether this event indicates signal termination (i.e., that no further
+	/// events will be received).
 	public var isTerminating: Bool {
 		switch self {
 		case .Next:
@@ -43,7 +43,7 @@ public enum Event<T, E: ErrorType> {
 		case .Completed:
 			return true
 
-		case .Cancelled:
+		case .Interrupted:
 			return true
 		}
 	}
@@ -60,14 +60,14 @@ public enum Event<T, E: ErrorType> {
 		case .Completed:
 			return .Completed
 
-		case .Cancelled:
-			return .Cancelled
+		case .Interrupted:
+			return .Interrupted
 		}
 	}
 
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, cancelled: () -> () = doNothing) -> SinkOf<Event> {
+	public static func sink(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> SinkOf<Event> {
 		return SinkOf { event in
 			switch event {
 			case let .Next(value):
@@ -79,8 +79,8 @@ public enum Event<T, E: ErrorType> {
 			case .Completed:
 				completed()
 
-			case .Cancelled:
-				cancelled()
+			case .Interrupted:
+				interrupted()
 			}
 		}
 	}
@@ -97,7 +97,7 @@ public func == <T: Equatable, E: Equatable> (lhs: Event<T, E>, rhs: Event<T, E>)
 	case (.Completed, .Completed):
 		return true
 
-	case (.Cancelled, .Cancelled):
+	case (.Interrupted, .Interrupted):
 		return true
 
 	default:
@@ -117,8 +117,8 @@ extension Event: Printable {
 		case .Completed:
 			return "COMPLETED"
 
-		case .Cancelled:
-			return "CANCELLED"
+		case .Interrupted:
+			return "INTERRUPTED"
 		}
 	}
 }
@@ -138,7 +138,7 @@ public func sendCompleted<T, E>(sink: SinkOf<Event<T, E>>) {
 	sink.put(Event<T, E>.Completed)
 }
 
-/// Puts a `Cancelled` event into the given sink.
-public func sendCancelled<T, E>(sink: SinkOf<Event<T, E>>) {
-	sink.put(Event<T, E>.Cancelled)
+/// Puts a `Interrupted` event into the given sink.
+public func sendInterrupted<T, E>(sink: SinkOf<Event<T, E>>) {
+	sink.put(Event<T, E>.Interrupted)
 }

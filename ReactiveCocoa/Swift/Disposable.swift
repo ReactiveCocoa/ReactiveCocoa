@@ -93,12 +93,21 @@ public final class CompositeDisposable: Disposable {
 
 	/// Initializes a CompositeDisposable containing the given sequence of
 	/// disposables.
-	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
+	public convenience init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
+		let optionalDisposables = map(disposables) { Optional.Some($0) }
+		self.init(optionalDisposables)
+	}
+
+	/// Initializes a CompositeDisposable containing all non-nil disposables
+	/// from the given sequence.
+	public init<S: SequenceType where S.Generator.Element == Optional<Disposable>>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
 
 		var generator = disposables.generate()
-		while let disposable: Disposable = generator.next() {
-			bag.insert(disposable)
+		while let disposable: Disposable? = generator.next() {
+			if let disposable = disposable {
+				bag.insert(disposable)
+			}
 		}
 
 		self.disposables = Atomic(bag)
@@ -106,7 +115,7 @@ public final class CompositeDisposable: Disposable {
 
 	/// Initializes an empty CompositeDisposable.
 	public convenience init() {
-		self.init([])
+		self.init(Array<Disposable?>())
 	}
 
 	public func dispose() {

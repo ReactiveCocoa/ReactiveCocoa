@@ -370,46 +370,131 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("first") {
-			pending("should start a signal then block on the first value") {
+			it("should start a signal then block on the first value") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var result: Result<Int, NoError>?
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> first
+				}
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(1))
 			}
 
-			pending("should return a nil result if no values are sent before completion") {
+			it("should return a nil result if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> first
+				expect(result).to(beNil())
 			}
 
-			pending("should return an error if one occurs before the first value") {
+			it("should return the first value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> first
+				expect(result?.value).to(equal(1))
+			}
+
+			it("should return an error if one occurs before the first value") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 		}
 
 		describe("single") {
-			pending("should start a signal then block until completion") {
+			it("should start a signal then block until completion") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var result: Result<Int, NoError>?
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> single
+				}
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(1))
 			}
 
-			pending("should return a nil result if no values are sent before completion") {
+			it("should return a nil result if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> single
+				expect(result).to(beNil())
 			}
 
-			pending("should return a nil result if too many values are sent before completion") {
+			it("should return a nil result if more than one value is sent before completion") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> single
+				expect(result).to(beNil())
 			}
 
-			pending("should return an error if one occurs") {
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> single
+				expect(result?.error).to(equal(TestError.Default))
 			}
 		}
 
 		describe("last") {
-			pending("should start a signal then block until completion") {
+			it("should start a signal then block until completion") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var result: Result<Int, NoError>?
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> last
+				}
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal(2))
 			}
 
-			pending("should return a nil result if no values are sent before completion") {
+			it("should return a nil result if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> last
+				expect(result).to(beNil())
 			}
 
-			pending("should return an error if one occurs") {
+			it("should return the last value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> last
+				expect(result?.value).to(equal(2))
+			}
+
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> last
+				expect(result?.error).to(equal(TestError.Default))
 			}
 		}
 
 		describe("wait") {
-			pending("should start a signal then block until completion") {
+			it("should start a signal then block until completion") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var result: Result<(), NoError>?
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> wait
+				}
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).toNot(beNil())
 			}
 			
-			pending("should return an error if one occurs") {
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> wait
+				expect(result.error).to(equal(TestError.Default))
 			}
 		}
 	}

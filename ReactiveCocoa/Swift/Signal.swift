@@ -50,10 +50,10 @@ public final class Signal<T, E: ErrorType> {
 	}
 
 	/// A Signal that immediately cancels itself, so that it never sends
-	/// meaningful events to new observers.
+	/// meaningful events to observers.
 	public class var never: Signal {
 		return self { observer in
-			observer.put(.Cancelled)
+			sendCancelled(observer)
 			return nil
 		}
 	}

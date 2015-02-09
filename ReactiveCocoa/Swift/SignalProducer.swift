@@ -25,7 +25,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// If the Disposable returned from start() is disposed or a terminating
 	/// event is sent to the observer, the given CompositeDisposable will be
-	/// disposed, at which point work should be cancelled and any temporary
+	/// disposed, at which point work should be interrupted and any temporary
 	/// resources cleaned up.
 	public init(_ startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()) {
 		self.startHandler = startHandler
@@ -86,12 +86,9 @@ public struct SignalProducer<T, E: ErrorType> {
 		}
 	}
 
-	/// A producer for a Signal that immediately cancels itself, so that it
-	/// never sends meaningful events to observers.
+	/// A producer for a Signal that never sends any events to its observers.
 	public static var never: SignalProducer {
-		return self { observer, disposable in
-			sendCancelled(observer)
-		}
+		return self { _ in () }
 	}
 
 	/// Creates a buffer for Events, with the given capacity, and a
@@ -183,13 +180,13 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
 	///
-	/// The closure will also receive a disposable which can be used to cancel
-	/// the work associated with the signal and immediately send a `Cancelled`
-	/// event.
+	/// The closure will also receive a disposable which can be used to
+	/// interrupt the work associated with the signal and immediately send an
+	/// `Interrupted` event.
 	public func startWithSignal(setUp: (Signal<T, E>, Disposable) -> ()) {
 		let (signal, observer) = Signal<T, E>.pipe()
 		let disposable = ActionDisposable {
-			sendCancelled(observer)
+			sendInterrupted(observer)
 		}
 
 		setUp(signal, disposable)
@@ -212,8 +209,8 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Creates a Signal from the producer, then attaches the given sink to the
 	/// Signal as an observer.
 	///
-	/// Returns a Disposable which can be used to cancel the work associated
-	/// with the signal and immediately send a `Cancelled` event.
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the signal and immediately send an `Interrupted` event.
 	public func start<S: SinkType where S.Element == Event<T, E>>(sink: S) -> Disposable {
 		var disposable: Disposable!
 
@@ -229,10 +226,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// the Signal, which will invoke the given callbacks when events are
 	/// received.
 	///
-	/// Returns a Disposable which can be used to cancel the work associated
+	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func start(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start(Event.sink(next: next, error: error, completed: completed))
+	public func start(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> Disposable {
+		return start(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
@@ -330,7 +327,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 /// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = doNothing, next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, cancelled: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = doNothing, next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, compositeDisposable in
 		started()
 		compositeDisposable.addDisposable(disposed)
@@ -351,8 +348,8 @@ public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = d
 				case .Completed:
 					completed()
 
-				case .Cancelled:
-					cancelled()
+				case .Interrupted:
+					interrupted()
 				}
 
 				if receivedEvent.isTerminating {
@@ -372,7 +369,7 @@ public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = d
 /// This implies that any side effects embedded in the producer will be
 /// performed on the given scheduler as well.
 ///
-/// Values may still be sent upon other schedulers—this merely affects where
+/// Events may still be sent upon other schedulers—this merely affects where
 /// the `start()` method is run.
 public func startOn<T, E>(scheduler: SchedulerType)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, compositeDisposable in
@@ -433,6 +430,8 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 				}
 			}, completed: {
 				sendCompleted(observer)
+			}, interrupted: {
+				sendInterrupted(observer)
 			})
 		}
 	}
@@ -473,6 +472,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 		subscribeToSignalProducer = Z { recur, signalProducer in
 			let serialDisposable = SerialDisposable()
 			let serialDisposableCompositeHandle = disposable.addDisposable(serialDisposable)
+
 			state.modify { (var state) in
 				state.latestSignalCompleted = false
 				return state
@@ -499,6 +499,8 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				if let nextSignalProducer = nextSignalProducer {
 					recur(nextSignalProducer)
 				}
+			}, interrupted: {
+				sendInterrupted(observer)
 			})
 		}
 
@@ -526,7 +528,10 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 					completeIfAllowed(state)
 					return state
 				}
+
 				return
+			}, interrupted: {
+				sendInterrupted(observer)
 			})
 
 			disposable.addDisposable(signalDisposable)
@@ -583,15 +588,19 @@ public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 	producer
 		|> take(1)
-		|> start(next: { value in
-			result = success(value)
+		|> start(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				result = success(value.unbox)
+
+			case let .Error(error):
+				result = failure(error.unbox)
+
+			default:
+				break
+			}
+
 			dispatch_semaphore_signal(semaphore)
-		}, error: { error in
-			result = failure(error)
-			dispatch_semaphore_signal(semaphore)
-		}, completed: {
-			dispatch_semaphore_signal(semaphore)
-			return
 		})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
@@ -609,6 +618,6 @@ public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(pro
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing)(producer: SignalProducer<T, E>) -> Disposable {
-	return producer.start(next: next, error: error, completed: completed)
+public func start<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing)(producer: SignalProducer<T, E>) -> Disposable {
+	return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
 }

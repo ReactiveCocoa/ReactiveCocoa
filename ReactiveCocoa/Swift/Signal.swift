@@ -576,19 +576,10 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// Applies `operation` to values from `signal` with `Success`ful results
 /// forwarded on the returned signal and `Failure`s sent as `Error` events.
 public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		signal.observe(next: { value in
-			switch operation(value) {
-			case .Success:
-				sendNext(observer, value)
-			case .Failure(let err):
-				sendError(observer, err.unbox)
-			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
-		})
+	return signal |> tryMap { value in
+		return operation(value).map {
+			return value
+		}
 	}
 }
 

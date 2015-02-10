@@ -1055,10 +1055,37 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeLast") {
-			pending("should send the last N values upon completion") {
+			var sink: Signal<Int, TestError>.Observer!
+			var lastThree: Signal<Int, TestError>!
+				
+			beforeEach {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+				sink = observer
+				lastThree = signal |> takeLast(3)
+			}
+			
+			it("should send the last N values upon completion") {
+				var result: [Int] = []
+				lastThree.observe(next: { result.append($0) })
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				sendNext(sink, 4)
+				expect(result).to(beEmpty())
+				
+				sendCompleted(sink)
+				expect(result).to(equal([ 2, 3, 4 ]))
 			}
 
-			pending("should send less than N values if not enough were received") {
+			it("should send less than N values if not enough were received") {
+				var result: [Int] = []
+				lastThree.observe(next: { result.append($0) })
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendCompleted(sink)
+				expect(result).to(equal([ 1, 2 ]))
 			}
 		}
 

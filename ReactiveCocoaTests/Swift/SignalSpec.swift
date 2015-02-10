@@ -1087,6 +1087,22 @@ class SignalSpec: QuickSpec {
 				sendCompleted(sink)
 				expect(result).to(equal([ 1, 2 ]))
 			}
+			
+			it("should send nothing when errors") {
+				var result: [Int] = []
+				var errored = false
+				lastThree.observe(	next: { result.append($0) },
+									error: { _ in errored = true }	)
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				expect(errored).to(beFalsy())
+				
+				sendError(sink, TestError.Default)
+				expect(errored).to(beTruthy())
+				expect(result).to(beEmpty())
+			}
 		}
 
 		describe("timeoutWithError") {

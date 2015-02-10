@@ -571,6 +571,72 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Throttle values sent by the receiver, so that at least `interval`
+/// seconds pass between each, then forwards them on the given scheduler.
+///
+/// If multiple values are received before the interval has elapsed, the
+/// latest value is the one that will be passed on.
+public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let state = Atomic(ThrottleState<T>())
+		let flush: () -> Void = {
+			let (_, doSend: (() -> Void)?) = state.modify { (var state) in
+				if let value = state.pendingValue {
+					let now = scheduler.currentDate
+					state.pendingValue = nil
+					state.scheduleDisposable = nil
+					return (state, { sendNext(observer, value) })
+				} else {
+					return (state, nil)
+				}
+			}
+			doSend?()
+		}
+		return signal.observe(next: { value in
+			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { (var state) in
+				
+				let now = scheduler.currentDate
+				let prev = state.previousDate
+				var scheduleDate: NSDate
+				if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
+					state.previousDate = now
+					scheduleDate = now
+				} else {
+					scheduleDate = prev!.dateByAddingTimeInterval(interval)
+				}
+				
+				let compositeDisposable = CompositeDisposable()
+				state.pendingValue = value
+				state.scheduleDisposable = ScopedDisposable(compositeDisposable)
+				return (state, (scheduleDate, compositeDisposable))
+			}
+
+			let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
+				if !compositeDisposable.disposed {
+					flush()
+				}
+			}
+			compositeDisposable.addDisposable(disposableFromScheduler)
+		}, error: { error in
+			state.swap(ThrottleState())
+			sendError(observer, error)
+		}, completed: {
+			flush()
+			sendCompleted(observer)
+		})
+	}
+}
+
+// TODO: Move this inside function and rename when compiler stops segfaulting
+private struct ThrottleState<T> {
+	var previousDate: NSDate? = nil
+	var pendingValue: T? = nil
+	var scheduleDisposable: ScopedDisposable? = nil
+}
+
+
 /*
 TODO
 

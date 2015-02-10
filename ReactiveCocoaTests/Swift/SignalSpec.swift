@@ -257,18 +257,71 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("try") {
-			pending("should forward original values upon success") {
+			it("should forward original values upon success") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> try { _ in
+					return success()
+				}
+				
+				var current: Int!
+				signal.observe(next: { value in
+					current = value
+				})
+				
+				for value in 1...5 {
+					sendNext(sink, value)
+					expect(current).to(equal(value))
+				}
 			}
-
-			pending("should error if an attempt fails") {
+			
+			it("should error if an attempt fails") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> try { _ in
+					return failure(.Default)
+				}
+				
+				var error: TestError?
+				signal.observe(error: { err in
+					error = err
+				})
+				
+				sendNext(sink, 42)
+				expect(error).to(equal(TestError.Default))
 			}
 		}
-
+		
 		describe("tryMap") {
-			pending("should forward mapped values upon success") {
+			it("should forward mapped values upon success") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
+					return success(num % 2 == 0)
+				}
+				
+				var even: Bool!
+				signal.observe(next: { value in
+					even = value
+				})
+				
+				sendNext(sink, 1)
+				expect(even).to(beFalse())
+				
+				sendNext(sink, 2)
+				expect(even).to(beTrue())
 			}
-
-			pending("should error if a mapping fails") {
+			
+			it("should error if a mapping fails") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
+					return failure(.Default)
+				}
+				
+				var error: TestError?
+				signal.observe(error: { err in
+					error = err
+				})
+				
+				sendNext(sink, 42)
+				expect(error).to(equal(TestError.Default))
 			}
 		}
 	}

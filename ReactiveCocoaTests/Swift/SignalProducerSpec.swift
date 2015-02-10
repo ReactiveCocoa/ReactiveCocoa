@@ -158,16 +158,115 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("concat") {
-			pending("should start subsequent inner signals upon completion") {
+			describe("sequencing") {
+				var completePrevious: (Void -> Void)!
+				var sendSubsequent: (Void -> Void)!
+				var completeOuter: (Void -> Void)!
+
+				var subsequentStarted = false
+
+				beforeEach {
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+					let (previousProducer, previousSink) = SignalProducer<Int, NoError>.buffer()
+
+					subsequentStarted = false
+					let subsequentProducer = SignalProducer<Int, NoError> { _ in
+						subsequentStarted = true
+					}
+
+					completePrevious = { sendCompleted(previousSink) }
+					sendSubsequent = { sendNext(outerSink, subsequentProducer) }
+					completeOuter = { sendCompleted(outerSink) }
+
+					concat(outerProducer).start()
+					sendNext(outerSink, previousProducer)
+				}
+
+				it("should immediately start subsequent inner producer if previous inner producer has already completed") {
+					completePrevious()
+					sendSubsequent()
+					expect(subsequentStarted).to(beTruthy())
+				}
+
+				context("with queued producers") {
+					beforeEach {
+						// Place the subsequent producer into `concat`'s queue.
+						sendSubsequent()
+						expect(subsequentStarted).to(beFalsy())
+					}
+
+					it("should start subsequent inner producer upon completion of previous inner producer") {
+						completePrevious()
+						expect(subsequentStarted).to(beTruthy())
+					}
+
+					it("should start subsequent inner producer upon completion of previous inner producer and completion of outer producer") {
+						completeOuter()
+						completePrevious()
+						expect(subsequentStarted).to(beTruthy())
+					}
+				}
 			}
 
-			pending("should forward an error from an inner signal") {
+			it("should forward an error from an inner producer") {
+				let errorProducer = SignalProducer<Int, TestError>(error: TestError.Default)
+				let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
+
+				var error: TestError?
+				concat(outerProducer).start(error: { e in
+					error = e
+				})
+				expect(error).to(equal(TestError.Default))
 			}
 
-			pending("should forward an error from the outer signal") {
+			it("should forward an error from the outer producer") {
+				let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
+
+				var error: TestError?
+				concat(outerProducer).start(error: { e in
+					error = e
+				})
+
+				sendError(outerSink, TestError.Default)
+				expect(error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when all signals have completed") {
+			describe("completion") {
+				var completeOuter: (Void -> Void)!
+				var completeInner: (Void -> Void)!
+
+				var completed = false
+
+				beforeEach {
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+					let (innerProducer, innerSink) = SignalProducer<Int, NoError>.buffer()
+
+					completeOuter = { sendCompleted(outerSink) }
+					completeInner = { sendCompleted(innerSink) }
+
+					completed = false
+					concat(outerProducer).start(completed: {
+						completed = true
+					})
+
+					sendNext(outerSink, innerProducer)
+				}
+
+				it("should complete when inner producers complete, then outer producer completes") {
+					completeInner()
+					expect(completed).to(beFalsy())
+
+					completeOuter()
+					expect(completed).to(beTruthy())
+				}
+
+				it("should complete when outer producers completes, then inner producers complete") {
+					completeOuter()
+					expect(completed).to(beFalsy())
+
+					completeInner()
+					expect(completed).to(beTruthy())
+				}
 			}
 		}
 
@@ -219,41 +318,82 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("then") {
-			pending("should start the subsequent signal after the completion of the original") {
+			it("should start the subsequent producer after the completion of the original") {
+				let (original, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var subsequentStarted = false
+				let subsequent = SignalProducer<Int, NoError> { observer, _ in
+					subsequentStarted = true
+				}
+
+				let producer = original |> then(subsequent)
+				producer.start()
+				expect(subsequentStarted).to(beFalsy())
+
+				sendCompleted(sink)
+				expect(subsequentStarted).to(beTruthy())
 			}
 
-			pending("should forward errors from the original signal") {
+			it("should forward errors from the original producer") {
+				let original = SignalProducer<Int, TestError>(error: .Default)
+				let subsequent = SignalProducer<Int, TestError>.empty
+
+				let result = original |> then(subsequent) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should forward errors from the subsequent signal") {
+			it("should forward errors from the subsequent producer") {
+				let original = SignalProducer<Int, TestError>.empty
+				let subsequent = SignalProducer<Int, TestError>(error: .Default)
+
+				let result = original |> then(subsequent) |> first
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				let (original, originalSink) = SignalProducer<Int, NoError>.buffer()
+				let (subsequent, subsequentSink) = SignalProducer<String, NoError>.buffer()
+
+				let producer = original |> then(subsequent)
+
+				var completed = false
+				producer.start(completed: {
+					completed = true
+				})
+
+				sendCompleted(originalSink)
+				expect(completed).to(beFalsy())
+
+				sendCompleted(subsequentSink)
+				expect(completed).to(beTruthy())
 			}
 		}
 
 		describe("first") {
 			it("should start a signal then block on the first value") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> first
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 				expect(result?.value).to(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
 				let result = SignalProducer<Int, NoError>.empty |> first
 				expect(result).to(beNil())
+			}
+
+			it("should return the first value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> first
+				expect(result?.value).to(equal(1))
 			}
 
 			it("should return an error if one occurs before the first value") {
@@ -264,23 +404,21 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("single") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> single
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 				expect(result?.value).to(equal(1))
 			}
 
@@ -290,7 +428,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should return a nil result if more than one value is sent before completion") {
-				let result = SignalProducer<Int, NoError>(values: [1, 2]) |> single
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> single
 				expect(result).to(beNil())
 			}
 
@@ -302,17 +440,14 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("last") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<Int, NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> last
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendNext(sink, 1)
@@ -320,12 +455,18 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 				expect(result?.value).to(equal(2))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
 				let result = SignalProducer<Int, NoError>.empty |> last
 				expect(result).to(beNil())
+			}
+
+			it("should return the last value if more than one value is sent") {
+				let result = SignalProducer<Int, NoError>(values: [ 1, 2 ]) |> last
+				expect(result?.value).to(equal(2))
 			}
 
 			it("should return an error if one occurs") {
@@ -336,20 +477,18 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("wait") {
 			it("should start a signal then block until completion") {
-				var sink: Signal<Int, NoError>.Observer!
-				let producer = SignalProducer<Int, NoError> { observer, _ in
-					sink = observer
-				}
-				expect(sink).to(beNil())
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
 				var result: Result<(), NoError>?
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
 					result = producer |> wait
 				}
-				expect(sink).toEventuallyNot(beNil())
 				expect(result).to(beNil())
 
 				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 				expect(result?.value).toNot(beNil())
 			}
 			

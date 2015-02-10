@@ -9,3 +9,12 @@ notifications:
   email: false
   slack:
     secure: C9QTry5wUG9CfeH3rm3Z19R5rDWqDO7EhHAqHDXBxT6CpGRkTPFliJexpjBYB4sroJ8CiY5ZgTI2sjRBiAdGoE5ZQkfnwSoKQhWXkwo19TnbSnufr3cKO2SZkUhBqOlZcA+mgfjZ7rm2wm7RhpCR/4z8oBXDN4/xv0U5R2fLCLE=
+deploy:
+  provider: releases
+  api-key:
+    secure: fuanFoD8mM8N30xCXyDg1GYjhMCS4eQU0hfZWV9j42tW5cQ+7cZvhDI3HrjGhkszLVQgTyxMzysniLXa7s/O0xq4DGCF7UkJUPDJm5WjO1nj9Tl248O/aIasa49EUcb6lYeDNQ2CxLQv/LPXaxc7Km31GJKMfbVgnz7Vp1HRosc=
+  file: FIXME
+  skip_cleanup: true
+  on:
+    tags: false
+    all_branches: false

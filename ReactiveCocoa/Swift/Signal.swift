@@ -593,7 +593,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			doSend?()
 		}
 		return signal.observe(next: { value in
-			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { ( var state) in
+			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { state in
 				
 				let now = scheduler.currentDate
 				let prev = state.previousDate
@@ -605,9 +605,8 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				}
 				
 				let compositeDisposable = CompositeDisposable()
-				state.scheduleDisposable = ScopedDisposable(compositeDisposable)
-				state.pendingValue = value
-				return (state, (scheduleDate, compositeDisposable))
+				let newState = ThrottleState(previousDate: prev, pendingValue: value, scheduleDisposable: ScopedDisposable(compositeDisposable))
+				return (newState, (scheduleDate, compositeDisposable))
 			}
 
 			let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {

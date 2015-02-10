@@ -1011,13 +1011,46 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("dematerialize") {
-			pending("should send values for Next events") {
+			typealias IntEvent = Event<Int, TestError>
+			var sink: Signal<IntEvent, NoError>.Observer!
+			var dematerialized: Signal<Int, TestError>!
+			
+			beforeEach {
+				let (signal, observer) = Signal<IntEvent, NoError>.pipe()
+				sink = observer
+				dematerialized = signal |> dematerialize
+			}
+			
+			it("should send values for Next events") {
+				var result: [Int] = []
+				dematerialized.observe(next: { result.append($0) })
+				
+				expect(result).to(beEmpty())
+				
+				sendNext(sink, IntEvent.Next(Box(2)))
+				expect(result).to(equal([ 2 ]))
+				
+				sendNext(sink, IntEvent.Next(Box(4)))
+				expect(result).to(equal([ 2, 4 ]))
 			}
 
-			pending("should error out for Error events") {
+			it("should error out for Error events") {
+				var errored = false
+				dematerialized.observe(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				
+				sendNext(sink, IntEvent.Error(Box(TestError.Default)))
+				expect(errored).to(beTruthy())
 			}
 
-			pending("should complete early for Completed events") {
+			it("should complete early for Completed events") {
+				var completed = false
+				dematerialized.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				sendNext(sink, IntEvent.Completed)
+				expect(completed).to(beTruthy())
 			}
 		}
 

@@ -571,6 +571,45 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Zips elements of two signals into pairs. The elements of any Nth pair
+/// are the Nth elements of the two input signals.
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
+	return Signal { observer in
+		let lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.zipWith"
+		
+		var signalTeeth: [T] = []
+		var otherTeeth: [U] = []
+		
+		let zipUp = { () -> () in
+			while !signalTeeth.isEmpty && !otherTeeth.isEmpty {
+				let left = signalTeeth.removeAtIndex(0)
+				let right = otherTeeth.removeAtIndex(0)
+				sendNext(observer, (left, right))
+			}
+		}
+		
+		let onError = { sendError(observer, $0) }
+		let onCompleted = { sendCompleted(observer) }
+		
+		let signalDisposable = signal.observe(next: { value in
+			lock.lock()
+			signalTeeth.append(value)
+			zipUp()
+			lock.unlock()
+		}, error: onError, completed: onCompleted)
+		
+		let otherDisposable = otherSignal.observe(next: { value in
+			lock.lock()
+			otherTeeth.append(value)
+			zipUp()
+			lock.unlock()
+		}, error: onError, completed: onCompleted)
+		
+		return CompositeDisposable([ signalDisposable, otherDisposable ])
+	}
+}
+
 /*
 TODO
 
@@ -578,7 +617,6 @@ public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
 public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>
 public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E>
-public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 */
 
 /// Signal.observe() as a free function, for easier use with |>.

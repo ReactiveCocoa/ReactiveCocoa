@@ -24,7 +24,11 @@
 @implementation NSValue (RACDescription)
 
 - (NSString *)rac_description {
-	return self.description;
+    if (getenv("RAC_DEBUG_SIGNAL_NAMES") != NULL) {
+        return self.description;
+    } else {
+        return @"(description skipped)";
+    }
 }
 
 @end
@@ -32,7 +36,11 @@
 @implementation NSString (RACDescription)
 
 - (NSString *)rac_description {
-	return self.description;
+    if (getenv("RAC_DEBUG_SIGNAL_NAMES") != NULL) {
+        return self.description;
+    } else {
+        return @"(description skipped)";
+    }
 }
 
 @end
@@ -40,7 +48,11 @@
 @implementation RACTuple (RACDescription)
 
 - (NSString *)rac_description {
-	return self.allObjects.description;
+    if (getenv("RAC_DEBUG_SIGNAL_NAMES") != NULL) {
+        return self.allObjects.description;
+    } else {
+        return @"(description skipped)";
+    }
 }
 
 @end

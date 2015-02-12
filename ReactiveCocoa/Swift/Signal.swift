@@ -1,3 +1,5 @@
+import LlamaKit
+
 /// A push-driven stream that sends Events over time, parameterized by the type
 /// of values being sent (`T`) and the type of error that can occur (`E`). If no
 /// errors should be possible, NoError can be specified for `E`.
@@ -571,13 +573,40 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+/// Applies `operation` to values from `signal` with `Success`ful results
+/// forwarded on the returned signal and `Failure`s sent as `Error` events.
+public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> tryMap { value in
+		return operation(value).map {
+			return value
+		}
+	}
+}
+
+/// Applies `operation` to values from `signal` with `Success`ful results mapped
+/// on the returned signal and `Failure`s sent as `Error` events.
+public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
+	return Signal { observer in
+		signal.observe(next: { value in
+			switch operation(value) {
+			case let .Success(val):
+				sendNext(observer, val.unbox)
+			case let .Failure(err):
+				sendError(observer, err.unbox)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /*
 TODO
 
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
-public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>
-public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E>
 public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 */
 

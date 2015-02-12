@@ -303,10 +303,10 @@ class SignalSpec: QuickSpec {
 				})
 				
 				sendNext(sink, 1)
-				expect(even).to(beFalse())
+				expect(even).to(equal(false))
 				
 				sendNext(sink, 2)
-				expect(even).to(beTrue())
+				expect(even).to(equal(true))
 			}
 			
 			it("should error if a mapping fails") {

@@ -12,6 +12,10 @@
 #import "RACQueueScheduler+Subclass.h"
 #import "RACScheduler+Private.h"
 
+@interface RACQueueScheduler ()
+@property (nonatomic) NSMutableArray *runningTimers;
+@end
+
 @implementation RACQueueScheduler
 
 #pragma mark Lifecycle
@@ -99,9 +103,12 @@
 	dispatch_source_set_timer(timer, [self.class wallTimeWithDate:date], intervalInNanoSecs, leewayInNanoSecs);
 	dispatch_source_set_event_handler(timer, block);
 	dispatch_resume(timer);
+    
+    [runningTimers addObject:timer];
 
 	return [RACDisposable disposableWithBlock:^{
 		dispatch_source_cancel(timer);
+        [runningTimers removeObject:timer];
 	}];
 }
 

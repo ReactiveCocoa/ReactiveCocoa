@@ -263,7 +263,7 @@ class SignalSpec: QuickSpec {
 					return success()
 				}
 				
-				var current: Int!
+				var current: Int?
 				signal.observe(next: { value in
 					current = value
 				})
@@ -297,7 +297,7 @@ class SignalSpec: QuickSpec {
 					return success(num % 2 == 0)
 				}
 				
-				var even: Bool!
+				var even: Bool?
 				signal.observe(next: { value in
 					even = value
 				})

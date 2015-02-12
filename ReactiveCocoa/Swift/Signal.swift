@@ -589,9 +589,9 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 	return Signal { observer in
 		signal.observe(next: { value in
 			switch operation(value) {
-			case .Success(let val):
+			case let .Success(val):
 				sendNext(observer, val.unbox)
-			case .Failure(let err):
+			case let .Failure(err):
 				sendError(observer, err.unbox)
 			}
 		}, error: { error in

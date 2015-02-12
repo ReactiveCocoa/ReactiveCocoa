@@ -92,7 +92,8 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
 
 /// Reschedule the given block at a particular interval, starting at a specific
-/// time, and with a given leeway for deferral.
+/// time, and with a given leeway for deferral. You should retain the scheduler
+/// to keep the timer work.
 ///
 /// Note that blocks scheduled for a certain time will not preempt any other
 /// scheduled work that is executing at the time.

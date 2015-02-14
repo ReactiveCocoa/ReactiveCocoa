@@ -339,13 +339,31 @@ class SignalProducerSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 
-			pending("should forward an error from an inner signal") {
+			it("should forward an error from an inner signal") {
+				let inner = SignalProducer<Int, TestError>(error: .Default)
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
+				let result = outer |> switchToLatest |> first
+				
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should forward an error from the outer signal") {
+			it("should forward an error from the outer signal") {
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
+				let result = outer |> switchToLatest |> first
+				
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when the original and latest signals have completed") {
+			it("should complete when the original and latest signals have completed") {
+				let inner = SignalProducer<Int, TestError>.empty
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
+				
+				var completed = false
+				switchToLatest(outer).start(completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beTruthy())
 			}
 		}
 

@@ -683,7 +683,7 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 /// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
 /// errors with `error` on `scheduler`.
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
-	precondition(interval > 0)
+	precondition(interval >= 0)
 
 	var completed = false
 	return Signal { observer in

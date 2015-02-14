@@ -95,8 +95,9 @@
 	uint64_t intervalInNanoSecs = (uint64_t)(interval * NSEC_PER_SEC);
 	uint64_t leewayInNanoSecs = (uint64_t)(leeway * NSEC_PER_SEC);
 
+	int64_t startDateDelay = (int64_t)((date.timeIntervalSince1970 - NSDate.date.timeIntervalSince1970) * NSEC_PER_SEC);
 	dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
-	dispatch_source_set_timer(timer, [self.class wallTimeWithDate:date], intervalInNanoSecs, leewayInNanoSecs);
+	dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, startDateDelay), intervalInNanoSecs, leewayInNanoSecs);
 	dispatch_source_set_event_handler(timer, block);
 	dispatch_resume(timer);
 

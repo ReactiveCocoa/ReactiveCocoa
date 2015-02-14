@@ -220,48 +220,61 @@ class SignalSpec: QuickSpec {
 			var leftSink: Signal<Int, NoError>.Observer!
 			var rightSink: Signal<String, NoError>.Observer!
 			var zipped: Signal<(Int, String), NoError>!
-			
+
 			beforeEach {
 				let (leftSignal, leftObserver) = Signal<Int, NoError>.pipe()
 				let (rightSignal, rightObserver) = Signal<String, NoError>.pipe()
-				
+
 				leftSink = leftObserver
 				rightSink = rightObserver
 				zipped = leftSignal |> zipWith(rightSignal)
 			}
-			
+
 			it("should combine pairs") {
 				var result: [String] = []
 				zipped.observe(next: { (left, right) in result.append("\(left)\(right)") })
-				
+
 				sendNext(leftSink, 1)
 				sendNext(leftSink, 2)
 				expect(result).to(equal([]))
-				
+
 				sendNext(rightSink, "foo")
 				expect(result).to(equal([ "1foo" ]))
-				
+
 				sendNext(leftSink, 3)
 				sendNext(rightSink, "bar")
 				expect(result).to(equal([ "1foo", "2bar" ]))
-				
+
 				sendNext(rightSink, "buzz")
 				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
-				
+
 				sendNext(rightSink, "fuzz")
 				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
-				
+
 				sendNext(leftSink, 4)
 				expect(result).to(equal([ "1foo", "2bar", "3buzz", "4fuzz" ]))
 			}
 
 			it("should complete when the shorter signal has completed") {
+				var result: [String] = []
 				var completed = false
-				zipped.observe(completed: { completed = true })
+
+				zipped.observe(next: { (left, right) in
+					result.append("\(left)\(right)")
+				}, completed: {
+					completed = true
+				})
 
 				expect(completed).to(beFalsy())
+
+				sendNext(leftSink, 0)
 				sendCompleted(leftSink)
+				expect(completed).to(beFalsy())
+				expect(result).to(equal([]))
+
+				sendNext(rightSink, "foo")
 				expect(completed).to(beTruthy())
+				expect(result).to(equal([ "0foo" ]))
 			}
 		}
 

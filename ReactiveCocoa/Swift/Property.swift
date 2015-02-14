@@ -140,7 +140,7 @@ extension MutableProperty: SinkType {
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
-	public init(object: NSObject, keyPath: String) {
+	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
 	}

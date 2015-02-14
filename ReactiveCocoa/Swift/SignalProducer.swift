@@ -407,6 +407,16 @@ public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>)(producer: Sign
 	return producer.lift(takeUntil)(trigger)
 }
 
+/// Forwards events from `producer` until `replacement` begins sending events.
+///
+/// Returns a signal which passes through `next`s and `error` from `producer`
+/// until `replacement` sends an event, at which point the returned producer
+/// will send that event and switch to passing through events from `replacement`
+/// instead, regardless of whether `producer` has sent events already.
+public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	return producer.lift(takeUntilReplacement)(replacement)
+}
+
 /// Catches any error that may occur on the input producer, then starts a new
 /// producer in its place.
 public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalProducer<T, E>) -> SignalProducer<T, F> {
@@ -544,7 +554,6 @@ public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalP
 
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 */
 
 /// Waits for completion of `producer`, *then* forwards all events from

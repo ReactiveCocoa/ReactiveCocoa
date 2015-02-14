@@ -611,6 +611,19 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return result
 }
 
+/// Starts the producer, then blocks, waiting for all values.
+public func allValues<T, E>(producer: SignalProducer<T, E>) -> Result<[T], E> {
+	let resultOrNil = producer
+		|> reduce([T]()) { (var previous, value) in
+			previous.append(value)
+
+			return previous
+		}
+		|> single
+
+	return resultOrNil ?? success([T]())
+}
+
 /// Starts the producer, then blocks, waiting for the last value.
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	return producer |> takeLast(1) |> single

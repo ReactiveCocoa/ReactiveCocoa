@@ -285,7 +285,58 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("switchToLatest") {
-			pending("should forward values from the latest inner signal") {
+			it("should forward values from the latest inner signal") {
+				let scheduler = TestScheduler()
+				
+				let signal = SignalProducer<SignalProducer<Int, TestError>, TestError> { sink, disposable in
+					sendNext(sink, SignalProducer(value: 0))
+					
+					let firstSignal = SignalProducer<Int, TestError> { sink, disposable in
+						sendNext(sink, 1)
+						
+						scheduler.schedule {
+							sendNext(sink, 3)
+							sendCompleted(sink)
+						}
+					}
+					
+					let secondSignal = SignalProducer<Int, TestError> { sink, disposable in
+						sendNext(sink, 2)
+						
+						scheduler.schedule {
+							sendNext(sink, 4)
+							sendCompleted(sink)
+						}
+					}
+					
+					sendNext(sink, firstSignal)
+					sendNext(sink, secondSignal)
+					sendCompleted(sink)
+				}
+				
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+				
+				switchToLatest(signal).start(
+					next: {
+						receivedValues.append($0)
+					},
+					error: { _ in
+						errored = true
+					},
+					completed: {
+						completed = true
+					})
+				
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beFalsy())
+				
+				scheduler.run()
+				expect(receivedValues).to(equal([ 0, 1, 2, 4 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beTruthy())
 			}
 
 			pending("should forward an error from an inner signal") {

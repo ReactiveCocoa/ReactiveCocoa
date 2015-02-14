@@ -527,13 +527,62 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
+public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer<T, E> { sink, disposable in
+		let producerCompleted = Atomic(false)
+		let latestCompleted = Atomic(false)
+		
+		let completeIfNecessary: () -> () = {
+			if producerCompleted.value && latestCompleted.value {
+				sendCompleted(sink)
+			}
+		}
+
+		let latestDisposable = SerialDisposable()
+		disposable.addDisposable(latestDisposable)
+
+		producer.startWithSignal { signal, producerDisposable in
+			disposable.addDisposable(producerDisposable)
+			
+			signal.observe(
+				next: { signal in
+					latestDisposable.innerDisposable = nil
+					latestCompleted.value = false
+					
+					signal.startWithSignal { signal, signalDisposable in
+						latestDisposable.innerDisposable = signalDisposable
+						
+						materialize(signal).observe { event in
+							switch event {
+							case .Completed:
+								latestCompleted.value = true
+								completeIfNecessary()
+								
+							default:
+								sink.put(event)
+							}
+						}
+					}
+					
+					return
+				},
+				error: { error in
+					sendError(sink, error)
+				},
+				completed: {
+					producerCompleted.value = true
+					completeIfNecessary()
+				})
+		}
+	}
+}
+
 /*
 TODO
 
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>

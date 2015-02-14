@@ -383,6 +383,12 @@ public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>
 	return producer.lift(combineLatestWith)(otherSignalProducer)
 }
 
+/// Zips elements of two signal producers into pairs. The elements of any Nth
+/// pair are the Nth elements of the two input producers.
+public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<(T, U), E> {
+	return producer.lift(zipWith)(otherSignalProducer)
+}
+
 /// Forwards the latest value from `producer` whenever `sampler` sends a Next
 /// event.
 ///
@@ -452,7 +458,7 @@ public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 
 				state.enqueueSignalProducer(completion)
 			})
-				
+
 			disposable.addDisposable(signalDisposable)
 		}
 	}
@@ -539,7 +545,6 @@ public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalP
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 */
 
 /// Waits for completion of `producer`, *then* forwards all events from

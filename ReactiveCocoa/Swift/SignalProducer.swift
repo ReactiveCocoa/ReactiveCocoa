@@ -527,7 +527,7 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
-/// Maps each event from `producer` sends to a new producer, then
+/// Maps each event from `producer` to a new producer, then
 /// concatenates the resulting producers together.
 public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
 	

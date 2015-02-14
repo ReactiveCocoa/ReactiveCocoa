@@ -298,14 +298,65 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("repeat") {
-			pending("should start a signal N times upon completion") {
+		describe("times") {
+			it("should start a signal N times upon completion") {
+				let original = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
+				let producer = original |> times(3)
+
+				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				expect(result?.value).to(equal([ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]))
 			}
 
-			pending("should not repeat upon error") {
+			it("should produce an equivalent signal producer if count is 0") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(1)
+
+				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				expect(result?.value).to(equal([ 1 ]))
+			}
+
+			it("should not repeat upon error") {
+				let results: [Result<Int, TestError>] = [
+					success(1),
+					success(2),
+					failure(.Default)
+				]
+
+				var operationIndex = 0
+				let operation: () -> Result<Int, TestError> = {
+					assert(operationIndex < results.count, "Operation started too many times")
+
+					return results[operationIndex++]
+				}
+
+				let original = SignalProducer.try(operation)
+				let producer = original |> times(3)
+
+				let events = producer
+					|> materialize
+					|> reduce([]) { $0 + [ $1 ] }
+					|> single
+				let result = events?.value
+
+				let expectedEvents: [Event<Int, TestError>] = [
+					.Next(Box(1)),
+					.Next(Box(2)),
+					.Error(Box(.Default))
+				]
+
+				// TODO: if let result = result where result.count == expectedEvents.count
+				if result?.count != expectedEvents.count {
+					fail("Invalid result: \(result)")
+				} else {
+					// Can't test for equality because Array<T> is not Equatable,
+					// and neither is Event<T, E>.
+					expect(result![0] == expectedEvents[0]).to(beTruthy())
+					expect(result![1] == expectedEvents[1]).to(beTruthy())
+					expect(result![2] == expectedEvents[2]).to(beTruthy())
+				}
 			}
 		}
-
+		
 		describe("retry") {
 			pending("should start a signal N times upon error") {
 			}

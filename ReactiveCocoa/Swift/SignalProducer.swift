@@ -552,9 +552,22 @@ public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalPr
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
-public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 */
+
+/// Repeats `producer` a total of `count` times.
+/// Repeating `1` times results in a equivalent signal producer.
+public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	precondition(count >= 1)
+
+	var result = producer
+
+	for _ in 1..<count {
+		result = result |> concat(producer)
+	}
+
+	return result
+}
 
 /// Waits for completion of `producer`, *then* forwards all events from
 /// `replacement`. Any error sent from `producer` is forwarded immediately, in

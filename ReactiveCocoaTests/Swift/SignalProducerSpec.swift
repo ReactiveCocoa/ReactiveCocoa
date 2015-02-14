@@ -438,6 +438,40 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
+		describe("allValues") {
+			it("should start a signal then block until completion") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var result: Result<[Int], NoError>?
+
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+					result = producer |> allValues
+				}
+				expect(result).to(beNil())
+
+				sendNext(sink, 1)
+				expect(result).to(beNil())
+
+				sendNext(sink, 2)
+				expect(result).to(beNil())
+
+				sendCompleted(sink)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+				expect(result?.value).to(equal([1, 2]))
+			}
+
+			it("should return a result with empty array if no values are sent before completion") {
+				let result = SignalProducer<Int, NoError>.empty |> allValues
+				expect(result.value).to(equal([Int]()))
+			}
+
+			it("should return an error if one occurs") {
+				let result = SignalProducer<Int, TestError>(error: .Default) |> allValues
+				expect(result.error).to(equal(TestError.Default))
+			}
+		}
+
 		describe("last") {
 			it("should start a signal then block until completion") {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()

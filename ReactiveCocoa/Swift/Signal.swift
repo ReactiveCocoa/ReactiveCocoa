@@ -680,11 +680,38 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 	}
 }
 
+/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
+/// errors with `error` on `scheduler`.
+public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
+{
+	precondition(interval > 0)
+
+	var completed = false
+	return Signal { observer in
+		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+		let schedulerDisposable = scheduler.scheduleAfter(date) {
+			if !completed {
+				sendError(observer, error)
+			}
+		}
+
+		let signalDisposable = signal.observe(Signal.Observer { event in
+			if event.isTerminating {
+				completed = true
+			}
+			observer.put(event)
+		})
+
+		let dis = CompositeDisposable([ signalDisposable ])
+		dis.addDisposable(schedulerDisposable)
+		return dis
+	}
+}
+
 /*
 TODO
 
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
 */
 
 /// Signal.observe() as a free function, for easier use with |>.

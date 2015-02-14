@@ -571,41 +571,80 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+private struct ZipState<T> {
+	var values: [T] = []
+	var completed = false
+
+	var isFinished: Bool {
+		return values.isEmpty && completed
+	}
+}
+
 /// Zips elements of two signals into pairs. The elements of any Nth pair
 /// are the Nth elements of the two input signals.
 public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
-		let lock = NSRecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.zipWith"
-		
-		var signalTeeth: [T] = []
-		var otherTeeth: [U] = []
-		
-		let zipUp = { () -> () in
-			while !signalTeeth.isEmpty && !otherTeeth.isEmpty {
-				let left = signalTeeth.removeAtIndex(0)
-				let right = otherTeeth.removeAtIndex(0)
+		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
+		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
+
+		let flush = { () -> () in
+			var originalStates: (ZipState<T>, ZipState<U>)!
+			states.modify { states in
+				originalStates = states
+
+				var updatedStates = states
+				let extractCount = min(states.0.values.count, states.1.values.count)
+
+				removeRange(&updatedStates.0.values, 0 ..< extractCount)
+				removeRange(&updatedStates.1.values, 0 ..< extractCount)
+				return updatedStates
+			}
+
+			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
+				let left = originalStates.0.values.removeAtIndex(0)
+				let right = originalStates.1.values.removeAtIndex(0)
 				sendNext(observer, (left, right))
 			}
+
+			if originalStates.0.isFinished || originalStates.1.isFinished {
+				sendCompleted(observer)
+			}
 		}
-		
+
 		let onError = { sendError(observer, $0) }
-		let onCompleted = { sendCompleted(observer) }
-		
+
 		let signalDisposable = signal.observe(next: { value in
-			lock.lock()
-			signalTeeth.append(value)
-			zipUp()
-			lock.unlock()
-		}, error: onError, completed: onCompleted)
-		
+			states.modify { (var states) in
+				states.0.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.0.completed = true
+				return states
+			}
+
+			flush()
+		})
+
 		let otherDisposable = otherSignal.observe(next: { value in
-			lock.lock()
-			otherTeeth.append(value)
-			zipUp()
-			lock.unlock()
-		}, error: onError, completed: onCompleted)
-		
+			states.modify { (var states) in
+				states.1.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.1.completed = true
+				return states
+			}
+
+			flush()
+		})
+
 		return CompositeDisposable([ signalDisposable, otherDisposable ])
 	}
 }

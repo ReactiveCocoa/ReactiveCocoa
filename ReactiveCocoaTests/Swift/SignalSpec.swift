@@ -281,7 +281,26 @@ class SignalSpec: QuickSpec {
 				expect(runCount).to(equal(1))
 			}
 
-			pending("should release observer after termination") {
+			it("should release observer after termination") {
+				weak var testStr: NSMutableString?
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+
+				let test: () -> () = {
+					var innerStr: NSMutableString = NSMutableString()
+					signal.observe(next: { value in
+						innerStr.appendString("\(value)")
+					})
+					testStr = innerStr
+				}
+				test()
+
+				sendNext(sink, 1)
+				expect(testStr).to(equal("1"))
+				sendNext(sink, 2)
+				expect(testStr).to(equal("12"))
+
+				sendCompleted(sink)
+				expect(testStr).to(beNil())
 			}
 
 			pending("should release observer after disposal") {

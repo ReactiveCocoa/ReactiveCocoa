@@ -322,14 +322,7 @@ class SignalProducerSpec: QuickSpec {
 					failure(.Default)
 				]
 
-				var operationIndex = 0
-				let operation: () -> Result<Int, TestError> = {
-					assert(operationIndex < results.count, "Operation started too many times")
-
-					return results[operationIndex++]
-				}
-
-				let original = SignalProducer.try(operation)
+				let original = SignalProducer.tryWithResults(results)
 				let producer = original |> times(3)
 
 				let events = producer

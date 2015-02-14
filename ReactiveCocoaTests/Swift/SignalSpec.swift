@@ -971,10 +971,64 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("zipWith") {
-			pending("should combine pairs") {
+			var leftSink: Signal<Int, NoError>.Observer!
+			var rightSink: Signal<String, NoError>.Observer!
+			var zipped: Signal<(Int, String), NoError>!
+
+			beforeEach {
+				let (leftSignal, leftObserver) = Signal<Int, NoError>.pipe()
+				let (rightSignal, rightObserver) = Signal<String, NoError>.pipe()
+
+				leftSink = leftObserver
+				rightSink = rightObserver
+				zipped = leftSignal |> zipWith(rightSignal)
 			}
 
-			pending("should complete when the shorter signal has completed") {
+			it("should combine pairs") {
+				var result: [String] = []
+				zipped.observe(next: { (left, right) in result.append("\(left)\(right)") })
+
+				sendNext(leftSink, 1)
+				sendNext(leftSink, 2)
+				expect(result).to(equal([]))
+
+				sendNext(rightSink, "foo")
+				expect(result).to(equal([ "1foo" ]))
+
+				sendNext(leftSink, 3)
+				sendNext(rightSink, "bar")
+				expect(result).to(equal([ "1foo", "2bar" ]))
+
+				sendNext(rightSink, "buzz")
+				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
+
+				sendNext(rightSink, "fuzz")
+				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
+
+				sendNext(leftSink, 4)
+				expect(result).to(equal([ "1foo", "2bar", "3buzz", "4fuzz" ]))
+			}
+
+			it("should complete when the shorter signal has completed") {
+				var result: [String] = []
+				var completed = false
+
+				zipped.observe(next: { (left, right) in
+					result.append("\(left)\(right)")
+				}, completed: {
+					completed = true
+				})
+
+				expect(completed).to(beFalsy())
+
+				sendNext(leftSink, 0)
+				sendCompleted(leftSink)
+				expect(completed).to(beFalsy())
+				expect(result).to(equal([]))
+
+				sendNext(rightSink, "foo")
+				expect(completed).to(beTruthy())
+				expect(result).to(equal([ "0foo" ]))
 			}
 		}
 
@@ -1114,18 +1168,71 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("try") {
-			pending("should forward original values upon success") {
+			it("should forward original values upon success") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> try { _ in
+					return success()
+				}
+				
+				var current: Int?
+				signal.observe(next: { value in
+					current = value
+				})
+				
+				for value in 1...5 {
+					sendNext(sink, value)
+					expect(current).to(equal(value))
+				}
 			}
-
-			pending("should error if an attempt fails") {
+			
+			it("should error if an attempt fails") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> try { _ in
+					return failure(.Default)
+				}
+				
+				var error: TestError?
+				signal.observe(error: { err in
+					error = err
+				})
+				
+				sendNext(sink, 42)
+				expect(error).to(equal(TestError.Default))
 			}
 		}
-
+		
 		describe("tryMap") {
-			pending("should forward mapped values upon success") {
+			it("should forward mapped values upon success") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
+					return success(num % 2 == 0)
+				}
+				
+				var even: Bool?
+				signal.observe(next: { value in
+					even = value
+				})
+				
+				sendNext(sink, 1)
+				expect(even).to(equal(false))
+				
+				sendNext(sink, 2)
+				expect(even).to(equal(true))
 			}
-
-			pending("should error if a mapping fails") {
+			
+			it("should error if a mapping fails") {
+				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
+				var signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
+					return failure(.Default)
+				}
+				
+				var error: TestError?
+				signal.observe(error: { err in
+					error = err
+				})
+				
+				sendNext(sink, 42)
+				expect(error).to(equal(TestError.Default))
 			}
 		}
 	}

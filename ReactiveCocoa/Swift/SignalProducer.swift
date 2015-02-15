@@ -604,6 +604,8 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 	}
 }
 
+/// Maps each value from `producer` to a signal, the `latest`s the resulting
+/// signal of signals.
 public func latestMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
 	return producer |> map(transform) |> latest
 }

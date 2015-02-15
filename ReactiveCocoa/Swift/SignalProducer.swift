@@ -536,7 +536,7 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 ///
 /// The returned signal completes when `producer` and the latest inner signal
 /// have both completed.
-public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		let producerCompleted = Atomic(false)
 		let latestCompleted = Atomic(false)
@@ -583,8 +583,8 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 	}
 }
 
-public func switchMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> map(transform) |> switchToLatest
+public func latestMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> latest
 }
 
 /*

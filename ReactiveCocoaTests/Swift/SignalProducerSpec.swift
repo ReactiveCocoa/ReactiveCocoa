@@ -286,39 +286,15 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("switchToLatest") {
 			it("should forward values from the latest inner signal") {
-				let scheduler = TestScheduler()
-				
-				let signal = SignalProducer<SignalProducer<Int, TestError>, TestError> { sink, disposable in
-					sendNext(sink, SignalProducer(value: 0))
-					
-					let firstSignal = SignalProducer<Int, TestError> { sink, disposable in
-						sendNext(sink, 1)
-						
-						scheduler.schedule {
-							sendNext(sink, 3)
-							sendCompleted(sink)
-						}
-					}
-					
-					let secondSignal = SignalProducer<Int, TestError> { sink, disposable in
-						sendNext(sink, 2)
-						
-						scheduler.schedule {
-							sendNext(sink, 4)
-							sendCompleted(sink)
-						}
-					}
-					
-					sendNext(sink, firstSignal)
-					sendNext(sink, secondSignal)
-					sendCompleted(sink)
-				}
+				let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
+				let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()
+				let (secondInner, secondInnerSink) = SignalProducer<Int, TestError>.buffer()
 				
 				var receivedValues: [Int] = []
 				var errored = false
 				var completed = false
 				
-				switchToLatest(signal).start(
+				switchToLatest(outer).start(
 					next: {
 						receivedValues.append($0)
 					},
@@ -327,13 +303,24 @@ class SignalProducerSpec: QuickSpec {
 					},
 					completed: {
 						completed = true
-					})
+				})
+				
+				sendNext(firstInnerSink, 1)
+				sendNext(secondInnerSink, 2)
+				sendNext(outerSink, SignalProducer(value: 0))
+				sendNext(outerSink, firstInner)
+				sendNext(outerSink, secondInner)
+				sendCompleted(outerSink)
 				
 				expect(receivedValues).to(equal([ 0, 1, 2 ]))
 				expect(errored).to(beFalsy())
 				expect(completed).to(beFalsy())
 				
-				scheduler.run()
+				sendNext(firstInnerSink, 3)
+				sendCompleted(firstInnerSink)
+				sendNext(secondInnerSink, 4)
+				sendCompleted(secondInnerSink)
+				
 				expect(receivedValues).to(equal([ 0, 1, 2, 4 ]))
 				expect(errored).to(beFalsy())
 				expect(completed).to(beTruthy())

@@ -300,9 +300,7 @@ class SignalProducerSpec: QuickSpec {
 					
 					merge(outerProducer).start(next: { i in
 						recv.append(i)
-					},
-					error: { _ in () },
-					completed: {
+					}, error: { _ in () }, completed: {
 						outerCompleted = true
 					})
 					

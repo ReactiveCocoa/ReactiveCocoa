@@ -565,11 +565,9 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 					}
 					
 					return
-				},
-				error: { error in
+				}, error: { error in
 					sendError(sink, error)
-				},
-				completed: {
+				}, completed: {
 					producerCompleted.value = true
 					completeIfNecessary()
 				})

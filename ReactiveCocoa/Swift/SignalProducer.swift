@@ -549,11 +549,61 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
     return producer |> map(transform) |> concat
 }
 
+/// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
+/// added earlier. Returns a SignalProducer that will forward signals from the original producers
+/// as they arrive.
+public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer<T, E> { relayObserver, relayDisposable in
+		let inFlight = Atomic(1)
+		
+		let decrementInFlight: () -> () = {
+			let orig = inFlight.modify { $0 - 1 }
+			if orig == 1 {
+				sendCompleted(relayObserver)
+			}
+		}
+		
+		producer.startWithSignal { producerSignal, producerDisposable in
+			relayDisposable.addDisposable(producerDisposable)
+			
+			producerSignal.observe(next: { innerProducer in
+				innerProducer.startWithSignal { innerProducerSignal, innerProducerDisposable in
+					inFlight.modify { $0 + 1 }
+					
+					let innerProducerHandle = relayDisposable.addDisposable(innerProducerDisposable)
+					
+					innerProducerSignal.observe(Signal<T,E>.Observer { event in
+						if event.isTerminating {
+							innerProducerHandle.remove()
+						}
+						
+						switch event {
+						case .Completed:
+							decrementInFlight()
+							
+						default:
+							relayObserver.put(event)
+						}
+					})
+				}
+			}, error: { error in
+				sendError(relayObserver, error)
+			}, completed: {
+				decrementInFlight()
+			})
+		}
+	}
+}
+
+/// Maps each event from `producer` to a new producer, then
+/// `merge`s the resulting producers together.
+public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> merge
+}
+
 /*
 TODO
 
-public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
-public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 

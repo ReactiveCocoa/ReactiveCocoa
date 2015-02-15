@@ -595,6 +595,8 @@ public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> Si
 	}
 }
 
+/// Maps each event from `producer` to a new producer, then
+/// `merge`s the resulting producers together.
 public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
 	return producer |> map(transform) |> merge
 }

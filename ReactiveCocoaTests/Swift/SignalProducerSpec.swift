@@ -360,7 +360,7 @@ class SignalProducerSpec: QuickSpec {
 				var errored = false
 				var completed = false
 				
-				switchToLatest(outer).start(
+				latest(outer).start(
 					next: {
 						receivedValues.append($0)
 					},
@@ -395,14 +395,14 @@ class SignalProducerSpec: QuickSpec {
 			it("should forward an error from an inner signal") {
 				let inner = SignalProducer<Int, TestError>(error: .Default)
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-				let result = outer |> switchToLatest |> first
+				let result = outer |> latest |> first
 				
 				expect(result?.error).to(equal(TestError.Default))
 			}
 
 			it("should forward an error from the outer signal") {
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
-				let result = outer |> switchToLatest |> first
+				let result = outer |> latest |> first
 				
 				expect(result?.error).to(equal(TestError.Default))
 			}
@@ -412,7 +412,7 @@ class SignalProducerSpec: QuickSpec {
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 				
 				var completed = false
-				switchToLatest(outer).start(completed: {
+				latest(outer).start(completed: {
 					completed = true
 				})
 				

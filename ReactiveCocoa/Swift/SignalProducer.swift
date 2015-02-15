@@ -527,6 +527,15 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
+
+/// Returns a signal that forwards values from the latest signal sent on
+/// `producer`, ignoring values sent on previous inner signals.
+///
+/// An error sent on `producer` or the latest inner signal will be sent on the
+/// returned signal.
+///
+/// The returned signal completes when `producer` and the latest inner signal
+/// have both completed.
 public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		let producerCompleted = Atomic(false)

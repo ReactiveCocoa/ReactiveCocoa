@@ -305,6 +305,8 @@ class SignalProducerSpec: QuickSpec {
 					completed: {
 						outerCompleted = true
 					})
+					
+					sendCompleted(outerSink)
 				}
 				
 				it("should forward values from any inner signals") {
@@ -318,6 +320,7 @@ class SignalProducerSpec: QuickSpec {
 				
 				it("should complete when all signals have completed") {
 					completeA()
+					expect(outerCompleted).to(beFalsy())
 					completeB()
 					expect(outerCompleted).to(beTruthy())
 				}

@@ -554,7 +554,7 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 /// as they arrive.
 public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { relayObserver, relayDisposable in
-		let inFlight = Atomic(0)
+		let inFlight = Atomic(1)
 		
 		let decrementInFlight: () -> () = {
 			let orig = inFlight.modify { $0 - 1 }

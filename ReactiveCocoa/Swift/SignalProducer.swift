@@ -552,7 +552,7 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 					signal.startWithSignal { signal, signalDisposable in
 						latestDisposable.innerDisposable = signalDisposable
 						
-						materialize(signal).observe { event in
+						signal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
 								latestCompleted.value = true
@@ -561,7 +561,7 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 							default:
 								sink.put(event)
 							}
-						}
+						})
 					}
 					
 					return

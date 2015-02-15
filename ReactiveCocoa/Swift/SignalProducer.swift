@@ -583,13 +583,16 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 	}
 }
 
+public func switchMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> switchToLatest
+}
+
 /*
 TODO
 
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>

@@ -685,19 +685,13 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 
-	var completed = false
 	return Signal { observer in
 		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 		let schedulerDisposable = scheduler.scheduleAfter(date) {
-			if !completed {
-				sendError(observer, error)
-			}
+			sendError(observer, error)
 		}
 
 		let signalDisposable = signal.observe(Signal.Observer { event in
-			if event.isTerminating {
-				completed = true
-			}
 			observer.put(event)
 		})
 

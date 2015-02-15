@@ -271,16 +271,82 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("merge") {
-			pending("should forward values from any inner signals") {
+			describe("behavior") {
+				var completeA: (Void -> Void)!
+				var sendA: (Void -> Void)!
+				var completeB: (Void -> Void)!
+				var sendB: (Void -> Void)!
+				
+				var outerCompleted = false
+				
+				var recv = [Int]()
+				
+				beforeEach {
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+					let (producerA, sinkA) = SignalProducer<Int, NoError>.buffer()
+					let (producerB, sinkB) = SignalProducer<Int, NoError>.buffer()
+					
+					completeA = { sendCompleted(sinkA) }
+					completeB = { sendCompleted(sinkB) }
+					
+					var a = 0
+					sendA = { sendNext(sinkA, a++) }
+					
+					var b = 100
+					sendB = { sendNext(sinkB, b++) }
+					
+					sendNext(outerSink, producerA)
+					sendNext(outerSink, producerB)
+					
+					merge(outerProducer).start(next: { i in
+						recv.append(i)
+					}, error: { _ in () }, completed: {
+						outerCompleted = true
+					})
+					
+					sendCompleted(outerSink)
+				}
+				
+				it("should forward values from any inner signals") {
+					sendA()
+					sendA()
+					sendB()
+					sendA()
+					sendB()
+					expect(recv).to(equal([0, 1, 100, 2, 101]))
+				}
+				
+				it("should complete when all signals have completed") {
+					completeA()
+					expect(outerCompleted).to(beFalsy())
+					completeB()
+					expect(outerCompleted).to(beTruthy())
+				}
 			}
-
-			pending("should forward an error from an inner signal") {
-			}
-
-			pending("should forward an error from the outer signal") {
-			}
-
-			pending("should complete when all signals have completed") {
+			
+			describe("error handling") {
+				it("should forward an error from an inner signal") {
+					let errorProducer = SignalProducer<Int, TestError>(error: TestError.Default)
+					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
+					
+					var error: TestError?
+					merge(outerProducer).start(error: { e in
+						error = e
+					})
+					expect(error).to(equal(TestError.Default))
+				}
+				
+				it("should forward an error from the outer signal") {
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
+					
+					var error: TestError?
+					merge(outerProducer).start(error: { e in
+						error = e
+					})
+					
+					sendError(outerSink, TestError.Default)
+					expect(error).to(equal(TestError.Default))
+				}
 			}
 		}
 

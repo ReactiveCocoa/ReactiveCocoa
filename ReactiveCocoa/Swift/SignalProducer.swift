@@ -543,6 +543,12 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 	return SignalProducer(values: [producer, next]) |> concat
 }
 
+/// Maps each event from `producer` to a new producer, then
+/// concatenates the resulting producers together.
+public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+    return producer |> map(transform) |> concat
+}
+
 /// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
 /// added earlier. Returns a SignalProducer that will forward signals from the original producers
 /// as they arrive.
@@ -596,7 +602,6 @@ public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: Si
 /*
 TODO
 
-public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 

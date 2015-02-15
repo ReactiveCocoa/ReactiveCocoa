@@ -693,9 +693,9 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 
 		let signalDisposable = signal.observe(observer)
 
-		let dis = CompositeDisposable([ signalDisposable ])
-		dis.addDisposable(schedulerDisposable)
-		return dis
+		let disposable = CompositeDisposable([ signalDisposable ])
+		disposable.addDisposable(schedulerDisposable)
+		return disposable
 	}
 }
 

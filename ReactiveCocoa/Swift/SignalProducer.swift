@@ -546,7 +546,6 @@ public func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, 
 			
 			signal.observe(
 				next: { signal in
-					latestDisposable.innerDisposable = nil
 					latestCompleted.value = false
 					
 					signal.startWithSignal { signal, signalDisposable in

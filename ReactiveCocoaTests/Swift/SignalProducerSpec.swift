@@ -307,7 +307,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result?.value).to(equal([ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]))
 			}
 
-			it("should produce an equivalent signal producer if count is 0") {
+			it("should produce an equivalent signal producer if count is 1") {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original |> times(1)
 

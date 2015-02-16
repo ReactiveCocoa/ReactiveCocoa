@@ -560,13 +560,31 @@ public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<
 public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	precondition(count >= 1)
 
-	var result = producer
-
-	for _ in 1..<count {
-		result = result |> concat(producer)
+	if count == 1 {
+		return producer
 	}
 
-	return result
+	return SignalProducer { observer, disposable in
+		let serialDisposable = SerialDisposable()
+		disposable.addDisposable(serialDisposable)
+
+		producer.startWithSignal { signal, signalDisposable in
+			serialDisposable.innerDisposable = signalDisposable
+
+			signal.observe(next: { value in
+				sendNext(observer, value)
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				producer
+					|> times(count - 1)
+					|> startWithSignal { signal, signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+						signal.observe(observer)
+				}
+			})
+		}
+	}
 }
 
 /// Waits for completion of `producer`, *then* forwards all events from

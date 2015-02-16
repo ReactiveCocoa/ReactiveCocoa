@@ -348,6 +348,14 @@ class SignalProducerSpec: QuickSpec {
 					expect(result![2] == expectedEvents[2]).to(beTruthy())
 				}
 			}
+
+			it("is evaluated lazily") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(Int.max)
+
+				let result = producer |> take(1) |> single
+				expect(result?.value).to(equal(1))
+			}
 		}
 		
 		describe("retry") {

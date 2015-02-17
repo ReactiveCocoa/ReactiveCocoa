@@ -570,22 +570,30 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 		let serialDisposable = SerialDisposable()
 		disposable.addDisposable(serialDisposable)
 
-		producer.startWithSignal { signal, signalDisposable in
-			serialDisposable.innerDisposable = signalDisposable
+		var remainingTimes = count
 
-			signal.observe(next: { value in
-				sendNext(observer, value)
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				producer
-					|> times(count - 1)
-					|> startWithSignal { signal, signalDisposable in
-						serialDisposable.innerDisposable = signalDisposable
-						signal.observe(observer)
+		// Allows recursive call.
+		// Radar: http://openradar.me/19861074
+		var iterate: (() -> ())!
+		iterate = {
+			producer.startWithSignal { signal, signalDisposable in
+				serialDisposable.innerDisposable = signalDisposable
+
+				signal.observe(next: { value in
+					sendNext(observer, value)
+				}, error: { error in
+					sendError(observer, error)
+				}, completed: {
+					if --remainingTimes > 0 {
+						iterate()
+					} else {
+						sendCompleted(observer)
 					}
-			})
+				})
+			}
 		}
+
+		iterate()
 	}
 }
 

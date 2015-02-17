@@ -558,9 +558,11 @@ public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<
 /// Repeats `producer` a total of `count` times.
 /// Repeating `1` times results in a equivalent signal producer.
 public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	precondition(count >= 1)
+	precondition(count >= 0)
 
-	if count == 1 {
+	if count == 0 {
+		return .empty
+	} else if count == 1 {
 		return producer
 	}
 
@@ -581,7 +583,7 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 					|> startWithSignal { signal, signalDisposable in
 						serialDisposable.innerDisposable = signalDisposable
 						signal.observe(observer)
-				}
+					}
 			})
 		}
 	}

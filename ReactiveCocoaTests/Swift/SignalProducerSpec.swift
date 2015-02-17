@@ -315,6 +315,14 @@ class SignalProducerSpec: QuickSpec {
 				expect(result?.value).to(equal([ 1 ]))
 			}
 
+			it("should produce an empty signal if count is 0") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(0)
+
+				let result = producer |> first
+				expect(result).to(beNil())
+			}
+
 			it("should not repeat upon error") {
 				let results: [Result<Int, TestError>] = [
 					success(1),
@@ -349,7 +357,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 
-			it("is evaluated lazily") {
+			it("should evaluate lazily") {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original |> times(Int.max)
 

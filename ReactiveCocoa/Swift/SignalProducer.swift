@@ -538,6 +538,11 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 }
 
+/// Create a fix point to enable recursive calling of a closure.
+private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
+	return { f(fix(f))($0) }
+}
+
 /// `concat`s `next` onto `producer`.
 public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer(values: [producer, next]) |> concat
@@ -572,24 +577,23 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 
 		var remainingTimes = count
 
-		// Allows recursive call.
-		// Radar: http://openradar.me/19861074
-		var iterate: (() -> ())!
-		iterate = {
-			producer.startWithSignal { signal, signalDisposable in
-				serialDisposable.innerDisposable = signalDisposable
+		let iterate = fix { recur in
+			{
+				producer.startWithSignal { signal, signalDisposable in
+					serialDisposable.innerDisposable = signalDisposable
 
-				signal.observe(next: { value in
-					sendNext(observer, value)
-				}, error: { error in
-					sendError(observer, error)
-				}, completed: {
-					if --remainingTimes > 0 {
-						iterate()
-					} else {
-						sendCompleted(observer)
-					}
-				})
+					signal.observe(next: { value in
+						sendNext(observer, value)
+						}, error: { error in
+							sendError(observer, error)
+						}, completed: {
+							if --remainingTimes > 0 {
+								recur()
+							} else {
+								sendCompleted(observer)
+							}
+					})
+				}
 			}
 		}
 

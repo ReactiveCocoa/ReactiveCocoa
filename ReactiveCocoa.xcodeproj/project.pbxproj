@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		57F75B0A1A9013CA001A64C3 /* SignalProducerSpecHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F75B091A9013CA001A64C3 /* SignalProducerSpecHelpers.swift */; };
-		57F75B0B1A9013CA001A64C3 /* SignalProducerSpecHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F75B091A9013CA001A64C3 /* SignalProducerSpecHelpers.swift */; };
 		B696FB811A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
@@ -485,7 +483,6 @@
 		B696FB801A7640C00075236D /* TestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
 		D00004081A46864E000E7D41 /* TupleExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TupleExtensions.swift; sourceTree = "<group>"; };
 		D021671C1A6CD50500987861 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
-		57F75B091A9013CA001A64C3 /* SignalProducerSpecHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerSpecHelpers.swift; sourceTree = "<group>"; };
 		7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
@@ -1303,7 +1300,6 @@
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
 				D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */,
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
-				57F75B091A9013CA001A64C3 /* SignalProducerSpecHelpers.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -1738,7 +1734,6 @@
 				D03766CB19EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m in Sources */,
 				D03766E119EDA60000A782A9 /* RACControlCommandExamples.m in Sources */,
 				D03766BF19EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m in Sources */,
-				57F75B0A1A9013CA001A64C3 /* SignalProducerSpecHelpers.swift in Sources */,
 				D037670319EDA60000A782A9 /* RACSubjectSpec.m in Sources */,
 				D03766F119EDA60000A782A9 /* RACSchedulerSpec.m in Sources */,
 				D03766DF19EDA60000A782A9 /* RACCompoundDisposableSpec.m in Sources */,
@@ -1911,7 +1906,6 @@
 				D03766F019EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D03766D619EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D037670619EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
-				57F75B0B1A9013CA001A64C3 /* SignalProducerSpecHelpers.swift in Sources */,
 				D03766D819EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D037670019EDA60000A782A9 /* RACStreamExamples.m in Sources */,
 				D03766CC19EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m in Sources */,

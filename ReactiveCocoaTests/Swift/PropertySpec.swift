@@ -102,7 +102,7 @@ class PropertySpec: QuickSpec {
 				if let value: AnyObject = property?.value {
 					return value as? Int
 				} else {
-					return -1
+					return nil
 				}
 			}
 

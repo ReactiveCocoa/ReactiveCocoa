@@ -364,14 +364,74 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("repeat") {
-			pending("should start a signal N times upon completion") {
+		describe("times") {
+			it("should start a signal N times upon completion") {
+				let original = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
+				let producer = original |> times(3)
+
+				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				expect(result?.value).to(equal([ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]))
 			}
 
-			pending("should not repeat upon error") {
+			it("should produce an equivalent signal producer if count is 1") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(1)
+
+				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				expect(result?.value).to(equal([ 1 ]))
+			}
+
+			it("should produce an empty signal if count is 0") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(0)
+
+				let result = producer |> first
+				expect(result).to(beNil())
+			}
+
+			it("should not repeat upon error") {
+				let results: [Result<Int, TestError>] = [
+					success(1),
+					success(2),
+					failure(.Default)
+				]
+
+				let original = SignalProducer.tryWithResults(results)
+				let producer = original |> times(3)
+
+				let events = producer
+					|> materialize
+					|> reduce([]) { $0 + [ $1 ] }
+					|> single
+				let result = events?.value
+
+				let expectedEvents: [Event<Int, TestError>] = [
+					.Next(Box(1)),
+					.Next(Box(2)),
+					.Error(Box(.Default))
+				]
+
+				// TODO: if let result = result where result.count == expectedEvents.count
+				if result?.count != expectedEvents.count {
+					fail("Invalid result: \(result)")
+				} else {
+					// Can't test for equality because Array<T> is not Equatable,
+					// and neither is Event<T, E>.
+					expect(result![0] == expectedEvents[0]).to(beTruthy())
+					expect(result![1] == expectedEvents[1]).to(beTruthy())
+					expect(result![2] == expectedEvents[2]).to(beTruthy())
+				}
+			}
+
+			it("should evaluate lazily") {
+				let original = SignalProducer<Int, NoError>(value: 1)
+				let producer = original |> times(Int.max)
+
+				let result = producer |> take(1) |> single
+				expect(result?.value).to(equal(1))
 			}
 		}
-
+		
 		describe("retry") {
 			pending("should start a signal N times upon error") {
 			}
@@ -563,5 +623,28 @@ class SignalProducerSpec: QuickSpec {
 				expect(result.error).to(equal(TestError.Default))
 			}
 		}
+	}
+}
+
+extension SignalProducer {
+	/// Creates a producer that can be started as many times as elements in `results`.
+	/// Each signal will immediately send either a value or an error.
+	private static func tryWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
+		let resultCount = countElements(results)
+		var operationIndex = 0
+
+		precondition(resultCount > 0)
+
+		let operation: () -> Result<T, E> = {
+			if operationIndex < resultCount {
+				return results[advance(results.startIndex, operationIndex++)]
+			} else {
+				fail("Operation started too many times")
+
+				return results[advance(results.startIndex, 0)]
+			}
+		}
+
+		return SignalProducer.try(operation)
 	}
 }

@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+import Foundation
+
 import LlamaKit
 import Nimble
 import Quick
@@ -14,7 +16,18 @@ import ReactiveCocoa
 class SignalProducerSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
-			pending("should run the handler once per start()") {
+			it("should run the handler once per start()") {
+				var handlerCalledTimes = 0
+				let signalProducer = SignalProducer<String, NSError>() { observer, disposable in
+					handlerCalledTimes++
+
+					return
+				}
+
+				signalProducer.start()
+				signalProducer.start()
+
+				expect(handlerCalledTimes).to(equal(2))
 			}
 
 			pending("should release signal observers when given disposable is disposed") {
@@ -31,35 +44,63 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("init(value:)") {
-			pending("should immediately send the value then complete") {
+			it("should immediately send the value then complete") {
+				let producerValue = "StringValue"
+				let signalProducer = SignalProducer<String, NSError>(value: producerValue)
+
+				expect(signalProducer).to(sendValue(producerValue, sendError: nil, complete: true))
 			}
 		}
 
 		describe("init(error:)") {
-			pending("should immediately send the error") {
+			it("should immediately send the error") {
+				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let signalProducer = SignalProducer<Int, NSError>(error: producerError)
+
+				expect(signalProducer).to(sendValue(nil, sendError: producerError, complete: false))
 			}
 		}
 
 		describe("init(result:)") {
-			pending("should immediately send the value then complete") {
+			it("should immediately send the value then complete") {
+				let producerValue = "StringValue"
+				let producerResult = success(producerValue) as Result<String, NSError>
+				let signalProducer = SignalProducer(result: producerResult)
+
+				expect(signalProducer).to(sendValue(producerValue, sendError: nil, complete: true))
 			}
 
-			pending("should immediately send the error") {
+			it("should immediately send the error") {
+				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let producerResult = failure(producerError) as Result<String, NSError>
+				let signalProducer = SignalProducer(result: producerResult)
+
+				expect(signalProducer).to(sendValue(nil, sendError: producerError, complete: false))
 			}
 		}
 
 		describe("init(values:)") {
-			pending("should immediately send the sequence of values") {
+			it("should immediately send the sequence of values") {
+				let sequenceValues = [1, 2, 3]
+				let signalProducer = SignalProducer<Int, NSError>(values: sequenceValues)
+
+				expect(signalProducer).to(sendValues(sequenceValues, sendError: nil, complete: true))
 			}
 		}
 
 		describe("SignalProducer.empty") {
-			pending("should immediately complete") {
+			it("should immediately complete") {
+				let signalProducer = SignalProducer<Int, NSError>.empty
+
+				expect(signalProducer).to(sendValue(nil, sendError: nil, complete: true))
 			}
 		}
 
 		describe("SignalProducer.never") {
-			pending("should not send any events") {
+			it("should not send any events") {
+				let signalProducer = SignalProducer<Int, NSError>.never
+
+				expect(signalProducer).to(sendValue(nil, sendError: nil, complete: false))
 			}
 		}
 
@@ -72,13 +113,40 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("SignalProducer.try") {
-			pending("should run the operation once per start()") {
+			it("should run the operation once per start()") {
+				var operationRunTimes = 0
+				let operation: () -> Result<String, NSError> = {
+					operationRunTimes++
+
+					return success("OperationValue")
+				}
+
+				SignalProducer.try(operation).start()
+				SignalProducer.try(operation).start()
+
+				expect(operationRunTimes).to(equal(2))
 			}
 
-			pending("should send the value then complete") {
+			it("should send the value then complete") {
+				let operationReturnValue = "OperationValue"
+				let operation: () -> Result<String, NSError> = {
+					return success(operationReturnValue)
+				}
+
+				let signalProducer = SignalProducer.try(operation)
+
+				expect(signalProducer).to(sendValue(operationReturnValue, sendError: nil, complete: true))
 			}
 
-			pending("should send the error") {
+			it("should send the error") {
+				let operationError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
+				let operation: () -> Result<String, NSError> = {
+					return failure(operationError)
+				}
+
+				let signalProducer = SignalProducer.try(operation)
+
+				expect(signalProducer).to(sendValue(nil, sendError: operationError, complete: false))
 			}
 		}
 

@@ -60,7 +60,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 			for (id value in self.valuesReceived) {
 				if (compoundDisposable.disposed) return;
 
-				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
+				[subscriber sendNext:(value == RACTupleNil.tupleNil ? nil : value)];
 			}
 
 			if (compoundDisposable.disposed) return;

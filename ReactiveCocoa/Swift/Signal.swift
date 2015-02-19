@@ -1,3 +1,5 @@
+import LlamaKit
+
 /// A push-driven stream that sends Events over time, parameterized by the type
 /// of values being sent (`T`) and the type of error that can occur (`E`). If no
 /// errors should be possible, NoError can be specified for `E`.
@@ -174,7 +176,9 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			if taken < count {
 				taken++
 				sendNext(observer, value)
-			} else {
+			}
+
+			if taken == count {
 				sendCompleted(observer)
 			}
 		}, error: { error in
@@ -410,6 +414,93 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 	}
 }
 
+/// Forwards events from `signal` with history: values of the returned signal
+/// are a tuple whose first member is the previous value and whose second member
+/// is the current value. `initial` is supplied as the first member when `signal`
+/// sends its first value.
+public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
+	return signal |> scan((initial, initial)) { previousCombinedValues, newValue in
+		return (previousCombinedValues.1, newValue)
+	}
+}
+
+/// Like `scan`, but sends only the final value and then immediately completes.
+public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
+	// We need to handle the special case in which `signal` sends no values.
+	// We'll do that by sending `initial` on the output signal (before taking
+	// the last value).
+	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver, outputSignalDisposable) = Signal.disposablePipe()
+	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
+
+	// Now that we've got takeLast() listening to the piped signal, send that initial value.
+	sendNext(outputSignalObserver, initial)
+
+	// Pipe the scanned input signal into the output signal.
+	let scannedInputSignal = signal |> scan(initial, combine)
+	let inputSignalPipeDisposable = scannedInputSignal.observe(outputSignalObserver)
+	outputSignalDisposable.addDisposable(inputSignalPipeDisposable)
+
+	return outputSignal
+}
+
+/// Aggregates `signal`'s values into a single combined value. When `signal` emits
+/// its first value, `combine` is invoked with `initial` as the first argument and
+/// that emitted value as the second argument. The result is emitted from the
+/// signal returned from `reduce`. That result is then passed to `combine` as the
+/// first argument when the next value is emitted, and so on.
+public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
+	return Signal { observer in
+		var accumulator = initial
+		return signal.observe(Signal.Observer { event in
+			observer.put(event.map { value in
+				accumulator = combine(accumulator, value)
+				return accumulator
+			})
+		})
+	}
+}
+
+/// Forwards only those values from `signal` which are not duplicates of the
+/// immedately preceding value. The first value is always forwarded.
+public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> skipRepeats { $0 == $1 }
+}
+
+/// Forwards only those values from `signal` which do not pass `isRepeat` with
+/// respect to the previous value. The first value is always forwarded.
+public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal
+		|> map { Optional($0) }
+		|> combinePrevious(nil)
+		|> filter {
+			switch $0 {
+			case let (.Some(a), .Some(b)) where isRepeat(a, b):
+				return false
+			default:
+				return true
+			}
+		}
+		|> map { $0.1! }
+}
+
+/// Does not forward any values from `signal` until `predicate` returns false,
+/// at which point the returned signal behaves exactly like `signal`.
+public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		var shouldSkip = true
+		return signal.observe(next: { value in
+			shouldSkip = shouldSkip && predicate(value)
+			if !shouldSkip {
+				sendNext(observer, value)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /// Forwards events from `signal` until `replacement` begins sending events.
 ///
 /// Returns a signal which passes through `next`s and `error` from `signal`
@@ -418,7 +509,11 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 /// instead, regardless of whether `signal` has sent events already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let signalDisposable = SerialDisposable()
+		let signalDisposable = signal.observe(next: { value in
+			sendNext(observer, value)
+		}, error: { error in
+			sendError(observer, error)
+		})
 
 		let replacementDisposable = replacement.observe(next: { value in
 			signalDisposable.dispose()
@@ -429,34 +524,188 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 			sendCompleted(observer)
 		})
 
-		if !signalDisposable.disposed {
-			signalDisposable.innerDisposable = signal.observe(next: { value in
+		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+	}
+}
+
+/// Waits until `signal` completes and then forwards the final `count` values
+/// on the returned signal.
+public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		var buffer = [T]()
+		buffer.reserveCapacity(count)
+
+		return signal.observe(next: { value in
+			// To avoid exceeding the reserved capacity of the buffer, we remove then add.
+			// Remove elements until we have room to add one more.
+			while (buffer.count + 1) > count {
+				buffer.removeAtIndex(0)
+			}
+
+			buffer.append(value)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			for bufferedValue in buffer {
+				sendNext(observer, bufferedValue)
+			}
+
+			sendCompleted(observer)
+		})
+	}
+}
+
+/// Forwards any values from `signal` until `predicate` returns false,
+/// at which point the returned signal will complete.
+public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
+	return Signal { observer in
+		return signal.observe(next: { value in
+			if predicate(value) {
 				sendNext(observer, value)
-			}, error: { error in
-				sendError(observer, error)
-			})
+			} else {
+				sendCompleted(observer)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
+private struct ZipState<T> {
+	var values: [T] = []
+	var completed = false
+
+	var isFinished: Bool {
+		return values.isEmpty && completed
+	}
+}
+
+/// Zips elements of two signals into pairs. The elements of any Nth pair
+/// are the Nth elements of the two input signals.
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
+	return Signal { observer in
+		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
+		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
+
+		let flush = { () -> () in
+			var originalStates: (ZipState<T>, ZipState<U>)!
+			states.modify { states in
+				originalStates = states
+
+				var updatedStates = states
+				let extractCount = min(states.0.values.count, states.1.values.count)
+
+				removeRange(&updatedStates.0.values, 0 ..< extractCount)
+				removeRange(&updatedStates.1.values, 0 ..< extractCount)
+				return updatedStates
+			}
+
+			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
+				let left = originalStates.0.values.removeAtIndex(0)
+				let right = originalStates.1.values.removeAtIndex(0)
+				sendNext(observer, (left, right))
+			}
+
+			if originalStates.0.isFinished || originalStates.1.isFinished {
+				sendCompleted(observer)
+			}
 		}
 
-		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+		let onError = { sendError(observer, $0) }
+
+		let signalDisposable = signal.observe(next: { value in
+			states.modify { (var states) in
+				states.0.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.0.completed = true
+				return states
+			}
+
+			flush()
+		})
+
+		let otherDisposable = otherSignal.observe(next: { value in
+			states.modify { (var states) in
+				states.1.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.1.completed = true
+				return states
+			}
+
+			flush()
+		})
+
+		return CompositeDisposable([ signalDisposable, otherDisposable ])
+	}
+}
+
+/// Applies `operation` to values from `signal` with `Success`ful results
+/// forwarded on the returned signal and `Failure`s sent as `Error` events.
+public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> tryMap { value in
+		return operation(value).map {
+			return value
+		}
+	}
+}
+
+/// Applies `operation` to values from `signal` with `Success`ful results mapped
+/// on the returned signal and `Failure`s sent as `Error` events.
+public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
+	return Signal { observer in
+		signal.observe(next: { value in
+			switch operation(value) {
+			case let .Success(val):
+				sendNext(observer, val.unbox)
+			case let .Failure(err):
+				sendError(observer, err.unbox)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
+/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
+/// errors with `error` on `scheduler`.
+///
+/// If the interval is 0, the timeout will be scheduled immediately. The signal
+/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+		let schedulerDisposable = scheduler.scheduleAfter(date) {
+			sendError(observer, error)
+		}
+
+		let signalDisposable = signal.observe(observer)
+
+		let disposable = CompositeDisposable([ signalDisposable ])
+		disposable.addDisposable(schedulerDisposable)
+		return disposable
 	}
 }
 
 /*
 TODO
 
-public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
-public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
-public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
-public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
-public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
-public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
-public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>
-public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E>
-public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 */
 
 /// Signal.observe() as a free function, for easier use with |>.

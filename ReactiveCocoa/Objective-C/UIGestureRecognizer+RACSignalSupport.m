@@ -34,7 +34,7 @@
 				[self removeTarget:subscriber action:@selector(sendNext:)];
 			}];
 		}]
-		setNameWithFormat:@"%@ -rac_gestureSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_gestureSignal", self.rac_description];
 }
 
 @end

@@ -383,6 +383,12 @@ public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>
 	return producer.lift(combineLatestWith)(otherSignalProducer)
 }
 
+/// Zips elements of two signal producers into pairs. The elements of any Nth
+/// pair are the Nth elements of the two input producers.
+public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<(T, U), E> {
+	return producer.lift(zipWith)(otherSignalProducer)
+}
+
 /// Forwards the latest value from `producer` whenever `sampler` sends a Next
 /// event.
 ///
@@ -399,6 +405,16 @@ public func sampleOn<T, E>(sampler: SignalProducer<(), NoError>)(producer: Signa
 /// event, at which point the returned producer will complete.
 public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return producer.lift(takeUntil)(trigger)
+}
+
+/// Forwards events from `producer` until `replacement` begins sending events.
+///
+/// Returns a signal which passes through `next`s and `error` from `producer`
+/// until `replacement` sends an event, at which point the returned producer
+/// will send that event and switch to passing through events from `replacement`
+/// instead, regardless of whether `producer` has sent events already.
+public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	return producer.lift(takeUntilReplacement)(replacement)
 }
 
 /// Catches any error that may occur on the input producer, then starts a new
@@ -425,38 +441,264 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 	}
 }
 
+/// Returns a signal which sends all the values from each signal emitted from
+/// `producer`, waiting until each inner signal completes before beginning to
+/// send the values from the next inner signal.
+///
+/// If any of the inner signals emit an error, the returned signal will emit
+/// that error.
+///
+/// The returned signal completes only when `producer` and all signals
+/// emitted from `producer` complete.
+public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer { observer, disposable in
+		let state = ConcatState(observer: observer, disposable: disposable)
+
+		producer.startWithSignal { signal, signalDisposable in
+			signal.observe(next: { innerSignalProducer in
+				state.enqueueSignalProducer(innerSignalProducer)
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				// Add one last producer to the queue, whose sole job is to
+				// "turn out the lights" by completing `observer`.
+				let completion: SignalProducer<T, E> = .empty |> on(completed: {
+					sendCompleted(observer)
+				})
+
+				state.enqueueSignalProducer(completion)
+			})
+
+			disposable.addDisposable(signalDisposable)
+		}
+	}
+}
+
+private final class ConcatState<T, E: ErrorType> {
+	/// The observer of a started `concat` producer.
+	let observer: Signal<T, E>.Observer
+
+	/// The top level disposable of a started `concat` producer.
+	let disposable: CompositeDisposable
+
+	/// The active producer, if any, and the producers waiting to be started.
+	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+
+	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+		self.observer = observer
+		self.disposable = disposable
+	}
+
+	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		var shouldStart = true
+
+		queuedSignalProducers.modify { (var queue) in
+			// An empty queue means the concat is idle, ready & waiting to start
+			// the next producer.
+			shouldStart = queue.isEmpty
+			queue.append(producer)
+			return queue
+		}
+
+		if shouldStart {
+			startNextSignalProducer(producer)
+		}
+	}
+
+	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		var nextSignalProducer: SignalProducer<T, E>?
+
+		queuedSignalProducers.modify { (var queue) in
+			// Active producers remain in the queue until completed. Since
+			// dequeueing happens at completion of the active producer, the
+			// first producer in the queue can be removed.
+			queue.removeAtIndex(0)
+			nextSignalProducer = queue.first
+			return queue
+		}
+
+		return nextSignalProducer
+	}
+
+	/// Subscribes to the given signal producer.
+	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+		signalProducer.startWithSignal { signal, disposable in
+			self.disposable.addDisposable(disposable)
+
+			signal.observe(next: { value in
+				sendNext(self.observer, value)
+			}, error: { error in
+				sendError(self.observer, error)
+			}, completed: {
+				if let nextSignalProducer = self.dequeueSignalProducer() {
+					self.startNextSignalProducer(nextSignalProducer)
+				}
+			})
+		}
+	}
+}
+
+/// Create a fix point to enable recursive calling of a closure.
+private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
+	return { f(fix(f))($0) }
+}
+
+/// `concat`s `next` onto `producer`.
+public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	return SignalProducer(values: [producer, next]) |> concat
+}
+
+/// Maps each event from `producer` to a new producer, then
+/// concatenates the resulting producers together.
+public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+    return producer |> map(transform) |> concat
+}
+
+/// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
+/// added earlier. Returns a SignalProducer that will forward signals from the original producers
+/// as they arrive.
+public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer<T, E> { relayObserver, relayDisposable in
+		let inFlight = Atomic(1)
+		
+		let decrementInFlight: () -> () = {
+			let orig = inFlight.modify { $0 - 1 }
+			if orig == 1 {
+				sendCompleted(relayObserver)
+			}
+		}
+		
+		producer.startWithSignal { producerSignal, producerDisposable in
+			relayDisposable.addDisposable(producerDisposable)
+			
+			producerSignal.observe(next: { innerProducer in
+				innerProducer.startWithSignal { innerProducerSignal, innerProducerDisposable in
+					inFlight.modify { $0 + 1 }
+					
+					let innerProducerHandle = relayDisposable.addDisposable(innerProducerDisposable)
+					
+					innerProducerSignal.observe(Signal<T,E>.Observer { event in
+						if event.isTerminating {
+							innerProducerHandle.remove()
+						}
+						
+						switch event {
+						case .Completed:
+							decrementInFlight()
+							
+						default:
+							relayObserver.put(event)
+						}
+					})
+				}
+			}, error: { error in
+				sendError(relayObserver, error)
+			}, completed: {
+				decrementInFlight()
+			})
+		}
+	}
+}
+
+/// Maps each event from `producer` to a new producer, then
+/// `merge`s the resulting producers together.
+public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> merge
+}
+
 /*
 TODO
 
-public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
-public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
-public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
-public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
-
-public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
-public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>?
-public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E>
 */
+
+/// Repeats `producer` a total of `count` times.
+/// Repeating `1` times results in a equivalent signal producer.
+public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	precondition(count >= 0)
+
+	if count == 0 {
+		return .empty
+	} else if count == 1 {
+		return producer
+	}
+
+	return SignalProducer { observer, disposable in
+		let serialDisposable = SerialDisposable()
+		disposable.addDisposable(serialDisposable)
+
+		var remainingTimes = count
+
+		let iterate = fix { recur in
+			{
+				producer.startWithSignal { signal, signalDisposable in
+					serialDisposable.innerDisposable = signalDisposable
+
+					signal.observe(next: { value in
+						sendNext(observer, value)
+						}, error: { error in
+							sendError(observer, error)
+						}, completed: {
+							if --remainingTimes > 0 {
+								recur()
+							} else {
+								sendCompleted(observer)
+							}
+					})
+				}
+			}
+		}
+
+		iterate()
+	}
+}
+
+/// Waits for completion of `producer`, *then* forwards all events from
+/// `replacement`. Any error sent from `producer` is forwarded immediately, in
+/// which case `replacement` will not be started, and none of its events will be
+/// be forwarded. All values sent from `producer` are ignored.
+public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	let relay = SignalProducer<U, E> { observer, observerDisposable in
+		producer.startWithSignal { signal, signalDisposable in
+			observerDisposable.addDisposable(signalDisposable)
+
+			signal.observe(error: { error in
+				sendError(observer, error)
+			}, completed: {
+				sendCompleted(observer)
+			})
+		}
+	}
+
+	return relay |> concat(replacement)
+}
 
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	return producer |> take(1) |> single
+}
+
+/// Starts the producer, then blocks, waiting for events: Next and Completed.
+/// When a single value or error is sent, the returned `Result` will represent
+/// those cases. However, when no values are sent, or when more than one value
+/// is sent, `nil` will be returned.
+public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>? = nil
+	var result: Result<T, E>?
 
 	producer
-		|> take(1)
+		|> take(2)
 		|> start(next: { value in
+			if result != nil {
+				// Move into failure state after recieving another value.
+				result = nil
+				return
+			}
+
 			result = success(value)
-			dispatch_semaphore_signal(semaphore)
 		}, error: { error in
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)
@@ -467,6 +709,17 @@ public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	return result
+}
+
+/// Starts the producer, then blocks, waiting for the last value.
+public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
+	return producer |> takeLast(1) |> single
+}
+
+/// Starts the producer, then blocks, waiting for completion.
+public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
+	let result = producer |> then(SignalProducer(value: ())) |> last
+	return result!
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

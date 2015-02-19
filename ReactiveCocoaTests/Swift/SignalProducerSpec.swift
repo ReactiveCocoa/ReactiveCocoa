@@ -433,13 +433,48 @@ class SignalProducerSpec: QuickSpec {
 		}
 		
 		describe("retry") {
-			pending("should start a signal N times upon error") {
+			it("should start a signal N times upon error") {
+				let results: [Result<Int, TestError>] = [
+					failure(.Error1),
+					failure(.Error2),
+					success(1)
+				]
+
+				let original = SignalProducer.tryWithResults(results)
+				let producer = original |> retry(2)
+
+				let result = producer |> single
+
+				expect(result?.value).to(equal(1))
 			}
 
-			pending("should forward errors that occur after all retries") {
+			it("should forward errors that occur after all retries") {
+				let results: [Result<Int, TestError>] = [
+					failure(.Default),
+					failure(.Error1),
+					failure(.Error2),
+				]
+
+				let original = SignalProducer.tryWithResults(results)
+				let producer = original |> retry(2)
+
+				let result = producer |> single
+
+				expect(result?.error).to(equal(TestError.Error2))
 			}
 
-			pending("should not retry upon completion") {
+			it("should not retry upon completion") {
+				let results: [Result<Int, TestError>] = [
+					success(1),
+					success(2),
+					success(3)
+				]
+
+				let original = SignalProducer.tryWithResults(results)
+				let producer = original |> retry(2)
+
+				let result = producer |> single
+				expect(result?.value).to(equal(1))
 			}
 		}
 

@@ -486,6 +486,17 @@ class SignalProducerSpec: QuickSpec {
 				
 				expect(completed).to(beTruthy())
 			}
+			
+			it("should complete when the outer signal completes before sending any signals") {
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
+
+				var completed = false
+				latest(outer).start(completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beTruthy())
+			}
 		}
 
 		describe("times") {

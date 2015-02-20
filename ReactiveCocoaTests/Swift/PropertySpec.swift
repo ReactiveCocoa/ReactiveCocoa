@@ -94,6 +94,80 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
+		describe("DynamicProperty") {
+			var object: ObservableObject!
+			var property: DynamicProperty!
+
+			let propertyValue: () -> Int? = {
+				if let value: AnyObject = property?.value {
+					return value as? Int
+				} else {
+					return nil
+				}
+			}
+
+			beforeEach {
+				object = ObservableObject()
+				expect(object.value).to(equal(0))
+
+				property = DynamicProperty(object: object, keyPath: "value")
+			}
+
+			afterEach {
+				object = nil
+			}
+
+			it("should read the underlying object") {
+				expect(propertyValue()).to(equal(0))
+
+				object.value = 1
+				expect(propertyValue()).to(equal(1))
+			}
+
+			it("should write the underlying object") {
+				property.value = 1
+				expect(object.value).to(equal(1))
+				expect(propertyValue()).to(equal(1))
+			}
+
+			it("should observe changes to the property and underlying object") {
+				var values: [Int] = []
+				property.producer.start(next: { value in
+					expect(value).notTo(beNil())
+					values.append((value as? Int) ?? -1)
+				})
+
+				expect(values).to(equal([ 0 ]))
+
+				property.value = 1
+				expect(values).to(equal([ 0, 1 ]))
+
+				object.value = 2
+				expect(values).to(equal([ 0, 1, 2 ]))
+			}
+
+			it("should complete when the underlying object deallocates") {
+				var completed = false
+
+				property = {
+					// Use a closure so this object has a shorter lifetime.
+					let object = ObservableObject()
+					let property = DynamicProperty(object: object, keyPath: "value")
+
+					property.producer.start(completed: {
+						completed = true
+					})
+
+					expect(completed).to(beFalsy())
+					expect(property.value).notTo(beNil())
+					return property
+				}()
+
+				expect(completed).toEventually(beTruthy())
+				expect(property.value).to(beNil())
+			}
+		}
+
 		describe("binding") {
 			describe("from a Signal") {
 				it("should update the property with values sent from the signal") {
@@ -232,4 +306,8 @@ class PropertySpec: QuickSpec {
 			}
 		}
 	}
+}
+
+private class ObservableObject: NSObject {
+	dynamic var value: Int = 0
 }

@@ -564,32 +564,32 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 /// have both completed.
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
-		let producerCompleted = Atomic(false)
-		let latestCompleted = Atomic(false)
+		let outerSignalCompleted = Atomic(false)
+		let latestInnerSignalCompleted = Atomic(false)
 		
 		let completeIfNecessary: () -> () = {
-			if producerCompleted.value && latestCompleted.value {
+			if outerSignalCompleted.value && latestInnerSignalCompleted.value {
 				sendCompleted(sink)
 			}
 		}
 
-		let latestDisposable = SerialDisposable()
-		disposable.addDisposable(latestDisposable)
+		let latestInnerDisposable = SerialDisposable()
+		disposable.addDisposable(latestInnerDisposable)
 
-		producer.startWithSignal { signal, producerDisposable in
-			disposable.addDisposable(producerDisposable)
+		producer.startWithSignal { outerSignal, outerDisposable in
+			disposable.addDisposable(outerDisposable)
 			
-			signal.observe(
-				next: { signal in
-					latestCompleted.value = false
+			outerSignal.observe(
+				next: { innerProducer in
+					latestInnerSignalCompleted.value = false
 					
-					signal.startWithSignal { signal, signalDisposable in
-						latestDisposable.innerDisposable = signalDisposable
+					innerProducer.startWithSignal { innerSignal, innerDisposable in
+						latestInnerDisposable.innerDisposable = innerDisposable
 						
-						signal.observe(SinkOf { event in
+						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
-								latestCompleted.value = true
+								latestInnerSignalCompleted.value = true
 								completeIfNecessary()
 								
 							default:
@@ -602,7 +602,7 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {
-					producerCompleted.value = true
+					outerSignalCompleted.value = true
 					completeIfNecessary()
 				})
 		}

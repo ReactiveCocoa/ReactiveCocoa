@@ -418,7 +418,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("switchToLatest") {
+		describe("latest") {
 			it("should forward values from the latest inner signal") {
 				let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 				let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()

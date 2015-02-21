@@ -564,23 +564,22 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 /// have both completed.
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
-		let state = Atomic(LatestState<T, E>.initial)
-		let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
-			state.modify(action)
-			if state.value.isComplete {
-				sendCompleted(sink)
-			}
-		}
-
-		let latestInnerDisposable = SerialDisposable()
-		disposable.addDisposable(latestInnerDisposable)
-
 		producer.startWithSignal { outerSignal, outerDisposable in
 			disposable.addDisposable(outerDisposable)
+
+			let latestInnerDisposable = SerialDisposable()
+			disposable.addDisposable(latestInnerDisposable)
+			
+			let state = Atomic(LatestState<T, E>.initial)
+			let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
+				state.modify(action)
+				if state.value.isComplete {
+					sendCompleted(sink)
+				}
+			}
 			
 			outerSignal.observe(
 				next: { innerProducer in
-					
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
 						latestInnerDisposable.innerDisposable = innerDisposable
 						state.value = state.value.addInnerSignal(innerSignal)
@@ -594,8 +593,6 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 							}
 						})
 					}
-					
-					return
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {

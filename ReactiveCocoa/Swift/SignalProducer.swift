@@ -565,8 +565,8 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		let state = Atomic(LatestState<T, E>.initial)
-		
-		let completeIfNecessary: () -> () = {
+		let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
+			state.modify(action)
 			if state.value.isComplete {
 				sendCompleted(sink)
 			}
@@ -588,9 +588,7 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
-								state.value = state.value.completeInnerSignal(innerSignal)
-								completeIfNecessary()
-								
+								updateState { $0.completeInnerSignal(innerSignal) }
 							default:
 								sink.put(event)
 							}
@@ -601,8 +599,7 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {
-					state.value = state.value.completeOuterSignal()
-					completeIfNecessary()
+					updateState { $0.completeOuterSignal() }
 				})
 		}
 	}
@@ -625,9 +622,13 @@ private struct LatestState<T, E: ErrorType> {
 	}
 	
 	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		return LatestState(
-			outerSignalComplete: outerSignalComplete,
-			latestInnerSignal: .Incomplete(signal))
+		if isComplete {
+			return self
+		} else {
+			return LatestState(
+				outerSignalComplete: outerSignalComplete,
+				latestInnerSignal: .Incomplete(signal))
+		}
 	}
 	
 	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {

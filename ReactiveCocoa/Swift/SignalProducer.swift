@@ -589,7 +589,11 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 							case .Completed:
 								updateState { $0.completeInnerSignal(innerSignal) }
 							default:
-								sink.put(event)
+								state.withValue { value -> () in
+									if value.isIncompleteLatestInnerSignal(innerSignal) {
+										sink.put(event)
+									}
+								}
 							}
 						})
 					}
@@ -629,13 +633,21 @@ private struct LatestState<T, E: ErrorType> {
 	}
 	
 	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		switch latestInnerSignal {
-		case .Incomplete(let latestSignal) where signal === latestSignal:
+		if isIncompleteLatestInnerSignal(signal) {
 			return LatestState(
 				outerSignalComplete: outerSignalComplete,
 				latestInnerSignal: .Complete)
-		case .Incomplete, .Complete:
+		} else {
 			return self
+		}
+	}
+	
+	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
+		switch latestInnerSignal {
+		case .Incomplete(let latestSignal) where signal === latestSignal:
+			return true
+		case .Incomplete, .Complete:
+			return false
 		}
 	}
 	

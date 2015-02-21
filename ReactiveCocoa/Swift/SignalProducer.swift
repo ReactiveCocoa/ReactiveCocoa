@@ -564,11 +564,10 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 /// have both completed.
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
-		let outerSignalCompleted = Atomic(false)
-		let latestInnerSignalCompleted = Atomic(false)
+		let state = Atomic(LatestState<T, E>.initial)
 		
 		let completeIfNecessary: () -> () = {
-			if outerSignalCompleted.value && latestInnerSignalCompleted.value {
+			if state.value.isComplete {
 				sendCompleted(sink)
 			}
 		}
@@ -581,15 +580,15 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			
 			outerSignal.observe(
 				next: { innerProducer in
-					latestInnerSignalCompleted.value = false
 					
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
 						latestInnerDisposable.innerDisposable = innerDisposable
+						state.value = state.value.addInnerSignal(innerSignal)
 						
 						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
-								latestInnerSignalCompleted.value = true
+								state.value = state.value.completeInnerSignal(innerSignal)
 								completeIfNecessary()
 								
 							default:
@@ -602,11 +601,59 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {
-					outerSignalCompleted.value = true
+					state.value = state.value.completeOuterSignal()
 					completeIfNecessary()
 				})
 		}
 	}
+}
+
+private struct LatestState<T, E: ErrorType> {
+	let outerSignalComplete: Bool
+	let latestInnerSignal: LatestStateInnerSignal<T, E>
+
+	static var initial: LatestState {
+		return LatestState(
+			outerSignalComplete: false,
+			latestInnerSignal: .Complete)
+	}
+	
+	func completeOuterSignal() -> LatestState<T, E> {
+		return LatestState(
+			outerSignalComplete: true,
+			latestInnerSignal: latestInnerSignal)
+	}
+	
+	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
+		return LatestState(
+			outerSignalComplete: outerSignalComplete,
+			latestInnerSignal: .Incomplete(signal))
+	}
+	
+	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
+		switch latestInnerSignal {
+		case .Incomplete(let latestSignal) where signal === latestSignal:
+			return LatestState(
+				outerSignalComplete: outerSignalComplete,
+				latestInnerSignal: .Complete)
+		case .Incomplete, .Complete:
+			return self
+		}
+	}
+	
+	var isComplete: Bool {
+		switch latestInnerSignal {
+		case .Complete:
+			return outerSignalComplete
+		case .Incomplete:
+			return false
+		}
+	}
+}
+
+private enum LatestStateInnerSignal<T, E: ErrorType> {
+	case Complete
+	case Incomplete(Signal<T, E>)
 }
 
 /// Maps each value from `producer` to a signal, the `latest`s the resulting

@@ -554,14 +554,14 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
     return producer |> map(transform) |> concat
 }
 
-/// Returns a signal that forwards values from the latest signal sent on
-/// `producer`, ignoring values sent on previous inner signals.
+/// Returns a producer that forwards values from the latest producer sent on
+/// `producer`, ignoring values sent on previous inner producers.
 ///
-/// An error sent on `producer` or the latest inner signal will be sent on the
-/// returned signal.
+/// An error sent on `producer` or the latest inner producer will be sent on the
+/// returned producer.
 ///
-/// The returned signal completes when `producer` and the latest inner signal
-/// have both completed.
+/// The returned producer completes when `producer` and the latest inner 
+/// producer have both completed.
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		producer.startWithSignal { outerSignal, outerDisposable in

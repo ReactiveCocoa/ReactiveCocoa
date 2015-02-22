@@ -642,7 +642,7 @@ public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalPr
 		return producer |> concat
 
 	case .SwitchToLatest:
-		return producer |> latest
+		return producer |> switchToLatest
 	}
 }
 
@@ -770,7 +770,7 @@ public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T,
 ///
 /// The returned producer completes when `producer` and the latest inner
 /// producer have both completed.
-private func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		producer.startWithSignal { outerSignal, outerDisposable in
 			disposable.addDisposable(outerDisposable)

@@ -119,6 +119,61 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("collect") {
+			it("should collect all values") {
+				let (original, sink) = Signal<Int, NoError>.pipe()
+				let signal = original |> collect
+				let expectedResult = [1, 2, 3]
+
+				var result: [Int]?
+
+				signal.observe(next: { value in
+					expect(result).to(beNil())
+					result = value
+				})
+
+				for number in expectedResult {
+					sendNext(sink, number)
+				}
+
+				expect(result).to(beNil())
+				sendCompleted(sink)
+				expect(result).to(equal(expectedResult))
+			}
+
+			it("should complete with an empty array if there are no values") {
+				let (original, sink) = Signal<Int, NoError>.pipe()
+				let signal = original |> collect
+
+				var result: [Int]?
+
+				signal.observe(next: { value in
+					result = value
+					return
+				})
+
+				expect(result).to(beNil())
+				sendCompleted(sink)
+				expect(result).to(equal([]))
+			}
+
+			it("should forward errors") {
+				let (original, sink) = Signal<Int, TestError>.pipe()
+				let signal = original |> collect
+
+				var error: TestError?
+
+				signal.observe(error: { value in
+					error = value
+					return
+				})
+
+				expect(error).to(beNil())
+				sendError(sink, .Default)
+				expect(error).to(equal(TestError.Default))
+			}
+		}
+
 		describe("takeUntil") {
 			pending("should take values until the trigger fires") {
 			}

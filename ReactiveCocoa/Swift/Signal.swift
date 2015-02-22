@@ -189,6 +189,11 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
+/// Returns a signal that will yield an array of values when `signal` completes.
+public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
+	return signal |> reduce([]) { $0 + [ $1 ] }
+}
+
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
 public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {

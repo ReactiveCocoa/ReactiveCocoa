@@ -437,7 +437,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
 				let producer = original |> times(3)
 
-				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				let result = producer |> collect |> single
 				expect(result?.value).to(equal([ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]))
 			}
 
@@ -445,7 +445,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original |> times(1)
 
-				let result = producer |> reduce([]) { $0 + [$1] } |> single
+				let result = producer |> collect |> single
 				expect(result?.value).to(equal([ 1 ]))
 			}
 
@@ -469,7 +469,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let events = producer
 					|> materialize
-					|> reduce([]) { $0 + [ $1 ] }
+					|> collect
 					|> single
 				let result = events?.value
 

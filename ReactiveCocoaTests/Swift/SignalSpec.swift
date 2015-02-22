@@ -180,10 +180,36 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skip") {
-			pending("should skip initial values") {
+			it("should skip initial values") {
+				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = originalSignal |> skip(1)
+
+				var lastValue: Int?
+				signal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
 			}
 
-			pending("should not skip any values when 0") {
+			it("should not skip any values when 0") {
+				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = originalSignal |> skip(0)
+
+				var lastValue: Int?
+				signal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
 			}
 		}
 

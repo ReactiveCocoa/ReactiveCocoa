@@ -112,7 +112,24 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("scan") {
-			pending("should incrementally accumulate a value") {
+			it("should incrementally accumulate a value") {
+				let (signal, sink) = Signal<String, NoError>.pipe()
+				let mappedSignal = signal |> scan("", +)
+
+				var lastValue: String?
+
+				mappedSignal.observe(next: {
+					lastValue = $0
+					return
+				})
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, "a")
+				expect(lastValue).to(equal("a"))
+
+				sendNext(sink, "bb")
+				expect(lastValue).to(equal("abb"))
 			}
 		}
 

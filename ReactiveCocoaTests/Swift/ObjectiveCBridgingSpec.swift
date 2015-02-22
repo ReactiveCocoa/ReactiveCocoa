@@ -53,8 +53,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 					racSignal.subscribeNext({ number in
 						lastValue = number as? NSNumber
-					},
-					completed: {
+					}, completed: {
 						didComplete = true
 					})
 
@@ -74,10 +73,14 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let (signal, sink) = Signal<AnyObject, TestError>.pipe()
 					let racSignal = asRACSignal(signal)
 
-					let expectedError: TestError = .Error2
+					let expectedError = TestError.Error2
 					var error: NSError?
 
-					racSignal.subscribeError { error = $0; return }
+					racSignal.subscribeError {
+						error = $0
+						return
+					}
+
 					sendError(sink, expectedError)
 
 					expect(error?.domain).to(equal(TestError.domain))

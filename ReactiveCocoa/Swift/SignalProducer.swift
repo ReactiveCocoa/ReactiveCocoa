@@ -581,6 +581,53 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 	}
 }
 
+/// Describes how multiple signals or producers should be joined together.
+public enum JoinStrategy: Equatable {
+	/// The signals should be merged, so that any value received on any of the
+	/// input signals will be forwarded immediately to the output signal.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Merge
+
+	/// The signals should be concatenated, so that their values are sent in the
+	/// order of the signals themselves.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Concat
+
+	/// Only the events from the latest input signal should be considered for
+	/// the output. Any signals received before that point will be disposed of.
+	///
+	/// The resulting signal will complete only when the signal-of-signals and
+	/// the latest signal has completed.
+	case SwitchToLatest
+}
+
+public func == (lhs: JoinStrategy, rhs: JoinStrategy) -> Bool {
+	switch (lhs, rhs) {
+	case (.Merge, .Merge), (.Concat, .Concat), (.SwitchToLatest, .SwitchToLatest):
+		return true
+
+	default:
+		return false
+	}
+}
+
+extension JoinStrategy: Printable {
+	public var description: String {
+		switch self {
+		case .Merge:
+			return "merge"
+
+		case .Concat:
+			return "concatenate"
+
+		case .SwitchToLatest:
+			return "switch to latest"
+		}
+	}
+}
+
 /// Returns a signal which sends all the values from each signal emitted from
 /// `producer`, waiting until each inner signal completes before beginning to
 /// send the values from the next inner signal.
@@ -700,7 +747,7 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 /// An error sent on `producer` or the latest inner producer will be sent on the
 /// returned producer.
 ///
-/// The returned producer completes when `producer` and the latest inner 
+/// The returned producer completes when `producer` and the latest inner
 /// producer have both completed.
 public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
@@ -709,7 +756,7 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 
 			let latestInnerDisposable = SerialDisposable()
 			disposable.addDisposable(latestInnerDisposable)
-			
+
 			let state = Atomic(LatestState<T, E>.initial)
 			let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
 				state.modify(action)
@@ -717,13 +764,13 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 					sendCompleted(sink)
 				}
 			}
-			
+
 			outerSignal.observe(
 				next: { innerProducer in
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
 						latestInnerDisposable.innerDisposable = innerDisposable
 						state.value = state.value.addInnerSignal(innerSignal)
-						
+
 						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
@@ -755,13 +802,13 @@ private struct LatestState<T, E: ErrorType> {
 			outerSignalComplete: false,
 			latestInnerSignal: .Complete)
 	}
-	
+
 	func completeOuterSignal() -> LatestState<T, E> {
 		return LatestState(
 			outerSignalComplete: true,
 			latestInnerSignal: latestInnerSignal)
 	}
-	
+
 	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
 		if isComplete {
 			return self
@@ -771,7 +818,7 @@ private struct LatestState<T, E: ErrorType> {
 				latestInnerSignal: .Incomplete(signal))
 		}
 	}
-	
+
 	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
 		if isIncompleteLatestInnerSignal(signal) {
 			return LatestState(
@@ -781,7 +828,7 @@ private struct LatestState<T, E: ErrorType> {
 			return self
 		}
 	}
-	
+
 	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
 		switch latestInnerSignal {
 		case .Incomplete(let latestSignal) where signal === latestSignal:
@@ -790,7 +837,7 @@ private struct LatestState<T, E: ErrorType> {
 			return false
 		}
 	}
-	
+
 	var isComplete: Bool {
 		switch latestInnerSignal {
 		case .Complete:

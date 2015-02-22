@@ -628,6 +628,33 @@ extension JoinStrategy: Printable {
 	}
 }
 
+/// Joins together the inner producers sent upon `producer` according to the
+/// semantics of the given strategy.
+///
+/// If `producer` or any of the inner producers emit an error, the returned
+/// producer will forward that error immediately.
+public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	switch strategy {
+	case .Merge:
+		return producer |> merge
+
+	case .Concat:
+		return producer |> concat
+
+	case .SwitchToLatest:
+		return producer |> latest
+	}
+}
+
+/// Maps each event from `producer` to a new producer, then joins the resulting
+/// producers together according to the semantics of the given strategy.
+///
+/// If `producer` or any of the created producers emit an error, the returned
+/// producer will forward that error immediately.
+public func joinMap<T, U, E>(strategy: JoinStrategy, transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> join(strategy)
+}
+
 /// Returns a signal which sends all the values from each signal emitted from
 /// `producer`, waiting until each inner signal completes before beginning to
 /// send the values from the next inner signal.

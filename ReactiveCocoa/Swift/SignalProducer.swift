@@ -664,7 +664,7 @@ public func joinMap<T, U, E>(strategy: JoinStrategy, transform: T -> SignalProdu
 ///
 /// The returned signal completes only when `producer` and all signals
 /// emitted from `producer` complete.
-public func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+private func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, disposable in
 		let state = ConcatState(observer: observer, disposable: disposable)
 
@@ -759,13 +759,7 @@ private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
 
 /// `concat`s `next` onto `producer`.
 public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return SignalProducer(values: [producer, next]) |> concat
-}
-
-/// Maps each event from `producer` to a new producer, then
-/// concatenates the resulting producers together.
-public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-    return producer |> map(transform) |> concat
+	return SignalProducer(values: [producer, next]) |> join(.Concat)
 }
 
 /// Returns a producer that forwards values from the latest producer sent on
@@ -776,7 +770,7 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
 ///
 /// The returned producer completes when `producer` and the latest inner
 /// producer have both completed.
-public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+private func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { sink, disposable in
 		producer.startWithSignal { outerSignal, outerDisposable in
 			disposable.addDisposable(outerDisposable)
@@ -880,16 +874,10 @@ private enum LatestStateInnerSignal<T, E: ErrorType> {
 	case Incomplete(Signal<T, E>)
 }
 
-/// Maps each value from `producer` to a signal, the `latest`s the resulting
-/// signal of signals.
-public func latestMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> map(transform) |> latest
-}
-
 /// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
 /// added earlier. Returns a SignalProducer that will forward signals from the original producers
 /// as they arrive.
-public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+private func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { relayObserver, relayDisposable in
 		let inFlight = Atomic(1)
 
@@ -930,12 +918,6 @@ public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> Si
 			})
 		}
 	}
-}
-
-/// Maps each event from `producer` to a new producer, then
-/// `merge`s the resulting producers together.
-public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> map(transform) |> merge
 }
 
 /// Repeats `producer` a total of `count` times.

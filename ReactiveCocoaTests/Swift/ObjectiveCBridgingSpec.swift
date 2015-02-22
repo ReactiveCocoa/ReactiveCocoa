@@ -31,12 +31,14 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect((producer |> single)?.value).to(equal(2))
 			}
 
-			it("should automatically replace nil NSErrors") {
-				let racSignal = RACSignal.error(nil)
+			it("should forward errors")	{
+				let error = TestError.Default.nsError
+
+				let racSignal = RACSignal.error(error)
 				let producer = racSignal.asSignalProducer()
 				let result = producer |> last
 
-				expect(result?.error?.localizedDescription).to(equal("Nil RACSignal error"))
+				expect(result?.error).to(equal(error))
 			}
 		}
 

@@ -65,7 +65,24 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("map") {
-			pending("should transform the values of the signal") {
+			it("should transform the values of the signal") {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let mappedSignal = signal |> map { String($0 + 1) }
+
+				var lastValue: String?
+
+				mappedSignal.observe(next: {
+					lastValue = $0
+					return
+				})
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 0)
+				expect(lastValue).to(equal("1"))
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal("2"))
 			}
 		}
 

@@ -93,10 +93,7 @@ class SignalSpec: QuickSpec {
 
 				var lastValue: Int?
 
-				mappedSignal.observe(next: {
-					lastValue = $0
-					return
-				})
+				mappedSignal.observe(next: { lastValue = $0 })
 
 				expect(lastValue).to(beNil())
 
@@ -113,15 +110,12 @@ class SignalSpec: QuickSpec {
 
 		describe("scan") {
 			it("should incrementally accumulate a value") {
-				let (signal, sink) = Signal<String, NoError>.pipe()
-				let mappedSignal = signal |> scan("", +)
+				let (originalSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = originalSignal |> scan("", +)
 
 				var lastValue: String?
 
-				mappedSignal.observe(next: {
-					lastValue = $0
-					return
-				})
+				signal.observe(next: { lastValue = $0 })
 
 				expect(lastValue).to(beNil())
 
@@ -245,10 +239,7 @@ class SignalSpec: QuickSpec {
 
 				var result: [Int]?
 
-				signal.observe(next: { value in
-					result = value
-					return
-				})
+				signal.observe(next: { result = $0 })
 
 				expect(result).to(beNil())
 				sendCompleted(sink)
@@ -261,10 +252,7 @@ class SignalSpec: QuickSpec {
 
 				var error: TestError?
 
-				signal.observe(error: { value in
-					error = value
-					return
-				})
+				signal.observe(error: { error = $0 })
 
 				expect(error).to(beNil())
 				sendError(sink, .Default)

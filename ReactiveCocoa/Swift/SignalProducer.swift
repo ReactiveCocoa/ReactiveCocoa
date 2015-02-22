@@ -389,108 +389,140 @@ public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer
 	return producer.lift(zipWith)(otherSignalProducer)
 }
 
-/// An overloaded function that combines the values of up to 10 producers, in the
-/// manner described by `combineLatestWith`.
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
 	return a |> combineLatestWith(b)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
 	return combineLatest(a, b)
 		|> combineLatestWith(c)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
 	return combineLatest(a, b, c)
 		|> combineLatestWith(d)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
 	return combineLatest(a, b, c, d)
 		|> combineLatestWith(e)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
 	return combineLatest(a, b, c, d, e)
 		|> combineLatestWith(f)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
 	return combineLatest(a, b, c, d, e, f)
 		|> combineLatestWith(g)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
 	return combineLatest(a, b, c, d, e, f, g)
 		|> combineLatestWith(h)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
 	return combineLatest(a, b, c, d, e, f, g, h)
 		|> combineLatestWith(i)
 		|> map(repack)
 }
 
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>, j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
 	return combineLatest(a, b, c, d, e, f, g, h, i)
 		|> combineLatestWith(j)
 		|> map(repack)
 }
 
-/// An overloaded function that zips the values of up to 10 producers, in the
-/// manner described by `zipWith`.
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
 	return a |> zipWith(b)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
 	return zip(a, b)
 		|> zipWith(c)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
 	return zip(a, b, c)
 		|> zipWith(d)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
 	return zip(a, b, c, d)
 		|> zipWith(e)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
 	return zip(a, b, c, d, e)
 		|> zipWith(f)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
 	return zip(a, b, c, d, e, f)
 		|> zipWith(g)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
 	return zip(a, b, c, d, e, f, g)
 		|> zipWith(h)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
 	return zip(a, b, c, d, e, f, g, h)
 		|> zipWith(i)
 		|> map(repack)
 }
 
+/// Zips the values of all the given producers, in the manner described by
+/// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>, j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
 	return zip(a, b, c, d, e, f, g, h, i)
 		|> zipWith(j)

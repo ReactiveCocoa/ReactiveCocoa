@@ -617,24 +617,20 @@ private struct LatestState<T, E: ErrorType> {
 	}
 	
 	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		if isComplete {
-			return self
-		} else {
-			return LatestState(
+		return isComplete
+			? self
+			: LatestState(
 				outerSignalComplete: outerSignalComplete,
 				latestInnerSignal: .Incomplete(signal))
-		}
 	}
 	
 	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		if isIncompleteLatestInnerSignal(signal) {
-			return LatestState(
+		return isIncompleteLatestInnerSignal(signal)
+			? LatestState(
 				outerSignalComplete: outerSignalComplete,
 				latestInnerSignal: .Complete)
-		} else {
-			return self
-		}
-	}
+			: self
+}
 	
 	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
 		switch latestInnerSignal {

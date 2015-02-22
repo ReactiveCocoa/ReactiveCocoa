@@ -646,6 +646,11 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 }
 
+/// Create a fix point to enable recursive calling of a closure.
+private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
+	return { f(fix(f))($0) }
+}
+
 /// `concat`s `next` onto `producer`.
 public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer(values: [producer, next]) |> concat
@@ -715,9 +720,61 @@ TODO
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
-public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 */
+
+/// Repeats `producer` a total of `count` times.
+/// Repeating `1` times results in a equivalent signal producer.
+public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	precondition(count >= 0)
+
+	if count == 0 {
+		return .empty
+	} else if count == 1 {
+		return producer
+	}
+
+	return SignalProducer { observer, disposable in
+		let serialDisposable = SerialDisposable()
+		disposable.addDisposable(serialDisposable)
+
+		var remainingTimes = count
+
+		let iterate = fix { recur in
+			{
+				producer.startWithSignal { signal, signalDisposable in
+					serialDisposable.innerDisposable = signalDisposable
+
+					signal.observe(next: { value in
+						sendNext(observer, value)
+						}, error: { error in
+							sendError(observer, error)
+						}, completed: {
+							if --remainingTimes > 0 {
+								recur()
+							} else {
+								sendCompleted(observer)
+							}
+					})
+				}
+			}
+		}
+
+		iterate()
+	}
+}
+
+/// Ignores errors up to `count` times.
+public func retry<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	precondition(count >= 0)
+
+	if count == 0 {
+		return producer
+	} else {
+		return producer |> catch { _ in
+			producer |> retry(count - 1)
+		}
+	}
+}
 
 /// Waits for completion of `producer`, *then* forwards all events from
 /// `replacement`. Any error sent from `producer` is forwarded immediately, in

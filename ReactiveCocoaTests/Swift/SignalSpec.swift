@@ -119,6 +119,61 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("collect") {
+			it("should collect all values") {
+				let (original, sink) = Signal<Int, NoError>.pipe()
+				let signal = original |> collect
+				let expectedResult = [1, 2, 3]
+
+				var result: [Int]?
+
+				signal.observe(next: { value in
+					expect(result).to(beNil())
+					result = value
+				})
+
+				for number in expectedResult {
+					sendNext(sink, number)
+				}
+
+				expect(result).to(beNil())
+				sendCompleted(sink)
+				expect(result).to(equal(expectedResult))
+			}
+
+			it("should complete with an empty array if there are no values") {
+				let (original, sink) = Signal<Int, NoError>.pipe()
+				let signal = original |> collect
+
+				var result: [Int]?
+
+				signal.observe(next: { value in
+					result = value
+					return
+				})
+
+				expect(result).to(beNil())
+				sendCompleted(sink)
+				expect(result).to(equal([]))
+			}
+
+			it("should forward errors") {
+				let (original, sink) = Signal<Int, TestError>.pipe()
+				let signal = original |> collect
+
+				var error: TestError?
+
+				signal.observe(error: { value in
+					error = value
+					return
+				})
+
+				expect(error).to(beNil())
+				sendError(sink, .Default)
+				expect(error).to(equal(TestError.Default))
+			}
+		}
+
 		describe("takeUntil") {
 			pending("should take values until the trigger fires") {
 			}
@@ -303,10 +358,57 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("timeoutWithError") {
-			pending("should complete if within the interval") {
+			var testScheduler: TestScheduler!
+			var signal: Signal<Int, TestError>!
+			var sink: Signal<Int, TestError>.Observer!
+
+			beforeEach {
+				testScheduler = TestScheduler()
+				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
+				signal = baseSignal |> timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
+				sink = observer
 			}
 
-			pending("should error if not completed before the interval has elapsed") {
+			it("should complete if within the interval") {
+				var completed = false
+				var errored = false
+				signal.observe(completed: {
+					completed = true
+				}, error: { _ in
+					errored = true
+				})
+
+				testScheduler.scheduleAfter(1) {
+					sendCompleted(sink)
+				}
+
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				testScheduler.run()
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+
+			it("should error if not completed before the interval has elapsed") {
+				var completed = false
+				var errored = false
+				signal.observe(completed: {
+					completed = true
+				}, error: { _ in
+					errored = true
+				})
+
+				testScheduler.scheduleAfter(3) {
+					sendCompleted(sink)
+				}
+
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				testScheduler.run()
+				expect(completed).to(beFalsy())
+				expect(errored).to(beTruthy())
 			}
 		}
 

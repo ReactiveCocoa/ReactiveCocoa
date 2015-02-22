@@ -189,6 +189,11 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
+/// Returns a signal that will yield an array of values when `signal` completes.
+public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
+	return signal |> reduce([]) { $0 + [ $1 ] }
+}
+
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
 public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
@@ -788,11 +793,32 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 		|> map(repack)
 }
 
+/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
+/// errors with `error` on `scheduler`.
+///
+/// If the interval is 0, the timeout will be scheduled immediately. The signal
+/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+		let schedulerDisposable = scheduler.scheduleAfter(date) {
+			sendError(observer, error)
+		}
+
+		let signalDisposable = signal.observe(observer)
+
+		let disposable = CompositeDisposable([ signalDisposable ])
+		disposable.addDisposable(schedulerDisposable)
+		return disposable
+	}
+}
+
 /*
 TODO
 
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
 */
 
 /// Signal.observe() as a free function, for easier use with |>.

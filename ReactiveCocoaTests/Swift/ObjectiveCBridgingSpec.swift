@@ -42,10 +42,44 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 		describe("asRACSignal") {
 			describe("on a Signal") {
-				pending("should forward events") {
+				it("should forward events") {
+					let (signal, sink) = Signal<NSNumber, NoError>.pipe()
+					let racSignal = asRACSignal(signal)
+
+					var lastValue: NSNumber?
+					var didComplete = false
+
+					racSignal.subscribeNext({ number in
+						lastValue = number as? NSNumber
+					},
+					completed: {
+						didComplete = true
+					})
+
+					expect(lastValue).to(beNil())
+
+					for number in [1, 2, 3] {
+						sendNext(sink, number)
+						expect(lastValue).to(equal(number))
+					}
+
+					expect(didComplete).to(beFalse())
+					sendCompleted(sink)
+					expect(didComplete).to(beTrue())
 				}
 
-				pending("should convert errors to NSError") {
+				it("should convert errors to NSError") {
+					let (signal, sink) = Signal<AnyObject, TestError>.pipe()
+					let racSignal = asRACSignal(signal)
+
+					let expectedError: TestError = .Error2
+					var error: NSError?
+
+					racSignal.subscribeError { error = $0; return }
+					sendError(sink, expectedError)
+
+					expect(error?.domain).to(equal(TestError.domain))
+					expect(error?.code).to(equal(expectedError.rawValue))
 				}
 			}
 

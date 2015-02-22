@@ -134,10 +134,54 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("reduce") {
-			pending("should accumulate one value") {
+			it("should accumulate one value") {
+				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = originalSignal |> reduce(1, +)
+
+				var lastValue: Int?
+				var completed = false
+
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(beNil())
+
+				expect(completed).to(beFalse())
+				sendCompleted(sink)
+				expect(completed).to(beTrue())
+
+				expect(lastValue).to(equal(4))
 			}
 
-			pending("should send the initial value if none are received") {
+			it("should send the initial value if none are received") {
+				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = originalSignal |> reduce(1, +)
+
+				var lastValue: Int?
+				var completed = false
+
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
+
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendCompleted(sink)
+
+				expect(lastValue).to(equal(1))
+				expect(completed).to(beTrue())
 			}
 		}
 

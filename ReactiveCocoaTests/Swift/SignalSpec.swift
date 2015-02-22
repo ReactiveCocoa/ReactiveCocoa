@@ -110,8 +110,8 @@ class SignalSpec: QuickSpec {
 
 		describe("scan") {
 			it("should incrementally accumulate a value") {
-				let (originalSignal, sink) = Signal<String, NoError>.pipe()
-				let signal = originalSignal |> scan("", +)
+				let (baseSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = baseSignal |> scan("", +)
 
 				var lastValue: String?
 
@@ -129,8 +129,8 @@ class SignalSpec: QuickSpec {
 
 		describe("reduce") {
 			it("should accumulate one value") {
-				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
-				let signal = originalSignal |> reduce(1, +)
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> reduce(1, +)
 
 				var lastValue: Int?
 				var completed = false
@@ -157,8 +157,8 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should send the initial value if none are received") {
-				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
-				let signal = originalSignal |> reduce(1, +)
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> reduce(1, +)
 
 				var lastValue: Int?
 				var completed = false
@@ -181,8 +181,8 @@ class SignalSpec: QuickSpec {
 
 		describe("skip") {
 			it("should skip initial values") {
-				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
-				let signal = originalSignal |> skip(1)
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> skip(1)
 
 				var lastValue: Int?
 				signal.observe(next: { lastValue = $0 })
@@ -197,8 +197,8 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should not skip any values when 0") {
-				let (originalSignal, sink) = Signal<Int, NoError>.pipe()
-				let signal = originalSignal |> skip(0)
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> skip(0)
 
 				var lastValue: Int?
 				signal.observe(next: { lastValue = $0 })
@@ -215,8 +215,8 @@ class SignalSpec: QuickSpec {
 
 		describe("skipRepeats") {
 			it("should skip duplicate Equatable values") {
-				let (originalSignal, sink) = Signal<Bool, NoError>.pipe()
-				let signal = originalSignal |> skipRepeats
+				let (baseSignal, sink) = Signal<Bool, NoError>.pipe()
+				let signal = baseSignal |> skipRepeats
 
 				var values: [Bool] = []
 				signal.observe(next: { values.append($0) })
@@ -237,8 +237,8 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should skip values according to a predicate") {
-				let (originalSignal, sink) = Signal<String, NoError>.pipe()
-				let signal = originalSignal |> skipRepeats { countElements($0) == countElements($1) }
+				let (baseSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = baseSignal |> skipRepeats { countElements($0) == countElements($1) }
 
 				var values: [String] = []
 				signal.observe(next: { values.append($0) })
@@ -260,10 +260,42 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skipWhile") {
-			pending("should skip while the predicate is true") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+
+			var lastValue: Int?
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+
+				signal = baseSignal |> skipWhile { $0 < 2 }
+				sink = observer
+				lastValue = nil
+
+				signal.observe(next: { lastValue = $0 })
 			}
 
-			pending("should not skip any values when the predicate starts false") {
+			it("should skip while the predicate is true") {
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				sendNext(sink, 0)
+				expect(lastValue).to(equal(0))
+			}
+
+			it("should not skip any values when the predicate starts false") {
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 3)
+				expect(lastValue).to(equal(3))
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
 			}
 		}
 

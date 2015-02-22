@@ -246,7 +246,7 @@ class SignalProducerSpec: QuickSpec {
 					sendSubsequent = { sendNext(outerSink, subsequentProducer) }
 					completeOuter = { sendCompleted(outerSink) }
 
-					concat(outerProducer).start()
+					(outerProducer |> join(.Concat)).start()
 					sendNext(outerSink, previousProducer)
 				}
 
@@ -281,9 +281,10 @@ class SignalProducerSpec: QuickSpec {
 				let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 				var error: TestError?
-				concat(outerProducer).start(error: { e in
+				(outerProducer |> join(.Concat)).start(error: { e in
 					error = e
 				})
+
 				expect(error).to(equal(TestError.Default))
 			}
 
@@ -291,7 +292,7 @@ class SignalProducerSpec: QuickSpec {
 				let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 				var error: TestError?
-				concat(outerProducer).start(error: { e in
+				(outerProducer |> join(.Concat)).start(error: { e in
 					error = e
 				})
 
@@ -313,7 +314,7 @@ class SignalProducerSpec: QuickSpec {
 					completeInner = { sendCompleted(innerSink) }
 
 					completed = false
-					concat(outerProducer).start(completed: {
+					(outerProducer |> join(.Concat)).start(completed: {
 						completed = true
 					})
 
@@ -344,37 +345,37 @@ class SignalProducerSpec: QuickSpec {
 				var sendA: (Void -> Void)!
 				var completeB: (Void -> Void)!
 				var sendB: (Void -> Void)!
-				
+
 				var outerCompleted = false
-				
+
 				var recv = [Int]()
-				
+
 				beforeEach {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
 					let (producerA, sinkA) = SignalProducer<Int, NoError>.buffer()
 					let (producerB, sinkB) = SignalProducer<Int, NoError>.buffer()
-					
+
 					completeA = { sendCompleted(sinkA) }
 					completeB = { sendCompleted(sinkB) }
-					
+
 					var a = 0
 					sendA = { sendNext(sinkA, a++) }
-					
+
 					var b = 100
 					sendB = { sendNext(sinkB, b++) }
-					
+
 					sendNext(outerSink, producerA)
 					sendNext(outerSink, producerB)
-					
-					merge(outerProducer).start(next: { i in
+
+					(outerProducer |> join(.Merge)).start(next: { i in
 						recv.append(i)
 					}, error: { _ in () }, completed: {
 						outerCompleted = true
 					})
-					
+
 					sendCompleted(outerSink)
 				}
-				
+
 				it("should forward values from any inner signals") {
 					sendA()
 					sendA()
@@ -383,7 +384,7 @@ class SignalProducerSpec: QuickSpec {
 					sendB()
 					expect(recv).to(equal([0, 1, 100, 2, 101]))
 				}
-				
+
 				it("should complete when all signals have completed") {
 					completeA()
 					expect(outerCompleted).to(beFalsy())
@@ -391,27 +392,27 @@ class SignalProducerSpec: QuickSpec {
 					expect(outerCompleted).to(beTruthy())
 				}
 			}
-			
+
 			describe("error handling") {
 				it("should forward an error from an inner signal") {
 					let errorProducer = SignalProducer<Int, TestError>(error: TestError.Default)
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
-					
+
 					var error: TestError?
-					merge(outerProducer).start(error: { e in
+					(outerProducer |> join(.Merge)).start(error: { e in
 						error = e
 					})
 					expect(error).to(equal(TestError.Default))
 				}
-				
+
 				it("should forward an error from the outer signal") {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
-					
+
 					var error: TestError?
-					merge(outerProducer).start(error: { e in
+					(outerProducer |> join(.Merge)).start(error: { e in
 						error = e
 					})
-					
+
 					sendError(outerSink, TestError.Default)
 					expect(error).to(equal(TestError.Default))
 				}
@@ -423,12 +424,12 @@ class SignalProducerSpec: QuickSpec {
 				let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 				let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()
 				let (secondInner, secondInnerSink) = SignalProducer<Int, TestError>.buffer()
-				
+
 				var receivedValues: [Int] = []
 				var errored = false
 				var completed = false
-				
-				latest(outer).start(
+
+				(outer |> join(.SwitchToLatest)).start(
 					next: {
 						receivedValues.append($0)
 					},
@@ -438,23 +439,23 @@ class SignalProducerSpec: QuickSpec {
 					completed: {
 						completed = true
 				})
-				
+
 				sendNext(firstInnerSink, 1)
 				sendNext(secondInnerSink, 2)
 				sendNext(outerSink, SignalProducer(value: 0))
 				sendNext(outerSink, firstInner)
 				sendNext(outerSink, secondInner)
 				sendCompleted(outerSink)
-				
+
 				expect(receivedValues).to(equal([ 0, 1, 2 ]))
 				expect(errored).to(beFalsy())
 				expect(completed).to(beFalsy())
-				
+
 				sendNext(firstInnerSink, 3)
 				sendCompleted(firstInnerSink)
 				sendNext(secondInnerSink, 4)
 				sendCompleted(secondInnerSink)
-				
+
 				expect(receivedValues).to(equal([ 0, 1, 2, 4 ]))
 				expect(errored).to(beFalsy())
 				expect(completed).to(beTruthy())
@@ -463,38 +464,38 @@ class SignalProducerSpec: QuickSpec {
 			it("should forward an error from an inner signal") {
 				let inner = SignalProducer<Int, TestError>(error: .Default)
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-				let result = outer |> latest |> first
-				
+				let result = outer |> join(.SwitchToLatest) |> first
+
 				expect(result?.error).to(equal(TestError.Default))
 			}
 
 			it("should forward an error from the outer signal") {
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
-				let result = outer |> latest |> first
-				
+				let result = outer |> join(.SwitchToLatest) |> first
+
 				expect(result?.error).to(equal(TestError.Default))
 			}
 
 			it("should complete when the original and latest signals have completed") {
 				let inner = SignalProducer<Int, TestError>.empty
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-				
+
 				var completed = false
-				latest(outer).start(completed: {
+				(outer |> join(.SwitchToLatest)).start(completed: {
 					completed = true
 				})
-				
+
 				expect(completed).to(beTruthy())
 			}
-			
+
 			it("should complete when the outer signal completes before sending any signals") {
 				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 				var completed = false
-				latest(outer).start(completed: {
+				(outer |> join(.SwitchToLatest)).start(completed: {
 					completed = true
 				})
-				
+
 				expect(completed).to(beTruthy())
 			}
 		}
@@ -566,7 +567,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result?.value).to(equal(1))
 			}
 		}
-		
+
 		describe("retry") {
 			it("should start a signal N times upon error") {
 				let results: [Result<Int, TestError>] = [
@@ -787,7 +788,7 @@ class SignalProducerSpec: QuickSpec {
 				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 				expect(result?.value).toNot(beNil())
 			}
-			
+
 			it("should return an error if one occurs") {
 				let result = SignalProducer<Int, TestError>(error: .Default) |> wait
 				expect(result.error).to(equal(TestError.Default))

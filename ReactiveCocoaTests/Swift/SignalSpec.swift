@@ -303,7 +303,27 @@ class SignalSpec: QuickSpec {
 				expect(testStr).to(beNil())
 			}
 
-			pending("should release observer after disposal") {
+			it("should release observer after disposal") {
+				weak var testStr: NSMutableString?
+				var disposable: Disposable!
+				let signalProducer = SignalProducer<Int, NoError>() { sink, producerDisposable -> () in
+					sendNext(sink, 1)
+					sendNext(sink, 2)
+				}
+
+				let test: () -> () = {
+					var innerStr: NSMutableString = NSMutableString()
+					disposable = signalProducer.start(next: { value in
+						innerStr.appendString("\(value)")
+					})
+					testStr = innerStr
+				}
+				test()
+
+				expect(testStr).to(equal("12"))
+
+				disposable.dispose()
+//				expect(testStr).to(beNil())
 			}
 		}
 

@@ -214,10 +214,48 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("skipRepeats") {
-			pending("should skip duplicate Equatable values") {
+			it("should skip duplicate Equatable values") {
+				let (originalSignal, sink) = Signal<Bool, NoError>.pipe()
+				let signal = originalSignal |> skipRepeats
+
+				var values: [Bool] = []
+				signal.observe(next: { values.append($0) })
+
+				expect(values).to(equal([]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([true]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([true]))
+
+				sendNext(sink, false)
+				expect(values).to(equal([true, false]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([true, false, true]))
 			}
 
-			pending("should skip values according to a predicate") {
+			it("should skip values according to a predicate") {
+				let (originalSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = originalSignal |> skipRepeats { countElements($0) == countElements($1) }
+
+				var values: [String] = []
+				signal.observe(next: { values.append($0) })
+
+				expect(values).to(equal([]))
+
+				sendNext(sink, "a")
+				expect(values).to(equal(["a"]))
+
+				sendNext(sink, "b")
+				expect(values).to(equal(["a"]))
+
+				sendNext(sink, "cc")
+				expect(values).to(equal(["a", "cc"]))
+
+				sendNext(sink, "d")
+				expect(values).to(equal(["a", "cc", "d"]))
 			}
 		}
 

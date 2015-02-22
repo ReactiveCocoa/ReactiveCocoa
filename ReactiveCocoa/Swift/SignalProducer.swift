@@ -570,7 +570,7 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 			let latestInnerDisposable = SerialDisposable()
 			disposable.addDisposable(latestInnerDisposable)
 			
-			let state = Atomic(LatestState<T, E>.initial)
+			let state = Atomic(LatestState<T, E>())
 			let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
 				state.modify(action)
 				if state.value.isComplete {
@@ -607,14 +607,8 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 }
 
 private struct LatestState<T, E: ErrorType> {
-	let outerSignalComplete: Bool
-	let latestInnerSignal: LatestStateInnerSignal<T, E>
-
-	static var initial: LatestState {
-		return LatestState(
-			outerSignalComplete: false,
-			latestInnerSignal: .Complete)
-	}
+	private let outerSignalComplete = false
+	private let latestInnerSignal = LatestStateInnerSignal<T, E>.Complete
 	
 	func completeOuterSignal() -> LatestState<T, E> {
 		return LatestState(

@@ -14,10 +14,29 @@ import ReactiveCocoa
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
 		describe("RACSignal.asSignalProducer") {
-			pending("should subscribe once per start()") {
+			it("should subscribe once per start()") {
+				var subscriptions = 0
+
+				let racSignal = RACSignal.createSignal { subscriber in
+					subscriber.sendNext(subscriptions++)
+					subscriber.sendCompleted()
+
+					return nil
+				}
+
+				let producer = racSignal.asSignalProducer() |> map { $0 as Int }
+
+				expect((producer |> single)?.value).to(equal(0))
+				expect((producer |> single)?.value).to(equal(1))
+				expect((producer |> single)?.value).to(equal(2))
 			}
 
-			pending("should automatically replace nil NSErrors") {
+			it("should automatically replace nil NSErrors") {
+				let racSignal = RACSignal.error(nil)
+				let producer = racSignal.asSignalProducer()
+				let result = producer |> last
+
+				expect(result?.error?.localizedDescription).to(equal("Nil RACSignal error"))
 			}
 		}
 

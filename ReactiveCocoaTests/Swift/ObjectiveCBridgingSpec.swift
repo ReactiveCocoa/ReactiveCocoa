@@ -50,10 +50,27 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			describe("on a SignalProducer") {
-				pending("should start once per subscription") {
+				it("should start once per subscription") {
+					var subscriptions = 0
+
+					let producer = SignalProducer<NSNumber, NoError>.try {
+						return success(subscriptions++)
+					}
+					let racSignal = asRACSignal(producer)
+
+					expect(racSignal.first() as? NSNumber).to(equal(0))
+					expect(racSignal.first() as? NSNumber).to(equal(1))
+					expect(racSignal.first() as? NSNumber).to(equal(2))
 				}
 
-				pending("should convert errors to NSError") {
+				it("should convert errors to NSError") {
+					let producer = SignalProducer<AnyObject, TestError>(error: .Error1)
+					let racSignal = asRACSignal(producer).materialize()
+
+					let event = racSignal.first() as? RACEvent
+
+					expect(event?.error.domain).to(equal(TestError.domain))
+					expect(event?.error.code).to(equal(TestError.Error1.rawValue))
 				}
 			}
 		}

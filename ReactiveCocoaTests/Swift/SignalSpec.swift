@@ -911,7 +911,7 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						sendNext(observer, 1)
 					}
-					testScheduler.scheduleAfter(5, {
+					testScheduler.scheduleAfter(5, action: {
 						sendNext(observer, 2)
 						sendCompleted(observer)
 					})

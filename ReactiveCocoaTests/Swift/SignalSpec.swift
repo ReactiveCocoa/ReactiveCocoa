@@ -444,7 +444,56 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeUntilReplacement") {
-			pending("should take values from the original then the replacement") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+			var replacementSink: Signal<Int, NoError>.Observer!
+
+			var lastValue: Int? = nil
+			var completed: Bool = false
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+				let (replacementSignal, replacementObserver) = Signal<Int, NoError>.pipe()
+
+				signal = baseSignal |> takeUntilReplacement(replacementSignal)
+				sink = observer
+				replacementSink = replacementObserver
+
+				lastValue = nil
+				completed = false
+
+				signal.observe(
+					next: { lastValue = $0 },
+					completed: { completed = true }
+				)
+			}
+
+			it("should take values from the original then the replacement") {
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				sendNext(replacementSink, 3)
+
+				expect(lastValue).to(equal(3))
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 4)
+
+				expect(lastValue).to(equal(3))
+				expect(completed).to(beFalse())
+
+				sendNext(replacementSink, 5)
+				expect(lastValue).to(equal(5))
+
+				expect(completed).to(beFalse())
+				sendCompleted(replacementSink)
+				expect(completed).to(beTrue())
 			}
 		}
 

@@ -170,22 +170,28 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
 	return Signal { observer in
-		var taken = 0
-
-		return signal.observe(next: { value in
-			if taken < count {
-				taken++
-				sendNext(observer, value)
-			}
-
-			if taken == count {
-				sendCompleted(observer)
-			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
+		if count == 0 {
 			sendCompleted(observer)
-		})
+
+			return nil
+		} else {
+			var taken = 0
+
+			return signal.observe(next: { value in
+				if taken < count {
+					taken++
+					sendNext(observer, value)
+				}
+
+				if taken == count {
+					sendCompleted(observer)
+				}
+				}, error: { error in
+					sendError(observer, error)
+				}, completed: {
+					sendCompleted(observer)
+			})
+		}
 	}
 }
 

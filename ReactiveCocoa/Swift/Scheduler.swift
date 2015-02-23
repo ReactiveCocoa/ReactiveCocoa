@@ -250,7 +250,7 @@ public final class TestScheduler: DateSchedulerType {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	public func scheduleAfter(interval: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), action)
+		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), action: action)
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {

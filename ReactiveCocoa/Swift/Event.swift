@@ -38,7 +38,7 @@ public enum Event<T, E: ErrorType> {
 	}
 
 	/// Case analysis on the receiver.
-	public func event<U>(#ifNext: T -> U, ifError: E -> U, ifCompleted: @autoclosure () -> U) -> U {
+	public func event<U>(#ifNext: T -> U, ifError: E -> U, @autoclosure ifCompleted: () -> U) -> U {
 		switch self {
 		case let .Next(box):
 			return ifNext(box.unbox)

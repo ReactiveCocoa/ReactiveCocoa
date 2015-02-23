@@ -733,7 +733,7 @@ extension SignalProducer {
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
 	private static func tryWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
-		let resultCount = countElements(results)
+		let resultCount = count(results)
 		var operationIndex = 0
 
 		precondition(resultCount > 0)

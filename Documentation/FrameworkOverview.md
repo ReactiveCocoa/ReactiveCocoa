@@ -194,8 +194,8 @@ the information is still valuable).
 [List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
 [Memory Management]: MemoryManagement.md
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
-[Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
-[MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
+[Monoid]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Data-Monoid.html
+[MonadZip]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Control-Monad-Zip.html
 [NSButton+RACCommandSupport]: ../ReactiveCocoa/NSButton+RACCommandSupport.h
 [RACBacktrace]: ../ReactiveCocoa/RACBacktrace.h
 [RACCommand]: ../ReactiveCocoa/RACCommand.h

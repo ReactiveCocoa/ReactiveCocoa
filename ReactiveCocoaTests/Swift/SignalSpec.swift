@@ -394,10 +394,52 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeUntil") {
-			pending("should take values until the trigger fires") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+			var triggerSink: Signal<(), NoError>.Observer!
+
+			var lastValue: Int? = nil
+			var completed: Bool = false
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+				let (triggerSignal, triggerObserver) = Signal<(), NoError>.pipe()
+
+				signal = baseSignal |> takeUntil(triggerSignal)
+				sink = observer
+				triggerSink = triggerObserver
+
+				lastValue = nil
+				completed = false
+
+				signal.observe(
+					next: { lastValue = $0 },
+					completed: { completed = true }
+				)
 			}
 
-			pending("should complete if the trigger fires immediately") {
+			it("should take values until the trigger fires") {
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				expect(completed).to(beFalse())
+				sendNext(triggerSink, ())
+				expect(completed).to(beTrue())
+			}
+
+			it("should complete if the trigger fires immediately") {
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(triggerSink, ())
+
+				expect(completed).to(beTrue())
+				expect(lastValue).to(beNil())
 			}
 		}
 

@@ -420,7 +420,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 
-			describe("JoinStrategy.SwitchToLatest") {
+			describe("JoinStrategy.Latest") {
 				it("should forward values from the latest inner signal") {
 					let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 					let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()
@@ -430,7 +430,7 @@ class SignalProducerSpec: QuickSpec {
 					var errored = false
 					var completed = false
 
-					(outer |> join(.SwitchToLatest)).start(
+					(outer |> join(.Latest)).start(
 						next: {
 							receivedValues.append($0)
 						},
@@ -465,14 +465,14 @@ class SignalProducerSpec: QuickSpec {
 				it("should forward an error from an inner signal") {
 					let inner = SignalProducer<Int, TestError>(error: .Default)
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-					let result = outer |> join(.SwitchToLatest) |> first
+					let result = outer |> join(.Latest) |> first
 
 					expect(result?.error).to(equal(TestError.Default))
 				}
 
 				it("should forward an error from the outer signal") {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
-					let result = outer |> join(.SwitchToLatest) |> first
+					let result = outer |> join(.Latest) |> first
 
 					expect(result?.error).to(equal(TestError.Default))
 				}
@@ -482,7 +482,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 
 					var completed = false
-					(outer |> join(.SwitchToLatest)).start(completed: {
+					(outer |> join(.Latest)).start(completed: {
 						completed = true
 					})
 
@@ -493,7 +493,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 					var completed = false
-					(outer |> join(.SwitchToLatest)).start(completed: {
+					(outer |> join(.Latest)).start(completed: {
 						completed = true
 					})
 

@@ -600,12 +600,12 @@ public enum JoinStrategy: Equatable {
 	///
 	/// The resulting signal will complete only when the signal-of-signals and
 	/// the latest signal has completed.
-	case SwitchToLatest
+	case Latest
 }
 
 public func == (lhs: JoinStrategy, rhs: JoinStrategy) -> Bool {
 	switch (lhs, rhs) {
-	case (.Merge, .Merge), (.Concat, .Concat), (.SwitchToLatest, .SwitchToLatest):
+	case (.Merge, .Merge), (.Concat, .Concat), (.Latest, .Latest):
 		return true
 
 	default:
@@ -622,8 +622,8 @@ extension JoinStrategy: Printable {
 		case .Concat:
 			return "concatenate"
 
-		case .SwitchToLatest:
-			return "switch to latest"
+		case .Latest:
+			return "latest"
 		}
 	}
 }
@@ -641,7 +641,7 @@ public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalPr
 	case .Concat:
 		return producer |> concat
 
-	case .SwitchToLatest:
+	case .Latest:
 		return producer |> switchToLatest
 	}
 }

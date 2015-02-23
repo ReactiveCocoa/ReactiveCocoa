@@ -191,7 +191,7 @@ the information is still valuable).
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
-[List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
+[List]: https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Data-List.html
 [Memory Management]: MemoryManagement.md
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [Monoid]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Data-Monoid.html

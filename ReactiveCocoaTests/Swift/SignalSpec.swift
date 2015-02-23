@@ -300,10 +300,47 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("take") {
-			pending("should take initial values") {
+			it("should take initial values") {
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> take(2)
+
+				var lastValue: Int?
+				var completed = false
+				signal.observe(
+					next: { lastValue = $0 },
+					completed: { completed = true }
+				)
+
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+				expect(completed).to(beTrue())
 			}
 
-			pending("should complete when 0") {
+			it("should complete when 0") {
+				let producer = SignalProducer<Int, NoError> { observer, disposable in
+					sendNext(observer, 0)
+				} |> take(0)
+
+				var completed = false
+				var valueSent = false
+
+				expect(completed).to(beFalse())
+				expect(valueSent).to(beFalse())
+
+				producer.start(
+					next: { _ in valueSent = true },
+					completed: { completed = true }
+				)
+
+				expect(completed).to(beTrue())
+				expect(valueSent).to(beFalse())
 			}
 		}
 

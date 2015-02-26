@@ -196,15 +196,17 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
-public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		return signal.observe(SinkOf { event in
-			scheduler.schedule {
-				observer.put(event)
-			}
+public func observeOn<T, E>(scheduler: SchedulerType) -> (Signal<T, E>) -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(SinkOf { event in
+				scheduler.schedule {
+					observer.put(event)
+				}
 
-			return
-		})
+				return
+			})
+		}
 	}
 }
 

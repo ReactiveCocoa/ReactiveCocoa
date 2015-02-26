@@ -197,13 +197,15 @@ public struct SignalProducer<T, E: ErrorType> {
 			let compositeDisposable = CompositeDisposable()
 			compositeDisposable.addDisposable(disposable)
 
-			signal.observe(SinkOf { event in
+			let wrapperObserver = Signal<T, E>.Observer { event in
+				observer.put(event)
+
 				if event.isTerminating {
 					compositeDisposable.dispose()
 				}
-			})
+			}
 
-			startHandler(observer, compositeDisposable)
+			startHandler(wrapperObserver, compositeDisposable)
 		}
 	}
 

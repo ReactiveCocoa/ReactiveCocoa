@@ -9,12 +9,16 @@
 import Foundation
 import ReactiveCocoa
 
-enum TestError {
-	case Default
+enum TestError: Int {
+	case Default = 0
+	case Error1 = 1
+	case Error2 = 2
 }
 
 extension TestError: ErrorType {
+	static var domain: String { return "org.reactivecocoa.ReactiveCocoa.Tests" }
+
 	var nsError: NSError {
-		return NSError(domain: "org.reactivecocoa.ReactiveCocoa.Tests", code: 0, userInfo: nil)
+		return NSError(domain: TestError.domain, code: rawValue, userInfo: nil)
 	}
 }

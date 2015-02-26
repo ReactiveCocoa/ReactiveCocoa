@@ -1,3 +1,5 @@
+import LlamaKit
+
 /// A push-driven stream that sends Events over time, parameterized by the type
 /// of values being sent (`T`) and the type of error that can occur (`E`). If no
 /// errors should be possible, NoError can be specified for `E`.
@@ -168,8 +170,10 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			case let .Next(value):
 				if taken < count {
 					taken++
-					fallthrough
-				} else {
+					sendNext(observer, value.unbox)
+				}
+
+				if taken == count {
 					sendCompleted(observer)
 				}
 
@@ -180,8 +184,13 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
-/// Forwards all events onto the given scheduler, instead of whichever scheduler
-/// they originally arrived upon.
+/// Returns a signal that will yield an array of values when `signal` completes.
+public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
+	return signal |> reduce([]) { $0 + [ $1 ] }
+}
+
+/// Forwards all events onto the given scheduler, instead of whichever
+/// scheduler they originally arrived upon.
 public func observeOn<T, E>(scheduler: SchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
@@ -328,7 +337,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 			switch event {
 			case let .Next(innerEvent):
 				observer.put(innerEvent.unbox)
-			
+
 			case .Error:
 				assert(false)
 
@@ -589,14 +598,283 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	}
 }
 
+private struct ZipState<T> {
+	var values: [T] = []
+	var completed = false
+
+	var isFinished: Bool {
+		return values.isEmpty && completed
+	}
+}
+
+/// Zips elements of two signals into pairs. The elements of any Nth pair
+/// are the Nth elements of the two input signals.
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
+	return Signal { observer in
+		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
+		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
+
+		let flush = { () -> () in
+			var originalStates: (ZipState<T>, ZipState<U>)!
+			states.modify { states in
+				originalStates = states
+
+				var updatedStates = states
+				let extractCount = min(states.0.values.count, states.1.values.count)
+
+				removeRange(&updatedStates.0.values, 0 ..< extractCount)
+				removeRange(&updatedStates.1.values, 0 ..< extractCount)
+				return updatedStates
+			}
+
+			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
+				let left = originalStates.0.values.removeAtIndex(0)
+				let right = originalStates.1.values.removeAtIndex(0)
+				sendNext(observer, (left, right))
+			}
+
+			if originalStates.0.isFinished || originalStates.1.isFinished {
+				sendCompleted(observer)
+			}
+		}
+
+		let onError = { sendError(observer, $0) }
+		let onInterrupted = { sendInterrupted(observer) }
+
+		let signalDisposable = signal.observe(next: { value in
+			states.modify { (var states) in
+				states.0.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.0.completed = true
+				return states
+			}
+
+			flush()
+		}, interrupted: onInterrupted)
+
+		let otherDisposable = otherSignal.observe(next: { value in
+			states.modify { (var states) in
+				states.1.values.append(value)
+				return states
+			}
+
+			flush()
+		}, error: onError, completed: {
+			states.modify { (var states) in
+				states.1.completed = true
+				return states
+			}
+
+			flush()
+		}, interrupted: onInterrupted)
+
+		return CompositeDisposable([ signalDisposable, otherDisposable ])
+	}
+}
+
+/// Applies `operation` to values from `signal` with `Success`ful results
+/// forwarded on the returned signal and `Failure`s sent as `Error` events.
+public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E> {
+	return signal |> tryMap { value in
+		return operation(value).map {
+			return value
+		}
+	}
+}
+
+/// Applies `operation` to values from `signal` with `Success`ful results mapped
+/// on the returned signal and `Failure`s sent as `Error` events.
+public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
+	return Signal { observer in
+		signal.observe(next: { value in
+			switch operation(value) {
+			case let .Success(val):
+				sendNext(observer, val.unbox)
+
+			case let .Failure(err):
+				sendError(observer, err.unbox)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		}, interrupted: {
+			sendInterrupted(observer)
+		})
+	}
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {
+	return a |> combineLatestWith(b)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
+	return combineLatest(a, b)
+		|> combineLatestWith(c)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
+	return combineLatest(a, b, c)
+		|> combineLatestWith(d)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
+	return combineLatest(a, b, c, d)
+		|> combineLatestWith(e)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
+	return combineLatest(a, b, c, d, e)
+		|> combineLatestWith(f)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
+	return combineLatest(a, b, c, d, e, f)
+		|> combineLatestWith(g)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
+	return combineLatest(a, b, c, d, e, f, g)
+		|> combineLatestWith(h)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h)
+		|> combineLatestWith(i)
+		|> map(repack)
+}
+
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h, i)
+		|> combineLatestWith(j)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {
+	return a |> zipWith(b)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
+	return zip(a, b)
+		|> zipWith(c)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
+	return zip(a, b, c)
+		|> zipWith(d)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
+	return zip(a, b, c, d)
+		|> zipWith(e)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
+	return zip(a, b, c, d, e)
+		|> zipWith(f)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
+	return zip(a, b, c, d, e, f)
+		|> zipWith(g)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
+	return zip(a, b, c, d, e, f, g)
+		|> zipWith(h)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
+	return zip(a, b, c, d, e, f, g, h)
+		|> zipWith(i)
+		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`.
+public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return zip(a, b, c, d, e, f, g, h, i)
+		|> zipWith(j)
+		|> map(repack)
+}
+
+/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
+/// errors with `error` on `scheduler`.
+///
+/// If the interval is 0, the timeout will be scheduled immediately. The signal
+/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+		let schedulerDisposable = scheduler.scheduleAfter(date) {
+			sendError(observer, error)
+		}
+
+		let signalDisposable = signal.observe(observer)
+
+		let disposable = CompositeDisposable([ signalDisposable ])
+		disposable.addDisposable(schedulerDisposable)
+		return disposable
+	}
+}
+
 /*
 TODO
 
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E>
-public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E>
-public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E>
-public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 */
 
 /// Signal.observe() as a free function, for easier use with |>.

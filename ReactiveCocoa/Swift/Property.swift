@@ -110,11 +110,11 @@ extension MutableProperty: SinkType {
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: AnyObject? {
-		get {
+		@objc(rac_value) get {
 			return object?.valueForKeyPath(keyPath)
 		}
 
-		set(newValue) {
+		@objc(setRac_value:) set(newValue) {
 			object?.setValue(newValue, forKeyPath: keyPath)
 		}
 	}

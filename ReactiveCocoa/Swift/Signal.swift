@@ -269,24 +269,25 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 /// them on the given scheduler.
 ///
 /// `Error` events are always scheduled immediately.
-public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	precondition(interval >= 0)
+	return { signal in
+		Signal { observer in
+			return signal.observe(SinkOf { event in
+				switch event {
+				case .Error:
+					scheduler.schedule {
+						observer.put(event)
+					}
 
-	return Signal { observer in
-		return signal.observe(SinkOf { event in
-			switch event {
-			case .Error:
-				scheduler.schedule {
-					observer.put(event)
+				default:
+					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+					scheduler.scheduleAfter(date) {
+						observer.put(event)
+					}
 				}
-
-			default:
-				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-				scheduler.scheduleAfter(date) {
-					observer.put(event)
-				}
-			}
-		})
+			})
+		}
 	}
 }
 

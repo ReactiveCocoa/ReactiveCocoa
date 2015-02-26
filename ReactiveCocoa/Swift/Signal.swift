@@ -256,7 +256,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 
-		return CompositeDisposable([ signalDisposable, otherDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
@@ -409,7 +409,7 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 			sendInterrupted(observer)
 		})
 
-		return CompositeDisposable([ signalDisposable, samplerDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, samplerDisposable ]))
 	}
 }
 
@@ -428,7 +428,7 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 			}
 		})
 
-		return CompositeDisposable([ signalDisposable, triggerDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, triggerDisposable ]))
 	}
 }
 
@@ -545,7 +545,7 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 			observer.put(event)
 		})
 
-		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, replacementDisposable ]))
 	}
 }
 
@@ -673,7 +673,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			flush()
 		}, interrupted: onInterrupted)
 
-		return CompositeDisposable([ signalDisposable, otherDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
@@ -864,10 +864,7 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 		}
 
 		let signalDisposable = signal.observe(observer)
-
-		let disposable = CompositeDisposable([ signalDisposable ])
-		disposable.addDisposable(schedulerDisposable)
-		return disposable
+		return CompositeDisposable(ignoreNil([ signalDisposable, schedulerDisposable ]))
 	}
 }
 

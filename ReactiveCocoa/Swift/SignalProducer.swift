@@ -895,7 +895,7 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 /// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 	let result = producer |> then(SignalProducer(value: ())) |> last
-	return result!
+	return result ?? success(())
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

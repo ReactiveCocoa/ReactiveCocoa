@@ -110,7 +110,7 @@ class PropertySpec: QuickSpec {
 				object = ObservableObject()
 				expect(object.rac_value).to(equal(0))
 
-				property = DynamicProperty(object: object, keyPath: "value")
+				property = DynamicProperty(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -152,7 +152,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "value")
+					let property = DynamicProperty(object: object, keyPath: "rac_value")
 
 					property.producer.start(completed: {
 						completed = true

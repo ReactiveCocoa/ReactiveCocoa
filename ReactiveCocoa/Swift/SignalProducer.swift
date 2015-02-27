@@ -185,22 +185,24 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// `Interrupted` event.
 	public func startWithSignal(setUp: (Signal<T, E>, Disposable) -> ()) {
 		let (signal, observer) = Signal<T, E>.pipe()
-		let disposable = ActionDisposable {
+
+		// Create a composite disposable that will automatically be torn
+		// down when the signal terminates.
+		let compositeDisposable = CompositeDisposable()
+		compositeDisposable.addDisposable {
+			// Upon early disposable, interrupt the observer and all dependents.
 			sendInterrupted(observer)
 		}
 
-		setUp(signal, disposable)
+		setUp(signal, compositeDisposable)
 
-		if !disposable.disposed {
-			// Create a composite disposable that will automatically be torn
-			// down when the signal terminates.
-			let compositeDisposable = CompositeDisposable()
-			compositeDisposable.addDisposable(disposable)
-
+		if !compositeDisposable.disposed {
 			let wrapperObserver = Signal<T, E>.Observer { event in
 				observer.put(event)
 
 				if event.isTerminating {
+					// Dispose only after notifying the Signal, so disposal
+					// logic is consistently the last thing to run.
 					compositeDisposable.dispose()
 				}
 			}

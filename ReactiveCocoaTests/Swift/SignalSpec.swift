@@ -640,7 +640,7 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 
-			it("should complete when 0") {
+			it("should interrupt when 0") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
 				var testScheduler = TestScheduler()
 				
@@ -654,22 +654,20 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var result: [Int] = []
-				var completed = false
+				var interrupted = false
 				
 				signal
 				|> take(0)
 				|> observe(next: { number in
-						result.append(number)
-					}, completed: {
-						completed = true
-					})
+					result.append(number)
+				}, interrupted: {
+					interrupted = true
+				})
 				
-				expect(completed).to(beFalsy())
+				expect(interrupted).to(beTruthy())
 				
 				testScheduler.run()
-				
 				expect(result).to(beEmpty())
-				expect(completed).to(beTruthy())
 			}
 		}
 

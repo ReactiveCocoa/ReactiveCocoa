@@ -715,6 +715,104 @@ public func concatMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: S
     return producer |> map(transform) |> concat
 }
 
+/// Returns a producer that forwards values from the latest producer sent on
+/// `producer`, ignoring values sent on previous inner producers.
+///
+/// An error sent on `producer` or the latest inner producer will be sent on the
+/// returned producer.
+///
+/// The returned producer completes when `producer` and the latest inner
+/// producer have both completed.
+public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+	return SignalProducer<T, E> { sink, disposable in
+		producer.startWithSignal { outerSignal, outerDisposable in
+			disposable.addDisposable(outerDisposable)
+
+			let latestInnerDisposable = SerialDisposable()
+			disposable.addDisposable(latestInnerDisposable)
+
+			let state = Atomic(LatestState<T, E>())
+			let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
+				state.modify(action)
+				if state.value.isComplete {
+					sendCompleted(sink)
+				}
+			}
+
+			outerSignal.observe(
+				next: { innerProducer in
+					innerProducer.startWithSignal { innerSignal, innerDisposable in
+						state.modify { state in
+							return state.isComplete
+								? state
+								: LatestState(
+									outerSignalComplete: state.outerSignalComplete,
+									latestIncompleteSignal: innerSignal)
+						}
+
+						// Don't dispose of the previous signal until we've
+						// registered this new signal as the latest, or else we
+						// may inadvertently send Interrupted to our observer.
+						latestInnerDisposable.innerDisposable = innerDisposable
+
+						innerSignal.observe(SinkOf { event in
+							switch event {
+							case .Completed:
+								updateState { state in
+									return state.isLatestIncompleteSignal(innerSignal)
+										? LatestState(
+											outerSignalComplete: state.outerSignalComplete,
+											latestIncompleteSignal: nil)
+										: state
+								}
+
+							default:
+								state.withValue { value -> () in
+									if value.isLatestIncompleteSignal(innerSignal) {
+										sink.put(event)
+									}
+								}
+							}
+						})
+					}
+				}, error: { error in
+					sendError(sink, error)
+				}, completed: {
+					updateState { state in
+						LatestState(
+							outerSignalComplete: true,
+							latestIncompleteSignal: state.latestIncompleteSignal)
+					}
+				}, interrupted: {
+					sendInterrupted(sink)
+				})
+		}
+	}
+}
+
+private struct LatestState<T, E: ErrorType> {
+	let outerSignalComplete = false
+	let latestIncompleteSignal: Signal<T, E>? = nil
+
+	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
+		if let latestIncompleteSignal = latestIncompleteSignal {
+			return latestIncompleteSignal === signal
+		} else {
+			return false
+		}
+	}
+
+	var isComplete: Bool {
+		return outerSignalComplete && latestIncompleteSignal == nil
+	}
+}
+
+/// Maps each value from `producer` to a signal, the `latest`s the resulting
+/// signal of signals.
+public func latestMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> latest
+}
+
 /// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
 /// added earlier. Returns a SignalProducer that will forward signals from the original producers
 /// as they arrive.
@@ -768,14 +866,6 @@ public func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> Si
 public func mergeMap<T, U, E>(transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
 	return producer |> map(transform) |> merge
 }
-
-/*
-TODO
-
-public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
-public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
-
-*/
 
 /// Repeats `producer` a total of `count` times.
 /// Repeating `1` times results in a equivalent signal producer.

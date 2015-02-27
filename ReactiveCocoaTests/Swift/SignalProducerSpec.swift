@@ -418,17 +418,84 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("switchToLatest") {
-			pending("should forward values from the latest inner signal") {
+		describe("latest") {
+			it("should forward values from the latest inner signal") {
+				let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
+				let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()
+				let (secondInner, secondInnerSink) = SignalProducer<Int, TestError>.buffer()
+				
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+				
+				latest(outer).start(
+					next: {
+						receivedValues.append($0)
+					},
+					error: { _ in
+						errored = true
+					},
+					completed: {
+						completed = true
+					})
+				
+				sendNext(firstInnerSink, 1)
+				sendNext(secondInnerSink, 2)
+				sendNext(outerSink, SignalProducer(value: 0))
+				sendNext(outerSink, firstInner)
+				sendNext(outerSink, secondInner)
+				sendCompleted(outerSink)
+				
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beFalsy())
+				
+				sendNext(firstInnerSink, 3)
+				sendCompleted(firstInnerSink)
+				sendNext(secondInnerSink, 4)
+				sendCompleted(secondInnerSink)
+				
+				expect(receivedValues).to(equal([ 0, 1, 2, 4 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should forward an error from an inner signal") {
+			it("should forward an error from an inner signal") {
+				let inner = SignalProducer<Int, TestError>(error: .Default)
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
+				let result = outer |> latest |> first
+				
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should forward an error from the outer signal") {
+			it("should forward an error from the outer signal") {
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
+				let result = outer |> latest |> first
+				
+				expect(result?.error).to(equal(TestError.Default))
 			}
 
-			pending("should complete when the original and latest signals have completed") {
+			it("should complete when the original and latest signals have completed") {
+				let inner = SignalProducer<Int, TestError>.empty
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
+				
+				var completed = false
+				latest(outer).start(completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beTruthy())
+			}
+			
+			it("should complete when the outer signal completes before sending any signals") {
+				let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
+
+				var completed = false
+				latest(outer).start(completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beTruthy())
 			}
 		}
 

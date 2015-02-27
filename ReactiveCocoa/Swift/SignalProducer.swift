@@ -778,7 +778,7 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 			let latestInnerDisposable = SerialDisposable()
 			disposable.addDisposable(latestInnerDisposable)
 
-			let state = Atomic(LatestState<T, E>.initial)
+			let state = Atomic(LatestState<T, E>())
 			let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
 				state.modify(action)
 				if state.value.isComplete {
@@ -790,15 +790,27 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 				next: { innerProducer in
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
 						latestInnerDisposable.innerDisposable = innerDisposable
-						state.value = state.value.addInnerSignal(innerSignal)
+						state.modify { state in
+							return state.isComplete
+								? state
+								: LatestState(
+									outerSignalComplete: state.outerSignalComplete,
+									latestIncompleteSignal: innerSignal)
+						}
 
 						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
-								updateState { $0.completeInnerSignal(innerSignal) }
+								updateState { state in
+									return state.isLatestIncompleteSignal(innerSignal)
+										? LatestState(
+											outerSignalComplete: state.outerSignalComplete,
+											latestIncompleteSignal: nil)
+										: state
+								}
 							default:
 								state.withValue { value -> () in
-									if value.isIncompleteLatestInnerSignal(innerSignal) {
+									if value.isLatestIncompleteSignal(innerSignal) {
 										sink.put(event)
 									}
 								}
@@ -808,70 +820,31 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {
-					updateState { $0.completeOuterSignal() }
+					updateState { state in
+						LatestState(
+							outerSignalComplete: true,
+							latestIncompleteSignal: state.latestIncompleteSignal)
+					}
 				})
 		}
 	}
 }
 
 private struct LatestState<T, E: ErrorType> {
-	let outerSignalComplete: Bool
-	let latestInnerSignal: LatestStateInnerSignal<T, E>
+	let outerSignalComplete = false
+	let latestIncompleteSignal: Signal<T, E>? = nil
 
-	static var initial: LatestState {
-		return LatestState(
-			outerSignalComplete: false,
-			latestInnerSignal: .Complete)
-	}
-
-	func completeOuterSignal() -> LatestState<T, E> {
-		return LatestState(
-			outerSignalComplete: true,
-			latestInnerSignal: latestInnerSignal)
-	}
-
-	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		if isComplete {
-			return self
+	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
+		if let latestIncompleteSignal = latestIncompleteSignal {
+			return latestIncompleteSignal === signal
 		} else {
-			return LatestState(
-				outerSignalComplete: outerSignalComplete,
-				latestInnerSignal: .Incomplete(signal))
-		}
-	}
-
-	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		if isIncompleteLatestInnerSignal(signal) {
-			return LatestState(
-				outerSignalComplete: outerSignalComplete,
-				latestInnerSignal: .Complete)
-		} else {
-			return self
-		}
-	}
-
-	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
-		switch latestInnerSignal {
-		case .Incomplete(let latestSignal) where signal === latestSignal:
-			return true
-		case .Incomplete, .Complete:
 			return false
 		}
 	}
 
 	var isComplete: Bool {
-		switch latestInnerSignal {
-		case .Complete:
-			return outerSignalComplete
-		case .Incomplete:
-			return false
-		}
+		return outerSignalComplete && latestIncompleteSignal == nil
 	}
-}
-
-private enum LatestStateInnerSignal<T, E: ErrorType> {
-	case Complete
-	case Incomplete(Signal<T, E>)
 }
 
 /// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers

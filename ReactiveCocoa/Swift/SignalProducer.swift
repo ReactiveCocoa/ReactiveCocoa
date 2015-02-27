@@ -608,12 +608,12 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 
 private struct LatestState<T, E: ErrorType> {
 	private let outerSignalComplete = false
-	private let latestInnerSignal = LatestStateInnerSignal<T, E>.Complete
+	private let latestIncompleteSignal: Signal<T, E>? = nil
 	
 	func completeOuterSignal() -> LatestState<T, E> {
 		return LatestState(
 			outerSignalComplete: true,
-			latestInnerSignal: latestInnerSignal)
+			latestIncompleteSignal: latestIncompleteSignal)
 	}
 	
 	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
@@ -621,39 +621,28 @@ private struct LatestState<T, E: ErrorType> {
 			? self
 			: LatestState(
 				outerSignalComplete: outerSignalComplete,
-				latestInnerSignal: .Incomplete(signal))
+				latestIncompleteSignal: signal)
 	}
 	
 	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
 		return isIncompleteLatestInnerSignal(signal)
 			? LatestState(
 				outerSignalComplete: outerSignalComplete,
-				latestInnerSignal: .Complete)
+				latestIncompleteSignal: nil)
 			: self
-}
+	}
 	
 	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
-		switch latestInnerSignal {
-		case .Incomplete(let latestSignal) where signal === latestSignal:
-			return true
-		case .Incomplete, .Complete:
+		if let latestIncompleteSignal = latestIncompleteSignal {
+			return latestIncompleteSignal === signal
+		} else {
 			return false
 		}
 	}
 	
 	var isComplete: Bool {
-		switch latestInnerSignal {
-		case .Complete:
-			return outerSignalComplete
-		case .Incomplete:
-			return false
-		}
+		return outerSignalComplete && latestIncompleteSignal == nil
 	}
-}
-
-private enum LatestStateInnerSignal<T, E: ErrorType> {
-	case Complete
-	case Incomplete(Signal<T, E>)
 }
 
 /// Maps each value from `producer` to a signal, the `latest`s the resulting

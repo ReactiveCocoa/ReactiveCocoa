@@ -582,15 +582,27 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				next: { innerProducer in
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
 						latestInnerDisposable.innerDisposable = innerDisposable
-						state.value = state.value.addInnerSignal(innerSignal)
+						state.modify { state in
+							return state.isComplete
+								? state
+								: LatestState(
+									outerSignalComplete: state.outerSignalComplete,
+									latestIncompleteSignal: innerSignal)
+						}
 						
 						innerSignal.observe(SinkOf { event in
 							switch event {
 							case .Completed:
-								updateState { $0.completeInnerSignal(innerSignal) }
+								updateState { state in
+									return state.isLatestIncompleteSignal(innerSignal)
+										? LatestState(
+											outerSignalComplete: state.outerSignalComplete,
+											latestIncompleteSignal: nil)
+										: state
+								}
 							default:
 								state.withValue { value -> () in
-									if value.isIncompleteLatestInnerSignal(innerSignal) {
+									if value.isLatestIncompleteSignal(innerSignal) {
 										sink.put(event)
 									}
 								}
@@ -600,39 +612,21 @@ public func latest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 				}, error: { error in
 					sendError(sink, error)
 				}, completed: {
-					updateState { $0.completeOuterSignal() }
+					updateState { state in
+						LatestState(
+							outerSignalComplete: true,
+							latestIncompleteSignal: state.latestIncompleteSignal)
+					}
 				})
 		}
 	}
 }
 
 private struct LatestState<T, E: ErrorType> {
-	private let outerSignalComplete = false
-	private let latestIncompleteSignal: Signal<T, E>? = nil
+	let outerSignalComplete = false
+	let latestIncompleteSignal: Signal<T, E>? = nil
 	
-	func completeOuterSignal() -> LatestState<T, E> {
-		return LatestState(
-			outerSignalComplete: true,
-			latestIncompleteSignal: latestIncompleteSignal)
-	}
-	
-	func addInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		return isComplete
-			? self
-			: LatestState(
-				outerSignalComplete: outerSignalComplete,
-				latestIncompleteSignal: signal)
-	}
-	
-	func completeInnerSignal(signal: Signal<T, E>) -> LatestState<T, E> {
-		return isIncompleteLatestInnerSignal(signal)
-			? LatestState(
-				outerSignalComplete: outerSignalComplete,
-				latestIncompleteSignal: nil)
-			: self
-	}
-	
-	func isIncompleteLatestInnerSignal(signal: Signal<T, E>) -> Bool {
+	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
 		if let latestIncompleteSignal = latestIncompleteSignal {
 			return latestIncompleteSignal === signal
 		} else {

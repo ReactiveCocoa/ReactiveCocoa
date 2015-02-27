@@ -34,13 +34,20 @@ public final class Signal<T, E: ErrorType> {
 			self.lock.lock()
 
 			if let observers = self.observers {
+				if event.isTerminating {
+					// Disallow any further events (e.g., any triggered
+					// recursively).
+					self.observers = nil
+				}
+
 				for sink in observers {
 					sink.put(event)
 				}
 
 				if event.isTerminating {
+					// Dispose only after notifying observers, so disposal logic
+					// is consistently the last thing to run.
 					generatorDisposable.dispose()
-					self.observers = nil
 				}
 			}
 

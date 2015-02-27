@@ -78,6 +78,27 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
+			it("should deallocate after interrupting") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+
+					return nil
+				}
+
+				var interrupted = false
+				signal?.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(signal).toNot(beNil())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
+				expect(signal).to(beNil())
+			}
+
 			it("should forward events to observers") {
 				let numbers = [ 1, 2, 5 ]
 				
@@ -154,6 +175,28 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 				expect(disposable.disposed).to(beTruthy())
 			}
+
+			it("should dispose of returned disposable upon interrupted") {
+				let disposable = SimpleDisposable()
+
+				let signal: Signal<AnyObject, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+					return disposable
+				}
+
+				var interrupted = false
+				signal.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
+			}
 		}
 
 		describe("Signal.pipe") {
@@ -200,7 +243,27 @@ class SignalSpec: QuickSpec {
 				test()
 				
 				expect(weakSignal).toNot(beNil())
-				
+
+				testScheduler.run()
+				expect(weakSignal).to(beNil())
+			}
+
+			it("should deallocate after interrupting") {
+				let testScheduler = TestScheduler()
+				weak var weakSignal: Signal<(), NoError>?
+
+				let test: () -> () = {
+					let (signal, observer) = Signal<(), NoError>.pipe()
+					weakSignal = signal
+
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+				}
+
+				test()
+				expect(weakSignal).toNot(beNil())
+
 				testScheduler.run()
 				expect(weakSignal).to(beNil())
 			}
@@ -302,27 +365,29 @@ class SignalSpec: QuickSpec {
 				expect(testStr).to(beNil())
 			}
 
-			it("should release observer after disposal") {
+			it("should release observer after interruption") {
 				weak var testStr: NSMutableString?
-				var disposable: Disposable!
-				let signalProducer = SignalProducer<Int, NoError>() { sink, producerDisposable -> () in
-					sendNext(sink, 1)
-					sendNext(sink, 2)
-				}
+				let (signal, sink) = Signal<Int, NoError>.pipe()
 
 				let test: () -> () = {
 					var innerStr: NSMutableString = NSMutableString()
-					disposable = signalProducer.start(next: { value in
+					signal.observe(next: { value in
 						innerStr.appendString("\(value)")
 					})
+
 					testStr = innerStr
 				}
+
 				test()
 
+				sendNext(sink, 1)
+				expect(testStr).to(equal("1"))
+
+				sendNext(sink, 2)
 				expect(testStr).to(equal("12"))
 
-				disposable.dispose()
-//				expect(testStr).to(beNil())
+				sendInterrupted(sink)
+				expect(testStr).to(beNil())
 			}
 		}
 

@@ -30,10 +30,10 @@ class SignalSpec: QuickSpec {
 				expect(didRunGenerator).to(beTruthy())
 			}
 
-			it("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never
 				
-				expect(signal).toNot(beNil())
+				expect(signal).to(beNil())
 			}
 
 			it("should deallocate after erroring") {
@@ -157,11 +157,10 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("Signal.pipe") {
-			
-			it("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
 				weak var signal = Signal<(), NoError>.pipe().0
 				
-				expect(signal).toNot(beNil())
+				expect(signal).to(beNil())
 			}
 
 			it("should deallocate after erroring") {

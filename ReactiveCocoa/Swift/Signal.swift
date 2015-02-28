@@ -574,66 +574,44 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 ///
 /// If multiple values are received before the interval has elapsed, the
 /// latest value is the one that will be passed on.
+///
+/// If the input signal completes while a value is being throttled, that value
+/// will be discarded and the returned signal will complete immediately.
 public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 
 	return Signal { observer in
-		let state = Atomic(ThrottleState<T>())
-		let flush: () -> Void = {
-			let (_, doSend: (() -> Void)?) = state.modify { (var state) in
-				if let value = state.pendingValue {
-					let now = scheduler.currentDate
-					state.pendingValue = nil
-					state.scheduleDisposable = nil
-					return (state, { sendNext(observer, value) })
-				} else {
-					return (state, nil)
-				}
-			}
-			doSend?()
-		}
-		return signal.observe(next: { value in
-			let (_, (scheduleDate: NSDate, compositeDisposable: CompositeDisposable)) = state.modify { (var state) in
-				
-				let now = scheduler.currentDate
-				let prev = state.previousDate
-				var scheduleDate: NSDate
-				if prev == nil || now.timeIntervalSinceDate(prev!) >= interval {
-					state.previousDate = now
-					scheduleDate = now
-				} else {
-					scheduleDate = prev!.dateByAddingTimeInterval(interval)
-				}
-				
-				let compositeDisposable = CompositeDisposable()
-				state.pendingValue = value
-				state.scheduleDisposable = ScopedDisposable(compositeDisposable)
-				return (state, (scheduleDate, compositeDisposable))
-			}
+		let previousDate: Atomic<NSDate?> = Atomic(nil)
+		let schedulerDisposable = SerialDisposable()
 
-			let disposableFromScheduler = scheduler.scheduleAfter(scheduleDate) {
-				if !compositeDisposable.disposed {
-					flush()
-				}
+		let disposable = CompositeDisposable()
+		disposable.addDisposable(schedulerDisposable)
+
+		let signalDisposable = signal.observe(next: { value in
+			let scheduleDate = previousDate.value?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+
+			schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+				previousDate.value = scheduler.currentDate
+
+				// There's a small race where a new disposable could be set
+				// before we've updated the `previousDate`, which would schedule
+				// a value too early. Disallow that.
+				schedulerDisposable.innerDisposable = nil
 			}
-			compositeDisposable.addDisposable(disposableFromScheduler)
 		}, error: { error in
-			state.swap(ThrottleState())
-			sendError(observer, error)
+			schedulerDisposable.innerDisposable = scheduler.schedule {
+				sendError(observer, error)
+			}
 		}, completed: {
-			flush()
-			sendCompleted(observer)
+			schedulerDisposable.innerDisposable = scheduler.schedule {
+				sendCompleted(observer)
+			}
 		})
+
+		disposable.addDisposable(signalDisposable)
+		return disposable
 	}
 }
-
-// TODO: Move this inside function and rename when compiler stops segfaulting
-private struct ThrottleState<T> {
-	var previousDate: NSDate? = nil
-	var pendingValue: T? = nil
-	var scheduleDisposable: ScopedDisposable? = nil
-}
-
 
 /*
 TODO

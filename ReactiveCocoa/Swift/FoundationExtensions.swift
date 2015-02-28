@@ -49,3 +49,17 @@ extension NSURLSession {
 		}
 	}
 }
+
+/// Removes all nil values from the given sequence.
+internal func ignoreNil<T, S: SequenceType where S.Generator.Element == Optional<T>>(sequence: S) -> [T] {
+	var results: [T] = []
+	var generator = sequence.generate()
+
+	while let value: T? = generator.next() {
+		if let value = value {
+			results.append(value)
+		}
+	}
+
+	return results
+}

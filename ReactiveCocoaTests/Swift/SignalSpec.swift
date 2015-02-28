@@ -14,53 +14,380 @@ import ReactiveCocoa
 class SignalSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
-			pending("should run the generator immediately") {
+			var testScheduler: TestScheduler!
+			
+			beforeEach {
+				testScheduler = TestScheduler()
+			}
+			
+			it("should run the generator immediately") {
+				var didRunGenerator = false
+				Signal<AnyObject, NoError> { observer in
+					didRunGenerator = true
+					return nil
+				}
+				
+				expect(didRunGenerator).to(beTruthy())
 			}
 
-			pending("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal.never
+				
+				expect(signal).to(beNil())
 			}
 
-			pending("should deallocate after erroring") {
+			it("should deallocate after erroring") {
+				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, TestError.Default)
+					}
+					return nil
+				}
+				
+				var errored = false
+				
+				signal?.observe(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				expect(signal).toNot(beNil())
+				
+				testScheduler.run()
+				
+				expect(errored).to(beTruthy())
+				expect(signal).to(beNil())
 			}
 
-			pending("should deallocate after completing") {
+			it("should deallocate after completing") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				var completed = false
+				
+				signal?.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				expect(signal).toNot(beNil())
+				
+				testScheduler.run()
+				
+				expect(completed).to(beTruthy())
+				expect(signal).to(beNil())
 			}
 
-			pending("should forward events to observers") {
+			it("should deallocate after interrupting") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+
+					return nil
+				}
+
+				var interrupted = false
+				signal?.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(signal).toNot(beNil())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
+				expect(signal).to(beNil())
 			}
 
-			pending("should dispose of returned disposable upon error") {
+			it("should forward events to observers") {
+				let numbers = [ 1, 2, 5 ]
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+						sendCompleted(observer)
+					}
+					return nil
+				}
+				
+				var fromSignal: [Int] = []
+				var completed = false
+				
+				signal.observe(next: { number in
+					fromSignal.append(number)
+				}, completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beFalsy())
+				expect(fromSignal).to(beEmpty())
+				
+				testScheduler.run()
+				
+				expect(completed).to(beTruthy())
+				expect(fromSignal).to(equal(numbers))
 			}
 
-			pending("should dispose of returned disposable upon completion") {
+			it("should dispose of returned disposable upon error") {
+				let disposable = SimpleDisposable()
+				
+				let signal: Signal<AnyObject, TestError> = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, TestError.Default)
+					}
+					return disposable
+				}
+				
+				var errored = false
+				
+				signal.observe(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
+				
+				testScheduler.run()
+				
+				expect(errored).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
+			}
+
+			it("should dispose of returned disposable upon completion") {
+				let disposable = SimpleDisposable()
+				
+				let signal: Signal<AnyObject, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+					return disposable
+				}
+				
+				var completed = false
+				
+				signal.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
+				
+				testScheduler.run()
+				
+				expect(completed).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
+			}
+
+			it("should dispose of returned disposable upon interrupted") {
+				let disposable = SimpleDisposable()
+
+				let signal: Signal<AnyObject, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+					return disposable
+				}
+
+				var interrupted = false
+				signal.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 		}
 
 		describe("Signal.pipe") {
-			pending("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
+				weak var signal = Signal<(), NoError>.pipe().0
+				
+				expect(signal).to(beNil())
 			}
 
-			pending("should deallocate after erroring") {
+			it("should deallocate after erroring") {
+				let testScheduler = TestScheduler()
+				weak var weakSignal: Signal<(), TestError>?
+				
+				// Use an inner closure to help ARC deallocate things as we
+				// expect.
+				let test: () -> () = {
+					let (signal, observer) = Signal<(), TestError>.pipe()
+					weakSignal = signal
+					testScheduler.schedule {
+						sendError(observer, TestError.Default)
+					}
+				}
+				test()
+				
+				expect(weakSignal).toNot(beNil())
+				
+				testScheduler.run()
+				expect(weakSignal).to(beNil())
 			}
 
-			pending("should deallocate after completing") {
+			it("should deallocate after completing") {
+				let testScheduler = TestScheduler()
+				weak var weakSignal: Signal<(), TestError>?
+				
+				// Use an inner closure to help ARC deallocate things as we
+				// expect.
+				let test: () -> () = {
+					let (signal, observer) = Signal<(), TestError>.pipe()
+					weakSignal = signal
+					testScheduler.schedule {
+						sendCompleted(observer)
+					}
+				}
+				test()
+				
+				expect(weakSignal).toNot(beNil())
+
+				testScheduler.run()
+				expect(weakSignal).to(beNil())
 			}
 
-			pending("should forward events to observers") {
+			it("should deallocate after interrupting") {
+				let testScheduler = TestScheduler()
+				weak var weakSignal: Signal<(), NoError>?
+
+				let test: () -> () = {
+					let (signal, observer) = Signal<(), NoError>.pipe()
+					weakSignal = signal
+
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+				}
+
+				test()
+				expect(weakSignal).toNot(beNil())
+
+				testScheduler.run()
+				expect(weakSignal).to(beNil())
+			}
+
+			it("should forward events to observers") {
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+				
+				var fromSignal: [Int] = []
+				var completed = false
+				
+				signal.observe(next: { number in
+					fromSignal.append(number)
+				}, completed: {
+					completed = true
+				})
+				
+				expect(fromSignal).to(beEmpty())
+				expect(completed).to(beFalsy())
+				
+				sendNext(observer, 1)
+				expect(fromSignal).to(equal([1]))
+				
+				sendNext(observer, 2)
+				expect(fromSignal).to(equal([1, 2]))
+				
+				expect(completed).to(beFalsy())
+				sendCompleted(observer)
+				expect(completed).to(beTruthy())
 			}
 		}
 
 		describe("observe") {
-			pending("should stop forwarding events when disposed") {
+			var testScheduler: TestScheduler!
+			
+			beforeEach {
+				testScheduler = TestScheduler()
+			}
+			
+			it("should stop forwarding events when disposed") {
+				let disposable = SimpleDisposable()
+				
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in [1, 2] {
+							sendNext(observer, number)
+						}
+						sendCompleted(observer)
+						sendNext(observer, 4)
+					}
+					return disposable
+				}
+				
+				var fromSignal: [Int] = []
+				signal.observe(next: { number in
+					fromSignal.append(number)
+				})
+				
+				expect(disposable.disposed).to(beFalsy())
+				expect(fromSignal).to(beEmpty())
+				
+				testScheduler.run()
+				
+				expect(disposable.disposed).to(beTruthy())
+				expect(fromSignal).to(equal([1, 2]))
 			}
 
-			pending("should not trigger side effects") {
+			it("should not trigger side effects") {
+				var runCount = 0
+				let signal: Signal<(), NoError> = Signal { observer in
+					runCount += 1
+					return nil
+				}
+				
+				expect(runCount).to(equal(1))
+				
+				signal.observe()
+				expect(runCount).to(equal(1))
 			}
 
-			pending("should release observer after termination") {
+			it("should release observer after termination") {
+				weak var testStr: NSMutableString?
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+
+				let test: () -> () = {
+					var innerStr: NSMutableString = NSMutableString()
+					signal.observe(next: { value in
+						innerStr.appendString("\(value)")
+					})
+					testStr = innerStr
+				}
+				test()
+
+				sendNext(sink, 1)
+				expect(testStr).to(equal("1"))
+				sendNext(sink, 2)
+				expect(testStr).to(equal("12"))
+
+				sendCompleted(sink)
+				expect(testStr).to(beNil())
 			}
 
-			pending("should release observer after disposal") {
+			it("should release observer after interruption") {
+				weak var testStr: NSMutableString?
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+
+				let test: () -> () = {
+					var innerStr: NSMutableString = NSMutableString()
+					signal.observe(next: { value in
+						innerStr.appendString("\(value)")
+					})
+
+					testStr = innerStr
+				}
+
+				test()
+
+				sendNext(sink, 1)
+				expect(testStr).to(equal("1"))
+
+				sendNext(sink, 2)
+				expect(testStr).to(equal("12"))
+
+				sendInterrupted(sink)
+				expect(testStr).to(beNil())
 			}
 		}
 
@@ -322,6 +649,29 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(equal(2))
 				expect(completed).to(beTrue())
 			}
+			
+			it("should complete immediately after taking given number of values") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
+				
+				var signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
+				
+				var completed = false
+				
+				signal = signal |> take(numbers.count)
+				signal.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				testScheduler.run()
+				expect(completed).to(beTruthy())
+			}
 
 			it("should complete when 0") {
 				let producer = SignalProducer<Int, NoError> { observer, disposable in
@@ -545,15 +895,79 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("observeOn") {
-			pending("should send events on the given scheduler") {
+			it("should send events on the given scheduler") {
+				let testScheduler = TestScheduler()
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+				
+				var result: [Int] = []
+				
+				signal
+				|> observeOn(testScheduler)
+				|> observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(observer, 2)
+				expect(result).to(beEmpty())
+				
+				testScheduler.run()
+				expect(result).to(equal([ 1, 2 ]))
 			}
 		}
 
 		describe("delay") {
-			pending("should send events on the given scheduler after the interval") {
+			it("should send events on the given scheduler after the interval") {
+				let testScheduler = TestScheduler()
+				var signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendNext(observer, 1)
+					}
+					testScheduler.scheduleAfter(5, {
+						sendNext(observer, 2)
+						sendCompleted(observer)
+					})
+					return nil
+				}
+				
+				var result: [Int] = []
+				var completed = false
+				
+				signal
+				|> delay(10, onScheduler: testScheduler)
+				|> observe(next: { number in
+						result.append(number)
+					}, completed: {
+						completed = true
+					})
+				
+				testScheduler.advanceByInterval(4) // send initial value
+				expect(result).to(beEmpty())
+				
+				testScheduler.advanceByInterval(10) // send second value and receive first
+				expect(result).to(equal([ 1 ]))
+				expect(completed).to(beFalsy())
+				
+				testScheduler.advanceByInterval(10) // send second value and receive first
+				expect(result).to(equal([ 1, 2 ]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should schedule errors immediately") {
+			it("should schedule errors immediately") {
+				let testScheduler = TestScheduler()
+				var signal: Signal<Int, TestError> = Signal { observer in
+					testScheduler.schedule {
+						sendError(observer, TestError.Default)
+					}
+					return nil
+				}
+				
+				var errored = false
+				
+				signal
+				|> delay(10, onScheduler: testScheduler)
+				|> observe(error: { _ in errored = true })
+				
+				testScheduler.advance()
+				expect(errored).to(beTruthy())
 			}
 		}
 
@@ -566,18 +980,97 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("sampleOn") {
-			pending("should forward the latest value when the sampler fires") {
+			var sampledSignal: Signal<Int, NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var samplerObserver: Signal<(), NoError>.Observer!
+			
+			beforeEach {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let (sampler, samplesSink) = Signal<(), NoError>.pipe()
+				sampledSignal = signal |> sampleOn(sampler)
+				observer = sink
+				samplerObserver = samplesSink
+			}
+			
+			it("should forward the latest value when the sampler fires") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(observer, 2)
+				sendNext(samplerObserver, ())
+				expect(result).to(equal([ 2 ]))
+			}
+			
+			it("should do nothing if sampler fires before signal receives value") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(samplerObserver, ())
+				expect(result).to(beEmpty())
+			}
+			
+			it("should send lates value multiple times when sampler fires multiple times") {
+				var result: [Int] = []
+				sampledSignal.observe(next: { result.append($0) })
+				
+				sendNext(observer, 1)
+				sendNext(samplerObserver, ())
+				sendNext(samplerObserver, ())
+				expect(result).to(equal([ 1, 1 ]))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				var completed = false
+				sampledSignal.observe(completed: { completed = true })
+				
+				sendCompleted(observer)
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(samplerObserver)
+				expect(completed).to(beTruthy())
 			}
 		}
 
 		describe("combineLatestWith") {
-			pending("should forward the latest values from both inputs") {
+			var combinedSignal: Signal<(Int, Double), NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var otherObserver: Signal<Double, NoError>.Observer!
+			
+			beforeEach {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let (otherSignal, otherSink) = Signal<Double, NoError>.pipe()
+				combinedSignal = signal |> combineLatestWith(otherSignal)
+				observer = sink
+				otherObserver = otherSink
+			}
+			
+			it("should forward the latest values from both inputs") {
+				var latest: (Int, Double)?
+				combinedSignal.observe(next: { latest = $0 })
+				
+				sendNext(observer, 1)
+				expect(latest).to(beNil())
+				
+				// is there a better way to test tuples?
+				sendNext(otherObserver, 1.5)
+				expect(latest?.0).to(equal(1))
+				expect(latest?.1).to(equal(1.5))
+				
+				sendNext(observer, 2)
+				expect(latest?.0).to(equal(2))
+				expect(latest?.1).to(equal(1.5))
 			}
 
-			pending("should complete when both inputs have completed") {
+			it("should complete when both inputs have completed") {
+				var completed = false
+				combinedSignal.observe(completed: { completed = true })
+				
+				sendCompleted(observer)
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(otherObserver)
+				expect(completed).to(beTruthy())
 			}
 		}
 
@@ -644,26 +1137,129 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("materialize") {
-			pending("should reify events from the signal") {
+			it("should reify events from the signal") {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+				var latestEvent: Event<Int, TestError>?
+				signal
+				|> materialize
+				|> observe(next: { latestEvent = $0 })
+				
+				sendNext(observer, 2)
+				
+				expect(latestEvent).toNot(beNil())
+				if let latestEvent = latestEvent {
+					switch latestEvent {
+					case let .Next(box):
+						expect(box.unbox).to(equal(2))
+					default:
+						fail()
+					}
+				}
+				
+				sendError(observer, TestError.Default)
+				if let latestEvent = latestEvent {
+					switch latestEvent {
+					case .Error(_):
+						()
+					default:
+						fail()
+					}
+				}
 			}
 		}
 
 		describe("dematerialize") {
-			pending("should send values for Next events") {
+			typealias IntEvent = Event<Int, TestError>
+			var sink: Signal<IntEvent, NoError>.Observer!
+			var dematerialized: Signal<Int, TestError>!
+			
+			beforeEach {
+				let (signal, observer) = Signal<IntEvent, NoError>.pipe()
+				sink = observer
+				dematerialized = signal |> dematerialize
+			}
+			
+			it("should send values for Next events") {
+				var result: [Int] = []
+				dematerialized.observe(next: { result.append($0) })
+				
+				expect(result).to(beEmpty())
+				
+				sendNext(sink, IntEvent.Next(Box(2)))
+				expect(result).to(equal([ 2 ]))
+				
+				sendNext(sink, IntEvent.Next(Box(4)))
+				expect(result).to(equal([ 2, 4 ]))
 			}
 
-			pending("should error out for Error events") {
+			it("should error out for Error events") {
+				var errored = false
+				dematerialized.observe(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				
+				sendNext(sink, IntEvent.Error(Box(TestError.Default)))
+				expect(errored).to(beTruthy())
 			}
 
-			pending("should complete early for Completed events") {
+			it("should complete early for Completed events") {
+				var completed = false
+				dematerialized.observe(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				sendNext(sink, IntEvent.Completed)
+				expect(completed).to(beTruthy())
 			}
 		}
 
 		describe("takeLast") {
-			pending("should send the last N values upon completion") {
+			var sink: Signal<Int, TestError>.Observer!
+			var lastThree: Signal<Int, TestError>!
+				
+			beforeEach {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+				sink = observer
+				lastThree = signal |> takeLast(3)
+			}
+			
+			it("should send the last N values upon completion") {
+				var result: [Int] = []
+				lastThree.observe(next: { result.append($0) })
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				sendNext(sink, 4)
+				expect(result).to(beEmpty())
+				
+				sendCompleted(sink)
+				expect(result).to(equal([ 2, 3, 4 ]))
 			}
 
-			pending("should send less than N values if not enough were received") {
+			it("should send less than N values if not enough were received") {
+				var result: [Int] = []
+				lastThree.observe(next: { result.append($0) })
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendCompleted(sink)
+				expect(result).to(equal([ 1, 2 ]))
+			}
+			
+			it("should send nothing when errors") {
+				var result: [Int] = []
+				var errored = false
+				lastThree.observe(	next: { result.append($0) },
+									error: { _ in errored = true }	)
+				
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				expect(errored).to(beFalsy())
+				
+				sendError(sink, TestError.Default)
+				expect(errored).to(beTruthy())
+				expect(result).to(beEmpty())
 			}
 		}
 

@@ -853,6 +853,21 @@ TODO
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
 */
 
+/// Promotes a signal that does not generate errors into one that can.
+///
+/// This does not actually cause errors to be generated for the given signal,
+/// but makes it easier to combine with other signals that may error; for
+/// example, with operators like `combineLatestWith`, `zipWith`, `join`, etc.
+public func promoteErrors<T, E: ErrorType>(_: E.Type)(signal: Signal<T, NoError>) -> Signal<T, E> {
+	return Signal { observer in
+		return signal.observe(next: { value in
+			sendNext(observer, value)
+		}, completed: {
+			sendCompleted(observer)
+		})
+	}
+}
+
 /// Signal.observe() as a free function, for easier use with |>.
 public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(signal: Signal<T, E>) -> Disposable {
 	return signal.observe(sink)

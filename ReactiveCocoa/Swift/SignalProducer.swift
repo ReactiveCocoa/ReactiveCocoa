@@ -631,7 +631,7 @@ extension JoinStrategy: Printable {
 /// Joins together the inner producers sent upon `producer` according to the
 /// semantics of the given strategy.
 ///
-/// If `producer` or any of the inner producers emit an error, the returned
+/// If `producer` or an active inner producer emits an error, the returned
 /// producer will forward that error immediately.
 public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	switch strategy {

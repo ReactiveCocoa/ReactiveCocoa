@@ -90,15 +90,15 @@ public final class Signal<T, E: ErrorType> {
 		let token = self.observers?.insert(sink)
 		lock.unlock()
 
-		if token == nil {
-			sink.put(.Interrupted)
-			return nil
-		} else {
+		if let token = token {
 			return ActionDisposable {
 				self.lock.lock()
-				self.observers?.removeValueForToken(token!)
+				self.observers?.removeValueForToken(token)
 				self.lock.unlock()
 			}
+		} else {
+			sink.put(.Interrupted)
+			return nil
 		}
 	}
 

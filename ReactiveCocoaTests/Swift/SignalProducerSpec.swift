@@ -39,6 +39,9 @@ class SignalProducerSpec: QuickSpec {
 			pending("should dispose of added disposables upon error") {
 			}
 
+			pending("should dispose of added disposables upon interruption") {
+			}
+
 			pending("should dispose of added disposables upon start() disposal") {
 			}
 		}
@@ -154,13 +157,19 @@ class SignalProducerSpec: QuickSpec {
 			pending("should invoke the closure before any effects or events") {
 			}
 
-			pending("should interrupt effects and stop sending events if disposed") {
+			pending("should dispose of added disposables if disposed") {
+			}
+
+			pending("should send interrupted if disposed") {
 			}
 
 			pending("should release signal observers if disposed") {
 			}
 
 			pending("should not trigger effects if disposed before closure return") {
+			}
+
+			pending("should send interrupted if disposed before closure return") {
 			}
 
 			pending("should dispose of added disposables upon completion") {
@@ -174,7 +183,7 @@ class SignalProducerSpec: QuickSpec {
 			pending("should immediately begin sending events") {
 			}
 
-			pending("should interrupt effects and stop sending events if disposed") {
+			pending("should send interrupted if disposed") {
 			}
 
 			pending("should release sink when disposed") {

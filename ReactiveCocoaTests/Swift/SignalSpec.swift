@@ -30,10 +30,10 @@ class SignalSpec: QuickSpec {
 				expect(didRunGenerator).to(beTruthy())
 			}
 
-			it("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never
 				
-				expect(signal).toNot(beNil())
+				expect(signal).to(beNil())
 			}
 
 			it("should deallocate after erroring") {
@@ -75,6 +75,27 @@ class SignalSpec: QuickSpec {
 				testScheduler.run()
 				
 				expect(completed).to(beTruthy())
+				expect(signal).to(beNil())
+			}
+
+			it("should deallocate after interrupting") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+
+					return nil
+				}
+
+				var interrupted = false
+				signal?.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(signal).toNot(beNil())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
 				expect(signal).to(beNil())
 			}
 
@@ -154,14 +175,35 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 				expect(disposable.disposed).to(beTruthy())
 			}
+
+			it("should dispose of returned disposable upon interrupted") {
+				let disposable = SimpleDisposable()
+
+				let signal: Signal<AnyObject, NoError> = Signal { observer in
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+					return disposable
+				}
+
+				var interrupted = false
+				signal.observe(interrupted: { interrupted = true })
+
+				expect(interrupted).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
+
+				testScheduler.run()
+
+				expect(interrupted).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
+			}
 		}
 
 		describe("Signal.pipe") {
-			
-			it("should keep signal alive if not terminated") {
+			it("should not keep signal alive indefinitely") {
 				weak var signal = Signal<(), NoError>.pipe().0
 				
-				expect(signal).toNot(beNil())
+				expect(signal).to(beNil())
 			}
 
 			it("should deallocate after erroring") {
@@ -201,7 +243,27 @@ class SignalSpec: QuickSpec {
 				test()
 				
 				expect(weakSignal).toNot(beNil())
-				
+
+				testScheduler.run()
+				expect(weakSignal).to(beNil())
+			}
+
+			it("should deallocate after interrupting") {
+				let testScheduler = TestScheduler()
+				weak var weakSignal: Signal<(), NoError>?
+
+				let test: () -> () = {
+					let (signal, observer) = Signal<(), NoError>.pipe()
+					weakSignal = signal
+
+					testScheduler.schedule {
+						sendInterrupted(observer)
+					}
+				}
+
+				test()
+				expect(weakSignal).toNot(beNil())
+
 				testScheduler.run()
 				expect(weakSignal).to(beNil())
 			}
@@ -303,27 +365,29 @@ class SignalSpec: QuickSpec {
 				expect(testStr).to(beNil())
 			}
 
-			it("should release observer after disposal") {
+			it("should release observer after interruption") {
 				weak var testStr: NSMutableString?
-				var disposable: Disposable!
-				let signalProducer = SignalProducer<Int, NoError>() { sink, producerDisposable -> () in
-					sendNext(sink, 1)
-					sendNext(sink, 2)
-				}
+				let (signal, sink) = Signal<Int, NoError>.pipe()
 
 				let test: () -> () = {
 					var innerStr: NSMutableString = NSMutableString()
-					disposable = signalProducer.start(next: { value in
+					signal.observe(next: { value in
 						innerStr.appendString("\(value)")
 					})
+
 					testStr = innerStr
 				}
+
 				test()
 
+				sendNext(sink, 1)
+				expect(testStr).to(equal("1"))
+
+				sendNext(sink, 2)
 				expect(testStr).to(equal("12"))
 
-				disposable.dispose()
-//				expect(testStr).to(beNil())
+				sendInterrupted(sink)
+				expect(testStr).to(beNil())
 			}
 		}
 
@@ -641,7 +705,7 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 
-			it("should complete when 0") {
+			it("should interrupt when 0") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
 				var testScheduler = TestScheduler()
 				
@@ -655,22 +719,20 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var result: [Int] = []
-				var completed = false
+				var interrupted = false
 				
 				signal
 				|> take(0)
 				|> observe(next: { number in
-						result.append(number)
-					}, completed: {
-						completed = true
-					})
+					result.append(number)
+				}, interrupted: {
+					interrupted = true
+				})
 				
-				expect(completed).to(beFalsy())
+				expect(interrupted).to(beTruthy())
 				
 				testScheduler.run()
-				
 				expect(result).to(beEmpty())
-				expect(completed).to(beTruthy())
 			}
 		}
 

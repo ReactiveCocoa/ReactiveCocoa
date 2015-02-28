@@ -13,52 +13,51 @@ import LlamaKit
 /// must first be _started_, see the SignalProducer type.
 ///
 /// Signals do not need to be retained. A Signal will be automatically kept
-/// alive until the event stream has terminated, or until the operation which
-/// yielded the Signal (e.g., SignalProducer.start) has been cancelled.
+/// alive until the event stream has terminated.
 public final class Signal<T, E: ErrorType> {
 	public typealias Observer = SinkOf<Event<T, E>>
 
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()
-	private let disposable = CompositeDisposable()
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent, or until the signal's `disposable` has been disposed, at which
-	/// point the disposable returned from the closure will be disposed as well.
+	/// The Signal will remain alive until a terminating event is sent to the
+	/// observer, at which point the disposable returned from the closure will
+	/// be disposed as well.
 	public init(_ generator: Observer -> Disposable?) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
+		let generatorDisposable = SerialDisposable()
 		let sink = Observer { event in
 			self.lock.lock()
 
 			if let observers = self.observers {
+				if event.isTerminating {
+					// Disallow any further events (e.g., any triggered
+					// recursively).
+					self.observers = nil
+				}
+
 				for sink in observers {
 					sink.put(event)
 				}
 
 				if event.isTerminating {
-					self.disposable.dispose()
+					// Dispose only after notifying observers, so disposal logic
+					// is consistently the last thing to run.
+					generatorDisposable.dispose()
 				}
 			}
 
 			self.lock.unlock()
 		}
 
-		disposable.addDisposable {
-			self.lock.lock()
-			self.observers = nil
-			self.lock.unlock()
-		}
-
-		if let d = generator(sink) {
-			disposable.addDisposable(d)
-		}
+		generatorDisposable.innerDisposable = generator(sink)
 	}
 
-	/// A Signal that never sends any events.
+	/// A Signal that never sends any events to its observers.
 	public class var never: Signal {
 		return self { _ in nil }
 	}
@@ -66,8 +65,8 @@ public final class Signal<T, E: ErrorType> {
 	/// Creates a Signal that will be controlled by sending events to the given
 	/// observer (sink).
 	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent to the observer.
+	/// The Signal will remain alive until a terminating event is sent to the
+	/// observer.
 	public class func pipe() -> (Signal, Observer) {
 		var sink: Observer!
 		let signal = self { innerSink in
@@ -78,46 +77,40 @@ public final class Signal<T, E: ErrorType> {
 		return (signal, sink)
 	}
 
-	/// Creates a Signal that will be controlled by sending events to the given
-	/// observer, and which can be disposed using the returned disposable.
-	///
-	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent to the observer, or until the disposable is used.
-	internal class func disposablePipe() -> (Signal, Observer, CompositeDisposable) {
-		let (signal, observer) = pipe()
-		return (signal, observer, signal.disposable)
-	}
-
 	/// Observes the Signal by sending any future events to the given sink. If
-	/// the Signal has already terminated, the sink will not receive any events.
+	/// the Signal has already terminated, the sink will immediately receive an
+	/// `Interrupted` event.
 	///
 	/// Returns a Disposable which can be used to disconnect the sink. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
-	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable {
+	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable? {
 		let sink = Observer(observer)
 
 		lock.lock()
 		let token = self.observers?.insert(sink)
 		lock.unlock()
 
-		return ActionDisposable {
-			if let token = token {
+		if let token = token {
+			return ActionDisposable {
 				self.lock.lock()
 				self.observers?.removeValueForToken(token)
 				self.lock.unlock()
 			}
+		} else {
+			sink.put(.Interrupted)
+			return nil
 		}
 	}
 
 	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, none of the specified
-	/// callbacks will be invoked.
+	/// received. If the Signal has already terminated, the `interrupted`
+	/// callback will be invoked immediately.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return observe(Event.sink(next: next, error: error, completed: completed))
+	public func observe(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> Disposable? {
+		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 }
 
@@ -152,14 +145,16 @@ public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E
 /// Preserves only the values of the signal that pass the given predicate.
 public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(next: { value in
-			if predicate(value) {
-				sendNext(observer, value)
+		return signal.observe(Signal.Observer { event in
+			switch event {
+			case let .Next(value):
+				if predicate(value.unbox) {
+					sendNext(observer, value.unbox)
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
@@ -170,21 +165,28 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(count >= 0)
 
 	return Signal { observer in
+		if count == 0 {
+			sendCompleted(observer)
+			return nil
+		}
+
 		var taken = 0
 
-		return signal.observe(next: { value in
-			if taken < count {
-				taken++
-				sendNext(observer, value)
-			}
+		return signal.observe(Signal.Observer { event in
+			switch event {
+			case let .Next(value):
+				if taken < count {
+					taken++
+					sendNext(observer, value.unbox)
+				}
 
-			if taken == count {
-				sendCompleted(observer)
+				if taken == count {
+					sendCompleted(observer)
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
@@ -213,7 +215,7 @@ private class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> ())(signal: Signal<T, E>) -> Disposable {
+private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ())(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -232,14 +234,15 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 		}
 
 		lock.unlock()
-	})
+	}, interrupted: onInterrupted)
 }
 
 /// Combines the latest value of the receiver with the latest value from
 /// the given signal.
 ///
 /// The returned signal will not send a value until both inputs have sent
-/// at least one value each.
+/// at least one value each. If either signal is interrupted, the returned signal
+/// will also be interrupted.
 public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
 		let lock = NSRecursiveLock()
@@ -255,25 +258,26 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 
 		let onError = { sendError(observer, $0) }
 		let onBothCompleted = { sendCompleted(observer) }
+		let onInterrupted = { sendInterrupted(observer) }
 
-		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted)
-		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted)
+		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 
-		return CompositeDisposable([ signalDisposable, otherDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
 /// Delays `Next` and `Completed` events by the given interval, forwarding
 /// them on the given scheduler.
 ///
-/// `Error` events are always scheduled immediately.
+/// `Error` and `Interrupted` events are always scheduled immediately.
 public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 
 	return Signal { observer in
 		return signal.observe(SinkOf { event in
 			switch event {
-			case .Error:
+			case .Error, .Interrupted:
 				scheduler.schedule {
 					observer.put(event)
 				}
@@ -300,16 +304,18 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var skipped = 0
 
-		return signal.observe(next: { value in
-			if skipped >= count {
-				sendNext(observer, value)
-			} else {
-				skipped++
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				if skipped >= count {
+					fallthrough
+				} else {
+					skipped++
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
@@ -334,10 +340,20 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(next: { event in
-			observer.put(event)
-		}, completed: {
-			sendCompleted(observer)
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(innerEvent):
+				observer.put(innerEvent.unbox)
+
+			case .Error:
+				fatalError()
+
+			case .Completed:
+				sendCompleted(observer)
+
+			case .Interrupted:
+				sendInterrupted(observer)
+			}
 		})
 	}
 }
@@ -356,7 +372,7 @@ private struct SampleState<T> {
 ///
 /// Returns a signal that will send values from `signal`, sampled (possibly
 /// multiple times) by `sampler`, then complete once both input signals have
-/// completed.
+/// completed, or interrupt if either input signal is interrupted.
 public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let state = Atomic(SampleState<T>())
@@ -379,6 +395,8 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 			if oldState.samplerCompleted {
 				sendCompleted(observer)
 			}
+		}, interrupted: {
+			sendInterrupted(observer)
 		})
 
 		let samplerDisposable = sampler.observe(next: { _ in
@@ -394,9 +412,11 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 			if oldState.signalCompleted {
 				sendCompleted(observer)
 			}
+		}, interrupted: {
+			sendInterrupted(observer)
 		})
 
-		return CompositeDisposable([ signalDisposable, samplerDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, samplerDisposable ]))
 	}
 }
 
@@ -410,12 +430,12 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 			case .Next, .Completed:
 				sendCompleted(observer)
 
-			case .Error:
+			case .Error, .Interrupted:
 				break
 			}
 		})
 
-		return CompositeDisposable([ signalDisposable, triggerDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, triggerDisposable ]))
 	}
 }
 
@@ -434,16 +454,14 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 	// We need to handle the special case in which `signal` sends no values.
 	// We'll do that by sending `initial` on the output signal (before taking
 	// the last value).
-	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver, outputSignalDisposable) = Signal.disposablePipe()
+	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
 	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
 
 	// Now that we've got takeLast() listening to the piped signal, send that initial value.
 	sendNext(outputSignalObserver, initial)
 
 	// Pipe the scanned input signal into the output signal.
-	let scannedInputSignal = signal |> scan(initial, combine)
-	let inputSignalPipeDisposable = scannedInputSignal.observe(outputSignalObserver)
-	outputSignalDisposable.addDisposable(inputSignalPipeDisposable)
+	signal |> scan(initial, combine) |> observe(outputSignalObserver)
 
 	return outputSignal
 }
@@ -456,6 +474,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
 		var accumulator = initial
+
 		return signal.observe(Signal.Observer { event in
 			observer.put(event.map { value in
 				accumulator = combine(accumulator, value)
@@ -493,43 +512,47 @@ public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) ->
 public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var shouldSkip = true
-		return signal.observe(next: { value in
-			shouldSkip = shouldSkip && predicate(value)
-			if !shouldSkip {
-				sendNext(observer, value)
+
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				shouldSkip = shouldSkip && predicate(value.unbox)
+				if !shouldSkip {
+					fallthrough
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
 
 /// Forwards events from `signal` until `replacement` begins sending events.
 ///
-/// Returns a signal which passes through `next`s and `error` from `signal`
-/// until `replacement` sends an event, at which point the returned signal will
-/// send that event and switch to passing through events from `replacement`
-/// instead, regardless of whether `signal` has sent events already.
+/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
+/// events from `signal` until `replacement` sends an event, at which point the
+/// returned signal will send that event and switch to passing through events
+/// from `replacement` instead, regardless of whether `signal` has sent events
+/// already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let signalDisposable = signal.observe(next: { value in
-			sendNext(observer, value)
-		}, error: { error in
-			sendError(observer, error)
+		let signalDisposable = signal.observe(SinkOf { event in
+			switch event {
+			case .Completed:
+				break
+
+			case .Next, .Error, .Interrupted:
+				observer.put(event)
+			}
 		})
 
-		let replacementDisposable = replacement.observe(next: { value in
-			signalDisposable.dispose()
-			sendNext(observer, value)
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
+		let replacementDisposable = replacement.observe(SinkOf { event in
+			signalDisposable?.dispose()
+			observer.put(event)
 		})
 
-		return CompositeDisposable([ signalDisposable, replacementDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, replacementDisposable ]))
 	}
 }
 
@@ -556,6 +579,8 @@ public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			}
 
 			sendCompleted(observer)
+		}, interrupted: {
+			sendInterrupted(observer)
 		})
 	}
 }
@@ -564,16 +589,18 @@ public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 /// at which point the returned signal will complete.
 public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(next: { value in
-			if predicate(value) {
-				sendNext(observer, value)
-			} else {
-				sendCompleted(observer)
+		return signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				if predicate(value.unbox) {
+					fallthrough
+				} else {
+					sendCompleted(observer)
+				}
+
+			default:
+				observer.put(event)
 			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
 		})
 	}
 }
@@ -619,6 +646,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 		}
 
 		let onError = { sendError(observer, $0) }
+		let onInterrupted = { sendInterrupted(observer) }
 
 		let signalDisposable = signal.observe(next: { value in
 			states.modify { (var states) in
@@ -634,7 +662,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			}
 
 			flush()
-		})
+		}, interrupted: onInterrupted)
 
 		let otherDisposable = otherSignal.observe(next: { value in
 			states.modify { (var states) in
@@ -650,9 +678,9 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			}
 
 			flush()
-		})
+		}, interrupted: onInterrupted)
 
-		return CompositeDisposable([ signalDisposable, otherDisposable ])
+		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
@@ -674,6 +702,7 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 			switch operation(value) {
 			case let .Success(val):
 				sendNext(observer, val.unbox)
+
 			case let .Failure(err):
 				sendError(observer, err.unbox)
 			}
@@ -681,6 +710,8 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 			sendError(observer, error)
 		}, completed: {
 			sendCompleted(observer)
+		}, interrupted: {
+			sendInterrupted(observer)
 		})
 	}
 }
@@ -840,10 +871,7 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 		}
 
 		let signalDisposable = signal.observe(observer)
-
-		let disposable = CompositeDisposable([ signalDisposable ])
-		disposable.addDisposable(schedulerDisposable)
-		return disposable
+		return CompositeDisposable(ignoreNil([ signalDisposable, schedulerDisposable ]))
 	}
 }
 
@@ -869,11 +897,11 @@ public func promoteErrors<T, E: ErrorType>(_: E.Type)(signal: Signal<T, NoError>
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(signal: Signal<T, E>) -> Disposable {
+public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(sink)
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing)(signal: Signal<T, E>) -> Disposable {
-	return signal.observe(next: next, error: error, completed: completed)
+public func observe<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing)(signal: Signal<T, E>) -> Disposable? {
+	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }

@@ -63,19 +63,9 @@ public final class Action<Input, Output, Error: ErrorType> {
 		errorsObserver = eSink
 		errors = eSig
 
-		enabledIf.producer
+		_enabled <~ enabledIf.producer
 			|> combineLatestWith(executing.producer)
 			|> map(self.dynamicType.shouldBeEnabled)
-			// FIXME: Workaround for <~ being disabled on SignalProducers.
-			|> startWithSignal { signal, disposable in
-				let bindDisposable = self._enabled <~ signal
-
-				signal.observe(SinkOf { event in
-					if event.isTerminating {
-						bindDisposable.dispose()
-					}
-				})
-			}
 	}
 
 	/// Initializes an action that will be enabled by default, and create a

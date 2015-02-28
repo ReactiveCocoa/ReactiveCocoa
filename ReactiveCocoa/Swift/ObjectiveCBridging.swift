@@ -143,19 +143,9 @@ extension RACCommand {
 	public func asAction(file: String = __FILE__, line: Int = __LINE__) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
-		self.enabled.asSignalProducer()
+		enabledProperty <~ self.enabled.asSignalProducer()
 			|> map { $0 as Bool }
 			|> catch { _ in SignalProducer<Bool, NoError>(value: false) }
-			// FIXME: Workaround for <~ being disabled on SignalProducers.
-			|> startWithSignal { signal, disposable in
-				let bindDisposable = enabledProperty <~ signal
-				
-				signal.observe(SinkOf { event in
-					if event.isTerminating {
-						bindDisposable.dispose()
-					}
-				})
-			}
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.defer {

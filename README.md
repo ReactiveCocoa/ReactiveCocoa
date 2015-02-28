@@ -205,7 +205,7 @@ are usually used:
 RAC even makes it easy to bind to the result of an asynchronous operation:
 
 ```objc
-// Creates a one-way binding so that self.imageView.image will be set the user's
+// Creates a one-way binding so that self.imageView.image will be set as the user's
 // avatar as soon as it's downloaded.
 //
 // The hypothetical -fetchUserWithUsername: method returns a signal which sends

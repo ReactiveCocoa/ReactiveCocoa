@@ -674,25 +674,34 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 
-			it("should complete when 0") {
-				let producer = SignalProducer<Int, NoError> { observer, disposable in
-					sendNext(observer, 0)
-				} |> take(0)
+			it("should interrupt when 0") {
+				let numbers = [ 1, 2, 4, 4, 5 ]
+				var testScheduler = TestScheduler()
 
-				var completed = false
-				var valueSent = false
+				let signal: Signal<Int, NoError> = Signal { observer in
+					testScheduler.schedule {
+						for number in numbers {
+							sendNext(observer, number)
+						}
+					}
+					return nil
+				}
 
-				expect(completed).to(beFalse())
-				expect(valueSent).to(beFalse())
+				var result: [Int] = []
+				var interrupted = false
 
-				producer.start(next: { _ in
-					valueSent = true
-				}, completed: {
-					completed = true
+				signal
+				|> take(0)
+				|> observe(next: { number in
+					result.append(number)
+				}, interrupted: {
+					interrupted = true
 				})
 
-				expect(completed).to(beTrue())
-				expect(valueSent).to(beFalse())
+				expect(interrupted).to(beTruthy())
+
+				testScheduler.run()
+				expect(result).to(beEmpty())
 			}
 		}
 

@@ -346,7 +346,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 				observer.put(innerEvent.unbox)
 
 			case .Error:
-				assert(false)
+				fatalError()
 
 			case .Completed:
 				sendCompleted(observer)

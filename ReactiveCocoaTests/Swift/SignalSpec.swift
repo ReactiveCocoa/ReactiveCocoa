@@ -284,10 +284,10 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beFalsy())
 				
 				sendNext(observer, 1)
-				expect(fromSignal).to(equal([1]))
+				expect(fromSignal).to(equal([ 1 ]))
 				
 				sendNext(observer, 2)
-				expect(fromSignal).to(equal([1, 2]))
+				expect(fromSignal).to(equal([ 1, 2 ]))
 				
 				expect(completed).to(beFalsy())
 				sendCompleted(observer)
@@ -307,7 +307,7 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
-						for number in [1, 2] {
+						for number in [ 1, 2 ] {
 							sendNext(observer, number)
 						}
 						sendCompleted(observer)
@@ -327,7 +327,7 @@ class SignalSpec: QuickSpec {
 				testScheduler.run()
 				
 				expect(disposable.disposed).to(beTruthy())
-				expect(fromSignal).to(equal([1, 2]))
+				expect(fromSignal).to(equal([ 1, 2 ]))
 			}
 
 			it("should not trigger side effects") {
@@ -551,16 +551,16 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([]))
 
 				sendNext(sink, true)
-				expect(values).to(equal([true]))
+				expect(values).to(equal([ true ]))
 
 				sendNext(sink, true)
-				expect(values).to(equal([true]))
+				expect(values).to(equal([ true ]))
 
 				sendNext(sink, false)
-				expect(values).to(equal([true, false]))
+				expect(values).to(equal([ true, false ]))
 
 				sendNext(sink, true)
-				expect(values).to(equal([true, false, true]))
+				expect(values).to(equal([ true, false, true ]))
 			}
 
 			it("should skip values according to a predicate") {
@@ -573,16 +573,16 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([]))
 
 				sendNext(sink, "a")
-				expect(values).to(equal(["a"]))
+				expect(values).to(equal([ "a" ]))
 
 				sendNext(sink, "b")
-				expect(values).to(equal(["a"]))
+				expect(values).to(equal([ "a" ]))
 
 				sendNext(sink, "cc")
-				expect(values).to(equal(["a", "cc"]))
+				expect(values).to(equal([ "a", "cc" ]))
 
 				sendNext(sink, "d")
-				expect(values).to(equal(["a", "cc", "d"]))
+				expect(values).to(equal([ "a", "cc", "d" ]))
 			}
 		}
 
@@ -633,10 +633,11 @@ class SignalSpec: QuickSpec {
 
 				var lastValue: Int?
 				var completed = false
-				signal.observe(
-					next: { lastValue = $0 },
-					completed: { completed = true }
-				)
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
 
 				expect(lastValue).to(beNil())
 				expect(completed).to(beFalse())
@@ -684,10 +685,11 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beFalse())
 				expect(valueSent).to(beFalse())
 
-				producer.start(
-					next: { _ in valueSent = true },
-					completed: { completed = true }
-				)
+				producer.start(next: { _ in
+					valueSent = true
+				}, completed: {
+					completed = true
+				})
 
 				expect(completed).to(beTrue())
 				expect(valueSent).to(beFalse())
@@ -698,7 +700,7 @@ class SignalSpec: QuickSpec {
 			it("should collect all values") {
 				let (original, sink) = Signal<Int, NoError>.pipe()
 				let signal = original |> collect
-				let expectedResult = [1, 2, 3]
+				let expectedResult = [ 1, 2, 3 ]
 
 				var result: [Int]?
 

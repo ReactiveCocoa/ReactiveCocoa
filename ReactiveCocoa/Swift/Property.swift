@@ -127,7 +127,7 @@ extension MutableProperty: SinkType {
 	/// KVO-compliant. Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
 		if let object = object {
-			return object.rac_valuesForKeyPath(keyPath, observer: nil).asSignalProducer()
+			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
 				|> catch { error in
 					fatalError("Received unexpected error from KVO signal: \(error)")

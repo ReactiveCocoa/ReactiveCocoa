@@ -747,8 +747,10 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
 					let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
 						let value = state.pendingValue
-						state.pendingValue = nil
-						state.previousDate = scheduler.currentDate
+						if value != nil {
+							state.pendingValue = nil
+							state.previousDate = scheduleDate
+						}
 
 						return (state, value)
 					}

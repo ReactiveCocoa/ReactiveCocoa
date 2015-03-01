@@ -183,14 +183,14 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			
 			beforeEach {
 				results = []
-				enabledProperty = MutableProperty(false)
+				enabledProperty = MutableProperty(true)
 
 				action = Action(enabledIf: enabledProperty) { input in
 					let inputNumber = input as Int
 					return SignalProducer(value: "\(inputNumber + 1)")
 				}
 
-				expect(action.enabled.value).to(beFalsy())
+				expect(action.enabled.value).to(beTruthy())
 
 				action.values.observe(next: { results.append($0) })
 
@@ -198,15 +198,15 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as Bool }
-				expect(enabled).to(beFalsy())
+				expect(enabled).to(beTruthy())
 			}
 
 			it("should reflect the enabledness of the action") {
-				enabledProperty.value = true
-				expect(enabled).toEventually(beTruthy())
-
 				enabledProperty.value = false
 				expect(enabled).toEventually(beFalsy())
+
+				enabledProperty.value = true
+				expect(enabled).toEventually(beTruthy())
 			}
 
 			it("should apply and start a signal once per execution") {

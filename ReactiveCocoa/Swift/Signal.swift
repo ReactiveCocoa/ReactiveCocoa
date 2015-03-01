@@ -734,34 +734,34 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 		let disposable = CompositeDisposable()
 		disposable.addDisposable(schedulerDisposable)
 
-		let signalDisposable = signal.observe(next: { value in
-			let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
-				state.pendingValue = value
+		let signalDisposable = signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
+					state.pendingValue = value.unbox
 
-				let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-				return (state, scheduleDate)
-			}
-
-			schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-				let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
-					let value = state.pendingValue
-					state.pendingValue = nil
-					state.previousDate = scheduler.currentDate
-
-					return (state, value)
+					let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+					return (state, scheduleDate)
 				}
-				
-				if let pendingValue = pendingValue {
-					sendNext(observer, pendingValue)
+
+				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+					let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
+						let value = state.pendingValue
+						state.pendingValue = nil
+						state.previousDate = scheduler.currentDate
+
+						return (state, value)
+					}
+					
+					if let pendingValue = pendingValue {
+						sendNext(observer, pendingValue)
+					}
 				}
-			}
-		}, error: { error in
-			schedulerDisposable.innerDisposable = scheduler.schedule {
-				sendError(observer, error)
-			}
-		}, completed: {
-			schedulerDisposable.innerDisposable = scheduler.schedule {
-				sendCompleted(observer)
+
+			default:
+				schedulerDisposable.innerDisposable = scheduler.schedule {
+					observer.put(event)
+				}
 			}
 		})
 

@@ -13,7 +13,7 @@ import ReactiveCocoa
 
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
-		describe("RACSignal.asSignalProducer") {
+		describe("RACSignal.toSignalProducer") {
 			it("should subscribe once per start()") {
 				var subscriptions = 0
 
@@ -24,7 +24,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return nil
 				}
 
-				let producer = racSignal.asSignalProducer() |> map { $0 as Int }
+				let producer = racSignal.toSignalProducer() |> map { $0 as Int }
 
 				expect((producer |> single)?.value).to(equal(0))
 				expect((producer |> single)?.value).to(equal(1))
@@ -35,18 +35,18 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let error = TestError.Default.nsError
 
 				let racSignal = RACSignal.error(error)
-				let producer = racSignal.asSignalProducer()
+				let producer = racSignal.toSignalProducer()
 				let result = producer |> last
 
 				expect(result?.error).to(equal(error))
 			}
 		}
 
-		describe("asRACSignal") {
+		describe("toRACSignal") {
 			describe("on a Signal") {
 				it("should forward events") {
 					let (signal, sink) = Signal<NSNumber, NoError>.pipe()
-					let racSignal = asRACSignal(signal)
+					let racSignal = toRACSignal(signal)
 
 					var lastValue: NSNumber?
 					var didComplete = false
@@ -71,7 +71,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				it("should convert errors to NSError") {
 					let (signal, sink) = Signal<AnyObject, TestError>.pipe()
-					let racSignal = asRACSignal(signal)
+					let racSignal = toRACSignal(signal)
 
 					let expectedError = TestError.Error2
 					var error: NSError?
@@ -95,7 +95,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let producer = SignalProducer<NSNumber, NoError>.try {
 						return success(subscriptions++)
 					}
-					let racSignal = asRACSignal(producer)
+					let racSignal = toRACSignal(producer)
 
 					expect(racSignal.first() as? NSNumber).to(equal(0))
 					expect(racSignal.first() as? NSNumber).to(equal(1))
@@ -104,7 +104,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				it("should convert errors to NSError") {
 					let producer = SignalProducer<AnyObject, TestError>(error: .Error1)
-					let racSignal = asRACSignal(producer).materialize()
+					let racSignal = toRACSignal(producer).materialize()
 
 					let event = racSignal.first() as? RACEvent
 
@@ -114,7 +114,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 		}
 
-		describe("RACCommand.asAction") {
+		describe("RACCommand.toAction") {
 			var command: RACCommand!
 			var results: [Int] = []
 
@@ -140,7 +140,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				command.executionSignals.flatten().subscribeNext { results.append($0 as Int) }
 				expect(results).to(equal([]))
 
-				action = command.asAction()
+				action = command.toAction()
 			}
 
 			it("should reflect the enabledness of the command") {
@@ -172,7 +172,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 		}
 
-		describe("asRACCommand") {
+		describe("toRACCommand") {
 			var action: Action<AnyObject?, NSString, TestError>!
 			var results: [NSString] = []
 
@@ -194,7 +194,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				action.values.observe(next: { results.append($0) })
 
-				command = asRACCommand(action)
+				command = toRACCommand(action)
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as Bool }

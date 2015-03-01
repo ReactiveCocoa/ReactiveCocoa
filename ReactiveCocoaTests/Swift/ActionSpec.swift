@@ -169,7 +169,7 @@ class ActionSpec: QuickSpec {
 
 				cocoaAction
 					.rac_valuesForKeyPath("enabled", observer: nil)
-					.asSignalProducer()
+					.toSignalProducer()
 					|> map { $0! as Bool }
 					|> start(Event.sink(next: { values.append($0) }))
 
@@ -185,7 +185,7 @@ class ActionSpec: QuickSpec {
 
 				cocoaAction
 					.rac_valuesForKeyPath("executing", observer: nil)
-					.asSignalProducer()
+					.toSignalProducer()
 					|> map { $0! as Bool }
 					|> start(Event.sink(next: { values.append($0) }))
 

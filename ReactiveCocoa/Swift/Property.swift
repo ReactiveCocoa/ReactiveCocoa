@@ -95,6 +95,57 @@ extension MutableProperty: SinkType {
 	}
 }
 
+/// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
+/// Coding and Key-Value Observing.
+///
+/// Use this class only as a last resort! `MutableProperty` is generally better
+/// unless KVC/KVO is required by the API you're using (for example,
+/// `NSOperation`).
+@objc public final class DynamicProperty: NSObject, PropertyType {
+	public typealias Value = AnyObject?
+
+	private weak var object: NSObject?
+	private let keyPath: String
+
+	/// The current value of the property, as read and written using Key-Value
+	/// Coding.
+	public var value: AnyObject? {
+		get {
+			return object?.valueForKeyPath(keyPath)
+		}
+
+		set(newValue) {
+			object?.setValue(newValue, forKeyPath: keyPath)
+		}
+	}
+
+	/// A producer that will create a Key-Value Observer for the given object,
+	/// send its initial value then all changes over time, and then complete
+	/// when the observed object has deallocated.
+	///
+	/// By definition, this only works if the object given to init() is
+	/// KVO-compliant. Most UI controls are not!
+	public var producer: SignalProducer<AnyObject?, NoError> {
+		if let object = object {
+			return object.rac_valuesForKeyPath(keyPath, observer: nil).asSignalProducer()
+				// Errors aren't possible, but the compiler doesn't know that.
+				|> catch { error in
+					fatalError("Received unexpected error from KVO signal: \(error)")
+					return .empty
+				}
+		} else {
+			return .empty
+		}
+	}
+
+	/// Initializes a property that will observe and set the given key path of
+	/// the given object. `object` must support weak references!
+	public init(object: NSObject?, keyPath: String) {
+		self.object = object
+		self.keyPath = keyPath
+	}
+}
+
 infix operator <~ {
 	associativity right
 	precedence 90
@@ -124,8 +175,6 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> 
 	return disposable
 }
 
-/*
-FIXME: DISABLED DUE TO COMPILER BUG
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
@@ -134,50 +183,25 @@ FIXME: DISABLED DUE TO COMPILER BUG
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-	let propertyDisposable = property.producer.start(completed: {
-		disposable.dispose()
-	})
-
-	disposable.addDisposable(propertyDisposable)
+	var disposable: Disposable!
 
 	producer.startWithSignal { signal, signalDisposable in
-		disposable.addDisposable(signalDisposable)
+		property <~ signal
+		disposable = signalDisposable
 
-		signal.observe(next: { [weak property] value in
-			property?.value = value
-			return
-		}, completed: {
-			disposable.dispose()
+		property.producer.start(completed: {
+			signalDisposable.dispose()
 		})
 	}
 
 	return disposable
 }
+
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: MutableProperty<T>, sourceProperty: P) -> Disposable {
-	let disposable = CompositeDisposable()
-	let destinationDisposable = destinationProperty.producer.start(completed: {
-		disposable.dispose()
-	})
-
-	disposable.addDisposable(destinationDisposable)
-
-	sourceProperty.producer.startWithSignal { signal, sourceDisposable in
-		disposable.addDisposable(sourceDisposable)
-
-		signal.observe(next: { [weak destinationProperty] value in
-			destinationProperty?.value = value
-			return
-		}, completed: {
-			disposable.dispose()
-		})
-	}
-
-	return disposable
+	return destinationProperty <~ sourceProperty.producer
 }
-*/

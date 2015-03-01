@@ -1024,10 +1024,80 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("throttle") {
-			pending("should send values on the given scheduler at no less than the interval") {
+			var scheduler: TestScheduler!
+			var observer: Signal<Int, NoError>.Observer!
+			var signal: Signal<Int, NoError>!
+
+			beforeEach {
+				scheduler = TestScheduler()
+
+				let (baseSignal, baseObserver) = Signal<Int, NoError>.pipe()
+				observer = baseObserver
+
+				signal = baseSignal |> throttle(1, onScheduler: scheduler)
+				expect(signal).notTo(beNil())
 			}
 
-			pending("should schedule errors immediately") {
+			it("should send values on the given scheduler at no less than the interval") {
+				var values: [Int] = []
+				signal.observe(next: { value in
+					values.append(value)
+				})
+
+				expect(values).to(equal([]))
+
+				sendNext(observer, 0)
+				expect(values).to(equal([]))
+
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+
+				sendNext(observer, 1)
+				sendNext(observer, 2)
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 0, 2 ]))
+
+				scheduler.advanceByInterval(1)
+				expect(values).to(equal([ 0, 2 ]))
+
+				sendNext(observer, 3)
+				expect(values).to(equal([ 0, 2 ]))
+
+				scheduler.advance()
+				expect(values).to(equal([ 0, 2, 3 ]))
+
+				sendNext(observer, 4)
+				sendNext(observer, 5)
+				scheduler.advance()
+				expect(values).to(equal([ 0, 2, 3 ]))
+
+				scheduler.run()
+				expect(values).to(equal([ 0, 2, 3, 5 ]))
+			}
+
+			it("should schedule completion immediately") {
+				var values: [Int] = []
+				var completed = false
+
+				signal.observe(next: { value in
+					values.append(value)
+				}, completed: {
+					completed = true
+				})
+
+				sendNext(observer, 0)
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+
+				sendNext(observer, 1)
+				sendCompleted(observer)
+				expect(completed).to(beFalsy())
+
+				scheduler.run()
+				expect(values).to(equal([ 0 ]))
+				expect(completed).to(beTruthy())
 			}
 		}
 

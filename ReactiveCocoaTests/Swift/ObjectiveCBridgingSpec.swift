@@ -173,10 +173,53 @@ class ObjectiveCBridgingSpec: QuickSpec {
 		}
 
 		describe("asRACCommand") {
-			pending("should reflect the enabledness of the action") {
+			var action: Action<AnyObject?, NSString, TestError>!
+			var results: [NSString] = []
+
+			var enabledProperty: MutableProperty<Bool>!
+
+			var command: RACCommand!
+			var enabled = false
+			
+			beforeEach {
+				results = []
+				enabledProperty = MutableProperty(false)
+
+				action = Action(enabledIf: enabledProperty) { input in
+					let inputNumber = input as Int
+					return SignalProducer(value: "\(inputNumber + 1)")
+				}
+
+				expect(action.enabled.value).to(beFalsy())
+
+				action.values.observe(next: { results.append($0) })
+
+				command = asRACCommand(action)
+				expect(command).notTo(beNil())
+
+				command.enabled.subscribeNext { enabled = $0 as Bool }
+				expect(enabled).to(beFalsy())
 			}
 
-			pending("should apply and start a signal once per execution") {
+			it("should reflect the enabledness of the action") {
+				enabledProperty.value = true
+				expect(enabled).toEventually(beTruthy())
+
+				enabledProperty.value = false
+				expect(enabled).toEventually(beFalsy())
+			}
+
+			it("should apply and start a signal once per execution") {
+				let signal = command.execute(0)
+
+				signal.waitUntilCompleted(nil)
+				expect(results).to(equal([ "1" ]))
+
+				signal.waitUntilCompleted(nil)
+				expect(results).to(equal([ "1" ]))
+
+				command.execute(2).waitUntilCompleted(nil)
+				expect(results).to(equal([ "1", "3" ]))
 			}
 		}
 	}

@@ -155,20 +155,20 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let producer = action.apply(0)
 				expect(results).to(equal([]))
 
-				producer |> wait
-				expect(results).to(equal([ 1 ]))
+				producer |> start()
+				expect(results).toEventually(equal([ 1 ]))
 
-				producer |> wait
-				expect(results).to(equal([ 1, 1 ]))
+				producer |> start()
+				expect(results).toEventually(equal([ 1, 1 ]))
 
 				let otherProducer = action.apply(2)
 				expect(results).to(equal([ 1, 1 ]))
 
-				otherProducer |> wait
-				expect(results).to(equal([ 1, 1, 3 ]))
+				otherProducer |> start()
+				expect(results).toEventually(equal([ 1, 1, 3 ]))
 
-				producer |> wait
-				expect(results).to(equal([ 1, 1, 3, 1 ]))
+				producer |> start()
+				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}
 
@@ -212,13 +212,13 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			it("should apply and start a signal once per execution") {
 				let signal = command.execute(0)
 
-				signal.waitUntilCompleted(nil)
+				signal.asynchronouslyWaitUntilCompleted(nil)
 				expect(results).to(equal([ "1" ]))
 
-				signal.waitUntilCompleted(nil)
+				signal.asynchronouslyWaitUntilCompleted(nil)
 				expect(results).to(equal([ "1" ]))
 
-				command.execute(2).waitUntilCompleted(nil)
+				command.execute(2).asynchronouslyWaitUntilCompleted(nil)
 				expect(results).to(equal([ "1", "3" ]))
 			}
 		}

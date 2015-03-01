@@ -14,4 +14,4 @@ xcuserdata
 profile
 *.moved-aside
 
-Carthage.build
+Carthage/Build

@@ -38,7 +38,7 @@
 // The information for the original dispatch.
 @property (nonatomic, readonly) dispatch_function_t function;
 @property (nonatomic, readonly) void *context;
-@property (nonatomic, readonly) dispatch_queue_t queue;
+@property (nonatomic, strong, readonly) dispatch_queue_t queue;
 
 - (id)initWithQueue:(dispatch_queue_t)queue function:(dispatch_function_t)function context:(void *)context;
 
@@ -226,21 +226,12 @@ static void RACExceptionHandler (NSException *ex) {
 		if (self == nil) return nil;
 
 		_backtrace = [RACBacktrace backtraceIgnoringFrames:1];
-
-		dispatch_retain(queue);
 		_queue = queue;
 
 		_function = function;
 		_context = context;
 
 		return self;
-	}
-}
-
-- (void)dealloc {
-	if (_queue != NULL) {
-		dispatch_release(_queue);
-		_queue = NULL;
 	}
 }
 

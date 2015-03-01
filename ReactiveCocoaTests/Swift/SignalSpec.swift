@@ -284,10 +284,10 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beFalsy())
 				
 				sendNext(observer, 1)
-				expect(fromSignal).to(equal([1]))
+				expect(fromSignal).to(equal([ 1 ]))
 				
 				sendNext(observer, 2)
-				expect(fromSignal).to(equal([1, 2]))
+				expect(fromSignal).to(equal([ 1, 2 ]))
 				
 				expect(completed).to(beFalsy())
 				sendCompleted(observer)
@@ -307,7 +307,7 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
-						for number in [1, 2] {
+						for number in [ 1, 2 ] {
 							sendNext(observer, number)
 						}
 						sendCompleted(observer)
@@ -327,7 +327,7 @@ class SignalSpec: QuickSpec {
 				testScheduler.run()
 				
 				expect(disposable.disposed).to(beTruthy())
-				expect(fromSignal).to(equal([1, 2]))
+				expect(fromSignal).to(equal([ 1, 2 ]))
 			}
 
 			it("should not trigger side effects") {
@@ -393,293 +393,262 @@ class SignalSpec: QuickSpec {
 
 		describe("map") {
 			it("should transform the values of the signal") {
-				let numbers = [ 1, 2, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var afterMap: [Int] = []
-				
-				signal
-				|> map { $0 * 2 }
-				|> observe(next: { afterMap.append($0) })
-				
-				testScheduler.run()
-				expect(afterMap).to(equal([2, 4, 10]))
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let mappedSignal = signal |> map { String($0 + 1) }
+
+				var lastValue: String?
+
+				mappedSignal.observe(next: {
+					lastValue = $0
+					return
+				})
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 0)
+				expect(lastValue).to(equal("1"))
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal("2"))
 			}
 		}
 
 		describe("filter") {
 			it("should omit values from the signal") {
-				let numbers = [ 1, 2, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var afterFilter: [Int] = []
-				
-				signal
-				|> filter { $0 % 2 == 0 }
-				|> observe(next: { afterFilter.append($0) })
-				
-				testScheduler.run()
-				expect(afterFilter).to(equal([2, 4]))
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let mappedSignal = signal |> filter { $0 % 2 == 0 }
+
+				var lastValue: Int?
+
+				mappedSignal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 0)
+				expect(lastValue).to(equal(0))
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(0))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
 			}
 		}
 
 		describe("scan") {
 			it("should incrementally accumulate a value") {
-				let numbers = [ 1, 2, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var scanned: [Int] = []
-				
-				signal
-				|> scan(0) { $0 + $1 }
-				|> observe(next: { scanned.append($0) })
-				
-				testScheduler.run()
-				expect(scanned).to(equal([1, 3, 7, 12]))
+				let (baseSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = baseSignal |> scan("", +)
+
+				var lastValue: String?
+
+				signal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, "a")
+				expect(lastValue).to(equal("a"))
+
+				sendNext(sink, "bb")
+				expect(lastValue).to(equal("abb"))
 			}
 		}
 
 		describe("reduce") {
 			it("should accumulate one value") {
-				let numbers = [ 1, 2, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-						sendCompleted(observer)
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> reduce(0) { $0 + $1 }
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				
-				// using array to make sure only one value sent
-				expect(result).to(equal([12]))
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> reduce(1, +)
+
+				var lastValue: Int?
+				var completed = false
+
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(beNil())
+
+				expect(completed).to(beFalse())
+				sendCompleted(sink)
+				expect(completed).to(beTrue())
+
+				expect(lastValue).to(equal(4))
 			}
 
 			it("should send the initial value if none are received") {
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						sendCompleted(observer)
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> reduce(99) { $0 + $1 }
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([99]))
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> reduce(1, +)
+
+				var lastValue: Int?
+				var completed = false
+
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
+
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendCompleted(sink)
+
+				expect(lastValue).to(equal(1))
+				expect(completed).to(beTrue())
 			}
 		}
 
 		describe("skip") {
 			it("should skip initial values") {
-				let numbers = [ 1, 2, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> skip(2)
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([4, 5]))
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> skip(1)
+
+				var lastValue: Int?
+				signal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
 			}
 
 			it("should not skip any values when 0") {
-				let numbers = [ 1, 2, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> skip(0)
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal(numbers))
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> skip(0)
+
+				var lastValue: Int?
+				signal.observe(next: { lastValue = $0 })
+
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
 			}
 		}
 
 		describe("skipRepeats") {
 			it("should skip duplicate Equatable values") {
-				let numbers = [ 1, 2, 4, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> skipRepeats
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([1, 2, 4, 5]))
+				let (baseSignal, sink) = Signal<Bool, NoError>.pipe()
+				let signal = baseSignal |> skipRepeats
+
+				var values: [Bool] = []
+				signal.observe(next: { values.append($0) })
+
+				expect(values).to(equal([]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([ true ]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([ true ]))
+
+				sendNext(sink, false)
+				expect(values).to(equal([ true, false ]))
+
+				sendNext(sink, true)
+				expect(values).to(equal([ true, false, true ]))
 			}
 
 			it("should skip values according to a predicate") {
-				let letters = [ "A", "a", "b", "c", "C", "V" ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<String, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for letter in letters {
-							sendNext(observer, letter)
-						}
-					}
-					return nil
-				}
-				
-				var result: [String] = []
-				
-				signal
-				|> skipRepeats { $0.lowercaseString == $1.lowercaseString }
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([ "A", "b", "c", "V" ]))
+				let (baseSignal, sink) = Signal<String, NoError>.pipe()
+				let signal = baseSignal |> skipRepeats { countElements($0) == countElements($1) }
+
+				var values: [String] = []
+				signal.observe(next: { values.append($0) })
+
+				expect(values).to(equal([]))
+
+				sendNext(sink, "a")
+				expect(values).to(equal([ "a" ]))
+
+				sendNext(sink, "b")
+				expect(values).to(equal([ "a" ]))
+
+				sendNext(sink, "cc")
+				expect(values).to(equal([ "a", "cc" ]))
+
+				sendNext(sink, "d")
+				expect(values).to(equal([ "a", "cc", "d" ]))
 			}
 		}
 
 		describe("skipWhile") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+
+			var lastValue: Int?
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+
+				signal = baseSignal |> skipWhile { $0 < 2 }
+				sink = observer
+				lastValue = nil
+
+				signal.observe(next: { lastValue = $0 })
+			}
+
 			it("should skip while the predicate is true") {
-				let numbers = [ 1, 2, 4, 4, 5, 2 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> skipWhile { $0 < 4 }
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([ 4, 4, 5, 2 ]))
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				sendNext(sink, 0)
+				expect(lastValue).to(equal(0))
 			}
 
 			it("should not skip any values when the predicate starts false") {
-				let numbers = [ 1, 2, 4, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> skipWhile { _ in return false }
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([ 1, 2, 4, 4, 5 ]))
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 3)
+				expect(lastValue).to(equal(3))
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
 			}
 		}
 
 		describe("take") {
 			it("should take initial values") {
-				let numbers = [ 1, 2, 4, 4, 5 ]
-				var testScheduler = TestScheduler()
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						for number in numbers {
-							sendNext(observer, number)
-						}
-					}
-					return nil
-				}
-				
-				var result: [Int] = []
-				
-				signal
-				|> take(3)
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([ 1, 2, 4 ]))
+				let (baseSignal, sink) = Signal<Int, NoError>.pipe()
+				let signal = baseSignal |> take(2)
+
+				var lastValue: Int?
+				var completed = false
+				signal.observe(next: {
+					lastValue = $0
+				}, completed: {
+					completed = true
+				})
+
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+				expect(completed).to(beTrue())
 			}
 			
 			it("should complete immediately after taking given number of values") {
@@ -708,7 +677,7 @@ class SignalSpec: QuickSpec {
 			it("should interrupt when 0") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
 				var testScheduler = TestScheduler()
-				
+
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in numbers {
@@ -717,10 +686,10 @@ class SignalSpec: QuickSpec {
 					}
 					return nil
 				}
-				
+
 				var result: [Int] = []
 				var interrupted = false
-				
+
 				signal
 				|> take(0)
 				|> observe(next: { number in
@@ -728,9 +697,9 @@ class SignalSpec: QuickSpec {
 				}, interrupted: {
 					interrupted = true
 				})
-				
+
 				expect(interrupted).to(beTruthy())
-				
+
 				testScheduler.run()
 				expect(result).to(beEmpty())
 			}
@@ -740,7 +709,7 @@ class SignalSpec: QuickSpec {
 			it("should collect all values") {
 				let (original, sink) = Signal<Int, NoError>.pipe()
 				let signal = original |> collect
-				let expectedResult = [1, 2, 3]
+				let expectedResult = [ 1, 2, 3 ]
 
 				var result: [Int]?
 
@@ -764,10 +733,7 @@ class SignalSpec: QuickSpec {
 
 				var result: [Int]?
 
-				signal.observe(next: { value in
-					result = value
-					return
-				})
+				signal.observe(next: { result = $0 })
 
 				expect(result).to(beNil())
 				sendCompleted(sink)
@@ -780,10 +746,7 @@ class SignalSpec: QuickSpec {
 
 				var error: TestError?
 
-				signal.observe(error: { value in
-					error = value
-					return
-				})
+				signal.observe(error: { error = $0 })
 
 				expect(error).to(beNil())
 				sendError(sink, .Default)
@@ -792,110 +755,106 @@ class SignalSpec: QuickSpec {
 		}
 
 		describe("takeUntil") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+			var triggerSink: Signal<(), NoError>.Observer!
+
+			var lastValue: Int? = nil
+			var completed: Bool = false
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+				let (triggerSignal, triggerObserver) = Signal<(), NoError>.pipe()
+
+				signal = baseSignal |> takeUntil(triggerSignal)
+				sink = observer
+				triggerSink = triggerObserver
+
+				lastValue = nil
+				completed = false
+
+				signal.observe(
+					next: { lastValue = $0 },
+					completed: { completed = true }
+				)
+			}
+
 			it("should take values until the trigger fires") {
-				var testScheduler = TestScheduler()
-				let triggerSignal: Signal<(), NoError> = Signal { observer in
-					testScheduler.scheduleAfter(2, action: {
-						sendCompleted(observer)
-					})
-					return nil
-				}
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.scheduleAfter(1, action: {
-						sendNext(observer, 3)
-					})
-					testScheduler.scheduleAfter(3, action: {
-						sendNext(observer, 5)
-					})
-					return nil
-				}
-				
-				var result: [Int] = []
-				var completed = false
-				
-				signal
-				|> takeUntil(triggerSignal)
-				|> observe(next: { number in
-					result.append(number)
-				}, completed: {
-					completed = true
-				})
-				
-				expect(completed).to(beFalsy())
-				
-				testScheduler.run()
-				expect(result).to(equal([3]))
-				expect(completed).to(beTruthy())
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				expect(completed).to(beFalse())
+				sendNext(triggerSink, ())
+				expect(completed).to(beTrue())
 			}
 
 			it("should complete if the trigger fires immediately") {
-				var testScheduler = TestScheduler()
-				let triggerSignal: Signal<(), NoError> = Signal { observer in
-					testScheduler.schedule {
-						sendCompleted(observer)
-					}
-					return nil
-				}
-				
-				let signal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.scheduleAfter(2, action: {
-						sendNext(observer, 3)
-					})
-					testScheduler.scheduleAfter(3, action: {
-						sendNext(observer, 5)
-					})
-					return nil
-				}
-				
-				var result: [Int] = []
-				var completed = false
-				
-				signal
-				|> takeUntil(triggerSignal)
-				|> observe(next: { number in
-					result.append(number)
-				}, completed: {
-					completed = true
-				})
-				
-				expect(completed).to(beFalsy())
-				
-				testScheduler.run()
-				expect(result).to(beEmpty())
-				expect(completed).to(beTruthy())
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(triggerSink, ())
+
+				expect(completed).to(beTrue())
+				expect(lastValue).to(beNil())
 			}
 		}
 
 		describe("takeUntilReplacement") {
+			var signal: Signal<Int, NoError>!
+			var sink: Signal<Int, NoError>.Observer!
+			var replacementSink: Signal<Int, NoError>.Observer!
+
+			var lastValue: Int? = nil
+			var completed: Bool = false
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
+				let (replacementSignal, replacementObserver) = Signal<Int, NoError>.pipe()
+
+				signal = baseSignal |> takeUntilReplacement(replacementSignal)
+				sink = observer
+				replacementSink = replacementObserver
+
+				lastValue = nil
+				completed = false
+
+				signal.observe(
+					next: { lastValue = $0 },
+					completed: { completed = true }
+				)
+			}
+
 			it("should take values from the original then the replacement") {
-				let testScheduler = TestScheduler()
-				let originalSignal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.schedule {
-						sendNext(observer, 1)
-					}
-					testScheduler.scheduleAfter(5, action: {
-						sendNext(observer, 2)
-					})
-					return nil
-				}
-				let replacementSignal: Signal<Int, NoError> = Signal { observer in
-					testScheduler.scheduleAfter(2, action: {
-						sendNext(observer, 3)
-					})
-					testScheduler.scheduleAfter(6, action: {
-						sendNext(observer, 4)
-					})
-					return nil
-				}
-				
-				var result: [Int] = []
-				originalSignal
-				|> takeUntilReplacement(replacementSignal)
-				|> observe(next: { result.append($0) })
-				
-				testScheduler.run()
-				expect(result).to(equal([ 1, 3, 4 ]))
+				expect(lastValue).to(beNil())
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+
+				sendNext(replacementSink, 3)
+
+				expect(lastValue).to(equal(3))
+				expect(completed).to(beFalse())
+
+				sendNext(sink, 4)
+
+				expect(lastValue).to(equal(3))
+				expect(completed).to(beFalse())
+
+				sendNext(replacementSink, 5)
+				expect(lastValue).to(equal(5))
+
+				expect(completed).to(beFalse())
+				sendCompleted(replacementSink)
+				expect(completed).to(beTrue())
 			}
 		}
 

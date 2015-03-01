@@ -728,22 +728,32 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 	precondition(interval >= 0)
 
 	return Signal { observer in
-		let previousDate: Atomic<NSDate?> = Atomic(nil)
+		let state: Atomic<ThrottleState<T>> = Atomic(ThrottleState())
 		let schedulerDisposable = SerialDisposable()
 
 		let disposable = CompositeDisposable()
 		disposable.addDisposable(schedulerDisposable)
 
 		let signalDisposable = signal.observe(next: { value in
-			let scheduleDate = previousDate.value?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+			let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
+				state.pendingValue = value
+
+				let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+				return (state, scheduleDate)
+			}
 
 			schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-				previousDate.value = scheduler.currentDate
+				let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
+					let value = state.pendingValue
+					state.pendingValue = nil
+					state.previousDate = scheduler.currentDate
 
-				// There's a small race where a new disposable could be set
-				// before we've updated the `previousDate`, which would schedule
-				// a value too early. Disallow that.
-				schedulerDisposable.innerDisposable = nil
+					return (state, value)
+				}
+				
+				if let pendingValue = pendingValue {
+					sendNext(observer, pendingValue)
+				}
 			}
 		}, error: { error in
 			schedulerDisposable.innerDisposable = scheduler.schedule {
@@ -758,6 +768,11 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 		disposable.addDisposable(signalDisposable)
 		return disposable
 	}
+}
+
+private struct ThrottleState<T> {
+	var previousDate: NSDate? = nil
+	var pendingValue: T? = nil
 }
 
 /// Combines the values of all the given signals, in the manner described by

@@ -115,13 +115,60 @@ class ObjectiveCBridgingSpec: QuickSpec {
 		}
 
 		describe("RACCommand.asAction") {
-			pending("should reflect the enabledness of the command") {
+			var command: RACCommand!
+			var results: [Int] = []
+
+			var enabledSubject: RACSubject!
+			var enabled = false
+
+			var action: Action<AnyObject?, AnyObject?, NSError>!
+
+			beforeEach {
+				enabledSubject = RACSubject()
+				results = []
+
+				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal! in
+					let inputNumber = input as Int
+					return RACSignal.`return`(inputNumber + 1)
+				}
+
+				expect(command).notTo(beNil())
+
+				command.enabled.subscribeNext { enabled = $0 as Bool }
+				expect(enabled).to(beTruthy())
+
+				command.executionSignals.flatten().subscribeNext { results.append($0 as Int) }
+				expect(results).to(equal([]))
+
+				action = command.asAction()
 			}
 
-			pending("should not execute the command upon apply()") {
+			it("should reflect the enabledness of the command") {
+				expect(action.enabled.value).to(beTruthy())
+
+				enabledSubject.sendNext(false)
+				expect(enabled).toEventually(beFalsy())
+				expect(action.enabled.value).to(beFalsy())
 			}
 
-			pending("should execute the command once per start()") {
+			it("should execute the command once per start()") {
+				let producer = action.apply(0)
+				expect(results).to(equal([]))
+
+				producer |> wait
+				expect(results).to(equal([ 1 ]))
+
+				producer |> wait
+				expect(results).to(equal([ 1, 1 ]))
+
+				let otherProducer = action.apply(2)
+				expect(results).to(equal([ 1, 1 ]))
+
+				otherProducer |> wait
+				expect(results).to(equal([ 1, 1, 3 ]))
+
+				producer |> wait
+				expect(results).to(equal([ 1, 1, 3, 1 ]))
 			}
 		}
 

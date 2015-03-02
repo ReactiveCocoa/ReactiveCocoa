@@ -108,10 +108,23 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("SignalProducer.buffer") {
-			pending("should replay buffered events when started, then forward events as added") {
+			it("should replay buffered events when started, then forward events as added") {
+				var counter = 0
+				let (producer, sink) = SignalProducer<Int, NSError>.buffer(1)
+				
+				producer.start(Event.sink(next:{value in counter += value}))
+				sendNext(sink, 1)
+				sendNext(sink, 1)
+				
+				expect(counter).to(equal(2))
 			}
 
-			pending("should drop earliest events to maintain the capacity") {
+			it("should drop earliest events to maintain the capacity") {
+				let (producer, sink) = SignalProducer<Int, NSError>.buffer(1)
+				sendNext(sink, 0)
+				sendNext(sink, 1)
+				
+				expect(producer).to(sendValue(1, sendError: nil, complete: false))
 			}
 		}
 
@@ -180,13 +193,30 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("start") {
-			pending("should immediately begin sending events") {
+			it("should immediately begin sending events") {
+				var isSended = false
+				let signalProducer = SignalProducer<Int, NoError>(value: 0)
+				signalProducer.start(next:{ _ -> Void in isSended = true })
+				
+				expect(isSended).to(beTruthy())
 			}
 
-			pending("should send interrupted if disposed") {
+			it("should send interrupted if disposed") {
+				var interrupted = false
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+				let disposable = producer.start(interrupted:{ interrupted = true })
+				
+				expect(interrupted).to(beFalsy())
+				disposable.dispose()
+				expect(interrupted).to(beTruthy())
 			}
 
 			pending("should release sink when disposed") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+				let disposable = producer.start()
+				
+				disposable.dispose()
+				expect(sink).to(beNil())
 			}
 		}
 

@@ -729,9 +729,10 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 
 	return Signal { observer in
 		let state: Atomic<ThrottleState<T>> = Atomic(ThrottleState())
-
 		let schedulerDisposable = SerialDisposable()
-		let disposable = CompositeDisposable([ schedulerDisposable ])
+
+		let disposable = CompositeDisposable()
+		disposable.addDisposable(schedulerDisposable)
 
 		let signalDisposable = signal.observe(SinkOf { event in
 			switch event {

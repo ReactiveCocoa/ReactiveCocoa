@@ -722,8 +722,8 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 /// If multiple values are received before the interval has elapsed, the
 /// latest value is the one that will be passed on.
 ///
-/// If the input signal completes while a value is being throttled, that value
-/// will be discarded and the returned signal will complete immediately.
+/// If the input signal terminates while a value is being throttled, that value
+/// will be discarded and the returned signal will terminate immediately.
 public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
 	precondition(interval >= 0)
 

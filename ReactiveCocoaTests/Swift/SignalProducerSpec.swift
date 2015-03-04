@@ -33,16 +33,67 @@ class SignalProducerSpec: QuickSpec {
 			pending("should release signal observers when given disposable is disposed") {
 			}
 
-			pending("should dispose of added disposables upon completion") {
+			it("should dispose of added disposables upon completion") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<(), NoError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					test = { _ in sendCompleted(observer) }
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon error") {
+			it("should dispose of added disposables upon error") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<(), TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					test = { _ in sendError(observer, .Default) }
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon interruption") {
+			it("should dispose of added disposables upon interruption") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<(), NoError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					test = { _ in sendInterrupted(observer) }
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon start() disposal") {
+			it("should dispose of added disposables upon start() disposal") {
+				let addedDisposable = SerialDisposable()
+
+				let producer = SignalProducer<(), TestError>() { _, disposable in
+					disposable.addDisposable(addedDisposable)
+					return
+				}
+
+				let startDisposable = producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				startDisposable.dispose()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
 

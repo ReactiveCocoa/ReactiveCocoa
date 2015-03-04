@@ -108,10 +108,63 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("SignalProducer.buffer") {
-			pending("should replay buffered events when started, then forward events as added") {
+			it("should replay buffered events when started, then forward events as added") {
+				let (producer, sink) = SignalProducer<Int, NSError>.buffer();
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+
+				var values: [Int] = []
+				var completed = false
+				producer.start(next: {
+					values.append($0)
+				}, completed: {
+					completed = true
+				})
+
+				expect(values).to(equal([1, 2, 3]))
+				expect(completed).to(beFalsy())
+
+				sendNext(sink, 4)
+				sendNext(sink, 5)
+
+				expect(values).to(equal([1, 2, 3, 4, 5]))
+				expect(completed).to(beFalsy())
+
+				sendCompleted(sink)
+
+				expect(values).to(equal([1, 2, 3, 4, 5]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should drop earliest events to maintain the capacity") {
+			it("should drop earliest events to maintain the capacity") {
+				let (producer, sink) = SignalProducer<Int, TestError>.buffer(1)
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+
+				var values: [Int] = []
+				var error: TestError?
+				producer.start(next: {
+					values.append($0)
+				}, error: {
+					error = $0
+				})
+				
+				expect(values).to(equal([2]))
+				expect(error).to(beNil())
+
+				sendNext(sink, 3)
+				sendNext(sink, 4)
+
+				expect(values).to(equal([2, 3, 4]))
+				expect(error).to(beNil())
+
+				sendError(sink, .Default)
+
+				expect(values).to(equal([2, 3, 4]))
+				expect(error).to(equal(TestError.Default))
 			}
 		}
 

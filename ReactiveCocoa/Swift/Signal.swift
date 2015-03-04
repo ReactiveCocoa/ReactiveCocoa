@@ -716,6 +716,67 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 	}
 }
 
+/// Throttle values sent by the receiver, so that at least `interval`
+/// seconds pass between each, then forwards them on the given scheduler.
+///
+/// If multiple values are received before the interval has elapsed, the
+/// latest value is the one that will be passed on.
+///
+/// If the input signal terminates while a value is being throttled, that value
+/// will be discarded and the returned signal will terminate immediately.
+public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		let state: Atomic<ThrottleState<T>> = Atomic(ThrottleState())
+		let schedulerDisposable = SerialDisposable()
+
+		let disposable = CompositeDisposable()
+		disposable.addDisposable(schedulerDisposable)
+
+		let signalDisposable = signal.observe(SinkOf { event in
+			switch event {
+			case let .Next(value):
+				let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
+					state.pendingValue = value.unbox
+
+					let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+					return (state, scheduleDate)
+				}
+
+				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+					let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
+						let value = state.pendingValue
+						if value != nil {
+							state.pendingValue = nil
+							state.previousDate = scheduleDate
+						}
+
+						return (state, value)
+					}
+					
+					if let pendingValue = pendingValue {
+						sendNext(observer, pendingValue)
+					}
+				}
+
+			default:
+				schedulerDisposable.innerDisposable = scheduler.schedule {
+					observer.put(event)
+				}
+			}
+		})
+
+		disposable.addDisposable(signalDisposable)
+		return disposable
+	}
+}
+
+private struct ThrottleState<T> {
+	var previousDate: NSDate? = nil
+	var pendingValue: T? = nil
+}
+
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {

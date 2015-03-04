@@ -392,7 +392,32 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("catch") {
-			pending("should invoke the handler and start new producer for an error") {
+			it("should invoke the handler and start new producer for an error") {
+				let (baseProducer, baseSink) = SignalProducer<Int, TestError>.buffer()
+				sendNext(baseSink, 1)
+				sendError(baseSink, .Default)
+
+				var values: [Int] = []
+				var completed = false
+
+				baseProducer
+					|> catch { (error: TestError) -> SignalProducer<Int, TestError> in
+						expect(error).to(equal(TestError.Default))
+						expect(values).to(equal([1]))
+
+						let (innerProducer, innerSink) = SignalProducer<Int, TestError>.buffer()
+						sendNext(innerSink, 2)
+						sendCompleted(innerSink)
+						return innerProducer
+					}
+					|> start(next: {
+						values.append($0)
+					}, completed: {
+						completed = true
+					})
+
+				expect(values).to(equal([1, 2]))
+				expect(completed).to(beTruthy())
 			}
 		}
 

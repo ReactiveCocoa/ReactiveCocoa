@@ -321,7 +321,42 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("on") {
-			pending("should attach event handlers to each started signal") {
+			it("should attach event handlers to each started signal") {
+				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
+
+				var started = 0
+				var event = 0
+				var next = 0
+				var completed = 0
+				var terminated = 0
+
+				let producer = baseProducer
+					|> on(started: { () -> () in
+							started += 1
+						}, event: { (e: Event<Int, TestError>) -> () in
+							event += 1
+						}, next: { (n: Int) -> () in
+							next += 1
+						}, completed: { () -> () in
+							completed += 1
+						}, terminated: { () -> () in
+							terminated += 1
+						})
+
+				producer.start()
+				expect(started).to(equal(1))
+
+				producer.start()
+				expect(started).to(equal(2))
+
+				sendNext(sink, 1)
+				expect(event).to(equal(2))
+				expect(next).to(equal(2))
+
+				sendCompleted(sink)
+				expect(event).to(equal(4))
+				expect(completed).to(equal(2))
+				expect(terminated).to(equal(2))
 			}
 		}
 

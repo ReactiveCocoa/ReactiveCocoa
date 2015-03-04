@@ -284,10 +284,33 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("start") {
-			pending("should immediately begin sending events") {
+			it("should immediately begin sending events") {
+				let producer = SignalProducer<Int, NoError>(values: [1, 2])
+
+				var values: [Int] = []
+				var completed = false
+				producer.start(next: {
+					values.append($0)
+				}, completed: {
+					completed = true
+				})
+
+				expect(values).to(equal([1, 2]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should send interrupted if disposed") {
+			it("should send interrupted if disposed") {
+				let producer = SignalProducer<(), NoError>.never
+
+				var interrupted = false
+				let disposable = producer.start(interrupted: {
+					interrupted = true
+				})
+
+				expect(interrupted).to(beFalsy())
+
+				disposable.dispose()
+				expect(interrupted).to(beTruthy())
 			}
 
 			pending("should release sink when disposed") {

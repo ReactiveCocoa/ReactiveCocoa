@@ -34,7 +34,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon completion") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<(), NoError>() { observer, disposable in
@@ -50,7 +50,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon error") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<(), TestError>() { observer, disposable in
@@ -66,7 +66,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon interruption") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<(), NoError>() { observer, disposable in
@@ -82,7 +82,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon start() disposal") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 
 				let producer = SignalProducer<(), TestError>() { _, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -278,7 +278,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables if disposed") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<Int, NoError>() { _, disposable in
@@ -360,7 +360,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon completion") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<Int, TestError>() { observer, disposable in
@@ -376,7 +376,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should dispose of added disposables upon error") {
-				let addedDisposable = SerialDisposable()
+				let addedDisposable = SimpleDisposable()
 				var test: () -> () = { }
 
 				let producer = SignalProducer<Int, TestError>() { observer, disposable in

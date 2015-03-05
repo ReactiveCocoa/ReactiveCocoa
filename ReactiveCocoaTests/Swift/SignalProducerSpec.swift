@@ -390,10 +390,47 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("timer") {
-			pending("should send the current date at the given interval") {
+			it("should send the current date at the given interval") {
+				let scheduler = TestScheduler()
+				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
+
+				var dates: [NSDate] = []
+				producer.start(next: { dates.append($0) })
+
+				scheduler.advanceByInterval(0.9)
+				expect(dates).to(equal([]))
+
+				scheduler.advanceByInterval(1)
+				let firstTick = scheduler.currentDate
+				expect(dates).to(equal([firstTick]))
+
+				scheduler.advance()
+				expect(dates).to(equal([firstTick]))
+
+				scheduler.advanceByInterval(0.2)
+				let secondTick = scheduler.currentDate
+				expect(dates).to(equal([firstTick, secondTick]))
+
+				scheduler.advanceByInterval(1)
+				expect(dates).to(equal([firstTick, secondTick, scheduler.currentDate]))
 			}
 
-			pending("should release the signal when disposed") {
+			it("should release the signal when disposed") {
+				let scheduler = TestScheduler()
+				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
+
+				weak var weakSignal: Signal<NSDate, NoError>?
+				producer.startWithSignal { signal, disposable in
+					weakSignal = signal
+					scheduler.schedule {
+						disposable.dispose()
+					}
+				}
+
+				expect(weakSignal).toNot(beNil())
+
+				scheduler.run()
+				expect(weakSignal).to(beNil())
 			}
 		}
 

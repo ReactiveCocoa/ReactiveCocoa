@@ -258,28 +258,137 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("startWithSignal") {
-			pending("should invoke the closure before any effects or events") {
+			it("should invoke the closure before any effects or events") {
+				var started = false
+				var value: Int?
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> on(started: {
+						started = true
+					}, next: {
+						value = $0
+					})
+					|> startWithSignal { signal, disposable in
+						expect(started).to(beFalsy())
+						expect(value).to(beNil())
+					}
+
+				expect(started).to(beTruthy())
+				expect(value).to(equal(42))
 			}
 
-			pending("should dispose of added disposables if disposed") {
+			it("should dispose of added disposables if disposed") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<Int, NoError>() { _, disposable in
+					disposable.addDisposable(addedDisposable)
+					return
+				}
+
+				producer |> startWithSignal { _, disposable in
+					test = { _ in disposable.dispose() }
+				}
+
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should send interrupted if disposed") {
+			it("should send interrupted if disposed") {
+				var interrupted = false
+				var scheduler = TestScheduler()
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> startOn(scheduler)
+					|> startWithSignal { signal, disposable in
+						signal.observe(interrupted: {
+							interrupted = true
+						})
+
+						scheduler.schedule {
+							disposable.dispose()
+						}
+					}
+
+				expect(interrupted).to(beFalsy())
+
+				scheduler.run()
+				expect(interrupted).to(beTruthy())
 			}
 
 			pending("should release signal observers if disposed") {
 			}
 
-			pending("should not trigger effects if disposed before closure return") {
+			it("should not trigger effects if disposed before closure return") {
+				var started = false
+				var value: Int?
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> on(started: {
+						started = true
+					}, next: {
+						value = $0
+					})
+					|> startWithSignal { signal, disposable in
+						expect(started).to(beFalsy())
+						expect(value).to(beNil())
+
+						disposable.dispose()
+					}
+
+				expect(started).to(beFalsy())
+				expect(value).to(beNil())
 			}
 
-			pending("should send interrupted if disposed before closure return") {
+			it("should send interrupted if disposed before closure return") {
+				var interrupted = false
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> startWithSignal { signal, disposable in
+						expect(interrupted).to(beFalsy())
+
+						signal.observe(interrupted: {
+							interrupted = true
+						})
+
+						disposable.dispose()
+					}
+
+				expect(interrupted).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon completion") {
+			it("should dispose of added disposables upon completion") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<Int, TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					test = { _ in sendCompleted(observer) }
+				}
+
+				producer |> startWithSignal { _ in }
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon error") {
+			it("should dispose of added disposables upon error") {
+				let addedDisposable = SerialDisposable()
+				var test: () -> () = { }
+
+				let producer = SignalProducer<Int, TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					test = { _ in sendError(observer, .Default) }
+				}
+
+				producer |> startWithSignal { _ in }
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				test()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
 

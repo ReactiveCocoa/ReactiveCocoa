@@ -319,18 +319,72 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("lift") {
 			describe("over unary operators") {
-				pending("should invoke transformation once per started signal") {
+				it("should invoke transformation once per started signal") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+
+					var counter = 0
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> in
+						counter += 1
+						return signal
+					}
+
+					let producer = baseProducer.lift(transform)
+					expect(counter).to(equal(0))
+
+					producer.start()
+					expect(counter).to(equal(1))
+
+					producer.start()
+					expect(counter).to(equal(2))
 				}
 
-				pending("should not miss any events") {
+				it("should not miss any events") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3, 4])
+
+					let producer = baseProducer.lift(map { $0 * $0 })
+					let result = producer |> collect |> single
+
+					expect(result?.value).to(equal([1, 4, 9, 16]))
 				}
 			}
 
 			describe("over binary operators") {
-				pending("should invoke transformation once per started signal") {
+				it("should invoke transformation once per started signal") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+					let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
+
+					var counter = 0
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+						return { otherSignal in
+							counter += 1
+							return zip(signal, otherSignal)
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherProducer)
+					expect(counter).to(equal(0))
+
+					producer.start()
+					expect(counter).to(equal(1))
+
+					producer.start()
+					expect(counter).to(equal(2))
 				}
 
-				pending("should not miss any events") {
+				it("should not miss any events") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3])
+					let otherProducer = SignalProducer<Int, NoError>(values: [4, 5, 6])
+
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+						return { otherSignal in
+							return zip(signal, otherSignal) |> map { return $0.0 + $0.1 }
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherProducer)
+					let result = producer |> collect |> single
+
+					expect(result?.value).to(equal([5, 7, 9]))
 				}
 			}
 		}

@@ -584,10 +584,38 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("startOn") {
-			pending("should invoke effects on the given scheduler") {
+			it("should invoke effects on the given scheduler") {
+				let scheduler = TestScheduler()
+				var invoked = false
+
+				let producer = SignalProducer<Int, NoError>() { _ in
+					invoked = true
+				}
+
+				producer |> startOn(scheduler) |> start()
+				expect(invoked).to(beFalsy())
+
+				scheduler.advance()
+				expect(invoked).to(beTruthy())
 			}
 
-			pending("should forward events on their original scheduler") {
+			it("should forward events on their original scheduler") {
+				let startScheduler = TestScheduler()
+				let testScheduler = TestScheduler()
+
+				let producer = timer(2, onScheduler: testScheduler, withLeeway: 0)
+
+				var next: NSDate?
+				producer |> startOn(startScheduler) |> start(next: { next = $0 })
+
+				startScheduler.advanceByInterval(2)
+				expect(next).to(beNil())
+
+				testScheduler.advanceByInterval(1)
+				expect(next).to(beNil())
+
+				testScheduler.advanceByInterval(1)
+				expect(next).to(equal(testScheduler.currentDate))
 			}
 		}
 

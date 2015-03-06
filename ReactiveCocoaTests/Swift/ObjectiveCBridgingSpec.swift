@@ -115,21 +115,111 @@ class ObjectiveCBridgingSpec: QuickSpec {
 		}
 
 		describe("RACCommand.toAction") {
-			pending("should reflect the enabledness of the command") {
+			var command: RACCommand!
+			var results: [Int] = []
+
+			var enabledSubject: RACSubject!
+			var enabled = false
+
+			var action: Action<AnyObject?, AnyObject?, NSError>!
+
+			beforeEach {
+				enabledSubject = RACSubject()
+				results = []
+
+				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal! in
+					let inputNumber = input as Int
+					return RACSignal.`return`(inputNumber + 1)
+				}
+
+				expect(command).notTo(beNil())
+
+				command.enabled.subscribeNext { enabled = $0 as Bool }
+				expect(enabled).to(beTruthy())
+
+				command.executionSignals.flatten().subscribeNext { results.append($0 as Int) }
+				expect(results).to(equal([]))
+
+				action = command.toAction()
 			}
 
-			pending("should not execute the command upon apply()") {
+			it("should reflect the enabledness of the command") {
+				expect(action.enabled.value).to(beTruthy())
+
+				enabledSubject.sendNext(false)
+				expect(enabled).toEventually(beFalsy())
+				expect(action.enabled.value).to(beFalsy())
 			}
 
-			pending("should execute the command once per start()") {
+			it("should execute the command once per start()") {
+				let producer = action.apply(0)
+				expect(results).to(equal([]))
+
+				producer |> start()
+				expect(results).toEventually(equal([ 1 ]))
+
+				producer |> start()
+				expect(results).toEventually(equal([ 1, 1 ]))
+
+				let otherProducer = action.apply(2)
+				expect(results).to(equal([ 1, 1 ]))
+
+				otherProducer |> start()
+				expect(results).toEventually(equal([ 1, 1, 3 ]))
+
+				producer |> start()
+				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}
 
 		describe("toRACCommand") {
-			pending("should reflect the enabledness of the action") {
+			var action: Action<AnyObject?, NSString, TestError>!
+			var results: [NSString] = []
+
+			var enabledProperty: MutableProperty<Bool>!
+
+			var command: RACCommand!
+			var enabled = false
+			
+			beforeEach {
+				results = []
+				enabledProperty = MutableProperty(true)
+
+				action = Action(enabledIf: enabledProperty) { input in
+					let inputNumber = input as Int
+					return SignalProducer(value: "\(inputNumber + 1)")
+				}
+
+				expect(action.enabled.value).to(beTruthy())
+
+				action.values.observe(next: { results.append($0) })
+
+				command = toRACCommand(action)
+				expect(command).notTo(beNil())
+
+				command.enabled.subscribeNext { enabled = $0 as Bool }
+				expect(enabled).to(beTruthy())
 			}
 
-			pending("should apply and start a signal once per execution") {
+			it("should reflect the enabledness of the action") {
+				enabledProperty.value = false
+				expect(enabled).toEventually(beFalsy())
+
+				enabledProperty.value = true
+				expect(enabled).toEventually(beTruthy())
+			}
+
+			it("should apply and start a signal once per execution") {
+				let signal = command.execute(0)
+
+				signal.asynchronouslyWaitUntilCompleted(nil)
+				expect(results).to(equal([ "1" ]))
+
+				signal.asynchronouslyWaitUntilCompleted(nil)
+				expect(results).to(equal([ "1" ]))
+
+				command.execute(2).asynchronouslyWaitUntilCompleted(nil)
+				expect(results).to(equal([ "1", "3" ]))
 			}
 		}
 	}

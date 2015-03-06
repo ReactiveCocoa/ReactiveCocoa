@@ -160,7 +160,7 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("SignalProducer.buffer") {
 			it("should replay buffered events when started, then forward events as added") {
-				let (producer, sink) = SignalProducer<Int, NSError>.buffer();
+				let (producer, sink) = SignalProducer<Int, NSError>.buffer()
 
 				sendNext(sink, 1)
 				sendNext(sink, 2)
@@ -268,7 +268,7 @@ class SignalProducerSpec: QuickSpec {
 					}, next: {
 						value = $0
 					})
-					|> startWithSignal { signal, disposable in
+					|> startWithSignal { _ in
 						expect(started).to(beFalsy())
 						expect(value).to(beNil())
 					}
@@ -331,7 +331,7 @@ class SignalProducerSpec: QuickSpec {
 					}, next: {
 						value = $0
 					})
-					|> startWithSignal { signal, disposable in
+					|> startWithSignal { _, disposable in
 						expect(started).to(beFalsy())
 						expect(value).to(beNil())
 
@@ -555,16 +555,16 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = baseProducer
 					|> on(started: { () -> () in
-							started += 1
-						}, event: { (e: Event<Int, TestError>) -> () in
-							event += 1
-						}, next: { (n: Int) -> () in
-							next += 1
-						}, completed: { () -> () in
-							completed += 1
-						}, terminated: { () -> () in
-							terminated += 1
-						})
+						started += 1
+					}, event: { (e: Event<Int, TestError>) -> () in
+						event += 1
+					}, next: { (n: Int) -> () in
+						next += 1
+					}, completed: { () -> () in
+						completed += 1
+					}, terminated: { () -> () in
+						terminated += 1
+					})
 
 				producer.start()
 				expect(started).to(equal(1))

@@ -65,7 +65,11 @@
 ///
 /// Returns a signal that immediately sends the receiver's current value at the
 /// given keypath, then any changes thereafter.
+#if OS_OBJECT_HAVE_OBJC_SUPPORT
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(__weak NSObject *)observer;
+#else
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+#endif
 
 /// Creates a signal to observe the changes of the given key path.
 ///
@@ -75,7 +79,11 @@
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.
+#if OS_OBJECT_HAVE_OBJC_SUPPORT
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)observer;
+#else
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
+#endif
 
 @end
 

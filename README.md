@@ -1,6 +1,4 @@
-# ReactiveCocoa
-
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+# ReactiveCocoa [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 ReactiveCocoa (RAC) is an Objective-C framework inspired by [Functional Reactive
 Programming][]. It provides APIs for **composing and transforming streams of

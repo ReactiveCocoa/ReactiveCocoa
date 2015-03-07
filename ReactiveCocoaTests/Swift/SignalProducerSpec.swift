@@ -30,7 +30,31 @@ class SignalProducerSpec: QuickSpec {
 				expect(handlerCalledTimes).to(equal(2))
 			}
 
-			pending("should release signal observers when given disposable is disposed") {
+			it("should release signal observers when given disposable is disposed") {
+				weak var testStr: NSMutableString?
+				let testScheduler = TestScheduler()
+				
+				let signalProducer = SignalProducer<String, NoError> { observer, disposable in
+					testScheduler.schedule {
+						disposable.dispose()
+					}
+					
+					return
+				}
+				
+				signalProducer.startWithSignal{ signal, disposable in
+					let innerStr = NSMutableString()
+					signal.observe(next: { value -> () in
+						innerStr.appendString(value)
+					})
+					testStr = innerStr
+				}
+				
+				expect(testStr).toNot(beNil())
+				
+				testScheduler.run()
+				expect(testStr).to(beNil())
+				
 			}
 
 			pending("should dispose of added disposables upon completion") {
@@ -163,7 +187,28 @@ class SignalProducerSpec: QuickSpec {
 			pending("should send interrupted if disposed") {
 			}
 
-			pending("should release signal observers if disposed") {
+			it("should release signal observers if disposed") {
+				weak var testStr: NSMutableString?
+				let testScheduler = TestScheduler()
+				
+				let signalProducer = SignalProducer<String, NoError>.never
+				signalProducer.startWithSignal{ signal, disposable in
+					var innerStr = NSMutableString()
+					signal.observe(next: { value in
+						innerStr.appendString(value)
+					})
+					testStr = innerStr
+					
+					testScheduler.schedule {
+						disposable.dispose()
+					}
+				}
+				
+				expect(testStr).notTo(beNil())
+				
+				testScheduler.run()
+				expect(testStr).to(beNil())
+				
 			}
 
 			pending("should not trigger effects if disposed before closure return") {
@@ -186,7 +231,30 @@ class SignalProducerSpec: QuickSpec {
 			pending("should send interrupted if disposed") {
 			}
 
-			pending("should release sink when disposed") {
+			pending("should release sink when disposed") { // <- cannot release sink
+				weak var testStr: NSMutableString?
+				let testScheduler = TestScheduler()
+				
+				let signalProducer = SignalProducer<String, NoError>.never
+				
+				let test: () -> () = {
+					let innerStr = NSMutableString()
+					let disposable = signalProducer.start(next: { value -> () in
+						innerStr.appendString(value)
+					})
+					testStr = innerStr
+					
+					testScheduler.schedule {
+						disposable.dispose()
+					}
+				}
+				test()
+				
+				expect(testStr).toNot(beNil())
+				
+				testScheduler.run()
+				expect(testStr).to(beNil())
+				
 			}
 		}
 

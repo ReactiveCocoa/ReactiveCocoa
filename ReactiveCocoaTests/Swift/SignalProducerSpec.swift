@@ -30,7 +30,23 @@ class SignalProducerSpec: QuickSpec {
 				expect(handlerCalledTimes).to(equal(2))
 			}
 
-			pending("should release signal observers when given disposable is disposed") {
+			it("should release signal observers when given disposable is disposed") {
+				var dispose: () -> () = {}
+				let producer = SignalProducer<Int, NoError> { _, disposable in
+					dispose = { _ in disposable.dispose() }
+				}
+
+				weak var testSink: TestSink?
+				producer.startWithSignal { signal, _ in
+					var sink = TestSink()
+					testSink = sink
+					signal.observe(sink)
+				}
+
+				expect(testSink).toNot(beNil())
+
+				dispose()
+				expect(testSink).to(beNil())
 			}
 
 			it("should dispose of added disposables upon completion") {
@@ -318,7 +334,23 @@ class SignalProducerSpec: QuickSpec {
 				expect(interrupted).to(beTruthy())
 			}
 
-			pending("should release signal observers if disposed") {
+			it("should release signal observers if disposed") {
+				weak var testSink: TestSink?
+				var dispose: () -> () = {}
+
+				let producer = SignalProducer<Int, NoError>.never
+				producer.startWithSignal { signal, disposable in
+					var sink = TestSink()
+					testSink = sink
+					signal.observe(sink)
+
+					dispose = { _ in disposable.dispose() }
+				}
+
+				expect(testSink).toNot(beNil())
+				dispose()
+
+				expect(testSink).to(beNil())
 			}
 
 			it("should not trigger effects if disposed before closure return") {
@@ -423,6 +455,23 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			pending("should release sink when disposed") {
+				weak var testSink: TestSink?
+
+				var dispose: () -> () = { }
+				var test: () -> () = {
+					let producer = SignalProducer<Int, NoError>.never
+					let sink = TestSink()
+					testSink = sink
+
+					let disposable = producer.start(sink)
+					dispose = { _ in disposable.dispose() }
+				}
+
+				test()
+				expect(testSink).toNot(beNil())
+
+				dispose()
+				expect(testSink).to(beNil())
 			}
 		}
 
@@ -1221,6 +1270,11 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 	}
+}
+
+/// Observer that can be weakly captured to monitor its lifetime
+private final class TestSink : SinkType {
+	func put(x: Event<Int, NoError>) {}
 }
 
 extension SignalProducer {

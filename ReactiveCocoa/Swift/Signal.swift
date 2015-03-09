@@ -142,6 +142,24 @@ public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E
 	}
 }
 
+/// Maps errors in the signal to a new error.
+public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal<T, F> {
+	return Signal { observer in
+		return signal.observe(Signal.Observer { event in
+			switch event {
+				case let .Next(value):
+					sendNext(observer, value.unbox)
+				case let .Error(error):
+					sendError(observer, transform(error.unbox))
+				case .Completed:
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+			}
+		})
+	}
+}
+
 /// Preserves only the values of the signal that pass the given predicate.
 public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in

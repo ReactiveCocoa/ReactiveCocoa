@@ -412,6 +412,30 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(equal("2"))
 			}
 		}
+		
+		
+		describe("mapError") {
+			it("should transform the errors of the signal") {
+				let (signal, sink) = Signal<Int, TestError>.pipe()
+				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 100, userInfo: nil)
+				let mappedSignal = signal |> mapError { _ in
+					producerError
+				}
+
+				var error: NSError?
+
+				mappedSignal.observe(error: {
+					error = $0
+					return
+				})
+
+				expect(error).to(beNil())
+
+				sendError(sink, TestError.Default)
+				expect(error).to(equal(producerError))
+			}
+		}
+		
 
 		describe("filter") {
 			it("should omit values from the signal") {

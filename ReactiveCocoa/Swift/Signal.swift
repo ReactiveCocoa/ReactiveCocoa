@@ -147,14 +147,14 @@ public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
 			switch event {
-				case let .Next(value):
-					sendNext(observer, value.unbox)
-				case let .Error(error):
-					sendError(observer, transform(error.unbox))
-				case .Completed:
-					sendCompleted(observer)
-				case .Interrupted:
-					sendInterrupted(observer)
+			case let .Next(value):
+				sendNext(observer, value.unbox)
+			case let .Error(error):
+				sendError(observer, transform(error.unbox))
+			case .Completed:
+				sendCompleted(observer)
+			case .Interrupted:
+				sendInterrupted(observer)
 			}
 		})
 	}

@@ -418,16 +418,9 @@ class SignalSpec: QuickSpec {
 			it("should transform the errors of the signal") {
 				let (signal, sink) = Signal<Int, TestError>.pipe()
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 100, userInfo: nil)
-				let mappedSignal = signal |> mapError { _ in
-					producerError
-				}
-
 				var error: NSError?
 
-				mappedSignal.observe(error: {
-					error = $0
-					return
-				})
+				signal |> mapError { _ in producerError } |> observe(next: { _ in return }, error: { error = $0 })
 
 				expect(error).to(beNil())
 

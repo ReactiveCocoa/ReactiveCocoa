@@ -31,9 +31,9 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should release signal observers when given disposable is disposed") {
-				var dispose: () -> () = {}
-				let producer = SignalProducer<Int, NoError> { _, disposable in
-					dispose = { _ in disposable.dispose() }
+				var disposable: Disposable!
+				let producer = SignalProducer<Int, NoError> { _, innerDisposable in
+					disposable = innerDisposable
 				}
 
 				weak var testSink: TestSink?
@@ -45,55 +45,55 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(testSink).toNot(beNil())
 
-				dispose()
+				disposable.dispose()
 				expect(testSink).to(beNil())
 			}
 
 			it("should dispose of added disposables upon completion") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var sink: Signal<(), NoError>.Observer!
 
 				let producer = SignalProducer<(), NoError>() { observer, disposable in
 					disposable.addDisposable(addedDisposable)
-					test = { _ in sendCompleted(observer) }
+					sink = observer
 				}
 
 				producer.start()
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				sendCompleted(sink)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
 			it("should dispose of added disposables upon error") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var sink: Signal<(), TestError>.Observer!
 
 				let producer = SignalProducer<(), TestError>() { observer, disposable in
 					disposable.addDisposable(addedDisposable)
-					test = { _ in sendError(observer, .Default) }
+					sink = observer
 				}
 
 				producer.start()
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				sendError(sink, .Default)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
 			it("should dispose of added disposables upon interruption") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var sink: Signal<(), NoError>.Observer!
 
 				let producer = SignalProducer<(), NoError>() { observer, disposable in
 					disposable.addDisposable(addedDisposable)
-					test = { _ in sendInterrupted(observer) }
+					sink = observer
 				}
 
 				producer.start()
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				sendInterrupted(sink)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
@@ -295,20 +295,20 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables if disposed") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var disposable: Disposable!
 
 				let producer = SignalProducer<Int, NoError>() { _, disposable in
 					disposable.addDisposable(addedDisposable)
 					return
 				}
 
-				producer |> startWithSignal { _, disposable in
-					test = { _ in disposable.dispose() }
+				producer |> startWithSignal { _, innerDisposable in
+					disposable = innerDisposable
 				}
 
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				disposable.dispose()
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
@@ -336,20 +336,20 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should release signal observers if disposed") {
 				weak var testSink: TestSink?
-				var dispose: () -> () = {}
+				var disposable: Disposable!
 
 				let producer = SignalProducer<Int, NoError>.never
-				producer.startWithSignal { signal, disposable in
+				producer.startWithSignal { signal, innerDisposable in
 					var sink = TestSink()
 					testSink = sink
 					signal.observe(sink)
 
-					dispose = { _ in disposable.dispose() }
+					disposable = innerDisposable
 				}
 
 				expect(testSink).toNot(beNil())
-				dispose()
 
+				disposable.dispose()
 				expect(testSink).to(beNil())
 			}
 
@@ -393,33 +393,33 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon completion") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var sink: Signal<Int, TestError>.Observer!
 
 				let producer = SignalProducer<Int, TestError>() { observer, disposable in
 					disposable.addDisposable(addedDisposable)
-					test = { _ in sendCompleted(observer) }
+					sink = observer
 				}
 
 				producer |> startWithSignal { _ in }
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				sendCompleted(sink)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
 			it("should dispose of added disposables upon error") {
 				let addedDisposable = SimpleDisposable()
-				var test: () -> () = { }
+				var sink: Signal<Int, TestError>.Observer!
 
 				let producer = SignalProducer<Int, TestError>() { observer, disposable in
 					disposable.addDisposable(addedDisposable)
-					test = { _ in sendError(observer, .Default) }
+					sink = observer
 				}
 
 				producer |> startWithSignal { _ in }
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				test()
+				sendError(sink, .Default)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
@@ -457,20 +457,19 @@ class SignalProducerSpec: QuickSpec {
 			pending("should release sink when disposed") {
 				weak var testSink: TestSink?
 
-				var dispose: () -> () = { }
+				var disposable: Disposable!
 				var test: () -> () = {
 					let producer = SignalProducer<Int, NoError>.never
 					let sink = TestSink()
 					testSink = sink
 
-					let disposable = producer.start(sink)
-					dispose = { _ in disposable.dispose() }
+					disposable = producer.start(sink)
 				}
 
 				test()
 				expect(testSink).toNot(beNil())
 
-				dispose()
+				disposable.dispose()
 				expect(testSink).to(beNil())
 			}
 		}

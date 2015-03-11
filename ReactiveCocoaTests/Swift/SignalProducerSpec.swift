@@ -314,23 +314,21 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should send interrupted if disposed") {
 				var interrupted = false
-				var scheduler = TestScheduler()
+				var disposable: Disposable!
 
 				SignalProducer<Int, NoError>(value: 42)
-					|> startOn(scheduler)
-					|> startWithSignal { signal, disposable in
+					|> startOn(TestScheduler())
+					|> startWithSignal { signal, innerDisposable in
 						signal.observe(interrupted: {
 							interrupted = true
 						})
 
-						scheduler.schedule {
-							disposable.dispose()
-						}
+						disposable = innerDisposable
 					}
 
 				expect(interrupted).to(beFalsy())
 
-				scheduler.run()
+				disposable.dispose()
 				expect(interrupted).to(beTruthy())
 			}
 

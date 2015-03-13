@@ -24,7 +24,7 @@
 			@strongify(self);
 			return [RACSignal return:self];
 		}]
-		concat:[self rac_signalForControlEvents:UIControlEventEditingChanged | UIControlEventEditingDidBegin]]
+		concat:[self rac_signalForControlEvents:UIControlEventAllEditingEvents]]
 		map:^(UITextField *x) {
 			return x.text;
 		}]
@@ -33,7 +33,7 @@
 }
 
 - (RACChannelTerminal *)rac_newTextChannel {
-	return [self rac_channelForControlEvents:UIControlEventEditingChanged | UIControlEventEditingDidBegin key:@keypath(self.text) nilValue:@""];
+	return [self rac_channelForControlEvents:UIControlEventAllEditingEvents key:@keypath(self.text) nilValue:@""];
 }
 
 @end

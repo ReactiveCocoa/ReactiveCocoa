@@ -14,55 +14,60 @@ internal func doNothing() {}
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
-/// `Next* (Error | Completed)?`
+/// `Next* (Error | Completed | Interrupted)?`
 public enum Event<T, E: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Box<T>)
 
-	/// The signal terminated because of an error.
+	/// The signal terminated because of an error. No further events will be
+	/// received.
 	case Error(Box<E>)
 
-	/// The signal successfully terminated.
+	/// The signal successfully terminated. No further events will be received.
 	case Completed
 
-	/// Whether this event indicates signal termination (from success or
-	/// failure).
+	/// Event production on the signal has been interrupted. No further events
+	/// will be received.
+	case Interrupted
+
+	/// Whether this event indicates signal termination (i.e., that no further
+	/// events will be received).
 	public var isTerminating: Bool {
 		switch self {
-		case let .Next:
+		case .Next:
 			return false
 
-		default:
+		case .Error:
 			return true
-		}
-	}
 
-	/// Case analysis on the receiver.
-	public func event<U>(@noescape #ifNext: T -> U, @noescape ifError: E -> U, @autoclosure ifCompleted: () -> U) -> U {
-		switch self {
-		case let .Next(box):
-			return ifNext(box.unbox)
+		case .Completed:
+			return true
 
-		case let .Error(box):
-			return ifError(box.unbox)
-
-		case let .Completed:
-			return ifCompleted()
+		case .Interrupted:
+			return true
 		}
 	}
 
 	/// Lifts the given function over the event's value.
 	public func map<U>(f: T -> U) -> Event<U, E> {
-		return event(ifNext: { value in
-			return Event<U, E>.Next(Box(f(value)))
-		}, ifError: { error in
-			return Event<U, E>.Error(Box(error))
-		}, ifCompleted: Event<U, E>.Completed)
+		switch self {
+		case let .Next(value):
+			return Event<U, E>.Next(Box(f(value.unbox)))
+
+		case let .Error(error):
+			return Event<U, E>.Error(error)
+
+		case .Completed:
+			return .Completed
+
+		case .Interrupted:
+			return .Interrupted
+		}
 	}
 
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event> {
+	public static func sink(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> SinkOf<Event> {
 		return SinkOf { event in
 			switch event {
 			case let .Next(value):
@@ -73,6 +78,9 @@ public enum Event<T, E: ErrorType> {
 
 			case .Completed:
 				completed()
+
+			case .Interrupted:
+				interrupted()
 			}
 		}
 	}
@@ -87,6 +95,9 @@ public func == <T: Equatable, E: Equatable> (lhs: Event<T, E>, rhs: Event<T, E>)
 		return left.unbox == right.unbox
 
 	case (.Completed, .Completed):
+		return true
+
+	case (.Interrupted, .Interrupted):
 		return true
 
 	default:
@@ -105,6 +116,9 @@ extension Event: Printable {
 
 		case .Completed:
 			return "COMPLETED"
+
+		case .Interrupted:
+			return "INTERRUPTED"
 		}
 	}
 }
@@ -122,4 +136,9 @@ public func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: E) {
 /// Puts a `Completed` event into the given sink.
 public func sendCompleted<T, E>(sink: SinkOf<Event<T, E>>) {
 	sink.put(Event<T, E>.Completed)
+}
+
+/// Puts a `Interrupted` event into the given sink.
+public func sendInterrupted<T, E>(sink: SinkOf<Event<T, E>>) {
+	sink.put(Event<T, E>.Interrupted)
 }

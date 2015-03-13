@@ -946,17 +946,19 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 ///
 /// If the interval is 0, the timeout will be scheduled immediately. The signal
 /// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	precondition(interval >= 0)
 
-	return Signal { observer in
-		let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-		let schedulerDisposable = scheduler.scheduleAfter(date) {
-			sendError(observer, error)
-		}
+	return { signal in
+		return Signal { observer in
+			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+			let schedulerDisposable = scheduler.scheduleAfter(date) {
+				sendError(observer, error)
+			}
 
-		let signalDisposable = signal.observe(observer)
-		return CompositeDisposable(ignoreNil([ signalDisposable, schedulerDisposable ]))
+			let signalDisposable = signal.observe(observer)
+			return CompositeDisposable(ignoreNil([ signalDisposable, schedulerDisposable ]))
+		}
 	}
 }
 

@@ -452,7 +452,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(interrupted).to(beTruthy())
 			}
 
-			pending("should release sink when disposed") {
+			it("should release sink when disposed") {
 				weak var testSink: TestSink?
 
 				var disposable: Disposable!
@@ -467,10 +467,6 @@ class SignalProducerSpec: QuickSpec {
 				test()
 				expect(testSink).toNot(beNil())
 
-				// FIXME: Disposing _should_ result in the test sink being released here. Implementing
-				// an identical `start` method as a producer extension in the test module and using that
-				// works as expected. Calling the normal `start` method on `SignalProducer` leaks the
-				// sink a yet to be determined reason.
 				disposable.dispose()
 				expect(testSink).to(beNil())
 			}

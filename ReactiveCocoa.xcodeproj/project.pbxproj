@@ -1044,6 +1044,7 @@
 				D04725EB19E49ED7006002AA /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 1;
 		};
 		D04725EB19E49ED7006002AA /* Products */ = {
 			isa = PBXGroup;

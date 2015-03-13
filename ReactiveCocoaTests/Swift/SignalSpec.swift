@@ -582,7 +582,7 @@ class SignalSpec: QuickSpec {
 
 			it("should skip values according to a predicate") {
 				let (baseSignal, sink) = Signal<String, NoError>.pipe()
-				let signal = baseSignal |> skipRepeats { countElements($0) == countElements($1) }
+				let signal = baseSignal |> skipRepeats { count($0) == count($1) }
 
 				var values: [String] = []
 				signal.observe(next: { values.append($0) })

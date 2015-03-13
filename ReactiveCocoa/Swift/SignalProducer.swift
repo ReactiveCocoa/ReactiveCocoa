@@ -90,6 +90,14 @@ public struct SignalProducer<T, E: ErrorType> {
 	public static var never: SignalProducer {
 		return self { _ in () }
 	}
+	
+	/// Defers creation of a SignalProducer.
+	public static func defer(producerHandler: ()-> SignalProducer) -> SignalProducer {
+		return self { observer, compositeDisposable in
+			let diposable = producerHandler().start(observer)
+			compositeDisposable.addDisposable(diposable)
+		}
+	}
 
 	/// Creates a buffer for Events, with the given capacity, and a
 	/// SignalProducer for a signal that will send Events from the buffer.

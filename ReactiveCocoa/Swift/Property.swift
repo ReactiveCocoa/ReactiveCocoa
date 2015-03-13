@@ -130,7 +130,7 @@ extension MutableProperty: SinkType {
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
 				|> catch { error in
-					fatalError("Received unexpected error from KVO signal: \(error)")
+					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}
 		} else {

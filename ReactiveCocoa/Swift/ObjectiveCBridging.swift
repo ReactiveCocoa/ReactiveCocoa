@@ -144,7 +144,7 @@ extension RACCommand {
 		let enabledProperty = MutableProperty(true)
 
 		enabledProperty <~ self.enabled.toSignalProducer()
-			|> map { $0 as Bool }
+			|> map { $0 as! Bool }
 			|> catch { _ in SignalProducer<Bool, NoError>(value: false) }
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in

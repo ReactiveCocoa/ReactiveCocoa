@@ -307,8 +307,8 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 				scheduler.scheduleAfter(date) {
 					observer.put(event)
 				}
-			})
-		}
+			}
+		})
 	}
 }
 

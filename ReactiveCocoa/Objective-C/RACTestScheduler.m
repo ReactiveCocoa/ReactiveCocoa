@@ -92,7 +92,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 	[self stepAll];
 
 	if (_scheduledActions != NULL) {
-		CFRelease(_scheduledActions);
+		CFBridgingRelease(_scheduledActions);
 		_scheduledActions = NULL;
 	}
 }

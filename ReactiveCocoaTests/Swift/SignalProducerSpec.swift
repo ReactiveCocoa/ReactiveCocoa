@@ -30,19 +30,86 @@ class SignalProducerSpec: QuickSpec {
 				expect(handlerCalledTimes).to(equal(2))
 			}
 
-			pending("should release signal observers when given disposable is disposed") {
+			it("should release signal observers when given disposable is disposed") {
+				var disposable: Disposable!
+				let producer = SignalProducer<Int, NoError> { _, innerDisposable in
+					disposable = innerDisposable
+				}
+
+				weak var testSink: TestSink?
+				producer.startWithSignal { signal, _ in
+					var sink = TestSink()
+					testSink = sink
+					signal.observe(sink)
+				}
+
+				expect(testSink).toNot(beNil())
+
+				disposable.dispose()
+				expect(testSink).to(beNil())
 			}
 
-			pending("should dispose of added disposables upon completion") {
+			it("should dispose of added disposables upon completion") {
+				let addedDisposable = SimpleDisposable()
+				var sink: Signal<(), NoError>.Observer!
+
+				let producer = SignalProducer<(), NoError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					sink = observer
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				sendCompleted(sink)
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon error") {
+			it("should dispose of added disposables upon error") {
+				let addedDisposable = SimpleDisposable()
+				var sink: Signal<(), TestError>.Observer!
+
+				let producer = SignalProducer<(), TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					sink = observer
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				sendError(sink, .Default)
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon interruption") {
+			it("should dispose of added disposables upon interruption") {
+				let addedDisposable = SimpleDisposable()
+				var sink: Signal<(), NoError>.Observer!
+
+				let producer = SignalProducer<(), NoError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					sink = observer
+				}
+
+				producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				sendInterrupted(sink)
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon start() disposal") {
+			it("should dispose of added disposables upon start() disposal") {
+				let addedDisposable = SimpleDisposable()
+
+				let producer = SignalProducer<(), TestError>() { _, disposable in
+					disposable.addDisposable(addedDisposable)
+					return
+				}
+
+				let startDisposable = producer.start()
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				startDisposable.dispose()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
 
@@ -108,10 +175,63 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("SignalProducer.buffer") {
-			pending("should replay buffered events when started, then forward events as added") {
+			it("should replay buffered events when started, then forward events as added") {
+				let (producer, sink) = SignalProducer<Int, NSError>.buffer()
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+
+				var values: [Int] = []
+				var completed = false
+				producer.start(next: {
+					values.append($0)
+				}, completed: {
+					completed = true
+				})
+
+				expect(values).to(equal([1, 2, 3]))
+				expect(completed).to(beFalsy())
+
+				sendNext(sink, 4)
+				sendNext(sink, 5)
+
+				expect(values).to(equal([1, 2, 3, 4, 5]))
+				expect(completed).to(beFalsy())
+
+				sendCompleted(sink)
+
+				expect(values).to(equal([1, 2, 3, 4, 5]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should drop earliest events to maintain the capacity") {
+			it("should drop earliest events to maintain the capacity") {
+				let (producer, sink) = SignalProducer<Int, TestError>.buffer(1)
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+
+				var values: [Int] = []
+				var error: TestError?
+				producer.start(next: {
+					values.append($0)
+				}, error: {
+					error = $0
+				})
+				
+				expect(values).to(equal([2]))
+				expect(error).to(beNil())
+
+				sendNext(sink, 3)
+				sendNext(sink, 4)
+
+				expect(values).to(equal([2, 3, 4]))
+				expect(error).to(beNil())
+
+				sendError(sink, .Default)
+
+				expect(values).to(equal([2, 3, 4]))
+				expect(error).to(equal(TestError.Default))
 			}
 		}
 
@@ -154,83 +274,428 @@ class SignalProducerSpec: QuickSpec {
 		}
 
 		describe("startWithSignal") {
-			pending("should invoke the closure before any effects or events") {
+			it("should invoke the closure before any effects or events") {
+				var started = false
+				var value: Int?
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> on(started: {
+						started = true
+					}, next: {
+						value = $0
+					})
+					|> startWithSignal { _ in
+						expect(started).to(beFalsy())
+						expect(value).to(beNil())
+					}
+
+				expect(started).to(beTruthy())
+				expect(value).to(equal(42))
 			}
 
-			pending("should dispose of added disposables if disposed") {
+			it("should dispose of added disposables if disposed") {
+				let addedDisposable = SimpleDisposable()
+				var disposable: Disposable!
+
+				let producer = SignalProducer<Int, NoError>() { _, disposable in
+					disposable.addDisposable(addedDisposable)
+					return
+				}
+
+				producer |> startWithSignal { _, innerDisposable in
+					disposable = innerDisposable
+				}
+
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				disposable.dispose()
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should send interrupted if disposed") {
+			it("should send interrupted if disposed") {
+				var interrupted = false
+				var disposable: Disposable!
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> startOn(TestScheduler())
+					|> startWithSignal { signal, innerDisposable in
+						signal.observe(interrupted: {
+							interrupted = true
+						})
+
+						disposable = innerDisposable
+					}
+
+				expect(interrupted).to(beFalsy())
+
+				disposable.dispose()
+				expect(interrupted).to(beTruthy())
 			}
 
-			pending("should release signal observers if disposed") {
+			it("should release signal observers if disposed") {
+				weak var testSink: TestSink?
+				var disposable: Disposable!
+
+				let producer = SignalProducer<Int, NoError>.never
+				producer.startWithSignal { signal, innerDisposable in
+					var sink = TestSink()
+					testSink = sink
+					signal.observe(sink)
+
+					disposable = innerDisposable
+				}
+
+				expect(testSink).toNot(beNil())
+
+				disposable.dispose()
+				expect(testSink).to(beNil())
 			}
 
-			pending("should not trigger effects if disposed before closure return") {
+			it("should not trigger effects if disposed before closure return") {
+				var started = false
+				var value: Int?
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> on(started: {
+						started = true
+					}, next: {
+						value = $0
+					})
+					|> startWithSignal { _, disposable in
+						expect(started).to(beFalsy())
+						expect(value).to(beNil())
+
+						disposable.dispose()
+					}
+
+				expect(started).to(beFalsy())
+				expect(value).to(beNil())
 			}
 
-			pending("should send interrupted if disposed before closure return") {
+			it("should send interrupted if disposed before closure return") {
+				var interrupted = false
+
+				SignalProducer<Int, NoError>(value: 42)
+					|> startWithSignal { signal, disposable in
+						expect(interrupted).to(beFalsy())
+
+						signal.observe(interrupted: {
+							interrupted = true
+						})
+
+						disposable.dispose()
+					}
+
+				expect(interrupted).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon completion") {
+			it("should dispose of added disposables upon completion") {
+				let addedDisposable = SimpleDisposable()
+				var sink: Signal<Int, TestError>.Observer!
+
+				let producer = SignalProducer<Int, TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					sink = observer
+				}
+
+				producer |> startWithSignal { _ in }
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				sendCompleted(sink)
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
-			pending("should dispose of added disposables upon error") {
+			it("should dispose of added disposables upon error") {
+				let addedDisposable = SimpleDisposable()
+				var sink: Signal<Int, TestError>.Observer!
+
+				let producer = SignalProducer<Int, TestError>() { observer, disposable in
+					disposable.addDisposable(addedDisposable)
+					sink = observer
+				}
+
+				producer |> startWithSignal { _ in }
+				expect(addedDisposable.disposed).to(beFalsy())
+
+				sendError(sink, .Default)
+				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
 
 		describe("start") {
-			pending("should immediately begin sending events") {
+			it("should immediately begin sending events") {
+				let producer = SignalProducer<Int, NoError>(values: [1, 2])
+
+				var values: [Int] = []
+				var completed = false
+				producer.start(next: {
+					values.append($0)
+				}, completed: {
+					completed = true
+				})
+
+				expect(values).to(equal([1, 2]))
+				expect(completed).to(beTruthy())
 			}
 
-			pending("should send interrupted if disposed") {
+			it("should send interrupted if disposed") {
+				let producer = SignalProducer<(), NoError>.never
+
+				var interrupted = false
+				let disposable = producer.start(interrupted: {
+					interrupted = true
+				})
+
+				expect(interrupted).to(beFalsy())
+
+				disposable.dispose()
+				expect(interrupted).to(beTruthy())
 			}
 
 			pending("should release sink when disposed") {
+				weak var testSink: TestSink?
+
+				var disposable: Disposable!
+				var test: () -> () = {
+					let producer = SignalProducer<Int, NoError>.never
+					let sink = TestSink()
+					testSink = sink
+
+					disposable = producer.start(sink)
+				}
+
+				test()
+				expect(testSink).toNot(beNil())
+
+				// FIXME: Disposing _should_ result in the test sink being released here. Implementing
+				// an identical `start` method as a producer extension in the test module and using that
+				// works as expected. Calling the normal `start` method on `SignalProducer` leaks the
+				// sink a yet to be determined reason.
+				disposable.dispose()
+				expect(testSink).to(beNil())
 			}
 		}
 
 		describe("lift") {
 			describe("over unary operators") {
-				pending("should invoke transformation once per started signal") {
+				it("should invoke transformation once per started signal") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+
+					var counter = 0
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> in
+						counter += 1
+						return signal
+					}
+
+					let producer = baseProducer.lift(transform)
+					expect(counter).to(equal(0))
+
+					producer.start()
+					expect(counter).to(equal(1))
+
+					producer.start()
+					expect(counter).to(equal(2))
 				}
 
-				pending("should not miss any events") {
+				it("should not miss any events") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3, 4])
+
+					let producer = baseProducer.lift(map { $0 * $0 })
+					let result = producer |> collect |> single
+
+					expect(result?.value).to(equal([1, 4, 9, 16]))
 				}
 			}
 
 			describe("over binary operators") {
-				pending("should invoke transformation once per started signal") {
+				it("should invoke transformation once per started signal") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+					let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
+
+					var counter = 0
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+						return { otherSignal in
+							counter += 1
+							return zip(signal, otherSignal)
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherProducer)
+					expect(counter).to(equal(0))
+
+					producer.start()
+					expect(counter).to(equal(1))
+
+					producer.start()
+					expect(counter).to(equal(2))
 				}
 
-				pending("should not miss any events") {
+				it("should not miss any events") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3])
+					let otherProducer = SignalProducer<Int, NoError>(values: [4, 5, 6])
+
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+						return { otherSignal in
+							return zip(signal, otherSignal) |> map { first, second in first + second }
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherProducer)
+					let result = producer |> collect |> single
+
+					expect(result?.value).to(equal([5, 7, 9]))
 				}
 			}
 		}
 
 		describe("timer") {
-			pending("should send the current date at the given interval") {
+			it("should send the current date at the given interval") {
+				let scheduler = TestScheduler()
+				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
+
+				var dates: [NSDate] = []
+				producer.start(next: { dates.append($0) })
+
+				scheduler.advanceByInterval(0.9)
+				expect(dates).to(equal([]))
+
+				scheduler.advanceByInterval(1)
+				let firstTick = scheduler.currentDate
+				expect(dates).to(equal([firstTick]))
+
+				scheduler.advance()
+				expect(dates).to(equal([firstTick]))
+
+				scheduler.advanceByInterval(0.2)
+				let secondTick = scheduler.currentDate
+				expect(dates).to(equal([firstTick, secondTick]))
+
+				scheduler.advanceByInterval(1)
+				expect(dates).to(equal([firstTick, secondTick, scheduler.currentDate]))
 			}
 
-			pending("should release the signal when disposed") {
+			it("should release the signal when disposed") {
+				let scheduler = TestScheduler()
+				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
+
+				weak var weakSignal: Signal<NSDate, NoError>?
+				producer.startWithSignal { signal, disposable in
+					weakSignal = signal
+					scheduler.schedule {
+						disposable.dispose()
+					}
+				}
+
+				expect(weakSignal).toNot(beNil())
+
+				scheduler.run()
+				expect(weakSignal).to(beNil())
 			}
 		}
 
 		describe("on") {
-			pending("should attach event handlers to each started signal") {
+			it("should attach event handlers to each started signal") {
+				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
+
+				var started = 0
+				var event = 0
+				var next = 0
+				var completed = 0
+				var terminated = 0
+
+				let producer = baseProducer
+					|> on(started: { () -> () in
+						started += 1
+					}, event: { (e: Event<Int, TestError>) -> () in
+						event += 1
+					}, next: { (n: Int) -> () in
+						next += 1
+					}, completed: { () -> () in
+						completed += 1
+					}, terminated: { () -> () in
+						terminated += 1
+					})
+
+				producer.start()
+				expect(started).to(equal(1))
+
+				producer.start()
+				expect(started).to(equal(2))
+
+				sendNext(sink, 1)
+				expect(event).to(equal(2))
+				expect(next).to(equal(2))
+
+				sendCompleted(sink)
+				expect(event).to(equal(4))
+				expect(completed).to(equal(2))
+				expect(terminated).to(equal(2))
 			}
 		}
 
 		describe("startOn") {
-			pending("should invoke effects on the given scheduler") {
+			it("should invoke effects on the given scheduler") {
+				let scheduler = TestScheduler()
+				var invoked = false
+
+				let producer = SignalProducer<Int, NoError>() { _ in
+					invoked = true
+				}
+
+				producer |> startOn(scheduler) |> start()
+				expect(invoked).to(beFalsy())
+
+				scheduler.advance()
+				expect(invoked).to(beTruthy())
 			}
 
-			pending("should forward events on their original scheduler") {
+			it("should forward events on their original scheduler") {
+				let startScheduler = TestScheduler()
+				let testScheduler = TestScheduler()
+
+				let producer = timer(2, onScheduler: testScheduler, withLeeway: 0)
+
+				var next: NSDate?
+				producer |> startOn(startScheduler) |> start(next: { next = $0 })
+
+				startScheduler.advanceByInterval(2)
+				expect(next).to(beNil())
+
+				testScheduler.advanceByInterval(1)
+				expect(next).to(beNil())
+
+				testScheduler.advanceByInterval(1)
+				expect(next).to(equal(testScheduler.currentDate))
 			}
 		}
 
 		describe("catch") {
-			pending("should invoke the handler and start new producer for an error") {
+			it("should invoke the handler and start new producer for an error") {
+				let (baseProducer, baseSink) = SignalProducer<Int, TestError>.buffer()
+				sendNext(baseSink, 1)
+				sendError(baseSink, .Default)
+
+				var values: [Int] = []
+				var completed = false
+
+				baseProducer
+					|> catch { (error: TestError) -> SignalProducer<Int, TestError> in
+						expect(error).to(equal(TestError.Default))
+						expect(values).to(equal([1]))
+
+						let (innerProducer, innerSink) = SignalProducer<Int, TestError>.buffer()
+						sendNext(innerSink, 2)
+						sendCompleted(innerSink)
+						return innerProducer
+					}
+					|> start(next: {
+						values.append($0)
+					}, completed: {
+						completed = true
+					})
+
+				expect(values).to(equal([1, 2]))
+				expect(completed).to(beTruthy())
 			}
 		}
 
@@ -806,6 +1271,11 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 	}
+}
+
+/// Observer that can be weakly captured to monitor its lifetime
+private final class TestSink : SinkType {
+	func put(x: Event<Int, NoError>) {}
 }
 
 extension SignalProducer {

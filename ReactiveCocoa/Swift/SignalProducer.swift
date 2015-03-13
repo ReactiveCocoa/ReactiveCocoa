@@ -376,16 +376,18 @@ public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = d
 ///
 /// Events may still be sent upon other schedulers—this merely affects where
 /// the `start()` method is run.
-public func startOn<T, E>(scheduler: SchedulerType)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return SignalProducer { observer, compositeDisposable in
-		let schedulerDisposable = scheduler.schedule {
-			producer.startWithSignal { signal, signalDisposable in
-				compositeDisposable.addDisposable(signalDisposable)
-				signal.observe(observer)
+public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return SignalProducer { observer, compositeDisposable in
+			let schedulerDisposable = scheduler.schedule {
+				producer.startWithSignal { signal, signalDisposable in
+					compositeDisposable.addDisposable(signalDisposable)
+					signal.observe(observer)
+				}
 			}
-		}
 
-		compositeDisposable.addDisposable(schedulerDisposable)
+			compositeDisposable.addDisposable(schedulerDisposable)
+		}
 	}
 }
 

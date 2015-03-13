@@ -291,24 +291,26 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 /// them on the given scheduler.
 ///
 /// `Error` and `Interrupted` events are always scheduled immediately.
-public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	precondition(interval >= 0)
 
-	return Signal { observer in
-		return signal.observe(SinkOf { event in
-			switch event {
-			case .Error, .Interrupted:
-				scheduler.schedule {
-					observer.put(event)
-				}
+	return { signal in
+		return Signal { observer in
+			return signal.observe(SinkOf { event in
+				switch event {
+				case .Error, .Interrupted:
+					scheduler.schedule {
+						observer.put(event)
+					}
 
-			default:
-				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-				scheduler.scheduleAfter(date) {
-					observer.put(event)
+				default:
+					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+					scheduler.scheduleAfter(date) {
+						observer.put(event)
+					}
 				}
-			}
-		})
+			})
+		}
 	}
 }
 
@@ -744,51 +746,53 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 ///
 /// If the input signal terminates while a value is being throttled, that value
 /// will be discarded and the returned signal will terminate immediately.
-public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T, E>) -> Signal<T, E> {
+public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	precondition(interval >= 0)
 
-	return Signal { observer in
-		let state: Atomic<ThrottleState<T>> = Atomic(ThrottleState())
-		let schedulerDisposable = SerialDisposable()
+	return { signal in
+		return Signal { observer in
+			let state: Atomic<ThrottleState<T>> = Atomic(ThrottleState())
+			let schedulerDisposable = SerialDisposable()
 
-		let disposable = CompositeDisposable()
-		disposable.addDisposable(schedulerDisposable)
+			let disposable = CompositeDisposable()
+			disposable.addDisposable(schedulerDisposable)
 
-		let signalDisposable = signal.observe(SinkOf { event in
-			switch event {
-			case let .Next(value):
-				let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
-					state.pendingValue = value.unbox
+			let signalDisposable = signal.observe(SinkOf { event in
+				switch event {
+				case let .Next(value):
+					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
+						state.pendingValue = value.unbox
 
-					let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-					return (state, scheduleDate)
-				}
+						let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						return (state, scheduleDate)
+					}
 
-				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-					let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
-						let value = state.pendingValue
-						if value != nil {
-							state.pendingValue = nil
-							state.previousDate = scheduleDate
+					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+						let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
+							let value = state.pendingValue
+							if value != nil {
+								state.pendingValue = nil
+								state.previousDate = scheduleDate
+							}
+
+							return (state, value)
 						}
-
-						return (state, value)
+						
+						if let pendingValue = pendingValue {
+							sendNext(observer, pendingValue)
+						}
 					}
-					
-					if let pendingValue = pendingValue {
-						sendNext(observer, pendingValue)
+
+				default:
+					schedulerDisposable.innerDisposable = scheduler.schedule {
+						observer.put(event)
 					}
 				}
+			})
 
-			default:
-				schedulerDisposable.innerDisposable = scheduler.schedule {
-					observer.put(event)
-				}
-			}
-		})
-
-		disposable.addDisposable(signalDisposable)
-		return disposable
+			disposable.addDisposable(signalDisposable)
+			return disposable
+		}
 	}
 }
 

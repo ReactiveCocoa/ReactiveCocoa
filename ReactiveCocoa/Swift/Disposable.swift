@@ -142,7 +142,7 @@ public final class CompositeDisposable: Disposable {
 
 	/// Adds an ActionDisposable to the list.
 	public func addDisposable(action: () -> ()) -> DisposableHandle {
-		return addDisposable(ActionDisposable(action))
+		return addDisposable(ActionDisposable(action: action))
 	}
 }
 

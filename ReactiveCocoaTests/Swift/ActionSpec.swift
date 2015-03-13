@@ -50,8 +50,8 @@ class ActionSpec: QuickSpec {
 					}
 				}
 
-				action.values.observe { values.append($0) }
-				action.errors.observe { errors.append($0) }
+				action.values.observe(next: { values.append($0) })
+				action.errors.observe(next: { errors.append($0) })
 			}
 
 			it("should be disabled and not executing after initialization") {
@@ -170,7 +170,7 @@ class ActionSpec: QuickSpec {
 				cocoaAction
 					.rac_valuesForKeyPath("enabled", observer: nil)
 					.toSignalProducer()
-					|> map { $0! as Bool }
+					|> map { $0! as! Bool }
 					|> start(Event.sink(next: { values.append($0) }))
 
 				expect(values).to(equal([ true ]))
@@ -186,7 +186,7 @@ class ActionSpec: QuickSpec {
 				cocoaAction
 					.rac_valuesForKeyPath("executing", observer: nil)
 					.toSignalProducer()
-					|> map { $0! as Bool }
+					|> map { $0! as! Bool }
 					|> start(Event.sink(next: { values.append($0) }))
 
 				expect(values).to(equal([ false ]))

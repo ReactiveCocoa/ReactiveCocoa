@@ -108,9 +108,9 @@ class PropertySpec: QuickSpec {
 
 			beforeEach {
 				object = ObservableObject()
-				expect(object.value).to(equal(0))
+				expect(object.rac_value).to(equal(0))
 
-				property = DynamicProperty(object: object, keyPath: "value")
+				property = DynamicProperty(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -120,13 +120,13 @@ class PropertySpec: QuickSpec {
 			it("should read the underlying object") {
 				expect(propertyValue()).to(equal(0))
 
-				object.value = 1
+				object.rac_value = 1
 				expect(propertyValue()).to(equal(1))
 			}
 
 			it("should write the underlying object") {
 				property.value = 1
-				expect(object.value).to(equal(1))
+				expect(object.rac_value).to(equal(1))
 				expect(propertyValue()).to(equal(1))
 			}
 
@@ -142,7 +142,7 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(values).to(equal([ 0, 1 ]))
 
-				object.value = 2
+				object.rac_value = 2
 				expect(values).to(equal([ 0, 1, 2 ]))
 			}
 
@@ -152,7 +152,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "value")
+					let property = DynamicProperty(object: object, keyPath: "rac_value")
 
 					property.producer.start(completed: {
 						completed = true
@@ -309,5 +309,5 @@ class PropertySpec: QuickSpec {
 }
 
 private class ObservableObject: NSObject {
-	dynamic var value: Int = 0
+	dynamic var rac_value: Int = 0
 }

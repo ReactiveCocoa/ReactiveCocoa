@@ -101,7 +101,7 @@ extension MutableProperty: SinkType {
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-@objc public final class DynamicProperty: NSObject, PropertyType {
+@objc public final class DynamicProperty: RACDynamicPropertySuperclass, PropertyType {
 	public typealias Value = AnyObject?
 
 	private weak var object: NSObject?
@@ -110,11 +110,11 @@ extension MutableProperty: SinkType {
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: AnyObject? {
-		get {
+		@objc(rac_value) get {
 			return object?.valueForKeyPath(keyPath)
 		}
 
-		set(newValue) {
+		@objc(setRac_value:) set(newValue) {
 			object?.setValue(newValue, forKeyPath: keyPath)
 		}
 	}
@@ -130,7 +130,7 @@ extension MutableProperty: SinkType {
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
 				|> catch { error in
-					fatalError("Received unexpected error from KVO signal: \(error)")
+					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}
 		} else {

@@ -152,7 +152,7 @@ qck_it(@"should not crash when racing between swapInDisposable and disposable", 
 
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		while (!stop) {
-			[serialDisposable disposable];
+			(void)[serialDisposable disposable];
 		}
 	});
 

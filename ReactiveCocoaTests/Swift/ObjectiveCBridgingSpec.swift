@@ -24,7 +24,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return nil
 				}
 
-				let producer = racSignal.toSignalProducer() |> map { $0 as Int }
+				let producer = racSignal.toSignalProducer() |> map { $0 as! Int }
 
 				expect((producer |> single)?.value).to(equal(0))
 				expect((producer |> single)?.value).to(equal(1))
@@ -128,16 +128,16 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				results = []
 
 				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal! in
-					let inputNumber = input as Int
+					let inputNumber = input as! Int
 					return RACSignal.`return`(inputNumber + 1)
 				}
 
 				expect(command).notTo(beNil())
 
-				command.enabled.subscribeNext { enabled = $0 as Bool }
+				command.enabled.subscribeNext { enabled = $0 as! Bool }
 				expect(enabled).to(beTruthy())
 
-				command.executionSignals.flatten().subscribeNext { results.append($0 as Int) }
+				command.executionSignals.flatten().subscribeNext { results.append($0 as! Int) }
 				expect(results).to(equal([]))
 
 				action = command.toAction()
@@ -186,7 +186,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				enabledProperty = MutableProperty(true)
 
 				action = Action(enabledIf: enabledProperty) { input in
-					let inputNumber = input as Int
+					let inputNumber = input as! Int
 					return SignalProducer(value: "\(inputNumber + 1)")
 				}
 
@@ -197,7 +197,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				command = toRACCommand(action)
 				expect(command).notTo(beNil())
 
-				command.enabled.subscribeNext { enabled = $0 as Bool }
+				command.enabled.subscribeNext { enabled = $0 as! Bool }
 				expect(enabled).to(beTruthy())
 			}
 

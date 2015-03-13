@@ -1,4 +1,4 @@
 github "LlamaKit/LlamaKit" "v0.6.0"
 github "Quick/Nimble" "v0.4.0"
 github "Quick/Quick" "v0.3.0"
-github "jspahrsummers/xcconfigs" "0.7.1"
+github "jspahrsummers/xcconfigs" "0.7.2"

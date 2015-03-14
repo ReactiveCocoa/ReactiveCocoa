@@ -1484,5 +1484,34 @@ class SignalSpec: QuickSpec {
 				expect(error).to(equal(TestError.Default))
 			}
 		}
+		
+		describe("combinePrevious") {
+			
+			var sink: Signal<Int, NoError>.Observer!
+			var initialValue: Int!
+			var latestValues: (Int, Int)?
+			
+			beforeEach {
+				latestValues = nil
+				initialValue = 0
+				
+				let (signal, baseSink) = Signal<Int, NoError>.pipe()
+				sink = baseSink
+				signal |> combinePrevious(initialValue) |> observe(next: { latestValues = $0 })
+			}
+			
+			it("should forward the latest value with previous value") {
+				expect(latestValues).to(beNil())
+				
+				sendNext(sink, 1)
+				expect(latestValues?.0).to(equal(initialValue))
+				expect(latestValues?.1).to(equal(1))
+				
+				sendNext(sink, 2)
+				expect(latestValues?.0).to(equal(1))
+				expect(latestValues?.1).to(equal(2))
+			}
+			
+		}
 	}
 }

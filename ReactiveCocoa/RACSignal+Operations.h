@@ -380,6 +380,22 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Subscribes to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
+/// Returns a signal that will either immediately send the return value of
+/// `tryBlock` and complete, or send the `NSError` passed from the block without
+/// sending any value.
+///
+/// tryBlock - An action that performs some computation that could fail. If
+///            an error is passed via `errorPtr`, failure is assumed. If no
+///            error is passed, any value returned by the block is considered
+///            successful (including `nil`). This block must not be nil.
+///
+/// Example:
+///
+///   [RACSignal try:^(NSError **error) {
+///       return [NSJSONSerialization JSONObjectWithData:someJSONData options:0 error:error];
+///   }];
++ (RACSignal *)try:(id (^)(NSError **errorPtr))tryBlock;
+
 /// Runs `tryBlock` against each of the receiver's values, passing values
 /// until `tryBlock` returns NO, or the receiver completes.
 ///

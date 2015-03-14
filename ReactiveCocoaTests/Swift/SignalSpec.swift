@@ -1513,5 +1513,113 @@ class SignalSpec: QuickSpec {
 			}
 			
 		}
+
+		describe("combineLatest") {
+			
+			var sinkA: Signal<Int, NoError>.Observer!
+			var sinkB: Signal<Int, NoError>.Observer!
+			var sinkC: Signal<Int, NoError>.Observer!
+			var sinkD: Signal<Int, NoError>.Observer!
+			var sinkE: Signal<Int, NoError>.Observer!
+			var sinkF: Signal<Int, NoError>.Observer!
+			var sinkG: Signal<Int, NoError>.Observer!
+			var sinkH: Signal<Int, NoError>.Observer!
+			var sinkI: Signal<Int, NoError>.Observer!
+			var sinkJ: Signal<Int, NoError>.Observer!
+			
+			var allSink: [Signal<Int, NoError>.Observer] = []
+			
+			var combinedValues: [Int]?
+			var completed: Bool!
+			var values: [Int]!
+			
+			beforeEach {
+				combinedValues = nil
+				completed = false
+				values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				
+				let (signalA, baseSinkA) = Signal<Int, NoError>.pipe()
+				let (signalB, baseSinkB) = Signal<Int, NoError>.pipe()
+				let (signalC, baseSinkC) = Signal<Int, NoError>.pipe()
+				let (signalD, baseSinkD) = Signal<Int, NoError>.pipe()
+				let (signalE, baseSinkE) = Signal<Int, NoError>.pipe()
+				let (signalF, baseSinkF) = Signal<Int, NoError>.pipe()
+				let (signalG, baseSinkG) = Signal<Int, NoError>.pipe()
+				let (signalH, baseSinkH) = Signal<Int, NoError>.pipe()
+				let (signalI, baseSinkI) = Signal<Int, NoError>.pipe()
+				let (signalJ, baseSinkJ) = Signal<Int, NoError>.pipe()
+				
+				sinkA = baseSinkA
+				sinkB = baseSinkB
+				sinkC = baseSinkC
+				sinkD = baseSinkD
+				sinkE = baseSinkE
+				sinkF = baseSinkF
+				sinkG = baseSinkG
+				sinkH = baseSinkH
+				sinkI = baseSinkI
+				sinkJ = baseSinkJ
+				
+				allSink = [sinkA, sinkB, sinkC, sinkD, sinkE, sinkF, sinkG, sinkH, sinkI, sinkJ]
+				
+				let combinedSignal = combineLatest(signalA, signalB, signalC, signalD, signalE, signalF, signalG, signalH, signalI, signalJ)
+				combinedSignal.observe(next: { combinedValues = [$0, $1, $2, $3, $4, $5, $6, $7, $8, $9] }, completed: { completed = true })
+			}
+			
+			it("should forward the latest values from all inputs"){
+				expect(combinedValues).to(beNil())
+				expect(values).to(equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))
+				
+				for (index, sink) in enumerate(allSink) {
+					expect(combinedValues).to(beNil())
+					sendNext(sink, index)
+				}
+				expect(combinedValues).to(equal(values)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				
+				for (index, sink) in enumerate(allSink) {
+					let newValue = 10 + index
+					values[index] = newValue
+					
+					sendNext(sink, newValue)
+					expect(combinedValues).to(equal(values))
+				}
+				
+				for (index, sink) in enumerate(reverse(allSink)) {
+					let newValue = 20 + index
+					values[allSink.count - 1 - index] = newValue
+					
+					sendNext(sink, newValue)
+					expect(combinedValues).to(equal(values))
+				}
+				
+			}
+			
+			it("should not forward the latest values before all inputs"){
+				expect(combinedValues).to(beNil())
+				expect(values).to(equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))
+				
+				allSink.removeLast()
+				for (index, sink) in enumerate(allSink) {
+					sendNext(sink, index)
+				}
+				expect(combinedValues).to(beNil())
+				
+				sendNext(sinkJ, 9)
+				expect(combinedValues).to(equal(values)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+			}
+			
+			it("should complete when all inputs have completed"){
+				expect(completed).to(beFalsy())
+				
+				allSink.removeLast()
+				for sink in allSink {
+					sendCompleted(sink)
+				}
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(sinkJ)
+				expect(completed).to(beTruthy())
+			}
+		}
 	}
 }

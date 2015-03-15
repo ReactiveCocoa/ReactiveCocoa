@@ -1621,5 +1621,102 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 		}
+		
+		describe("zip") {
+            
+            var sinkA: Signal<Int, NoError>.Observer!
+            var sinkB: Signal<Int, NoError>.Observer!
+            var sinkC: Signal<Int, NoError>.Observer!
+            var sinkD: Signal<Int, NoError>.Observer!
+            var sinkE: Signal<Int, NoError>.Observer!
+            var sinkF: Signal<Int, NoError>.Observer!
+            var sinkG: Signal<Int, NoError>.Observer!
+            var sinkH: Signal<Int, NoError>.Observer!
+            var sinkI: Signal<Int, NoError>.Observer!
+            var sinkJ: Signal<Int, NoError>.Observer!
+            
+            var allSink: [Signal<Int, NoError>.Observer] = []
+            
+            var zippedValues: [Int]?
+            var completed: Bool!
+			var values: [Int]!
+            
+            beforeEach {
+                zippedValues = nil
+                completed = false
+				values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                
+                let (signalA, baseSinkA) = Signal<Int, NoError>.pipe()
+                let (signalB, baseSinkB) = Signal<Int, NoError>.pipe()
+                let (signalC, baseSinkC) = Signal<Int, NoError>.pipe()
+                let (signalD, baseSinkD) = Signal<Int, NoError>.pipe()
+                let (signalE, baseSinkE) = Signal<Int, NoError>.pipe()
+                let (signalF, baseSinkF) = Signal<Int, NoError>.pipe()
+                let (signalG, baseSinkG) = Signal<Int, NoError>.pipe()
+                let (signalH, baseSinkH) = Signal<Int, NoError>.pipe()
+                let (signalI, baseSinkI) = Signal<Int, NoError>.pipe()
+                let (signalJ, baseSinkJ) = Signal<Int, NoError>.pipe()
+                
+                sinkA = baseSinkA
+                sinkB = baseSinkB
+                sinkC = baseSinkC
+                sinkD = baseSinkD
+                sinkE = baseSinkE
+                sinkF = baseSinkF
+                sinkG = baseSinkG
+                sinkH = baseSinkH
+                sinkI = baseSinkI
+                sinkJ = baseSinkJ
+                
+                allSink = [sinkA, sinkB, sinkC, sinkD, sinkE, sinkF, sinkG, sinkH, sinkI, sinkJ]
+                
+                let zippedSignal = zip(signalA, signalB, signalC, signalD, signalE, signalF, signalG, signalH, signalI, signalJ)
+                zippedSignal.observe(next: { zippedValues = [$0, $1, $2, $3, $4, $5, $6, $7, $8, $9] }, completed: { completed = true })
+            }
+            
+            it("should combine all set"){
+                expect(zippedValues).to(beNil())
+				expect(values).to(equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))
+                
+                for (index, sink) in enumerate(allSink) {
+					expect(zippedValues).to(beNil())
+                    sendNext(sink, index)
+                }
+				expect(zippedValues).to(equal(values)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                
+                sendNext(sinkA, 10)
+                expect(zippedValues).to(equal(values)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                
+                sendNext(sinkA, 20)
+                expect(zippedValues).to(equal(values)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				
+				let copiedValues = values
+				values[0] = 10
+				
+				allSink.removeAtIndex(0)
+				for (index, sink) in enumerate(allSink) {
+					expect(zippedValues).to(equal(copiedValues)) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+					let newValue = 11 + index
+                    sendNext(sink, newValue)
+					values[index + 1] = newValue
+                }
+				expect(zippedValues).to(equal(values)) // [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+				
+            }
+            
+            it("should complete when the shorter signal has completed"){
+                expect(completed).to(beFalsy())
+				
+				allSink.removeAtIndex(0)
+				for sink in allSink {
+					sendNext(sink, 0)
+					sendCompleted(sink)
+				}
+				expect(completed).to(beFalsy())
+				
+				sendNext(sinkA, 0)
+				expect(completed).to(beTruthy())
+            }
+        }
 	}
 }

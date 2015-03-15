@@ -1625,7 +1625,7 @@ class SignalSpec: QuickSpec {
 		describe("zip") {
             
             var sinkA: Signal<Int, NoError>.Observer!
-            var sinkB: Signal<Int, NoError>.Observer!
+			var sinkB: Signal<Int, NoError>.Observer!
             var sinkC: Signal<Int, NoError>.Observer!
             var sinkD: Signal<Int, NoError>.Observer!
             var sinkE: Signal<Int, NoError>.Observer!
@@ -1718,5 +1718,30 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
             }
         }
+		
+		describe("promoteErrors") {
+			
+			var sink: Signal<(), TestError>.Observer!
+			var errored: Bool!
+			
+			beforeEach {
+				errored = false
+				
+				let (signal, baseSink) = Signal<(), TestError>.pipe()
+				sink = baseSink
+				
+				let (otherSignal, _) = Signal<(), NoError>.pipe()
+				
+				let combinedSignal: Signal<((), ()), TestError> = otherSignal |> promoteErrors(TestError.self) |> combineLatestWith(signal)
+				combinedSignal.observe(error: { _ in errored = true })
+			}
+			
+			it("should generate errors"){
+				expect(errored).to(beFalsy())
+				
+				sendError(sink, TestError.Default)
+				expect(errored).to(beTruthy())
+			}
+		}
 	}
 }

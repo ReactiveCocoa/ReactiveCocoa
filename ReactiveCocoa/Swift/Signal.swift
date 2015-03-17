@@ -962,12 +962,6 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 	}
 }
 
-/*
-TODO
-
-public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T>
-*/
-
 /// Promotes a signal that does not generate errors into one that can.
 ///
 /// This does not actually cause errors to be generated for the given signal,

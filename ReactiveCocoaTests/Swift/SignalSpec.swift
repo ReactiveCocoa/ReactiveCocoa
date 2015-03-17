@@ -1486,14 +1486,12 @@ class SignalSpec: QuickSpec {
 		}
 		
 		describe("combinePrevious") {
-			
 			var sink: Signal<Int, NoError>.Observer!
-			var initialValue: Int!
+			let initialValue: Int = 0
 			var latestValues: (Int, Int)?
 			
 			beforeEach {
 				latestValues = nil
-				initialValue = 0
 				
 				let (signal, baseSink) = Signal<Int, NoError>.pipe()
 				sink = baseSink
@@ -1511,11 +1509,9 @@ class SignalSpec: QuickSpec {
 				expect(latestValues?.0).to(equal(1))
 				expect(latestValues?.1).to(equal(2))
 			}
-			
 		}
 
 		describe("combineLatest") {
-			
 			var sinkA: Signal<Int, NoError>.Observer!
 			var sinkB: Signal<Int, NoError>.Observer!
 			var sinkC: Signal<Int, NoError>.Observer!
@@ -1583,15 +1579,6 @@ class SignalSpec: QuickSpec {
 					sendNext(sink, newValue)
 					expect(combinedValues).to(equal(values))
 				}
-				
-				for (index, sink) in enumerate(reverse(allSink)) {
-					let newValue = 20 + index
-					values[allSink.count - 1 - index] = newValue
-					
-					sendNext(sink, newValue)
-					expect(combinedValues).to(equal(values))
-				}
-				
 			}
 			
 			it("should not forward the latest values before all inputs"){
@@ -1715,31 +1702,6 @@ class SignalSpec: QuickSpec {
 				
 				sendNext(sinkA, 0)
 				expect(completed).to(beTruthy())
-			}
-		}
-		
-		describe("promoteErrors") {
-			
-			var sink: Signal<(), TestError>.Observer!
-			var errored: Bool!
-			
-			beforeEach {
-				errored = false
-				
-				let (signal, baseSink) = Signal<(), TestError>.pipe()
-				sink = baseSink
-				
-				let (otherSignal, _) = Signal<(), NoError>.pipe()
-				
-				let combinedSignal: Signal<((), ()), TestError> = otherSignal |> promoteErrors(TestError.self) |> combineLatestWith(signal)
-				combinedSignal.observe(error: { _ in errored = true })
-			}
-			
-			it("should generate errors"){
-				expect(errored).to(beFalsy())
-				
-				sendError(sink, TestError.Default)
-				expect(errored).to(beTruthy())
 			}
 		}
 	}

@@ -1484,5 +1484,163 @@ class SignalSpec: QuickSpec {
 				expect(error).to(equal(TestError.Default))
 			}
 		}
+		
+		describe("combinePrevious") {
+			var sink: Signal<Int, NoError>.Observer!
+			let initialValue: Int = 0
+			var latestValues: (Int, Int)?
+			
+			beforeEach {
+				latestValues = nil
+				
+				let (signal, baseSink) = Signal<Int, NoError>.pipe()
+				sink = baseSink
+				signal |> combinePrevious(initialValue) |> observe(next: { latestValues = $0 })
+			}
+			
+			it("should forward the latest value with previous value") {
+				expect(latestValues).to(beNil())
+				
+				sendNext(sink, 1)
+				expect(latestValues?.0).to(equal(initialValue))
+				expect(latestValues?.1).to(equal(1))
+				
+				sendNext(sink, 2)
+				expect(latestValues?.0).to(equal(1))
+				expect(latestValues?.1).to(equal(2))
+			}
+		}
+
+		describe("combineLatest") {
+			var sinkA: Signal<Int, NoError>.Observer!
+			var sinkB: Signal<Int, NoError>.Observer!
+			var sinkC: Signal<Int, NoError>.Observer!
+			
+			var combinedValues: [Int]?
+			var completed: Bool!
+			
+			beforeEach {
+				combinedValues = nil
+				completed = false
+				
+				let (signalA, baseSinkA) = Signal<Int, NoError>.pipe()
+				let (signalB, baseSinkB) = Signal<Int, NoError>.pipe()
+				let (signalC, baseSinkC) = Signal<Int, NoError>.pipe()
+				
+				sinkA = baseSinkA
+				sinkB = baseSinkB
+				sinkC = baseSinkC
+				
+				combineLatest(signalA, signalB, signalC)
+				|> observe(next: {
+						combinedValues = [$0, $1, $2]
+					}, completed: {
+						completed = true
+					})
+			}
+			
+			it("should forward the latest values from all inputs"){
+				expect(combinedValues).to(beNil())
+				
+				sendNext(sinkA, 0)
+				sendNext(sinkB, 1)
+				sendNext(sinkC, 2)
+				expect(combinedValues).to(equal([0, 1, 2]))
+				
+				sendNext(sinkA, 10)
+				expect(combinedValues).to(equal([10, 1, 2]))
+			}
+			
+			it("should not forward the latest values before all inputs"){
+				expect(combinedValues).to(beNil())
+				
+				sendNext(sinkA, 0)
+				expect(combinedValues).to(beNil())
+
+				sendNext(sinkB, 1)
+				expect(combinedValues).to(beNil())
+				
+				sendNext(sinkC, 2)
+				expect(combinedValues).to(equal([0, 1, 2]))
+			}
+			
+			it("should complete when all inputs have completed"){
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(sinkA)
+				sendCompleted(sinkB)
+				expect(completed).to(beFalsy())
+				
+				sendCompleted(sinkC)
+				expect(completed).to(beTruthy())
+			}
+		}
+		
+		describe("zip") {
+			var sinkA: Signal<Int, NoError>.Observer!
+			var sinkB: Signal<Int, NoError>.Observer!
+			var sinkC: Signal<Int, NoError>.Observer!
+
+			var zippedValues: [Int]?
+			var completed: Bool!
+            
+			beforeEach {
+				zippedValues = nil
+				completed = false
+                
+				let (signalA, baseSinkA) = Signal<Int, NoError>.pipe()
+				let (signalB, baseSinkB) = Signal<Int, NoError>.pipe()
+				let (signalC, baseSinkC) = Signal<Int, NoError>.pipe()
+                
+				sinkA = baseSinkA
+				sinkB = baseSinkB
+				sinkC = baseSinkC
+				
+				zip(signalA, signalB, signalC)
+				|> observe(next: {
+						zippedValues = [$0, $1, $2]
+					}, completed: {
+						completed = true
+					})
+			}
+			
+			it("should combine all set"){
+				expect(zippedValues).to(beNil())
+				
+				sendNext(sinkA, 0)
+				expect(zippedValues).to(beNil())
+
+				sendNext(sinkB, 1)
+				expect(zippedValues).to(beNil())
+
+				sendNext(sinkC, 2)
+				expect(zippedValues).to(equal([0, 1, 2]))
+                
+				sendNext(sinkA, 10)
+				expect(zippedValues).to(equal([0, 1, 2]))
+                
+				sendNext(sinkA, 20)
+				expect(zippedValues).to(equal([0, 1, 2]))
+				
+				sendNext(sinkB, 11)
+				expect(zippedValues).to(equal([0, 1, 2]))
+
+				sendNext(sinkC, 12)
+				expect(zippedValues).to(equal([10, 11, 12]))
+			}
+            
+			it("should complete when the shorter signal has completed"){
+				expect(completed).to(beFalsy())
+				
+				sendNext(sinkB, 1)
+				sendNext(sinkC, 2)
+				sendCompleted(sinkB)
+				sendCompleted(sinkC)
+				expect(completed).to(beFalsy())
+				
+				sendNext(sinkA, 0)
+				expect(completed).to(beTruthy())
+			}
+		}
 	}
 }

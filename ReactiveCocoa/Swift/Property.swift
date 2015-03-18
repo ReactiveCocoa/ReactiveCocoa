@@ -205,3 +205,29 @@ public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoE
 public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: MutableProperty<T>, sourceProperty: P) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
+
+
+/// Invokes the provided function with the values sent by `producer`
+///
+/// The binding will automatically terminate when the producer sends a `Completed` event,
+/// or when the returned disposable is disposed of.
+public func <~ <T>(f: T -> (), producer: SignalProducer<T, NoError>) -> Disposable {
+	return producer.start(next: f)
+}
+
+/// Invokes the provided function with the values sent by `signal`
+///
+/// The binding will automatically terminate when the signal sends a `Completed` event,
+/// or when the returned disposable is disposed of.
+public func <~<T>(f: T -> (), signal: Signal<T, NoError>) -> Disposable {
+	var disposable = CompositeDisposable()
+
+	let signalDisposable = signal.observe(next: { value in
+		f(value)
+	}, completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(signalDisposable)
+	return disposable
+}

@@ -206,6 +206,37 @@ class PropertySpec: QuickSpec {
 					mutableProperty = nil
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
+
+				it("Should call the function when binding a signal producer to it") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					var functionCalledWithString: String?
+					let function: String -> () = { string in
+						functionCalledWithString = string
+					}
+
+					function <~ signal
+
+					sendNext(observer, initialPropertyValue)
+
+					expect(functionCalledWithString).to(equal(initialPropertyValue))
+				}
+
+				it("Should not call the function anymore when the binding is disposed") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					var functionCalledWithString: String?
+					let function: String -> () = { string in
+						functionCalledWithString = string
+					}
+
+					let disposable = function <~ signal
+					disposable.dispose()
+
+					sendNext(observer, initialPropertyValue)
+
+					expect(functionCalledWithString).to(beNil())
+				}
 			}
 
 			describe("from a SignalProducer") {
@@ -242,6 +273,36 @@ class PropertySpec: QuickSpec {
 
 					mutableProperty = nil
 					expect(disposable.disposed).to(beTruthy())
+				}
+
+				it("Should call the function when binding a signal producer to it") {
+					let producerValue = initialPropertyValue
+
+					var functionCalledWithString: String?
+					let function: String -> () = { string in
+						functionCalledWithString = string
+					}
+
+					function <~ SignalProducer(value: producerValue)
+
+					expect(functionCalledWithString).to(equal(producerValue))
+				}
+
+				it("Should not call the function anymore when the binding is disposed") {
+					let producerValue = initialPropertyValue
+
+					var functionCalledWithString: String?
+					let function: String -> () = { string in
+						functionCalledWithString = string
+					}
+
+					let (producer, observer) = SignalProducer<String, NoError>.buffer()
+					let disposable = function <~ producer
+					disposable.dispose()
+
+					sendNext(observer, producerValue)
+
+					expect(functionCalledWithString).to(beNil())
 				}
 			}
 

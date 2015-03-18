@@ -1035,7 +1035,7 @@ class SignalSpec: QuickSpec {
 				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0, 2 ]))
 
-				scheduler.advanceByInterval(1)
+				scheduler.advanceByInterval(3)
 				expect(values).to(equal([ 0, 2 ]))
 
 				sendNext(observer, 3)

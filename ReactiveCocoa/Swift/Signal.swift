@@ -763,7 +763,8 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
 						state.pendingValue = value.unbox
 
-						let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
 						return (state, scheduleDate)
 					}
 

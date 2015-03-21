@@ -332,33 +332,33 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 /// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started: () -> () = doNothing, event: Event<T, E> -> () = doNothing, next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, compositeDisposable in
-		started()
-		compositeDisposable.addDisposable(disposed)
+		started?()
+		disposed.map(compositeDisposable.addDisposable)
 
 		producer.startWithSignal { signal, disposable in
 			compositeDisposable.addDisposable(disposable)
 
 			let innerObserver = Signal<T, E>.Observer { receivedEvent in
-				event(receivedEvent)
+				event?(receivedEvent)
 
 				switch receivedEvent {
 				case let .Next(value):
-					next(value.unbox)
+					next?(value.unbox)
 
 				case let .Error(err):
-					error(err.unbox)
+					error?(err.unbox)
 
 				case .Completed:
-					completed()
+					completed?()
 
 				case .Interrupted:
-					interrupted()
+					interrupted?()
 				}
 
 				if receivedEvent.isTerminating {
-					terminated()
+					terminated?()
 				}
 
 				observer.put(receivedEvent)

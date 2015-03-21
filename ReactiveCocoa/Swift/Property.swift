@@ -47,10 +47,18 @@ public struct ConstantProperty<T>: PropertyType {
 	}
 }
 
+/// Represents an observable property that can be mutated directly.
+///
+/// Only classes can conform to this protocol, because instances must support
+/// weak references (and value types currently do not).
+public protocol MutablePropertyType: class, PropertyType {
+	var value: Value { get set }
+}
+
 /// A mutable property of type T that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
-public final class MutableProperty<T>: PropertyType {
+public final class MutableProperty<T>: MutablePropertyType {
 	public typealias Value = T
 
 	private let observer: Signal<T, NoError>.Observer
@@ -101,7 +109,7 @@ extension MutableProperty: SinkType {
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-@objc public final class DynamicProperty: RACDynamicPropertySuperclass, PropertyType {
+@objc public final class DynamicProperty: RACDynamicPropertySuperclass, MutablePropertyType {
 	public typealias Value = AnyObject?
 
 	private weak var object: NSObject?
@@ -156,7 +164,7 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -182,7 +190,7 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> 
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
 	var disposable: Disposable!
 
 	producer.startWithSignal { signal, signalDisposable in

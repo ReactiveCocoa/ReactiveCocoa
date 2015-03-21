@@ -233,7 +233,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func start(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> Disposable {
+	public func start(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable {
 		return start(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 
@@ -1061,6 +1061,6 @@ public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(pro
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing)(producer: SignalProducer<T, E>) -> Disposable {
+public func start<T, E>(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil)(producer: SignalProducer<T, E>) -> Disposable {
 	return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
 }

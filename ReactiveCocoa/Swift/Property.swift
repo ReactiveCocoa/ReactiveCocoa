@@ -164,7 +164,7 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T, U: MutablePropertyType where U.Value == T>(property: U, signal: Signal<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -190,7 +190,7 @@ public func <~ <T, U: MutablePropertyType where U.Value == T>(property: U, signa
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T, U: MutablePropertyType where U.Value == T>(property: U, producer: SignalProducer<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
 	var disposable: Disposable!
 
 	producer.startWithSignal { signal, signalDisposable in

@@ -8,9 +8,6 @@
 
 import LlamaKit
 
-internal func doNothing<T>(value: T) {}
-internal func doNothing() {}
-
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:

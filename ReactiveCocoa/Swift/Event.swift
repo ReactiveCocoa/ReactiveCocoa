@@ -8,9 +8,6 @@
 
 import LlamaKit
 
-internal func doNothing<T>(value: T) {}
-internal func doNothing() {}
-
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
@@ -67,20 +64,20 @@ public enum Event<T, E: ErrorType> {
 
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(next: T -> () = doNothing, error: E -> () = doNothing, completed: () -> () = doNothing, interrupted: () -> () = doNothing) -> SinkOf<Event> {
+	public static func sink(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> SinkOf<Event> {
 		return SinkOf { event in
 			switch event {
 			case let .Next(value):
-				next(value.unbox)
+				next?(value.unbox)
 
 			case let .Error(err):
-				error(err.unbox)
+				error?(err.unbox)
 
 			case .Completed:
-				completed()
+				completed?()
 
 			case .Interrupted:
-				interrupted()
+				interrupted?()
 			}
 		}
 	}

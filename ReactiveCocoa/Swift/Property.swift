@@ -47,8 +47,10 @@ public struct ConstantProperty<T>: PropertyType {
 	}
 }
 
-/// Represents a property that's value is depended on Signal/Producer.
-/// i.e., Operator (<~) binds a signal to a property.
+/// Represents an observable property that can be mutated directly.
+///
+/// Only classes can conform to this protocol, because instances must support
+/// weak references (and value types currently do not).
 public protocol MutablePropertyType: class, PropertyType {
 	var value: Value { get set }
 }

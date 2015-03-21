@@ -10,4 +10,7 @@
    <FileRef
       location = "group:Carthage/Checkouts/Nimble/Nimble.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Carthage/Checkouts/LlamaKit/LlamaKit.xcodeproj">
+   </FileRef>
 </Workspace>

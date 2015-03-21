@@ -33,7 +33,6 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/NSIndexSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #import <ReactiveCocoa/NSUserDefaults+RACSupport.h>
-#import <ReactiveCocoa/RACBacktrace.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACChannel.h>
 #import <ReactiveCocoa/RACCommand.h>

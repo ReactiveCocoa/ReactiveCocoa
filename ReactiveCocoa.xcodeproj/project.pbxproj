@@ -100,10 +100,6 @@
 		D037654B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m */; };
 		D037654E19EDA41200A782A9 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645D19EDA41200A782A9 /* RACArraySequence.m */; };
 		D037654F19EDA41200A782A9 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645D19EDA41200A782A9 /* RACArraySequence.m */; };
-		D037655019EDA41200A782A9 /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645E19EDA41200A782A9 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D037655119EDA41200A782A9 /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645E19EDA41200A782A9 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D037655219EDA41200A782A9 /* RACBacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645F19EDA41200A782A9 /* RACBacktrace.m */; };
-		D037655319EDA41200A782A9 /* RACBacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645F19EDA41200A782A9 /* RACBacktrace.m */; };
 		D037655619EDA41200A782A9 /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037646119EDA41200A782A9 /* RACBehaviorSubject.m */; };
 		D037655719EDA41200A782A9 /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037646119EDA41200A782A9 /* RACBehaviorSubject.m */; };
 		D037655A19EDA41200A782A9 /* RACBlockTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = D037646319EDA41200A782A9 /* RACBlockTrampoline.m */; };
@@ -318,8 +314,6 @@
 		D03766D219EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */; };
 		D03766D319EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */; };
 		D03766D419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */; };
-		D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668519EDA60000A782A9 /* RACBacktraceSpec.m */; };
-		D03766D619EDA60000A782A9 /* RACBacktraceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668519EDA60000A782A9 /* RACBacktraceSpec.m */; };
 		D03766D719EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668619EDA60000A782A9 /* RACBlockTrampolineSpec.m */; };
 		D03766D819EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668619EDA60000A782A9 /* RACBlockTrampolineSpec.m */; };
 		D03766D919EDA60000A782A9 /* RACChannelExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668819EDA60000A782A9 /* RACChannelExamples.m */; };
@@ -490,8 +484,6 @@
 		D037645B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+RACSupport.m"; sourceTree = "<group>"; };
 		D037645C19EDA41200A782A9 /* RACArraySequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACArraySequence.h; sourceTree = "<group>"; };
 		D037645D19EDA41200A782A9 /* RACArraySequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACArraySequence.m; sourceTree = "<group>"; };
-		D037645E19EDA41200A782A9 /* RACBacktrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBacktrace.h; sourceTree = "<group>"; };
-		D037645F19EDA41200A782A9 /* RACBacktrace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktrace.m; sourceTree = "<group>"; };
 		D037646019EDA41200A782A9 /* RACBehaviorSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBehaviorSubject.h; sourceTree = "<group>"; };
 		D037646119EDA41200A782A9 /* RACBehaviorSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBehaviorSubject.m; sourceTree = "<group>"; };
 		D037646219EDA41200A782A9 /* RACBlockTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBlockTrampoline.h; sourceTree = "<group>"; };
@@ -646,7 +638,6 @@
 		D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringRACKeyPathUtilitiesSpec.m; sourceTree = "<group>"; };
 		D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLConnectionRACSupportSpec.m; sourceTree = "<group>"; };
 		D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsRACSupportSpec.m; sourceTree = "<group>"; };
-		D037668519EDA60000A782A9 /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
 		D037668619EDA60000A782A9 /* RACBlockTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBlockTrampolineSpec.m; sourceTree = "<group>"; };
 		D037668719EDA60000A782A9 /* RACChannelExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACChannelExamples.h; sourceTree = "<group>"; };
 		D037668819EDA60000A782A9 /* RACChannelExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACChannelExamples.m; sourceTree = "<group>"; };
@@ -817,8 +808,6 @@
 				D037645B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m */,
 				D037645C19EDA41200A782A9 /* RACArraySequence.h */,
 				D037645D19EDA41200A782A9 /* RACArraySequence.m */,
-				D037645E19EDA41200A782A9 /* RACBacktrace.h */,
-				D037645F19EDA41200A782A9 /* RACBacktrace.m */,
 				D037646019EDA41200A782A9 /* RACBehaviorSubject.h */,
 				D037646119EDA41200A782A9 /* RACBehaviorSubject.m */,
 				D037646219EDA41200A782A9 /* RACBlockTrampoline.h */,
@@ -989,7 +978,6 @@
 				D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */,
 				D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */,
 				D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */,
-				D037668519EDA60000A782A9 /* RACBacktraceSpec.m */,
 				D037668619EDA60000A782A9 /* RACBlockTrampolineSpec.m */,
 				D037668719EDA60000A782A9 /* RACChannelExamples.h */,
 				D037668819EDA60000A782A9 /* RACChannelExamples.m */,
@@ -1186,7 +1174,6 @@
 				D037651419EDA41200A782A9 /* NSObject+RACDeallocating.h in Headers */,
 				D037650C19EDA41200A782A9 /* NSNotificationCenter+RACSupport.h in Headers */,
 				D037667319EDA57100A782A9 /* metamacros.h in Headers */,
-				D037655019EDA41200A782A9 /* RACBacktrace.h in Headers */,
 				D037666B19EDA57100A782A9 /* EXTKeyPathCoding.h in Headers */,
 				D03765F419EDA41200A782A9 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D03765C419EDA41200A782A9 /* RACScheduler+Subclass.h in Headers */,
@@ -1272,7 +1259,6 @@
 				D03765C519EDA41200A782A9 /* RACScheduler+Subclass.h in Headers */,
 				D03765E119EDA41200A782A9 /* RACStream.h in Headers */,
 				D03765D719EDA41200A782A9 /* RACSignal+Operations.h in Headers */,
-				D037655119EDA41200A782A9 /* RACBacktrace.h in Headers */,
 				D037665D19EDA41200A782A9 /* UITextField+RACSignalSupport.h in Headers */,
 				D037664919EDA41200A782A9 /* UISlider+RACSignalSupport.h in Headers */,
 				D03765BF19EDA41200A782A9 /* RACScheduler.h in Headers */,
@@ -1534,7 +1520,6 @@
 				D037652619EDA41200A782A9 /* NSObject+RACPropertySubscribing.m in Sources */,
 				D037658C19EDA41200A782A9 /* RACEvent.m in Sources */,
 				D03765B219EDA41200A782A9 /* RACQueueScheduler.m in Sources */,
-				D037655219EDA41200A782A9 /* RACBacktrace.m in Sources */,
 				D037652A19EDA41200A782A9 /* NSObject+RACSelectorSignal.m in Sources */,
 				D03765AE19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */,
 				D03765BC19EDA41200A782A9 /* RACReturnSignal.m in Sources */,
@@ -1570,7 +1555,6 @@
 				7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
-				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D03766D719EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D03766FF19EDA60000A782A9 /* RACStreamExamples.m in Sources */,
@@ -1683,7 +1667,6 @@
 				7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */,
 				D037658D19EDA41200A782A9 /* RACEvent.m in Sources */,
 				D03765B319EDA41200A782A9 /* RACQueueScheduler.m in Sources */,
-				D037655319EDA41200A782A9 /* RACBacktrace.m in Sources */,
 				D037665719EDA41200A782A9 /* UITableViewCell+RACSignalSupport.m in Sources */,
 				D037652B19EDA41200A782A9 /* NSObject+RACSelectorSignal.m in Sources */,
 				D03765AF19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */,
@@ -1725,7 +1708,6 @@
 				D037670819EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D037671C19EDA60000A782A9 /* UIAlertViewRACSupportSpec.m in Sources */,
 				D03766F019EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
-				D03766D619EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D037670619EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D03766D819EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D037670019EDA60000A782A9 /* RACStreamExamples.m in Sources */,

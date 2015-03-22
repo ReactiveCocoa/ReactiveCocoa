@@ -12,13 +12,13 @@ concepts from the Objective-C API map to the Swift API. For a complete diff of
 all changes, see [the 3.0 pull
 request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
-**[Additions](#)**
+**[Additions](#additions)**
 
  1. [Parameterized types](#)
  1. [Interrupted event](#)
  1. [Objective-C bridging](#)
 
-**[Replacements](#)**
+**[Replacements](#replacements)**
 
  1. [Hot signals are now Signals](#)
  1. [Cold signals are now SignalProducers](#)
@@ -28,7 +28,13 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Using SignalProducer.buffer instead of replaying](#)
  1. [Using startWithSignal instead of multicasting](#)
 
-**[Minor changes](#)**
+**[Minor changes](#minor-changes)**
 
  1. [Disposable changes](#)
  1. [Scheduler changes](#)
+
+## Additions
+
+## Replacements
+
+## Minor changes

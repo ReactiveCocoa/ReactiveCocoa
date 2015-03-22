@@ -14,7 +14,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
 **[Additions](#additions)**
 
- 1. [Parameterized types](#)
+ 1. [Parameterized types](#parameterized-types)
  1. [Interrupted event](#)
  1. [Objective-C bridging](#)
 
@@ -34,6 +34,23 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Scheduler changes](#)
 
 ## Additions
+
+### Parameterized types
+
+Thanks to Swift, it is now possible to express the type of value that a signal
+can send. RAC also requires that the type of errors be specified.
+
+For example, `Signal<Int, NSError>` is a signal that may send zero or more
+integers, and which may send an error of type `NSError`.
+
+If it is impossible for a signal to error out, the built-in `NoError` type
+(which can be referred to, but never created) can be used to represent that
+case—for example, `Signal<String, NoError>` is a signal that may send zero or
+more strings, and which will _not_ send an error under any circumstances.
+
+Together, these additions make it much simpler to reason about signal
+interactions, and protect against several kinds of common bugs that occurred in
+Objective-C.
 
 ## Replacements
 

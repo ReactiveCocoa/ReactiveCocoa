@@ -73,6 +73,12 @@ class PropertySpec: QuickSpec {
 				mutableProperty = nil
 				expect(signalCompleted).to(beTruthy())
 			}
+
+			it("should not crash in a tuple") {
+				let tuple = (MutableProperty(0), MutableProperty(false))
+				expect(tuple.0.value).to(equal(0))
+				expect(tuple.1.value).to(beFalsy())
+			}
 		}
 
 		describe("PropertyOf") {

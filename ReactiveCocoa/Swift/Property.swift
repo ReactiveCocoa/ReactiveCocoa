@@ -210,6 +210,6 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, produ
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
-public func <~ <P: MutablePropertyType, T: PropertyType where P.Value == T.Value>(destinationProperty: P, sourceProperty: T) -> Disposable {
+public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

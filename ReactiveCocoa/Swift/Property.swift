@@ -48,10 +48,7 @@ public struct ConstantProperty<T>: PropertyType {
 }
 
 /// Represents an observable property that can be mutated directly.
-///
-/// Only classes can conform to this protocol, because instances must support
-/// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
+public protocol MutablePropertyType: PropertyType {
 	var value: Value { get set }
 }
 
@@ -164,7 +161,7 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P: AnyObject, P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -190,7 +187,7 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signa
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P: AnyObject, P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
 	var disposable: Disposable!
 
 	producer.startWithSignal { signal, signalDisposable in

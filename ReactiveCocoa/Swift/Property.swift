@@ -1,5 +1,5 @@
 /// Represents a property that allows observation of its changes.
-public protocol PropertyType {
+public protocol PropertyType: class {
 	typealias Value
 
 	/// The current value of the property.
@@ -12,7 +12,7 @@ public protocol PropertyType {
 
 /// Represents a read-only view to a property of type T that allows observation
 /// of its changes.
-public struct PropertyOf<T>: PropertyType {
+public final class PropertyOf<T>: PropertyType {
 	public typealias Value = T
 
 	private let _value: () -> T
@@ -34,7 +34,7 @@ public struct PropertyOf<T>: PropertyType {
 }
 
 /// A property that never changes.
-public struct ConstantProperty<T>: PropertyType {
+public final class ConstantProperty<T>: PropertyType {
 	typealias Value = T
 
 	public let value: T
@@ -161,7 +161,7 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T, P: MutablePropertyType where P: AnyObject, P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -187,7 +187,7 @@ public func <~ <T, P: MutablePropertyType where P: AnyObject, P.Value == T>(prop
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T, P: MutablePropertyType where P: AnyObject, P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
+public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
 	var disposable: Disposable!
 
 	producer.startWithSignal { signal, signalDisposable in

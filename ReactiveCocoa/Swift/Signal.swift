@@ -179,7 +179,7 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 
 /// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
 /// forwared on the returned signal.
-public func flatMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Signal<U, E> {
+public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
 		signal.observe(next: { value in
 			if let val = transform(value) {

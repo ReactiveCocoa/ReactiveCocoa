@@ -452,10 +452,10 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("flatMap") {
+		describe("filterMap") {
 			it("should map values and omit nils from the signal") {
 				let (signal, sink) = Signal<Int, NoError>.pipe()
-				let mappedSignal = signal |> flatMap { $0 % 2 == 0 ? nil : toString($0) }
+				let mappedSignal = signal |> filterMap { $0 % 2 == 0 ? nil : toString($0) }
 
 				var lastValue: String?
 

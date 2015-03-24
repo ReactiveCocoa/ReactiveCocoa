@@ -452,6 +452,30 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("flatMap") {
+			it("should map values and omit nils from the signal") {
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+				let mappedSignal = signal |> flatMap { $0 % 2 == 0 ? nil : toString($0) }
+
+				var lastValue: String?
+
+				mappedSignal.observe(next: { lastValue = $0 })
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 0)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal("1"))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal("1"))
+
+				sendNext(sink, 3)
+				expect(lastValue).to(equal("3"))
+			}
+		}
+
 		describe("scan") {
 			it("should incrementally accumulate a value") {
 				let (baseSignal, sink) = Signal<String, NoError>.pipe()

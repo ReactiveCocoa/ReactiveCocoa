@@ -177,12 +177,12 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 	}
 }
 
-/// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
-/// forwared on the returned signal.
-public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Signal<U, E> {
+/// Unwraps non-`nil` values from `signal` and forwards them on the returned
+/// signal, `nil` values are dropped.
+public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
 	return Signal { observer in
 		signal.observe(next: { value in
-			if let val = transform(value) {
+			if let val = value {
 				sendNext(observer, val)
 			}
 		}, error: { error in

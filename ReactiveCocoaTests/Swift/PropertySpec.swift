@@ -170,21 +170,6 @@ class PropertySpec: QuickSpec {
 
 		describe("binding") {
 			describe("from a Signal") {
-				weak var dynamicProperty: DynamicProperty?
-				var object: ObservableObject!
-				var testScheduler: TestScheduler!
-				
-				beforeEach {
-					object = ObservableObject()
-					testScheduler = TestScheduler()
-				}
-				
-				afterEach{
-					dynamicProperty = nil
-					object = nil
-					testScheduler = nil
-				}
-				
 				it("should update the property with values sent from the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
@@ -214,6 +199,8 @@ class PropertySpec: QuickSpec {
 				it("should retain property by binding"){
 					let (signal, _) = Signal<AnyObject?, NoError>.pipe()
 					var property: DynamicProperty!
+					weak var dynamicProperty: DynamicProperty?
+					var object = ObservableObject()
 					
 					property = DynamicProperty(object: object, keyPath: "rac_value")
 					dynamicProperty = property
@@ -230,6 +217,8 @@ class PropertySpec: QuickSpec {
 				it("should release property and tear down the binding when binding signal is completed"){
 					let (signal, observer) = Signal<AnyObject?, NoError>.pipe()
 					var property: DynamicProperty!
+					weak var dynamicProperty: DynamicProperty?
+					var object = ObservableObject()
 					
 					property = DynamicProperty(object: object, keyPath: "rac_value")
 					dynamicProperty = property
@@ -246,6 +235,8 @@ class PropertySpec: QuickSpec {
 				it("should release property and tear down the binding when property's Value is deallocated (only DynamicProperty)"){
 					let (signal, _) = Signal<AnyObject?, NoError>.pipe()
 					var property: DynamicProperty!
+					weak var dynamicProperty: DynamicProperty?
+					var object: ObservableObject! = ObservableObject()
 					
 					property = DynamicProperty(object: object, keyPath: "rac_value")
 					dynamicProperty = property

@@ -243,7 +243,21 @@ class PropertySpec: QuickSpec {
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 				
-				pending("should release property and tear down the binding when property's Value is deallocated (only DynamicProperty)"){}
+				it("should release property and tear down the binding when property's Value is deallocated (only DynamicProperty)"){
+					let (signal, _) = Signal<AnyObject?, NoError>.pipe()
+					var property: DynamicProperty!
+					
+					property = DynamicProperty(object: object, keyPath: "rac_value")
+					dynamicProperty = property
+					let bindingDisposable = dynamicProperty! <~ signal
+					property = nil
+					
+					expect(dynamicProperty).toNot(beNil())
+					expect(bindingDisposable.disposed).to(beFalsy())
+					object = nil
+					expect(dynamicProperty).to(beNil())
+					expect(bindingDisposable.disposed).to(beTruthy())
+				}
 			}
 
 			describe("from a SignalProducer") {

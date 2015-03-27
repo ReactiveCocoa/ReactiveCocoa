@@ -278,7 +278,7 @@ class PropertySpec: QuickSpec {
 				}
 				
 				it("should retain property by binding"){
-					let signalProducer = SignalProducer<Int, NoError>(value: 1)
+					let (signalProducer, _) = SignalProducer<Int, NoError>.buffer(1)
 					var property: DynamicProperty!
 					weak var dynamicProperty: DynamicProperty?
 					var object: ObservableObject! = ObservableObject()
@@ -295,7 +295,24 @@ class PropertySpec: QuickSpec {
 					expect(dynamicProperty).toNot(beNil())
 				}
 				
-				pending("should release property and tear down the binding when binding signal is completed"){}
+				it("should release property and tear down the binding when binding signal is completed"){
+					let (signalProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
+					var property: DynamicProperty!
+					weak var dynamicProperty: DynamicProperty?
+					var object: ObservableObject! = ObservableObject()
+					
+					property = DynamicProperty(object: object, keyPath: "rac_value")
+					dynamicProperty = property
+					let bindingDisposable = dynamicProperty! <~ signalProducer
+					property = nil
+					
+					expect(dynamicProperty).toNot(beNil())
+					expect(bindingDisposable.disposed).to(beFalsy())
+					
+					sendCompleted(observer)
+					expect(dynamicProperty).to(beNil())
+					expect(bindingDisposable.disposed).to(beTruthy())
+				}
 
 				it("should tear down the binding when the property deallocates") {
 					let signalValues = [initialPropertyValue, subsequentPropertyValue]

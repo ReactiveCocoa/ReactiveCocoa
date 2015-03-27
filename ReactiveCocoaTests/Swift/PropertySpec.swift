@@ -227,6 +227,7 @@ class PropertySpec: QuickSpec {
 					
 					expect(dynamicProperty).toNot(beNil())
 					expect(bindingDisposable.disposed).to(beFalsy())
+					
 					sendCompleted(observer)
 					expect(dynamicProperty).to(beNil())
 					expect(bindingDisposable.disposed).to(beTruthy())
@@ -245,6 +246,7 @@ class PropertySpec: QuickSpec {
 					
 					expect(dynamicProperty).toNot(beNil())
 					expect(bindingDisposable.disposed).to(beFalsy())
+					
 					object = nil
 					expect(dynamicProperty).to(beNil())
 					expect(bindingDisposable.disposed).to(beTruthy())
@@ -274,6 +276,26 @@ class PropertySpec: QuickSpec {
 					disposable.dispose()
 					// TODO: Assert binding was teared-down?
 				}
+				
+				it("should retain property by binding"){
+					let signalProducer = SignalProducer<Int, NoError>(value: 1)
+					var property: DynamicProperty!
+					weak var dynamicProperty: DynamicProperty?
+					var object: ObservableObject! = ObservableObject()
+					
+					property = DynamicProperty(object: object, keyPath: "rac_value")
+					dynamicProperty = property
+					property = nil
+					expect(dynamicProperty).to(beNil())
+					
+					property = DynamicProperty(object: object, keyPath: "rac_value")
+					dynamicProperty = property
+					dynamicProperty! <~ signalProducer
+					property = nil
+					expect(dynamicProperty).toNot(beNil())
+				}
+				
+				pending("should release property and tear down the binding when binding signal is completed"){}
 
 				it("should tear down the binding when the property deallocates") {
 					let signalValues = [initialPropertyValue, subsequentPropertyValue]
@@ -286,6 +308,8 @@ class PropertySpec: QuickSpec {
 					mutableProperty = nil
 					expect(disposable.disposed).to(beTruthy())
 				}
+				
+				pending("should release property and tear down the binding when property's Value is deallocated"){}
 			}
 
 			describe("from another property") {

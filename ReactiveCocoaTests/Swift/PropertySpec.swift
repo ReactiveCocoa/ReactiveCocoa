@@ -314,18 +314,6 @@ class PropertySpec: QuickSpec {
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 
-				it("should tear down the binding when the property deallocates") {
-					let signalValues = [initialPropertyValue, subsequentPropertyValue]
-					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-
-					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
-
-					let disposable = mutableProperty! <~ signalProducer
-
-					mutableProperty = nil
-					expect(disposable.disposed).to(beTruthy())
-				}
-				
 				pending("should release property and tear down the binding when property's Value is deallocated"){}
 			}
 

@@ -180,20 +180,7 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 /// Unwraps non-`nil` values from `signal` and forwards them on the returned
 /// signal, `nil` values are dropped.
 public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
-	// This is equivalent to `signal |> filter { $0 != nil } |> map { $0! }`
-	return Signal { observer in
-		signal.observe(next: { value in
-			if let val = value {
-				sendNext(observer, val)
-			}
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
-	}
+	return signal |> filter { $0 != nil } |> map { $0! }
 }
 
 /// Returns a signal that will yield the first `count` values from the

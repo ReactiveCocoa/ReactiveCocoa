@@ -166,229 +166,117 @@ class PropertySpec: QuickSpec {
 				expect(completed).toEventually(beTruthy())
 				expect(property.value).to(beNil())
 			}
+			
+			it("should retain property while DynamicProperty's object is retained"){
+				weak var dynamicProperty: DynamicProperty? = property
+				
+				property = nil
+				expect(dynamicProperty).toNot(beNil())
+				
+				object = nil
+				expect(dynamicProperty).to(beNil())
+			}
 		}
 
 		describe("binding") {
 			describe("from a Signal") {
-				describe("Common") {
-					it("should update the property with values sent from the signal") {
-						let (signal, observer) = Signal<String, NoError>.pipe()
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						mutableProperty <~ signal
-						
-						// Verify that the binding hasn't changed the property value:
-						expect(mutableProperty.value).to(equal(initialPropertyValue))
-						
-						sendNext(observer, subsequentPropertyValue)
-						expect(mutableProperty.value).to(equal(subsequentPropertyValue))
-					}
-					
-					it("should tear down the binding when disposed") {
-						let (signal, observer) = Signal<String, NoError>.pipe()
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						let bindingDisposable = mutableProperty <~ signal
-						bindingDisposable.dispose()
-						
-						sendNext(observer, subsequentPropertyValue)
-						expect(mutableProperty.value).to(equal(initialPropertyValue))
-					}
-					
-					it("should tear down the binding when bound signal is completed") {
-						let (signal, observer) = Signal<String, NoError>.pipe()
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						let bindingDisposable = mutableProperty <~ signal
-						
-						expect(bindingDisposable.disposed).to(beFalsy())
-						sendCompleted(observer)
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
-					
-					it("should tear down the binding when the property deallocates") {
-						let (signal, observer) = Signal<String, NoError>.pipe()
-						
-						var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
-						
-						let bindingDisposable = mutableProperty! <~ signal
-						
-						mutableProperty = nil
-						
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
+				it("should update the property with values sent from the signal") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					mutableProperty <~ signal
+
+					// Verify that the binding hasn't changed the property value:
+					expect(mutableProperty.value).to(equal(initialPropertyValue))
+
+					sendNext(observer, subsequentPropertyValue)
+					expect(mutableProperty.value).to(equal(subsequentPropertyValue))
+				}
+
+				it("should tear down the binding when disposed") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					let bindingDisposable = mutableProperty <~ signal
+					bindingDisposable.dispose()
+
+					sendNext(observer, subsequentPropertyValue)
+					expect(mutableProperty.value).to(equal(initialPropertyValue))
 				}
 				
-				describe("Only DynamicProperty") {
-					it("should retain property by binding"){
-						let (signal, _) = Signal<AnyObject?, NoError>.pipe()
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						property = nil
-						expect(dynamicProperty).to(beNil())
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						dynamicProperty! <~ signal // binding
-						property = nil
-						expect(dynamicProperty).toNot(beNil())
-					}
+				it("should tear down the binding when bound signal is completed") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
 					
-					it("should release property and tear down the binding when binding signal is completed"){
-						let (signal, observer) = Signal<AnyObject?, NoError>.pipe()
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						let bindingDisposable = dynamicProperty! <~ signal
-						property = nil
-						
-						expect(dynamicProperty).toNot(beNil())
-						expect(bindingDisposable.disposed).to(beFalsy())
-						
-						sendCompleted(observer)
-						expect(dynamicProperty).to(beNil())
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
+					let mutableProperty = MutableProperty(initialPropertyValue)
 					
-					it("should release property and tear down the binding when DynamicProperty's object is deallocated"){
-						let (signal, _) = Signal<AnyObject?, NoError>.pipe()
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object: ObservableObject! = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						let bindingDisposable = dynamicProperty! <~ signal
-						property = nil
-						
-						expect(dynamicProperty).toNot(beNil())
-						expect(bindingDisposable.disposed).to(beFalsy())
-						
-						object = nil
-						expect(dynamicProperty).to(beNil())
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
+					let bindingDisposable = mutableProperty <~ signal
+					
+					expect(bindingDisposable.disposed).to(beFalsy())
+					sendCompleted(observer)
+					expect(bindingDisposable.disposed).to(beTruthy())
+				}
+				
+				it("should tear down the binding when the property deallocates") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+
+					let bindingDisposable = mutableProperty! <~ signal
+
+					mutableProperty = nil
+					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 			}
 
 			describe("from a SignalProducer") {
-				describe("Common") {
-					it("should start a signal and update the property with its values") {
-						let signalValues = [initialPropertyValue, subsequentPropertyValue]
-						let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						mutableProperty <~ signalProducer
-						
-						expect(mutableProperty.value).to(equal(signalValues.last!))
-					}
-					
-					it("should tear down the binding when disposed") {
-						let signalValues = [initialPropertyValue, subsequentPropertyValue]
-						let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						let disposable = mutableProperty <~ signalProducer
-						
-						disposable.dispose()
-						// TODO: Assert binding was teared-down?
-					}
-					
-					it("should tear down the binding when bound signal is completed") {
-						let signalValues = [initialPropertyValue, subsequentPropertyValue]
-						let (signalProducer, observer) = SignalProducer<String, NoError>.buffer(1)
-						
-						let mutableProperty = MutableProperty(initialPropertyValue)
-						
-						let disposable = mutableProperty <~ signalProducer
-						
-						expect(disposable.disposed).to(beFalsy())
-						sendCompleted(observer)
-						expect(disposable.disposed).to(beTruthy())
-					}
-					
-					it("should tear down the binding when the property deallocates") {
-						let signalValues = [initialPropertyValue, subsequentPropertyValue]
-						let signalProducer = SignalProducer<String, NoError>(values: signalValues)
-						
-						var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
-						
-						let disposable = mutableProperty! <~ signalProducer
-						
-						mutableProperty = nil
-						
-						expect(disposable.disposed).to(beTruthy())
-					}
+				it("should start a signal and update the property with its values") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					mutableProperty <~ signalProducer
+
+					expect(mutableProperty.value).to(equal(signalValues.last!))
 				}
-				
-				describe("Only DynamicProperty") {
-					it("should retain property by binding"){
-						let (signalProducer, _) = SignalProducer<AnyObject?, NoError>.buffer(1)
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object: ObservableObject! = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						property = nil
-						expect(dynamicProperty).to(beNil())
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						dynamicProperty! <~ signalProducer
-						property = nil
-						expect(dynamicProperty).toNot(beNil())
-					}
+
+				it("should tear down the binding when disposed") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					let mutableProperty = MutableProperty(initialPropertyValue)
+
+					let disposable = mutableProperty <~ signalProducer
+
+					disposable.dispose()
+					// TODO: Assert binding was teared-down?
+				}
+
+				it("should tear down the binding when bound signal is completed") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let (signalProducer, observer) = SignalProducer<String, NoError>.buffer(1)
 					
-					it("should release property and tear down the binding when binding signal is completed"){
-						let (signalProducer, observer) = SignalProducer<AnyObject?, NoError>.buffer(1)
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object: ObservableObject! = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						let bindingDisposable = dynamicProperty! <~ signalProducer
-						property = nil
-						
-						expect(dynamicProperty).toNot(beNil())
-						expect(bindingDisposable.disposed).to(beFalsy())
-						
-						sendCompleted(observer)
-						expect(dynamicProperty).to(beNil())
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
+					let mutableProperty = MutableProperty(initialPropertyValue)
 					
-					it("should release property and tear down the binding when DynamicProperty's object is deallocated"){
-						let (signalProducer, _) = SignalProducer<AnyObject?, NoError>.buffer(1)
-						var property: DynamicProperty!
-						weak var dynamicProperty: DynamicProperty?
-						var object: ObservableObject! = ObservableObject()
-						
-						property = DynamicProperty(object: object, keyPath: "rac_value")
-						dynamicProperty = property
-						let bindingDisposable = dynamicProperty! <~ signalProducer
-						property = nil
-						
-						expect(dynamicProperty).toNot(beNil())
-						expect(bindingDisposable.disposed).to(beFalsy())
-						
-						object = nil
-						expect(dynamicProperty).to(beNil())
-						expect(bindingDisposable.disposed).to(beTruthy())
-					}
+					let disposable = mutableProperty <~ signalProducer
+					
+					expect(disposable.disposed).to(beFalsy())
+					sendCompleted(observer)
+					expect(disposable.disposed).to(beTruthy())
+				}
+
+				it("should tear down the binding when the property deallocates") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+
+					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+
+					let disposable = mutableProperty! <~ signalProducer
+
+					mutableProperty = nil
+					expect(disposable.disposed).to(beTruthy())
 				}
 			}
 

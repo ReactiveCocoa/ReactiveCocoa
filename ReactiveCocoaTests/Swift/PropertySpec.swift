@@ -196,7 +196,19 @@ class PropertySpec: QuickSpec {
 					expect(mutableProperty.value).to(equal(initialPropertyValue))
 				}
 				
-				it("should retain property by binding"){
+				it("should tear down the binding when the property deallocates") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+					
+					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+					
+					let bindingDisposable = mutableProperty! <~ signal
+					
+					mutableProperty = nil
+					
+					expect(bindingDisposable.disposed).to(beTruthy())
+				}
+				
+				it("should retain property by binding (Only DynamicProperty) "){
 					let (signal, _) = Signal<AnyObject?, NoError>.pipe()
 					var property: DynamicProperty!
 					weak var dynamicProperty: DynamicProperty?
@@ -233,7 +245,7 @@ class PropertySpec: QuickSpec {
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 				
-				it("should release property and tear down the binding when property's Value is deallocated (only DynamicProperty)"){
+				it("should release property and tear down the binding when property's Value is deallocated (Only DynamicProperty)"){
 					let (signal, _) = Signal<AnyObject?, NoError>.pipe()
 					var property: DynamicProperty!
 					weak var dynamicProperty: DynamicProperty?
@@ -277,7 +289,20 @@ class PropertySpec: QuickSpec {
 					// TODO: Assert binding was teared-down?
 				}
 				
-				it("should retain property by binding"){
+				it("should tear down the binding when the property deallocates") {
+					let signalValues = [initialPropertyValue, subsequentPropertyValue]
+					let signalProducer = SignalProducer<String, NoError>(values: signalValues)
+					
+					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
+					
+					let disposable = mutableProperty! <~ signalProducer
+					
+					mutableProperty = nil
+					
+					expect(disposable.disposed).to(beTruthy())
+				}
+				
+				it("should retain property by binding (Only DynamicProperty)"){
 					let (signalProducer, _) = SignalProducer<AnyObject?, NoError>.buffer(1)
 					var property: DynamicProperty!
 					weak var dynamicProperty: DynamicProperty?

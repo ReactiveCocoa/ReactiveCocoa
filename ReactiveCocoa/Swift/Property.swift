@@ -114,9 +114,6 @@ extension MutableProperty: SinkType {
 
 	private weak var object: NSObject?
 	private let keyPath: String
-	
-	private let willDeallocProducer: SignalProducer<(), NoError>
-	private let willDeallocObserver: Signal<(), NoError>.Observer
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
@@ -138,21 +135,12 @@ extension MutableProperty: SinkType {
 	/// KVO-compliant. Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
 		if let object = object {
-			let objectWillDeallocProducer: SignalProducer<(), NoError> = object.rac_willDeallocSignal().toSignalProducer()
-				|> catch { error in
-					assert(false, "Received unexpected error from `rac_willDeallocSignal()`")
-					return .empty
-				}
-				|> map{ $0 as! () }
-			
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
 				|> catch { error in
 					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}
-				|> takeUntil(willDeallocProducer)
-				|> takeUntil(objectWillDeallocProducer)
 		} else {
 			return .empty
 		}
@@ -163,11 +151,6 @@ extension MutableProperty: SinkType {
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-		(willDeallocProducer, willDeallocObserver) = SignalProducer<(), NoError>.buffer(1)
-	}
-	
-	deinit {
-		sendCompleted(willDeallocObserver)
 	}
 }
 
@@ -189,8 +172,8 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signa
 
 	disposable.addDisposable(propertyDisposable)
 
-	let signalDisposable = signal.observe(next: { value in
-		property.value = value
+	let signalDisposable = signal.observe(next: { [weak property] value in
+		property?.value = value
 		return
 	}, completed: {
 		disposable.dispose()

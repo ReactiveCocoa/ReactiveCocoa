@@ -177,6 +177,12 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 	}
 }
 
+/// Unwraps non-`nil` values from `signal` and forwards them on the returned
+/// signal, `nil` values are dropped.
+public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
+	return signal |> filter { $0 != nil } |> map { $0! }
+}
+
 /// Returns a signal that will yield the first `count` values from the
 /// input signal.
 public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
@@ -763,7 +769,8 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
 						state.pendingValue = value.unbox
 
-						let scheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
 						return (state, scheduleDate)
 					}
 

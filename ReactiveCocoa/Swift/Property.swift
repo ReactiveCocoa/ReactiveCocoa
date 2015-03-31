@@ -151,6 +151,11 @@ extension MutableProperty: SinkType {
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
+		
+		/// DynamicProperty stay alive as long as object is alive.
+		/// This is made possible by strong reference cycles.
+		super.init()
+		object?.rac_willDeallocSignal()?.toSignalProducer().start(completed: { self })
 	}
 }
 

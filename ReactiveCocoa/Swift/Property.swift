@@ -1,5 +1,5 @@
 /// Represents a property that allows observation of its changes.
-public protocol PropertyType: class {
+public protocol PropertyType {
 	typealias Value
 
 	/// The current value of the property.
@@ -47,9 +47,22 @@ public final class ConstantProperty<T>: PropertyType {
 	}
 }
 
+infix operator <~ {
+	associativity right
+	precedence 90
+}
+
 /// Represents an observable property that can be mutated directly.
 public protocol MutablePropertyType: PropertyType {
+	/// The mutable value for this property.
 	var value: Value { get set }
+
+	/// Binds a signal to the property, updating the property's value to the latest
+	/// value sent by the signal.
+	///
+	/// The binding should automatically terminate when the property is deinitialized,
+	/// or when the signal sends a `Completed` event.
+	func <~ (property: Self, signal: Signal<Value, NoError>) -> Disposable
 }
 
 /// A mutable property of type T that allows observation of its changes.
@@ -92,6 +105,25 @@ public final class MutableProperty<T>: MutablePropertyType {
 	deinit {
 		sendCompleted(observer)
 	}
+}
+
+public func <~ <T>(property: MutableProperty<T>, signal: Signal<T, NoError>) -> Disposable {
+	let disposable = CompositeDisposable()
+	let propertyDisposable = property.producer.start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(propertyDisposable)
+
+	let signalDisposable = signal.observe(next: { [weak property] value in
+		property?.value = value
+		return
+	}, completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(signalDisposable)
+	return disposable
 }
 
 extension MutableProperty: SinkType {
@@ -151,17 +183,7 @@ extension MutableProperty: SinkType {
 	}
 }
 
-infix operator <~ {
-	associativity right
-	precedence 90
-}
-
-/// Binds a signal to a property, updating the property's value to the latest
-/// value sent by the signal.
-///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the signal sends a `Completed` event.
-public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signal: Signal<T, NoError>) -> Disposable {
+public func <~ <T: AnyObject>(property: DynamicProperty, signal: Signal<T?, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	let propertyDisposable = property.producer.start(completed: {
 		disposable.dispose()
@@ -169,8 +191,8 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signa
 
 	disposable.addDisposable(propertyDisposable)
 
-	let signalDisposable = signal.observe(next: { [weak property] value in
-		property?.value = value
+	let signalDisposable = signal.observe(next: { value in
+		property.value = value
 		return
 	}, completed: {
 		disposable.dispose()
@@ -180,6 +202,10 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signa
 	return disposable
 }
 
+public func <~ <T: AnyObject>(property: DynamicProperty, signal: Signal<T, NoError>) -> Disposable {
+	let optionalSignal: Signal<T?, NoError> = signal |> map { $0 }
+	return property <~ optionalSignal
+}
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent

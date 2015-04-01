@@ -2528,7 +2528,7 @@ qck_describe(@"+try:", ^{
 		receivedError = nil;
 	});
 
-	qck_it(@"should pass the value if no error is set", ^{
+	qck_it(@"should pass the value if it is non-nil", ^{
 		RACSignal *signal = [RACSignal try:^(NSError **error) {
 			return @"foo";
 		}];
@@ -2543,7 +2543,7 @@ qck_describe(@"+try:", ^{
 		expect(receivedError).to(beNil());
 	});
 
-	qck_it(@"should discard the value if an error is set", ^{
+	qck_it(@"should ignore the error if the value is non-nil", ^{
 		RACSignal *signal = [RACSignal try:^(NSError **error) {
 			if (error != nil) *error = RACSignalTestError;
 
@@ -2556,26 +2556,25 @@ qck_describe(@"+try:", ^{
 			receivedError = error;
 		}];
 
-		expect(receivedError).to(equal(RACSignalTestError));
-		expect(value).to(beNil());
+		expect(receivedError).to(beNil());
+		expect(value).to(equal(@"foo"));
 	});
 
-	qck_it(@"should allow nil values when no error is set", ^{
+	qck_it(@"should send the error if the return value is nil", ^{
 		RACSignal *signal = [RACSignal try:^id(NSError **error) {
+			if (error) *error = RACSignalTestError;
+
 			return nil;
 		}];
 
-		__block BOOL valueReceived = NO;
 		[signal subscribeNext:^(id x) {
-			valueReceived = YES;
 			value = x;
 		} error:^(NSError *error) {
 			receivedError = error;
 		}];
 
 		expect(value).to(beNil());
-		expect(@(valueReceived)).to(beTruthy());
-		expect(receivedError).to(beNil());
+		expect(receivedError).to(equal(RACSignalTestError));
 	});
 });
 

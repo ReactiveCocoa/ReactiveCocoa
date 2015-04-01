@@ -276,7 +276,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSError *error;
 		id value = tryBlock(&error);
-		RACSignal *signal = (error == nil ? [RACSignal return:value] : [RACSignal error:error]);
+		RACSignal *signal = (value == nil ? [RACSignal error:error] : [RACSignal return:value]);
 		return [signal subscribe:subscriber];
 	}] setNameWithFormat:@"+try:"];
 }

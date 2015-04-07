@@ -85,26 +85,26 @@ back and forth between the two.
 
 Because the APIs are based on fundamentally different designs, the conversion is
 not always one-to-one; however, every attempt has been made to faithfully
-translate the concepts between the two APIs (and the two languages).
+translate the concepts between the two APIs (and languages).
 
 **Common conversions include:**
 
-* The `RACSignal.toSignalProducer` method†
+* The `RACSignal.toSignalProducer` method **†**
     * Converts `RACSignal *` to `SignalProducer<AnyObject?, NSError>`
 * The `toRACSignal()` function
     * Converts `SignalProducer<AnyObject?, ErrorType>` to `RACSignal *`
     * Converts `Signal<AnyObject?, ErrorType>` to `RACSignal *`
-* The `RACCommand.toAction` method‡
+* The `RACCommand.toAction` method **‡**
     * Converts `RACCommand *` to `Action<AnyObject?, AnyObject?, NSError>`
-* The `toRACCommand` function‡
+* The `toRACCommand` function **‡**
     * Converts `Action<AnyObject?, AnyObject?, ErrorType>` to `RACCommand *`
 
-† It is not possible (in the general case) to convert arbitrary `RACSignal`
+**†** It is not possible (in the general case) to convert arbitrary `RACSignal`
 instances to `Signal`s, because any `RACSignal` subscription could potentially
 involve side effects. To obtain a `Signal`, use `RACSignal.toSignalProducer`
-followed by `SignalProducer.start`, which will make those side effects explicit.
+followed by `SignalProducer.start`, thereby making those side effects explicit.
 
-‡ Unfortunately, the `executing` properties of actions and commands are not
+**‡** Unfortunately, the `executing` properties of actions and commands are not
 synchronized across the API bridge. To ensure consistency, only observe the
 `executing` property from the base object (the one passed _into_ the bridge, not
 retrieved from it), so updates occur no matter which object is used for

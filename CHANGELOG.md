@@ -22,17 +22,17 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
  1. [Hot signals are now Signals](#hot-signals-are-now-signals)
  1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
- 1. [Commands are now Actions](#)
- 1. [Flattening/merging, concatenating, and switching are now one operator](#)
- 1. [Using PropertyType instead of RACObserve and RAC](#)
- 1. [Using Signal.pipe instead of RACSubject](#)
- 1. [Using SignalProducer.buffer instead of replaying](#)
- 1. [Using startWithSignal instead of multicasting](#)
+ 1. Commands are now Actions
+ 1. Flattening/merging, concatenating, and switching are now one operator
+ 1. Using PropertyType instead of RACObserve and RAC
+ 1. Using Signal.pipe instead of RACSubject
+ 1. Using SignalProducer.buffer instead of replaying
+ 1. Using startWithSignal instead of multicasting
 
 **[Minor changes](#minor-changes)**
 
- 1. [Disposable changes](#)
- 1. [Scheduler changes](#)
+ 1. Disposable changes
+ 1. Scheduler changes
 
 ## Additions
 

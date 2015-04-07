@@ -112,4 +112,24 @@ execution.
 
 ## Replacements
 
+### Hot signals are now Signals
+
+In the terminology of RAC 2, a “hot” `RACSignal` does not trigger any side effects
+when a `-subscribe…` method is called upon it. In other words, hot signals are
+entirely producer-driven and push-based, and consumers (subscribers) cannot have
+any effect on their lifetime.
+
+This pattern is useful for notifying observers about events that will occur _no
+matter what_. For example, a `loading` boolean might flip between true and false
+regardless of whether anything is observing it.
+
+Concretely, _every_ `RACSubject` is a kind of hot signal, because the events
+being forwarded are not determined by the number of subscribers on the subject.
+
+In RAC 3, “hot” signals are now solely represented by the
+[`Signal`](ReactiveCocoa/Swift/Signal.swift) class, and “cold” signals have been
+[separated into their own type](#cold-signals-are-now-signalproducers). This
+reduces complexity by making it clear that no `Signal` object can trigger side
+effects when observed.
+
 ## Minor changes

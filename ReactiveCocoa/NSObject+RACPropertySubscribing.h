@@ -72,9 +72,8 @@
 
 /// Creates a signal to observe the changes of the given key path.
 ///
-/// The initial value is sent on subscription, the subsequent values are sent
-/// from whichever thread the change occured on, even if it doesn't have a valid
-/// scheduler.
+/// The subsequent values are sent from whichever thread the change occured on,
+/// even if it doesn't have a valid scheduler.
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.

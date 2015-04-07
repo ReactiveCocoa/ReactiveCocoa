@@ -132,4 +132,26 @@ In RAC 3, “hot” signals are now solely represented by the
 reduces complexity by making it clear that no `Signal` object can trigger side
 effects when observed.
 
+### Cold signals are now SignalProducers
+
+In the terminology of RAC 2, a “cold” `RACSignal` performs its work one time for
+_every_ subscription. In other words, cold signals perform side effects when
+a `-subscribe…` method is called upon them, and may be able to cancel
+in-progress work if `-dispose` is called upon the returned `RACDisposable`.
+
+This pattern is broadly useful because it minimizes unnecessary work, and
+allows operators like `take`, `retry`, `concat`, etc. to manipulate when work is
+started and cancelled. Cold signals are also similar to how [futures and
+promises](http://en.wikipedia.org/wiki/Futures_and_promises) work, and can be
+useful for structuring asynchronous code (like network requests).
+
+In RAC 3, “cold” signals are now solely represented by the
+[`SignalProducer`](ReactiveCocoa/Swift/SignalProducer.swift) class, which
+clearly indicates their relationship to [“hot”
+signals](#hot-signals-are-now-signals). As the name indicates, a signal
+_producer_ is responsible for creating
+a [_signal_](#hot-signals-are-now-signals) (when started), and can
+perform work as part of that process—meanwhile, the signal can have any number
+of observers without any additional side effects.
+
 ## Minor changes

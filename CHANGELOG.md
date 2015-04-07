@@ -16,7 +16,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
  1. [Parameterized types](#parameterized-types)
  1. [Interrupted event](#interrupted-event)
- 1. [Objective-C bridging](#)
+ 1. [Objective-C bridging](#objective-c-bridging)
 
 **[Replacements](#replacements)**
 
@@ -75,6 +75,40 @@ model for reasoning about non-erroneous, yet unsuccessful, signal terminations.
 **Note:** Custom `Signal` and `SignalProducer` operators should handle any received
 `Interrupted` event by forwarding it to their own observers. This ensures that
 interruption correctly propagates through the whole signal chain.
+
+### Objective-C bridging
+
+To support interoperation between the Objective-C APIs introduced in RAC 2 and
+the Swift APIs introduced in RAC 3, the framework offers [bridging
+functions](ReactiveCocoa/Swift/ObjectiveCBridging.swift) that can convert types
+back and forth between the two.
+
+Because the APIs are based on fundamentally different designs, the conversion is
+not always one-to-one; however, every attempt has been made to faithfully
+translate the concepts between the two APIs (and the two languages).
+
+**Common conversions include:**
+
+* The `RACSignal.toSignalProducer` method†
+    * Converts `RACSignal *` to `SignalProducer<AnyObject?, NSError>`
+* The `toRACSignal()` function
+    * Converts `SignalProducer<AnyObject?, ErrorType>` to `RACSignal *`
+    * Converts `Signal<AnyObject?, ErrorType>` to `RACSignal *`
+* The `RACCommand.toAction` method‡
+    * Converts `RACCommand *` to `Action<AnyObject?, AnyObject?, NSError>`
+* The `toRACCommand` function‡
+    * Converts `Action<AnyObject?, AnyObject?, ErrorType>` to `RACCommand *`
+
+† It is not possible (in the general case) to convert arbitrary `RACSignal`
+instances to `Signal`s, because any `RACSignal` subscription could potentially
+involve side effects. To obtain a `Signal`, use `RACSignal.toSignalProducer`
+followed by `SignalProducer.start`, which will make those side effects explicit.
+
+‡ Unfortunately, the `executing` properties of actions and commands are not
+synchronized across the API bridge. To ensure consistency, only observe the
+`executing` property from the base object (the one passed _into_ the bridge, not
+retrieved from it), so updates occur no matter which object is used for
+execution.
 
 ## Replacements
 

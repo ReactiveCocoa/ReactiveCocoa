@@ -15,13 +15,13 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 **[Additions](#additions)**
 
  1. [Parameterized types](#parameterized-types)
- 1. [Interrupted event](#)
+ 1. [Interrupted event](#interrupted-event)
  1. [Objective-C bridging](#)
 
 **[Replacements](#replacements)**
 
- 1. [Hot signals are now Signals](#)
- 1. [Cold signals are now SignalProducers](#)
+ 1. [Hot signals are now Signals](#hot-signals-are-now-signals)
+ 1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
  1. [Commands are now Actions](#)
  1. [Flattening/merging, concatenating, and switching are now one operator](#)
  1. [Using PropertyType instead of RACObserve and RAC](#)
@@ -52,6 +52,29 @@ more strings, and which will _not_ send an error under any circumstances.
 Together, these additions make it much simpler to reason about signal
 interactions, and protect against several kinds of common bugs that occurred in
 Objective-C.
+
+### Interrupted event
+
+In addition to the `Next`, `Error`, and `Completed` events that have always been
+part of RAC, version 3.0 [adds another terminating
+event](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1735)—called
+`Interrupted`—that is used to communicate cancellation.
+
+Now, whenever a [producer](#cold-signals-are-now-signalproducers) is disposed
+of, one final `Interrupted` event will be sent to all consumers, giving them
+a chance to react to the cancellation.
+
+Similarly, observing a [hot signal](#hot-signals-are-now-signals) that has
+already terminated will immediately result in an `Interrupted` event, to clearly
+indicate that no further events are possible.
+
+This brings disposal semantics more in line with normal event delivery, where
+events propagate downstream from producers to consumers. The result is a simpler
+model for reasoning about non-erroneous, yet unsuccessful, signal terminations.
+
+**Note:** Custom `Signal` and `SignalProducer` operators should handle any received
+`Interrupted` event by forwarding it to their own observers. This ensures that
+interruption correctly propagates through the whole signal chain.
 
 ## Replacements
 

@@ -2913,6 +2913,34 @@ qck_it(@"should complete take: even if the original signal doesn't", ^{
 	expect(@(completed)).to(beTruthy());
 });
 
+qck_it(@"should complete take: even if the signal is recursive", ^{
+	RACSubject *subject = [RACSubject subject];
+	const NSUInteger number = 3;
+	const NSUInteger guard = number + 1;
+
+	NSMutableArray *values = NSMutableArray.array;
+	__block BOOL completed = NO;
+
+	[[subject take:number] subscribeNext:^(NSNumber* received) {
+		[values addObject:received];
+		if (values.count >= guard) {
+			[subject sendError:RACSignalTestError];
+		}
+		[subject sendNext:@(received.integerValue + 1)];
+	} completed:^{
+		completed = YES;
+	}];
+	[subject sendNext:@0];
+
+	NSMutableArray* expectedValues = [NSMutableArray arrayWithCapacity:number];
+	for (NSUInteger i = 0 ; i < number ; ++i) {
+		[expectedValues addObject:@(i)];
+	}
+
+	expect(values).to(equal(expectedValues));
+	expect(@(completed)).to(beTruthy());
+});
+
 qck_describe(@"+zip:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;

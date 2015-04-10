@@ -72,6 +72,7 @@
 
 /// Creates a signal to observe the changes of the given key path.
 ///
+/// The initial value is sent on subscription if NSKeyValueObservingOptionInitial is set.
 /// The subsequent values are sent from whichever thread the change occured on,
 /// even if it doesn't have a valid scheduler.
 ///

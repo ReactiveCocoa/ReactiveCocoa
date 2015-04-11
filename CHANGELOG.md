@@ -24,7 +24,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
  1. [Commands are now Actions](#commands-are-now-actions)
  1. [Flattening/merging, concatenating, and switching are now one operator](#flatteningmerging-concatenating-and-switching-are-now-one-operator)
- 1. Using PropertyType instead of RACObserve and RAC
+ 1. [Using PropertyType instead of RACObserve and RAC](#using-propertytype-instead-of-racobserve-and-rac)
  1. Using Signal.pipe instead of RACSubject
  1. Using SignalProducer.buffer instead of replaying
  1. Using startWithSignal instead of multicasting
@@ -216,5 +216,23 @@ which strategy is most appropriate for a given use.
 **For streams of exactly one value, calls to `-flattenMap:` can be replaced with
 `joinMap(.Concat)`**, which has the additional benefit of predictable behavior if
 the input stream is refactored to have more values in the future.
+
+### Using PropertyType instead of RACObserve and RAC
+
+To be more Swift-like, RAC 3 de-emphasizes Key-Value Coding (KVC) and Key-Value
+Observing (KVO) in favor of a less “magical” representation for properties.
+**The [`PropertyType` protocol and implementations](ReactiveCocoa/Swift/Property.swift)
+replace most uses of the `RACObserve()` and `RAC()` macros.**
+
+For example, `MutableProperty` can be used to represent a property that can be
+bound to. If changes to that property should be visible to consumers, it can
+additionally be wrapped in `PropertyOf` (to hide the mutable bits) and exposed
+publicly.
+
+**If KVC or KVO is required by a specific API**—for example, to observe changes
+to `NSOperation.executing`—RAC 3 offers a `DynamicProperty` type that can wrap
+those key paths. Use this class with caution, though, as it can’t offer any type
+safety, and many APIs (especially in AppKit and UIKit) are not documented to be
+KVO-compliant.
 
 ## Minor changes

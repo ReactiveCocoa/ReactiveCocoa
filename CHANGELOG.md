@@ -44,7 +44,8 @@ can send. RAC also requires that the type of errors be specified.**
 For example, `Signal<Int, NSError>` is a signal that may send zero or more
 integers, and which may send an error of type `NSError`.
 
-**If it is impossible for a signal to error out, use the built-in `NoError` type**
+**If it is impossible for a signal to error out, use the built-in
+[`NoError`](ReactiveCocoa/Swift/Errors.swift) type**
 (which can be referred to, but never created) to represent that
 case—for example, `Signal<String, NoError>` is a signal that may send zero or
 more strings, and which will _not_ send an error under any circumstances.

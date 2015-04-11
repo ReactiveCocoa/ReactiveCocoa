@@ -242,6 +242,22 @@ there is a special class method for creating a controllable signal. **The
 `Signal.pipe` method can replace the use of subjects**, and expresses intent
 better by separating the observing API from the sending API.
 
+To use a pipe, set up observers on the signal as desired, then send values to
+the sink:
+
+```swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
+
+signal.observe(next: { value in
+    println(value)
+})
+
+// Prints each number
+sink.put(0)
+sink.put(1)
+sink.put(2)
+```
+
 ### Using SignalProducer.buffer instead of replaying
 
 The producer version of

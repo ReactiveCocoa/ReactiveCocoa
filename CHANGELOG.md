@@ -25,8 +25,8 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Commands are now Actions](#commands-are-now-actions)
  1. [Flattening/merging, concatenating, and switching are now one operator](#flatteningmerging-concatenating-and-switching-are-now-one-operator)
  1. [Using PropertyType instead of RACObserve and RAC](#using-propertytype-instead-of-racobserve-and-rac)
- 1. [Using Signal.pipe instead of RACSubject](#using-signal.pipe-instead-of-racsubject)
- 1. Using SignalProducer.buffer instead of replaying
+ 1. [Using Signal.pipe instead of RACSubject](#using-signalpipe-instead-of-racsubject)
+ 1. [Using SignalProducer.buffer instead of replaying](#using-signalproducerbuffer-instead-of-replaying)
  1. Using startWithSignal instead of multicasting
 
 **[Minor changes](#minor-changes)**
@@ -241,5 +241,32 @@ Since the `Signal` type, like `RACSubject`, is [always “hot”](#hot-signals-a
 there is a special class method for creating a controllable signal. **The
 `Signal.pipe` method can replace the use of subjects**, and expresses intent
 better by separating the observing API from the sending API.
+
+### Using SignalProducer.buffer instead of replaying
+
+The producer version of
+[`Signal.pipe`](#using-signalpipe-instead-of-racsubject),
+**the `SignalProducer.buffer` method can replace replaying** with
+`RACReplaySubject` or any of the `-replay…` methods.
+
+Conceptually, `buffer` creates a (optionally bounded) queue for events, much
+like `RACReplaySubject`, and replays those events when new `Signal`s are created
+from the producer.
+
+For example, to replay the values of an existing `Signal`, it just needs to be
+fed into the write end of the buffer:
+
+```swift
+let signal: Signal<Int, NoError>
+let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+// Saves observed values in the buffer
+signal.observe(sink)
+
+// Prints each value buffered
+producer.start(next: { value in
+    println(value)
+})
+```
 
 ## Minor changes

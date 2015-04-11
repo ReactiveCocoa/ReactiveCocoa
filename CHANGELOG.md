@@ -22,7 +22,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
  1. [Hot signals are now Signals](#hot-signals-are-now-signals)
  1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
- 1. Commands are now Actions
+ 1. [Commands are now Actions](#commands-are-now-actions)
  1. Flattening/merging, concatenating, and switching are now one operator
  1. Using PropertyType instead of RACObserve and RAC
  1. Using Signal.pipe instead of RACSubject
@@ -153,5 +153,35 @@ _producer_ is responsible for creating
 a [_signal_](#hot-signals-are-now-signals) (when started), and can
 perform work as part of that process—meanwhile, the signal can have any number
 of observers without any additional side effects.
+
+### Commands are now Actions
+
+Instead of the ambiguously named `RACCommand`, the Swift API offers the
+[`Action`](ReactiveCocoa/Swift/Action.swift) type—named as such because it’s
+mainly useful in UI programming—to fulfill the same purpose.
+
+Like the rest of the Swift API, actions are
+[parameterized](#parameterized-types) by the types they use. An action must
+indicate the type of input it accepts, the type of output it produces, and
+what kinds of errors can occur (if any). This eliminates a few classes of type
+error, and clarifies intention.
+
+Actions are also intended to be simpler overall than their predecessor. Unlike
+commands, actions are not bound to or dependent upon the main thread, making it
+easier to reason about when they can be executed and when they will generate
+notifications. Actions also only support serial execution, because concurrent
+execution was a rarely used feature of `RACCommand` that added significant
+complexity to the interface and implementation.
+
+Because actions are frequently used in conjunction with AppKit or UIKit, there
+is also a `CocoaAction` class that erases the type parameters of an `Action`,
+allowing it to be used from Objective-C.
+
+As an example, an action can be wrapped and bound to `UIControl` like so:
+
+```swift
+self.cocoaAction = CocoaAction(underlyingAction)
+self.button.addTarget(self.cocoaAction, action: self.cocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
+```
 
 ## Minor changes

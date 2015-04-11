@@ -219,8 +219,9 @@ the input stream is refactored to have more values in the future.
 
 ### Using PropertyType instead of RACObserve and RAC
 
-To be more Swift-like, RAC 3 de-emphasizes Key-Value Coding (KVC) and Key-Value
-Observing (KVO) in favor of a less “magical” representation for properties.
+To be more Swift-like, RAC 3 de-emphasizes [Key-Value Coding](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueCoding/Articles/KeyValueCoding.html) (KVC)
+and [Key-Value Observing](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html) (KVO)
+in favor of a less “magical” representation for properties.
 **The [`PropertyType` protocol and implementations](ReactiveCocoa/Swift/Property.swift)
 replace most uses of the `RACObserve()` and `RAC()` macros.**
 

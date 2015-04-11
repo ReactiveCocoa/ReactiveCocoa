@@ -32,7 +32,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 **[Minor changes](#minor-changes)**
 
  1. [Disposable changes](#disposable-changes)
- 1. Scheduler changes
+ 1. [Scheduler changes](#scheduler-changes)
 
 ## Additions
 
@@ -309,3 +309,17 @@ The biggest change to be aware of is that **setting
 `SerialDisposable.innerDisposable` will always dispose of the previous value**,
 which helps prevent resource leaks or logic errors from forgetting to dispose
 manually.
+
+### Scheduler changes
+
+RAC 3 replaces the multipurpose `RACScheduler` class with two protocols,
+`SchedulerType` and `DateSchedulerType`, with multiple implementations of each.
+This design indicates and enforces the capabilities of each scheduler using the type
+system.
+
+In addition, **the `mainThreadScheduler` has been replaced with `UIScheduler` and
+`QueueScheduler.mainQueueScheduler`**. The `UIScheduler` types allows operations
+that target the main thread to run _as soon as possible_, replacing RAC 2’s
+`-performOnMainThread` operator—while `QueueScheduler.mainQueueScheduler` can
+be used when ordering is highly important, or for scheduling work at a future
+date.

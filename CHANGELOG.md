@@ -31,7 +31,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
 **[Minor changes](#minor-changes)**
 
- 1. Disposable changes
+ 1. [Disposable changes](#disposable-changes)
  1. Scheduler changes
 
 ## Additions
@@ -299,3 +299,13 @@ producer.startWithSignal { signal, disposable in
 ```
 
 ## Minor changes
+
+### Disposable changes
+
+[Disposables](ReactiveCocoa/Swift/Disposable.swift) haven’t changed much overall
+in RAC 3, besides the addition of a protocol and minor naming tweaks.
+
+The biggest change to be aware of is that **setting
+`SerialDisposable.innerDisposable` will always dispose of the previous value**,
+which helps prevent resource leaks or logic errors from forgetting to dispose
+manually.

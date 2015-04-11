@@ -330,7 +330,7 @@ manually.
 ### Scheduler changes
 
 RAC 3 replaces the multipurpose `RACScheduler` class with two protocols,
-`SchedulerType` and `DateSchedulerType`, with multiple implementations of each.
+[`SchedulerType` and `DateSchedulerType`](ReactiveCocoa/Swift/Scheduler.swift), with multiple implementations of each.
 This design indicates and enforces the capabilities of each scheduler using the type
 system.
 

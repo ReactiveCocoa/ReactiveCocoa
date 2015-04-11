@@ -23,7 +23,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Hot signals are now Signals](#hot-signals-are-now-signals)
  1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
  1. [Commands are now Actions](#commands-are-now-actions)
- 1. Flattening/merging, concatenating, and switching are now one operator
+ 1. [Flattening/merging, concatenating, and switching are now one operator](#)
  1. Using PropertyType instead of RACObserve and RAC
  1. Using Signal.pipe instead of RACSubject
  1. Using SignalProducer.buffer instead of replaying
@@ -183,5 +183,36 @@ As an example, an action can be wrapped and bound to `UIControl` like so:
 self.cocoaAction = CocoaAction(underlyingAction)
 self.button.addTarget(self.cocoaAction, action: self.cocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
 ```
+
+### Flattening/merging, concatenating, and switching are now one operator
+
+RAC 2 offers several operators for transforming a signal-of-signals into one
+`RACSignal`, including:
+
+ * `-flatten`
+ * `-flattenMap:`
+ * `+merge:`
+ * `-concat`
+ * `+concat:`
+ * `-switchToLatest`
+
+In addition, because `-flattenMap:` is the easiest to use, it was often
+incorrectly chosen even when concatenation or switching semantics are more
+appropriate.
+
+RAC 3 distills these concepts down into just two operators, named `join` and `joinMap`.
+Both accept a “strategy” which determines how the producer-of-producers should
+be integrated, which can be one of:
+
+ * `.Merge`, which is equivalent to `-flatten` or `+merge:`
+ * `.Concat`, which is equivalent to `-concat` or `+concat:`
+ * `.Latest`, which is equivalent to `-switchToLatest`
+
+This reduces the API surface area, and forces callers to consciously think about
+which strategy is most appropriate for a given use.
+
+For streams of exactly one value, calls to `-flattenMap:` can be replaced with
+`joinMap(.Concat)`, which has the additional benefit of predictable behavior if
+the input stream is refactored to have more values in the future.
 
 ## Minor changes

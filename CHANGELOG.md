@@ -198,7 +198,7 @@ RAC 2 offers several operators for transforming a signal-of-signals into one
  * `+concat:`
  * `-switchToLatest`
 
-In addition, because `-flattenMap:` is the easiest to use, it was often
+Because `-flattenMap:` is the easiest to use, it was often
 incorrectly chosen even when concatenation or switching semantics are more
 appropriate.
 

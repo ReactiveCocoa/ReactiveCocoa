@@ -25,7 +25,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Commands are now Actions](#commands-are-now-actions)
  1. [Flattening/merging, concatenating, and switching are now one operator](#flatteningmerging-concatenating-and-switching-are-now-one-operator)
  1. [Using PropertyType instead of RACObserve and RAC](#using-propertytype-instead-of-racobserve-and-rac)
- 1. Using Signal.pipe instead of RACSubject
+ 1. [Using Signal.pipe instead of RACSubject](#using-signal.pipe-instead-of-racsubject)
  1. Using SignalProducer.buffer instead of replaying
  1. Using startWithSignal instead of multicasting
 
@@ -234,5 +234,12 @@ to `NSOperation.executing`—RAC 3 offers a `DynamicProperty` type that can wrap
 those key paths. Use this class with caution, though, as it can’t offer any type
 safety, and many APIs (especially in AppKit and UIKit) are not documented to be
 KVO-compliant.
+
+### Using Signal.pipe instead of RACSubject
+
+Since the `Signal` type, like `RACSubject`, is [always “hot”](#hot-signals-are-now-signals),
+there is a special class method for creating a controllable signal. **The
+`Signal.pipe` method can replace the use of subjects**, and expresses intent
+better by separating the observing API from the sending API.
 
 ## Minor changes

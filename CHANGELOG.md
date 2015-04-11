@@ -27,7 +27,7 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
  1. [Using PropertyType instead of RACObserve and RAC](#using-propertytype-instead-of-racobserve-and-rac)
  1. [Using Signal.pipe instead of RACSubject](#using-signalpipe-instead-of-racsubject)
  1. [Using SignalProducer.buffer instead of replaying](#using-signalproducerbuffer-instead-of-replaying)
- 1. Using startWithSignal instead of multicasting
+ 1. [Using startWithSignal instead of multicasting](#using-startwithsignal-instead-of-multicasting)
 
 **[Minor changes](#minor-changes)**
 
@@ -267,6 +267,35 @@ signal.observe(sink)
 producer.start(next: { value in
     println(value)
 })
+```
+
+### Using startWithSignal instead of multicasting
+
+`RACMulticastConnection` and the `-publish` and `-multicast:` operators were
+always poorly understood features of RAC 2. In RAC 3, thanks to the `Signal` and
+`SignalProducer` split, **the `SignalProducer.startWithSignal` method can
+replace multicasting**.
+
+`startWithSignal` allows any number of observers to attach to the created signal
+_before_ any work is begun—therefore, the work (and any side effects) still
+occurs just once, but the values can be distributed to multiple interested
+observers. This fulfills the same purpose of multicasting, in a much clearer and
+more tightly-scoped way.
+
+For example:
+
+```swift
+let producer = timer(5, onScheduler: QueueScheduler.mainQueueScheduler) |> take(3)
+
+// Starts just one timer, sending the dates to two different observers as they
+// are generated.
+producer.startWithSignal { signal, disposable in
+    signal.observe(next: { date in
+        println(date)
+    })
+
+    signal.observe(someOtherObserver)
+}
 ```
 
 ## Minor changes

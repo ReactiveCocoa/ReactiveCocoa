@@ -973,7 +973,7 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 ///
 /// This does not actually cause errors to be generated for the given signal,
 /// but makes it easier to combine with other signals that may error; for
-/// example, with operators like `combineLatestWith`, `zipWith`, `join`, etc.
+/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
 public func promoteErrors<T, E: ErrorType>(_: E.Type)(signal: Signal<T, NoError>) -> Signal<T, E> {
 	return Signal { observer in
 		return signal.observe(next: { value in

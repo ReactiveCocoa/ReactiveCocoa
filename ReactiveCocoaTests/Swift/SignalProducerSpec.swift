@@ -695,8 +695,8 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("join") {
-			describe("JoinStrategy.Concat") {
+		describe("flatten") {
+			describe("FlattenStrategy.Concat") {
 				describe("sequencing") {
 					var completePrevious: (Void -> Void)!
 					var sendSubsequent: (Void -> Void)!
@@ -717,7 +717,7 @@ class SignalProducerSpec: QuickSpec {
 						sendSubsequent = { sendNext(outerSink, subsequentProducer) }
 						completeOuter = { sendCompleted(outerSink) }
 
-						(outerProducer |> join(.Concat)).start()
+						(outerProducer |> flatten(.Concat)).start()
 						sendNext(outerSink, previousProducer)
 					}
 
@@ -752,7 +752,7 @@ class SignalProducerSpec: QuickSpec {
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 					var error: TestError?
-					(outerProducer |> join(.Concat)).start(error: { e in
+					(outerProducer |> flatten(.Concat)).start(error: { e in
 						error = e
 					})
 
@@ -763,7 +763,7 @@ class SignalProducerSpec: QuickSpec {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 					var error: TestError?
-					(outerProducer |> join(.Concat)).start(error: { e in
+					(outerProducer |> flatten(.Concat)).start(error: { e in
 						error = e
 					})
 
@@ -785,7 +785,7 @@ class SignalProducerSpec: QuickSpec {
 						completeInner = { sendCompleted(innerSink) }
 
 						completed = false
-						(outerProducer |> join(.Concat)).start(completed: {
+						(outerProducer |> flatten(.Concat)).start(completed: {
 							completed = true
 						})
 
@@ -810,7 +810,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 
-			describe("JoinStrategy.Merge") {
+			describe("FlattenStrategy.Merge") {
 				describe("behavior") {
 					var completeA: (Void -> Void)!
 					var sendA: (Void -> Void)!
@@ -838,7 +838,7 @@ class SignalProducerSpec: QuickSpec {
 						sendNext(outerSink, producerA)
 						sendNext(outerSink, producerB)
 
-						(outerProducer |> join(.Merge)).start(next: { i in
+						(outerProducer |> flatten(.Merge)).start(next: { i in
 							recv.append(i)
 						}, error: { _ in () }, completed: {
 							outerCompleted = true
@@ -870,7 +870,7 @@ class SignalProducerSpec: QuickSpec {
 						let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 						var error: TestError?
-						(outerProducer |> join(.Merge)).start(error: { e in
+						(outerProducer |> flatten(.Merge)).start(error: { e in
 							error = e
 						})
 						expect(error).to(equal(TestError.Default))
@@ -880,7 +880,7 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 						var error: TestError?
-						(outerProducer |> join(.Merge)).start(error: { e in
+						(outerProducer |> flatten(.Merge)).start(error: { e in
 							error = e
 						})
 
@@ -890,7 +890,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 
-			describe("JoinStrategy.Latest") {
+			describe("FlattenStrategy.Latest") {
 				it("should forward values from the latest inner signal") {
 					let (outer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 					let (firstInner, firstInnerSink) = SignalProducer<Int, TestError>.buffer()
@@ -900,7 +900,7 @@ class SignalProducerSpec: QuickSpec {
 					var errored = false
 					var completed = false
 
-					(outer |> join(.Latest)).start(
+					(outer |> flatten(.Latest)).start(
 						next: {
 							receivedValues.append($0)
 						},
@@ -935,14 +935,14 @@ class SignalProducerSpec: QuickSpec {
 				it("should forward an error from an inner signal") {
 					let inner = SignalProducer<Int, TestError>(error: .Default)
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-					let result = outer |> join(.Latest) |> first
+					let result = outer |> flatten(.Latest) |> first
 
 					expect(result?.error).to(equal(TestError.Default))
 				}
 
 				it("should forward an error from the outer signal") {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
-					let result = outer |> join(.Latest) |> first
+					let result = outer |> flatten(.Latest) |> first
 
 					expect(result?.error).to(equal(TestError.Default))
 				}
@@ -952,7 +952,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 
 					var completed = false
-					(outer |> join(.Latest)).start(completed: {
+					(outer |> flatten(.Latest)).start(completed: {
 						completed = true
 					})
 
@@ -963,7 +963,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 					var completed = false
-					(outer |> join(.Latest)).start(completed: {
+					(outer |> flatten(.Latest)).start(completed: {
 						completed = true
 					})
 

@@ -518,6 +518,12 @@ public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
 	return signal |> skipRepeats { $0 == $1 }
 }
 
+/// Forwards only those values from `signal` which are not duplicates of the
+/// immedately preceding value. The first value is always forwarded.
+public func skipRepeats<T: Equatable, E>(signal: Signal<[T], E>) -> Signal<[T], E> {
+	return signal |> skipRepeats { $0 == $1 }
+}
+
 /// Forwards only those values from `signal` which do not pass `isRepeat` with
 /// respect to the previous value. The first value is always forwarded.
 public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {

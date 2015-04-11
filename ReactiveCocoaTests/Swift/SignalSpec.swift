@@ -604,6 +604,28 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([ true, false, true ]))
 			}
 
+			it("should skip duplicate Arrays of Equatable values") {
+				let (baseSignal, sink) = Signal<[Bool], NoError>.pipe()
+				let signal = baseSignal |> skipRepeats
+
+				var values: [[Bool]] = []
+				signal.observe(next: { values.append($0) })
+
+				expect(values).to(equal([]))
+
+				sendNext(sink, [ true ])
+				expect(values).to(equal([ [ true ] ]))
+
+				sendNext(sink, [ true ])
+				expect(values).to(equal([ [ true ] ]))
+
+				sendNext(sink, [ false ])
+				expect(values).to(equal([ [ true ], [ false ] ]))
+
+				sendNext(sink, [ true ])
+				expect(values).to(equal([ [ true ], [ false ], [ true ] ]))
+			}
+
 			it("should skip values according to a predicate") {
 				let (baseSignal, sink) = Signal<String, NoError>.pipe()
 				let signal = baseSignal |> skipRepeats { count($0) == count($1) }

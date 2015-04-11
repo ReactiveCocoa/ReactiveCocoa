@@ -38,14 +38,14 @@ request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
 ### Parameterized types
 
-Thanks to Swift, it is now possible to express the type of value that a signal
-can send. RAC also requires that the type of errors be specified.
+Thanks to Swift, **it is now possible to express the type of value that a signal
+can send. RAC also requires that the type of errors be specified.**
 
 For example, `Signal<Int, NSError>` is a signal that may send zero or more
 integers, and which may send an error of type `NSError`.
 
-If it is impossible for a signal to error out, the built-in `NoError` type
-(which can be referred to, but never created) can be used to represent that
+**If it is impossible for a signal to error out, use the built-in `NoError` type**
+(which can be referred to, but never created) to represent that
 case—for example, `Signal<String, NoError>` is a signal that may send zero or
 more strings, and which will _not_ send an error under any circumstances.
 
@@ -60,8 +60,8 @@ part of RAC, version 3.0 [adds another terminating
 event](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1735)—called
 `Interrupted`—that is used to communicate cancellation.
 
-Now, whenever a [producer](#cold-signals-are-now-signalproducers) is disposed
-of, one final `Interrupted` event will be sent to all consumers, giving them
+Now, **whenever a [producer](#cold-signals-are-now-signalproducers) is disposed
+of, one final `Interrupted` event will be sent to all consumers,** giving them
 a chance to react to the cancellation.
 
 Similarly, observing a [hot signal](#hot-signals-are-now-signals) that has
@@ -78,9 +78,9 @@ interruption correctly propagates through the whole signal chain.
 
 ### Objective-C bridging
 
-To support interoperation between the Objective-C APIs introduced in RAC 2 and
+**To support interoperation between the Objective-C APIs introduced in RAC 2 and
 the Swift APIs introduced in RAC 3, the framework offers [bridging
-functions](ReactiveCocoa/Swift/ObjectiveCBridging.swift) that can convert types
+functions](ReactiveCocoa/Swift/ObjectiveCBridging.swift)** that can convert types
 back and forth between the two.
 
 Because the APIs are based on fundamentally different designs, the conversion is
@@ -126,8 +126,8 @@ regardless of whether anything is observing it.
 Concretely, _every_ `RACSubject` is a kind of hot signal, because the events
 being forwarded are not determined by the number of subscribers on the subject.
 
-In RAC 3, “hot” signals are now solely represented by the
-[`Signal`](ReactiveCocoa/Swift/Signal.swift) class, and “cold” signals have been
+In RAC 3, **“hot” signals are now solely represented by the
+[`Signal`](ReactiveCocoa/Swift/Signal.swift) class**, and “cold” signals have been
 [separated into their own type](#cold-signals-are-now-signalproducers). This
 reduces complexity by making it clear that no `Signal` object can trigger side
 effects when observed.
@@ -145,8 +145,8 @@ started and cancelled. Cold signals are also similar to how [futures and
 promises](http://en.wikipedia.org/wiki/Futures_and_promises) work, and can be
 useful for structuring asynchronous code (like network requests).
 
-In RAC 3, “cold” signals are now solely represented by the
-[`SignalProducer`](ReactiveCocoa/Swift/SignalProducer.swift) class, which
+In RAC 3, **“cold” signals are now solely represented by the
+[`SignalProducer`](ReactiveCocoa/Swift/SignalProducer.swift) class**, which
 clearly indicates their relationship to [“hot”
 signals](#hot-signals-are-now-signals). As the name indicates, a signal
 _producer_ is responsible for creating
@@ -161,17 +161,19 @@ Instead of the ambiguously named `RACCommand`, the Swift API offers the
 mainly useful in UI programming—to fulfill the same purpose.
 
 Like the rest of the Swift API, actions are
-[parameterized](#parameterized-types) by the types they use. An action must
+[parameterized](#parameterized-types) by the types they use. **An action must
 indicate the type of input it accepts, the type of output it produces, and
-what kinds of errors can occur (if any). This eliminates a few classes of type
+what kinds of errors can occur (if any).** This eliminates a few classes of type
 error, and clarifies intention.
 
-Actions are also intended to be simpler overall than their predecessor. Unlike
-commands, actions are not bound to or dependent upon the main thread, making it
-easier to reason about when they can be executed and when they will generate
-notifications. Actions also only support serial execution, because concurrent
-execution was a rarely used feature of `RACCommand` that added significant
-complexity to the interface and implementation.
+Actions are also intended to be simpler overall than their predecessor:
+
+ * **Unlike commands, actions are not bound to or dependent upon the main
+   thread**, making it easier to reason about when they can be executed and when
+   they will generate notifications.
+ * **Actions also only support serial execution**, because concurrent execution
+   was a rarely used feature of `RACCommand` that added significant complexity
+   to the interface and implementation.
 
 Because actions are frequently used in conjunction with AppKit or UIKit, there
 is also a `CocoaAction` class that erases the type parameters of an `Action`,
@@ -200,7 +202,7 @@ In addition, because `-flattenMap:` is the easiest to use, it was often
 incorrectly chosen even when concatenation or switching semantics are more
 appropriate.
 
-RAC 3 distills these concepts down into just two operators, named `join` and `joinMap`.
+**RAC 3 distills these concepts down into just two operators, named `join` and `joinMap`.**
 Both accept a “strategy” which determines how the producer-of-producers should
 be integrated, which can be one of:
 
@@ -211,8 +213,8 @@ be integrated, which can be one of:
 This reduces the API surface area, and forces callers to consciously think about
 which strategy is most appropriate for a given use.
 
-For streams of exactly one value, calls to `-flattenMap:` can be replaced with
-`joinMap(.Concat)`, which has the additional benefit of predictable behavior if
+**For streams of exactly one value, calls to `-flattenMap:` can be replaced with
+`joinMap(.Concat)`**, which has the additional benefit of predictable behavior if
 the input stream is refactored to have more values in the future.
 
 ## Minor changes

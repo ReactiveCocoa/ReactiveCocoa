@@ -336,8 +336,8 @@ This design indicates and enforces the capabilities of each scheduler using the 
 system.
 
 In addition, **the `mainThreadScheduler` has been replaced with `UIScheduler` and
-`QueueScheduler.mainQueueScheduler`**. The `UIScheduler` types allows operations
-that target the main thread to run _as soon as possible_, replacing RAC 2’s
-`-performOnMainThread` operator—while `QueueScheduler.mainQueueScheduler` can
-be used when ordering is highly important, or for scheduling work at a future
-date.
+`QueueScheduler.mainQueueScheduler`**. The `UIScheduler` type runs operations as
+soon as possible on the main thread—even synchronously (if possible), thereby
+replacing RAC 2’s `-performOnMainThread` operator—while
+`QueueScheduler.mainQueueScheduler` will always enqueue work after the current
+run loop iteration, and can be used to schedule work at a future date.

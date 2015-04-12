@@ -203,11 +203,12 @@ Because `-flattenMap:` is the easiest to use, it was often
 incorrectly chosen even when concatenation or switching semantics are more
 appropriate.
 
-**RAC 3 distills these concepts down into just two operators, named `join` and `joinMap`.**
-Both accept a “strategy” which determines how the producer-of-producers should
-be integrated, which can be one of:
+**RAC 3 distills these concepts down into just two operators, `flatten` and `flatMap`.**
+Note that these do _not_ have the same behavior as `-flatten` and `-flattenMap:`
+from RAC 2. Instead, both accept a “strategy” which determines how the
+producer-of-producers should be integrated, which can be one of:
 
- * `.Merge`, which is equivalent to `-flatten` or `+merge:`
+ * `.Merge`, which is equivalent to RAC 2’s `-flatten` or `+merge:`
  * `.Concat`, which is equivalent to `-concat` or `+concat:`
  * `.Latest`, which is equivalent to `-switchToLatest`
 
@@ -215,7 +216,7 @@ This reduces the API surface area, and forces callers to consciously think about
 which strategy is most appropriate for a given use.
 
 **For streams of exactly one value, calls to `-flattenMap:` can be replaced with
-`joinMap(.Concat)`**, which has the additional benefit of predictable behavior if
+`flatMap(.Concat)`**, which has the additional benefit of predictable behavior if
 the input stream is refactored to have more values in the future.
 
 ### Using PropertyType instead of RACObserve and RAC

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
 		7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
@@ -480,6 +482,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
+		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
 		7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
@@ -837,6 +841,8 @@
 			isa = PBXGroup;
 			children = (
 				D037666519EDA57100A782A9 /* extobjc */,
+				314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */,
+				314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */,
 				D037642A19EDA41200A782A9 /* NSArray+RACSequenceAdditions.h */,
 				D037642B19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m */,
 				D037642C19EDA41200A782A9 /* NSControl+RACCommandSupport.h */,
@@ -1381,6 +1387,7 @@
 				D03765B719EDA41200A782A9 /* RACReplaySubject.h in Headers */,
 				D037663D19EDA41200A782A9 /* UIImagePickerController+RACSignalSupport.h in Headers */,
 				D037656F19EDA41200A782A9 /* RACDisposable.h in Headers */,
+				314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */,
 				D037654519EDA41200A782A9 /* NSURLConnection+RACSupport.h in Headers */,
 				D037661D19EDA41200A782A9 /* UIAlertView+RACSignalSupport.h in Headers */,
 				D037650D19EDA41200A782A9 /* NSNotificationCenter+RACSupport.h in Headers */,
@@ -1846,6 +1853,7 @@
 				D037651F19EDA41200A782A9 /* NSObject+RACKVOWrapper.m in Sources */,
 				D037661719EDA41200A782A9 /* RACValueTransformer.m in Sources */,
 				D03765CD19EDA41200A782A9 /* RACSequence.m in Sources */,
+				314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */,
 				D037652F19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
 				D037662719EDA41200A782A9 /* UIButton+RACCommandSupport.m in Sources */,
 				D037652719EDA41200A782A9 /* NSObject+RACPropertySubscribing.m in Sources */,

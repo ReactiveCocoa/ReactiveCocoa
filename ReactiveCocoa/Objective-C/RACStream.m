@@ -176,9 +176,13 @@
 		__block NSUInteger taken = 0;
 
 		return ^ id (id value, BOOL *stop) {
-			if (++taken >= count) *stop = YES;
-
-			return [class return:value];
+			if (taken < count) {
+				++taken;
+				if (taken == count) *stop = YES;
+				return [class return:value];
+			} else {
+				return nil;
+			}
 		};
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }

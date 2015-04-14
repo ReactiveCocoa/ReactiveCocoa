@@ -148,7 +148,7 @@ public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				sendNext(observer, value.unbox)
+				sendNext(observer, value)
 			case let .Error(error):
 				sendError(observer, transform(error.unbox))
 			case .Completed:
@@ -167,7 +167,7 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 			switch event {
 			case let .Next(value):
 				if predicate(value.unbox) {
-					sendNext(observer, value.unbox)
+					sendNext(observer, value)
 				}
 
 			default:
@@ -201,7 +201,7 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			case let .Next(value):
 				if taken < count {
 					taken++
-					sendNext(observer, value.unbox)
+					sendNext(observer, value)
 				}
 
 				if taken == count {
@@ -282,7 +282,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 			sendNext(observer, combined)
 		}
 
-		let onError = { sendError(observer, $0) }
+		let onError: E -> () = { sendError(observer, $0) }
 		let onBothCompleted = { sendCompleted(observer) }
 		let onInterrupted = { sendInterrupted(observer) }
 
@@ -673,7 +673,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			}
 		}
 
-		let onError = { sendError(observer, $0) }
+		let onError: E -> () = { sendError(observer, $0) }
 		let onInterrupted = { sendInterrupted(observer) }
 
 		let signalDisposable = signal.observe(next: { value in
@@ -729,10 +729,10 @@ public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) 
 		signal.observe(next: { value in
 			switch operation(value) {
 			case let .Success(val):
-				sendNext(observer, val.unbox)
+				sendNext(observer, val)
 
 			case let .Failure(err):
-				sendError(observer, err.unbox)
+				sendError(observer, err)
 			}
 		}, error: { error in
 			sendError(observer, error)
@@ -767,7 +767,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				switch event {
 				case let .Next(value):
 					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
-						state.pendingValue = value.unbox
+						state.pendingValue = value
 
 						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						let scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
@@ -775,7 +775,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 					}
 
 					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-						let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
+						let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, Box<T>?) in
 							let value = state.pendingValue
 							if value != nil {
 								state.pendingValue = nil
@@ -805,7 +805,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 
 private struct ThrottleState<T> {
 	var previousDate: NSDate? = nil
-	var pendingValue: T? = nil
+	var pendingValue: Box<T>? = nil
 }
 
 /// Combines the values of all the given signals, in the manner described by

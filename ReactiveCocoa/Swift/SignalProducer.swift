@@ -601,7 +601,7 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 }
 
 /// Describes how multiple signals or producers should be joined together.
-public enum JoinStrategy: Equatable {
+public enum FlattenStrategy: Equatable {
 	/// The signals should be merged, so that any value received on any of the
 	/// input signals will be forwarded immediately to the output signal.
 	///
@@ -622,7 +622,7 @@ public enum JoinStrategy: Equatable {
 	case Latest
 }
 
-public func == (lhs: JoinStrategy, rhs: JoinStrategy) -> Bool {
+public func == (lhs: FlattenStrategy, rhs: FlattenStrategy) -> Bool {
 	switch (lhs, rhs) {
 	case (.Merge, .Merge), (.Concat, .Concat), (.Latest, .Latest):
 		return true
@@ -632,7 +632,7 @@ public func == (lhs: JoinStrategy, rhs: JoinStrategy) -> Bool {
 	}
 }
 
-extension JoinStrategy: Printable {
+extension FlattenStrategy: Printable {
 	public var description: String {
 		switch self {
 		case .Merge:
@@ -647,12 +647,12 @@ extension JoinStrategy: Printable {
 	}
 }
 
-/// Joins together the inner producers sent upon `producer` according to the
-/// semantics of the given strategy.
+/// Flattens the inner producers sent upon `producer` (into a single producer of
+/// values), according to the semantics of the given strategy.
 ///
 /// If `producer` or an active inner producer emits an error, the returned
 /// producer will forward that error immediately.
-public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
+public func flatten<T, E>(strategy: FlattenStrategy)(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	switch strategy {
 	case .Merge:
 		return producer |> merge
@@ -665,13 +665,14 @@ public func join<T, E>(strategy: JoinStrategy)(producer: SignalProducer<SignalPr
 	}
 }
 
-/// Maps each event from `producer` to a new producer, then joins the resulting
-/// producers together according to the semantics of the given strategy.
+/// Maps each event from `producer` to a new producer, then flattens the
+/// resulting producers (into a single producer of values), according to the
+/// semantics of the given strategy.
 ///
 /// If `producer` or any of the created producers emit an error, the returned
 /// producer will forward that error immediately.
-public func joinMap<T, U, E>(strategy: JoinStrategy, transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> map(transform) |> join(strategy)
+public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
+	return producer |> map(transform) |> flatten(strategy)
 }
 
 /// Returns a signal which sends all the values from each signal emitted from
@@ -782,7 +783,7 @@ private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
 
 /// `concat`s `next` onto `producer`.
 public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return SignalProducer(values: [producer, next]) |> join(.Concat)
+	return SignalProducer(values: [producer, next]) |> flatten(.Concat)
 }
 
 /// Returns a producer that forwards values from the latest producer sent on

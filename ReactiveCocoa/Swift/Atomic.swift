@@ -52,21 +52,12 @@ internal final class Atomic<T> {
 	///
 	/// Returns the old value.
 	func modify(action: T -> T) -> T {
-		let (oldValue, _) = modify { oldValue in (action(oldValue), 0) }
-		return oldValue
-	}
-	
-	/// Atomically modifies the variable.
-	///
-	/// Returns the old value, plus arbitrary user-defined data.
-	func modify<U>(action: T -> (T, U)) -> (T, U) {
 		lock()
-		let oldValue: T = _value
-		let (newValue, data) = action(_value)
-		_value = newValue
+		let oldValue = _value
+		_value = action(_value)
 		unlock()
 		
-		return (oldValue, data)
+		return oldValue
 	}
 	
 	/// Atomically performs an arbitrary action using the current value of the

@@ -766,26 +766,27 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			let signalDisposable = signal.observe(SinkOf { event in
 				switch event {
 				case let .Next(value):
-					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
+					var scheduleDate: NSDate!
+					state.modify { (var state) in
 						state.pendingValue = value.unbox
 
 						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-						let scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
-						return (state, scheduleDate)
+						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
+
+						return state
 					}
 
 					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-						let (_, pendingValue) = state.modify { (var state) -> (ThrottleState<T>, T?) in
-							let value = state.pendingValue
-							if value != nil {
+						let previousState = state.modify { (var state) in
+							if state.pendingValue != nil {
 								state.pendingValue = nil
 								state.previousDate = scheduleDate
 							}
 
-							return (state, value)
+							return state
 						}
 						
-						if let pendingValue = pendingValue {
+						if let pendingValue = previousState.pendingValue {
 							sendNext(observer, pendingValue)
 						}
 					}

@@ -51,7 +51,7 @@ internal final class Atomic<T> {
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	func modify(action: T -> T) -> T {
+	func modify(@noescape action: T -> T) -> T {
 		let (oldValue, _) = modify { oldValue in (action(oldValue), 0) }
 		return oldValue
 	}
@@ -59,7 +59,7 @@ internal final class Atomic<T> {
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value, plus arbitrary user-defined data.
-	func modify<U>(action: T -> (T, U)) -> (T, U) {
+	func modify<U>(@noescape action: T -> (T, U)) -> (T, U) {
 		lock()
 		let oldValue: T = _value
 		let (newValue, data) = action(_value)
@@ -73,7 +73,7 @@ internal final class Atomic<T> {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	func withValue<U>(action: T -> U) -> U {
+	func withValue<U>(@noescape action: T -> U) -> U {
 		lock()
 		let result = action(_value)
 		unlock()

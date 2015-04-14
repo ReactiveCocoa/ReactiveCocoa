@@ -129,7 +129,6 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 
 		return RACDisposable {
 			selfDisposable?.dispose()
-			return
 		}
 	}
 }

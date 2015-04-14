@@ -1030,9 +1030,9 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
-			_ = dispatch_semaphore_signal(semaphore)
+			dispatch_semaphore_signal(semaphore)
 		}, interrupted: {
-			_ = dispatch_semaphore_signal(semaphore)
+			dispatch_semaphore_signal(semaphore)
 		})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)

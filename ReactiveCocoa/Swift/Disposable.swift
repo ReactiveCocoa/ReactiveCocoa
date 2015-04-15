@@ -76,7 +76,7 @@ public final class CompositeDisposable: Disposable {
 		public func remove() {
 			bagToken.modify { token in
 				if let token = token {
-					self.disposable?.disposables.modify { (var bag) in
+					disposable?.disposables.modify { (var bag) in
 						bag?.removeValueForToken(token)
 						return bag
 					}

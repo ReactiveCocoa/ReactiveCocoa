@@ -179,7 +179,6 @@ public func <~ <T, P: MutablePropertyType where P.Value == T>(property: P, signa
 
 	let signalDisposable = signal.observe(next: { [weak property] value in
 		property?.value = value
-		return
 	}, completed: {
 		disposable.dispose()
 	})

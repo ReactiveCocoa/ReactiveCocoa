@@ -122,12 +122,20 @@ extension Event: Printable {
 
 /// Puts a `Next` event into the given sink.
 public func sendNext<T, E>(sink: SinkOf<Event<T, E>>, value: T) {
-	sink.put(Event<T, E>.Next(Box(value)))
+	sendNext(sink, Box(value))
+}
+
+internal func sendNext<T, E>(sink: SinkOf<Event<T, E>>, value: Box<T>) {
+	sink.put(Event<T, E>.Next(value))
 }
 
 /// Puts an `Error` event into the given sink.
 public func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: E) {
-	sink.put(Event<T, E>.Error(Box(error)))
+	sendError(sink, Box(error))
+}
+
+internal func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: Box<E>) {
+	sink.put(Event<T, E>.Error(error))
 }
 
 /// Puts a `Completed` event into the given sink.

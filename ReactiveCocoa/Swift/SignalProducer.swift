@@ -34,6 +34,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Creates a producer for a Signal that will immediately send one value
 	/// then complete.
 	public init(value: T) {
+		self.init(value: Box(value))
+	}
+
+	private init(value: Box<T>) {
 		self.init({ observer, disposable in
 			sendNext(observer, value)
 			sendCompleted(observer)
@@ -42,6 +46,10 @@ public struct SignalProducer<T, E: ErrorType> {
 
 	/// Creates a producer for a Signal that will immediately send an error.
 	public init(error: E) {
+		self.init(error: Box(error))
+	}
+
+	private init(error: Box<E>) {
 		self.init({ observer, disposable in
 			sendError(observer, error)
 		})
@@ -53,10 +61,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	public init(result: Result<T, E>) {
 		switch result {
 		case let .Success(value):
-			self.init(value: value.unbox)
+			self.init(value: value)
 
 		case let .Failure(error):
-			self.init(error: error.unbox)
+			self.init(error: error)
 		}
 	}
 
@@ -168,11 +176,11 @@ public struct SignalProducer<T, E: ErrorType> {
 		return self { observer, disposable in
 			switch operation() {
 			case let .Success(value):
-				sendNext(observer, value.unbox)
+				sendNext(observer, value)
 				sendCompleted(observer)
 
 			case let .Failure(error):
-				sendError(observer, error.unbox)
+				sendError(observer, error)
 			}
 		}
 	}

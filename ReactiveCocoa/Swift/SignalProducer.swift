@@ -64,9 +64,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// from the given sequence, then complete.
 	public init<S: SequenceType where S.Generator.Element == T>(values: S) {
 		self.init({ observer, disposable in
-			var generator = values.generate()
-
-			while let value: T = generator.next() {
+			for value in values {
 				sendNext(observer, value)
 
 				if disposable.disposed {

@@ -96,8 +96,7 @@ public final class CompositeDisposable: Disposable {
 	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
 
-		var generator = disposables.generate()
-		while let disposable: Disposable = generator.next() {
+		for disposable in disposables {
 			bag.insert(disposable)
 		}
 

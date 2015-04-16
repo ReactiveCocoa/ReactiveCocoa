@@ -32,12 +32,12 @@ extension NSURLSession {
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
-				if data == nil || response == nil {
-					sendError(observer, error)
-				} else {
-					let value = (data!, response!)
+				if let data = data, response = response {
+					let value = (data, response)
 					sendNext(observer, value)
 					sendCompleted(observer)
+				} else {
+					sendError(observer, error)
 				}
 			}
 

@@ -233,7 +233,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func start(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable {
+	public func start(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable {
 		return start(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 
@@ -332,7 +332,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 /// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, compositeDisposable in
 		started?()
 		disposed.map(compositeDisposable.addDisposable)
@@ -1062,6 +1062,6 @@ public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(pro
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil)(producer: SignalProducer<T, E>) -> Disposable {
+public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(producer: SignalProducer<T, E>) -> Disposable {
 	return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
 }

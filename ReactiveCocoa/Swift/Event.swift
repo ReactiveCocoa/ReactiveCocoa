@@ -64,7 +64,7 @@ public enum Event<T, E: ErrorType> {
 
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> SinkOf<Event> {
+	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SinkOf<Event> {
 		return SinkOf { event in
 			switch event {
 			case let .Next(value):

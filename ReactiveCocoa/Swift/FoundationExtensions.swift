@@ -33,8 +33,7 @@ extension NSURLSession {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if let data = data, response = response {
-					let value = (data, response)
-					sendNext(observer, value)
+					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
 					sendError(observer, error)

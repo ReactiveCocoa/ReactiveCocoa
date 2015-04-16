@@ -109,7 +109,7 @@ public final class Signal<T, E: ErrorType> {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
+	public func observe(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
 		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 }
@@ -990,6 +990,6 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(s
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil)(signal: Signal<T, E>) -> Disposable? {
+public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }

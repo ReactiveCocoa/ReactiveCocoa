@@ -470,6 +470,25 @@ class SignalProducerSpec: QuickSpec {
 				disposable.dispose()
 				expect(testSink).to(beNil())
 			}
+
+			describe("trailing closure") {
+				it("receives next values") {
+					var values = [Int]()
+					let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+					producer.start { next in
+						values.append(next)
+					}
+
+					sendNext(sink, 1)
+					sendNext(sink, 2)
+					sendNext(sink, 3)
+
+					sendCompleted(sink)
+
+					expect(values).to(equal([1, 2, 3]))
+				}
+			}
 		}
 
 		describe("lift") {

@@ -32,12 +32,11 @@ extension NSURLSession {
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
-				if data == nil || response == nil {
-					sendError(observer, error)
-				} else {
-					let value = (data!, response!)
-					sendNext(observer, value)
+				if let data = data, response = response {
+					sendNext(observer, (data, response))
 					sendCompleted(observer)
+				} else {
+					sendError(observer, error)
 				}
 			}
 
@@ -53,9 +52,8 @@ extension NSURLSession {
 /// Removes all nil values from the given sequence.
 internal func ignoreNil<T, S: SequenceType where S.Generator.Element == Optional<T>>(sequence: S) -> [T] {
 	var results: [T] = []
-	var generator = sequence.generate()
 
-	while let value: T? = generator.next() {
+	for value in sequence {
 		if let value = value {
 			results.append(value)
 		}

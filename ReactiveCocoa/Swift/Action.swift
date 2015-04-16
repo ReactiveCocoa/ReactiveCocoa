@@ -127,9 +127,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 public final class CocoaAction: NSObject {
 	/// The selector that a caller should invoke upon a CocoaAction in order to
 	/// execute it.
-	public class var selector: Selector {
-		return "execute:"
-	}
+	public static let selector: Selector = "execute:"
 
 	/// Whether the action is enabled.
 	///

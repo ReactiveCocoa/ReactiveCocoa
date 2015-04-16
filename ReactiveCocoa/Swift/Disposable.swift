@@ -76,7 +76,7 @@ public final class CompositeDisposable: Disposable {
 		public func remove() {
 			bagToken.modify { token in
 				if let token = token {
-					self.disposable?.disposables.modify { (var bag) in
+					disposable?.disposables.modify { (var bag) in
 						bag?.removeValueForToken(token)
 						return bag
 					}
@@ -96,8 +96,7 @@ public final class CompositeDisposable: Disposable {
 	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
 
-		var generator = disposables.generate()
-		while let disposable: Disposable = generator.next() {
+		for disposable in disposables {
 			bag.insert(disposable)
 		}
 

@@ -471,9 +471,11 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) 
 /// are a tuple whose first member is the previous value and whose second member
 /// is the current value. `initial` is supplied as the first member when `signal`
 /// sends its first value.
-public func combinePrevious<T, E>(initial: T)(signal: Signal<T, E>) -> Signal<(T, T), E> {
-	return signal |> scan((initial, initial)) { previousCombinedValues, newValue in
-		return (previousCombinedValues.1, newValue)
+public func combinePrevious<T, E>(initial: T) -> Signal<T, E> -> Signal<(T, T), E> {
+	return { signal in
+		return signal |> scan((initial, initial)) { previousCombinedValues, newValue in
+			return (previousCombinedValues.1, newValue)
+		}
 	}
 }
 

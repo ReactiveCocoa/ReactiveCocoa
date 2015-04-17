@@ -480,20 +480,22 @@ public func combinePrevious<T, E>(initial: T) -> Signal<T, E> -> Signal<(T, T), 
 }
 
 /// Like `scan`, but sends only the final value and then immediately completes.
-public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
-	// We need to handle the special case in which `signal` sends no values.
-	// We'll do that by sending `initial` on the output signal (before taking
-	// the last value).
-	let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
-	let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
+public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
+	return { signal in
+		// We need to handle the special case in which `signal` sends no values.
+		// We'll do that by sending `initial` on the output signal (before taking
+		// the last value).
+		let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
+		let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
 
-	// Now that we've got takeLast() listening to the piped signal, send that initial value.
-	sendNext(outputSignalObserver, initial)
+		// Now that we've got takeLast() listening to the piped signal, send that initial value.
+		sendNext(outputSignalObserver, initial)
 
-	// Pipe the scanned input signal into the output signal.
-	signal |> scan(initial, combine) |> observe(outputSignalObserver)
+		// Pipe the scanned input signal into the output signal.
+		signal |> scan(initial, combine) |> observe(outputSignalObserver)
 
-	return outputSignal
+		return outputSignal
+	}
 }
 
 /// Aggregates `signal`'s values into a single combined value. When `signal` emits

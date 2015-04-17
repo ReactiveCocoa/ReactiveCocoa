@@ -501,16 +501,18 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, 
 /// that emitted value as the second argument. The result is emitted from the
 /// signal returned from `reduce`. That result is then passed to `combine` as the
 /// first argument when the next value is emitted, and so on.
-public func scan<T, U, E>(initial: U, combine: (U, T) -> U)(signal: Signal<T, E>) -> Signal<U, E> {
-	return Signal { observer in
-		var accumulator = initial
+public func scan<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
+	return { signal in
+		return Signal { observer in
+			var accumulator = initial
 
-		return signal.observe(Signal.Observer { event in
-			observer.put(event.map { value in
-				accumulator = combine(accumulator, value)
-				return accumulator
+			return signal.observe(Signal.Observer { event in
+				observer.put(event.map { value in
+					accumulator = combine(accumulator, value)
+					return accumulator
+				})
 			})
-		})
+		}
 	}
 }
 

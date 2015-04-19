@@ -162,28 +162,28 @@ extension MutableProperty: SinkType {
 public class PropertyTerminal<P : MutablePropertyType> : MutablePropertyType {
 	typealias Value = P.Value
 	
-	public let property : P
+	private let _property : P
 	private var _producerLocked : Bool
 	
 	public var value : Value {
 		get {
-			return self.property.value
+			return self._property.value
 		}
 		set (x) {
 			self._producerLocked = true
-			self.property.value = x
+			self._property.value = x
 			self._producerLocked = false
 		}
 	}
 	
 	public var producer: SignalProducer<Value, NoError> {
 		get {
-			return self.property.producer |> filter { _ in !self._producerLocked }
+			return self._property.producer |> filter { _ in !self._producerLocked }
 		}
 	}
 	
 	public init (property : P) {
-		self.property = property
+		self._property = property
 		self._producerLocked = false
 	}
 }

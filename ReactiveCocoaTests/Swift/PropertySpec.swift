@@ -178,6 +178,61 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
+		describe("PropertyTerminal") {
+			var mutableProperty : MutableProperty<String>!
+			var propertyTerminal : PropertyTerminal<MutableProperty<String>>!
+			
+			beforeEach {
+				mutableProperty = MutableProperty(initialPropertyValue)
+				propertyTerminal = PropertyTerminal(property: mutableProperty)
+			}
+
+
+			it("should have initial value from the underlying property") {
+				expect(propertyTerminal.value).to(equal(initialPropertyValue))
+			}
+
+			it("should yield a producer that sends the current value then all changes of the underlying property") {
+				var sentValue: String?
+				
+				propertyTerminal.producer.start(next: { value in
+					sentValue = value
+				})
+				
+				expect(sentValue).to(equal(initialPropertyValue))
+				mutableProperty.value = subsequentPropertyValue
+				expect(sentValue).to(equal(subsequentPropertyValue))
+			}
+			
+			it("should complete when underlying property's producer completed") {
+				var object: ObservableObject!
+				var property = DynamicProperty(object: object, keyPath: "rac_value")
+				let propertyTerminal = PropertyTerminal(property: property)
+				
+				var signalCompleted = false
+				
+				propertyTerminal.producer.start(completed: {
+					signalCompleted = true
+				})
+				
+				object = nil
+				expect(signalCompleted).to(beTruthy())
+			}
+			
+			it("should not produce back value set forward to underlying property") {
+				
+				var sentValue: String?
+
+				propertyTerminal.producer.start(next: {value in
+					sentValue = value
+				})
+				
+				propertyTerminal.value = subsequentPropertyValue
+				expect(sentValue).to(equal(initialPropertyValue))
+			}
+
+		}
+		
 		describe("binding") {
 			describe("from a Signal") {
 				it("should update the property with values sent from the signal") {

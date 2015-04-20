@@ -256,9 +256,9 @@ signal.observe(next: { value in
 })
 
 // Prints each number
-sink.put(0)
-sink.put(1)
-sink.put(2)
+sendNext(sink, 0)
+sendNext(sink, 1)
+sendNext(sink, 2)
 ```
 
 ### Using SignalProducer.buffer instead of replaying

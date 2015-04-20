@@ -530,11 +530,10 @@ public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) ->
 	return signal
 		|> map { Optional($0) }
 		|> combinePrevious(nil)
-		|> filter {
-			switch $0 {
-			case let (.Some(a), .Some(b)) where isRepeat(a, b):
+		|> filter { (a, b) in
+			if let a = a, b = b where isRepeat(a, b) {
 				return false
-			default:
+			} else {
 				return true
 			}
 		}

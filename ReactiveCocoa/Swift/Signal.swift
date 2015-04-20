@@ -142,6 +142,25 @@ public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E
 	}
 }
 
+// Maps each non-nil value in a signal to a new value.  Nils are passed through
+// to the new signal.
+public func map<T, U, E>(transform: T -> U)(signal: Signal<T?, E>) -> Signal<U?, E> {
+	return Signal<U?, E> { observer in
+		return signal.observe(Signal.Observer { event in
+			switch event {
+			case let .Next(value):
+				sendNext(observer, value.unbox.map(transform))
+			case let .Error(error):
+				sendError(observer, error.unbox)
+			case let .Completed:
+				sendCompleted(observer)
+			case let .Interrupted:
+				sendInterrupted(observer)
+			}
+		})
+	}
+}
+
 /// Maps errors in the signal to a new error.
 public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal<T, F> {
 	return Signal { observer in

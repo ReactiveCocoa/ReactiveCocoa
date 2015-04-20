@@ -607,7 +607,7 @@ qck_describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 
 	qck_it(@"should automatically stop KVO when the observer deallocates", ^{
 		__weak id weakObserver = nil;
-		__weak id identifier = nil;
+		__weak id weakIdentifier = nil;
 
 		NSOperation *operation = [[NSOperation alloc] init];
 
@@ -619,13 +619,17 @@ qck_describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 			weakObserver = (__bridge id)observer;
 			expect(weakObserver).notTo(beNil());
 
-			identifier = [operation rac_observeKeyPath:@"isFinished" options:0 observer:(__bridge id)observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
+			id identifier = [operation rac_observeKeyPath:@"isFinished" options:0 observer:(__bridge id)observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
 			expect(identifier).notTo(beNil());
+
+			weakIdentifier = identifier;
+			expect(weakIdentifier).notTo(beNil());
 
 			CFRelease(observer);
 		}
 
 		expect(weakObserver).to(beNil());
+		expect(weakIdentifier).to(beNil());
 	});
 
 	qck_it(@"should stop KVO when the observer is disposed", ^{

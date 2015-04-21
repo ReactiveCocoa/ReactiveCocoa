@@ -48,3 +48,15 @@
 }
 
 @end
+
+NSString *rac_description(id object) {
+	if ([object respondsToSelector:@selector(rac_description)]) {
+		return [object rac_description];
+	} else {
+		if (getenv("RAC_DEBUG_SIGNAL_NAMES") != NULL && [object respondsToSelector:@selector(description)]) {
+			return [object description];
+		} else {
+			return @"(description skipped)";
+		}
+	}
+}

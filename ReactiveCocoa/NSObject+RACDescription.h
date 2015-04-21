@@ -19,3 +19,6 @@
 - (NSString *)rac_description;
 
 @end
+
+// Global function to be called on any object not known to inherit from NSObject
+NSString *rac_description(id object);

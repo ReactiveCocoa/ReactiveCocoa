@@ -215,9 +215,18 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
+private final class CollectState<T> {
+	var values: [T] = []
+
+	func append(value: T) -> Self {
+		values.append(value)
+		return self
+	}
+}
+
 /// Returns a signal that will yield an array of values when `signal` completes.
 public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
-	return signal |> reduce([]) { $0 + [ $1 ] }
+	return signal |> reduce(CollectState()) { $0.append($1) } |> map { $0.values }
 }
 
 /// Forwards all events onto the given scheduler, instead of whichever

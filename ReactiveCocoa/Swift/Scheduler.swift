@@ -123,11 +123,11 @@ public final class QueueScheduler: DateSchedulerType {
 	public func schedule(action: () -> ()) -> Disposable? {
 		let d = SimpleDisposable()
 
-		dispatch_async(queue, {
+		dispatch_async(queue) {
 			if !d.disposed {
 				action()
 			}
-		})
+		}
 
 		return d
 	}
@@ -145,11 +145,11 @@ public final class QueueScheduler: DateSchedulerType {
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
 		let d = SimpleDisposable()
 
-		dispatch_after(wallTimeWithDate(date), queue, {
+		dispatch_after(wallTimeWithDate(date), queue) {
 			if !d.disposed {
 				action()
 			}
-		})
+		}
 
 		return d
 	}

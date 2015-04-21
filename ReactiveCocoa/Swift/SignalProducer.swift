@@ -111,7 +111,7 @@ public struct SignalProducer<T, E: ErrorType> {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer"
 
 		var events: [Event<T, E>] = []
-		var terminationEvent : Event<T,E>?
+		var terminationEvent: Event<T,E>?
 		var observers: Bag<Signal<T, E>.Observer>? = Bag()
 
 		let producer = self { observer, disposable in
@@ -119,8 +119,8 @@ public struct SignalProducer<T, E: ErrorType> {
 			for event in events {
 				observer.put(event)
 			}
-			if let termEvent = terminationEvent {
-				observer.put(termEvent)
+			if let terminationEvent = terminationEvent {
+				observer.put(terminationEvent)
 			}
 
 			let token = observers?.insert(observer)

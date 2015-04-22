@@ -439,16 +439,12 @@
 		D0C3132219EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131B19EF2D9700984962 /* RACTestSchedulerSpec.m */; };
 		D0C3132319EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131B19EF2D9700984962 /* RACTestSchedulerSpec.m */; };
 		D0C3132519EF2D9700984962 /* RACTestUIButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131D19EF2D9700984962 /* RACTestUIButton.m */; };
-		D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
-		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
-		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D0D11AB91A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
 		D0D11ABA1A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
 		D43F27A01A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.h in Headers */ = {isa = PBXBuildFile; fileRef = D43F279E1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D43F27A11A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.h in Headers */ = {isa = PBXBuildFile; fileRef = D43F279E1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D43F27A21A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m in Sources */ = {isa = PBXBuildFile; fileRef = D43F279F1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m */; };
 		D43F27A31A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m in Sources */ = {isa = PBXBuildFile; fileRef = D43F279F1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m */; };
-		F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -479,7 +475,6 @@
 				D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */,
 				D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */,
 				D01B7B6419EDD94B00D26E01 /* ReactiveCocoa.framework in Copy Frameworks */,
-				D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -797,7 +792,6 @@
 		D0C3131B19EF2D9700984962 /* RACTestSchedulerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestSchedulerSpec.m; sourceTree = "<group>"; };
 		D0C3131C19EF2D9700984962 /* RACTestUIButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestUIButton.h; sourceTree = "<group>"; };
 		D0C3131D19EF2D9700984962 /* RACTestUIButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestUIButton.m; sourceTree = "<group>"; };
-		D0C3132B19EF2FA300984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = LlamaKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D43F279E1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACDynamicPropertySuperclass.h; sourceTree = "<group>"; };
 		D43F279F1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDynamicPropertySuperclass.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -807,7 +801,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */,
 				CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -816,7 +809,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */,
 				CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */,
 				D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */,
 				D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */,
@@ -828,7 +820,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */,
 				CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1192,7 +1183,6 @@
 		D04725ED19E49ED7006002AA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D0C3132B19EF2FA300984962 /* LlamaKit.framework */,
 				CDC42E2E1AE7AB8B00965373 /* Result.framework */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
 			);

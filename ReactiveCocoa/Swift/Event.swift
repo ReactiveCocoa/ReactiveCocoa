@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import LlamaKit
+import Result
 
 /// Represents a signal event.
 ///

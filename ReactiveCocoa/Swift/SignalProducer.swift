@@ -1,4 +1,4 @@
-import LlamaKit
+import Result
 
 /// A SignalProducer creates Signals that can produce values of type `T` and/or
 /// error out with errors of type `E`. If no errors should be possible, NoError

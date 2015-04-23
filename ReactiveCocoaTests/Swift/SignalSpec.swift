@@ -1291,7 +1291,7 @@ class SignalSpec: QuickSpec {
 				if let latestEvent = latestEvent {
 					switch latestEvent {
 					case let .Next(box):
-						expect(box.unbox).to(equal(2))
+						expect(box.value).to(equal(2))
 					default:
 						fail()
 					}
@@ -1463,7 +1463,7 @@ class SignalSpec: QuickSpec {
 			it("should forward original values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
 				var signal = baseSignal |> try { _ in
-					return success()
+					return .success()
 				}
 				
 				var current: Int?
@@ -1480,7 +1480,7 @@ class SignalSpec: QuickSpec {
 			it("should error if an attempt fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
 				var signal = baseSignal |> try { _ in
-					return failure(.Default)
+					return .failure(.Default)
 				}
 				
 				var error: TestError?
@@ -1497,7 +1497,7 @@ class SignalSpec: QuickSpec {
 			it("should forward mapped values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
 				var signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
-					return success(num % 2 == 0)
+					return .success(num % 2 == 0)
 				}
 				
 				var even: Bool?
@@ -1515,7 +1515,7 @@ class SignalSpec: QuickSpec {
 			it("should error if a mapping fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
 				var signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
-					return failure(.Default)
+					return .failure(.Default)
 				}
 				
 				var error: TestError?

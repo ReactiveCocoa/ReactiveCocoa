@@ -51,12 +51,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// then complete, or immediately send an error, depending on the given
 	/// Result.
 	public init(result: Result<T, E>) {
-		switch result {
-		case let .Success(value):
-			self.init(value: value.unbox)
-
-		case let .Failure(error):
-			self.init(error: error.unbox)
+		if let value = result.value {
+			self.init(value: value)
+		} else {
+			self.init(error: result.error!)
 		}
 	}
 
@@ -164,14 +162,12 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// occurred.
 	public static func try(operation: () -> Result<T, E>) -> SignalProducer {
 		return self { observer, disposable in
-			switch operation() {
-			case let .Success(value):
-				sendNext(observer, value.unbox)
+			operation().analysis(ifSuccess: { value in
+				sendNext(observer, value)
 				sendCompleted(observer)
-
-			case let .Failure(error):
-				sendError(observer, error.unbox)
-			}
+			}, ifFailure: { error in
+				sendError(observer, error)
+			})
 		}
 	}
 
@@ -343,10 +339,10 @@ public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = n
 
 				switch receivedEvent {
 				case let .Next(value):
-					next?(value.unbox)
+					next?(value.value)
 
 				case let .Error(err):
-					error?(err.unbox)
+					error?(err.value)
 
 				case .Completed:
 					completed?()
@@ -1024,9 +1020,9 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 				return
 			}
 
-			result = success(value)
+			result = .success(value)
 		}, error: { error in
-			result = failure(error)
+			result = .failure(error)
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
 			dispatch_semaphore_signal(semaphore)
@@ -1046,7 +1042,7 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 /// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 	let result = producer |> then(SignalProducer(value: ())) |> last
-	return result ?? success(())
+	return result ?? .success(())
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

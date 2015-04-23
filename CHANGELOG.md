@@ -184,7 +184,7 @@ As an example, an action can be wrapped and bound to `UIControl` like so:
 
 ```swift
 self.cocoaAction = CocoaAction(underlyingAction)
-self.button.addTarget(self.cocoaAction, action: self.cocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
+self.button.addTarget(self.cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
 ```
 
 ### Flattening/merging, concatenating, and switching are now one operator

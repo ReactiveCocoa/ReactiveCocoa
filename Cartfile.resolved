@@ -1,4 +1,5 @@
 github "Quick/Nimble" "6a679cbf20da3fe570c26296b3029dd168b72c00"
 github "Quick/Quick" "155f858bce082373fc60d0c0a63415bf336c676b"
-github "antitypical/Result" "0.3.2"
+github "robrix/Box" "1.2.1"
 github "jspahrsummers/xcconfigs" "0.8"
+github "antitypical/Result" "f7917f4fa4608acbb9c53e8d1c272be2e78cae81"

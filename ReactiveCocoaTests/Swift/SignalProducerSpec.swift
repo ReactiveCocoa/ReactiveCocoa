@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Box
 import Result
 import Nimble
 import Quick

@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+import Box
 import Result
 import Nimble
 import Quick

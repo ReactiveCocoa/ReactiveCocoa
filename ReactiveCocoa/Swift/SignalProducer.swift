@@ -51,10 +51,12 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// then complete, or immediately send an error, depending on the given
 	/// Result.
 	public init(result: Result<T, E>) {
-		if let value = result.value {
-			self.init(value: value)
-		} else {
-			self.init(error: result.error!)
+		switch result {
+		case let .Success(value):
+			self.init(value: value.value)
+
+		case let .Failure(error):
+			self.init(error: error.value)
 		}
 	}
 

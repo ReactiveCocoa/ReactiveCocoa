@@ -6,15 +6,8 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+import Box
 import Result
-
-public final class Box<T> {
-	public init(_ value: T) {
-		self.value = value
-	}
-
-	public let value: T
-}
 
 /// Represents a signal event.
 ///

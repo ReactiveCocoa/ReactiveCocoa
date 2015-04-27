@@ -50,7 +50,7 @@ public enum Event<T, E: ErrorType> {
 	public func map<U>(f: T -> U) -> Event<U, E> {
 		switch self {
 		case let .Next(value):
-			return Event<U, E>.Next(Box(f(value.value)))
+			return Event<U, E>.Next(value.map(f))
 
 		case let .Error(error):
 			return Event<U, E>.Error(error)

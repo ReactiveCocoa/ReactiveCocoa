@@ -36,7 +36,7 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 	// Like RAC(self, enabled) = command.enabled; but with access to disposable.
 	RACDisposable *enabledDisposable = [command.enabled setKeyPath:@keypath(self.enabled) onObject:self];
 
-	RACDisposable *executionDisposable = [[[[self
+	RACDisposable *executionDisposable = [[[[[self
 		rac_signalForControlEvents:UIControlEventValueChanged]
 		map:^(UIRefreshControl *x) {
 			return [[[command
@@ -46,7 +46,7 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 					return [RACSignal return:x];
 				}];
 		}]
-		concat]
+		concat] deliverOnMainThread]
 		subscribeNext:^(UIRefreshControl *x) {
 			[x endRefreshing];
 		}];

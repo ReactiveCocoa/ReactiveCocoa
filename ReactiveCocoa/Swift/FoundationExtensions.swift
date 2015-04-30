@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import LlamaKit
+import Result
 
 extension NSNotificationCenter {
 	/// Returns a signal of notifications posted that match the given criteria.

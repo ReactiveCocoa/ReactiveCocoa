@@ -6,7 +6,8 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import LlamaKit
+import Box
+import Result
 
 /// Represents a signal event.
 ///
@@ -49,7 +50,7 @@ public enum Event<T, E: ErrorType> {
 	public func map<U>(f: T -> U) -> Event<U, E> {
 		switch self {
 		case let .Next(value):
-			return Event<U, E>.Next(Box(f(value.unbox)))
+			return Event<U, E>.Next(value.map(f))
 
 		case let .Error(error):
 			return Event<U, E>.Error(error)
@@ -68,10 +69,10 @@ public enum Event<T, E: ErrorType> {
 		return SinkOf { event in
 			switch event {
 			case let .Next(value):
-				next?(value.unbox)
+				next?(value.value)
 
 			case let .Error(err):
-				error?(err.unbox)
+				error?(err.value)
 
 			case .Completed:
 				completed?()
@@ -86,10 +87,10 @@ public enum Event<T, E: ErrorType> {
 public func == <T: Equatable, E: Equatable> (lhs: Event<T, E>, rhs: Event<T, E>) -> Bool {
 	switch (lhs, rhs) {
 	case let (.Next(left), .Next(right)):
-		return left.unbox == right.unbox
+		return left.value == right.value
 
 	case let (.Error(left), .Error(right)):
-		return left.unbox == right.unbox
+		return left.value == right.value
 
 	case (.Completed, .Completed):
 		return true
@@ -106,10 +107,10 @@ extension Event: Printable {
 	public var description: String {
 		switch self {
 		case let .Next(value):
-			return "NEXT \(value.unbox)"
+			return "NEXT \(value.value)"
 
 		case let .Error(error):
-			return "ERROR \(error.unbox)"
+			return "ERROR \(error.value)"
 
 		case .Completed:
 			return "COMPLETED"

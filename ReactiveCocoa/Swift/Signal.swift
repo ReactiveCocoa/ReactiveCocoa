@@ -1,4 +1,4 @@
-import LlamaKit
+import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
 /// of values being sent (`T`) and the type of error that can occur (`E`). If no
@@ -148,9 +148,9 @@ public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				sendNext(observer, value.unbox)
+				sendNext(observer, value.value)
 			case let .Error(error):
-				sendError(observer, transform(error.unbox))
+				sendError(observer, transform(error.value))
 			case .Completed:
 				sendCompleted(observer)
 			case .Interrupted:
@@ -166,8 +166,8 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				if predicate(value.unbox) {
-					sendNext(observer, value.unbox)
+				if predicate(value.value) {
+					sendNext(observer, value.value)
 				}
 
 			default:
@@ -201,7 +201,7 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			case let .Next(value):
 				if taken < count {
 					taken++
-					sendNext(observer, value.unbox)
+					sendNext(observer, value.value)
 				}
 
 				if taken == count {
@@ -371,7 +371,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 		return signal.observe(SinkOf { event in
 			switch event {
 			case let .Next(innerEvent):
-				observer.put(innerEvent.unbox)
+				observer.put(innerEvent.value)
 
 			case .Error:
 				fatalError()
@@ -549,7 +549,7 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 		return signal.observe(SinkOf { event in
 			switch event {
 			case let .Next(value):
-				shouldSkip = shouldSkip && predicate(value.unbox)
+				shouldSkip = shouldSkip && predicate(value.value)
 				if !shouldSkip {
 					fallthrough
 				}
@@ -625,7 +625,7 @@ public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 		return signal.observe(SinkOf { event in
 			switch event {
 			case let .Next(value):
-				if predicate(value.unbox) {
+				if predicate(value.value) {
 					fallthrough
 				} else {
 					sendCompleted(observer)
@@ -732,13 +732,11 @@ public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Si
 public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
 		signal.observe(next: { value in
-			switch operation(value) {
-			case let .Success(val):
-				sendNext(observer, val.unbox)
-
-			case let .Failure(err):
-				sendError(observer, err.unbox)
-			}
+			operation(value).analysis(ifSuccess: { value in
+				sendNext(observer, value)
+			}, ifFailure: { error in
+				sendError(observer, error)
+			})
 		}, error: { error in
 			sendError(observer, error)
 		}, completed: {
@@ -772,7 +770,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				switch event {
 				case let .Next(value):
 					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in
-						state.pendingValue = value.unbox
+						state.pendingValue = value.value
 
 						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						let scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)

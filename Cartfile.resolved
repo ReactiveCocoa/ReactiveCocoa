@@ -1,4 +1,5 @@
-github "LlamaKit/LlamaKit" "v0.6.0"
 github "Quick/Nimble" "6a679cbf20da3fe570c26296b3029dd168b72c00"
 github "Quick/Quick" "155f858bce082373fc60d0c0a63415bf336c676b"
+github "robrix/Box" "1.2.1"
 github "jspahrsummers/xcconfigs" "0.8"
+github "antitypical/Result" "0.4"

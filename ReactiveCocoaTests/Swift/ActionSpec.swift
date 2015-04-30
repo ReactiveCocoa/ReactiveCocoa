@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import LlamaKit
+import Result
 import Nimble
 import Quick
 import ReactiveCocoa

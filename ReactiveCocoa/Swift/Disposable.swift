@@ -18,7 +18,7 @@ public protocol Disposable {
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
 public final class SimpleDisposable: Disposable {
-	private var _disposed = Atomic(false)
+	private let _disposed = Atomic(false)
 
 	public var disposed: Bool {
 		return _disposed.value
@@ -33,7 +33,7 @@ public final class SimpleDisposable: Disposable {
 
 /// A disposable that will run an action upon disposal.
 public final class ActionDisposable: Disposable {
-	private var action: Atomic<(() -> ())?>
+	private let action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
 		return action.value == nil
@@ -174,11 +174,15 @@ public final class ScopedDisposable: Disposable {
 /// A disposable that will optionally dispose of another disposable.
 public final class SerialDisposable: Disposable {
 	private struct State {
-		var innerDisposable: Disposable? = nil
-		var disposed = false
+		let innerDisposable: Disposable?
+		let disposed: Bool
+
+		func withDisposable(replacement: Disposable?) -> State {
+			return State(innerDisposable: replacement, disposed: disposed)
+		}
 	}
 
-	private var state = Atomic(State())
+	private let state = Atomic(State(innerDisposable: nil, disposed: false))
 
 	public var disposed: Bool {
 		return state.value.disposed
@@ -194,9 +198,8 @@ public final class SerialDisposable: Disposable {
 		}
 
 		set(d) {
-			let oldState = state.modify { (var state) in
-				state.innerDisposable = d
-				return state
+			let oldState = state.modify { state in
+				return state.withDisposable(d)
 			}
 
 			oldState.innerDisposable?.dispose()

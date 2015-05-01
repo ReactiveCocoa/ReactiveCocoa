@@ -191,13 +191,7 @@ public final class CocoaAction: NSObject {
 	/// object given to execute(), if it can be downcast successfully, or nil
 	/// otherwise.
 	public convenience init<Input: AnyObject, Output, Error>(_ action: Action<Input?, Output, Error>) {
-		self.init(action, { input in
-			if let input: AnyObject = input {
-				return input as? Input
-			} else {
-				return nil
-			}
-		})
+		self.init(action, { $0 as? Input })
 	}
 
 	deinit {

@@ -129,7 +129,7 @@ infix operator |> {
 /// 	|> filter { num in num % 2 == 0 }
 /// 	|> map(toString)
 /// 	|> observe(next: { string in println(string) })
-public func |> <T, E, X>(signal: Signal<T, E>, transform: Signal<T, E> -> X) -> X {
+public func |> <T, E, X>(signal: Signal<T, E>, @noescape transform: Signal<T, E> -> X) -> X {
 	return transform(signal)
 }
 

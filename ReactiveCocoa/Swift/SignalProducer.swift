@@ -179,7 +179,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(setUp: (Signal<T, E>, Disposable) -> ()) {
+	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ()) {
 		let (signal, observer) = Signal<T, E>.pipe()
 
 		// Create a composite disposable that will automatically be torn
@@ -294,7 +294,7 @@ public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T,
 /// 	|> start { signal in
 /// 		signal.observe(next: { num in println(num) })
 /// 	}
-public func |> <T, E, X>(producer: SignalProducer<T, E>, transform: SignalProducer<T, E> -> X) -> X {
+public func |> <T, E, X>(producer: SignalProducer<T, E>, @noescape transform: SignalProducer<T, E> -> X) -> X {
 	return transform(producer)
 }
 

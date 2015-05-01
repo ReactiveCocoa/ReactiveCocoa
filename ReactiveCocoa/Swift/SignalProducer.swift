@@ -290,7 +290,7 @@ public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T,
 /// Example:
 ///
 /// 	filteredProducer
-/// 	|> startOn(MainScheduler())
+/// 	|> startOn(UIScheduler())
 /// 	|> start { signal in
 /// 		signal.observe(next: { num in println(num) })
 /// 	}

@@ -937,18 +937,17 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 		let serialDisposable = SerialDisposable()
 		disposable.addDisposable(serialDisposable)
 
-		var remainingTimes = count
-
-		let iterate = fix { recur in
-			{
+		let iterate: Int -> () = fix { recur in
+			{ current in
 				producer.startWithSignal { signal, signalDisposable in
 					serialDisposable.innerDisposable = signalDisposable
 
 					signal.observe(Signal.Observer { event in
 						switch event {
 						case .Completed:
-							if --remainingTimes > 0 {
-								recur()
+							let remainingTimes = current - 1
+							if remainingTimes > 0 {
+								recur(remainingTimes)
 							} else {
 								sendCompleted(observer)
 							}
@@ -961,7 +960,7 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 			}
 		}
 
-		iterate()
+		iterate(count)
 	}
 }
 

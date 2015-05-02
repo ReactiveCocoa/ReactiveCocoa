@@ -822,7 +822,7 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 						// may inadvertently send Interrupted to our observer.
 						latestInnerDisposable.innerDisposable = innerDisposable
 
-						innerSignal.observe(SinkOf { event in
+						innerSignal.observe(Signal.Observer { event in
 							switch event {
 							case .Completed:
 								updateState { state in

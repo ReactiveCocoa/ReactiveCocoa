@@ -8,6 +8,8 @@ If you're already familiar with functional reactive programming or know the basi
 premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
 overview and more in-depth information about how it all works in practice.
 
+_Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
+
 ## New to ReactiveCocoa?
 
 ReactiveCocoa is documented like crazy, and there's a wealth of introductory

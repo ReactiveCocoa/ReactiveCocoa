@@ -15,7 +15,7 @@
 @interface RACQueueScheduler ()
 
 /// The queue on which blocks are enqueued.
-#if OS_OBJECT_HAVE_OBJC_SUPPORT
+#if OS_OBJECT_USE_OBJC
 @property (nonatomic, strong, readonly) dispatch_queue_t queue;
 #else
 // Swift builds with OS_OBJECT_HAVE_OBJC_SUPPORT=0 for Playgrounds and LLDB :(

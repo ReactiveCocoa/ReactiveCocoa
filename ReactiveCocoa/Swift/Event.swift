@@ -50,10 +50,10 @@ public enum Event<T, E: ErrorType> {
 	public func map<U>(f: T -> U) -> Event<U, E> {
 		switch self {
 		case let .Next(value):
-			return Event<U, E>.Next(value.map(f))
+			return .Next(value.map(f))
 
 		case let .Error(error):
-			return Event<U, E>.Error(error)
+			return .Error(error)
 
 		case .Completed:
 			return .Completed
@@ -123,20 +123,20 @@ extension Event: Printable {
 
 /// Puts a `Next` event into the given sink.
 public func sendNext<T, E>(sink: SinkOf<Event<T, E>>, value: T) {
-	sink.put(Event<T, E>.Next(Box(value)))
+	sink.put(.Next(Box(value)))
 }
 
 /// Puts an `Error` event into the given sink.
 public func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: E) {
-	sink.put(Event<T, E>.Error(Box(error)))
+	sink.put(.Error(Box(error)))
 }
 
 /// Puts a `Completed` event into the given sink.
 public func sendCompleted<T, E>(sink: SinkOf<Event<T, E>>) {
-	sink.put(Event<T, E>.Completed)
+	sink.put(.Completed)
 }
 
 /// Puts a `Interrupted` event into the given sink.
 public func sendInterrupted<T, E>(sink: SinkOf<Event<T, E>>) {
-	sink.put(Event<T, E>.Interrupted)
+	sink.put(.Interrupted)
 }

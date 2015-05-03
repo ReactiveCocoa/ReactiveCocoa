@@ -236,7 +236,7 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 public func observeOn<T, E>(scheduler: SchedulerType) -> (Signal<T, E>) -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(SinkOf { event in
+			return signal.observe(Signal.Observer { event in
 				scheduler.schedule {
 					observer.put(event)
 				}
@@ -313,7 +313,7 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 
 	return { signal in
 		return Signal { observer in
-			return signal.observe(SinkOf { event in
+			return signal.observe(Signal.Observer { event in
 				switch event {
 				case .Error, .Interrupted:
 					scheduler.schedule {
@@ -343,7 +343,7 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var skipped = 0
 
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
 				if skipped >= count {
@@ -365,7 +365,7 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 /// In other words, this brings Events “into the monad.”
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			sendNext(observer, event)
 
 			if event.isTerminating {
@@ -379,7 +379,7 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(innerEvent):
 				observer.put(innerEvent.value)
@@ -464,7 +464,7 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let signalDisposable = signal.observe(observer)
-		let triggerDisposable = trigger.observe(SinkOf { event in
+		let triggerDisposable = trigger.observe(Signal.Observer { event in
 			switch event {
 			case .Next, .Completed:
 				sendCompleted(observer)
@@ -557,7 +557,7 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	return Signal { observer in
 		var shouldSkip = true
 
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
 				shouldSkip = shouldSkip && predicate(value.value)
@@ -581,7 +581,7 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let signalDisposable = signal.observe(SinkOf { event in
+		let signalDisposable = signal.observe(Signal.Observer { event in
 			switch event {
 			case .Completed:
 				break
@@ -591,7 +591,7 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 			}
 		})
 
-		let replacementDisposable = replacement.observe(SinkOf { event in
+		let replacementDisposable = replacement.observe(Signal.Observer { event in
 			signalDisposable?.dispose()
 			observer.put(event)
 		})
@@ -633,7 +633,7 @@ public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 /// at which point the returned signal will complete.
 public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
 				if predicate(value.value) {
@@ -777,7 +777,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			let disposable = CompositeDisposable()
 			disposable.addDisposable(schedulerDisposable)
 
-			let signalDisposable = signal.observe(SinkOf { event in
+			let signalDisposable = signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
 					let (_, scheduleDate) = state.modify { (var state) -> (ThrottleState<T>, NSDate) in

@@ -204,13 +204,13 @@ public final class TestScheduler: DateSchedulerType {
 
 	/// The virtual date that the scheduler is currently at.
 	public var currentDate: NSDate {
-		var d: NSDate? = nil
+		let d: NSDate
 
 		lock.lock()
 		d = _currentDate
 		lock.unlock()
 
-		return d!
+		return d
 	}
 
 	private var scheduledActions: [ScheduledAction] = []

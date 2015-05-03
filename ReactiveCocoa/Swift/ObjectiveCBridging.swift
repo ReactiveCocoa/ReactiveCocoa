@@ -79,7 +79,7 @@ extension RACSignal {
 
 /// Turns each value into an Optional.
 private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
-	return signal |> map { Optional.Some($0) }
+	return signal |> map { Optional($0) }
 }
 
 /// Creates a RACSignal that will start() the producer once for each

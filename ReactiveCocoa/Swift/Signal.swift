@@ -721,8 +721,8 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 	return signal |> zipMapWith(otherSignal) { ($0, $1) }
 }
 
-public func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<T, E>) -> Signal<[T], E> {
-	return signal |> zipMapWith(otherSignal) { [$1, $0] }
+public func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+	return signal |> zipMapWith(otherSignal) { $0 + [$1] }
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results

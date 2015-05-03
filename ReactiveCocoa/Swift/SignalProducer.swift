@@ -404,6 +404,10 @@ public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer
 	return producer.lift(zipWith)(otherSignalProducer)
 }
 
+public func zipWith<T, E>(otherSignalProducer: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<[T], E> {
+	return producer.lift(zipWith)(otherSignalProducer)
+}
+
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {

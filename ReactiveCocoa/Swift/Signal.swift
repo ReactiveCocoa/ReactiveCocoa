@@ -647,9 +647,7 @@ private struct ZipState<T> {
 	}
 }
 
-/// Zips elements of two signals into pairs. The elements of any Nth pair
-/// are the Nth elements of the two input signals.
-public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
+private func zipMapWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
 	return Signal { observer in
 		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
@@ -670,7 +668,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
 				let left = originalStates.0.values.removeAtIndex(0)
 				let right = originalStates.1.values.removeAtIndex(0)
-				sendNext(observer, (left, right))
+				sendNext(observer, transform(left, right))
 			}
 
 			if originalStates.0.isFinished || originalStates.1.isFinished {
@@ -715,6 +713,16 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
+}
+
+/// Zips elements of two signals into pairs. The elements of any Nth pair
+/// are the Nth elements of the two input signals.
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
+	return signal |> zipMapWith(otherSignal) { ($0, $1) }
+}
+
+public func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<T, E>) -> Signal<[T], E> {
+	return signal |> zipMapWith(otherSignal) { [$1, $0] }
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results

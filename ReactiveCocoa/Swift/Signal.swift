@@ -215,6 +215,8 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
+/// A reference type which wraps an array to avoid copying it for performance and
+/// memory usage optimization.
 private final class CollectState<T> {
 	var values: [T] = []
 

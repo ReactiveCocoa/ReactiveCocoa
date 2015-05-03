@@ -551,9 +551,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
 public func zip<T, Error>(signalProducers: [SignalProducer<T, Error>]) -> SignalProducer<[T], Error> {
-	return signalProducers.reduce(SignalProducer<[T], Error>.never) { memo, signalProducer in
-		return memo |> zipWith(signalProducer)
-	}
+	return signalProducers.reduce(SignalProducer<[T], Error>.empty) { $0 |> zipWith($1) }
 }
 
 /// Forwards the latest value from `producer` whenever `sampler` sends a Next

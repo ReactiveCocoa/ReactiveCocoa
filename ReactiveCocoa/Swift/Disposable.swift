@@ -174,15 +174,11 @@ public final class ScopedDisposable: Disposable {
 /// A disposable that will optionally dispose of another disposable.
 public final class SerialDisposable: Disposable {
 	private struct State {
-		let innerDisposable: Disposable?
-		let disposed: Bool
-
-		func withDisposable(replacement: Disposable?) -> State {
-			return State(innerDisposable: replacement, disposed: disposed)
-		}
+		var innerDisposable: Disposable? = nil
+		var disposed = false
 	}
 
-	private let state = Atomic(State(innerDisposable: nil, disposed: false))
+	private let state = Atomic(State())
 
 	public var disposed: Bool {
 		return state.value.disposed
@@ -198,8 +194,9 @@ public final class SerialDisposable: Disposable {
 		}
 
 		set(d) {
-			let oldState = state.modify { state in
-				return state.withDisposable(d)
+			let oldState = state.modify { (var state) in
+				state.innerDisposable = d
+				return state
 			}
 
 			oldState.innerDisposable?.dispose()

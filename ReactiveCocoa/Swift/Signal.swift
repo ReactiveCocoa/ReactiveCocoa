@@ -263,6 +263,29 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 	}, interrupted: onInterrupted)
 }
 
+private func combineLatestWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
+	return Signal { observer in
+		let lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
+		
+		let signalState = CombineLatestState<T>()
+		let otherState = CombineLatestState<U>()
+		
+		let onBothNext = { () -> () in
+			sendNext(observer, transform(signalState.latestValue!, otherState.latestValue!))
+		}
+		
+		let onError = { sendError(observer, $0) }
+		let onBothCompleted = { sendCompleted(observer) }
+		let onInterrupted = { sendInterrupted(observer) }
+		
+		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+		
+		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
+	}
+}
+
 /// Combines the latest value of the receiver with the latest value from
 /// the given signal.
 ///
@@ -270,27 +293,11 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 /// at least one value each. If either signal is interrupted, the returned signal
 /// will also be interrupted.
 public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return Signal { observer in
-		let lock = NSRecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
+	return signal |> combineLatestWith(otherSignal) { ($0, $1) }
+}
 
-		let signalState = CombineLatestState<T>()
-		let otherState = CombineLatestState<U>()
-
-		let onBothNext = { () -> () in
-			let combined = (signalState.latestValue!, otherState.latestValue!)
-			sendNext(observer, combined)
-		}
-
-		let onError = { sendError(observer, $0) }
-		let onBothCompleted = { sendCompleted(observer) }
-		let onInterrupted = { sendInterrupted(observer) }
-
-		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-
-		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
-	}
+public func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+	return signal |> combineLatestWith(otherSignal) { $0 + [$1] }
 }
 
 /// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -647,7 +654,7 @@ private struct ZipState<T> {
 	}
 }
 
-private func zipMapWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
+private func zipWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
 	return Signal { observer in
 		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
@@ -718,11 +725,11 @@ private func zipMapWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U
 /// Zips elements of two signals into pairs. The elements of any Nth pair
 /// are the Nth elements of the two input signals.
 public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return signal |> zipMapWith(otherSignal) { ($0, $1) }
+	return signal |> zipWith(otherSignal) { ($0, $1) }
 }
 
 public func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
-	return signal |> zipMapWith(otherSignal) { $0 + [$1] }
+	return signal |> zipWith(otherSignal) { $0 + [$1] }
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results

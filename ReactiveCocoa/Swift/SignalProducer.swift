@@ -398,6 +398,10 @@ public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>
 	return producer.lift(combineLatestWith)(otherSignalProducer)
 }
 
+public func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>)(producer: SignalProducer<[T], E>) -> SignalProducer<[T], E> {
+	return producer.lift(combineLatestWith)(otherSignalProducer)
+}
+
 /// Zips elements of two signal producers into pairs. The elements of any Nth
 /// pair are the Nth elements of the two input producers.
 public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<(T, U), E> {
@@ -476,6 +480,19 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer
 	return combineLatest(a, b, c, d, e, f, g, h, i)
 		|> combineLatestWith(j)
 		|> map(repack)
+}
+
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
+public func combineLatest<T, Error>(signalProducers: [SignalProducer<T, Error>]) -> SignalProducer<[T], Error> {
+	if let first = signalProducers.first {
+		let initial = first.lift { signal in
+			return signal |> map { [$0] }
+		}
+		return signalProducers[1 ..< signalProducers.count].reduce(initial) { $0 |> combineLatestWith($1) }
+	}
+	
+	return SignalProducer.empty
 }
 
 /// Zips the values of all the given producers, in the manner described by

@@ -1008,6 +1008,106 @@ public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil,
 	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }
 
+/// Returns a signal which sends all the values from each producer emitted from
+/// `signal`, waiting until each inner signal completes before beginning to
+/// send the values from the next inner signal.
+///
+/// If any of the inner signals emit an error, the returned signal will emit
+/// that error.
+///
+/// The returned signal completes only when `signal` and all signals
+/// emitted from `signal` complete.
+public func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal { observer in
+		let disposable = CompositeDisposable()
+		let state = ConcatState(observer: observer, disposable: disposable)
+
+		signal.observe(next: { producer in
+			state.enqueueSignalProducer(producer)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			// Add one last producer to the queue, whose sole job is to
+			// "turn out the lights" by completing `observer`.
+			let completion: SignalProducer<T, E> = .empty |> on(completed: {
+				sendCompleted(observer)
+			})
+
+			state.enqueueSignalProducer(completion)
+		}, interrupted: {
+			sendInterrupted(observer)
+		})
+
+		return disposable
+	}
+}
+
+private final class ConcatState<T, E: ErrorType> {
+	/// The observer of a started `concat` producer.
+	let observer: Signal<T, E>.Observer
+
+	/// The top level disposable of a started `concat` producer.
+	let disposable: CompositeDisposable
+
+	/// The active producer, if any, and the producers waiting to be started.
+	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+
+	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+		self.observer = observer
+		self.disposable = disposable
+	}
+
+	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		var shouldStart = true
+
+		queuedSignalProducers.modify { (var queue) in
+			// An empty queue means the concat is idle, ready & waiting to start
+			// the next producer.
+			shouldStart = queue.isEmpty
+			queue.append(producer)
+			return queue
+		}
+
+		if shouldStart {
+			startNextSignalProducer(producer)
+		}
+	}
+
+	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		var nextSignalProducer: SignalProducer<T, E>?
+
+		queuedSignalProducers.modify { (var queue) in
+			// Active producers remain in the queue until completed. Since
+			// dequeueing happens at completion of the active producer, the
+			// first producer in the queue can be removed.
+			queue.removeAtIndex(0)
+			nextSignalProducer = queue.first
+			return queue
+		}
+
+		return nextSignalProducer
+	}
+
+	/// Subscribes to the given signal producer.
+	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+		signalProducer.startWithSignal { signal, disposable in
+			self.disposable.addDisposable(disposable)
+
+			signal.observe(Signal.Observer { event in
+				switch event {
+				case .Completed:
+					if let nextSignalProducer = self.dequeueSignalProducer() {
+						self.startNextSignalProducer(nextSignalProducer)
+					}
+
+				default:
+					self.observer.put(event)
+				}
+			})
+		}
+	}
+}
+
 /// Merges a `signal` of SignalProducers down into a single signal, biased toward the producers
 /// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 public func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {

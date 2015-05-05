@@ -234,6 +234,37 @@ class SignalProducerSpec: QuickSpec {
 				expect(values).to(equal([2, 3, 4]))
 				expect(error).to(equal(TestError.Default))
 			}
+			
+			it("should always replay termination event") {
+				let (producer, sink) = SignalProducer<Int, TestError>.buffer(0)
+				var completed = false
+				
+				sendCompleted(sink)
+				
+				producer.start(completed: {
+					completed = true
+				})
+				
+				expect(completed).to(beTruthy())
+			}
+			
+			it("should replay values after being terminated") {
+				let (producer, sink) = SignalProducer<Int, TestError>.buffer(1)
+				var value: Int?
+				var completed = false
+				
+				sendNext(sink, 123)
+				sendCompleted(sink)
+				
+				producer.start(next: {val in
+					value = val
+				}, completed: {
+					completed = true
+				})
+				
+				expect(value).to(equal(123))
+				expect(completed).to(beTruthy())
+			}
 		}
 
 		describe("SignalProducer.try") {

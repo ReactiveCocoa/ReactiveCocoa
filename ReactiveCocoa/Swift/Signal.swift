@@ -1008,6 +1008,71 @@ public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil,
 	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }
 
+/// Describes how multiple signals or producers should be joined together.
+public enum FlattenStrategy: Equatable {
+	/// The signals should be merged, so that any value received on any of the
+	/// input signals will be forwarded immediately to the output signal.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Merge
+
+	/// The signals should be concatenated, so that their values are sent in the
+	/// order of the signals themselves.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Concat
+
+	/// Only the events from the latest input signal should be considered for
+	/// the output. Any signals received before that point will be disposed of.
+	///
+	/// The resulting signal will complete only when the signal-of-signals and
+	/// the latest signal has completed.
+	case Latest
+}
+
+public func == (lhs: FlattenStrategy, rhs: FlattenStrategy) -> Bool {
+	switch (lhs, rhs) {
+	case (.Merge, .Merge), (.Concat, .Concat), (.Latest, .Latest):
+		return true
+
+	default:
+		return false
+	}
+}
+
+extension FlattenStrategy: Printable {
+	public var description: String {
+		switch self {
+		case .Merge:
+			return "merge"
+
+		case .Concat:
+			return "concatenate"
+
+		case .Latest:
+			return "latest"
+		}
+	}
+}
+
+/// Flattens the inner producers sent upon `signal` (into a single signal of
+/// values), according to the semantics of the given strategy.
+///
+/// If `signal` or an active inner producer emits an error, the returned
+/// producer will forward that error immediately.
+public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	switch strategy {
+	case .Merge:
+		return producer |> merge
+
+	case .Concat:
+		return producer |> concat
+
+	case .Latest:
+		return producer |> switchToLatest
+	}
+}
+
 /// Returns a signal which sends all the values from each producer emitted from
 /// `signal`, waiting until each inner signal completes before beginning to
 /// send the values from the next inner signal.

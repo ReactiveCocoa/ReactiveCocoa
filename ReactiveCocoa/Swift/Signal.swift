@@ -1073,6 +1073,16 @@ public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProd
 	}
 }
 
+/// Maps each event from `signal` to a new producer, then flattens the
+/// resulting producers (into a single signal of values), according to the
+/// semantics of the given strategy.
+///
+/// If `signal` or any of the created producers emit an error, the returned
+/// signal will forward that error immediately.
+public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
+	return signal |> map(transform) |> flatten(strategy)
+}
+
 /// Returns a signal which sends all the values from each producer emitted from
 /// `signal`, waiting until each inner signal completes before beginning to
 /// send the values from the next inner signal.

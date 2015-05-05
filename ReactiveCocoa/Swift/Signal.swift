@@ -1007,3 +1007,49 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(s
 public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }
+
+/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producers
+/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
+public func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal<T, E> { relayObserver in
+		let inFlight = Atomic(1)
+		let decrementInFlight: () -> () = {
+			let orig = inFlight.modify { $0 - 1 }
+			if orig == 1 {
+				sendCompleted(relayObserver)
+			}
+		}
+
+		let disposable = CompositeDisposable()
+		signal.observe(next: { producer in
+			producer.startWithSignal { innerSignal, innerDisposable in
+				inFlight.modify { $0 + 1 }
+
+				let handle = disposable.addDisposable(innerDisposable)
+
+				innerSignal.observe(Signal<T,E>.Observer { event in
+					if event.isTerminating {
+						handle.remove()
+					}
+
+					switch event {
+					case .Completed:
+						decrementInFlight()
+
+					default:
+						relayObserver.put(event)
+					}
+				})
+			}
+		}, error: { error in
+			sendError(relayObserver, error)
+		}, completed: {
+			decrementInFlight()
+		}, interrupted: {
+			sendInterrupted(relayObserver)
+		})
+
+		return disposable
+	}
+}
+

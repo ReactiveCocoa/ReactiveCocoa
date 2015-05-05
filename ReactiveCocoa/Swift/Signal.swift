@@ -1082,7 +1082,7 @@ public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProd
 ///
 /// The returned signal completes only when `signal` and all signals
 /// emitted from `signal` complete.
-public func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+private func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let disposable = CompositeDisposable()
 		let state = ConcatState(observer: observer, disposable: disposable)
@@ -1175,7 +1175,7 @@ private final class ConcatState<T, E: ErrorType> {
 
 /// Merges a `signal` of SignalProducers down into a single signal, biased toward the producers
 /// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
-public func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
 	return Signal<T, E> { relayObserver in
 		let inFlight = Atomic(1)
 		let decrementInFlight: () -> () = {
@@ -1226,7 +1226,7 @@ public func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E>
 ///
 /// The returned signal completes when `signal` and the latest inner
 /// producer have both completed.
-public func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
 	return Signal<T, E> { sink in
 		let disposable = CompositeDisposable()
 		let latestInnerDisposable = SerialDisposable()

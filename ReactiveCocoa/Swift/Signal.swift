@@ -1053,3 +1053,92 @@ public func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E>
 	}
 }
 
+/// Returns a signal that forwards values from the latest producer sent on
+/// `signal`, ignoring values sent on previous inner producers.
+///
+/// An error sent on `signal` or the latest inner producer will be sent on the
+/// returned signal.
+///
+/// The returned signal completes when `signal` and the latest inner
+/// producer have both completed.
+public func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal<T, E> { sink in
+		let disposable = CompositeDisposable()
+		let latestInnerDisposable = SerialDisposable()
+		disposable.addDisposable(latestInnerDisposable)
+
+		let state = Atomic(LatestState<T, E>(outerSignalComplete: false, latestIncompleteSignal: nil))
+		let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
+			state.modify(action)
+			if state.value.isComplete {
+				sendCompleted(sink)
+			}
+		}
+
+		signal.observe(next: { innerProducer in
+			innerProducer.startWithSignal { innerSignal, innerDisposable in
+				state.modify { state in
+					return state.isComplete
+						? state
+						: LatestState(
+							outerSignalComplete: state.outerSignalComplete,
+							latestIncompleteSignal: innerSignal)
+				}
+
+				// Don't dispose of the previous signal until we've
+				// registered this new signal as the latest, or else we
+				// may inadvertently send Interrupted to our observer.
+				latestInnerDisposable.innerDisposable = innerDisposable
+
+				innerSignal.observe(Signal.Observer { event in
+					switch event {
+					case .Completed:
+						updateState { state in
+							return state.isLatestIncompleteSignal(innerSignal)
+								? LatestState(
+									outerSignalComplete: state.outerSignalComplete,
+									latestIncompleteSignal: nil)
+								: state
+						}
+
+					default:
+						state.withValue { value -> () in
+							if value.isLatestIncompleteSignal(innerSignal) {
+								sink.put(event)
+							}
+						}
+					}
+				})
+			}
+		}, error: { error in
+			sendError(sink, error)
+		}, completed: {
+			updateState { state in
+				LatestState(
+					outerSignalComplete: true,
+					latestIncompleteSignal: state.latestIncompleteSignal)
+			}
+		}, interrupted: {
+			sendInterrupted(sink)
+		})
+
+		return disposable
+	}
+}
+
+private struct LatestState<T, E: ErrorType> {
+	let outerSignalComplete: Bool
+	let latestIncompleteSignal: Signal<T, E>?
+
+	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
+		if let latestIncompleteSignal = latestIncompleteSignal {
+			return latestIncompleteSignal === signal
+		} else {
+			return false
+		}
+	}
+
+	var isComplete: Bool {
+		return outerSignalComplete && latestIncompleteSignal == nil
+	}
+}

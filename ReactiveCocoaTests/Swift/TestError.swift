@@ -18,7 +18,7 @@ enum TestError: Int {
 extension TestError: ErrorType {
 	static var domain: String { return "org.reactivecocoa.ReactiveCocoa.Tests" }
 
-	var nsError: NSError {
+	var nsError: NSError? {
 		return NSError(domain: TestError.domain, code: rawValue, userInfo: nil)
 	}
 }

@@ -13,7 +13,7 @@ import Result
 ///
 /// Signals must conform to the grammar:
 /// `Next* (Error | Completed | Interrupted)?`
-public enum Event<T, E: ErrorType> {
+public enum Event<T, E> {
 	/// A value provided by the signal.
 	case Next(Box<T>)
 

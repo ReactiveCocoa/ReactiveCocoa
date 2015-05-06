@@ -86,7 +86,7 @@ private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACSignal {
+public func toRACSignal<T: AnyObject, E: ErrorType>(producer: SignalProducer<T, E>) -> RACSignal {
 	return toRACSignal(producer |> optionalize)
 }
 
@@ -94,7 +94,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACS
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
+public func toRACSignal<T: AnyObject, E: ErrorType>(producer: SignalProducer<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
@@ -113,14 +113,14 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
+public func toRACSignal<T: AnyObject, E: ErrorType>(signal: Signal<T, E>) -> RACSignal {
 	return toRACSignal(signal |> optionalize)
 }
 
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
+public func toRACSignal<T: AnyObject, E: ErrorType>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)

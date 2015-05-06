@@ -14,7 +14,7 @@ import Result
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
-public struct SignalProducer<T, E: ErrorType> {
+public struct SignalProducer<T, E> {
 	private let startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()
 
 	/// Initializes a SignalProducer that will invoke the given closure once
@@ -711,7 +711,7 @@ private func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> 
 	}
 }
 
-private final class ConcatState<T, E: ErrorType> {
+private final class ConcatState<T, E> {
 	/// The observer of a started `concat` producer.
 	let observer: Signal<T, E>.Observer
 
@@ -862,7 +862,7 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 	}
 }
 
-private struct LatestState<T, E: ErrorType> {
+private struct LatestState<T, E> {
 	let outerSignalComplete: Bool
 	let latestIncompleteSignal: Signal<T, E>?
 

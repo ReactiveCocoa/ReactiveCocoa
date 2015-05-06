@@ -48,6 +48,16 @@ internal struct Bag<T>: SequenceType {
 	}
 	
 	internal func generate() -> GeneratorOf<T> {
-		return GeneratorOf(elements.values.generate())
+		var values: [T] = []
+
+		var index = next + 1
+		while index > 0 {
+			--index
+			if let value = elements[index] {
+				values.append(value)
+			}
+		}
+
+		return GeneratorOf(values.generate())
 	}
 }

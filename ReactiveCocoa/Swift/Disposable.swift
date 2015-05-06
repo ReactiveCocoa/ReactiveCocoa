@@ -123,20 +123,23 @@ public final class CompositeDisposable: Disposable {
 			return DisposableHandle()
 		}
 
-		let (_, handle) = disposables.modify { ds -> (Bag<Disposable>?, DisposableHandle?) in
+		var handle: DisposableHandle? = nil
+		disposables.modify { ds in
 			if var ds = ds {
 				let token = ds.insert(d!)
-				return (ds, DisposableHandle(bagToken: token, disposable: self))
+				handle = DisposableHandle(bagToken: token, disposable: self)
+				return ds
 			} else {
-				return (nil, nil)
+				return nil
 			}
 		}
 
-		if handle == nil {
+		if let handle = handle {
+			return handle
+		} else {
 			d!.dispose()
+			return DisposableHandle()
 		}
-
-		return handle ?? DisposableHandle()
 	}
 
 	/// Adds an ActionDisposable to the list.

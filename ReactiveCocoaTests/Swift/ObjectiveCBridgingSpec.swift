@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import LlamaKit
+import Result
 import Nimble
 import Quick
 import ReactiveCocoa
@@ -93,7 +93,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					var subscriptions = 0
 
 					let producer = SignalProducer<NSNumber, NoError>.try {
-						return success(subscriptions++)
+						return .success(subscriptions++)
 					}
 					let racSignal = toRACSignal(producer)
 

@@ -45,7 +45,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 	/// Whether the action should be enabled for the given combination of user
 	/// enabledness and executing status.
-	private class func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
+	private static func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
 		return userEnabled && !executing
 	}
 
@@ -65,7 +65,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 		_enabled <~ enabledIf.producer
 			|> combineLatestWith(executing.producer)
-			|> map(self.dynamicType.shouldBeEnabled)
+			|> map(Action.shouldBeEnabled)
 	}
 
 	/// Initializes an action that will be enabled by default, and create a
@@ -90,7 +90,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			var startedExecuting = false
 
 			dispatch_sync(self.executingQueue) {
-				if self.dynamicType.shouldBeEnabled(userEnabled: self.userEnabled.value, executing: self._executing.value) {
+				if Action.shouldBeEnabled(userEnabled: self.userEnabled.value, executing: self._executing.value) {
 					self._executing.value = true
 					startedExecuting = true
 				}
@@ -191,13 +191,7 @@ public final class CocoaAction: NSObject {
 	/// object given to execute(), if it can be downcast successfully, or nil
 	/// otherwise.
 	public convenience init<Input: AnyObject, Output, Error>(_ action: Action<Input?, Output, Error>) {
-		self.init(action, { input in
-			if let input: AnyObject = input {
-				return input as? Input
-			} else {
-				return nil
-			}
-		})
+		self.init(action, { $0 as? Input })
 	}
 
 	deinit {

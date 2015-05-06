@@ -18,7 +18,7 @@ public protocol Disposable {
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
 public final class SimpleDisposable: Disposable {
-	private var _disposed = Atomic(false)
+	private let _disposed = Atomic(false)
 
 	public var disposed: Bool {
 		return _disposed.value
@@ -33,7 +33,7 @@ public final class SimpleDisposable: Disposable {
 
 /// A disposable that will run an action upon disposal.
 public final class ActionDisposable: Disposable {
-	private var action: Atomic<(() -> ())?>
+	private let action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
 		return action.value == nil
@@ -181,7 +181,7 @@ public final class SerialDisposable: Disposable {
 		var disposed = false
 	}
 
-	private var state = Atomic(State())
+	private let state = Atomic(State())
 
 	public var disposed: Bool {
 		return state.value.disposed

@@ -1,4 +1,4 @@
-import LlamaKit
+import Result
 
 /// A SignalProducer creates Signals that can produce values of type `T` and/or
 /// error out with errors of type `E`. If no errors should be possible, NoError
@@ -53,10 +53,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	public init(result: Result<T, E>) {
 		switch result {
 		case let .Success(value):
-			self.init(value: value.unbox)
+			self.init(value: value.value)
 
 		case let .Failure(error):
-			self.init(error: error.unbox)
+			self.init(error: error.value)
 		}
 	}
 
@@ -111,12 +111,16 @@ public struct SignalProducer<T, E: ErrorType> {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer"
 
 		var events: [Event<T, E>] = []
+		var terminationEvent: Event<T,E>?
 		var observers: Bag<Signal<T, E>.Observer>? = Bag()
 
 		let producer = self { observer, disposable in
 			lock.lock()
 			for event in events {
 				observer.put(event)
+			}
+			if let terminationEvent = terminationEvent {
+				observer.put(terminationEvent)
 			}
 
 			let token = observers?.insert(observer)
@@ -137,12 +141,13 @@ public struct SignalProducer<T, E: ErrorType> {
 			// If not disposed…
 			if let liveObservers = observers {
 				if event.isTerminating {
+					terminationEvent = event
 					observers = nil
-				}
-
-				events.append(event)
-				while events.count > capacity {
-					events.removeAtIndex(0)
+				} else {
+					events.append(event)
+					while events.count > capacity {
+						events.removeAtIndex(0)
+					}
 				}
 
 				for observer in liveObservers {
@@ -164,14 +169,12 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// occurred.
 	public static func try(operation: () -> Result<T, E>) -> SignalProducer {
 		return self { observer, disposable in
-			switch operation() {
-			case let .Success(value):
-				sendNext(observer, value.unbox)
+			operation().analysis(ifSuccess: { value in
+				sendNext(observer, value)
 				sendCompleted(observer)
-
-			case let .Failure(error):
-				sendError(observer, error.unbox)
-			}
+			}, ifFailure: { error in
+				sendError(observer, error)
+			})
 		}
 	}
 
@@ -181,7 +184,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(setUp: (Signal<T, E>, Disposable) -> ()) {
+	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ()) {
 		let (signal, observer) = Signal<T, E>.pipe()
 
 		// Create a composite disposable that will automatically be torn
@@ -292,11 +295,11 @@ public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T,
 /// Example:
 ///
 /// 	filteredProducer
-/// 	|> startOn(MainScheduler())
+/// 	|> startOn(UIScheduler())
 /// 	|> start { signal in
 /// 		signal.observe(next: { num in println(num) })
 /// 	}
-public func |> <T, E, X>(producer: SignalProducer<T, E>, transform: SignalProducer<T, E> -> X) -> X {
+public func |> <T, E, X>(producer: SignalProducer<T, E>, @noescape transform: SignalProducer<T, E> -> X) -> X {
 	return transform(producer)
 }
 
@@ -343,10 +346,10 @@ public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = n
 
 				switch receivedEvent {
 				case let .Next(value):
-					next?(value.unbox)
+					next?(value.value)
 
 				case let .Error(err):
-					error?(err.unbox)
+					error?(err.value)
 
 				case .Completed:
 					completed?()
@@ -824,7 +827,7 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 						// may inadvertently send Interrupted to our observer.
 						latestInnerDisposable.innerDisposable = innerDisposable
 
-						innerSignal.observe(SinkOf { event in
+						innerSignal.observe(Signal.Observer { event in
 							switch event {
 							case .Completed:
 								updateState { state in
@@ -939,18 +942,17 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 		let serialDisposable = SerialDisposable()
 		disposable.addDisposable(serialDisposable)
 
-		var remainingTimes = count
-
-		let iterate = fix { recur in
-			{
+		let iterate: Int -> () = fix { recur in
+			{ current in
 				producer.startWithSignal { signal, signalDisposable in
 					serialDisposable.innerDisposable = signalDisposable
 
 					signal.observe(Signal.Observer { event in
 						switch event {
 						case .Completed:
-							if --remainingTimes > 0 {
-								recur()
+							let remainingTimes = current - 1
+							if remainingTimes > 0 {
+								recur(remainingTimes)
 							} else {
 								sendCompleted(observer)
 							}
@@ -963,7 +965,7 @@ public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 			}
 		}
 
-		iterate()
+		iterate(count)
 	}
 }
 
@@ -1024,9 +1026,9 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 				return
 			}
 
-			result = success(value)
+			result = .success(value)
 		}, error: { error in
-			result = failure(error)
+			result = .failure(error)
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
 			dispatch_semaphore_signal(semaphore)
@@ -1046,7 +1048,7 @@ public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 /// Starts the producer, then blocks, waiting for completion.
 public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 	let result = producer |> then(SignalProducer(value: ())) |> last
-	return result ?? success(())
+	return result ?? .success(())
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

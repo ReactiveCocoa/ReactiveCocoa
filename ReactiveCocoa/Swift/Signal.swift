@@ -1,4 +1,4 @@
-import LlamaKit
+import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
 /// of values being sent (`T`) and the type of error that can occur (`E`). If no
@@ -129,7 +129,7 @@ infix operator |> {
 /// 	|> filter { num in num % 2 == 0 }
 /// 	|> map(toString)
 /// 	|> observe(next: { string in println(string) })
-public func |> <T, E, X>(signal: Signal<T, E>, transform: Signal<T, E> -> X) -> X {
+public func |> <T, E, X>(signal: Signal<T, E>, @noescape transform: Signal<T, E> -> X) -> X {
 	return transform(signal)
 }
 
@@ -148,9 +148,9 @@ public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				sendNext(observer, value.unbox)
+				sendNext(observer, value.value)
 			case let .Error(error):
-				sendError(observer, transform(error.unbox))
+				sendError(observer, transform(error.value))
 			case .Completed:
 				sendCompleted(observer)
 			case .Interrupted:
@@ -166,8 +166,8 @@ public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				if predicate(value.unbox) {
-					sendNext(observer, value.unbox)
+				if predicate(value.value) {
+					sendNext(observer, value.value)
 				}
 
 			default:
@@ -201,7 +201,7 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 			case let .Next(value):
 				if taken < count {
 					taken++
-					sendNext(observer, value.unbox)
+					sendNext(observer, value.value)
 				}
 
 				if taken == count {
@@ -215,9 +215,20 @@ public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	}
 }
 
+/// A reference type which wraps an array to avoid copying it for performance and
+/// memory usage optimization.
+private final class CollectState<T> {
+	var values: [T] = []
+
+	func append(value: T) -> Self {
+		values.append(value)
+		return self
+	}
+}
+
 /// Returns a signal that will yield an array of values when `signal` completes.
 public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
-	return signal |> reduce([]) { $0 + [ $1 ] }
+	return signal |> reduce(CollectState()) { $0.append($1) } |> map { $0.values }
 }
 
 /// Forwards all events onto the given scheduler, instead of whichever
@@ -225,7 +236,7 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 public func observeOn<T, E>(scheduler: SchedulerType) -> (Signal<T, E>) -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(SinkOf { event in
+			return signal.observe(Signal.Observer { event in
 				scheduler.schedule {
 					observer.put(event)
 				}
@@ -302,7 +313,7 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 
 	return { signal in
 		return Signal { observer in
-			return signal.observe(SinkOf { event in
+			return signal.observe(Signal.Observer { event in
 				switch event {
 				case .Error, .Interrupted:
 					scheduler.schedule {
@@ -332,7 +343,7 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		var skipped = 0
 
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
 				if skipped >= count {
@@ -354,7 +365,7 @@ public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 /// In other words, this brings Events “into the monad.”
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			sendNext(observer, event)
 
 			if event.isTerminating {
@@ -368,10 +379,10 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(innerEvent):
-				observer.put(innerEvent.unbox)
+				observer.put(innerEvent.value)
 
 			case .Error:
 				fatalError()
@@ -453,7 +464,7 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -
 public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
 		let signalDisposable = signal.observe(observer)
-		let triggerDisposable = trigger.observe(SinkOf { event in
+		let triggerDisposable = trigger.observe(Signal.Observer { event in
 			switch event {
 			case .Next, .Completed:
 				sendCompleted(observer)
@@ -530,11 +541,10 @@ public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) ->
 	return signal
 		|> map { Optional($0) }
 		|> combinePrevious(nil)
-		|> filter {
-			switch $0 {
-			case let (.Some(a), .Some(b)) where isRepeat(a, b):
+		|> filter { (a, b) in
+			if let a = a, b = b where isRepeat(a, b) {
 				return false
-			default:
+			} else {
 				return true
 			}
 		}
@@ -547,10 +557,10 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 	return Signal { observer in
 		var shouldSkip = true
 
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				shouldSkip = shouldSkip && predicate(value.unbox)
+				shouldSkip = shouldSkip && predicate(value.value)
 				if !shouldSkip {
 					fallthrough
 				}
@@ -571,7 +581,7 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// already.
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		let signalDisposable = signal.observe(SinkOf { event in
+		let signalDisposable = signal.observe(Signal.Observer { event in
 			switch event {
 			case .Completed:
 				break
@@ -581,7 +591,7 @@ public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal
 			}
 		})
 
-		let replacementDisposable = replacement.observe(SinkOf { event in
+		let replacementDisposable = replacement.observe(Signal.Observer { event in
 			signalDisposable?.dispose()
 			observer.put(event)
 		})
@@ -623,10 +633,10 @@ public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
 /// at which point the returned signal will complete.
 public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(SinkOf { event in
+		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(value):
-				if predicate(value.unbox) {
+				if predicate(value.value) {
 					fallthrough
 				} else {
 					sendCompleted(observer)
@@ -733,13 +743,11 @@ public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Si
 public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
 	return Signal { observer in
 		signal.observe(next: { value in
-			switch operation(value) {
-			case let .Success(val):
-				sendNext(observer, val.unbox)
-
-			case let .Failure(err):
-				sendError(observer, err.unbox)
-			}
+			operation(value).analysis(ifSuccess: { value in
+				sendNext(observer, value)
+			}, ifFailure: { error in
+				sendError(observer, error)
+			})
 		}, error: { error in
 			sendError(observer, error)
 		}, completed: {
@@ -769,12 +777,12 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			let disposable = CompositeDisposable()
 			disposable.addDisposable(schedulerDisposable)
 
-			let signalDisposable = signal.observe(SinkOf { event in
+			let signalDisposable = signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
 					var scheduleDate: NSDate!
 					state.modify { (var state) in
-						state.pendingValue = value.unbox
+						state.pendingValue = value.value
 
 						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import LlamaKit
+import Result
 
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateSchedulerType {
@@ -46,9 +46,12 @@ extension QueueScheduler {
 }
 
 private func defaultNSError(message: String, #file: String, #line: Int) -> NSError {
-	// lol hax
-	let result: Result<(), NSError> = failure(message, file: file, line: line)
-	return result.error!
+	let error = Result<(), NSError>.error(file: file, line: line)
+
+	var userInfo = error.userInfo
+	userInfo?[NSLocalizedDescriptionKey] = message
+
+	return NSError(domain: error.domain, code: error.code, userInfo: userInfo)
 }
 
 extension RACSignal {
@@ -76,7 +79,7 @@ extension RACSignal {
 
 /// Turns each value into an Optional.
 private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
-	return signal |> map { Optional.Some($0) }
+	return signal |> map { Optional($0) }
 }
 
 /// Creates a RACSignal that will start() the producer once for each

@@ -184,7 +184,7 @@ As an example, an action can be wrapped and bound to `UIControl` like so:
 
 ```swift
 self.cocoaAction = CocoaAction(underlyingAction)
-self.button.addTarget(self.cocoaAction, action: self.cocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
+self.button.addTarget(self.cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
 ```
 
 ### Flattening/merging, concatenating, and switching are now one operator
@@ -256,9 +256,9 @@ signal.observe(next: { value in
 })
 
 // Prints each number
-sink.put(0)
-sink.put(1)
-sink.put(2)
+sendNext(sink, 0)
+sendNext(sink, 1)
+sendNext(sink, 2)
 ```
 
 ### Using SignalProducer.buffer instead of replaying

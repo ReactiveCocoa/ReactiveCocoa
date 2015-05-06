@@ -1057,8 +1057,10 @@ public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ())(produ
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(producer: SignalProducer<T, E>) -> Disposable {
-	return producer.start(sink)
+public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> SignalProducer<T, E> -> Disposable {
+	return { producer in
+		producer.start(sink)
+	}
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.

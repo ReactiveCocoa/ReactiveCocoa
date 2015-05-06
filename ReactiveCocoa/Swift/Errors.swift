@@ -6,16 +6,16 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
+import class Foundation.NSError
 
 /// Represents an error that can be sent upon or received from a signal.
 public protocol ErrorType {
 	/// An NSError corresponding to the receiver.
-	var nsError: NSError { get }
+	var nsError: NSError? { get }
 }
 
 extension NSError: ErrorType {
-	public var nsError: NSError {
+	public var nsError: NSError? {
 		return self
 	}
 }
@@ -26,9 +26,3 @@ extension NSError: ErrorType {
 /// be generated. For example, `Signal<Int, NoError>` describes a signal that
 /// sends integers and is guaranteed never to error out.
 public enum NoError {}
-
-extension NoError: ErrorType {
-	public var nsError: NSError {
-		fatalError("Impossible to construct NoError")
-	}
-}

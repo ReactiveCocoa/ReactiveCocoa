@@ -1008,3 +1008,313 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(s
 public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(signal: Signal<T, E>) -> Disposable? {
 	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 }
+
+/// Describes how multiple signals or producers should be joined together.
+public enum FlattenStrategy: Equatable {
+	/// The signals should be merged, so that any value received on any of the
+	/// input signals will be forwarded immediately to the output signal.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Merge
+
+	/// The signals should be concatenated, so that their values are sent in the
+	/// order of the signals themselves.
+	///
+	/// The resulting signal will complete only when all inputs have completed.
+	case Concat
+
+	/// Only the events from the latest input signal should be considered for
+	/// the output. Any signals received before that point will be disposed of.
+	///
+	/// The resulting signal will complete only when the signal-of-signals and
+	/// the latest signal has completed.
+	case Latest
+}
+
+public func == (lhs: FlattenStrategy, rhs: FlattenStrategy) -> Bool {
+	switch (lhs, rhs) {
+	case (.Merge, .Merge), (.Concat, .Concat), (.Latest, .Latest):
+		return true
+
+	default:
+		return false
+	}
+}
+
+extension FlattenStrategy: Printable {
+	public var description: String {
+		switch self {
+		case .Merge:
+			return "merge"
+
+		case .Concat:
+			return "concatenate"
+
+		case .Latest:
+			return "latest"
+		}
+	}
+}
+
+/// Flattens the inner producers sent upon `signal` (into a single signal of
+/// values), according to the semantics of the given strategy.
+///
+/// If `signal` or an active inner producer emits an error, the returned
+/// producer will forward that error immediately.
+public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	switch strategy {
+	case .Merge:
+		return producer |> merge
+
+	case .Concat:
+		return producer |> concat
+
+	case .Latest:
+		return producer |> switchToLatest
+	}
+}
+
+/// Maps each event from `signal` to a new producer, then flattens the
+/// resulting producers (into a single signal of values), according to the
+/// semantics of the given strategy.
+///
+/// If `signal` or any of the created producers emit an error, the returned
+/// signal will forward that error immediately.
+public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
+	return signal |> map(transform) |> flatten(strategy)
+}
+
+/// Returns a signal which sends all the values from each producer emitted from
+/// `signal`, waiting until each inner signal completes before beginning to
+/// send the values from the next inner signal.
+///
+/// If any of the inner signals emit an error, the returned signal will emit
+/// that error.
+///
+/// The returned signal completes only when `signal` and all signals
+/// emitted from `signal` complete.
+private func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal { observer in
+		let disposable = CompositeDisposable()
+		let state = ConcatState(observer: observer, disposable: disposable)
+
+		signal.observe(next: { producer in
+			state.enqueueSignalProducer(producer)
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			// Add one last producer to the queue, whose sole job is to
+			// "turn out the lights" by completing `observer`.
+			let completion: SignalProducer<T, E> = .empty |> on(completed: {
+				sendCompleted(observer)
+			})
+
+			state.enqueueSignalProducer(completion)
+		}, interrupted: {
+			sendInterrupted(observer)
+		})
+
+		return disposable
+	}
+}
+
+private final class ConcatState<T, E: ErrorType> {
+	/// The observer of a started `concat` producer.
+	let observer: Signal<T, E>.Observer
+
+	/// The top level disposable of a started `concat` producer.
+	let disposable: CompositeDisposable
+
+	/// The active producer, if any, and the producers waiting to be started.
+	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+
+	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+		self.observer = observer
+		self.disposable = disposable
+	}
+
+	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		var shouldStart = true
+
+		queuedSignalProducers.modify { (var queue) in
+			// An empty queue means the concat is idle, ready & waiting to start
+			// the next producer.
+			shouldStart = queue.isEmpty
+			queue.append(producer)
+			return queue
+		}
+
+		if shouldStart {
+			startNextSignalProducer(producer)
+		}
+	}
+
+	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		var nextSignalProducer: SignalProducer<T, E>?
+
+		queuedSignalProducers.modify { (var queue) in
+			// Active producers remain in the queue until completed. Since
+			// dequeueing happens at completion of the active producer, the
+			// first producer in the queue can be removed.
+			queue.removeAtIndex(0)
+			nextSignalProducer = queue.first
+			return queue
+		}
+
+		return nextSignalProducer
+	}
+
+	/// Subscribes to the given signal producer.
+	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+		signalProducer.startWithSignal { signal, disposable in
+			self.disposable.addDisposable(disposable)
+
+			signal.observe(Signal.Observer { event in
+				switch event {
+				case .Completed:
+					if let nextSignalProducer = self.dequeueSignalProducer() {
+						self.startNextSignalProducer(nextSignalProducer)
+					}
+
+				default:
+					self.observer.put(event)
+				}
+			})
+		}
+	}
+}
+
+/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producers
+/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
+private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal<T, E> { relayObserver in
+		let inFlight = Atomic(1)
+		let decrementInFlight: () -> () = {
+			let orig = inFlight.modify { $0 - 1 }
+			if orig == 1 {
+				sendCompleted(relayObserver)
+			}
+		}
+
+		let disposable = CompositeDisposable()
+		signal.observe(next: { producer in
+			producer.startWithSignal { innerSignal, innerDisposable in
+				inFlight.modify { $0 + 1 }
+
+				let handle = disposable.addDisposable(innerDisposable)
+
+				innerSignal.observe(Signal<T,E>.Observer { event in
+					if event.isTerminating {
+						handle.remove()
+					}
+
+					switch event {
+					case .Completed:
+						decrementInFlight()
+
+					default:
+						relayObserver.put(event)
+					}
+				})
+			}
+		}, error: { error in
+			sendError(relayObserver, error)
+		}, completed: {
+			decrementInFlight()
+		}, interrupted: {
+			sendInterrupted(relayObserver)
+		})
+
+		return disposable
+	}
+}
+
+/// Returns a signal that forwards values from the latest producer sent on
+/// `signal`, ignoring values sent on previous inner producers.
+///
+/// An error sent on `signal` or the latest inner producer will be sent on the
+/// returned signal.
+///
+/// The returned signal completes when `signal` and the latest inner
+/// producer have both completed.
+private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
+	return Signal<T, E> { sink in
+		let disposable = CompositeDisposable()
+		let latestInnerDisposable = SerialDisposable()
+		disposable.addDisposable(latestInnerDisposable)
+
+		let state = Atomic(LatestState<T, E>(outerSignalComplete: false, latestIncompleteSignal: nil))
+		let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
+			state.modify(action)
+			if state.value.isComplete {
+				sendCompleted(sink)
+			}
+		}
+
+		signal.observe(next: { innerProducer in
+			innerProducer.startWithSignal { innerSignal, innerDisposable in
+				state.modify { state in
+					return state.isComplete
+						? state
+						: LatestState(
+							outerSignalComplete: state.outerSignalComplete,
+							latestIncompleteSignal: innerSignal)
+				}
+
+				// Don't dispose of the previous signal until we've
+				// registered this new signal as the latest, or else we
+				// may inadvertently send Interrupted to our observer.
+				latestInnerDisposable.innerDisposable = innerDisposable
+
+				innerSignal.observe(Signal.Observer { event in
+					switch event {
+					case .Completed:
+						updateState { state in
+							return state.isLatestIncompleteSignal(innerSignal)
+								? LatestState(
+									outerSignalComplete: state.outerSignalComplete,
+									latestIncompleteSignal: nil)
+								: state
+						}
+
+					default:
+						state.withValue { value -> () in
+							if value.isLatestIncompleteSignal(innerSignal) {
+								sink.put(event)
+							}
+						}
+					}
+				})
+			}
+		}, error: { error in
+			sendError(sink, error)
+		}, completed: {
+			updateState { state in
+				LatestState(
+					outerSignalComplete: true,
+					latestIncompleteSignal: state.latestIncompleteSignal)
+			}
+		}, interrupted: {
+			sendInterrupted(sink)
+		})
+
+		return disposable
+	}
+}
+
+private struct LatestState<T, E: ErrorType> {
+	let outerSignalComplete: Bool
+	let latestIncompleteSignal: Signal<T, E>?
+
+	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
+		if let latestIncompleteSignal = latestIncompleteSignal {
+			return latestIncompleteSignal === signal
+		} else {
+			return false
+		}
+	}
+
+	var isComplete: Bool {
+		return outerSignalComplete && latestIncompleteSignal == nil
+	}
+}

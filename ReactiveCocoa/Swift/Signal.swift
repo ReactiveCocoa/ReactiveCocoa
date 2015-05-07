@@ -900,10 +900,11 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Erro
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<T, Error>(signals: [Signal<T, Error>]) -> Signal<[T], Error> {
-	if let first = signals.first {
+public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
+	var generator = signals.generate()
+	if let first = generator.next() {
 		let initial = first |> map { [$0] }
-		return signals[1 ..< signals.count].reduce(initial) { $0 |> combineLatestWith($1) }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> combineLatestWith($1) }
 	}
 	
 	return Signal.never
@@ -982,9 +983,10 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<T, Error>(signals: [Signal<T, Error>]) -> Signal<[T], Error> {
-	if let first = signals.first {
+	var generator = signals.generate()
+	if let first = generator.next() {
 		let initial = first |> map { [$0] }
-		return signals[1 ..< signals.count].reduce(initial) { $0 |> zipWith($1) }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> zipWith($1) }
 	}
 	
 	return Signal.never

@@ -1021,6 +1021,73 @@ class SignalProducerSpec: QuickSpec {
 					expect(completed).to(beTruthy())
 				}
 			}
+
+			describe("interruption") {
+				var interruptOuter: (Void -> Void)!
+				var interruptInner: (Void -> Void)!
+				var execute: (FlattenStrategy -> Void)!
+
+				var interrupted = false
+
+				beforeEach {
+					let (innerProducer, innerSink) = SignalProducer<(), NoError>.buffer()
+					let (outerProducer, outerSink) = SignalProducer<SignalProducer<(), NoError>, NoError>.buffer()
+
+					interruptOuter = { sendInterrupted(outerSink) }
+					interruptInner = { sendInterrupted(innerSink) }
+
+					execute = { strategy in
+						interrupted = false
+						(outerProducer |> flatten(strategy)).start(interrupted: { _ in
+							interrupted = true
+						})
+					}
+
+					sendNext(outerSink, innerProducer)
+				}
+
+				describe("Concat") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Concat)
+						interruptInner()
+						expect(interrupted).to(beFalsy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Concat)
+						interruptOuter()
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Latest") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Latest)
+						interruptInner()
+						expect(interrupted).to(beFalsy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Latest)
+						interruptOuter()
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Merge") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Merge)
+						interruptInner()
+						expect(interrupted).to(beFalsy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Merge)
+						interruptOuter()
+						expect(interrupted).to(beTruthy())
+					}
+				}
+			}
 		}
 
 		describe("times") {

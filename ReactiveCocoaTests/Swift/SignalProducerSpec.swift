@@ -1021,6 +1021,95 @@ class SignalProducerSpec: QuickSpec {
 					expect(completed).to(beTruthy())
 				}
 			}
+
+			describe("interruption") {
+				var innerSink: Signal<(), NoError>.Observer!
+				var outerSink: Signal<SignalProducer<(), NoError>, NoError>.Observer!
+				var execute: (FlattenStrategy -> Void)!
+
+				var interrupted = false
+				var completed = false
+
+				beforeEach {
+					let (innerProducer, innerObserver) = SignalProducer<(), NoError>.buffer()
+					let (outerProducer, outerObserver) = SignalProducer<SignalProducer<(), NoError>, NoError>.buffer()
+
+					innerSink = innerObserver
+					outerSink = outerObserver
+
+					execute = { strategy in
+						interrupted = false
+						completed = false
+
+						outerProducer
+							|> flatten(strategy)
+							|> start(interrupted: { _ in
+								interrupted = true
+							}, completed: { _ in
+								completed = true
+							})
+					}
+
+					sendNext(outerSink, innerProducer)
+				}
+
+				describe("Concat") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Concat)
+
+						sendInterrupted(innerSink)
+						expect(interrupted).to(beFalsy())
+						expect(completed).to(beFalsy())
+
+						sendCompleted(outerSink)
+						expect(completed).to(beTruthy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Concat)
+						sendInterrupted(outerSink)
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Latest") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Latest)
+
+						sendInterrupted(innerSink)
+						expect(interrupted).to(beFalsy())
+						expect(completed).to(beFalsy())
+
+						sendCompleted(outerSink)
+						expect(completed).to(beTruthy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Latest)
+						sendInterrupted(outerSink)
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Merge") {
+					it("should drop interrupted from an inner producer") {
+						execute(.Merge)
+
+						sendInterrupted(innerSink)
+						expect(interrupted).to(beFalsy())
+						expect(completed).to(beFalsy())
+
+						sendCompleted(outerSink)
+						expect(completed).to(beTruthy())
+					}
+
+					it("should forward interrupted from the outer producer") {
+						execute(.Merge)
+						sendInterrupted(outerSink)
+						expect(interrupted).to(beTruthy())
+					}
+				}
+			}
 		}
 
 		describe("times") {

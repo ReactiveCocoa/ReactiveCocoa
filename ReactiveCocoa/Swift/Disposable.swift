@@ -56,7 +56,7 @@ public final class CompositeDisposable: Disposable {
 
 	/// Represents a handle to a disposable previously added to a
 	/// CompositeDisposable.
-	public class DisposableHandle {
+	public final class DisposableHandle {
 		private let bagToken: Atomic<RemovalToken?>
 		private weak var disposable: CompositeDisposable?
 

@@ -247,7 +247,7 @@ public func observeOn<T, E>(scheduler: SchedulerType) -> (Signal<T, E>) -> Signa
 	}
 }
 
-private class CombineLatestState<T> {
+private final class CombineLatestState<T> {
 	var latestValue: T?
 	var completed = false
 }

@@ -263,7 +263,13 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 	}, interrupted: onInterrupted)
 }
 
-private func combineLatestWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
+/// Combines the latest value of the receiver with the latest value from
+/// the given signal.
+///
+/// The returned signal will not send a value until both inputs have sent
+/// at least one value each. If either signal is interrupted, the returned signal
+/// will also be interrupted.
+public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
 		let lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
@@ -272,7 +278,7 @@ private func combineLatestWith<T, U, V, E>(otherSignal: Signal<U, E>, transform:
 		let otherState = CombineLatestState<U>()
 		
 		let onBothNext = { () -> () in
-			sendNext(observer, transform(signalState.latestValue!, otherState.latestValue!))
+			sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 		}
 		
 		let onError = { sendError(observer, $0) }
@@ -286,18 +292,8 @@ private func combineLatestWith<T, U, V, E>(otherSignal: Signal<U, E>, transform:
 	}
 }
 
-/// Combines the latest value of the receiver with the latest value from
-/// the given signal.
-///
-/// The returned signal will not send a value until both inputs have sent
-/// at least one value each. If either signal is interrupted, the returned signal
-/// will also be interrupted.
-public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return signal |> combineLatestWith(otherSignal) { ($0, $1) }
-}
-
 public func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
-	return signal |> combineLatestWith(otherSignal) { $0 + [$1] }
+	return signal |> combineLatestWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 
 /// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -654,82 +650,78 @@ private struct ZipState<T> {
 	}
 }
 
-private func zipWith<T, U, V, E>(otherSignal: Signal<U, E>, transform: ((T, U) -> V))(signal: Signal<T, E>) -> Signal<V, E> {
+/// Zips elements of two signals into pairs. The elements of any Nth pair
+/// are the Nth elements of the two input signals.
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
 	return Signal { observer in
 		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
-
+		
 		let flush = { () -> () in
 			var originalStates: (ZipState<T>, ZipState<U>)!
 			states.modify { states in
 				originalStates = states
-
+				
 				var updatedStates = states
 				let extractCount = min(states.0.values.count, states.1.values.count)
-
+				
 				removeRange(&updatedStates.0.values, 0 ..< extractCount)
 				removeRange(&updatedStates.1.values, 0 ..< extractCount)
 				return updatedStates
 			}
-
+			
 			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
 				let left = originalStates.0.values.removeAtIndex(0)
 				let right = originalStates.1.values.removeAtIndex(0)
-				sendNext(observer, transform(left, right))
+				sendNext(observer, (left, right))
 			}
-
+			
 			if originalStates.0.isFinished || originalStates.1.isFinished {
 				sendCompleted(observer)
 			}
 		}
-
+		
 		let onError = { sendError(observer, $0) }
 		let onInterrupted = { sendInterrupted(observer) }
-
+		
 		let signalDisposable = signal.observe(next: { value in
 			states.modify { (var states) in
 				states.0.values.append(value)
 				return states
 			}
-
+			
 			flush()
-		}, error: onError, completed: {
-			states.modify { (var states) in
-				states.0.completed = true
-				return states
-			}
-
-			flush()
-		}, interrupted: onInterrupted)
-
+			}, error: onError, completed: {
+				states.modify { (var states) in
+					states.0.completed = true
+					return states
+				}
+				
+				flush()
+			}, interrupted: onInterrupted)
+		
 		let otherDisposable = otherSignal.observe(next: { value in
 			states.modify { (var states) in
 				states.1.values.append(value)
 				return states
 			}
-
+			
 			flush()
-		}, error: onError, completed: {
-			states.modify { (var states) in
-				states.1.completed = true
-				return states
-			}
-
-			flush()
-		}, interrupted: onInterrupted)
-
+			}, error: onError, completed: {
+				states.modify { (var states) in
+					states.1.completed = true
+					return states
+				}
+				
+				flush()
+			}, interrupted: onInterrupted)
+		
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
-/// Zips elements of two signals into pairs. The elements of any Nth pair
-/// are the Nth elements of the two input signals.
-public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return signal |> zipWith(otherSignal) { ($0, $1) }
-}
-
 public func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
-	return signal |> zipWith(otherSignal) { $0 + [$1] }
+	return signal |> zipWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results

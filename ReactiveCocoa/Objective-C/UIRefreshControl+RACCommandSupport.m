@@ -46,7 +46,8 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 					return [RACSignal return:x];
 				}];
 		}]
-		concat] deliverOnMainThread]
+		concat]
+		deliverOnMainThread]
 		subscribeNext:^(UIRefreshControl *x) {
 			[x endRefreshing];
 		}];

@@ -1060,8 +1060,10 @@ extension FlattenStrategy: Printable {
 /// values), according to the semantics of the given strategy.
 ///
 /// If `signal` or an active inner producer emits an error, the returned
-/// producer will forward that error immediately. `Interrupted` events on inner
-/// producers will be silently dropped.
+/// producer will forward that error immediately.
+///
+/// `Interrupted` events on inner producers will be treated like `Completed`
+/// events on inner producers.
 public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
 	switch strategy {
 	case .Merge:
@@ -1172,14 +1174,10 @@ private final class ConcatState<T, E: ErrorType> {
 
 			signal.observe(Signal.Observer { event in
 				switch event {
-				case .Completed:
+				case .Completed, .Interrupted:
 					if let nextSignalProducer = self.dequeueSignalProducer() {
 						self.startNextSignalProducer(nextSignalProducer)
 					}
-
-				// Explicitly drop interruped events from inner signals
-				case .Interrupted:
-					break
 
 				default:
 					self.observer.put(event)
@@ -1214,13 +1212,9 @@ private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E
 					}
 
 					switch event {
-					case .Completed:
+					case .Completed, .Interrupted:
 						decrementInFlight()
 
-					// Explicitly drop interruped events from inner signals
-					case .Interrupted:
-						break
-						
 					default:
 						relayObserver.put(event)
 					}
@@ -1277,7 +1271,7 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 
 				innerSignal.observe(Signal.Observer { event in
 					switch event {
-					case .Completed:
+					case .Completed, .Interrupted:
 						updateState { state in
 							return state.isLatestIncompleteSignal(innerSignal)
 								? LatestState(
@@ -1285,10 +1279,6 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 									latestIncompleteSignal: nil)
 								: state
 						}
-
-					// Explicitly drop interruped events from inner signals
-					case .Interrupted:
-						break
 
 					default:
 						state.withValue { value -> () in

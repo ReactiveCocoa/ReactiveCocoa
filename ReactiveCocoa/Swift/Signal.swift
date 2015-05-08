@@ -691,14 +691,14 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			}
 			
 			flush()
-			}, error: onError, completed: {
+		}, error: onError, completed: {
 				states.modify { (var states) in
 					states.0.completed = true
 					return states
 				}
 				
 				flush()
-			}, interrupted: onInterrupted)
+		}, interrupted: onInterrupted)
 		
 		let otherDisposable = otherSignal.observe(next: { value in
 			states.modify { (var states) in
@@ -707,14 +707,14 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			}
 			
 			flush()
-			}, error: onError, completed: {
+		}, error: onError, completed: {
 				states.modify { (var states) in
 					states.1.completed = true
 					return states
 				}
 				
 				flush()
-			}, interrupted: onInterrupted)
+		}, interrupted: onInterrupted)
 		
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}

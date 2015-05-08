@@ -974,7 +974,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<T, Error>(signals: [Signal<T, Error>]) -> Signal<[T], Error> {
+public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
 	var generator = signals.generate()
 	if let first = generator.next() {
 		let initial = first |> map { [$0] }

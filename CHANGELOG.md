@@ -219,6 +219,8 @@ class Foo{
     func init(){
         myViewController = MyViewController()
 
+        // assume the view for myViewController has loaded by this point.
+
         myViewController.onClick.values.observe(next: {value in
             println("The button that was pressed \(value)")
         })

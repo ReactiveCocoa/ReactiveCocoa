@@ -483,13 +483,12 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer
 }
 
 /// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<T, Error>(signalProducers: [SignalProducer<T, Error>]) -> SignalProducer<[T], Error> {
-	if let first = signalProducers.first {
-		let initial = first.lift { signal in
-			return signal |> map { [$0] }
-		}
-		return signalProducers[1 ..< signalProducers.count].reduce(initial) { $0 |> combineLatestWith($1) }
+/// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
+public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(signalProducers: S) -> SignalProducer<[T], Error> {
+	var generator = signalProducers.generate()
+	if let first = generator.next() {
+		let initial = first |> map { [$0] }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> combineLatestWith($1) }
 	}
 	
 	return SignalProducer.empty
@@ -566,13 +565,12 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>
 }
 
 /// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<T, Error>(signalProducers: [SignalProducer<T, Error>]) -> SignalProducer<[T], Error> {
-	if let first = signalProducers.first {
-		let initial = first.lift { signal in
-			return signal |> map { [$0] }
-		}
-		return signalProducers[1 ..< signalProducers.count].reduce(initial) { $0 |> zipWith($1) }
+/// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
+public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(signalProducers: S) -> SignalProducer<[T], Error> {
+	var generator = signalProducers.generate()
+	if let first = generator.next() {
+		let initial = first |> map { [$0] }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> zipWith($1) }
 	}
 	
 	return SignalProducer.empty

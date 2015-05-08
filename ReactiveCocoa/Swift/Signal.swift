@@ -292,7 +292,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 	}
 }
 
-private func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+internal func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
 	return signal |> combineLatestWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 
@@ -720,7 +720,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 	}
 }
 
-private func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+internal func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
 	return signal |> zipWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 

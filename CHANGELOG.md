@@ -187,6 +187,45 @@ self.cocoaAction = CocoaAction(underlyingAction)
 self.button.addTarget(self.cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
 ```
 
+An example using an `NSControl`:
+```swift
+
+class MyViewController: NSViewController{
+    @IBOutlet weak var myButton: NSButton!
+
+    // takes an NSButton (Input) and emits and NSButton (Output)
+    var onClick: Action<NSButton, NSButton, NoError>!
+    var clickCocoaAction: CocoaAction!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        onClick = Action { value in SignalProducer(value: value)}
+
+        // Initializes a Cocoa action that will invoke the given Action,
+        // onClick above, by always providing the given input: myButton
+        clickCocoaAction = CocoaAction(onClick, input: myButton)
+
+        myButton.target = clickCocoaAction
+        myButton.action = CocoaAction.selector
+    }
+}
+
+// now anyone can subscribe to this button, for example:
+class Foo{
+
+    myViewController: MyViewController!
+
+    func init(){
+        myViewController = MyViewController()
+
+        myViewController.onClick.values.observe(next: {value in
+            println("The button that was pressed \(value)")
+        })
+    }
+}
+```
+
 ### Flattening/merging, concatenating, and switching are now one operator
 
 RAC 2 offers several operators for transforming a signal-of-signals into one

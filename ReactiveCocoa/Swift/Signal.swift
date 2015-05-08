@@ -891,7 +891,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Erro
 }
 
 /// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
+/// `combineLatestWith`. No events will be sent if the sequence is empty.
 public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
 	var generator = signals.generate()
 	if let first = generator.next() {
@@ -973,7 +973,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 }
 
 /// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
+/// `zipWith`. No events will be sent if the sequence is empty.
 public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
 	var generator = signals.generate()
 	if let first = generator.next() {

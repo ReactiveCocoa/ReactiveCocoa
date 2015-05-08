@@ -232,6 +232,54 @@ bound to. If changes to that property should be visible to consumers, it can
 additionally be wrapped in `PropertyOf` (to hide the mutable bits) and exposed
 publicly.
 
+**Using Mutable Properties**
+
+```swift
+
+import ReactiveCocoa
+
+class Foo{
+    var label: MutableProperty<String?>
+
+    func init(){
+        label = MutableProperty(nil)
+    }
+}
+
+
+class SomeViewController{
+    var myFoo: Foo!
+
+    func myInitialization(){
+
+        myFoo = Foo()
+        myFoo.label.value = "ReactiveCocoa"
+
+        // we don't care about the initial value, so we will skip it
+        // we only care about changed values after the 1st value.
+        let mapped = myFoo.label.producer
+            |> skip(1)
+
+        // now lets get notified:
+        mapped.start(next: { value in
+            println("The new value is: \(value)")
+        })
+
+        changeLabelLaterTo("More ReactiveCocoa")
+    }
+
+    func changeLabelLaterTo(value: String){
+        // fake a change:
+        let delay = Int64(1 * Double(NSEC_PER_SEC))
+        let delayTime = dispatch_time(DISPATCH_TIME_NOW, delay)
+        dispatch_after(delayTime, dispatch_get_main_queue()) {
+            self.myFoo.label.value = value
+        }
+    }
+}
+
+```
+
 **If KVC or KVO is required by a specific API**—for example, to observe changes
 to `NSOperation.executing`—RAC 3 offers a `DynamicProperty` type that can wrap
 those key paths. Use this class with caution, though, as it can’t offer any type

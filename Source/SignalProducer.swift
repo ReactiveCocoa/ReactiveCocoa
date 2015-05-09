@@ -12,33 +12,40 @@ import ReactiveCocoa
 /// from `grouping`. Termination events on the original signal are
 /// also forwarded to each producer group.
 public func groupBy<K: Hashable, T, E>(grouping: T -> K)(producer: SignalProducer<T, E>) -> SignalProducer<(K, SignalProducer<T, E>), E> {
+
     return SignalProducer { observer, disposable in
-        var groups: Dictionary<K, Signal<T, E>.Observer> = [:]
+        var groups: [K: Signal<T, E>.Observer] = [:]
+
+        let lock = NSRecursiveLock()
+        lock.name = "me.neilpa.rex.groupBy"
 
         producer.start(next: { value in
             let key = grouping(value)
-            var group = groups[key]
 
+            lock.lock()
+            var group = groups[key]
             if group == nil {
                 let (producer, sink) = SignalProducer<T, E>.buffer()
+                sendNext(observer, (key, producer))
+
                 groups[key] = sink
                 group = sink
-
-                sendNext(observer, (key, producer))
             }
+            lock.unlock()
+
             sendNext(group!, value)
 
-            }, error: { error in
-                sendError(observer, error)
-                groups.values.map { sendError($0, error) }
+        }, error: { error in
+            sendError(observer, error)
+            groups.values.map { sendError($0, error) }
 
-            }, completed: { _ in
-                sendCompleted(observer)
-                groups.values.map { sendCompleted($0) }
+        }, completed: { _ in
+            sendCompleted(observer)
+            groups.values.map { sendCompleted($0) }
 
-            }, interrupted: { _ in
-                groups.values.map { sendInterrupted($0) }
-                sendInterrupted(observer)
+        }, interrupted: { _ in
+            sendInterrupted(observer)
+            groups.values.map { sendInterrupted($0) }
         })
     }
 }

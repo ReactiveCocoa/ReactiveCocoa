@@ -17,6 +17,7 @@
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB71AFEC6F400D7D3C5 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB61AFEC6F400D7D3C5 /* Atomic.swift */; };
+		D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003EAE1AFEC68A00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D8003EB61AFEC6F400D7D3C5 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
+		D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				D8003EB61AFEC6F400D7D3C5 /* Atomic.swift */,
+				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				D8003E911AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Source;
@@ -261,6 +264,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8003EB71AFEC6F400D7D3C5 /* Atomic.swift in Sources */,
+				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,7 +374,7 @@
 		D8003EA51AFEC3D400D7D3C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -394,7 +398,7 @@
 		D8003EA61AFEC3D400D7D3C5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;

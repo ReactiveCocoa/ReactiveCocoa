@@ -10,6 +10,12 @@
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003E9A1AFEC3D400D7D3C5 /* Rex.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003E8E1AFEC3D400D7D3C5 /* Rex.framework */; };
 		D8003EA11AFEC3D400D7D3C5 /* RexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EA01AFEC3D400D7D3C5 /* RexTests.swift */; };
+		D8003EAF1AFEC68A00D7D3C5 /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
+		D8003EB01AFEC68A00D7D3C5 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
+		D8003EB11AFEC68A00D7D3C5 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
+		D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -22,6 +28,21 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D8003EB21AFEC6A800D7D3C5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */,
+				D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */,
+				D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		D8003E8E1AFEC3D400D7D3C5 /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -29,6 +50,9 @@
 		D8003E991AFEC3D400D7D3C5 /* RexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003EA01AFEC3D400D7D3C5 /* RexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexTests.swift; sourceTree = "<group>"; };
+		D8003EAC1AFEC68A00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
+		D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
+		D8003EAE1AFEC68A00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8003EB11AFEC68A00D7D3C5 /* Result.framework in Frameworks */,
+				D8003EAF1AFEC68A00D7D3C5 /* Box.framework in Frameworks */,
+				D8003EB01AFEC68A00D7D3C5 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +83,7 @@
 				D8003E901AFEC3D400D7D3C5 /* Source */,
 				D8003E9D1AFEC3D400D7D3C5 /* Tests */,
 				D8003E8F1AFEC3D400D7D3C5 /* Products */,
+				D8003EAA1AFEC57200D7D3C5 /* External */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,6 +130,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D8003EAA1AFEC57200D7D3C5 /* External */ = {
+			isa = PBXGroup;
+			children = (
+				D8003EAB1AFEC67700D7D3C5 /* Mac */,
+			);
+			name = External;
+			path = Carthage/Build;
+			sourceTree = "<group>";
+		};
+		D8003EAB1AFEC67700D7D3C5 /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				D8003EAC1AFEC68A00D7D3C5 /* Box.framework */,
+				D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */,
+				D8003EAE1AFEC68A00D7D3C5 /* Result.framework */,
+			);
+			path = Mac;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -141,6 +188,7 @@
 				D8003E951AFEC3D400D7D3C5 /* Sources */,
 				D8003E961AFEC3D400D7D3C5 /* Frameworks */,
 				D8003E971AFEC3D400D7D3C5 /* Resources */,
+				D8003EB21AFEC6A800D7D3C5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -318,11 +366,16 @@
 		D8003EA51AFEC3D400D7D3C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = Source/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -335,11 +388,16 @@
 		D8003EA61AFEC3D400D7D3C5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = Source/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -400,6 +458,7 @@
 				D8003EA61AFEC3D400D7D3C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8003EA71AFEC3D400D7D3C5 /* Build configuration list for PBXNativeTarget "RexTests" */ = {
 			isa = XCConfigurationList;
@@ -408,6 +467,7 @@
 				D8003EA91AFEC3D400D7D3C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

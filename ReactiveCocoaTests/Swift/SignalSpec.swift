@@ -1582,7 +1582,7 @@ class SignalSpec: QuickSpec {
 				sinkC = baseSinkC
 			}
 			
-			sharedExamples("combineLatest example") {
+			sharedExamples("combineLatest examples") {
 				it("should forward the latest values from all inputs"){
 					expect(combinedValues).to(beNil())
 					
@@ -1630,7 +1630,7 @@ class SignalSpec: QuickSpec {
 						})
 				}
 				
-				itBehavesLike("combineLatest example")
+				itBehavesLike("combineLatest examples")
 			}
 			
 			describe("sequence") {
@@ -1643,7 +1643,7 @@ class SignalSpec: QuickSpec {
 						})
 				}
 				
-				itBehavesLike("combineLatest example")
+				itBehavesLike("combineLatest examples")
 			}
 		}
 		

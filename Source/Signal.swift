@@ -26,7 +26,7 @@ public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Sign
     }
 }
 
-/// Returns a signal that drops any errors
+/// Returns signal that drops any errors
 public func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError> {
     return Signal { observer in
         return signal.observe(Signal.Observer { event in

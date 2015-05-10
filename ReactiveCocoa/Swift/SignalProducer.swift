@@ -601,16 +601,6 @@ public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalP
 	}
 }
 
-/// Maps each event from `producer` to a new producer, then flattens the
-/// resulting producers (into a single producer of values), according to the
-/// semantics of the given strategy.
-///
-/// If `producer` or any of the created producers emit an error, the returned
-/// producer will forward that error immediately.
-public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	return producer |> map(transform) |> flatten(strategy)
-}
-
 /// Create a fix point to enable recursive calling of a closure.
 private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
 	return { f(fix(f))($0) }

@@ -26,15 +26,18 @@ public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Sign
     }
 }
 
-/// Returns signal that drops any errors
-public func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError> {
+/// Returns a signal that drops any error events. A `replacement` terminal event
+/// can be provided, the default value is `Completed`.
+public func ignoreError<T, E>(replacement: Event<T, NoError> = .Completed)(signal: Signal<T, E>) -> Signal<T, NoError> {
+    precondition(replacement.isTerminating)
+
     return Signal { observer in
         return signal.observe(Signal.Observer { event in
             switch event {
             case let .Next(value):
                 sendNext(observer, value.value)
-            case let .Error(error):
-                sendCompleted(observer)
+            case .Error:
+                observer.put(replacement)
             case .Completed:
                 sendCompleted(observer)
             case .Interrupted:

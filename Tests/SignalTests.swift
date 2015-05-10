@@ -34,4 +34,39 @@ final class SignalTests: XCTestCase {
         sendNext(sink, 6)
         XCTAssert(values == ["2", "6"])
     }
+
+    func testIgnoreErrorCompletion() {
+        let (signal, sink) = Signal<Int, NSError>.pipe()
+        var completed = false
+
+        signal
+            |> ignoreError
+            |> observe(completed: {
+                completed = true
+            })
+
+        sendNext(sink, 1)
+        XCTAssertFalse(completed)
+
+        sendError(sink, NSError())
+        XCTAssertTrue(completed)
+    }
+
+    func testIgnoreErrorInterruption() {
+        let (signal, sink) = Signal<Int, NSError>.pipe()
+        var interrupted = false
+
+        signal
+            |> ignoreError(replacement: .Interrupted)
+            |> observe(interrupted: {
+                interrupted = true
+            })
+
+        sendNext(sink, 1)
+        XCTAssertFalse(interrupted)
+
+        sendError(sink, NSError())
+        XCTAssertTrue(interrupted)
+    }
+    
 }

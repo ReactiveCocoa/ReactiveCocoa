@@ -1,4 +1,4 @@
-## Rex
+# Rex
 Additional operators for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
 
 ## Signal
@@ -9,6 +9,14 @@ Applies `transform` to values from `signal` with non-nil results unwrapped and f
 
 ```swift
 func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Signal<U, E>
+```
+
+##### `ignoreError`
+Wraps a `signal` in a version that drops `Error` events. By default errors are replaced with a `Completed` event but `Interrupted` can also be specified as `replacement`.
+
+```swift
+func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError>
+func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T, E>) -> Signal<T, NoError>
 ```
 
 ## SignalProducer

@@ -25,3 +25,21 @@ public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Sign
         })
     }
 }
+
+/// Returns a signal that drops any errors
+public func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError> {
+    return Signal { observer in
+        return signal.observe(Signal.Observer { event in
+            switch event {
+            case let .Next(value):
+                sendNext(observer, value.value)
+            case let .Error(error):
+                break
+            case .Completed:
+                sendCompleted(observer)
+            case .Interrupted:
+                sendInterrupted(observer)
+            }
+        })
+    }
+}

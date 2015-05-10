@@ -8,6 +8,8 @@
 
 import ReactiveCocoa
 
+/// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
+/// forwared on the returned signal.
 public func filterMap<T, U, E>(transform: T -> U?)(signal: Signal<T, E>) -> Signal<U, E> {
     return Signal { observer in
         signal.observe(next: { value in

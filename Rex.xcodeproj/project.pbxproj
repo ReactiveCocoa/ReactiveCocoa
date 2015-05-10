@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003E9A1AFEC3D400D7D3C5 /* Rex.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003E8E1AFEC3D400D7D3C5 /* Rex.framework */; };
-		D8003EA11AFEC3D400D7D3C5 /* RexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EA01AFEC3D400D7D3C5 /* RexTests.swift */; };
 		D8003EAF1AFEC68A00D7D3C5 /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
 		D8003EB01AFEC68A00D7D3C5 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
 		D8003EB11AFEC68A00D7D3C5 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
@@ -18,6 +17,11 @@
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 		D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
+		D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
+		D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
+		D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
+		D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
+		D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,12 +55,13 @@
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E991AFEC3D400D7D3C5 /* RexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D8003EA01AFEC3D400D7D3C5 /* RexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexTests.swift; sourceTree = "<group>"; };
 		D8003EAC1AFEC68A00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
 		D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003EAE1AFEC68A00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducer.swift; sourceTree = "<group>"; };
 		D8003EBC1AFED01000D7D3C5 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
+		D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
+		D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +79,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */,
+				D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */,
+				D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */,
 				D8003E9A1AFEC3D400D7D3C5 /* Rex.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -122,7 +130,8 @@
 		D8003E9D1AFEC3D400D7D3C5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				D8003EA01AFEC3D400D7D3C5 /* RexTests.swift */,
+				D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */,
+				D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */,
 				D8003E9E1AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Tests;
@@ -272,7 +281,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8003EA11AFEC3D400D7D3C5 /* RexTests.swift in Sources */,
+				D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */,
+				D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +435,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -443,6 +454,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";

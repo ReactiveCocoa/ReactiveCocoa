@@ -55,14 +55,14 @@ public func printAll<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E>
     return signal
         |> on(started: {
             println("started")
-            }, error: {
-                println("error: \($0)")
-            }, completed: {
-                println("completed")
-            }, interrupted: {
-                println("interrupted")
-            }, next: {
-                println("next \($0)")
+        }, error: {
+            println("error: \($0)")
+        }, completed: {
+            println("completed")
+        }, interrupted: {
+            println("interrupted")
+        }, next: {
+            println("next \($0)")
         })
 }
 

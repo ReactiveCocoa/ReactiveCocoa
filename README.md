@@ -1,5 +1,5 @@
 ## Rex
-Additional operators for ReactiveCocoa
+Additional operators for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
 
 ## Signal
 All `Signal` operators can also be lifted to`SignalProducer`.

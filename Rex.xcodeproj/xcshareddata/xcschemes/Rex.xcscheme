@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D8003E8D1AFEC3D400D7D3C5"
                BuildableName = "Rex.framework"
-               BlueprintName = "Rex"
+               BlueprintName = "Rex-Mac"
                ReferencedContainer = "container:Rex.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,8 +29,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D8003E981AFEC3D400D7D3C5"
-               BuildableName = "RexTests.xctest"
-               BlueprintName = "RexTests"
+               BuildableName = "RexTests-Mac.xctest"
+               BlueprintName = "RexTests-Mac"
                ReferencedContainer = "container:Rex.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D8003E981AFEC3D400D7D3C5"
-               BuildableName = "RexTests.xctest"
-               BlueprintName = "RexTests"
+               BuildableName = "RexTests-Mac.xctest"
+               BlueprintName = "RexTests-Mac"
                ReferencedContainer = "container:Rex.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -58,7 +58,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D8003E8D1AFEC3D400D7D3C5"
             BuildableName = "Rex.framework"
-            BlueprintName = "Rex"
+            BlueprintName = "Rex-Mac"
             ReferencedContainer = "container:Rex.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -77,7 +77,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D8003E8D1AFEC3D400D7D3C5"
             BuildableName = "Rex.framework"
-            BlueprintName = "Rex"
+            BlueprintName = "Rex-Mac"
             ReferencedContainer = "container:Rex.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -95,7 +95,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D8003E8D1AFEC3D400D7D3C5"
             BuildableName = "Rex.framework"
-            BlueprintName = "Rex"
+            BlueprintName = "Rex-Mac"
             ReferencedContainer = "container:Rex.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

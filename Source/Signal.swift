@@ -34,7 +34,7 @@ public func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError> {
             case let .Next(value):
                 sendNext(observer, value.value)
             case let .Error(error):
-                break
+                sendCompleted(observer)
             case .Completed:
                 sendCompleted(observer)
             case .Interrupted:

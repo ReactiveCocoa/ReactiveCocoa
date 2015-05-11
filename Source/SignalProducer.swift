@@ -50,34 +50,35 @@ public func groupBy<K: Hashable, T, E>(grouping: T -> K)(producer: SignalProduce
     }
 }
 
-/// Prints all signal events
-public func printAll<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E> {
-    return signal
-        |> on(started: {
-            println("started")
-        }, error: {
-            println("error: \($0)")
-        }, completed: {
-            println("completed")
-        }, interrupted: {
-            println("interrupted")
-        }, next: {
-            println("next \($0)")
-        })
+/// Returns a signal that prints the signal events
+public func print<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E> {
+    return signal |> on(event: println)
 }
 
-/// Prints all nexts of signal
+/// Returns a signal that prints the signal `Next` events
 public func printNext<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E> {
     return signal
-        |> on(next: {
-            println("next \($0)")
+        |> on(event: { event in
+            switch event {
+            case let .Next(value):
+                println(event)
+                
+            default:
+                break
+            }
         })
 }
 
-/// Prints all errors of signal
+/// Returns a signal that prints the signal `Error` events
 public func printError<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E> {
     return signal
-        |> on(error: {
-            println("error: \($0)")
+        |> on(event: { event in
+            switch event {
+            case let .Error(value):
+                println(event)
+                
+            default:
+                break
+            }
         })
 }

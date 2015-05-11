@@ -11,7 +11,7 @@ import ReactiveCococa
 extension NSData {
     /// Read the data at the URL.
     /// Sends the data or the error.
-    class func rac_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions.allZeros) -> SignalProducer<NSData, NSError> {
+    class func rex_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions.allZeros) -> SignalProducer<NSData, NSError> {
         return SignalProducer<NSData, NSError> { observer, disposable in
             var error: NSError?
             if let data = NSData(contentsOfURL: url, options: options, error: &error) {
@@ -26,7 +26,7 @@ extension NSData {
 
 extension NSUserDefaults {
     /// Sends value of key when the value is changed
-    func rac_signalForKey(key: String) -> Signal<AnyObject?, NoError> {
+    func rex_signalForKey(key: String) -> Signal<AnyObject?, NoError> {
         let (signal, observer) = Signal<AnyObject?, NoError>.pipe()
         
         // send initial value

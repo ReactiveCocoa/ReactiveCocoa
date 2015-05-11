@@ -159,9 +159,9 @@
 		D8003E901AFEC3D400D7D3C5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				CCF8C8F41AFFED9E00FF444A /* FoundationExtensions.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
-				CCF8C8F41AFFED9E00FF444A /* FoundationExtensions.swift */,
 				D8003E911AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Source;

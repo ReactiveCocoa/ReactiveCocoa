@@ -30,7 +30,7 @@ extension NSUserDefaults {
         let (signal, observer) = Signal<AnyObject?, NoError>.pipe()
         
         // send initial value
-        let initial: AnyObject? = self.objectForKey(UserDefaultsKeywordsKey)
+        let initial: AnyObject? = self.objectForKey(key)
         sendNext(observer, initial)
 
         // observe other values

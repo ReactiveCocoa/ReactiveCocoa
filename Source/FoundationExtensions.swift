@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-import ReactiveCococa
+import ReactiveCocoa
 
 extension NSData {
     /// Read the data at the URL.

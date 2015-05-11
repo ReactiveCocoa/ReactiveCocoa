@@ -18,7 +18,7 @@ extension NSData {
                 sendNext(observer, data)
                 sendCompleted(observer)
             } else {
-                sendError(observer, error!)
+                sendError(observer, error ?? NSError())
             }
         }
     }

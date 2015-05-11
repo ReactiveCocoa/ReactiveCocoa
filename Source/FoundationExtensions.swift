@@ -34,7 +34,8 @@ extension NSUserDefaults {
         sendNext(observer, initial)
 
         // observe other values
-        NSNotificationCenter.defaultCenter().rac_notifications(name: NSUserDefaultsDidChangeNotification, object: self).observe(next: { notification in
+        let defaultsDidChange = NSNotificationCenter.defaultCenter().rac_notifications(name: NSUserDefaultsDidChangeNotification, object: self)
+        defaultsDidChange.observe(next: { notification in
             let value: AnyObject? = self.objectForKey(key)
             
             sendNext(observer, value)
@@ -43,5 +44,12 @@ extension NSUserDefaults {
         })
 
         return signal
+            |> skipRepeats { a, b in
+                if let a = a as? NSObject, b = b as? NSObject where a.isEqual(b) {
+                    return true
+                } else {
+                    return false
+                }
+        }
     }
 }

@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D834571D1AFEE44E0070616A"
-               BuildableName = "Rex.xctest"
+               BuildableName = "RexTests-iOS.xctest"
                BlueprintName = "RexTests-iOS"
                ReferencedContainer = "container:Rex.xcodeproj">
             </BuildableReference>
@@ -47,7 +47,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D834571D1AFEE44E0070616A"
-               BuildableName = "Rex.xctest"
+               BuildableName = "RexTests-iOS.xctest"
                BlueprintName = "RexTests-iOS"
                ReferencedContainer = "container:Rex.xcodeproj">
             </BuildableReference>

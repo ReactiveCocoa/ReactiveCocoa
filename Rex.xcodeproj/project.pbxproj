@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
+		7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		CCF8C8F51AFFED9E00FF444A /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF8C8F41AFFED9E00FF444A /* FoundationExtensions.swift */; };
 		CCF8C8F61AFFED9E00FF444A /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF8C8F41AFFED9E00FF444A /* FoundationExtensions.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -83,6 +85,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7DE995CA1B03A56800CA9420 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		CCF8C8F41AFFED9E00FF444A /* FoundationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
@@ -163,6 +166,7 @@
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				D8003E911AFEC3D400D7D3C5 /* Supporting Files */,
+				7DE995CA1B03A56800CA9420 /* Operators.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -403,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
+				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
 				CCF8C8F51AFFED9E00FF444A /* FoundationExtensions.swift in Sources */,
 			);
@@ -422,6 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
+				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				CCF8C8F61AFFED9E00FF444A /* FoundationExtensions.swift in Sources */,
 			);

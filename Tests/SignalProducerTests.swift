@@ -16,8 +16,11 @@ final class SignalProducerTests: XCTestCase {
         let (producer, sink) = SignalProducer<Int, NoError>.buffer()
         var evens: [Int] = []
         var odds: [Int] = []
+        let disposable = CompositeDisposable()
+        var interrupted = false
+        var completed = false
 
-        producer
+        disposable += producer
             |> groupBy { $0 % 2 == 0 }
             |> start(next: { key, group in
                 if key {
@@ -25,18 +28,56 @@ final class SignalProducerTests: XCTestCase {
                 } else {
                     group |> start(next: odds.append)
                 }
+                },completed: { completed = true },
+                interrupted: {
+                    interrupted = true
             })
 
-        sendNext(sink, 1)
+        1 --> sink
         XCTAssert(evens == [])
         XCTAssert(odds == [1])
 
-        sendNext(sink, 2)
+        2 --> sink
         XCTAssert(evens == [2])
         XCTAssert(odds == [1])
 
-        sendNext(sink, 3)
+        3 --> sink
         XCTAssert(evens == [2])
         XCTAssert(odds == [1, 3])
+        
+        disposable.dispose()
+        
+        1 --> sink
+        XCTAssert(interrupted)
+    }
+    
+    func testCompletionOperator() {
+        let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+        var evens: [Int] = []
+        var odds: [Int] = []
+        let disposable = CompositeDisposable()
+        var interrupted = false
+        var completed = false
+        
+        disposable += producer
+            |> groupBy { $0 % 2 == 0 }
+            |> start(next: { key, group in
+                if key {
+                    group |> start(next: evens.append)
+                } else {
+                    group |> start(next: odds.append)
+                }
+                },completed: { completed = true },
+                interrupted: {
+                    interrupted = true
+            })
+        
+        1 --> sink
+        XCTAssert(evens == [])
+        XCTAssert(odds == [1])
+        
+        --|sink
+        XCTAssert(completed)
+        XCTAssertFalse(interrupted)
     }
 }

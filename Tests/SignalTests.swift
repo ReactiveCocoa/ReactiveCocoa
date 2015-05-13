@@ -22,16 +22,16 @@ final class SignalTests: XCTestCase {
             }
             |> observe(next: values.append)
 
-        sendNext(sink, 1)
+        1 --> sink
         XCTAssert(values == [])
 
-        sendNext(sink, 2)
+        2 --> sink
         XCTAssert(values == ["2"])
 
-        sendNext(sink, 3)
+        3 --> sink
         XCTAssert(values == ["2"])
 
-        sendNext(sink, 6)
+        6 --> sink
         XCTAssert(values == ["2", "6"])
     }
 
@@ -45,10 +45,10 @@ final class SignalTests: XCTestCase {
                 completed = true
             })
 
-        sendNext(sink, 1)
+        1 --> sink
         XCTAssertFalse(completed)
 
-        sendError(sink, NSError())
+        NSError() --> sink
         XCTAssertTrue(completed)
     }
 
@@ -62,10 +62,10 @@ final class SignalTests: XCTestCase {
                 interrupted = true
             })
 
-        sendNext(sink, 1)
+        1 --> sink
         XCTAssertFalse(interrupted)
 
-        sendError(sink, NSError())
+        NSError() --> sink
         XCTAssertTrue(interrupted)
     }
     

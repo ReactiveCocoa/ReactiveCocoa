@@ -17,8 +17,7 @@ import Result
 public final class Signal<T, E: ErrorType> {
 	public typealias Observer = SinkOf<Event<T, E>>
 
-	private let lock = NSRecursiveLock()
-	private var observers: Bag<Observer>? = Bag()
+	private var observers: Atomic<Bag<Observer>?> = Atomic(Bag())
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -27,19 +26,17 @@ public final class Signal<T, E: ErrorType> {
 	/// observer, at which point the disposable returned from the closure will
 	/// be disposed as well.
 	public init(_ generator: Observer -> Disposable?) {
-		lock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
-
 		let generatorDisposable = SerialDisposable()
 		let sink = Observer { event in
-			self.lock.lock()
+			let observers: Bag<Observer>?
+			if event.isTerminating {
+				// Disallow any further events (e.g., any triggered recursively).
+				observers = self.observers.swap(nil)
+			} else {
+				observers = self.observers.value
+			}
 
-			if let observers = self.observers {
-				if event.isTerminating {
-					// Disallow any further events (e.g., any triggered
-					// recursively).
-					self.observers = nil
-				}
-
+			if let observers = observers {
 				for sink in observers {
 					sink.put(event)
 				}
@@ -50,8 +47,6 @@ public final class Signal<T, E: ErrorType> {
 					generatorDisposable.dispose()
 				}
 			}
-
-			self.lock.unlock()
 		}
 
 		generatorDisposable.innerDisposable = generator(sink)
@@ -86,15 +81,18 @@ public final class Signal<T, E: ErrorType> {
 	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable? {
 		let sink = Observer(observer)
 
-		lock.lock()
-		let token = self.observers?.insert(sink)
-		lock.unlock()
+		var token: RemovalToken? = nil
+		self.observers.modify { (var observers) in
+			token = observers?.insert(sink)
+			return observers
+		}
 
 		if let token = token {
 			return ActionDisposable {
-				self.lock.lock()
-				self.observers?.removeValueForToken(token)
-				self.lock.unlock()
+				self.observers.modify { (var observers) in
+					observers?.removeValueForToken(token)
+					return observers
+				}
 			}
 		} else {
 			sink.put(.Interrupted)

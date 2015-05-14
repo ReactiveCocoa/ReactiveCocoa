@@ -549,7 +549,7 @@ are some resources related to FRP:
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
 [GroceryList]:  https://github.com/jspahrsummers/GroceryList
-[RACSequence]: ReactiveCocoa/RACSequence.h
-[RACSignal]: ReactiveCocoa/RACSignal.h
+[RACSequence]: ReactiveCocoa/Objective-C/RACSequence.h
+[RACSignal]: ReactiveCocoa/Objective-C/RACSignal.h
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [C-41]: https://github.com/AshFurrow/C-41

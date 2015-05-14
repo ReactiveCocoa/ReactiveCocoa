@@ -162,21 +162,21 @@ public final class CocoaAction: NSObject {
 
 		let enabledDisposable = action.enabled.producer
 			|> observeOn(UIScheduler())
-			|> start(Event.sink(next: { [weak self] value in
+			|> start(next: { [weak self] value in
 				self?.willChangeValueForKey("enabled")
 				self?._enabled = value
 				self?.didChangeValueForKey("enabled")
-			}))
+			})
 
 		disposable.addDisposable(enabledDisposable)
 
 		let executingDisposable = action.executing.producer
 			|> observeOn(UIScheduler())
-			|> start(Event.sink(next: { [weak self] value in
+			|> start(next: { [weak self] value in
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")
-			}))
+			})
 
 		disposable.addDisposable(executingDisposable)
 	}

@@ -86,7 +86,7 @@ public final class UIScheduler: SchedulerType {
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerType {
-	internal let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+	internal let queue: dispatch_queue_t
 
 	/// A singleton QueueScheduler that always targets the main thread's GCD
 	/// queue.
@@ -94,7 +94,7 @@ public final class QueueScheduler: DateSchedulerType {
 	/// Unlike UIScheduler, this scheduler supports scheduling for a future
 	/// date, and will always schedule asynchronously (even if already running
 	/// on the main thread).
-	public static let mainQueueScheduler = QueueScheduler(dispatch_get_main_queue())
+	public static let mainQueueScheduler = QueueScheduler(queue: dispatch_get_main_queue(), name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.mainQueueScheduler")
 
 	public var currentDate: NSDate {
 		return NSDate()
@@ -104,20 +104,15 @@ public final class QueueScheduler: DateSchedulerType {
 	///
 	/// Even if the queue is concurrent, all work items enqueued with the
 	/// QueueScheduler will be serial with respect to each other.
-	public init(_ queue: dispatch_queue_t) {
+	public init(queue: dispatch_queue_t, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+		self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
 		dispatch_set_target_queue(self.queue, queue)
 	}
 
 	/// Initializes a scheduler that will target the global queue with the given
 	/// priority.
-	public convenience init(_ priority: CLong) {
-		self.init(dispatch_get_global_queue(priority, 0))
-	}
-
-	/// Initializes a scheduler that will target the default priority global
-	/// queue.
-	public convenience init() {
-		self.init(DISPATCH_QUEUE_PRIORITY_DEFAULT)
+	public convenience init(priority: CLong = DISPATCH_QUEUE_PRIORITY_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+		self.init(queue: dispatch_get_global_queue(priority, 0), name: name)
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {

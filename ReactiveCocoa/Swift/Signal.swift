@@ -995,6 +995,8 @@ public func promoteErrors<T, E: ErrorType>(_: E.Type)(signal: Signal<T, NoError>
 			sendNext(observer, value)
 		}, completed: {
 			sendCompleted(observer)
+		}, interrupted: {
+			sendInterrupted(observer)
 		})
 	}
 }

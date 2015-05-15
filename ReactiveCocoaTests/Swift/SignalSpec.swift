@@ -1582,7 +1582,8 @@ class SignalSpec: QuickSpec {
 				sinkC = baseSinkC
 			}
 			
-			sharedExamples("combineLatest examples") {
+			let combineLatestExampleName = "combineLatest examples"
+			sharedExamples(combineLatestExampleName) {
 				it("should forward the latest values from all inputs"){
 					expect(combinedValues).to(beNil())
 					
@@ -1630,7 +1631,7 @@ class SignalSpec: QuickSpec {
 						})
 				}
 				
-				itBehavesLike("combineLatest examples")
+				itBehavesLike(combineLatestExampleName)
 			}
 			
 			describe("sequence") {
@@ -1643,7 +1644,7 @@ class SignalSpec: QuickSpec {
 						})
 				}
 				
-				itBehavesLike("combineLatest examples")
+				itBehavesLike(combineLatestExampleName)
 			}
 		}
 		
@@ -1675,7 +1676,8 @@ class SignalSpec: QuickSpec {
 				sinkC = baseSinkC
 			}
 			
-			sharedExamples("zip examples") {
+			let zipExampleName = "zip examples"
+			sharedExamples(zipExampleName) {
 				it("should combine all set"){
 					expect(zippedValues).to(beNil())
 					
@@ -1725,7 +1727,7 @@ class SignalSpec: QuickSpec {
 					})
 				}
 				
-				itBehavesLike("zip examples")
+				itBehavesLike(zipExampleName)
 			}
 			
 			describe("sequence") {
@@ -1738,7 +1740,7 @@ class SignalSpec: QuickSpec {
 					})
 				}
 				
-				itBehavesLike("zip examples")
+				itBehavesLike(zipExampleName)
 			}
 		}
 	}

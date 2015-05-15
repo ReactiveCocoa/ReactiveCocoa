@@ -273,7 +273,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 	return Signal { observer in
 		let lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
-		
+
 		let signalState = CombineLatestState<T>()
 		let otherState = CombineLatestState<U>()
 		
@@ -692,12 +692,12 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			
 			flush()
 		}, error: onError, completed: {
-				states.modify { (var states) in
-					states.0.completed = true
-					return states
-				}
+			states.modify { (var states) in
+				states.0.completed = true
+				return states
+			}
 				
-				flush()
+			flush()
 		}, interrupted: onInterrupted)
 		
 		let otherDisposable = otherSignal.observe(next: { value in
@@ -708,12 +708,12 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 			
 			flush()
 		}, error: onError, completed: {
-				states.modify { (var states) in
-					states.1.completed = true
-					return states
-				}
+			states.modify { (var states) in
+				states.1.completed = true
+				return states
+			}
 				
-				flush()
+			flush()
 		}, interrupted: onInterrupted)
 		
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))

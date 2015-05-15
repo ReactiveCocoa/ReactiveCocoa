@@ -1624,11 +1624,11 @@ class SignalSpec: QuickSpec {
 			describe("tuple") {
 				beforeEach {
 					combineLatest(signalA, signalB, signalC)
-						|> observe(next: {
-							combinedValues = [$0, $1, $2]
-							}, completed: {
-								completed = true
-						})
+					|> observe(next: {
+						combinedValues = [$0, $1, $2]
+					}, completed: {
+						completed = true
+					})
 				}
 				
 				itBehavesLike(combineLatestExampleName)
@@ -1637,11 +1637,11 @@ class SignalSpec: QuickSpec {
 			describe("sequence") {
 				beforeEach {
 					combineLatest([signalA, signalB, signalC])
-						|> observe(next: {
-							combinedValues = $0
-							}, completed: {
-								completed = true
-						})
+					|> observe(next: {
+						combinedValues = $0
+					}, completed: {
+						completed = true
+					})
 				}
 				
 				itBehavesLike(combineLatestExampleName)

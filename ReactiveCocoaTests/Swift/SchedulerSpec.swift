@@ -134,7 +134,7 @@ class SchedulerSpec: QuickSpec {
 					queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
 					dispatch_suspend(queue)
 
-					scheduler = QueueScheduler(queue)
+					scheduler = QueueScheduler(queue: queue)
 				}
 
 				it("should run enqueued actions serially on the given queue") {

@@ -1161,7 +1161,7 @@ private final class ConcatState<T, E: ErrorType> {
 			// Active producers remain in the queue until completed. Since
 			// dequeueing happens at completion of the active producer, the
 			// first producer in the queue can be removed.
-			queue.removeAtIndex(0)
+			if !queue.isEmpty { queue.removeAtIndex(0) }
 			nextSignalProducer = queue.first
 			return queue
 		}

@@ -594,6 +594,30 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 		}
+		
+		describe("sequence operators") {
+			var producerA: SignalProducer<Int, NoError>!
+			var producerB: SignalProducer<Int, NoError>!
+			
+			beforeEach {
+				producerA = SignalProducer<Int, NoError>(values: [ 1, 2 ])
+				producerB = SignalProducer<Int, NoError>(values: [ 3, 4 ])
+			}
+			
+			it("should combine the events to one array") {
+				let producer = combineLatest([producerA, producerB])
+				let result = producer |> collect |> single
+				
+				expect(result?.value).to(equal([[1, 4], [2, 4]]))
+			}
+			
+			it("should zip the events to one array") {
+				let producer = zip([producerA, producerB])
+				let result = producer |> collect |> single
+				
+				expect(result?.value).to(equal([[1, 3], [2, 4]]))
+			}
+		}
 
 		describe("timer") {
 			it("should send the current date at the given interval") {

@@ -287,21 +287,24 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal
 
 		let signalState = CombineLatestState<T>()
 		let otherState = CombineLatestState<U>()
-
+		
 		let onBothNext = { () -> () in
-			let combined = (signalState.latestValue!, otherState.latestValue!)
-			sendNext(observer, combined)
+			sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 		}
-
+		
 		let onError = { sendError(observer, $0) }
 		let onBothCompleted = { sendCompleted(observer) }
 		let onInterrupted = { sendInterrupted(observer) }
-
+		
 		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-
+		
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
+}
+
+internal func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+	return signal |> combineLatestWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 
 /// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -664,68 +667,72 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) ->
 	return Signal { observer in
 		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
-
+		
 		let flush = { () -> () in
 			var originalStates: (ZipState<T>, ZipState<U>)!
 			states.modify { states in
 				originalStates = states
-
+				
 				var updatedStates = states
 				let extractCount = min(states.0.values.count, states.1.values.count)
-
+				
 				removeRange(&updatedStates.0.values, 0 ..< extractCount)
 				removeRange(&updatedStates.1.values, 0 ..< extractCount)
 				return updatedStates
 			}
-
+			
 			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
 				let left = originalStates.0.values.removeAtIndex(0)
 				let right = originalStates.1.values.removeAtIndex(0)
 				sendNext(observer, (left, right))
 			}
-
+			
 			if originalStates.0.isFinished || originalStates.1.isFinished {
 				sendCompleted(observer)
 			}
 		}
-
+		
 		let onError = { sendError(observer, $0) }
 		let onInterrupted = { sendInterrupted(observer) }
-
+		
 		let signalDisposable = signal.observe(next: { value in
 			states.modify { (var states) in
 				states.0.values.append(value)
 				return states
 			}
-
+			
 			flush()
 		}, error: onError, completed: {
 			states.modify { (var states) in
 				states.0.completed = true
 				return states
 			}
-
+				
 			flush()
 		}, interrupted: onInterrupted)
-
+		
 		let otherDisposable = otherSignal.observe(next: { value in
 			states.modify { (var states) in
 				states.1.values.append(value)
 				return states
 			}
-
+			
 			flush()
 		}, error: onError, completed: {
 			states.modify { (var states) in
 				states.1.completed = true
 				return states
 			}
-
+				
 			flush()
 		}, interrupted: onInterrupted)
-
+		
 		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
+}
+
+internal func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
+	return signal |> zipWith(otherSignal) |> map { $0.0 + [$0.1] }
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results
@@ -893,6 +900,18 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Erro
 		|> map(repack)
 }
 
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`. No events will be sent if the sequence is empty.
+public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
+	var generator = signals.generate()
+	if let first = generator.next() {
+		let initial = first |> map { [$0] }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> combineLatestWith($1) }
+	}
+	
+	return Signal.never
+}
+
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {
@@ -961,6 +980,18 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Sig
 	return zip(a, b, c, d, e, f, g, h, i)
 		|> zipWith(j)
 		|> map(repack)
+}
+
+/// Zips the values of all the given signals, in the manner described by
+/// `zipWith`. No events will be sent if the sequence is empty.
+public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
+	var generator = signals.generate()
+	if let first = generator.next() {
+		let initial = first |> map { [$0] }
+		return reduce(GeneratorSequence(generator), initial) { $0 |> zipWith($1) }
+	}
+	
+	return Signal.never
 }
 
 /// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,

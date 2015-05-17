@@ -52,6 +52,28 @@ Signals send four different types of events to their subscribers:
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error`, `completed` or `interrupted` event (but no combination of those).
 
+
+### Signal Producers
+
+A **signal producer**, represented by the [SignalProducer][] class, creates 
+Signals and performs side effects.
+
+They can be used to represent operations or tasks, like network 
+requests, where each invocation of `start()` will create a new underlying 
+operation. The produced signal is returned to the caller, who can observe
+the result of the task by observing the signal.
+
+Because of the behavior of `start()`, different Signals created from the 
+producer may see a different version of events the events may arrive in a 
+different order between signals, or the stream might be completely different!
+However, this behavior ensures that consumers will receive the results, 
+in contrast to a plain signal that might send results befor any observers 
+are attached.
+
+Starting a signal returns a [disposable](#disposables) which can be used to 
+interrupt/cancel the work associated Signal.
+
+
 ### Subscription
 
 A **subscriber** is anything that is waiting or capable of waiting for events

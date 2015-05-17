@@ -8,24 +8,6 @@ learning about new modules and finding more specific documentation.
 For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
-## Streams
-
-A **stream** is any series of object values. In Objective C, a stream is 
-represented by the [RACStream][] abstract class. In Swift, it is directly
-presented by the [Signal][] class.
-
-Values may be available immediately or in the future, but must be retrieved
-sequentially. There is no way to retrieve the second value of a stream without
-evaluating or waiting for the first value.
-
-Streams are [monads][]. Among other things, this allows complex operations to be
-built on a few basic primitives (`-bind:` in particular). [RACStream][] also
-implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
-[Haskell][].
-
-[RACStream][] isn't terribly useful on its own. Most streams are treated as
-[signals](#signals) or [sequences](#sequences) instead.
-
 ## Signals
 
 <!-- TODO: Is there a better way to connect the signal to a stream? 

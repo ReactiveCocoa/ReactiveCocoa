@@ -90,6 +90,7 @@ Subscriptions [retain their signals][Memory Management], and are automatically
 disposed of when the signal completes or errors. Subscriptions can also be
 [disposed of manually](#disposables).
 
+<!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects
 
 A **subject**, represented by the [RACSubject][] class, is a [signal](#signals)
@@ -109,6 +110,7 @@ Some subjects offer additional behaviors as well. In particular,
 [subscribers](#subscription), like when a network request finishes before
 anything is ready to handle the result.
 
+<!-- TODO: Update to Action -->
 ### Commands
 
 A **command**, represented by the [RACCommand][] class, creates and subscribes
@@ -124,6 +126,7 @@ On OS X, RAC adds a `rac_command` property to
 [NSButton][NSButton+RACCommandSupport] for setting up these behaviors
 automatically.
 
+<!-- TODO: Remove? Or is there a replacement / is startWithSignal important enough to talk about it here? -->
 ### Connections
 
 A **connection**, represented by the [RACMulticastConnection][] class, is
@@ -143,6 +146,7 @@ to. Once connected, the connection's signal is said to be _hot_, and the
 underlying subscription will remain active until _all_ subscriptions to the
 connection are [disposed](#disposables).
 
+<!-- TODO: Remove? Or is there a replacement? -->
 ## Sequences
 
 A **sequence**, represented by the [RACSequence][] class, is a _pull-driven_
@@ -159,6 +163,7 @@ the [List][] type in [Haskell][].
 RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
 allowing them to be used as [RACSequences][RACSequence] instead.
 
+<!-- TODO: Update -->
 ## Disposables
 
 The **[RACDisposable][]** class is used for cancellation and resource cleanup.
@@ -171,6 +176,7 @@ will be cancelled, since the results are no longer needed.
 
 For more information about cancellation, see the RAC [Design Guidelines][].
 
+<!-- TODO: Update -->
 ## Schedulers
 
 A **scheduler**, represented by the [RACScheduler][] class, is a serial
@@ -184,6 +190,9 @@ of [signal operators][RACSignal+Operations] instead of blocking work.
 
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered or depend on one another.
+
+<!-- TODO: Update? Is this te place to talk about 
+PropertyType / Parameterized types / Objective-C bridging? -->
 
 ## Value types
 

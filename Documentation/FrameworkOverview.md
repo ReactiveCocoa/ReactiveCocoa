@@ -10,8 +10,9 @@ the [Design Guidelines][].
 
 ## Streams
 
-A **stream**, represented by the [RACStream][] abstract class, is any series of
-object values.
+A **stream** is any series of object values. In Objective C, a stream is 
+represented by the [RACStream][] abstract class. In Swift, it is directly
+presented by the [Signal][] class.
 
 Values may be available immediately or in the future, but must be retrieved
 sequentially. There is no way to retrieve the second value of a stream without
@@ -201,3 +202,4 @@ a [stream](#streams):
 [RACUnit]: ../ReactiveCocoa/Objective-C/RACUnit.h
 [README]: ../README.md
 [seq]: http://clojure.org/sequences
+[Signal]: ../ReactiveCocoa/Swift/Signal.swift

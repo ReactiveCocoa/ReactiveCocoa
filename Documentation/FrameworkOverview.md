@@ -10,15 +10,7 @@ the [Design Guidelines][].
 
 ## Signals
 
-<!-- TODO: Is there a better way to connect the signal to a stream? 
-Or just dont use the word stream below? -->
-A **signal**, represented by the [Signal][] class, is any series of object values,
-also called a stream.
-
-
-Values may be available immediately or in the future, but must be retrieved
-sequentially. There is no way to retrieve the second value of a stream without
-evaluating or waiting for the first value.
+A **signal**, represented by the [Signal][] class, is any series of objects.
 
 <!-- TODO: This is something I don't know, is it still true for Signal?  -->
 <!-- Signals are [monads][]. Among other things, this allows complex operations to be
@@ -26,12 +18,19 @@ built on a few basic primitives (`-bind:` in particular). [Signal][] also
 implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
 [Haskell][]. -->
 
-Signals generally represent data that will be delivered in the future. As work
-is performed or data is received, values are _sent_ on the signal, which pushes
-them out to any subscribers. Users must [subscribe](#subscription) to a signal
-in order to access its values. Subscribing to a signal does not trigger any 
-side effects. In other words, signals are entirely producer-driven and 
-push-based, and consumers (subscribers) cannot have any effect on their lifetime.
+Values may be available immediately or in the future, but must be retrieved
+sequentially. There is no way to retrieve the second value of a stream without
+evaluating or waiting for the first value.
+
+Signals are generally used to represent event streams that are already “in progress”,
+like notifications, user input, etc. As work is performed or data is received, 
+events are _sent_ on the signal, which pushes them out to any subscribers. 
+All subscribers see the events at the same time.
+
+Users must [subscribe](#subscription) to a signal in order to access its events. 
+Subscribing to a signal does not trigger any side effects. In other words, 
+signals are entirely producer-driven and push-based, and consumers (subscribers) 
+cannot have any effect on their lifetime.
 
 Signals send four different types of events to their subscribers:
 
@@ -204,3 +203,4 @@ a [stream](#streams):
 [README]: ../README.md
 [seq]: http://clojure.org/sequences
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
+[SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift

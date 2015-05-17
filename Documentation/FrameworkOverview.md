@@ -74,6 +74,7 @@ Starting a signal returns a [disposable](#disposables) which can be used to
 interrupt/cancel the work associated Signal.
 
 
+<!-- TODO: Remove or write about observing (or sink?) -->
 ### Subscription
 
 A **subscriber** is anything that is waiting or capable of waiting for events

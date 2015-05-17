@@ -8,19 +8,52 @@ learning about new modules and finding more specific documentation.
 For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
+## Streams
+
+A **stream** is any series of object values. In Objective C, a stream is 
+represented by the [RACStream][] abstract class. In Swift, it is directly
+presented by the [Signal][] class.
+
+Values may be available immediately or in the future, but must be retrieved
+sequentially. There is no way to retrieve the second value of a stream without
+evaluating or waiting for the first value.
+
+Streams are [monads][]. Among other things, this allows complex operations to be
+built on a few basic primitives (`-bind:` in particular). [RACStream][] also
+implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
+[Haskell][].
+
+[RACStream][] isn't terribly useful on its own. Most streams are treated as
+[signals](#signals) or [sequences](#sequences) instead.
+
 ## Signals
 
-A **signal**, represented by the [RACSignal][] class, is a _push-driven_
-[stream](#streams).
+<!-- TODO: Is there a better way to connect the signal to a stream? 
+Or just dont use the word stream below? -->
+A **signal**, represented by the [Signal][] class, is any series of object values,
+also called a stream.
+
+
+Values may be available immediately or in the future, but must be retrieved
+sequentially. There is no way to retrieve the second value of a stream without
+evaluating or waiting for the first value.
+
+<!-- TODO: This is something I don't know, is it still true for Signal?  -->
+<!-- Signals are [monads][]. Among other things, this allows complex operations to be
+built on a few basic primitives (`-bind:` in particular). [Signal][] also
+implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
+[Haskell][]. -->
 
 Signals generally represent data that will be delivered in the future. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
 them out to any subscribers. Users must [subscribe](#subscription) to a signal
-in order to access its values.
+in order to access its values. Subscribing to a signal does not trigger any 
+side effects. In other words, signals are entirely producer-driven and 
+push-based, and consumers (subscribers) cannot have any effect on their lifetime.
 
-Signals send three different types of events to their subscribers:
+Signals send four different types of events to their subscribers:
 
- * The **next** event provides a new value from the stream. [RACStream][]
+ * The **next** event provides a new value from the stream. [Signal][]
    methods only operate on events of this type. Unlike Cocoa collections, it is
    completely valid for a signal to include `nil`.
  * The **error** event indicates that an error occurred before the signal could
@@ -30,9 +63,13 @@ Signals send three different types of events to their subscribers:
  * The **completed** event indicates that the signal finished successfully, and
    that no more values will be added to the stream. Completion must be handled
    specially – it is not included in the stream of values.
+ * The **interrupted** event indicates that the signal has terminated 
+   non-erroneous, yet unsuccessful e.g. when the corresponding request has been
+   cancelled before the signal could finish. Interruptions must be handeled 
+   specially - they are not included in the stream's values.
 
 The lifetime of a signal consists of any number of `next` events, followed by
-one `error` or `completed` event (but not both).
+one `error`, `completed` or `interrupted` event (but no combination of those).
 
 ### Subscription
 

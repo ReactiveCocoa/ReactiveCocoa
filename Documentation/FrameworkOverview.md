@@ -111,7 +111,7 @@ observation of its changes.
 <!-- TODO: Refer to KVO and say this replaces KVO? Or is this to specific / irrelevant? -->
 
 The current value of a property can be obtained from the `value` getter. The
-`producer` getter returns a [SignalProducer](#signalproducers) that will send
+`producer` getter returns a [SignalProducer](#signal_producers) that will send
 the property's current value, followed by all changes over time.
 
 The `<~` operator can be used to bind properties in different ways:

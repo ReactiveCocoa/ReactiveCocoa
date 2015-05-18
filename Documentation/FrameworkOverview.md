@@ -86,18 +86,23 @@ these intermediate subscriptions are usually an implementation detail.
 <!-- TODO: Update to Action -->
 ### Action
 
-An **Action**, represented by the [RACCommand][] class, creates and subscribes
-to a signal in response to some action. This makes it easy to perform
-side-effecting work as the user interacts with the app.
+An **Action**, represented by the [Action][] class, will do some work when
+executed with an _Input_. During or after executions, zero or more _Output_
+values are generated. Alternatively, an _Error_ may be generated.
 
-Usually the action triggering a command is UI-driven, like when a button is
-clicked. Commands can also be automatically disabled based on a signal, and this
+Actions are suited to perform side-effecting work as the user interacts with
+the app.
+
+<!-- TODO: How to call >thing< ? It was 'action' before, but "some action triggers the Action" is strange.
+'event' would fit, but could be mistaken for the Events associated with a signal -->
+Usually the thing triggering an Action is UI-driven, like when a button is
+clicked. Actions can also be automatically disabled based on a signal, and this
 disabled state can be represented in a UI by disabling any controls associated
-with the command.
+with the action.
 
-On OS X, RAC adds a `rac_command` property to
-[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
-automatically.
+For interaction with UIKit or AppKit GUI controls such as `NSControl` or 
+`UIControl`, RAC provides [CocoaAction][] to wrap Action with KVO or 
+Cocoa Bindings.
 
 <!-- TODO: Write -->
 ### Property
@@ -172,5 +177,6 @@ do not allow tasks to be reordered or depend on one another.
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [Action]: ../ReactiveCocoa/Swift/Action.swift
+[CocoaAction]: ../ReactiveCocoa/Swift/Action.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift
 [SinkOf]: http://swiftdoc.org/type/SinkOf/

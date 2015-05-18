@@ -84,9 +84,9 @@ Technically, most [Signal][] and
 these intermediate subscriptions are usually an implementation detail.
 
 <!-- TODO: Update to Action -->
-### Commands
+### Action
 
-A **command**, represented by the [RACCommand][] class, creates and subscribes
+An **Action**, represented by the [RACCommand][] class, creates and subscribes
 to a signal in response to some action. This makes it easy to perform
 side-effecting work as the user interacts with the app.
 
@@ -100,7 +100,7 @@ On OS X, RAC adds a `rac_command` property to
 automatically.
 
 <!-- TODO: Write -->
-### PropertyType
+### Property
 
 <!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects
@@ -171,4 +171,6 @@ do not allow tasks to be reordered or depend on one another.
 [README]: ../README.md
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[Action]: ../ReactiveCocoa/Swift/Action.swift
+[Property]: ../ReactiveCocoa/Swift/Property.swift
 [SinkOf]: http://swiftdoc.org/type/SinkOf/

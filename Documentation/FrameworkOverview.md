@@ -66,8 +66,8 @@ interrupt/cancel the work associated Signal.
 ### Observers
 
 An **Observer** is anything that is waiting or capable of waiting for events
-from a [signal](#signals). Within RAC, an observer is represented as any object
-that conforms to the [SinkOf][] protocol that takes Events as input.
+from a [signal](#signals). Within RAC, an observer is represented as an instance
+of the [SinkOf][] struct with an input type of Event.
 
 <!-- TODO: Since this is a high level description, we have avoided to write about
 the generic type signatures for Signal / SignalProducer / SinkOf (Observer), but 

@@ -10,37 +10,28 @@ the [Design Guidelines][].
 
 ## Signals
 
-A **signal**, represented by the [Signal][] class, is any series of objects.
-
-<!-- TODO: This is something I don't know, is it still true for Signal?  -->
-<!-- Signals are [monads][]. Among other things, this allows complex operations to be
-built on a few basic primitives (`-bind:` in particular). [Signal][] also
-implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
-[Haskell][]. -->
-
-Values may be available immediately or in the future, but must be retrieved
-sequentially. There is no way to retrieve the second value of a stream without
-evaluating or waiting for the first value.
+A **signal**, represented by the [Signal][] class, is any series of events 
+over time that can be observed.
 
 Signals are generally used to represent event streams that are already “in progress”,
 like notifications, user input, etc. As work is performed or data is received, 
-events are _sent_ on the signal, which pushes them out to any subscribers. 
-All subscribers see the events at the same time.
+events are _sent_ on the signal, which pushes them out to any observers. 
+All observers see the events at the same time.
 
-Users must [subscribe](#subscription) to a signal in order to access its events. 
-Subscribing to a signal does not trigger any side effects. In other words, 
-signals are entirely producer-driven and push-based, and consumers (subscribers) 
+Users must [observe](#subscription) a signal in order to access its events. 
+Observing a signal does not trigger any side effects. In other words, 
+signals are entirely producer-driven and push-based, and consumers (observers) 
 cannot have any effect on their lifetime.
 
-Signals send four different types of events to their subscribers:
+Signals send four different types of events to their observers:
 
  * The **next** event provides a new value from the stream. [Signal][]
    methods only operate on events of this type. Unlike Cocoa collections, it is
    completely valid for a signal to include `nil`.
  * The **error** event indicates that an error occurred before the signal could
-   finish. The event may include an `NSError` object that indicates what went
-   wrong. Errors must be handled specially – they are not included in the
-   stream's values.
+   finish. The event may include an signal specific `ErrorType` object that 
+   indicates what went wrong. Errors must be handled specially – they are not 
+   included in the stream's values.
  * The **completed** event indicates that the signal finished successfully, and
    that no more values will be added to the stream. Completion must be handled
    specially – it is not included in the stream of values.
@@ -51,7 +42,6 @@ Signals send four different types of events to their subscribers:
 
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error`, `completed` or `interrupted` event (but no combination of those).
-
 
 ### Signal Producers
 
@@ -64,7 +54,7 @@ operation. The produced signal is returned to the caller, who can observe
 the result of the task by observing the signal.
 
 Because of the behavior of `start()`, different Signals created from the 
-producer may see a different version of events the events may arrive in a 
+producer may see a different version of events, the events may arrive in a 
 different order between signals, or the stream might be completely different!
 However, this behavior ensures that consumers will receive the results, 
 in contrast to a plain signal that might send results befor any observers 

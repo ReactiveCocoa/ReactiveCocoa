@@ -137,23 +137,6 @@ to. Once connected, the connection's signal is said to be _hot_, and the
 underlying subscription will remain active until _all_ subscriptions to the
 connection are [disposed](#disposables).
 
-<!-- TODO: Remove? Or is there a replacement? -->
-## Sequences
-
-A **sequence**, represented by the [RACSequence][] class, is a _pull-driven_
-[stream](#streams).
-
-Sequences are a kind of collection, similar in purpose to `NSArray`. Unlike
-an array, the values in a sequence are evaluated _lazily_ (i.e., only when they
-are needed) by default, potentially improving performance if only part of
-a sequence is used. Just like Cocoa collections, sequences cannot contain `nil`.
-
-Sequences are similar to [Clojure's sequences][seq] ([lazy-seq][] in particular), or
-the [List][] type in [Haskell][].
-
-RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
-allowing them to be used as [RACSequences][RACSequence] instead.
-
 <!-- TODO: Update -->
 ## Disposables
 

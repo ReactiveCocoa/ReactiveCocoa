@@ -83,7 +83,6 @@ Technically, most [Signal][] and
 [SignalProducer][] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
-<!-- TODO: Update to Action -->
 ### Action
 
 An **Action**, represented by the [Action][] class, will do some work when
@@ -104,7 +103,6 @@ For interaction with UIKit or AppKit GUI controls such as `NSControl` or
 `UIControl`, RAC provides [CocoaAction][] to wrap Action with KVO or 
 Cocoa Bindings.
 
-<!-- TODO: Write -->
 ### Property
 
 A **Property**, represented by the [PropertyType][Property] protocol, allows

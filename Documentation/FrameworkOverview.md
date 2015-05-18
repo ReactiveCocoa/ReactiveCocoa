@@ -167,6 +167,6 @@ do not allow tasks to be reordered or depend on one another.
 [RACTuple]: ../ReactiveCocoa/Objective-C/RACTuple.h
 [RACUnit]: ../ReactiveCocoa/Objective-C/RACUnit.h
 [README]: ../README.md
-[seq]: http://clojure.org/sequences
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[SinkOf]: http://swiftdoc.org/type/SinkOf/

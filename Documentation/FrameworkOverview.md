@@ -83,6 +83,24 @@ Technically, most [Signal][] and
 [SignalProducer][] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
+<!-- TODO: Update to Action -->
+### Commands
+
+A **command**, represented by the [RACCommand][] class, creates and subscribes
+to a signal in response to some action. This makes it easy to perform
+side-effecting work as the user interacts with the app.
+
+Usually the action triggering a command is UI-driven, like when a button is
+clicked. Commands can also be automatically disabled based on a signal, and this
+disabled state can be represented in a UI by disabling any controls associated
+with the command.
+
+On OS X, RAC adds a `rac_command` property to
+[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
+automatically.
+
+<!-- TODO: Write -->
+### PropertyType
 
 <!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects
@@ -103,22 +121,6 @@ Some subjects offer additional behaviors as well. In particular,
 [RACReplaySubject][] can be used to buffer events for future
 [subscribers](#subscription), like when a network request finishes before
 anything is ready to handle the result.
-
-<!-- TODO: Update to Action -->
-### Commands
-
-A **command**, represented by the [RACCommand][] class, creates and subscribes
-to a signal in response to some action. This makes it easy to perform
-side-effecting work as the user interacts with the app.
-
-Usually the action triggering a command is UI-driven, like when a button is
-clicked. Commands can also be automatically disabled based on a signal, and this
-disabled state can be represented in a UI by disabling any controls associated
-with the command.
-
-On OS X, RAC adds a `rac_command` property to
-[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
-automatically.
 
 <!-- TODO: Update -->
 ## Disposables

@@ -1203,11 +1203,13 @@ private final class ConcatState<T, E: ErrorType> {
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
 		signalProducer.startWithSignal { signal, disposable in
-			self.disposable.addDisposable(disposable)
+			let handle = self.disposable.addDisposable(disposable)
 
 			signal.observe(Signal.Observer { event in
 				switch event {
 				case .Completed, .Interrupted:
+					handle.remove()
+
 					if let nextSignalProducer = self.dequeueSignalProducer() {
 						self.startNextSignalProducer(nextSignalProducer)
 					}

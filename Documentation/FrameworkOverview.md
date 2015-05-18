@@ -87,7 +87,7 @@ these intermediate subscriptions are usually an implementation detail.
 ### Action
 
 An **Action**, represented by the [Action][] class, will do some work when
-executed with an _Input_. During or after executions, zero or more _Output_
+executed with an _Input_. During or after execution, zero or more _Output_
 values are generated. Alternatively, an _Error_ may be generated.
 
 Actions are suited to perform side-effecting work as the user interacts with

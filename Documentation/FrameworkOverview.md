@@ -18,7 +18,7 @@ like notifications, user input, etc. As work is performed or data is received,
 events are _sent_ on the signal, which pushes them out to any observers. 
 All observers see the events at the same time.
 
-Users must [observe](#subscription) a signal in order to access its events. 
+Users must [observe](#observers) a signal in order to access its events. 
 Observing a signal does not trigger any side effects. In other words, 
 signals are entirely producer-driven and push-based, and consumers (observers) 
 cannot have any effect on their lifetime.
@@ -63,23 +63,26 @@ are attached.
 Starting a signal returns a [disposable](#disposables) which can be used to 
 interrupt/cancel the work associated Signal.
 
+### Observers
 
-<!-- TODO: Remove or write about observing (or sink?) -->
-### Subscription
+An **Observer** is anything that is waiting or capable of waiting for events
+from a [signal](#signals). Within RAC, an observer is represented as any object
+that conforms to the [SinkOf][] protocol that takes Events as input.
 
-A **subscriber** is anything that is waiting or capable of waiting for events
-from a [signal](#signals). Within RAC, a subscriber is represented as any object
-that conforms to the [RACSubscriber][] protocol.
+<!-- TODO: Since this is a high level description, we have avoided to write about
+the generic type signatures for Signal / SignalProducer / SinkOf (Observer), but 
+the sentence above feels awkeward. Maybe make it pseudo-concrete by writing
+`SinkOf<Event>` ? -->
 
-A **subscription** is created through any call to
-[-subscribeNext:error:completed:][RACSignal], or one of the corresponding
-convenience methods. Technically, most [RACStream][] and
-[RACSignal][RACSignal+Operations] operators create subscriptions as well, but
+A signal can be observed by calling its `observe` method, providing either a
+sink or callbacks for the different types of events as a parameter.
+
+<!-- TODO: As I understand from the source code, this next statement is still true.
+Is it relevant enough to be here? -->
+Technically, most [Signal][] and
+[SignalProducer][] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
-Subscriptions [retain their signals][Memory Management], and are automatically
-disposed of when the signal completes or errors. Subscriptions can also be
-[disposed of manually](#disposables).
 
 <!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects

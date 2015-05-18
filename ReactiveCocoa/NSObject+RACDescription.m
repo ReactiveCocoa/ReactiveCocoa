@@ -49,7 +49,7 @@
 
 @end
 
-NSString *rac_description(id object) {
+NSString *RACDescription(id object) {
 	if ([object respondsToSelector:@selector(rac_description)]) {
 		return [object rac_description];
 	} else {

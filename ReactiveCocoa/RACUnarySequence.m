@@ -28,7 +28,7 @@
 + (instancetype)return:(id)value {
 	RACUnarySequence *sequence = [[self alloc] init];
 	sequence.head = value;
-	return [sequence setNameWithFormat:@"+return: %@", rac_description(value)];
+	return [sequence setNameWithFormat:@"+return: %@", RACDescription(value)];
 }
 
 #pragma mark RACSequence

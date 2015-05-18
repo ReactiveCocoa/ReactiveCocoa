@@ -107,6 +107,26 @@ Cocoa Bindings.
 <!-- TODO: Write -->
 ### Property
 
+A **Property**, represented by the [PropertyType][Property] protocol, allows
+observation of its changes.
+
+<!-- TODO: Refer to KVO and say this replaces KVO? Or is this to specific / irrelevant? -->
+
+The current value of a property can be obtained from the `value` getter. The
+`producer` getter returns a [SignalProducer](#signalproducers) that will send
+the property's current value, followed by all changes over time.
+
+The `<~` operator can be used to bind properties in different ways:
+
+* `Property <~ Signal` binds the signal to the property, updating the property's 
+value to the lates value sent by the signal.
+* `Property <~ SignalProducer` creates a signal from the given producer, which will 
+immediately bound to the given property, updating the property's value to the latest 
+value sent by the signal
+* `Property <~ Property` binds the _destination_ property to the latest values 
+the _source_ property.
+
+
 <!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects
 

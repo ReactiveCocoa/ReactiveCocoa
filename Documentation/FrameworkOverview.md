@@ -145,22 +145,6 @@ of [signal operators][RACSignal+Operations] instead of blocking work.
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered or depend on one another.
 
-<!-- TODO: Update? Is this te place to talk about 
-PropertyType / Parameterized types / Objective-C bridging? -->
-
-## Value types
-
-RAC offers a few miscellaneous classes for conveniently representing values in
-a [stream](#streams):
-
- * **[RACTuple][]** is a small, constant-sized collection that can contain
-   `nil` (represented by `RACTupleNil`). It is generally used to represent
-   the combined values of multiple streams.
- * **[RACUnit][]** is a singleton "empty" value. It is used as a value in
-   a stream for those times when more meaningful data doesn't exist.
- * **[RACEvent][]** represents any [signal event](#signals) as a single value.
-   It is primarily used by the `-materialize` method of
-   [RACSignal][RACSignal+Operations].
 
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org

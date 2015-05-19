@@ -15,7 +15,11 @@ import Result
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated.
 public final class Signal<T, E: ErrorType> {
+	#if DEBUG
+	public typealias Observer = DebugSinkOf<Event<T, E>>
+	#else
 	public typealias Observer = SinkOf<Event<T, E>>
+	#endif
 
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()

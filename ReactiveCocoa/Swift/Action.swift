@@ -44,7 +44,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	private let executingQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Action.executingQueue", DISPATCH_QUEUE_SERIAL)
 
 	/// Whether the action should be enabled for the given combination of user
-	/// enabledness and executing status.
+	/// enabled and executing status.
 	private static func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
 		return userEnabled && !executing
 	}

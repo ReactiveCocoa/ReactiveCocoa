@@ -533,7 +533,7 @@ public func scan<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> S
 }
 
 /// Forwards only those values from `signal` which are not duplicates of the
-/// immedately preceding value. The first value is always forwarded.
+/// immediately preceding value. The first value is always forwarded.
 public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
 	return signal |> skipRepeats { $0 == $1 }
 }

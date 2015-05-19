@@ -16,12 +16,14 @@ over time that can be observed.
 Signals are generally used to represent event streams that are already “in progress”,
 like notifications, user input, etc. As work is performed or data is received, 
 events are _sent_ on the signal, which pushes them out to any observers. 
-All observers see the events at the same time.
+All observers see the events at the same time. 
 
 Users must [observe](#observers) a signal in order to access its events. 
 Observing a signal does not trigger any side effects. In other words, 
 signals are entirely producer-driven and push-based, and consumers (observers) 
-cannot have any effect on their lifetime.
+cannot have any effect on their lifetime. While observing a signal, the user 
+can only evaluate the events in the same order as they are sent on the signal -
+there is no random access to values of the stream.
 
 Signals send four different types of events to their observers:
 

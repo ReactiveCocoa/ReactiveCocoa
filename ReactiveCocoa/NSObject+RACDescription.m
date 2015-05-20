@@ -42,7 +42,7 @@ NSString *RACDescription(id object) {
 		if ([object respondsToSelector:@selector(rac_description)]) {
 			return [object rac_description];
 		} else {
-			return [[NSString alloc] initWithFormat:@"<%@: %p>", object.class, object];
+			return [[NSString alloc] initWithFormat:@"<%@: %p>", [object class], object];
 		}
 	} else {
 		return @"(description skipped)";

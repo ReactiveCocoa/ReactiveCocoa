@@ -187,21 +187,6 @@ do not allow tasks to be reordered or depend on one another.
 
 [Design Guidelines]: DesignGuidelines.md
 [Memory Management]: MemoryManagement.md
-[NSButton+RACCommandSupport]: ../ReactiveCocoa/Objective-C/NSButton+RACCommandSupport.h
-[RACCommand]: ../ReactiveCocoa/Objective-C/RACCommand.h
-[RACDisposable]: ../ReactiveCocoa/Objective-C/RACDisposable.h
-[RACEvent]: ../ReactiveCocoa/Objective-C/RACEvent.h
-[RACMulticastConnection]: ../ReactiveCocoa/Objective-C/RACMulticastConnection.h
-[RACReplaySubject]: ../ReactiveCocoa/Objective-C/RACReplaySubject.h
-[RACScheduler]: ../ReactiveCocoa/Objective-C/RACScheduler.h
-[RACSequence]: ../ReactiveCocoa/Objective-C/RACSequence.h
-[RACSignal]: ../ReactiveCocoa/Objective-C/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoa/Objective-C/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoa/Objective-C/RACStream.h
-[RACSubject]: ../ReactiveCocoa/Objective-C/RACSubject.h
-[RACSubscriber]: ../ReactiveCocoa/Objective-C/RACSubscriber.h
-[RACTuple]: ../ReactiveCocoa/Objective-C/RACTuple.h
-[RACUnit]: ../ReactiveCocoa/Objective-C/RACUnit.h
 [README]: ../README.md
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift

@@ -165,19 +165,23 @@ however not have any effect on the signal itself.
 
 For more information about cancellation, see the RAC [Design Guidelines][].
 
-<!-- TODO: Update -->
 ## Schedulers
 
-A **scheduler**, represented by the [RACScheduler][] class, is a serial
-execution queue for [signals](#signals) to perform work or deliver their results upon.
+A **scheduler**, represented by the [SchedulerType][] protocol, is a serial
+execution queue to perform work or deliver their results upon.
+
+[Signals](#signals) can be ordered to deliver events a a specific scheduler or
+[SignalProducers](#signal-producers) can be ordered to start their work on 
+a specific scheduler.
 
 Schedulers are similar to Grand Central Dispatch queues, but schedulers support
 cancellation (via [disposables](#disposables)), and always execute serially.
-With the exception of the [+immediateScheduler][RACScheduler], schedulers do not
+With the exception of the [ImmediateScheduler][Scheduler], schedulers do not
 offer synchronous execution. This helps avoid deadlocks, and encourages the use
-of [signal operators][RACSignal+Operations] instead of blocking work.
+of signal operators instead of blocking work.
+<!-- TODO: Refer to the Signal Operations Section or Document -->
 
-[RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
+[Schedulers][Scheduler] are also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered or depend on one another.
 
 
@@ -204,6 +208,7 @@ do not allow tasks to be reordered or depend on one another.
 [Action]: ../ReactiveCocoa/Swift/Action.swift
 [CocoaAction]: ../ReactiveCocoa/Swift/Action.swift
 [Disposable]: ../ReactiveCocoa/Swift/Disposable.swift
+[Scheduler]: ../ReactiveCocoa/Swift/Scheduler.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift
 [Event]: ../ReactiveCocoa/Swift/Event.swift
 [SinkOf]: http://swiftdoc.org/type/SinkOf/

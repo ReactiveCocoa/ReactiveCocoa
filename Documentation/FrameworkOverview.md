@@ -129,25 +129,32 @@ wrap a `dynamic` property using Key-Value-Coding and Key-Value-Observing. `Dynam
 should only be used when KVO/KVC is required by the API used (e.g. `NSOperation`), 
 `MutableProperty` should be preferred whenever possible! 
 
-<!-- TODO: Replace with Signal.pipe section -->
-### Subjects
+### Pipes
 
-A **subject**, represented by the [RACSubject][] class, is a [signal](#signals)
+A **Pipe**, created by `Signal.pipe()`, is a [signal](#signals)
 that can be manually controlled.
 
-Subjects can be thought of as the "mutable" variant of a signal, much like
-`NSMutableArray` is for `NSArray`. They are extremely useful for bridging
-non-RAC code into the world of signals.
+The method returns a [Signal](#signals) and an [Observer](#observers). 
+This signal can be controlled by sending events to the observer. This 
+can be extremely useful for bridging non-RAC code into the world of signals.
 
 For example, instead of handling application logic in block callbacks, the
-blocks can simply send events to a shared subject instead. The subject can then
-be returned as a [RACSignal][], hiding the implementation detail of the
-callbacks.
+blocks can simply send events to a shared observer instead. The signal 
+can be returned, hiding the implementation detail of the callbacks.
 
-Some subjects offer additional behaviors as well. In particular,
-[RACReplaySubject][] can be used to buffer events for future
-[subscribers](#subscription), like when a network request finishes before
-anything is ready to handle the result.
+### Buffers
+
+A **Buffer**, created by `SignalProducer.buffer()`, is a (optionally bounded)
+queue for [Events](#events) and replays those events when new 
+[Signals](#signals) are created from the producer.
+
+Similar to a [Pipe](#pipes), the method returns an [Observer](#observers). 
+Events sent to this observer will be added to the queue. If the buffer is already
+at capacity, the earliest (oldest) event will be dropped to make room for the 
+new event. 
+
+This can be usefull to buffer events for future observers, like when a network 
+request finishes before anything is ready to handle the result.
 
 ## Disposables
 

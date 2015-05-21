@@ -105,6 +105,8 @@ Just like Signals, Signal Producers can also be manipulated. Every signal
 operator can be `lift`ed to operate upon Signal Producers instead. In other
 words, `lift` creates a new Signal Producer which will apply the given 
 signal operator to __every__ signal created from the producer. 
+<!-- TODO: |> is a different kind of operator as signal operators. 
+How can this be clearified? -->
 Again, the `|>` operator can be used to apply signal operators to a signal
 producer which implicitly lifts the operator.
 

@@ -205,8 +205,7 @@ Schedulers are similar to Grand Central Dispatch queues, but schedulers support
 cancellation (via [disposables](#disposables)), and always execute serially.
 With the exception of the [ImmediateScheduler][Scheduler], schedulers do not
 offer synchronous execution. This helps avoid deadlocks, and encourages the use
-of signal operators instead of blocking work.
-<!-- TODO: Refer to the Signal Operations Section or Document -->
+of [signal operators][BasicOperators] instead of blocking work.
 
 [Schedulers][Scheduler] are also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered or depend on one another.

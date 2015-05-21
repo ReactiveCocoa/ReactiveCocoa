@@ -8,6 +8,9 @@ learning about new modules and finding more specific documentation.
 For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
+<!-- TODO: Move the 4 event types here -->
+## Event
+
 ## Signals
 
 A **signal**, represented by the [Signal][] class, is any series of events 
@@ -28,8 +31,7 @@ there is no random access to values of the stream.
 Signals send four different types of events to their observers:
 
  * The **next** event provides a new value from the stream. [Signal][]
-   methods only operate on events of this type. Unlike Cocoa collections, it is
-   completely valid for a signal to include `nil`.
+   methods only operate on events of this type.
  * The **error** event indicates that an error occurred before the signal could
    finish. The event may include an signal specific `ErrorType` object that 
    indicates what went wrong. Errors must be handled specially – they are not 
@@ -71,19 +73,8 @@ An **Observer** is anything that is waiting or capable of waiting for events
 from a [signal](#signals). Within RAC, an observer is represented as an instance
 of the [SinkOf][] struct with an input type of Event.
 
-<!-- TODO: Since this is a high level description, we have avoided to write about
-the generic type signatures for Signal / SignalProducer / SinkOf (Observer), but 
-the sentence above feels awkeward. Maybe make it pseudo-concrete by writing
-`SinkOf<Event>` ? -->
-
 A signal can be observed by calling its `observe` method, providing either a
 sink or callbacks for the different types of events as a parameter.
-
-<!-- TODO: As I understand from the source code, this next statement is still true.
-Is it relevant enough to be here? -->
-Technically, most [Signal][] and
-[SignalProducer][] operators create subscriptions as well, but
-these intermediate subscriptions are usually an implementation detail.
 
 ### Action
 
@@ -94,9 +85,7 @@ values are generated. Alternatively, an _Error_ may be generated.
 Actions are suited to perform side-effecting work as the user interacts with
 the app.
 
-<!-- TODO: How to call >thing< ? It was 'action' before, but "some action triggers the Action" is strange.
-'event' would fit, but could be mistaken for the Events associated with a signal -->
-Usually the thing triggering an Action is UI-driven, like when a button is
+Usually the trigger for an Action is UI-driven, like when a button is
 clicked. Actions can also be automatically disabled based on a signal, and this
 disabled state can be represented in a UI by disabling any controls associated
 with the action.
@@ -116,12 +105,13 @@ The current value of a property can be obtained from the `value` getter. The
 `producer` getter returns a [SignalProducer](#signal-producers) that will send
 the property's current value, followed by all changes over time.
 
-The `<~` operator can be used to bind properties in different ways:
+The `<~` operator can be used to bind properties in different ways. Note that in 
+all cases, the target has to be a `MutablePropertyType`.
 
 * `Property <~ Signal` binds the signal to the property, updating the property's 
-value to the lates value sent by the signal.
+value to the latest value sent by the signal.
 * `Property <~ SignalProducer` creates a signal from the given producer, which will 
-immediately bound to the given property, updating the property's value to the latest 
+immediately bind to the given property, updating the property's value to the latest 
 value sent by the signal
 * `Property <~ Property` binds the _destination_ property to the latest values 
 the _source_ property.

@@ -298,7 +298,7 @@ class PropertySpec: QuickSpec {
 
 					destinationProperty <~ sourceProperty.producer
 
-					destinationProperty.value = subsequentPropertyValue
+					sourceProperty.value = subsequentPropertyValue
 					expect(destinationProperty.value).to(equal(subsequentPropertyValue))
 				}
 

@@ -54,6 +54,17 @@ there is no random access to values of the stream.
    cancelled before the signal could finish. Interruptions must be handeled 
    specially - they are not included in the stream's values.
 
+
+Signals can be manipulated by appying [Operators][Operators] to them. 
+Typical operators to manipulate a single signal like `filter`, `map` and
+`reduce` are available as well as operators to manipulate multiple signals
+at once (`zip`).
+<!-- TODO: |> is a different kind of operator as signal operators. 
+How can this be clearified? -->
+The `|>` operator is used to apply operators to a signal. It can also be used
+to compose basic operators into more complex ones.
+
+
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error`, `completed` or `interrupted` event (but no combination of those).
 
@@ -89,6 +100,13 @@ are attached.
 
 Starting a signal returns a [disposable](#disposables) which can be used to 
 interrupt/cancel the work associated Signal.
+
+Just like Signals, Signal Producers can also be manipulated. Every signal 
+operator can be `lift`ed to operate upon Signal Producers instead. In other
+words, `lift` creates a new Signal Producer which will apply the given 
+signal operator to __every__ signal created from the producer. 
+Again, the `|>` operator can be used to apply signal operators to a signal
+producer which implicitly lifts the operator.
 
 ### Buffers
 
@@ -194,6 +212,7 @@ do not allow tasks to be reordered or depend on one another.
 
 [Design Guidelines]: DesignGuidelines.md
 [Memory Management]: MemoryManagement.md
+[BasicOperators]: BasicOperators.md
 [README]: ../README.md
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift

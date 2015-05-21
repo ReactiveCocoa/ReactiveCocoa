@@ -57,7 +57,7 @@ there is no random access to values of the stream.
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error`, `completed` or `interrupted` event (but no combination of those).
 
-### Signal Producers
+## Signal Producers
 
 A **signal producer**, represented by the [SignalProducer][] class, creates 
 Signals and performs side effects.
@@ -77,7 +77,7 @@ are attached.
 Starting a signal returns a [disposable](#disposables) which can be used to 
 interrupt/cancel the work associated Signal.
 
-### Observers
+## Observers
 
 An **Observer** is anything that is waiting or capable of waiting for events
 from a [signal](#signals). Within RAC, an observer is represented as an instance
@@ -86,7 +86,7 @@ of the [SinkOf][] struct with an input type of Event.
 A signal can be observed by calling its `observe` method, providing either a
 sink or callbacks for the different types of events as a parameter.
 
-### Action
+## Action
 
 An **Action**, represented by the [Action][] class, will do some work when
 executed with an _Input_. During or after execution, zero or more _Output_
@@ -104,7 +104,7 @@ For interaction with UIKit or AppKit GUI controls such as `NSControl` or
 `UIControl`, RAC provides [CocoaAction][] to wrap Action with KVO or 
 Cocoa Bindings.
 
-### Property
+## Property
 
 A **Property**, represented by the [PropertyType][Property] protocol, allows
 observation of its changes.
@@ -129,7 +129,7 @@ wrap a `dynamic` property using Key-Value-Coding and Key-Value-Observing. `Dynam
 should only be used when KVO/KVC is required by the API used (e.g. `NSOperation`), 
 `MutableProperty` should be preferred whenever possible! 
 
-### Pipes
+## Pipes
 
 A **Pipe**, created by `Signal.pipe()`, is a [signal](#signals)
 that can be manually controlled.
@@ -142,7 +142,7 @@ For example, instead of handling application logic in block callbacks, the
 blocks can simply send events to a shared observer instead. The signal 
 can be returned, hiding the implementation detail of the callbacks.
 
-### Buffers
+## Buffers
 
 A **Buffer**, created by `SignalProducer.buffer()`, is a (optionally bounded)
 queue for [Events](#events) and replays those events when new 

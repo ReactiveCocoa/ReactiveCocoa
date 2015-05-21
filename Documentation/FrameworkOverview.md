@@ -149,16 +149,19 @@ Some subjects offer additional behaviors as well. In particular,
 [subscribers](#subscription), like when a network request finishes before
 anything is ready to handle the result.
 
-<!-- TODO: Update -->
 ## Disposables
 
-The **[RACDisposable][]** class is used for cancellation and resource cleanup.
+A **Disposable**, represented by the [Disposable][] protocol, is a a mechanism
+for memory management and cancellation. 
 
-Disposables are most commonly used to unsubscribe from a [signal](#signals).
-When a [subscription](#subscription) is disposed, the corresponding subscriber
-will not receive _any_ further events from the signal. Additionally, any work
-associated with the subscription (background processing, network requests, etc.)
-will be cancelled, since the results are no longer needed.
+When starting a [SignalProducer](#signal-producers), a disposable will be returned.
+This disposable can be used by the caller to cancel the work that has been started
+(e.g. background processing, network requests, etc.). Additionally, all temporary 
+resources should be cleaned up and an `Interrupted` event is sent.
+
+Observing a [Signal](#signals) may also return a disposable. Disposing it will 
+prevent the observer from receiving any future events from that signal, it will
+however not have any effect on the signal itself.
 
 For more information about cancellation, see the RAC [Design Guidelines][].
 
@@ -200,6 +203,7 @@ do not allow tasks to be reordered or depend on one another.
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [Action]: ../ReactiveCocoa/Swift/Action.swift
 [CocoaAction]: ../ReactiveCocoa/Swift/Action.swift
+[Disposable]: ../ReactiveCocoa/Swift/Disposable.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift
 [Event]: ../ReactiveCocoa/Swift/Event.swift
 [SinkOf]: http://swiftdoc.org/type/SinkOf/

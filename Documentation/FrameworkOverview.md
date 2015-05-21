@@ -99,8 +99,6 @@ Cocoa Bindings.
 A **Property**, represented by the [PropertyType][Property] protocol, allows
 observation of its changes.
 
-<!-- TODO: Refer to KVO and say this replaces KVO? Or is this to specific / irrelevant? -->
-
 The current value of a property can be obtained from the `value` getter. The
 `producer` getter returns a [SignalProducer](#signal-producers) that will send
 the property's current value, followed by all changes over time.
@@ -116,6 +114,10 @@ value sent by the signal
 * `Property <~ Property` binds the _destination_ property to the latest values 
 the _source_ property.
 
+When bridging to Objective C code (like UIKit or AppKit), `DynamicProperty` can be used to
+wrap a `dynamic` property using Key-Value-Coding and Key-Value-Observing. `DynamicProperty`
+should only be used when KVO/KVC is required by the API used (e.g. `NSOperation`), 
+`MutableProperty` should be preferred whenever possible! 
 
 <!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
 ### Subjects

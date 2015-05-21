@@ -98,7 +98,7 @@
 - (instancetype)mapReplace:(id)object {
 	return [[self map:^(id _) {
 		return object;
-	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
+	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, RACDescription(object)];
 }
 
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {
@@ -112,7 +112,7 @@
 		map:^(RACTuple *tuple) {
 			return tuple[1];
 		}]
-		setNameWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, RACDescription(start)];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
@@ -132,7 +132,7 @@
 - (instancetype)ignore:(id)value {
 	return [[self filter:^ BOOL (id innerValue) {
 		return innerValue != value && ![innerValue isEqual:value];
-	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, [value rac_description]];
+	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, RACDescription(value)];
 }
 
 - (instancetype)reduceEach:(id (^)())reduceBlock {
@@ -148,7 +148,7 @@
 - (instancetype)startWith:(id)value {
 	return [[[self.class return:value]
 		concat:self]
-		setNameWithFormat:@"[%@] -startWith: %@", self.name, [value rac_description]];
+		setNameWithFormat:@"[%@] -startWith: %@", self.name, RACDescription(value)];
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
@@ -260,7 +260,7 @@
 		reduceWithIndex:^(id running, id next, NSUInteger index) {
 			return reduceBlock(running, next);
 		}]
-		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, RACDescription(startingValue)];
 }
 
 - (instancetype)scanWithStart:(id)startingValue reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {
@@ -276,7 +276,7 @@
 			running = reduceBlock(running, value, index++);
 			return [class return:running];
 		};
-	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduceWithIndex:", self.name, [startingValue rac_description]];
+	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduceWithIndex:", self.name, RACDescription(startingValue)];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {

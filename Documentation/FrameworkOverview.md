@@ -8,12 +8,23 @@ learning about new modules and finding more specific documentation.
 For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
-<!-- TODO: Move the 4 event types here -->
-## Event
+## Events
+
+An **event**, represented by the [Event][] class, is the formalized representation
+of the fact that _something has happened_. In Reactive Cocoa, events are first-class
+citicens. An event might represent the press of a button, a piece of information
+received from an API, the occurrence of an error or the completion of a long
+running operation. A source generates events and sends them over a [signal](#signals) 
+to any number of [subscribers](#subscribers).
+
+An event has two types associated with it: the type of the value it holds when 
+everyting goes right, and the type of error it may hold in the case of a failure. 
+Additional to the _normal_ and the _failure_ case, an event can also represent 
+_completion_ and _interruption_.
 
 ## Signals
 
-A **signal**, represented by the [Signal][] class, is any series of events 
+A **signal**, represented by the [Signal][] class, is any series of [events](#events)
 over time that can be observed.
 
 Signals are generally used to represent event streams that are already “in progress”,
@@ -28,14 +39,13 @@ cannot have any effect on their lifetime. While observing a signal, the user
 can only evaluate the events in the same order as they are sent on the signal -
 there is no random access to values of the stream.
 
-Signals send four different types of events to their observers:
-
  * The **next** event provides a new value from the stream. [Signal][]
    methods only operate on events of this type.
  * The **error** event indicates that an error occurred before the signal could
    finish. The event may include an signal specific `ErrorType` object that 
-   indicates what went wrong. Errors must be handled specially – they are not 
-   included in the stream's values.
+   indicates what went wrong. If no error can happen, the `NoError` type can 
+   be specified. Errors must be handled specially – they are not included in 
+   the stream's values.
  * The **completed** event indicates that the signal finished successfully, and
    that no more values will be added to the stream. Completion must be handled
    specially – it is not included in the stream of values.
@@ -119,7 +129,7 @@ wrap a `dynamic` property using Key-Value-Coding and Key-Value-Observing. `Dynam
 should only be used when KVO/KVC is required by the API used (e.g. `NSOperation`), 
 `MutableProperty` should be preferred whenever possible! 
 
-<!-- TODO: Remove Subject? Or write about Signal.pipe as a replacement of subject? -->
+<!-- TODO: Replace with Signal.pipe section -->
 ### Subjects
 
 A **subject**, represented by the [RACSubject][] class, is a [signal](#signals)
@@ -191,4 +201,5 @@ do not allow tasks to be reordered or depend on one another.
 [Action]: ../ReactiveCocoa/Swift/Action.swift
 [CocoaAction]: ../ReactiveCocoa/Swift/Action.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift
+[Event]: ../ReactiveCocoa/Swift/Event.swift
 [SinkOf]: http://swiftdoc.org/type/SinkOf/

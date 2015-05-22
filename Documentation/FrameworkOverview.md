@@ -15,7 +15,7 @@ of the fact that _something has happened_. In Reactive Cocoa, events are the cen
 piece of communication. An event might represent the press of a button, a piece 
 of information received from an API, the occurrence of an error or the completion 
 of a long running operation. A source generates events and sends them over a 
-[signal](#signals) to any number of [subscribers](#subscribers).
+[signal](#signals) to any number of [observers](#observers).
 
 An event has two types associated with it: the type of the value it holds when 
 everyting goes right, and the type of error it may hold in the case of a failure. 

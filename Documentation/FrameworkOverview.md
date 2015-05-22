@@ -48,7 +48,7 @@ cannot have any effect on their lifetime. While observing a signal, the user
 can only evaluate the events in the same order as they are sent on the signal -
 there is no random access to values of the stream.
 
-Signals can be manipulated by appying [primitives][Operators] to them. 
+Signals can be manipulated by appying [primitives][BasicOperators] to them. 
 Typical primitives to manipulate a single signal like `filter`, `map` and
 `reduce` are available as well as primitives to manipulate multiple signals
 at once (`zip`). Primitives operate only on the `next` events of a signal.

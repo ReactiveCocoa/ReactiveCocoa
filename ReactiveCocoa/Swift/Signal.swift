@@ -192,9 +192,9 @@ public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
 /// Returns a signal that will yield the first `count` values from the
 /// input signal.
 public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
-	return { signal in
-		precondition(count >= 0)
+	precondition(count >= 0)
 
+	return { signal in
 		return Signal { observer in
 			if count == 0 {
 				sendCompleted(observer)
@@ -349,9 +349,9 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 /// Returns a signal that will skip the first `count` values, then forward
 /// everything afterward.
 public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
-	return { signal in
-		precondition(count >= 0)
+	precondition(count >= 0)
 
+	return { signal in
 		if (count == 0) {
 			return signal
 		}

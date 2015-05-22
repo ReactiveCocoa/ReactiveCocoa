@@ -1141,9 +1141,10 @@ private func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, 
 		}, completed: {
 			// Add one last producer to the queue, whose sole job is to
 			// "turn out the lights" by completing `observer`.
-			let completion: SignalProducer<T, E> = .empty |> on(completed: {
+			let completion = SignalProducer<T, E> { innerObserver, _ in
+				sendCompleted(innerObserver)
 				sendCompleted(observer)
-			})
+			}
 
 			state.enqueueSignalProducer(completion)
 		}, interrupted: {

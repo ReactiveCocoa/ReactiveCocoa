@@ -20,14 +20,14 @@ of a long running operation. A source generates events and sends them over a
 `Event` is an enumerated type representing either a value or one of three 
 terminal events.
 
- * The **next** event provides a new value from the source.
- * The **error** event indicates that an error occurred before the signal could
+ * The `Next` event provides a new value from the source.
+ * The `Error` event indicates that an error occurred before the signal could
    finish. The event may include an signal specific `ErrorType` object that 
    indicates what went wrong. If no error can happen, the `NoError` type can 
    be specified.
- * The **completed** event indicates that the signal finished successfully, and
+ * The `Completed` event indicates that the signal finished successfully, and
    that no more values will be sent by the source.
- * The **interrupted** event indicates that the signal has terminated 
+ * The `Interrupted` event indicates that the signal has terminated 
    non-erroneous, yet unsuccessful e.g. when the corresponding request has been
    cancelled before the signal could finish.
 

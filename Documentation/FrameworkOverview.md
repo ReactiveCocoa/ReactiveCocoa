@@ -73,8 +73,8 @@ one `error`, `completed` or `interrupted` event (but no combination of those).
 A **Pipe**, created by `Signal.pipe()`, is a [signal](#signals)
 that can be manually controlled.
 
-The method returns a [Signal](#signals) and an [Observer](#observers). 
-This signal can be controlled by sending events to the observer. This 
+The method returns a [Signal](#signals) and an [Event Sink](#observers). 
+This signal can be controlled by sending events to the sink. This 
 can be extremely useful for bridging non-RAC code into the world of signals.
 
 For example, instead of handling application logic in block callbacks, the

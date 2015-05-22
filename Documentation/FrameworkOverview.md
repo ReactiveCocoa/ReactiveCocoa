@@ -103,6 +103,8 @@ like `map`, `filter`, etc.
 Every signal primitive can be `lift`ed to operate upon Signal Producers instead. 
 In other words, `lift` creates a new Signal Producer which will apply the given 
 signal primitive to __every__ signal created from the producer. 
+Furthermore, there are additional primitives that control _when_ and _how_ work
+is started, for example `times`.
 Again, the `|>` operator can be used to apply primitives to a signal
 producer which implicitly lifts the primitive.
 

@@ -134,46 +134,52 @@ public func |> <T, E, X>(signal: Signal<T, E>, @noescape transform: Signal<T, E>
 }
 
 /// Maps each value in the signal to a new value.
-public func map<T, U, E>(transform: T -> U)(signal: Signal<T, E>) -> Signal<U, E> {
-	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
-			observer.put(event.map(transform))
-		})
+public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(Signal.Observer { event in
+				observer.put(event.map(transform))
+			})
+		}
 	}
 }
 
 /// Maps errors in the signal to a new error.
-public func mapError<T, E, F>(transform: E -> F)(signal: Signal<T, E>) -> Signal<T, F> {
-	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				sendNext(observer, value.value)
-			case let .Error(error):
-				sendError(observer, transform(error.value))
-			case .Completed:
-				sendCompleted(observer)
-			case .Interrupted:
-				sendInterrupted(observer)
-			}
-		})
+public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					sendNext(observer, value.value)
+				case let .Error(error):
+					sendError(observer, transform(error.value))
+				case .Completed:
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
+			})
+		}
 	}
 }
 
 /// Preserves only the values of the signal that pass the given predicate.
-public func filter<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				if predicate(value.value) {
-					sendNext(observer, value.value)
-				}
+public func filter<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					if predicate(value.value) {
+						sendNext(observer, value.value)
+					}
 
-			default:
-				observer.put(event)
-			}
-		})
+				default:
+					observer.put(event)
+				}
+			})
+		}
 	}
 }
 
@@ -185,33 +191,35 @@ public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
 
 /// Returns a signal that will yield the first `count` values from the
 /// input signal.
-public func take<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
+public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 	precondition(count >= 0)
 
-	return Signal { observer in
-		if count == 0 {
-			sendCompleted(observer)
-			return nil
-		}
-
-		var taken = 0
-
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				if taken < count {
-					taken++
-					sendNext(observer, value.value)
-				}
-
-				if taken == count {
-					sendCompleted(observer)
-				}
-
-			default:
-				observer.put(event)
+	return { signal in
+		return Signal { observer in
+			if count == 0 {
+				sendCompleted(observer)
+				return nil
 			}
-		})
+
+			var taken = 0
+
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					if taken < count {
+						taken++
+						sendNext(observer, value.value)
+					}
+
+					if taken == count {
+						sendCompleted(observer)
+					}
+
+				default:
+					observer.put(event)
+				}
+			})
+		}
 	}
 }
 
@@ -233,7 +241,7 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
-public func observeOn<T, E>(scheduler: SchedulerType) -> (Signal<T, E>) -> Signal<T, E> {
+public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
 			return signal.observe(Signal.Observer { event in
@@ -252,7 +260,7 @@ private final class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ())(signal: Signal<T, E>) -> Disposable? {
+private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -280,31 +288,35 @@ private func observeWithStates<T, U, E>(signalState: CombineLatestState<T>, othe
 /// The returned signal will not send a value until both inputs have sent
 /// at least one value each. If either signal is interrupted, the returned signal
 /// will also be interrupted.
-public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return Signal { observer in
-		let lock = NSRecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
+public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { signal in
+		return Signal { observer in
+			let lock = NSRecursiveLock()
+			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
 
-		let signalState = CombineLatestState<T>()
-		let otherState = CombineLatestState<U>()
-		
-		let onBothNext = { () -> () in
-			sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
+			let signalState = CombineLatestState<T>()
+			let otherState = CombineLatestState<U>()
+			
+			let onBothNext = { () -> () in
+				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
+			}
+			
+			let onError = { sendError(observer, $0) }
+			let onBothCompleted = { sendCompleted(observer) }
+			let onInterrupted = { sendInterrupted(observer) }
+			
+			let signalDisposable = observeWithStates(signal, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			let otherDisposable = observeWithStates(otherSignal, otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			
+			return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 		}
-		
-		let onError = { sendError(observer, $0) }
-		let onBothCompleted = { sendCompleted(observer) }
-		let onInterrupted = { sendInterrupted(observer) }
-		
-		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-		
-		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
-internal func combineLatestWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
-	return signal |> combineLatestWith(otherSignal) |> map { $0.0 + [$0.1] }
+internal func combineLatestWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Signal<[T], E> {
+	return { signal in
+		return signal |> combineLatestWith(otherSignal) |> map { $0.0 + [$0.1] }
+	}
 }
 
 /// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -336,29 +348,31 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 
 /// Returns a signal that will skip the first `count` values, then forward
 /// everything afterward.
-public func skip<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
+public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 	precondition(count >= 0)
 
-	if (count == 0) {
-		return signal
-	}
+	return { signal in
+		if (count == 0) {
+			return signal
+		}
 
-	return Signal { observer in
-		var skipped = 0
+		return Signal { observer in
+			var skipped = 0
 
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				if skipped >= count {
-					fallthrough
-				} else {
-					skipped++
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					if skipped >= count {
+						fallthrough
+					} else {
+						skipped++
+					}
+
+				default:
+					observer.put(event)
 				}
-
-			default:
-				observer.put(event)
-			}
-		})
+			})
+		}
 	}
 }
 
@@ -415,69 +429,73 @@ private struct SampleState<T> {
 /// Returns a signal that will send values from `signal`, sampled (possibly
 /// multiple times) by `sampler`, then complete once both input signals have
 /// completed, or interrupt if either input signal is interrupted.
-public func sampleOn<T, E>(sampler: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		let state = Atomic(SampleState<T>())
+public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			let state = Atomic(SampleState<T>())
 
-		let signalDisposable = signal.observe(next: { value in
-			state.modify { (var st) in
-				st.latestValue = value
-				return st
-			}
+			let signalDisposable = signal.observe(next: { value in
+				state.modify { (var st) in
+					st.latestValue = value
+					return st
+				}
 
-			return
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			let oldState = state.modify { (var st) in
-				st.signalCompleted = true
-				return st
-			}
+				return
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				let oldState = state.modify { (var st) in
+					st.signalCompleted = true
+					return st
+				}
 
-			if oldState.samplerCompleted {
-				sendCompleted(observer)
-			}
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
+				if oldState.samplerCompleted {
+					sendCompleted(observer)
+				}
+			}, interrupted: {
+				sendInterrupted(observer)
+			})
 
-		let samplerDisposable = sampler.observe(next: { _ in
-			if let value = state.value.latestValue {
-				sendNext(observer, value)
-			}
-		}, completed: {
-			let oldState = state.modify { (var st) in
-				st.samplerCompleted = true
-				return st
-			}
+			let samplerDisposable = sampler.observe(next: { _ in
+				if let value = state.value.latestValue {
+					sendNext(observer, value)
+				}
+			}, completed: {
+				let oldState = state.modify { (var st) in
+					st.samplerCompleted = true
+					return st
+				}
 
-			if oldState.signalCompleted {
-				sendCompleted(observer)
-			}
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
+				if oldState.signalCompleted {
+					sendCompleted(observer)
+				}
+			}, interrupted: {
+				sendInterrupted(observer)
+			})
 
-		return CompositeDisposable(ignoreNil([ signalDisposable, samplerDisposable ]))
+			return CompositeDisposable(ignoreNil([ signalDisposable, samplerDisposable ]))
+		}
 	}
 }
 
 /// Forwards events from `signal` until `trigger` sends a Next or Completed
 /// event, at which point the returned signal will complete.
-public func takeUntil<T, E>(trigger: Signal<(), NoError>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		let signalDisposable = signal.observe(observer)
-		let triggerDisposable = trigger.observe(Signal.Observer { event in
-			switch event {
-			case .Next, .Completed:
-				sendCompleted(observer)
+public func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			let signalDisposable = signal.observe(observer)
+			let triggerDisposable = trigger.observe(Signal.Observer { event in
+				switch event {
+				case .Next, .Completed:
+					sendCompleted(observer)
 
-			case .Error, .Interrupted:
-				break
-			}
-		})
+				case .Error, .Interrupted:
+					break
+				}
+			})
 
-		return CompositeDisposable(ignoreNil([ signalDisposable, triggerDisposable ]))
+			return CompositeDisposable(ignoreNil([ signalDisposable, triggerDisposable ]))
+		}
 	}
 }
 
@@ -540,38 +558,42 @@ public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
 
 /// Forwards only those values from `signal` which do not pass `isRepeat` with
 /// respect to the previous value. The first value is always forwarded.
-public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
-	return signal
-		|> map { Optional($0) }
-		|> combinePrevious(nil)
-		|> filter { (a, b) in
-			if let a = a, b = b where isRepeat(a, b) {
-				return false
-			} else {
-				return true
+public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return signal
+			|> map { Optional($0) }
+			|> combinePrevious(nil)
+			|> filter { (a, b) in
+				if let a = a, b = b where isRepeat(a, b) {
+					return false
+				} else {
+					return true
+				}
 			}
-		}
-		|> map { $0.1! }
+			|> map { $0.1! }
+	}
 }
 
 /// Does not forward any values from `signal` until `predicate` returns false,
 /// at which point the returned signal behaves exactly like `signal`.
-public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		var shouldSkip = true
+public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			var shouldSkip = true
 
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				shouldSkip = shouldSkip && predicate(value.value)
-				if !shouldSkip {
-					fallthrough
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					shouldSkip = shouldSkip && predicate(value.value)
+					if !shouldSkip {
+						fallthrough
+					}
+
+				default:
+					observer.put(event)
 				}
-
-			default:
-				observer.put(event)
-			}
-		})
+			})
+		}
 	}
 }
 
@@ -582,73 +604,79 @@ public func skipWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signa
 /// returned signal will send that event and switch to passing through events
 /// from `replacement` instead, regardless of whether `signal` has sent events
 /// already.
-public func takeUntilReplacement<T, E>(replacement: Signal<T, E>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		let signalDisposable = signal.observe(Signal.Observer { event in
-			switch event {
-			case .Completed:
-				break
+public func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			let signalDisposable = signal.observe(Signal.Observer { event in
+				switch event {
+				case .Completed:
+					break
 
-			case .Next, .Error, .Interrupted:
+				case .Next, .Error, .Interrupted:
+					observer.put(event)
+				}
+			})
+
+			let replacementDisposable = replacement.observe(Signal.Observer { event in
+				signalDisposable?.dispose()
 				observer.put(event)
-			}
-		})
+			})
 
-		let replacementDisposable = replacement.observe(Signal.Observer { event in
-			signalDisposable?.dispose()
-			observer.put(event)
-		})
-
-		return CompositeDisposable(ignoreNil([ signalDisposable, replacementDisposable ]))
+			return CompositeDisposable(ignoreNil([ signalDisposable, replacementDisposable ]))
+		}
 	}
 }
 
 /// Waits until `signal` completes and then forwards the final `count` values
 /// on the returned signal.
-public func takeLast<T, E>(count: Int)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		var buffer = [T]()
-		buffer.reserveCapacity(count)
+public func takeLast<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			var buffer = [T]()
+			buffer.reserveCapacity(count)
 
-		return signal.observe(next: { value in
-			// To avoid exceeding the reserved capacity of the buffer, we remove then add.
-			// Remove elements until we have room to add one more.
-			while (buffer.count + 1) > count {
-				buffer.removeAtIndex(0)
-			}
+			return signal.observe(next: { value in
+				// To avoid exceeding the reserved capacity of the buffer, we remove then add.
+				// Remove elements until we have room to add one more.
+				while (buffer.count + 1) > count {
+					buffer.removeAtIndex(0)
+				}
 
-			buffer.append(value)
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			for bufferedValue in buffer {
-				sendNext(observer, bufferedValue)
-			}
+				buffer.append(value)
+			}, error: { error in
+				sendError(observer, error)
+			}, completed: {
+				for bufferedValue in buffer {
+					sendNext(observer, bufferedValue)
+				}
 
-			sendCompleted(observer)
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
+				sendCompleted(observer)
+			}, interrupted: {
+				sendInterrupted(observer)
+			})
+		}
 	}
 }
 
 /// Forwards any values from `signal` until `predicate` returns false,
 /// at which point the returned signal will complete.
-public func takeWhile<T, E>(predicate: T -> Bool)(signal: Signal<T, E>) -> Signal<T, E> {
-	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
-			switch event {
-			case let .Next(value):
-				if predicate(value.value) {
-					fallthrough
-				} else {
-					sendCompleted(observer)
-				}
+public func takeWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(Signal.Observer { event in
+				switch event {
+				case let .Next(value):
+					if predicate(value.value) {
+						fallthrough
+					} else {
+						sendCompleted(observer)
+					}
 
-			default:
-				observer.put(event)
-			}
-		})
+				default:
+					observer.put(event)
+				}
+			})
+		}
 	}
 }
 
@@ -663,105 +691,113 @@ private struct ZipState<T> {
 
 /// Zips elements of two signals into pairs. The elements of any Nth pair
 /// are the Nth elements of the two input signals.
-public func zipWith<T, U, E>(otherSignal: Signal<U, E>)(signal: Signal<T, E>) -> Signal<(T, U), E> {
-	return Signal { observer in
-		let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
-		let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
-		
-		let flush = { () -> () in
-			var originalStates: (ZipState<T>, ZipState<U>)!
-			states.modify { states in
-				originalStates = states
+public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { signal in
+		return Signal { observer in
+			let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
+			let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
+			
+			let flush = { () -> () in
+				var originalStates: (ZipState<T>, ZipState<U>)!
+				states.modify { states in
+					originalStates = states
+					
+					var updatedStates = states
+					let extractCount = min(states.0.values.count, states.1.values.count)
+					
+					removeRange(&updatedStates.0.values, 0 ..< extractCount)
+					removeRange(&updatedStates.1.values, 0 ..< extractCount)
+					return updatedStates
+				}
 				
-				var updatedStates = states
-				let extractCount = min(states.0.values.count, states.1.values.count)
+				while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
+					let left = originalStates.0.values.removeAtIndex(0)
+					let right = originalStates.1.values.removeAtIndex(0)
+					sendNext(observer, (left, right))
+				}
 				
-				removeRange(&updatedStates.0.values, 0 ..< extractCount)
-				removeRange(&updatedStates.1.values, 0 ..< extractCount)
-				return updatedStates
+				if originalStates.0.isFinished || originalStates.1.isFinished {
+					sendCompleted(observer)
+				}
 			}
 			
-			while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
-				let left = originalStates.0.values.removeAtIndex(0)
-				let right = originalStates.1.values.removeAtIndex(0)
-				sendNext(observer, (left, right))
-			}
+			let onError = { sendError(observer, $0) }
+			let onInterrupted = { sendInterrupted(observer) }
 			
-			if originalStates.0.isFinished || originalStates.1.isFinished {
-				sendCompleted(observer)
-			}
+			let signalDisposable = signal.observe(next: { value in
+				states.modify { (var states) in
+					states.0.values.append(value)
+					return states
+				}
+				
+				flush()
+			}, error: onError, completed: {
+				states.modify { (var states) in
+					states.0.completed = true
+					return states
+				}
+					
+				flush()
+			}, interrupted: onInterrupted)
+			
+			let otherDisposable = otherSignal.observe(next: { value in
+				states.modify { (var states) in
+					states.1.values.append(value)
+					return states
+				}
+				
+				flush()
+			}, error: onError, completed: {
+				states.modify { (var states) in
+					states.1.completed = true
+					return states
+				}
+					
+				flush()
+			}, interrupted: onInterrupted)
+			
+			return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 		}
-		
-		let onError = { sendError(observer, $0) }
-		let onInterrupted = { sendInterrupted(observer) }
-		
-		let signalDisposable = signal.observe(next: { value in
-			states.modify { (var states) in
-				states.0.values.append(value)
-				return states
-			}
-			
-			flush()
-		}, error: onError, completed: {
-			states.modify { (var states) in
-				states.0.completed = true
-				return states
-			}
-				
-			flush()
-		}, interrupted: onInterrupted)
-		
-		let otherDisposable = otherSignal.observe(next: { value in
-			states.modify { (var states) in
-				states.1.values.append(value)
-				return states
-			}
-			
-			flush()
-		}, error: onError, completed: {
-			states.modify { (var states) in
-				states.1.completed = true
-				return states
-			}
-				
-			flush()
-		}, interrupted: onInterrupted)
-		
-		return CompositeDisposable(ignoreNil([ signalDisposable, otherDisposable ]))
 	}
 }
 
-internal func zipWith<T, E>(otherSignal: Signal<T, E>)(signal: Signal<[T], E>) -> Signal<[T], E> {
-	return signal |> zipWith(otherSignal) |> map { $0.0 + [$0.1] }
+internal func zipWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Signal<[T], E> {
+	return { signal in
+		return signal |> zipWith(otherSignal) |> map { $0.0 + [$0.1] }
+	}
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results
 /// forwarded on the returned signal and `Failure`s sent as `Error` events.
-public func try<T, E>(operation: T -> Result<(), E>)(signal: Signal<T, E>) -> Signal<T, E> {
-	return signal |> tryMap { value in
-		return operation(value).map {
-			return value
+public func try<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
+	return { signal in
+		return signal |> tryMap { value in
+			return operation(value).map {
+				return value
+			}
 		}
 	}
 }
 
 /// Applies `operation` to values from `signal` with `Success`ful results mapped
 /// on the returned signal and `Failure`s sent as `Error` events.
-public func tryMap<T, U, E>(operation: T -> Result<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
-	return Signal { observer in
-		signal.observe(next: { value in
-			operation(value).analysis(ifSuccess: { value in
-				sendNext(observer, value)
-			}, ifFailure: { error in
+public func tryMap<T, U, E>(operation: T -> Result<U, E>) -> Signal<T, E> -> Signal<U, E> {
+	return { signal in
+		return Signal { observer in
+			signal.observe(next: { value in
+				operation(value).analysis(ifSuccess: { value in
+					sendNext(observer, value)
+				}, ifFailure: { error in
+					sendError(observer, error)
+				})
+			}, error: { error in
 				sendError(observer, error)
+			}, completed: {
+				sendCompleted(observer)
+			}, interrupted: {
+				sendInterrupted(observer)
 			})
-		}, error: { error in
-			sendError(observer, error)
-		}, completed: {
-			sendCompleted(observer)
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
+		}
 	}
 }
 
@@ -1020,26 +1056,32 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 /// This does not actually cause errors to be generated for the given signal,
 /// but makes it easier to combine with other signals that may error; for
 /// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
-public func promoteErrors<T, E: ErrorType>(_: E.Type)(signal: Signal<T, NoError>) -> Signal<T, E> {
-	return Signal { observer in
-		return signal.observe(next: { value in
-			sendNext(observer, value)
-		}, completed: {
-			sendCompleted(observer)
-		}, interrupted: {
-			sendInterrupted(observer)
-		})
+public func promoteErrors<T, E: ErrorType>(_: E.Type) -> Signal<T, NoError> -> Signal<T, E> {
+	return { signal in
+		return Signal { observer in
+			return signal.observe(next: { value in
+				sendNext(observer, value)
+			}, completed: {
+				sendCompleted(observer)
+			}, interrupted: {
+				sendInterrupted(observer)
+			})
+		}
 	}
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(signal: Signal<T, E>) -> Disposable? {
-	return signal.observe(sink)
+public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> Signal<T, E> -> Disposable? {
+	return { signal in
+		return signal.observe(sink)
+	}
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(signal: Signal<T, E>) -> Disposable? {
-	return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
+public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Signal<T, E> -> Disposable? {
+	return { signal in
+		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
+	}
 }
 
 /// Describes how multiple signals or producers should be joined together.
@@ -1097,16 +1139,18 @@ extension FlattenStrategy: Printable {
 ///
 /// `Interrupted` events on inner producers will be treated like `Completed`
 /// events on inner producers.
-public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
-	switch strategy {
-	case .Merge:
-		return producer |> merge
+public func flatten<T, E>(strategy: FlattenStrategy) -> Signal<SignalProducer<T, E>, E> -> Signal<T, E> {
+	return { signal in
+		switch strategy {
+		case .Merge:
+			return signal |> merge
 
-	case .Concat:
-		return producer |> concat
+		case .Concat:
+			return signal |> concat
 
-	case .Latest:
-		return producer |> switchToLatest
+		case .Latest:
+			return signal |> switchToLatest
+		}
 	}
 }
 
@@ -1116,8 +1160,10 @@ public func flatten<T, E>(strategy: FlattenStrategy)(producer: Signal<SignalProd
 ///
 /// If `signal` or any of the created producers emit an error, the returned
 /// signal will forward that error immediately.
-public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>)(signal: Signal<T, E>) -> Signal<U, E> {
-	return signal |> map(transform) |> flatten(strategy)
+public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> Signal<T, E> -> Signal<U, E> {
+	return { signal in
+		return signal |> map(transform) |> flatten(strategy)
+	}
 }
 
 /// Returns a signal which sends all the values from each producer emitted from

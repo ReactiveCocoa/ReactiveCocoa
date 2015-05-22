@@ -333,39 +333,41 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 /// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return SignalProducer { observer, compositeDisposable in
-		started?()
-		disposed.map(compositeDisposable.addDisposable)
+public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return SignalProducer { observer, compositeDisposable in
+			started?()
+			disposed.map(compositeDisposable.addDisposable)
 
-		producer.startWithSignal { signal, disposable in
-			compositeDisposable.addDisposable(disposable)
+			producer.startWithSignal { signal, disposable in
+				compositeDisposable.addDisposable(disposable)
 
-			let innerObserver = Signal<T, E>.Observer { receivedEvent in
-				event?(receivedEvent)
+				let innerObserver = Signal<T, E>.Observer { receivedEvent in
+					event?(receivedEvent)
 
-				switch receivedEvent {
-				case let .Next(value):
-					next?(value.value)
+					switch receivedEvent {
+					case let .Next(value):
+						next?(value.value)
 
-				case let .Error(err):
-					error?(err.value)
+					case let .Error(err):
+						error?(err.value)
 
-				case .Completed:
-					completed?()
+					case .Completed:
+						completed?()
 
-				case .Interrupted:
-					interrupted?()
+					case .Interrupted:
+						interrupted?()
+					}
+
+					if receivedEvent.isTerminating {
+						terminated?()
+					}
+
+					observer.put(receivedEvent)
 				}
 
-				if receivedEvent.isTerminating {
-					terminated?()
-				}
-
-				observer.put(receivedEvent)
+				signal.observe(innerObserver)
 			}
-
-			signal.observe(innerObserver)
 		}
 	}
 }
@@ -397,22 +399,30 @@ public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> S
 ///
 /// Signals started by the returned producer will not send a value until both
 /// inputs have sent at least one value each.
-public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<(T, U), E> {
-	return producer.lift(combineLatestWith)(otherSignalProducer)
+public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<(T, U), E> {
+	return { producer in
+		return producer.lift(combineLatestWith)(otherSignalProducer)
+	}
 }
 
-internal func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>)(producer: SignalProducer<[T], E>) -> SignalProducer<[T], E> {
-	return producer.lift(combineLatestWith)(otherSignalProducer)
+internal func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>) -> SignalProducer<[T], E> -> SignalProducer<[T], E> {
+	return { producer in
+		return producer.lift(combineLatestWith)(otherSignalProducer)
+	}
 }
 
 /// Zips elements of two signal producers into pairs. The elements of any Nth
 /// pair are the Nth elements of the two input producers.
-public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<(T, U), E> {
-	return producer.lift(zipWith)(otherSignalProducer)
+public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<(T, U), E> {
+	return { producer in
+		return producer.lift(zipWith)(otherSignalProducer)
+	}
 }
 
-internal func zipWith<T, E>(otherSignalProducer: SignalProducer<T, E>)(producer: SignalProducer<[T], E>) -> SignalProducer<[T], E> {
-	return producer.lift(zipWith)(otherSignalProducer)
+internal func zipWith<T, E>(otherSignalProducer: SignalProducer<T, E>) -> SignalProducer<[T], E> -> SignalProducer<[T], E> {
+	return { producer in
+		return producer.lift(zipWith)(otherSignalProducer)
+	}
 }
 
 /// Combines the values of all the given producers, in the manner described by
@@ -587,14 +597,18 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 ///
 /// Returns a producer that will send values from `producer`, sampled (possibly
 /// multiple times) by `sampler`, then complete once both inputs have completed.
-public func sampleOn<T, E>(sampler: SignalProducer<(), NoError>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return producer.lift(sampleOn)(sampler)
+public func sampleOn<T, E>(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return producer.lift(sampleOn)(sampler)
+	}
 }
 
 /// Forwards events from `producer` until `trigger` sends a Next or Completed
 /// event, at which point the returned producer will complete.
-public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return producer.lift(takeUntil)(trigger)
+public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return producer.lift(takeUntil)(trigger)
+	}
 }
 
 /// Forwards events from `producer` until `replacement` begins sending events.
@@ -603,32 +617,36 @@ public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>)(producer: Sign
 /// until `replacement` sends an event, at which point the returned producer
 /// will send that event and switch to passing through events from `replacement`
 /// instead, regardless of whether `producer` has sent events already.
-public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return producer.lift(takeUntilReplacement)(replacement)
+public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return producer.lift(takeUntilReplacement)(replacement)
+	}
 }
 
 /// Catches any error that may occur on the input producer, then starts a new
 /// producer in its place.
-public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalProducer<T, E>) -> SignalProducer<T, F> {
-	return SignalProducer { observer, disposable in
-		let serialDisposable = SerialDisposable()
-		disposable.addDisposable(serialDisposable)
+public func catch<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, E> -> SignalProducer<T, F> {
+	return { producer in
+		return SignalProducer { observer, disposable in
+			let serialDisposable = SerialDisposable()
+			disposable.addDisposable(serialDisposable)
 
-		producer.startWithSignal { signal, signalDisposable in
-			serialDisposable.innerDisposable = signalDisposable
+			producer.startWithSignal { signal, signalDisposable in
+				serialDisposable.innerDisposable = signalDisposable
 
-			signal.observe(next: { value in
-				sendNext(observer, value)
-			}, error: { error in
-				handler(error).startWithSignal { signal, signalDisposable in
-					serialDisposable.innerDisposable = signalDisposable
-					signal.observe(observer)
-				}
-			}, completed: {
-				sendCompleted(observer)
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+				signal.observe(next: { value in
+					sendNext(observer, value)
+				}, error: { error in
+					handler(error).startWithSignal { signal, signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+						signal.observe(observer)
+					}
+				}, completed: {
+					sendCompleted(observer)
+				}, interrupted: {
+					sendInterrupted(observer)
+				})
+			}
 		}
 	}
 }
@@ -639,61 +657,67 @@ private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
 }
 
 /// `concat`s `next` onto `producer`.
-public func concat<T, E>(next: SignalProducer<T, E>)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
-	return SignalProducer(values: [producer, next]) |> flatten(.Concat)
+public func concat<T, E>(next: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+	return { producer in
+		return SignalProducer(values: [producer, next]) |> flatten(.Concat)
+	}
 }
 
 /// Repeats `producer` a total of `count` times.
 /// Repeating `1` times results in a equivalent signal producer.
-public func times<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	precondition(count >= 0)
 
-	if count == 0 {
-		return .empty
-	} else if count == 1 {
-		return producer
-	}
-
-	return SignalProducer { observer, disposable in
-		let serialDisposable = SerialDisposable()
-		disposable.addDisposable(serialDisposable)
-
-		let iterate: Int -> () = fix { recur in
-			{ current in
-				producer.startWithSignal { signal, signalDisposable in
-					serialDisposable.innerDisposable = signalDisposable
-
-					signal.observe(Signal.Observer { event in
-						switch event {
-						case .Completed:
-							let remainingTimes = current - 1
-							if remainingTimes > 0 {
-								recur(remainingTimes)
-							} else {
-								sendCompleted(observer)
-							}
-
-						default:
-							observer.put(event)
-						}
-					})
-				}
-			}
+	return { producer in
+		if count == 0 {
+			return .empty
+		} else if count == 1 {
+			return producer
 		}
 
-		iterate(count)
+		return SignalProducer { observer, disposable in
+			let serialDisposable = SerialDisposable()
+			disposable.addDisposable(serialDisposable)
+
+			let iterate: Int -> () = fix { recur in
+				{ current in
+					producer.startWithSignal { signal, signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+
+						signal.observe(Signal.Observer { event in
+							switch event {
+							case .Completed:
+								let remainingTimes = current - 1
+								if remainingTimes > 0 {
+									recur(remainingTimes)
+								} else {
+									sendCompleted(observer)
+								}
+
+							default:
+								observer.put(event)
+							}
+						})
+					}
+				}
+			}
+
+			iterate(count)
+		}
 	}
 }
 
 /// Ignores errors up to `count` times.
-public func retry<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalProducer<T, E> {
+public func retry<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	precondition(count >= 0)
 
-	if count == 0 {
-		return producer
-	} else {
-		return producer |> catch { _ in
-			producer |> retry(count - 1)
+	return { producer in
+		if count == 0 {
+			return producer
+		} else {
+			return producer |> catch { _ in
+				producer |> retry(count - 1)
+			}
 		}
 	}
 }
@@ -702,22 +726,24 @@ public func retry<T, E>(count: Int)(producer: SignalProducer<T, E>) -> SignalPro
 /// `replacement`. Any error sent from `producer` is forwarded immediately, in
 /// which case `replacement` will not be started, and none of its events will be
 /// be forwarded. All values sent from `producer` are ignored.
-public func then<T, U, E>(replacement: SignalProducer<U, E>)(producer: SignalProducer<T, E>) -> SignalProducer<U, E> {
-	let relay = SignalProducer<U, E> { observer, observerDisposable in
-		producer.startWithSignal { signal, signalDisposable in
-			observerDisposable.addDisposable(signalDisposable)
+public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<U, E> {
+	return { producer in
+		let relay = SignalProducer<U, E> { observer, observerDisposable in
+			producer.startWithSignal { signal, signalDisposable in
+				observerDisposable.addDisposable(signalDisposable)
 
-			signal.observe(error: { error in
-				sendError(observer, error)
-			}, completed: {
-				sendCompleted(observer)
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+				signal.observe(error: { error in
+					sendError(observer, error)
+				}, completed: {
+					sendCompleted(observer)
+				}, interrupted: {
+					sendInterrupted(observer)
+				})
+			}
 		}
-	}
 
-	return relay |> concat(replacement)
+		return relay |> concat(replacement)
+	}
 }
 
 /// Starts the producer, then blocks, waiting for the first value.
@@ -768,16 +794,22 @@ public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.
-public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ())(producer: SignalProducer<T, E>) -> () {
-	return producer.startWithSignal(setUp)
+public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ()) -> SignalProducer<T, E> -> () {
+	return { producer in
+		return producer.startWithSignal(setUp)
+	}
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S)(producer: SignalProducer<T, E>) -> Disposable {
-	return producer.start(sink)
+public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> SignalProducer<T, E> -> Disposable {
+	return { producer in
+		return producer.start(sink)
+	}
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil)(producer: SignalProducer<T, E>) -> Disposable {
-	return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
+public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> Disposable {
+	return { producer in
+		return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
+	}
 }

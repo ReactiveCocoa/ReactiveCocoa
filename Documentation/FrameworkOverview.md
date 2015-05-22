@@ -101,9 +101,10 @@ are attached.
 Starting a signal returns a [disposable](#disposables) which can be used to 
 interrupt/cancel the work associated Signal.
 
-Just like Signals, Signal Producers can also be manipulated. Every signal 
-operator can be `lift`ed to operate upon Signal Producers instead. In other
-words, `lift` creates a new Signal Producer which will apply the given 
+Just like signals, signal Producers can also be manipulated via functions 
+like `map`, `filter`, etc. 
+Every signal operator can be `lift`ed to operate upon Signal Producers instead. 
+In other words, `lift` creates a new Signal Producer which will apply the given 
 signal operator to __every__ signal created from the producer. 
 <!-- TODO: |> is a different kind of operator as signal operators. 
 How can this be clearified? -->

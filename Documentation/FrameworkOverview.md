@@ -17,10 +17,19 @@ of information received from an API, the occurrence of an error or the completio
 of a long running operation. A source generates events and sends them over a 
 [signal](#signals) to any number of [observers](#observers).
 
-An event has two types associated with it: the type of the value it holds when 
-everyting goes right, and the type of error it may hold in the case of a failure. 
-Additional to the _normal_ and the _failure_ case, an event can also represent 
-_completion_ and _interruption_.
+`Event` is an enumerated type representing either a value or one of three 
+terminal events.
+
+ * The **next** event provides a new value from the source.
+ * The **error** event indicates that an error occurred before the signal could
+   finish. The event may include an signal specific `ErrorType` object that 
+   indicates what went wrong. If no error can happen, the `NoError` type can 
+   be specified.
+ * The **completed** event indicates that the signal finished successfully, and
+   that no more values will be sent by the source.
+ * The **interrupted** event indicates that the signal has terminated 
+   non-erroneous, yet unsuccessful e.g. when the corresponding request has been
+   cancelled before the signal could finish.
 
 ## Signals
 
@@ -39,31 +48,18 @@ cannot have any effect on their lifetime. While observing a signal, the user
 can only evaluate the events in the same order as they are sent on the signal -
 there is no random access to values of the stream.
 
- * The **next** event provides a new value from the stream. [Signal][]
-   methods only operate on events of this type.
- * The **error** event indicates that an error occurred before the signal could
-   finish. The event may include an signal specific `ErrorType` object that 
-   indicates what went wrong. If no error can happen, the `NoError` type can 
-   be specified. Errors must be handled specially – they are not included in 
-   the stream's values.
- * The **completed** event indicates that the signal finished successfully, and
-   that no more values will be added to the stream. Completion must be handled
-   specially – it is not included in the stream of values.
- * The **interrupted** event indicates that the signal has terminated 
-   non-erroneous, yet unsuccessful e.g. when the corresponding request has been
-   cancelled before the signal could finish. Interruptions must be handeled 
-   specially - they are not included in the stream's values.
-
-
 Signals can be manipulated by appying [primitives][Operators] to them. 
 Typical primitives to manipulate a single signal like `filter`, `map` and
 `reduce` are available as well as primitives to manipulate multiple signals
-at once (`zip`).
+at once (`zip`). Primitives operate only on the `next` events of a signal.
 The `|>` operator is used to apply primitives to a signal. It can also be used
 to compose basic primitives into more complex ones.
 
 The lifetime of a signal consists of any number of `next` events, followed by
-one `error`, `completed` or `interrupted` event (but no combination of those).
+one terminating event: `error`, `completed` or `interrupted` 
+(but no combination of those).
+Terminating events are not included in the streams values, they must be 
+handeled specially.
 
 ### Pipes
 

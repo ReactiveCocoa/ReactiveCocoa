@@ -8,3 +8,26 @@ This document assumes basic familiarity
 with the features of ReactiveCocoa. The [Framework Overview][] is a better
 resource for getting up to speed on the functionality provided by RAC.
 
+**[The Signal contract](#the-signal-contract)**
+
+**[The SignalProducer contract](#the-signalproducer-contract)**
+
+**[Best practices](#best-practices)**
+
+**[Implementing new operators](#implementing-new-operators)**
+
+
+## The Signal contract
+
+
+## The SignalProducer contract
+
+
+## Best practices
+
+
+## Implementing new operators
+
+
+[Framework Overview]: FrameworkOverview.md
+

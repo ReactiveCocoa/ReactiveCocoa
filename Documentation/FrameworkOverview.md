@@ -55,15 +55,12 @@ there is no random access to values of the stream.
    specially - they are not included in the stream's values.
 
 
-Signals can be manipulated by appying [Operators][Operators] to them. 
-Typical operators to manipulate a single signal like `filter`, `map` and
-`reduce` are available as well as operators to manipulate multiple signals
+Signals can be manipulated by appying [primitives][Operators] to them. 
+Typical primitives to manipulate a single signal like `filter`, `map` and
+`reduce` are available as well as primitives to manipulate multiple signals
 at once (`zip`).
-<!-- TODO: |> is a different kind of operator as signal operators. 
-How can this be clearified? -->
-The `|>` operator is used to apply operators to a signal. It can also be used
-to compose basic operators into more complex ones.
-
+The `|>` operator is used to apply primitives to a signal. It can also be used
+to compose basic primitives into more complex ones.
 
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error`, `completed` or `interrupted` event (but no combination of those).
@@ -101,15 +98,13 @@ are attached.
 Starting a signal returns a [disposable](#disposables) which can be used to 
 interrupt/cancel the work associated Signal.
 
-Just like signals, signal Producers can also be manipulated via functions 
+Just like signals, signal Producers can also be manipulated via primitives 
 like `map`, `filter`, etc. 
-Every signal operator can be `lift`ed to operate upon Signal Producers instead. 
+Every signal primitive can be `lift`ed to operate upon Signal Producers instead. 
 In other words, `lift` creates a new Signal Producer which will apply the given 
-signal operator to __every__ signal created from the producer. 
-<!-- TODO: |> is a different kind of operator as signal operators. 
-How can this be clearified? -->
-Again, the `|>` operator can be used to apply signal operators to a signal
-producer which implicitly lifts the operator.
+signal primitive to __every__ signal created from the producer. 
+Again, the `|>` operator can be used to apply primitives to a signal
+producer which implicitly lifts the primitive.
 
 ### Buffers
 

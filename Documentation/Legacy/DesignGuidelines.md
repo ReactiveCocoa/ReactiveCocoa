@@ -732,20 +732,20 @@ By contrast, this version will avoid a stack overflow:
 
 [Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
-[NSObject+RACLifting]: ../ReactiveCocoa/NSObject+RACLifting.h
-[NSObject+RACSelectorSignal]: ../ReactiveCocoa/NSObject+RACSelectorSignal.h
-[RAC]: ../ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACChannelTo]: ../ReactiveCocoa/RACKVOChannel.h
-[RACCommand]: ../ReactiveCocoa/RACCommand.h
-[RACDisposable]: ../ReactiveCocoa/RACDisposable.h
-[RACEvent]: ../ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ../ReactiveCocoa/RACMulticastConnection.h
-[RACObserve]: ../ReactiveCocoa/NSObject+RACPropertySubscribing.h
-[RACScheduler]: ../ReactiveCocoa/RACScheduler.h
-[RACSequence]: ../ReactiveCocoa/RACSequence.h
-[RACSignal]: ../ReactiveCocoa/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoa/RACStream.h
-[RACSubscriber]: ../ReactiveCocoa/RACSubscriber.h
+[NSObject+RACLifting]: ../../ReactiveCocoa/Objective-C/NSObject+RACLifting.h
+[NSObject+RACSelectorSignal]: ../../ReactiveCocoa/Objective-C/NSObject+RACSelectorSignal.h
+[RAC]: ../../ReactiveCocoa/Objective-C/RACSubscriptingAssignmentTrampoline.h
+[RACChannelTo]: ../../ReactiveCocoa/Objective-C/RACKVOChannel.h
+[RACCommand]: ../../ReactiveCocoa/Objective-C/RACCommand.h
+[RACDisposable]: ../../ReactiveCocoa/Objective-C/RACDisposable.h
+[RACEvent]: ../../ReactiveCocoa/Objective-C/RACEvent.h
+[RACMulticastConnection]: ../../ReactiveCocoa/Objective-C/RACMulticastConnection.h
+[RACObserve]: ../../ReactiveCocoa/Objective-C/NSObject+RACPropertySubscribing.h
+[RACScheduler]: ../../ReactiveCocoa/Objective-C/RACScheduler.h
+[RACSequence]: ../../ReactiveCocoa/Objective-C/RACSequence.h
+[RACSignal]: ../../ReactiveCocoa/Objective-C/RACSignal.h
+[RACSignal+Operations]: ../../ReactiveCocoa/Objective-C/RACSignal+Operations.h
+[RACStream]: ../../ReactiveCocoa/Objective-C/RACStream.h
+[RACSubscriber]: ../../ReactiveCocoa/Objective-C/RACSubscriber.h
 [Subjects]: FrameworkOverview.md#subjects
 [Parallelizing Independent Work]: ../README.md#parallelizing-independent-work

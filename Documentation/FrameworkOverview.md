@@ -147,8 +147,8 @@ Cocoa Bindings.
 
 ## Property
 
-A **Property**, represented by the [PropertyType][Property] protocol, allows
-observation of its changes.
+A **Property**, represented by the [PropertyType][Property] protocol, 
+wraps a value, allowing observation of value changes.
 
 The current value of a property can be obtained from the `value` getter. The
 `producer` getter returns a [SignalProducer](#signal-producers) that will send

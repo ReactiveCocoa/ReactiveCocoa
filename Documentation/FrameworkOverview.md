@@ -188,8 +188,8 @@ For more information about cancellation, see the RAC [Design Guidelines][].
 
 ## Schedulers
 
-A **scheduler**, represented by the [SchedulerType][] protocol, is a serial
-execution queue to perform work or deliver results upon.
+A **scheduler**, represented by the [SchedulerType][Scheduler] protocol, is a 
+serial execution queue to perform work or deliver results upon.
 
 [Signals](#signals) can be ordered to deliver events a a specific scheduler or
 [SignalProducers](#signal-producers) can be ordered to start their work on 

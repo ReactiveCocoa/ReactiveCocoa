@@ -220,3 +220,15 @@ public final class SerialDisposable: Disposable {
 		orig.innerDisposable?.dispose()
 	}
 }
+
+/// Adds the right-hand-side disposable to the left-hand-side
+/// `CompositeDisposable`.
+///
+///     disposable += producer
+///         |> filter { ... }
+///         |> map    { ... }
+///         |> start(sink)
+///
+public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	return lhs.addDisposable(rhs)
+}

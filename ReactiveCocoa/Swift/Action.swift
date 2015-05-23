@@ -7,8 +7,13 @@
 /// times concurrently will return an error.
 public final class Action<Input, Output, Error: ErrorType> {
 	private let executeClosure: Input -> SignalProducer<Output, Error>
-	private let valuesObserver: Signal<Output, NoError>.Observer
-	private let errorsObserver: Signal<Error, NoError>.Observer
+	private let eventsObserver: Signal<Event<Output, Error>, NoError>.Observer
+
+	/// A signal of all events generated from applications of the Action.
+	///
+	/// In other words, this will send every `Event` from every signal generated
+	/// by each SignalProducer returned from apply().
+	public let events: Signal<Event<Output, Error>, NoError>
 
 	/// A signal of all values generated from applications of the Action.
 	///
@@ -55,13 +60,10 @@ public final class Action<Input, Output, Error: ErrorType> {
 		executeClosure = execute
 		userEnabled = PropertyOf(enabledIf)
 
-		let (vSig, vSink) = Signal<Output, NoError>.pipe()
-		valuesObserver = vSink
-		values = vSig
+		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
-		let (eSig, eSink) = Signal<Error, NoError>.pipe()
-		errorsObserver = eSink
-		errors = eSig
+		values = events |> map { $0.value } |> ignoreNil
+		errors = events |> map { $0.error } |> ignoreNil
 
 		_enabled <~ enabledIf.producer
 			|> combineLatestWith(executing.producer)
@@ -75,8 +77,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	}
 
 	deinit {
-		sendCompleted(valuesObserver)
-		sendCompleted(errorsObserver)
+		sendCompleted(eventsObserver)
 	}
 
 	/// Creates a SignalProducer that, when started, will execute the action
@@ -104,14 +105,9 @@ public final class Action<Input, Output, Error: ErrorType> {
 			self.executeClosure(input).startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observe(next: { value in
-					sendNext(observer, value)
-					sendNext(self.valuesObserver, value)
-				}, error: { error in
-					sendError(observer, .ProducerError(error))
-					sendNext(self.errorsObserver, error)
-				}, completed: {
-					sendCompleted(observer)
+				signal.observe(Signal.Observer { event in
+					observer.put(event.mapError { .ProducerError($0) })
+					sendNext(self.eventsObserver, event)
 				})
 			}
 

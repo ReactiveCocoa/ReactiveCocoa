@@ -63,6 +63,43 @@ public enum Event<T, E: ErrorType> {
 		}
 	}
 
+	/// Lifts the given function over the event's error.
+	public func mapError<F>(f: E -> F) -> Event<T, F> {
+		switch self {
+		case let .Next(value):
+			return .Next(value)
+
+		case let .Error(error):
+			return .Error(error.map(f))
+
+		case .Completed:
+			return .Completed
+
+		case .Interrupted:
+			return .Interrupted
+		}
+	}
+
+	/// Unwraps the contained `Next` value.
+	public var value: T? {
+		switch self {
+		case let .Next(value):
+			return value.value
+		default:
+			return nil
+		}
+	}
+
+	/// Unwraps the contained `Error` value.
+	public var error: E? {
+		switch self {
+		case let .Error(error):
+			return error.value
+		default:
+			return nil
+		}
+	}
+	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
 	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SinkOf<Event> {

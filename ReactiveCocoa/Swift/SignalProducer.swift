@@ -224,11 +224,13 @@ public struct SignalProducer<T, E: ErrorType> {
 		let wrapperObserver = Signal<T, E>.Observer { event in
 			pendingEvents.modify { $0 + 1 }
 			observer.put(event)
-			pendingEvents.modify { $0 - 1 }
+			let oldEventCount = pendingEvents.modify { $0 - 1 }
 
 			if compositeDisposable.disposed {
-				// Run any deferred disposal logic.
-				sendInterrupted(observer)
+				if oldEventCount == 1 {
+					// Run any deferred disposal logic.
+					sendInterrupted(observer)
+				}
 			} else if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal
 				// logic is consistently the last thing to run.

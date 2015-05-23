@@ -81,17 +81,17 @@ public enum Event<T, E: ErrorType> {
 	}
 
 	/// Unwraps the contained `Next` value.
-	public var nextValue: T? {
+	public var value: T? {
 		switch self {
-		case let .Next(next):
-			return next.value
+		case let .Next(value):
+			return value.value
 		default:
 			return nil
 		}
 	}
 
 	/// Unwraps the contained `Error` value.
-	public var errorValue: E? {
+	public var error: E? {
 		switch self {
 		case let .Error(error):
 			return error.value

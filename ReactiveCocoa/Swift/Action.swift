@@ -62,8 +62,8 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
-		values = events |> map { $0.nextValue } |> ignoreNil
-		errors = events |> map { $0.errorValue } |> ignoreNil
+		values = events |> map { $0.value } |> ignoreNil
+		errors = events |> map { $0.error } |> ignoreNil
 
 		_enabled <~ enabledIf.producer
 			|> combineLatestWith(executing.producer)

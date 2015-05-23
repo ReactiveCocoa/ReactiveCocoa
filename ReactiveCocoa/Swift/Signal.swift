@@ -1363,10 +1363,9 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 						}
 
 					default:
-						state.withValue { value -> () in
-							if value.isLatestIncompleteSignal(innerSignal) {
-								sink.put(event)
-							}
+						let shouldSend = state.withValue { $0.isLatestIncompleteSignal(innerSignal) }
+						if shouldSend {
+							sink.put(event)
 						}
 					}
 				})

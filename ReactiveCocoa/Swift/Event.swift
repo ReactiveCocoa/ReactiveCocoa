@@ -165,21 +165,21 @@ extension Event: Printable {
 }
 
 /// Puts a `Next` event into the given sink.
-public func sendNext<T, E>(sink: Event<T, E>.SinkOfEvent, value: T) {
+public func sendNext<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, value: T) {
 	sink.put(.Next(Box(value)))
 }
 
 /// Puts an `Error` event into the given sink.
-public func sendError<T, E>(sink: Event<T, E>.SinkOfEvent, error: E) {
+public func sendError<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, error: E) {
 	sink.put(.Error(Box(error)))
 }
 
 /// Puts a `Completed` event into the given sink.
-public func sendCompleted<T, E>(sink: Event<T, E>.SinkOfEvent) {
+public func sendCompleted<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S) {
 	sink.put(.Completed)
 }
 
 /// Puts a `Interrupted` event into the given sink.
-public func sendInterrupted<T, E>(sink: Event<T, E>.SinkOfEvent) {
+public func sendInterrupted<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S) {
 	sink.put(.Interrupted)
 }

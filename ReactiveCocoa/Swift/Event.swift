@@ -79,6 +79,26 @@ public enum Event<T, E: ErrorType> {
 			return .Interrupted
 		}
 	}
+
+	/// Unwraps the contained `Next` value.
+	public var nextValue: T? {
+		switch self {
+		case let .Next(next):
+			return next.value
+		default:
+			return nil
+		}
+	}
+
+	/// Unwraps the contained `Error` value.
+	public var errorValue: E? {
+		switch self {
+		case let .Error(error):
+			return error.value
+		default:
+			return nil
+		}
+	}
 	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.

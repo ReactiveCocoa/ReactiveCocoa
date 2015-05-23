@@ -10,16 +10,16 @@ import Foundation
 import Result
 
 extension NSNotificationCenter {
-	/// Returns a signal of notifications posted that match the given criteria.
+	/// Returns a producer of notifications posted that match the given criteria.
 	/// This signal will not terminate naturally, so it must be explicitly
 	/// disposed to avoid leaks.
-	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> Signal<NSNotification, NoError> {
-		return Signal { observer in
+	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
+		return SignalProducer { observer, disposable in
 			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sendNext(observer, notification)
 			}
 
-			return ActionDisposable {
+			disposable.addDisposable {
 				self.removeObserver(notificationObserver)
 			}
 		}

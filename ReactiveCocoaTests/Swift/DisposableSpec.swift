@@ -71,7 +71,7 @@ class DisposableSpec: QuickSpec {
 
 			it("should not dispose of removed disposables") {
 				let simpleDisposable = SimpleDisposable()
-				let handle = disposable.addDisposable(simpleDisposable)
+				let handle = disposable += simpleDisposable
 
 				// We should be allowed to call this any number of times.
 				handle.remove()

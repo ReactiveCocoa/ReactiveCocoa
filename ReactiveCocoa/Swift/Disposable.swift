@@ -229,6 +229,6 @@ public final class SerialDisposable: Disposable {
 ///         |> map    { ... }
 ///         |> start(sink)
 ///
-public func +=(lhs: CompositeDisposable, rhs: Disposable?) {
-	lhs.addDisposable(rhs)
+public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	return lhs.addDisposable(rhs)
 }

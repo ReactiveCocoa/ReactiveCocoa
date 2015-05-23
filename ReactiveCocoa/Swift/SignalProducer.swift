@@ -212,26 +212,29 @@ public struct SignalProducer<T, E: ErrorType> {
 			return
 		}
 
-		let pendingEvents = Atomic(0)
+		let sendingLock = NSLock()
+		sendingLock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.startWithSignal"
+
 		compositeDisposable.addDisposable {
 			// Interrupt the observer and all dependents when disposed, unless
 			// disposed as part of invoking the observer.
-			if pendingEvents.value == 0 {
+			if sendingLock.tryLock() {
 				sendInterrupted(observer)
+				sendingLock.unlock()
 			}
 		}
 
 		let wrapperObserver = Signal<T, E>.Observer { event in
-			pendingEvents.modify { $0 + 1 }
+			sendingLock.lock()
 			observer.put(event)
-			let oldEventCount = pendingEvents.modify { $0 - 1 }
 
 			if compositeDisposable.disposed {
-				if oldEventCount == 1 {
-					// Run any deferred disposal logic.
-					sendInterrupted(observer)
-				}
-			} else if event.isTerminating {
+				sendInterrupted(observer)
+			}
+
+			sendingLock.unlock()
+
+			if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal
 				// logic is consistently the last thing to run.
 				compositeDisposable.dispose()

@@ -91,17 +91,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 				disposable.addDisposable(signalDisposable)
 
 				signal.observe(Signal.Observer { event in
-					switch event {
-					case let .Next(value):
-						sendNext(observer, value.value)
-					case let .Error(error):
-						sendError(observer, .ProducerError(error.value))
-					case .Completed:
-						sendCompleted(observer)
-					case .Interrupted:
-						sendInterrupted(observer)
-					}
-
+					observer.put(event.mapError { .ProducerError($0) })
 					sendNext(self.eventsObserver, event)
 				})
 			}

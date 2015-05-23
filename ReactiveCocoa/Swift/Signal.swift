@@ -1325,59 +1325,71 @@ private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E
 private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E> {
 	return Signal<T, E> { sink in
 		let disposable = CompositeDisposable()
+
 		let latestInnerDisposable = SerialDisposable()
 		disposable.addDisposable(latestInnerDisposable)
 
-		let state = Atomic(LatestState<T, E>(outerSignalComplete: false, latestIncompleteSignal: nil))
-		let updateState = { (action: LatestState<T, E> -> LatestState<T, E>) -> () in
-			state.modify(action)
-			if state.value.isComplete {
-				sendCompleted(sink)
-			}
-		}
+		let state = Atomic(LatestState<T, E>())
 
 		signal.observe(next: { innerProducer in
 			innerProducer.startWithSignal { innerSignal, innerDisposable in
-				state.modify { state in
-					return state.isComplete
-						? state
-						: LatestState(
-							outerSignalComplete: state.outerSignalComplete,
-							latestIncompleteSignal: innerSignal)
+				state.modify { (var state) in
+					// When we replace the disposable below, this prevents the
+					// generated Interrupted event from doing any work.
+					state.replacingInnerSignal = true
+					return state
 				}
 
-				// Don't dispose of the previous signal until we've
-				// registered this new signal as the latest, or else we
-				// may inadvertently send Interrupted to our observer.
 				latestInnerDisposable.innerDisposable = innerDisposable
+
+				state.modify { (var state) in
+					state.replacingInnerSignal = false
+					state.innerSignalComplete = false
+					return state
+				}
 
 				innerSignal.observe(Signal.Observer { event in
 					switch event {
-					case .Completed, .Interrupted:
-						updateState { state in
-							return state.isLatestIncompleteSignal(innerSignal)
-								? LatestState(
-									outerSignalComplete: state.outerSignalComplete,
-									latestIncompleteSignal: nil)
-								: state
+					case .Interrupted:
+						// If interruption occurred as a result of a new signal
+						// arriving, we don't want to notify our observer.
+						let original = state.modify { (var state) in
+							if !state.replacingInnerSignal {
+								state.innerSignalComplete = true
+							}
+
+							return state
+						}
+
+						if !original.replacingInnerSignal && original.outerSignalComplete {
+							sendCompleted(sink)
+						}
+
+					case .Completed:
+						let original = state.modify { (var state) in
+							state.innerSignalComplete = true
+							return state
+						}
+
+						if original.outerSignalComplete {
+							sendCompleted(sink)
 						}
 
 					default:
-						state.withValue { value -> () in
-							if value.isLatestIncompleteSignal(innerSignal) {
-								sink.put(event)
-							}
-						}
+						sink.put(event)
 					}
 				})
 			}
 		}, error: { error in
 			sendError(sink, error)
 		}, completed: {
-			updateState { state in
-				LatestState(
-					outerSignalComplete: true,
-					latestIncompleteSignal: state.latestIncompleteSignal)
+			let original = state.modify { (var state) in
+				state.outerSignalComplete = true
+				return state
+			}
+
+			if original.innerSignalComplete {
+				sendCompleted(sink)
 			}
 		}, interrupted: {
 			sendInterrupted(sink)
@@ -1388,18 +1400,8 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 }
 
 private struct LatestState<T, E: ErrorType> {
-	let outerSignalComplete: Bool
-	let latestIncompleteSignal: Signal<T, E>?
+	var outerSignalComplete: Bool = false
+	var innerSignalComplete: Bool = true
 
-	func isLatestIncompleteSignal(signal: Signal<T, E>) -> Bool {
-		if let latestIncompleteSignal = latestIncompleteSignal {
-			return latestIncompleteSignal === signal
-		} else {
-			return false
-		}
-	}
-
-	var isComplete: Bool {
-		return outerSignalComplete && latestIncompleteSignal == nil
-	}
+	var replacingInnerSignal: Bool = false
 }

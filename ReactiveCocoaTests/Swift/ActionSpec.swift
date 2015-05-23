@@ -50,16 +50,8 @@ class ActionSpec: QuickSpec {
 					}
 				}
 
-				action.events.observe(next: { event in
-					switch event {
-					case let .Next(value):
-						values.append(value.value)
-					case let .Error(error):
-						errors.append(error.value)
-					default:
-						break
-					}
-				})
+				action.values.observe(next: { values.append($0) })
+				action.errors.observe(next: { errors.append($0) })
 			}
 
 			it("should be disabled and not executing after initialization") {

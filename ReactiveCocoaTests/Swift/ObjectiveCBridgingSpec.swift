@@ -192,14 +192,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				expect(action.enabled.value).to(beTruthy())
 
-				action.events.observe(next: { event in
-					switch event {
-					case let .Next(value):
-						results.append(value.value)
-					default:
-						break
-					}
-				})
+				action.values.observe(next: { results.append($0) })
 
 				command = toRACCommand(action)
 				expect(command).notTo(beNil())

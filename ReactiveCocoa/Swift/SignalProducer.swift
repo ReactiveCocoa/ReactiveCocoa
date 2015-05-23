@@ -207,13 +207,16 @@ public struct SignalProducer<T, E: ErrorType> {
 		let compositeDisposable = CompositeDisposable()
 		setUp(signal, compositeDisposable)
 
+		if compositeDisposable.disposed {
+			// Although we could wait for the disposable to be added below, this
+			// eliminates stack frames and allows us to perform a tail call.
+			sendInterrupted(observer)
+			return
+		}
+
 		compositeDisposable.addDisposable {
 			// Interrupt the observer and all dependents when disposed.
 			sendInterrupted(observer)
-		}
-
-		if compositeDisposable.disposed {
-			return
 		}
 
 		let wrapperObserver = Signal<T, E>.Observer { event in

@@ -11,7 +11,7 @@ import Result
 
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.
-	/// This signal will not terminate naturally, so it must be explicitly
+	/// This producedr will not terminate naturally, so it must be explicitly
 	/// disposed to avoid leaks.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
 		return SignalProducer { observer, disposable in

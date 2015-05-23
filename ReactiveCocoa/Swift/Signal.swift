@@ -17,8 +17,8 @@ import Result
 public final class Signal<T, E: ErrorType> {
 	public typealias Observer = SinkOf<Event<T, E>>
 
-	private let lock = NSRecursiveLock()
-	private var observers: Bag<Observer>? = Bag()
+	private let lock = NSLock()
+	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -31,13 +31,15 @@ public final class Signal<T, E: ErrorType> {
 
 		let generatorDisposable = SerialDisposable()
 		let sink = Observer { event in
-			self.lock.lock()
+			let observers = self.atomicObservers.value
 
-			if let observers = self.observers {
+			if let observers = observers {
+				self.lock.lock()
+
 				if event.isTerminating {
 					// Disallow any further events (e.g., any triggered
 					// recursively).
-					self.observers = nil
+					self.atomicObservers.value = nil
 				}
 
 				for sink in observers {
@@ -49,9 +51,9 @@ public final class Signal<T, E: ErrorType> {
 					// is consistently the last thing to run.
 					generatorDisposable.dispose()
 				}
-			}
 
-			self.lock.unlock()
+				self.lock.unlock()
+			}
 		}
 
 		generatorDisposable.innerDisposable = generator(sink)
@@ -86,15 +88,18 @@ public final class Signal<T, E: ErrorType> {
 	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable? {
 		let sink = Observer(observer)
 
-		lock.lock()
-		let token = self.observers?.insert(sink)
-		lock.unlock()
+		var token: RemovalToken?
+		atomicObservers.modify { (var observers) in
+			token = observers?.insert(sink)
+			return observers
+		}
 
 		if let token = token {
 			return ActionDisposable {
-				self.lock.lock()
-				self.observers?.removeValueForToken(token)
-				self.lock.unlock()
+				atomicObservers.modify { (var observers) in
+					observers?.removeValueForToken(token)
+					return observers
+				}
 			}
 		} else {
 			sink.put(.Interrupted)
@@ -251,7 +256,7 @@ private final class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ()) -> Disposable? {
+private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -282,7 +287,7 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: Combi
 public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
 	return { signal in
 		return Signal { observer in
-			let lock = NSRecursiveLock()
+			let lock = NSLock()
 			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
 
 			let signalState = CombineLatestState<T>()

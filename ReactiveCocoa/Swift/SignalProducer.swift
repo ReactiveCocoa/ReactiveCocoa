@@ -107,42 +107,57 @@ public struct SignalProducer<T, E: ErrorType> {
 	public static func buffer(_ capacity: Int = Int.max) -> (SignalProducer, Signal<T, E>.Observer) {
 		precondition(capacity >= 0)
 
-		let lock = NSRecursiveLock()
+		let lock = NSLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer"
 
 		var events: [Event<T, E>] = []
 		var terminationEvent: Event<T,E>?
-		var observers: Bag<Signal<T, E>.Observer>? = Bag()
+		let observers: Atomic<Bag<Signal<T, E>.Observer>?> = Atomic(Bag())
 
 		let producer = self { observer, disposable in
 			lock.lock()
+
+			var token: RemovalToken?
+			observers.modify { (var observers) in
+				token = observers?.insert(observer)
+				return observers
+			}
+
 			for event in events {
 				observer.put(event)
 			}
+
 			if let terminationEvent = terminationEvent {
 				observer.put(terminationEvent)
 			}
 
-			let token = observers?.insert(observer)
 			lock.unlock()
 
 			if let token = token {
 				disposable.addDisposable {
-					lock.lock()
-					observers?.removeValueForToken(token)
-					lock.unlock()
+					observers.modify { (var observers) in
+						observers?.removeValueForToken(token)
+						return observers
+					}
 				}
 			}
 		}
 
 		let observer = Signal<T, E>.Observer { event in
-			lock.lock()
+			let oldObservers = observers.modify { (var observers) in
+				if event.isTerminating {
+					return nil
+				} else {
+					return observers
+				}
+			}
 
 			// If not disposed…
-			if let liveObservers = observers {
+			if let liveObservers = oldObservers {
+				lock.lock()
+
 				if event.isTerminating {
 					terminationEvent = event
-					observers = nil
 				} else {
 					events.append(event)
 					while events.count > capacity {
@@ -153,9 +168,9 @@ public struct SignalProducer<T, E: ErrorType> {
 				for observer in liveObservers {
 					observer.put(event)
 				}
-			}
 
-			lock.unlock()
+				lock.unlock()
+			}
 		}
 
 		return (producer, observer)
@@ -190,26 +205,38 @@ public struct SignalProducer<T, E: ErrorType> {
 		// Create a composite disposable that will automatically be torn
 		// down when the signal terminates.
 		let compositeDisposable = CompositeDisposable()
-		compositeDisposable.addDisposable {
-			// Upon early disposable, interrupt the observer and all dependents.
-			sendInterrupted(observer)
-		}
-
 		setUp(signal, compositeDisposable)
 
-		if !compositeDisposable.disposed {
-			let wrapperObserver = Signal<T, E>.Observer { event in
-				observer.put(event)
-
-				if event.isTerminating {
-					// Dispose only after notifying the Signal, so disposal
-					// logic is consistently the last thing to run.
-					compositeDisposable.dispose()
-				}
-			}
-
-			startHandler(wrapperObserver, compositeDisposable)
+		if compositeDisposable.disposed {
+			sendInterrupted(observer)
+			return
 		}
+
+		let pendingEvents = Atomic(0)
+		compositeDisposable.addDisposable {
+			// Interrupt the observer and all dependents when disposed, unless
+			// disposed as part of invoking the observer.
+			if pendingEvents.value == 0 {
+				sendInterrupted(observer)
+			}
+		}
+
+		let wrapperObserver = Signal<T, E>.Observer { event in
+			pendingEvents.modify { $0 + 1 }
+			observer.put(event)
+			pendingEvents.modify { $0 - 1 }
+
+			if compositeDisposable.disposed {
+				// Run any deferred disposal logic.
+				sendInterrupted(observer)
+			} else if event.isTerminating {
+				// Dispose only after notifying the Signal, so disposal
+				// logic is consistently the last thing to run.
+				compositeDisposable.dispose()
+			}
+		}
+
+		startHandler(wrapperObserver, compositeDisposable)
 	}
 
 	/// Creates a Signal from the producer, then attaches the given sink to the

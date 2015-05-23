@@ -93,7 +93,7 @@ public final class Signal<T, E: ErrorType> {
 				sink.put(event)
 			}
 
-			if interruptionDisposable.disposed {
+			if !event.isTerminating && interruptionDisposable.disposed {
 				interrupt()
 			}
 

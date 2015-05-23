@@ -1250,6 +1250,10 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		if disposable.disposed {
+			return
+		}
+
 		var shouldStart = true
 
 		queuedSignalProducers.modify { (var queue) in
@@ -1266,6 +1270,10 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 
 	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		if disposable.disposed {
+			return nil
+		}
+
 		var nextSignalProducer: SignalProducer<T, E>?
 
 		queuedSignalProducers.modify { (var queue) in

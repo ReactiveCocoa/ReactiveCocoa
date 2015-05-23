@@ -1044,6 +1044,15 @@ class SignalProducerSpec: QuickSpec {
 
 					expect(completed).to(beTruthy())
 				}
+
+				it("should not deadlock") {
+					let result = SignalProducer<Int, NoError>(value: 1)
+						|> flatMap(.Latest) { _ in SignalProducer(value: 10) }
+						|> take(1)
+						|> last
+
+					expect(result?.value).to(equal(10))
+				}
 			}
 
 			describe("interruption") {

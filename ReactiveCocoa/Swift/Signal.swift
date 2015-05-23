@@ -86,15 +86,7 @@ public final class Signal<T, E: ErrorType> {
 
 	/// Forwards the given event to all observers, terminating if necessary.
 	private func send(event: Event<T, E>) {
-		let observers = self.atomicObservers.modify { observers in
-			if event.isTerminating {
-				return nil
-			} else {
-				return observers
-			}
-		}
-
-		if let observers = observers {
+		if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
 			self.sendLock.lock()
 
 			for sink in observers {

@@ -17,8 +17,16 @@ import Result
 public final class Signal<T, E: ErrorType> {
 	public typealias Observer = SinkOf<Event<T, E>>
 
-	private let lock = NSLock()
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+
+	/// Used to ensure that events are serialized during delivery to observers.
+	private let sendLock = NSLock()
+
+	/// Disposes of the generator provided at initialization time.
+	private let generatorDisposable = SerialDisposable()
+
+	/// When disposed of, the Signal should interrupt as soon as possible.
+	private let interruptionDisposable = SimpleDisposable()
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -27,32 +35,29 @@ public final class Signal<T, E: ErrorType> {
 	/// observer, at which point the disposable returned from the closure will
 	/// be disposed as well.
 	public init(_ generator: Observer -> Disposable?) {
-		lock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
+		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
-		let generatorDisposable = SerialDisposable()
 		let sink = Observer { event in
-			let observers = self.atomicObservers.value
+			switch event {
+			case .Interrupted:
+				// Normally we disallow recursive events, but
+				// Interrupted is kind of a special snowflake, since it
+				// can inadvertently be sent by downstream consumers.
+				//
+				// So we'll flag Interrupted events specially, and if it
+				// happened to occur while we're sending something else,
+				// we'll wait to deliver it.
+				self.interruptionDisposable.dispose()
 
-			if let observers = observers {
-				self.lock.lock()
+				if self.sendLock.tryLock() {
+					self.interrupt()
+					self.sendLock.unlock()
 
-				if event.isTerminating {
-					// Disallow any further events (e.g., any triggered
-					// recursively).
-					self.atomicObservers.value = nil
+					self.generatorDisposable.dispose()
 				}
 
-				for sink in observers {
-					sink.put(event)
-				}
-
-				if event.isTerminating {
-					// Dispose only after notifying observers, so disposal logic
-					// is consistently the last thing to run.
-					generatorDisposable.dispose()
-				}
-
-				self.lock.unlock()
+			default:
+				self.send(event)
 			}
 		}
 
@@ -77,6 +82,46 @@ public final class Signal<T, E: ErrorType> {
 		}
 
 		return (signal, sink)
+	}
+
+	/// Forwards the given event to all observers, terminating if necessary.
+	private func send(event: Event<T, E>) {
+		let observers = self.atomicObservers.modify { observers in
+			if event.isTerminating {
+				return nil
+			} else {
+				return observers
+			}
+		}
+
+		if let observers = observers {
+			self.sendLock.lock()
+
+			for sink in observers {
+				sink.put(event)
+			}
+
+			if interruptionDisposable.disposed {
+				interrupt()
+			}
+
+			self.sendLock.unlock()
+
+			if event.isTerminating || interruptionDisposable.disposed {
+				// Dispose only after notifying observers, so disposal logic
+				// is consistently the last thing to run.
+				self.generatorDisposable.dispose()
+			}
+		}
+	}
+
+	/// Interrupts all observers and terminates the stream.
+	private func interrupt() {
+		if let observers = self.atomicObservers.swap(nil) {
+			for sink in observers {
+				sink.put(.Interrupted)
+			}
+		}
 	}
 
 	/// Observes the Signal by sending any future events to the given sink. If

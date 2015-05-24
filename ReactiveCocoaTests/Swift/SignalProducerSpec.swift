@@ -33,8 +33,15 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should release signal observers when given disposable is disposed") {
 				var disposable: Disposable!
-				let producer = SignalProducer<Int, NoError> { _, innerDisposable in
+
+				let producer = SignalProducer<Int, NoError> { observer, innerDisposable in
 					disposable = innerDisposable
+
+					innerDisposable.addDisposable {
+						// This is necessary to keep the observer long enough to
+						// even test the memory management.
+						sendNext(observer, 0)
+					}
 				}
 
 				weak var testSink: TestSink?

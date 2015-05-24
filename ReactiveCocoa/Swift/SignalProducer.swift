@@ -202,21 +202,21 @@ public struct SignalProducer<T, E: ErrorType> {
 	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ()) {
 		let (signal, sink) = Signal<T, E>.pipe()
 
-		// Create a composite disposable that will automatically be torn
-		// down when the signal terminates.
-		let compositeDisposable = CompositeDisposable()
-		setUp(signal, compositeDisposable)
+		// Disposes of the work associated with the SignalProducer and any
+		// upstream producers.
+		let producerDisposable = CompositeDisposable()
 
-		if compositeDisposable.disposed {
-			// Although we could wait for the disposable to be added below, this
-			// eliminates stack frames and allows us to perform a tail call.
+		// Directly disposed of when start() or startWithSignal() is disposed.
+		let cancelDisposable = ActionDisposable {
+			// Cancel upstream work, then notify downstream observers.
+			producerDisposable.dispose()
 			sendInterrupted(sink)
-			return
 		}
 
-		compositeDisposable.addDisposable {
-			// Interrupt the observer and all dependents when disposed.
-			sendInterrupted(sink)
+		setUp(signal, cancelDisposable)
+
+		if cancelDisposable.disposed {
+			return
 		}
 
 		let wrapperObserver = Signal<T, E>.Observer { event in
@@ -225,11 +225,11 @@ public struct SignalProducer<T, E: ErrorType> {
 			if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal
 				// logic is consistently the last thing to run.
-				compositeDisposable.dispose()
+				producerDisposable.dispose()
 			}
 		}
 
-		startHandler(wrapperObserver, compositeDisposable)
+		startHandler(wrapperObserver, producerDisposable)
 	}
 
 	/// Creates a Signal from the producer, then attaches the given sink to the

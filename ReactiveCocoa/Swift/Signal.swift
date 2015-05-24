@@ -236,10 +236,15 @@ public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<
 	return { signal in
 		return Signal { observer in
 			return signal.observe(Signal.Observer { event in
-				scheduler.schedule {
+				switch event {
+				case .Next(_):
+					scheduler.schedule {
+						observer.put(event)
+					}
+					
+				case .Error(_), .Interrupted, .Completed:
 					observer.put(event)
 				}
-
 				return
 			})
 		}

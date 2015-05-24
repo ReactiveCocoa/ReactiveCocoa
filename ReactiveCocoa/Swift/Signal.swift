@@ -25,8 +25,8 @@ public final class Signal<T, E: ErrorType> {
 	/// Disposes of the generator provided at initialization time.
 	private let generatorDisposable = SerialDisposable()
 
-	/// When disposed of, the Signal should interrupt as soon as possible.
-	private let interruptionDisposable = SimpleDisposable()
+	/// When set to `true`, the Signal should interrupt as soon as possible.
+	private let interrupted = Atomic(false)
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -47,7 +47,7 @@ public final class Signal<T, E: ErrorType> {
 				// So we'll flag Interrupted events specially, and if it
 				// happened to occur while we're sending something else,
 				// we'll wait to deliver it.
-				self.interruptionDisposable.dispose()
+				self.interrupted.value = true
 
 				if self.sendLock.tryLock() {
 					self.interrupt()
@@ -93,13 +93,14 @@ public final class Signal<T, E: ErrorType> {
 				sink.put(event)
 			}
 
-			if !event.isTerminating && interruptionDisposable.disposed {
+			let shouldInterrupt = !event.isTerminating && self.interrupted.value
+			if shouldInterrupt {
 				interrupt()
 			}
 
 			self.sendLock.unlock()
 
-			if event.isTerminating || interruptionDisposable.disposed {
+			if event.isTerminating || shouldInterrupt {
 				// Dispose only after notifying observers, so disposal logic
 				// is consistently the last thing to run.
 				self.generatorDisposable.dispose()

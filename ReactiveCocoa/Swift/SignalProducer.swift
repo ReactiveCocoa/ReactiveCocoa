@@ -143,7 +143,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 		}
 
-		let observer = Signal<T, E>.Observer { event in
+		let bufferingObserver = Signal<T, E>.Observer { event in
 			let oldObservers = observers.modify { (var observers) in
 				if event.isTerminating {
 					return nil
@@ -173,7 +173,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 		}
 
-		return (producer, observer)
+		return (producer, bufferingObserver)
 	}
 
 	/// Creates a SignalProducer that will attempt the given operation once for

@@ -984,6 +984,38 @@ class SignalSpec: QuickSpec {
 				testScheduler.run()
 				expect(result).to(equal([ 1, 2 ]))
 			}
+			
+			it("should be disposed as soon as upstream Signal is disposed"){
+				let testScheduler = TestScheduler()
+				let (signal, observer) = Signal<(), NoError>.pipe()
+				
+				let downstreamDisposable = signal
+				|> observeOn(testScheduler)
+				|> observe()
+				
+				expect(downstreamDisposable!.disposed).to(beFalsy())
+				
+				sendInterrupted(observer)
+				expect(downstreamDisposable!.disposed).to(beTruthy())
+			}
+			
+			it("should be disposed as soon as upstream SignalProducer is disposed"){
+				let testScheduler = TestScheduler()
+				var disposable: Disposable!
+				
+				let producer = SignalProducer<(), NoError>{ _, innerDisposable in
+					disposable = innerDisposable
+				}
+				
+				let downstreamDisposable = producer
+				|> observeOn(testScheduler)
+				|> start()
+				
+				expect(downstreamDisposable.disposed).to(beFalsy())
+				
+				disposable.dispose()
+				expect(downstreamDisposable.disposed).to(beTruthy())
+			}
 		}
 
 		describe("delay") {

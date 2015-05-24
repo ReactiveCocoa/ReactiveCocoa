@@ -27,6 +27,12 @@ public enum Event<T, E: ErrorType> {
 	/// Event production on the signal has been interrupted. No further events
 	/// will be received.
 	case Interrupted
+	
+	#if DEBUG
+	public typealias Sink = DebugSinkOf<Event>
+	#else
+	public typealias Sink = SinkOf<Event>
+	#endif
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -102,8 +108,8 @@ public enum Event<T, E: ErrorType> {
 	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SinkOf<Event> {
-		return SinkOf { event in
+	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Sink {
+		return Sink { event in
 			switch event {
 			case let .Next(value):
 				next?(value.value)
@@ -159,21 +165,21 @@ extension Event: Printable {
 }
 
 /// Puts a `Next` event into the given sink.
-public func sendNext<T, E>(sink: SinkOf<Event<T, E>>, value: T) {
+public func sendNext<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, value: T) {
 	sink.put(.Next(Box(value)))
 }
 
 /// Puts an `Error` event into the given sink.
-public func sendError<T, E>(sink: SinkOf<Event<T, E>>, error: E) {
+public func sendError<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, error: E) {
 	sink.put(.Error(Box(error)))
 }
 
 /// Puts a `Completed` event into the given sink.
-public func sendCompleted<T, E>(sink: SinkOf<Event<T, E>>) {
+public func sendCompleted<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S) {
 	sink.put(.Completed)
 }
 
 /// Puts a `Interrupted` event into the given sink.
-public func sendInterrupted<T, E>(sink: SinkOf<Event<T, E>>) {
+public func sendInterrupted<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S) {
 	sink.put(.Interrupted)
 }

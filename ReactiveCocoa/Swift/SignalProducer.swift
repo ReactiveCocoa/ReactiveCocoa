@@ -200,7 +200,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
 	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ()) {
-		let (signal, observer) = Signal<T, E>.pipe()
+		let (signal, sink) = Signal<T, E>.pipe()
 
 		// Create a composite disposable that will automatically be torn
 		// down when the signal terminates.
@@ -210,17 +210,17 @@ public struct SignalProducer<T, E: ErrorType> {
 		if compositeDisposable.disposed {
 			// Although we could wait for the disposable to be added below, this
 			// eliminates stack frames and allows us to perform a tail call.
-			sendInterrupted(observer)
+			sendInterrupted(sink)
 			return
 		}
 
 		compositeDisposable.addDisposable {
 			// Interrupt the observer and all dependents when disposed.
-			sendInterrupted(observer)
+			sendInterrupted(sink)
 		}
 
 		let wrapperObserver = Signal<T, E>.Observer { event in
-			observer.put(event)
+			sink.put(event)
 
 			if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal

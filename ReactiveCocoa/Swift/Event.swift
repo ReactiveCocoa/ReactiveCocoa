@@ -27,6 +27,12 @@ public enum Event<T, E: ErrorType> {
 	/// Event production on the signal has been interrupted. No further events
 	/// will be received.
 	case Interrupted
+	
+	#if DEBUG
+	public typealias Sink = DebugSinkOf<Event>
+	#else
+	public typealias Sink = SinkOf<Event>
+	#endif
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -62,12 +68,6 @@ public enum Event<T, E: ErrorType> {
 			return .Interrupted
 		}
 	}
-	
-	#if DEBUG
-	typealias EventSink = DebugSinkOf<Event>
-	#else
-	typealias EventSink = SinkOf<Event>
-	#endif
 
 	/// Lifts the given function over the event's error.
 	public func mapError<F>(f: E -> F) -> Event<T, F> {
@@ -108,8 +108,8 @@ public enum Event<T, E: ErrorType> {
 	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> EventSink {
-		return EventSink { event in
+	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Sink {
+		return Sink { event in
 			switch event {
 			case let .Next(value):
 				next?(value.value)

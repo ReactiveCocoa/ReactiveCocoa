@@ -15,7 +15,7 @@ import Result
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated.
 public final class Signal<T, E: ErrorType> {
-	public typealias Observer = Event<T, E>.EventSink
+	public typealias Observer = Event<T, E>.Sink
 
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()

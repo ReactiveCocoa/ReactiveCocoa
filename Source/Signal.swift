@@ -51,7 +51,7 @@ public func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T,
     }
 }
 
-/// Returns a signal that flattens batches of `T`. The inverse of `collect`.
+/// Returns a signal that flattens sequences of elements. The inverse of `collect`.
 public func uncollect<S: SequenceType, E>(signal: Signal<S, E>) -> Signal<S.Generator.Element, E> {
     return Signal { observer in
         return signal.observe(Signal.Observer { event in

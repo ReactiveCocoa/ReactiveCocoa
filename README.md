@@ -1,5 +1,5 @@
 # Rex [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-Additional operators for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
+Extensions for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
 
 ## Signal
 All `Signal` operators can also be lifted to`SignalProducer`.
@@ -18,6 +18,15 @@ Wraps a `signal` in a version that drops `Error` events. By default errors are r
 func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError>
 func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T, E>) -> Signal<T, NoError>
 ```
+
+##### `uncollect`
+
+Flattens batches of elements sent on `signal` into each individual element. The inverse of `collect`.
+
+```swift
+func uncollect<S: SequenceType, E>(signal: Signal<S, E>) -> Signal<S.Generator.Element, E>
+```
+
 
 ## SignalProducer
 Operators specific to `SignalProducer`.

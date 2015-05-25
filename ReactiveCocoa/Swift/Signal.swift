@@ -230,21 +230,16 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 	return signal |> reduce(CollectState()) { $0.append($1) } |> map { $0.values }
 }
 
-/// Forwards `Next` onto the given scheduler, instead of whichever
+/// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
 public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
 			return signal.observe(Signal.Observer { event in
-				switch event {
-				case .Next(_):
-					scheduler.schedule {
-						observer.put(event)
-					}
-					
-				case .Error(_), .Interrupted, .Completed:
+				scheduler.schedule {
 					observer.put(event)
 				}
+
 				return
 			})
 		}

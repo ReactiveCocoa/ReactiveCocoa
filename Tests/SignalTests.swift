@@ -68,5 +68,24 @@ final class SignalTests: XCTestCase {
         NSError() --> sink
         XCTAssertTrue(interrupted)
     }
-    
+
+    func testUncollect() {
+        let (signal, sink) = Signal<[Int], NoError>.pipe()
+        var values: [Int] = []
+
+        signal
+            |> uncollect
+            |> observe(next: {
+                values.append($0)
+            })
+
+        [] --> sink
+        XCTAssert(values.isEmpty)
+
+        [1] --> sink
+        XCTAssert(values == [1])
+
+        [2, 3] --> sink
+        XCTAssert(values == [1, 2, 3])
+    }
 }

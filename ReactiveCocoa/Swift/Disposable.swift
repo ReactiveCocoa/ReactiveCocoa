@@ -108,7 +108,7 @@ public final class CompositeDisposable: Disposable {
 
 	public func dispose() {
 		if let ds = disposables.swap(nil) {
-			for d in ds {
+			for d in reverse(ds) {
 				d.dispose()
 			}
 		}

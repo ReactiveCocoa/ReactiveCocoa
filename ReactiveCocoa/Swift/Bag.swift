@@ -75,14 +75,28 @@ extension Bag: SequenceType {
 		let count = elements.count
 
 		return GeneratorOf {
-			assert(self.elements.count == count, "Bag \(self) mutated during enumeration")
-
 			if index < count {
 				return self.elements[index++].value
 			} else {
 				return nil
 			}
 		}
+	}
+}
+
+extension Bag: CollectionType {
+	typealias Index = Array<T>.Index
+
+	var startIndex: Index {
+		return 0
+	}
+	
+	var endIndex: Index {
+		return elements.count
+	}
+
+	subscript(index: Index) -> T {
+		return elements[index].value
 	}
 }
 

@@ -57,7 +57,26 @@ public final class Signal<T, E: ErrorType> {
 				}
 
 			default:
-				self.send(event)
+				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
+					self.sendLock.lock()
+
+					for sink in observers {
+						sink.put(event)
+					}
+
+					let shouldInterrupt = !event.isTerminating && self.interrupted.value
+					if shouldInterrupt {
+						self.interrupt()
+					}
+
+					self.sendLock.unlock()
+
+					if event.isTerminating || shouldInterrupt {
+						// Dispose only after notifying observers, so disposal logic
+						// is consistently the last thing to run.
+						self.generatorDisposable.dispose()
+					}
+				}
 			}
 		}
 
@@ -82,30 +101,6 @@ public final class Signal<T, E: ErrorType> {
 		}
 
 		return (signal, sink)
-	}
-
-	/// Forwards the given event to all observers, terminating if necessary.
-	private func send(event: Event<T, E>) {
-		if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
-			self.sendLock.lock()
-
-			for sink in observers {
-				sink.put(event)
-			}
-
-			let shouldInterrupt = !event.isTerminating && self.interrupted.value
-			if shouldInterrupt {
-				interrupt()
-			}
-
-			self.sendLock.unlock()
-
-			if event.isTerminating || shouldInterrupt {
-				// Dispose only after notifying observers, so disposal logic
-				// is consistently the last thing to run.
-				self.generatorDisposable.dispose()
-			}
-		}
 	}
 
 	/// Interrupts all observers and terminates the stream.

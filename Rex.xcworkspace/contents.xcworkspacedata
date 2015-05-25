@@ -4,4 +4,7 @@
    <FileRef
       location = "group:Rex.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:README.md">
+   </FileRef>
 </Workspace>

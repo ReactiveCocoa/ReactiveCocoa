@@ -414,8 +414,15 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 		return signal.observe(Signal.Observer { event in
 			sendNext(observer, event)
 
-			if event.isTerminating {
+			switch event {
+			case .Interrupted:
+				sendInterrupted(observer)
+
+			case .Completed, .Error:
 				sendCompleted(observer)
+
+			case .Next:
+				break
 			}
 		})
 	}

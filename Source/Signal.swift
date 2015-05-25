@@ -50,3 +50,21 @@ public func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T,
         })
     }
 }
+
+/// Returns a signal that flattens batches of `T`. The inverse of `collect`.
+public func uncollect<T, E>(signal: Signal<[T], E>) -> Signal<T, E> {
+    return Signal { observer in
+        return signal.observe(Signal.Observer { event in
+            switch event {
+            case let .Next(batch):
+                batch.value.map { sendNext(observer, $0) }
+            case let .Error(error):
+                sendError(observer, error.value)
+            case .Completed:
+                sendCompleted(observer)
+            case .Interrupted:
+                sendInterrupted(observer)
+            }
+        })
+    }
+}

@@ -833,25 +833,25 @@ public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, i
 	}
 }
 
-/// Describes how multiple signals or producers should be joined together.
+/// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {
-	/// The signals should be merged, so that any value received on any of the
-	/// input signals will be forwarded immediately to the output signal.
+	/// The producers should be merged, so that any value received on any of the
+	/// input producers will be forwarded immediately to the output producer.
 	///
-	/// The resulting signal will complete only when all inputs have completed.
+	/// The resulting producer will complete only when all inputs have completed.
 	case Merge
 
-	/// The signals should be concatenated, so that their values are sent in the
-	/// order of the signals themselves.
+	/// The producers should be concatenated, so that their values are sent in the
+	/// order of the producers themselves.
 	///
-	/// The resulting signal will complete only when all inputs have completed.
+	/// The resulting producer will complete only when all inputs have completed.
 	case Concat
 
-	/// Only the events from the latest input signal should be considered for
-	/// the output. Any signals received before that point will be disposed of.
+	/// Only the events from the latest input producer should be considered for
+	/// the output. Any producers received before that point will be disposed of.
 	///
-	/// The resulting signal will complete only when the signal-of-signals and
-	/// the latest signal has completed.
+	/// The resulting producer will complete only when the producer-of-producers and
+	/// the latest producer has completed.
 	case Latest
 }
 
@@ -919,10 +919,10 @@ public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalPr
 /// `producer`, waiting until each inner producer completes before beginning to
 /// send the values from the next inner producer.
 ///
-/// If any of the inner signals emit an error, the returned producer will emit
+/// If any of the inner producers emit an error, the returned producer will emit
 /// that error.
 ///
-/// The returned producer completes only when `producer` and all signals
+/// The returned producer completes only when `producer` and all producers
 /// emitted from `producer` complete.
 private func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer { observer, disposable in

@@ -74,13 +74,13 @@ class PropertySpec: QuickSpec {
 				expect(signalCompleted).to(beTruthy())
 			}
 
-			it("should not deadlock on recursive access") {
+			it("should not deadlock on recursive value access") {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 				var property = MutableProperty(0)
 
 				property <~ producer
 				property.producer.start(next: { _ in
-					println(property.value)
+					let test = property.value
 				})
 
 				sendNext(sink, 10)

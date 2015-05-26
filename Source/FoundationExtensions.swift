@@ -25,31 +25,28 @@ extension NSData {
 }
 
 extension NSUserDefaults {
-    /// Sends value of key when the value is changed
-    func rex_signalForKey(key: String) -> Signal<AnyObject?, NoError> {
-        let (signal, observer) = Signal<AnyObject?, NoError>.pipe()
-        
-        // send initial value
-        let initial: AnyObject? = self.objectForKey(key)
-        sendNext(observer, initial)
+    /// Sends value of `key` whenever it changes. Attempts to filter out repeats
+    /// by casting to NSObject and checking for equality. If the values aren't
+    /// convertible this will generate events whenever _any_ value in NSUserDefaults
+    /// changes.
+    func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
 
-        // observe other values
-        let defaultsDidChange = NSNotificationCenter.defaultCenter().rac_notifications(name: NSUserDefaultsDidChangeNotification, object: self)
-        defaultsDidChange.observe(next: { notification in
-            let value: AnyObject? = self.objectForKey(key)
-            
-            sendNext(observer, value)
-        }, completed: {
-            sendCompleted(observer)
-        })
+        let center = NSNotificationCenter.defaultCenter()
+        let changes = center.rac_notifications(name: NSUserDefaultsDidChangeNotification)
+            |> map { notification in
+                // The notification doesn't provide what changed so we have to look
+                // it up every time
+                return self.objectForKey(key)
+            }
 
-        return signal
-            |> skipRepeats { a, b in
-                if let a = a as? NSObject, b = b as? NSObject where a.isEqual(b) {
-                    return true
-                } else {
-                    return false
+        return SignalProducer<AnyObject?, NoError>(value: objectForKey(key))
+            |> concat(changes)
+            |> skipRepeats { previous, next in
+                if let previous = previous as? NSObject,
+                   let next = next as? NSObject {
+                    return previous == next
                 }
-        }
+                return false
+            }
     }
 }

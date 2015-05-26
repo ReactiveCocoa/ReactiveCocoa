@@ -48,21 +48,3 @@ prefix operator --| {}
 public prefix func --|<T, E:ErrorType>(sink:SinkOf<Event<T, E>>) {
     return sendCompleted(sink)
 }
-
-
-/// Adds the right-hand-side disposable to the left-hand-side
-/// `CompositeDisposable`. Usage:
-///
-///     disposable += producer
-///         |> filter { ... }
-///         |> map    { ... }
-///         |> start(sink)
-///
-/// :param: lhs a composite disposable.
-/// :param: rhs a disposable, or `nil`. This is to handle situations where
-///             functions may or may not return a disposable.
-public func +=(lhs:CompositeDisposable, rhs:Disposable?) {
-    lhs.addDisposable(rhs)
-}
-
-

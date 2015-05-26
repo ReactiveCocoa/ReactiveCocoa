@@ -22,12 +22,6 @@ public final class Signal<T, E: ErrorType> {
 	/// Used to ensure that events are serialized during delivery to observers.
 	private let sendLock = NSLock()
 
-	/// Disposes of the generator provided at initialization time.
-	private let generatorDisposable = SerialDisposable()
-
-	/// When set to `true`, the Signal should interrupt as soon as possible.
-	private let interrupted = Atomic(false)
-
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
@@ -36,6 +30,11 @@ public final class Signal<T, E: ErrorType> {
 	/// be disposed as well.
 	public init(_ generator: Observer -> Disposable?) {
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
+
+		let generatorDisposable = SerialDisposable()
+
+		/// When set to `true`, the Signal should interrupt as soon as possible.
+		let interrupted = Atomic(false)
 
 		let sink = Observer { event in
 			switch event {
@@ -47,13 +46,13 @@ public final class Signal<T, E: ErrorType> {
 				// So we'll flag Interrupted events specially, and if it
 				// happened to occur while we're sending something else,
 				// we'll wait to deliver it.
-				self.interrupted.value = true
+				interrupted.value = true
 
 				if self.sendLock.tryLock() {
 					self.interrupt()
 					self.sendLock.unlock()
 
-					self.generatorDisposable.dispose()
+					generatorDisposable.dispose()
 				}
 
 			default:
@@ -64,7 +63,7 @@ public final class Signal<T, E: ErrorType> {
 						sink.put(event)
 					}
 
-					let shouldInterrupt = !event.isTerminating && self.interrupted.value
+					let shouldInterrupt = !event.isTerminating && interrupted.value
 					if shouldInterrupt {
 						self.interrupt()
 					}
@@ -74,7 +73,7 @@ public final class Signal<T, E: ErrorType> {
 					if event.isTerminating || shouldInterrupt {
 						// Dispose only after notifying observers, so disposal logic
 						// is consistently the last thing to run.
-						self.generatorDisposable.dispose()
+						generatorDisposable.dispose()
 					}
 				}
 			}

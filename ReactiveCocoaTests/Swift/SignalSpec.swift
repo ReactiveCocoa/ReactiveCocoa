@@ -985,8 +985,25 @@ class SignalSpec: QuickSpec {
 				expect(result).to(equal([ 1, 2 ]))
 			}
 			
-			pending("should immediately cancel upstream producer's work as soon be disposed"){
+			it("should immediately cancel upstream producer's work as soon be disposed"){
+				let testScheduler = TestScheduler()
+				var upstreamDisposable: Disposable!
+				var downstreamDisposable: Disposable!
 				
+				let producer = SignalProducer<(), NoError>{ _, innerDisposable in
+					upstreamDisposable = innerDisposable
+				}
+				
+				producer
+				|> observeOn(testScheduler)
+				|> startWithSignal{ signal, innerDisposable in
+					downstreamDisposable = innerDisposable
+				}
+				
+				expect(upstreamDisposable.disposed).to(beFalsy())
+				
+				downstreamDisposable.dispose()
+				expect(upstreamDisposable.disposed).to(beTruthy())
 			}
 		}
 

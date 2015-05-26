@@ -855,16 +855,6 @@ public enum FlattenStrategy: Equatable {
 	case Latest
 }
 
-public func == (lhs: FlattenStrategy, rhs: FlattenStrategy) -> Bool {
-	switch (lhs, rhs) {
-	case (.Merge, .Merge), (.Concat, .Concat), (.Latest, .Latest):
-		return true
-
-	default:
-		return false
-	}
-}
-
 extension FlattenStrategy: Printable {
 	public var description: String {
 		switch self {

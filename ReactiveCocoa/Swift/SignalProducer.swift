@@ -208,9 +208,8 @@ public struct SignalProducer<T, E: ErrorType> {
 
 		// Directly disposed of when start() or startWithSignal() is disposed.
 		let cancelDisposable = ActionDisposable {
-			// Cancel upstream work, then notify downstream observers.
-			producerDisposable.dispose()
 			sendInterrupted(sink)
+			producerDisposable.dispose()
 		}
 
 		setUp(signal, cancelDisposable)

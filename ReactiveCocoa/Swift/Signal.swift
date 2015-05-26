@@ -404,23 +404,28 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 	}
 }
 
-/// Treats Events (except for Interrupted) from the input signal as plain
-/// values, allowing them to be manipulated just like any other value.
+/// Treats all Events from the input signal as plain values, allowing them to be
+/// manipulated just like any other value.
 ///
-/// In other words, this brings the Next, Completed, and Error Events “into the monad.”
+/// In other words, this brings Events “into the monad.”
+///
+/// When a Completed or Error event is received, the resulting signal will send
+/// the Event itself and then complete. When an Interrupted event is received,
+/// the resulting signal will send the Event itself and then interrupt.
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
+			sendNext(observer, event)
+
 			switch event {
 			case .Interrupted:
 				sendInterrupted(observer)
 
 			case .Completed, .Error:
-				sendNext(observer, event)
 				sendCompleted(observer)
 
 			case .Next:
-				sendNext(observer, event)
+				break
 			}
 		})
 	}

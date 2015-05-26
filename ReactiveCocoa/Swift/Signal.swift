@@ -412,17 +412,16 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
-			sendNext(observer, event)
-
 			switch event {
 			case .Interrupted:
 				sendInterrupted(observer)
 
 			case .Completed, .Error:
+				sendNext(observer, event)
 				sendCompleted(observer)
 
 			case .Next:
-				break
+				sendNext(observer, event)
 			}
 		})
 	}

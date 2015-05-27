@@ -96,6 +96,8 @@ public final class MutableProperty<T>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: T) {
+		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
+
 		(producer, observer) = SignalProducer<T, NoError>.buffer(1)
 
 		_value = initialValue

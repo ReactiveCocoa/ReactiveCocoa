@@ -1439,6 +1439,27 @@ class SignalProducerSpec: QuickSpec {
 				expect(result.error).to(equal(TestError.Default))
 			}
 		}
+
+		describe("observeOn") {
+			it("should immediately cancel upstream producer's work when disposed") {
+				var upstreamDisposable: Disposable!
+				let producer = SignalProducer<(), NoError>{ _, innerDisposable in
+					upstreamDisposable = innerDisposable
+				}
+
+				var downstreamDisposable: Disposable!
+				producer
+					|> observeOn(TestScheduler())
+					|> startWithSignal { signal, innerDisposable in
+						downstreamDisposable = innerDisposable
+					}
+				
+				expect(upstreamDisposable.disposed).to(beFalsy())
+				
+				downstreamDisposable.dispose()
+				expect(upstreamDisposable.disposed).to(beTruthy())
+			}
+		}
 	}
 }
 

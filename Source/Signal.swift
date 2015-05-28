@@ -51,6 +51,31 @@ public func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T,
     }
 }
 
+
+/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
+/// terminates with `event` on `scheduler`.
+///
+/// If the interval is 0, the timeout will be scheduled immediately. The signal
+/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+public func timeoutAfter<T, E>(interval: NSTimeInterval, withEvent event: Event<T, E>, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
+    precondition(interval >= 0)
+    precondition(event.isTerminating)
+
+    return { signal in
+        return Signal { observer in
+            let disposable = CompositeDisposable()
+
+            let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+            disposable += scheduler.scheduleAfter(date) {
+                observer.put(event)
+            }
+
+            disposable += signal.observe(observer)
+            return disposable
+        }
+    }
+}
+
 /// Returns a signal that flattens sequences of elements. The inverse of `collect`.
 public func uncollect<S: SequenceType, E>(signal: Signal<S, E>) -> Signal<S.Generator.Element, E> {
     return Signal { observer in

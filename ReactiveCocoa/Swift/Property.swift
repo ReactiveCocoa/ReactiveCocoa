@@ -63,18 +63,29 @@ public final class MutableProperty<T>: MutablePropertyType {
 
 	private let observer: Signal<T, NoError>.Observer
 
+	/// Need a recursive lock around `value` to allow recursive access to
+	/// `value`. Note that recursive sets will still deadlock because the
+	/// underlying producer prevents sending recursive events.
+	private let lock = NSRecursiveLock()
+	private var _value: T
+
 	/// The current value of the property.
 	///
 	/// Setting this to a new value will notify all observers of any Signals
 	/// created from the `values` producer.
 	public var value: T {
 		get {
-			let result = producer |> first
-			return result!.value!
+			lock.lock()
+			let value = _value
+			lock.unlock()
+			return value
 		}
 
-		set(x) {
-			sendNext(observer, x)
+		set {
+			lock.lock()
+			_value = newValue
+			sendNext(observer, newValue)
+			lock.unlock()
 		}
 	}
 
@@ -85,11 +96,12 @@ public final class MutableProperty<T>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: T) {
-		let (producer, observer) = SignalProducer<T, NoError>.buffer(1)
-		self.producer = producer
-		self.observer = observer
+		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		value = initialValue
+		(producer, observer) = SignalProducer<T, NoError>.buffer(1)
+
+		_value = initialValue
+		sendNext(observer, initialValue)
 	}
 
 	deinit {

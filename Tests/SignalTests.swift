@@ -69,6 +69,52 @@ final class SignalTests: XCTestCase {
         XCTAssertTrue(interrupted)
     }
 
+    func testTimeoutAfterTerminating() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, NoError>.pipe()
+        var interrupted = false
+        var completed = false
+
+        signal
+            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            |> observe(
+                completed: { completed = true },
+                interrupted: { interrupted = true }
+            )
+
+        scheduler.scheduleAfter(1) { sendCompleted(sink) }
+
+        XCTAssertFalse(interrupted)
+        XCTAssertFalse(completed)
+
+        scheduler.run()
+        XCTAssertTrue(completed)
+        XCTAssertFalse(interrupted)
+    }
+
+    func testTimeoutAfterTimingOut() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, NoError>.pipe()
+        var interrupted = false
+        var completed = false
+
+        signal
+            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            |> observe(
+                completed: { completed = true },
+                interrupted: { interrupted = true }
+            )
+
+        scheduler.scheduleAfter(3) { sendCompleted(sink) }
+
+        XCTAssertFalse(interrupted)
+        XCTAssertFalse(completed)
+
+        scheduler.run()
+        XCTAssertTrue(interrupted)
+        XCTAssertFalse(completed)
+    }
+
     func testUncollect() {
         let (signal, sink) = Signal<[Int], NoError>.pipe()
         var values: [Int] = []

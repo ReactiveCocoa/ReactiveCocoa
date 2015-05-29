@@ -14,11 +14,10 @@ final class PropertyTests: XCTestCase {
 
     func testSignalPropertyValues() {
         let (signal, sink) = Signal<Int, NoError>.pipe()
-        var property: SignalProperty? = SignalProperty(0, signal)
+        var property = SignalProperty(0, signal)
 
         var latest = -1
-        property?.producer.start(next: {
-            println("Really?")
+        property.producer.start(next: {
             latest = $0
         })
 
@@ -34,13 +33,10 @@ final class PropertyTests: XCTestCase {
 
         var completed = false
         property?.producer.start(completed: {
-            println("Really?")
             completed = true
         })
 
-        println("Before")
         property = nil
-        println("After")
         XCTAssert(completed)
     }
 

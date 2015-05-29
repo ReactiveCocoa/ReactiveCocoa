@@ -43,4 +43,27 @@ final class PropertyTests: XCTestCase {
         println("After")
         XCTAssert(completed)
     }
+
+    func testSinkProperty() {
+        let (signal, sink) = Signal<Int, NoError>.pipe()
+
+        var property = sinkProperty(Collector(), signal)
+        XCTAssert(property.value.values == [])
+
+        sendNext(sink, 1)
+        XCTAssert(property.value.values == [1])
+
+        sendNext(sink, 2)
+        sendNext(sink, 3)
+        XCTAssert(property.value.values == [1, 2, 3])
+    }
+}
+
+struct Collector<T>: SinkType {
+    typealias Element = T
+    var values: [T] = []
+
+    mutating func put(value: T) {
+        values.append(value)
+    }
 }

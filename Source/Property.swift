@@ -29,3 +29,27 @@ public struct SignalProperty<T>: PropertyType {
         property <~ producer
     }
 }
+
+public func propertyOf<T>(initialValue: T, producer: SignalProducer<T, NoError>) -> PropertyOf<T> {
+    return PropertyOf(SignalProperty(initialValue, producer))
+}
+
+public func propertyOf<T>(initialValue: T, signal: Signal<T, NoError>) -> PropertyOf<T> {
+    return PropertyOf(SignalProperty(initialValue, signal))
+}
+
+public func sinkProperty<S: SinkType>(initialValue: S, signal: Signal<S.Element, NoError>) -> PropertyOf<S> {
+    return propertyOf(initialValue, signal
+        |> scan(initialValue) { (var value, change) in
+            value.put(change)
+            return value
+        })
+}
+
+public func sinkProperty<S: SinkType>(initialValue: S, producer: SignalProducer<S.Element, NoError>) -> PropertyOf<S> {
+    return propertyOf(initialValue, producer
+        |> scan(initialValue) { (var value, change) in
+            value.put(change)
+            return value
+        })
+}

@@ -19,6 +19,13 @@ func ignoreError<T, E>(signal: Signal<T, E>) -> Signal<T, NoError>
 func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T, E>) -> Signal<T, NoError>
 ```
 
+##### `timeoutAfter`
+Forwards events from `signal` until it terminates or until `interval` time passes. This is nearly identical to `timeoutWithError` from RAC except any terminating `event` can be used for the timeout.
+
+```swift
+func timeoutAfter<T, E>(interval: NSTimeInterval, withEvent event: Event<T, E>, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E>
+```
+
 ##### `uncollect`
 
 Flattens batches of elements sent on `signal` into each individual element. The inverse of `collect`.

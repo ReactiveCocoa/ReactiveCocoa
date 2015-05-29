@@ -40,6 +40,8 @@
 		D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
+		D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
+		D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +109,7 @@
 		D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RexTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8F0973A1B17F2F7002E15BA /* NSData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSData.swift; sourceTree = "<group>"; };
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
+		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				D8F0973A1B17F2F7002E15BA /* NSData.swift */,
+				D8F097431B17F3C8002E15BA /* NSObject.swift */,
 				D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */,
 			);
 			path = Foundation;
@@ -421,6 +425,7 @@
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
 				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
+				D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
 				D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 			);
@@ -442,6 +447,7 @@
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
+				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
 			);

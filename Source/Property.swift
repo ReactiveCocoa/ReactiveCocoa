@@ -40,7 +40,7 @@ public func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> Proper
     return PropertyOf(SignalProperty(initialValue, signal))
 }
 
-/// Creates a new property bound to `signal` starting with `initialValue`.
+/// Creates a new property bound to `producer` starting with `initialValue`.
 public func propertyOf<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> PropertyOf<T> {
     return PropertyOf(SignalProperty(initialValue, producer))
 }
@@ -51,7 +51,7 @@ public func propertySink<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError
     return signal |> put(sink) |> propertyOf(sink)
 }
 
-/// Wraps `sink` in a property bound to `signal`. Values sent on `signal` are `put` into
+/// Wraps `sink` in a property bound to `producer`. Values sent on `producer` are `put` into
 /// the `sink` to update it.
 public func propertySink<S: SinkType>(sink: S)(producer: SignalProducer<S.Element, NoError>) -> PropertyOf<S> {
     return producer |> put(sink) |> propertyOf(sink)

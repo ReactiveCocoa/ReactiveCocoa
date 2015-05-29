@@ -1,28 +1,12 @@
 //
-//  FoundationExtensions.swift
+//  NSUserDefaults.swift
 //  Rex
 //
-//  Created by Ilya Laryionau on 10/05/15.
+//  Created by Neil Pankey on 5/28/15.
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
 import ReactiveCocoa
-
-extension NSData {
-    /// Read the data at the URL.
-    /// Sends the data or the error.
-    class func rex_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions.allZeros) -> SignalProducer<NSData, NSError> {
-        return SignalProducer<NSData, NSError> { observer, disposable in
-            var error: NSError?
-            if let data = NSData(contentsOfURL: url, options: options, error: &error) {
-                sendNext(observer, data)
-                sendCompleted(observer)
-            } else {
-                sendError(observer, error ?? NSError())
-            }
-        }
-    }
-}
 
 extension NSUserDefaults {
     /// Sends value of `key` whenever it changes. Attempts to filter out repeats
@@ -37,16 +21,16 @@ extension NSUserDefaults {
                 // The notification doesn't provide what changed so we have to look
                 // it up every time
                 return self.objectForKey(key)
-            }
+        }
 
         return SignalProducer<AnyObject?, NoError>(value: objectForKey(key))
             |> concat(changes)
             |> skipRepeats { previous, next in
                 if let previous = previous as? NSObject,
-                   let next = next as? NSObject {
-                    return previous == next
+                    let next = next as? NSObject {
+                        return previous == next
                 }
                 return false
-            }
+        }
     }
 }

@@ -44,6 +44,10 @@
 		D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
 		D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
 		D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
+		D8F0974D1B190ECE002E15BA /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0974C1B190ECE002E15BA /* Property.swift */; };
+		D8F0974E1B190ECE002E15BA /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0974C1B190ECE002E15BA /* Property.swift */; };
+		D8F097501B190F1A002E15BA /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0974F1B190F1A002E15BA /* PropertyTests.swift */; };
+		D8F097511B190F1A002E15BA /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0974F1B190F1A002E15BA /* PropertyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +117,8 @@
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 		D8F097471B17F5DD002E15BA /* NSObjectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObjectTests.swift; sourceTree = "<group>"; };
+		D8F0974C1B190ECE002E15BA /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
+		D8F0974F1B190F1A002E15BA /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				7DE995CA1B03A56800CA9420 /* Operators.swift */,
+				D8F0974C1B190ECE002E15BA /* Property.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				D8F097391B17F2BF002E15BA /* Foundation */,
@@ -192,6 +199,7 @@
 		D8003E9D1AFEC3D400D7D3C5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D8F0974F1B190F1A002E15BA /* PropertyTests.swift */,
 				D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */,
 				D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */,
 				D8F097461B17F5BF002E15BA /* Foundation */,
@@ -434,6 +442,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F0974D1B190ECE002E15BA /* Property.swift in Sources */,
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
 				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
@@ -449,6 +458,7 @@
 			files = (
 				D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */,
 				D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */,
+				D8F097501B190F1A002E15BA /* PropertyTests.swift in Sources */,
 				D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,6 +467,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F0974E1B190ECE002E15BA /* Property.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
@@ -472,6 +483,7 @@
 			files = (
 				D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
+				D8F097511B190F1A002E15BA /* PropertyTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

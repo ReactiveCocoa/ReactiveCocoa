@@ -48,20 +48,22 @@ func groupBy<K: Hashable, T, E>(grouping: T -> K)(producer: SignalProducer<T, E>
 
 
 ## Property
-Extensions for creating properties from signals. These are curried to support chaining with `|>` and lifting signal producers.
+Extensions for creating properties from signals. These are curried to support chaining with `|>`.
 
 ##### `propertyOf`
-Creates a new property bound to `signal` starting with `initialValue`.
+Creates a new property bound to the provided signal/producer starting with `initialValue`.
 
 ```swift
 func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> PropertyOf<T>
+func propertyOf<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> PropertyOf<T>
 ```
 
 ##### `propertySink`
-Wraps `sink` in a property bound to `signal`. Values sent on `signal` are `put` into the `sink` to update it.
+Wraps `sink` in a property bound to the provided signal/producer. Values sent on `signal` are `put` into the `sink` to update it.
 
 ```swift
-func sinkProperty<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError>) -> PropertyOf<S>
+func propertySink<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError>) -> PropertyOf<S>
+func propertySink<S: SinkType>(sink: S)(producer: SignalProducer<S.Element, NoError>) -> PropertyOf<S>
 ```
 
 

@@ -40,10 +40,24 @@ final class PropertyTests: XCTestCase {
         XCTAssert(completed)
     }
 
-    func testSinkProperty() {
+    func testSignalPropertySink() {
         let (signal, sink) = Signal<Int, NoError>.pipe()
 
         let property = signal |> propertySink(Collector())
+        XCTAssert(property.value.values == [])
+
+        sendNext(sink, 1)
+        XCTAssert(property.value.values == [1])
+
+        sendNext(sink, 2)
+        sendNext(sink, 3)
+        XCTAssert(property.value.values == [1, 2, 3])
+    }
+
+    func testProducerPropertySink() {
+        let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+        let property = producer |> propertySink(Collector<Int>(values: []))
         XCTAssert(property.value.values == [])
 
         sendNext(sink, 1)

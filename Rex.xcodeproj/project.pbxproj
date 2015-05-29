@@ -42,6 +42,8 @@
 		D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
 		D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
 		D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
+		D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
+		D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +112,7 @@
 		D8F0973A1B17F2F7002E15BA /* NSData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSData.swift; sourceTree = "<group>"; };
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
+		D8F097471B17F5DD002E15BA /* NSObjectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObjectTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +194,7 @@
 			children = (
 				D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */,
 				D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */,
+				D8F097461B17F5BF002E15BA /* Foundation */,
 				D8003E9E1AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Tests;
@@ -244,6 +248,14 @@
 				D8F0973A1B17F2F7002E15BA /* NSData.swift */,
 				D8F097431B17F3C8002E15BA /* NSObject.swift */,
 				D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */,
+			);
+			path = Foundation;
+			sourceTree = "<group>";
+		};
+		D8F097461B17F5BF002E15BA /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				D8F097471B17F5DD002E15BA /* NSObjectTests.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -435,6 +447,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */,
 				D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */,
 				D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */,
 			);
@@ -457,6 +470,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 			);

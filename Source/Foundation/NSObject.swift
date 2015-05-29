@@ -11,6 +11,9 @@ import ReactiveCocoa
 extension NSObject {
     /// Creates a strongly-typed producer to monitor `keyPath` via KVO. The caller
     /// is responsible for ensuring that the associated value is castable to `T`.
+    ///
+    /// Swift classes deriving `NSObject` must declare properties as `dynamic` for
+    /// them to work with KVO. However, this is not recommended practice.
     public func rex_producerForKeyPath<T>(keyPath: String) -> SignalProducer<T, NoError> {
         return self.rac_valuesForKeyPath(keyPath, observer: nil)
             .toSignalProducer()

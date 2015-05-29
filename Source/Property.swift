@@ -8,9 +8,8 @@
 
 import ReactiveCocoa
 
-public final class SignalProperty<T>: PropertyType {
+public struct SignalProperty<T>: PropertyType {
     private let property: MutableProperty<T>
-    private let disposable: Disposable?
 
     public var value: T {
         return property.value
@@ -20,17 +19,13 @@ public final class SignalProperty<T>: PropertyType {
         return property.producer
     }
 
-    public init(_ value: T, _ producer: SignalProducer<T, NoError>) {
-        property = MutableProperty(value)
-        disposable = (property <~ producer)
-    }
-
     public init(_ value: T, _ signal: Signal<T, NoError>) {
         property = MutableProperty(value)
-        disposable = (property <~ signal)
+        property <~ signal
     }
 
-    deinit {
-        disposable?.dispose()
+    public init(_ value: T, _ producer: SignalProducer<T, NoError>) {
+        property = MutableProperty(value)
+        property <~ producer
     }
 }

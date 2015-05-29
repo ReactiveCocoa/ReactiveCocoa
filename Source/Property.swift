@@ -42,7 +42,7 @@ public func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> Proper
 
 /// Wraps `sink` in a property bound to `signal`. Values sent on `signal` are `put` into
 /// the `sink` to update it.
-public func sinkProperty<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError>) -> PropertyOf<S> {
+public func propertySink<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError>) -> PropertyOf<S> {
     return signal
         |> scan(sink) { (var value, change) in
             value.put(change)

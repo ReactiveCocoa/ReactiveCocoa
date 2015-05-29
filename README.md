@@ -57,7 +57,7 @@ Creates a new property bound to `signal` starting with `initialValue`.
 func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> PropertyOf<T>
 ```
 
-##### `sinkProperty`
+##### `propertySink`
 Wraps `sink` in a property bound to `signal`. Values sent on `signal` are `put` into the `sink` to update it.
 
 ```swift

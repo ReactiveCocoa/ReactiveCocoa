@@ -47,7 +47,7 @@ final class PropertyTests: XCTestCase {
     func testSinkProperty() {
         let (signal, sink) = Signal<Int, NoError>.pipe()
 
-        let property = signal |> sinkProperty(Collector())
+        let property = signal |> propertySink(Collector())
         XCTAssert(property.value.values == [])
 
         sendNext(sink, 1)

@@ -162,8 +162,8 @@ extension MutableProperty: SinkType {
 infix operator <~ {
 	associativity right
 
-	// Binds tighter than assignment but looser than everything else.
-	precedence 91
+	// Binds tighter than assignment but looser than everything else, including `|>`
+	precedence 93
 }
 
 /// Binds a signal to a property, updating the property's value to the latest

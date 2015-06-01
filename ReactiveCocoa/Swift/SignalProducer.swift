@@ -180,6 +180,8 @@ public struct SignalProducer<T, E: ErrorType> {
 		}
 
 		let bufferingObserver = Signal<T, E>.Observer { event in
+			lock.lock()
+			
 			let oldObservers = observers.modify { (var observers) in
 				ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) bufferingObserver() modify()")
 				if event.isTerminating {
@@ -191,8 +193,6 @@ public struct SignalProducer<T, E: ErrorType> {
 
 			// If not disposed…
 			if let liveObservers = oldObservers {
-				lock.lock()
-
 				ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) bufferingObserver() put()")
 				if event.isTerminating {
 					terminationEvent = event
@@ -206,9 +206,9 @@ public struct SignalProducer<T, E: ErrorType> {
 				for observer in liveObservers {
 					observer.put(event)
 				}
-
-				lock.unlock()
 			}
+			
+			lock.unlock()
 		}
 
 		return (producer, bufferingObserver)

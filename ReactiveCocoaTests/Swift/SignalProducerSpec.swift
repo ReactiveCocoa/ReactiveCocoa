@@ -495,7 +495,7 @@ class SignalProducerSpec: QuickSpec {
 				weak var testSink: TestSink?
 
 				var disposable: Disposable!
-				var test: () -> () = {
+				var test: () -> Void = {
 					let producer = SignalProducer<Int, NoError>.never
 					let sink = TestSink()
 					testSink = sink
@@ -682,15 +682,15 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					|> on(started: { () -> () in
+					|> on(started: { () -> Void in
 						started += 1
-					}, event: { (e: Event<Int, TestError>) -> () in
+					}, event: { (e: Event<Int, TestError>) -> Void in
 						event += 1
-					}, next: { (n: Int) -> () in
+					}, next: { (n: Int) -> Void in
 						next += 1
-					}, completed: { () -> () in
+					}, completed: { () -> Void in
 						completed += 1
-					}, terminated: { () -> () in
+					}, terminated: { () -> Void in
 						terminated += 1
 					})
 

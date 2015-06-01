@@ -213,7 +213,7 @@ class SignalSpec: QuickSpec {
 				
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				let test: () -> Void = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
@@ -234,7 +234,7 @@ class SignalSpec: QuickSpec {
 				
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				let test: () -> Void = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
@@ -253,7 +253,7 @@ class SignalSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				weak var weakSignal: Signal<(), NoError>?
 
-				let test: () -> () = {
+				let test: () -> Void = {
 					let (signal, observer) = Signal<(), NoError>.pipe()
 					weakSignal = signal
 
@@ -348,7 +348,7 @@ class SignalSpec: QuickSpec {
 				weak var testStr: NSMutableString?
 				let (signal, sink) = Signal<Int, NoError>.pipe()
 
-				let test: () -> () = {
+				let test: () -> Void = {
 					var innerStr: NSMutableString = NSMutableString()
 					signal.observe(next: { value in
 						innerStr.appendString("\(value)")
@@ -370,7 +370,7 @@ class SignalSpec: QuickSpec {
 				weak var testStr: NSMutableString?
 				let (signal, sink) = Signal<Int, NoError>.pipe()
 
-				let test: () -> () = {
+				let test: () -> Void = {
 					var innerStr: NSMutableString = NSMutableString()
 					signal.observe(next: { value in
 						innerStr.appendString("\(value)")

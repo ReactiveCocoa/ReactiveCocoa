@@ -15,7 +15,7 @@ import Result
 /// different order between Signals, or the stream might be completely
 /// different!
 public struct SignalProducer<T, E: ErrorType> {
-	private let startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()
+	private let startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> Void
 
 	/// Initializes a SignalProducer that will invoke the given closure once
 	/// for each invocation of start().
@@ -27,7 +27,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// event is sent to the observer, the given CompositeDisposable will be
 	/// disposed, at which point work should be interrupted and any temporary
 	/// resources cleaned up.
-	public init(_ startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()) {
+	public init(_ startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> Void) {
 		self.startHandler = startHandler
 	}
 
@@ -199,7 +199,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ()) {
+	public func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> Void) {
 		let (signal, sink) = Signal<T, E>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
@@ -253,7 +253,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func start(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable {
+	public func start(error: (E -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (T -> Void)? = nil) -> Disposable {
 		return start(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 
@@ -352,7 +352,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 /// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> SignalProducer<T, E> {
+public func on<T, E>(started: (() -> Void)? = nil, event: (Event<T, E> -> Void)? = nil, error: (E -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (T -> Void)? = nil) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	return { producer in
 		return SignalProducer { observer, compositeDisposable in
 			started?()
@@ -698,7 +698,7 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			let iterate: Int -> () = fix { recur in
+			let iterate: Int -> Void = fix { recur in
 				{ current in
 					producer.startWithSignal { signal, signalDisposable in
 						serialDisposable.innerDisposable = signalDisposable
@@ -813,7 +813,7 @@ public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.
-public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ()) -> SignalProducer<T, E> -> () {
+public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> Void) -> SignalProducer<T, E> -> Void {
 	return { producer in
 		return producer.startWithSignal(setUp)
 	}
@@ -827,7 +827,7 @@ public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> 
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> Disposable {
+public func start<T, E>(error: (E -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (T -> Void)? = nil) -> SignalProducer<T, E> -> Disposable {
 	return { producer in
 		return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
 	}
@@ -1022,7 +1022,7 @@ private final class ConcatState<T, E: ErrorType> {
 private func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
 	return SignalProducer<T, E> { relayObserver, disposable in
 		let inFlight = Atomic(1)
-		let decrementInFlight: () -> () = {
+		let decrementInFlight: () -> Void = {
 			let orig = inFlight.modify { $0 - 1 }
 			if orig == 1 {
 				sendCompleted(relayObserver)

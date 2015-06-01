@@ -33,14 +33,14 @@ public final class SimpleDisposable: Disposable {
 
 /// A disposable that will run an action upon disposal.
 public final class ActionDisposable: Disposable {
-	private let action: Atomic<(() -> ())?>
+	private let action: Atomic<(() -> Void)?>
 
 	public var disposed: Bool {
 		return action.value == nil
 	}
 
 	/// Initializes the disposable to run the given action upon disposal.
-	public init(action: () -> ()) {
+	public init(action: () -> Void) {
 		self.action = Atomic(action)
 	}
 
@@ -139,7 +139,7 @@ public final class CompositeDisposable: Disposable {
 	}
 
 	/// Adds an ActionDisposable to the list.
-	public func addDisposable(action: () -> ()) -> DisposableHandle {
+	public func addDisposable(action: () -> Void) -> DisposableHandle {
 		return addDisposable(ActionDisposable(action: action))
 	}
 }

@@ -12,10 +12,10 @@ import Foundation
 public struct DebugSinkOf<T>: SinkType {
 	typealias Element = T
 	
-	private let putElement: T -> ()
+	private let putElement: T -> Void
 	
 	/// Construct an instance whose `put(x)` calls `putElement(x)`
-	public init(_ putElement: T -> ()) {
+	public init(_ putElement: T -> Void) {
 		self.putElement = putElement
 	}
 	

@@ -14,7 +14,7 @@ public protocol SchedulerType {
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	func schedule(action: () -> ()) -> Disposable?
+	func schedule(action: () -> Void) -> Disposable?
 }
 
 /// A particular kind of scheduler that supports enqueuing actions at future
@@ -30,21 +30,21 @@ public protocol DateSchedulerType: SchedulerType {
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable?
+	func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable?
 
 	/// Schedules a recurring action at the given interval, beginning at the
 	/// given start time.
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable?
+	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable?
 }
 
 /// A scheduler that performs all work synchronously.
 public final class ImmediateScheduler: SchedulerType {
 	public init() {}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		action()
 		return nil
 	}
@@ -60,9 +60,9 @@ public final class UIScheduler: SchedulerType {
 
 	public init() {}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		let disposable = SimpleDisposable()
-		let actionAndDecrement: () -> () = {
+		let actionAndDecrement: () -> Void = {
 			if !disposable.disposed {
 				action()
 			}
@@ -115,7 +115,7 @@ public final class QueueScheduler: DateSchedulerType {
 		self.init(queue: dispatch_get_global_queue(priority, 0), name: name)
 	}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
 		dispatch_async(queue) {
@@ -137,7 +137,7 @@ public final class QueueScheduler: DateSchedulerType {
 		return dispatch_walltime(&walltime, 0)
 	}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
 		dispatch_after(wallTimeWithDate(date), queue) {
@@ -154,13 +154,13 @@ public final class QueueScheduler: DateSchedulerType {
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> Disposable? {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
 		return scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
 	}
 
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		precondition(repeatingEvery >= 0)
 		precondition(leeway >= 0)
 
@@ -182,9 +182,9 @@ public final class QueueScheduler: DateSchedulerType {
 public final class TestScheduler: DateSchedulerType {
 	private final class ScheduledAction {
 		let date: NSDate
-		let action: () -> ()
+		let action: () -> Void
 
-		init(date: NSDate, action: () -> ()) {
+		init(date: NSDate, action: () -> Void) {
 			self.date = date
 			self.action = action
 		}
@@ -229,7 +229,7 @@ public final class TestScheduler: DateSchedulerType {
 		}
 	}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		return schedule(ScheduledAction(date: currentDate, action: action))
 	}
 
@@ -238,15 +238,15 @@ public final class TestScheduler: DateSchedulerType {
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	public func scheduleAfter(interval: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(interval: NSTimeInterval, action: () -> Void) -> Disposable? {
 		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), action: action)
 	}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
 		return schedule(ScheduledAction(date: date, action: action))
 	}
 
-	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> ()) {
+	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> Void) {
 		precondition(repeatingEvery >= 0)
 
 		disposable.innerDisposable = scheduleAfter(date) { [unowned self] in
@@ -260,11 +260,11 @@ public final class TestScheduler: DateSchedulerType {
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
-	public func scheduleAfter(interval: NSTimeInterval, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval = 0, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(interval: NSTimeInterval, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {
 		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), repeatingEvery: repeatingEvery, withLeeway: leeway, action: action)
 	}
 
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval = 0, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {
 		let disposable = SerialDisposable()
 		scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
 		return disposable

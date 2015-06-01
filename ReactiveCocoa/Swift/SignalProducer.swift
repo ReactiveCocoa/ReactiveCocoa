@@ -1,5 +1,39 @@
 import Result
 
+private let outputQueue = { () -> dispatch_queue_t in
+	let queue = dispatch_queue_create("org.carthage.carthage.outputQueue", DISPATCH_QUEUE_SERIAL)
+	dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0))
+
+	atexit_b {
+		dispatch_barrier_sync(queue) {}
+	}
+
+	return queue
+	}()
+
+/// A thread-safe version of Swift's standard println().
+internal func println() {
+	dispatch_async(outputQueue) {
+		Swift.println()
+	}
+}
+
+/// A thread-safe version of Swift's standard println().
+internal func println<T>(object: T) {
+	dispatch_async(outputQueue) {
+		Swift.println(object)
+	}
+}
+
+/// A thread-safe version of Swift's standard print().
+internal func print<T>(object: T) {
+	dispatch_async(outputQueue) {
+		Swift.print(object)
+	}
+}
+
+
+
 /// A SignalProducer creates Signals that can produce values of type `T` and/or
 /// error out with errors of type `E`. If no errors should be possible, NoError
 /// can be specified for `E`.
@@ -119,10 +153,12 @@ public struct SignalProducer<T, E: ErrorType> {
 
 			var token: RemovalToken?
 			observers.modify { (var observers) in
+				ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) producer() modify()")
 				token = observers?.insert(observer)
 				return observers
 			}
 
+			ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) producer() put()")
 			for event in events {
 				observer.put(event)
 			}
@@ -145,6 +181,7 @@ public struct SignalProducer<T, E: ErrorType> {
 
 		let bufferingObserver = Signal<T, E>.Observer { event in
 			let oldObservers = observers.modify { (var observers) in
+				ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) bufferingObserver() modify()")
 				if event.isTerminating {
 					return nil
 				} else {
@@ -156,6 +193,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			if let liveObservers = oldObservers {
 				lock.lock()
 
+				ReactiveCocoa.println("\(ObjectIdentifier(lock).hashValue) bufferingObserver() put()")
 				if event.isTerminating {
 					terminationEvent = event
 				} else {

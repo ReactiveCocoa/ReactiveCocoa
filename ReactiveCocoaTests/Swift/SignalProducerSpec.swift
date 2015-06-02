@@ -536,7 +536,7 @@ class SignalProducerSpec: QuickSpec {
 					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
 
 					var counter = 0
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> in
+					let transform: Signal<Int, NoError> -> Signal<Int, NoError> = { signal in
 						counter += 1
 						return signal
 					}
@@ -567,7 +567,7 @@ class SignalProducerSpec: QuickSpec {
 					let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
 
 					var counter = 0
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+					let transform: Signal<Int, NoError> -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> = { signal in
 						return { otherSignal in
 							counter += 1
 							return zip(signal, otherSignal)
@@ -588,7 +588,7 @@ class SignalProducerSpec: QuickSpec {
 					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3])
 					let otherProducer = SignalProducer<Int, NoError>(values: [4, 5, 6])
 
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+					let transform: Signal<Int, NoError> -> Signal<Int, NoError> -> Signal<Int, NoError> = { signal in
 						return { otherSignal in
 							return zip(signal, otherSignal) |> map { first, second in first + second }
 						}
@@ -682,15 +682,15 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					|> on(started: { () -> Void in
+					|> on(started: {
 						started += 1
-					}, event: { (e: Event<Int, TestError>) -> Void in
+					}, event: { (e: Event<Int, TestError>) in
 						event += 1
-					}, next: { (n: Int) -> Void in
+					}, next: { (n: Int) in
 						next += 1
-					}, completed: { () -> Void in
+					}, completed: {
 						completed += 1
-					}, terminated: { () -> Void in
+					}, terminated: {
 						terminated += 1
 					})
 

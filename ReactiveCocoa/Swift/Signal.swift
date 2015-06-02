@@ -325,7 +325,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E
 			let signalState = CombineLatestState<T>()
 			let otherState = CombineLatestState<U>()
 			
-			let onBothNext = { () -> Void in
+			let onBothNext = {
 				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 			}
 			
@@ -736,7 +736,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 			let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 			let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
 			
-			let flush = { () -> Void in
+			let flush: () -> Void = {
 				var originalStates: (ZipState<T>, ZipState<U>)!
 				states.modify { states in
 					originalStates = states

@@ -59,11 +59,11 @@ extension RACSignal {
 	/// each invocation of start().
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
-			let next = { (obj: AnyObject?) -> Void in
+			let next: AnyObject? -> Void = { obj in
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> Void in
+			let error: NSError? -> Void = { nsError in
 				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 

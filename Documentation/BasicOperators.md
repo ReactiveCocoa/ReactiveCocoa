@@ -338,8 +338,26 @@ sendNext(sinkB, "b")        // prints b
 The `retry` operator ignores up to `count` errors and tries to restart the `SignalProducer`.
 
 ```Swift
-// TODO
+var tries = 0
+let limit = 2
+let error = NSError(domain: "domain", code: 0, userInfo: nil)
+let signal = SignalProducer<String, NSError> { (sink, _) in
+    if tries++ < limit {
+        sendError(sink, error)
+    } else {
+        sendNext(sink, "Success")
+        sendCompleted(sink)
+    }
+}
+
+signal
+    |> on(error: {e in println("Error")})             // prints "Error" twice
+    |> retry(2)
+    |> start(next: { println($0)},                    // prints "Success"
+        error: { error in println("Signal Error")})
 ```
+
+If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if only `|> retry(1)` is used in the example above instead of `|> retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
 
 ### Mapping errors
 

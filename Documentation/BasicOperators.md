@@ -57,9 +57,59 @@ code-style will be used.
 
 ## Transforming signals
 
+These operators transform a signal into a new signal.
+
 ### Mapping
+
+The `map` operator is used to transform the values in a signal, creating a new signal with the results.
+
+```Swift
+let (signal, sink) = Signal<String, NoError>.pipe()
+let mapped = signal |> map { string in
+    string.uppercaseString
+}
+
+mapped.observe(next: { println($0) })
+
+sendNext(sink, "a")     // Prints A
+sendNext(sink, "b")     // Prints B
+sendNext(sink, "c")     // Prints C
+```
+
+
 ### Filtering
+
+The `filter` operator is used to include only values in a signal that satisfy a predicate
+
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
+let filtered = signal |> filter { number in
+    number % 2 == 0
+}
+
+filtered.observe(next: { println($0) })
+
+sendNext(sink, 1)     // Not printed
+sendNext(sink, 2)     // Prints 2
+sendNext(sink, 3)     // Not printed
+sendNext(sink, 4)     // prints 4
+```
+
 ### Reducing
+
+The `reduce` operator is used to aggregate a signals value into a signle combine value. Note, that the final value is only sended after the source signal completes.
+
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
+let filtered = signal |> reduce(1) { $0 * $1 }
+
+filtered.observe(next: { println($0) })
+
+sendNext(sink, 1)     // nothing printed
+sendNext(sink, 2)     // nothing printed
+sendNext(sink, 3)     // nothing printed
+sendCompleted(sink)   // prints 6
+```
 
 
 ## Combining signals

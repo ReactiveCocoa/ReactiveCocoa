@@ -51,9 +51,24 @@ code-style will be used.
 
 ## Operator composition
 
-### Lifting
 ### Pipe
 
+The `|>` operator can be used to apply a signal operator to a signal. Multiple operators can be chained after eachother using the `|>` operator
+
+```Swift
+intSignal
+    |> filter { num in num % 2 == 0 }
+    |> map(toString)
+    |> observe(next: { string in println(string) })
+```
+
+### Lifting
+
+Signal operators can be _lifted_ to operate upon `SignalProducer`s instead using the `lift` operator.
+In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s
+just if the operator had been applied to each signal yielded from `start()`.
+
+The `|>` operator implicitely lifts signal operators, when used with `SignalProducer`s.
 
 ## Transforming signals
 

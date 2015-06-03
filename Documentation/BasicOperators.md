@@ -67,15 +67,16 @@ signal.observe(Signal.Observer { event in
 Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
 ```Swift
-signal.observe(error: { error in
-            println("Error: \(error)")
-        }, completed: {
-            println("Completed")
-        }, interrupted: {
-            println("Interrupted")
-        }, next: { next in
-            println("Next: \(next)")
-    })
+signal.observe(next: { next in
+        println("Next: \(next)")
+    }, error: { error in
+        println("Error: \(error)")
+    }, completed: {
+        println("Completed")
+    }, interrupted: {
+        println("Interrupted")
+    }
+)
 ```
 
 `observe` is also available as operator that can be used with [|>][#pipe]

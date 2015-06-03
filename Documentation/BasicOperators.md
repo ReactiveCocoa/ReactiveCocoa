@@ -83,6 +83,29 @@ signal.observe(next: { next in
 
 ### Injecting effects
 
+Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
+
+```Swift
+producer
+    |> on(started: {
+            println("Started")
+        }, event: { event in
+            println("Event: \(event)")
+        }, error: { error in
+            println("Error: \(error)")
+        }, completed: { () -> () in
+            println("Completed")
+        }, interrupted: { () -> () in
+            println("Interrupted")
+        }, terminated: { () -> () in
+            println("Terminated")
+        }, disposed: { () -> () in
+            println("Disposed")
+        }, next: { next in
+            println("Next: \(next)")
+        })
+```
+
 ## Operator composition
 
 ### Pipe

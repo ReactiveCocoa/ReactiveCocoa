@@ -162,7 +162,7 @@ The `zipWith` operator works in the same way, but as an operator.
 
 ## Flattening producers
 
-The `flatten` operators transforms a producer-of-producers into a single producer. 
+The `flatten` operators transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer`.
 There are multiple different semantics of the operation which can be chosen as a `FlattenStrategy`.
 
 ### Merging

@@ -114,9 +114,51 @@ sendCompleted(sink)   // prints 6
 
 ## Combining signals
 
+These operators combine multiple signals into a single new signal.
+
 ### Combining latest values
+
+The `combineLatest` function combines the latest values of two (or more) signals. The resulting signal will not send a value until both inputs have sent at least one value each.
+
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
+
+let combined = combineLatest(numbersSignal, lettersSignal)
+
+combined.observe(next: { println($0) })
+
+sendNext(numbersSink, 0)    // nothing printed
+sendNext(numbersSink, 1)    // nothing printed
+sendNext(lettersSink, "A")  // prints (1, A)
+sendNext(numbersSink, 2)    // prints (2, A)
+sendNext(lettersSink, "B")  // prints (2, B)
+sendNext(lettersSink, "C")  // prints (2, C)
+```
+
+The `combineLatestWith` operator works in the same way, but as an operator.
+
 ### Zipping
 
+The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals.
+
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
+
+let combined = zip(numbersSignal, lettersSignal)
+
+combined.observe(next: { println($0) })
+
+sendNext(numbersSink, 0)    // nothing printed
+sendNext(numbersSink, 1)    // nothing printed
+sendNext(lettersSink, "A")  // prints (0, A)
+sendNext(numbersSink, 2)    // nothing printed
+sendNext(lettersSink, "B")  // prints (1, B)
+sendNext(lettersSink, "C")  // prints (2, C)
+```
+
+The `zipWith` operator works in the same way, but as an operator.
 
 ## Flattening producers
 

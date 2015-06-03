@@ -93,13 +93,13 @@ producer
             println("Event: \(event)")
         }, error: { error in
             println("Error: \(error)")
-        }, completed: { () -> () in
+        }, completed: {
             println("Completed")
-        }, interrupted: { () -> () in
+        }, interrupted: {
             println("Interrupted")
-        }, terminated: { () -> () in
+        }, terminated: {
             println("Terminated")
-        }, disposed: { () -> () in
+        }, disposed: {
             println("Disposed")
         }, next: { next in
             println("Next: \(next)")

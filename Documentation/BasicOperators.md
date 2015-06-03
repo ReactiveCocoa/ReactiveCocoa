@@ -243,9 +243,79 @@ sendNext(lettersSink, "C")      // prints C
 
 ## Handling errors
 
+These operators are used to handle errors that might occur on a signal.
+
 ### Catching errors
-### Mapping errors
+
+The `catch` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
+
+```Swift
+let (signalA, sinkA) = SignalProducer<String, NSError>.buffer(5)
+let (signalB, sinkB) = SignalProducer<String, NSError>.buffer(5)
+
+signalA
+    |> catch { error in signalB }
+    |> start(next: { println($0)})
+
+let error = NSError(domain: "domain", code: 0, userInfo: nil)
+
+sendNext(sinkA, "A")        // prints A
+sendNext(sinkB, "a")        // nothing printed
+sendError(sinkA, error)     // prints a
+sendNext(sinkA, "B")        // nothing printed
+sendNext(sinkB, "b")        // prints b
+```
+
 ### Retrying
+
+The `retry` operator ignores up to `count` errors and tries to restart the `SignalProducer`.
+
+```Swift
+// TODO
+```
+
+### Mapping errors
+
+The `mapError` operator transforms errors in the signal to new errors. 
+
+```Swift
+struct CustomError: ErrorType {
+    let code: Int
+    
+    init(_ code: Int) {
+        self.code = code
+    }
+    
+    var nsError: NSError {
+        get {
+            return NSError(domain: "domain", code: self.code, userInfo: nil)
+        }
+    }
+}
+
+let (signal, sink) = Signal<String, CustomError>.pipe()
+
+signal
+    |> mapError { $0.nsError }
+    |> observe(error: {println($0)})
+
+sendError(sink, CustomError(404))   // Prints NSError with code 404
+```
+
+### Promote
+
+The `promoteErrors` operator promotes a signal that does not generate errors into one that can. 
+
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NSError>.pipe()
+
+numbersSignal
+    |> promoteErrors(NSError)
+    |> combineLatestWith(lettersSignal)
+```
+
+The given signal will still not actually generate errors, but some operators to [combine signals][#combining-signals] require the incoming signals to have matching error types.
 
 
 [Signals]: FrameworkOverview.md#signals

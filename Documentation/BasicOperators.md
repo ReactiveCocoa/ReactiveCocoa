@@ -46,8 +46,41 @@ code-style will be used.
 ## Performing side effects with signals
 
 ### Observation
-### Injecting effects
 
+Signals can be observed with the `observe` function. It takes a `Sink` as argument to which any future events are sent. 
+
+```Swift
+signal.observe(Signal.Observer { event in
+    switch event {
+    case let .Next(next):
+        println("Next: \(next)")
+    case let .Error(error):
+        println("Error: \(error)")
+    case .Completed:
+        println("Completed")
+    case .Interrupted:
+        println("Interrupted")
+    }
+})
+```
+
+Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
+
+```Swift
+signal.observe(error: { error in
+            println("Error: \(error)")
+        }, completed: {
+            println("Completed")
+        }, interrupted: {
+            println("Interrupted")
+        }, next: { next in
+            println("Next: \(next)")
+    })
+```
+
+`observe` is also available as operator that can be used with [|>][#pipe]
+
+### Injecting effects
 
 ## Operator composition
 

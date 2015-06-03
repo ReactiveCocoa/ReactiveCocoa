@@ -79,7 +79,7 @@ signal.observe(next: { next in
 )
 ```
 
-`observe` is also available as operator that can be used with [|>][#pipe]
+`observe` is also available as operator that can be used with [|>](#pipe)
 
 ### Injecting effects
 
@@ -359,7 +359,7 @@ numbersSignal
     |> combineLatestWith(lettersSignal)
 ```
 
-The given signal will still not actually generate errors, but some operators to [combine signals][#combining-signals] require the incoming signals to have matching error types.
+The given signal will still not actually generate errors, but some operators to [combine signals](#combining-signals) require the incoming signals to have matching error types.
 
 
 [Signals]: FrameworkOverview.md#signals

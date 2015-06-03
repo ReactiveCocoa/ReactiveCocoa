@@ -162,10 +162,84 @@ The `zipWith` operator works in the same way, but as an operator.
 
 ## Flattening producers
 
-### Concatenating
+The `flatten` operators transforms a producer-of-producers into a single producer. 
+There are multiple different semantics of the operation which can be chosen as a `FlattenStrategy`.
+
 ### Merging
+
+The `.Merge` strategy works by immediately forwarding every events of the inner producers to the outer producer.
+
+```Swift
+let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+
+let flattened = signal |> flatten(FlattenStrategy.Merge)
+
+flattened.start(next: { println($0) })
+
+sendNext(sink, numbersSignal)
+sendNext(sink, lettersSignal)
+sendCompleted(sink)
+
+sendNext(numbersSink, 1)    // prints 1
+sendNext(lettersSink, "A")  // prints A
+sendNext(numbersSink, 2)    // prints 2
+sendNext(lettersSink, "B")  // prints B
+sendNext(numbersSink, 3)    // prints 3
+sendNext(lettersSink, "C")  // prints C
+```
+
+### Concatenating
+
+The `.Concat` strategy works by concatenating the producers such that their values are sent in the order of the producers themselves. 
+This implies, that values of a producer are only sent, when the preceding producer has completed
+
+```Swift
+let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+
+let flattened = signal |> flatten(FlattenStrategy.Concat)
+
+flattened.start(next: { println($0) })
+
+sendNext(sink, numbersSignal)
+sendNext(sink, lettersSignal)
+sendCompleted(sink)
+
+sendNext(numbersSink, 1)    // prints 1
+sendNext(lettersSink, "A")  // nothing printed
+sendNext(numbersSink, 2)    // prints 2
+sendNext(lettersSink, "B")  // nothing printed
+sendNext(numbersSink, 3)    // prints 3
+sendNext(lettersSink, "C")  // nothing printed
+sendCompleted(numbersSink)  // prints A, B, C
+sendCompleted(lettersSink)
+```
+
 ### Switching
 
+The `.Latest` strategy works by forwarding only events from the latest input producer.
+
+```Swift
+let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+
+let flattened = signal |> flatten(FlattenStrategy.Latest)
+
+flattened.start(next: { println($0) })
+
+sendNext(sink, numbersSignal)   // nothing printed
+sendNext(numbersSink, 1)        // prints 1
+sendNext(lettersSink, "A")      // nothing printed
+sendNext(sink, lettersSignal)   // prints A
+sendNext(numbersSink, 2)        // nothing printed
+sendNext(lettersSink, "B")      // prints B
+sendNext(numbersSink, 3)        // nothing printed
+sendNext(lettersSink, "C")      // prints C
+```
 
 ## Handling errors
 

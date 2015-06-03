@@ -167,7 +167,7 @@ There are multiple different semantics of the operation which can be chosen as a
 
 ### Merging
 
-The `.Merge` strategy works by immediately forwarding every events of the inner producers to the outer producer.
+The `.Merge` strategy works by immediately forwarding every events of the inner `SignalProducer`s to the outer `SignalProducer`.
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
@@ -192,8 +192,8 @@ sendNext(lettersSink, "C")  // prints C
 
 ### Concatenating
 
-The `.Concat` strategy works by concatenating the producers such that their values are sent in the order of the producers themselves. 
-This implies, that values of a producer are only sent, when the preceding producer has completed
+The `.Concat` strategy works by concatenating the `SignalProducer`s such that their values are sent in the order of the `SignalProducer`s themselves. 
+This implies, that values of a `SignalProducer` are only sent, when the preceding `SignalProducer` has completed
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
@@ -220,7 +220,7 @@ sendCompleted(lettersSink)
 
 ### Switching
 
-The `.Latest` strategy works by forwarding only events from the latest input producer.
+The `.Latest` strategy works by forwarding only events from the latest input `SignalProducer`.
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)

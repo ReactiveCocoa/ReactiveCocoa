@@ -357,7 +357,7 @@ signal
         error: { error in println("Signal Error")})
 ```
 
-If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if only `|> retry(1)` is used in the example above instead of `|> retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
+If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
 
 ### Mapping errors
 

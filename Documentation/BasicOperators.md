@@ -194,35 +194,41 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) })
+    |> observe(next: { println($0) },
+          completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
 sendNext(lettersSink, "A")  // prints (1, A)
 sendNext(numbersSink, 2)    // prints (2, A)
+sendCompleted(numbersSink)  // nothing printed
 sendNext(lettersSink, "B")  // prints (2, B)
 sendNext(lettersSink, "C")  // prints (2, C)
+sendCompleted(lettersSink)  // prints "Completed"
 ```
 
 The `combineLatestWith` operator works in the same way, but as an operator.
 
 ### Zipping
 
-The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals. That means the output signal will always wait for both input signals to send and ouptut.
+The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals. That means the output signal will always wait for both input signals to send and output.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) })
+    |> observe(next: { println($0) },
+          completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
-sendNext(lettersSink, "A")  // prints (0, A)
-sendNext(numbersSink, 2)    // nothing printed
-sendNext(lettersSink, "B")  // prints (1, B)
-sendNext(lettersSink, "C")  // prints (2, C)
+sendNext(lettersSink, "A")  // prints (1, A)
+sendNext(numbersSink, 2)    // prints (2, A)
+sendCompleted(numbersSink)  // nothing printed
+sendNext(lettersSink, "B")  // prints (2, B)
+sendNext(lettersSink, "C")  // prints (2, C) & "Completed"
+
 ```
 
 The `zipWith` operator works in the same way, but as an operator.

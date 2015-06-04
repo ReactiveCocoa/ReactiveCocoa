@@ -110,7 +110,7 @@ producer
 
 ### Pipe
 
-The `|>` operator can be used to apply a signal operator to a signal. Multiple operators can be chained after eachother using the `|>` operator
+The `|>` operator can be used to apply a signal operator to a signal. Multiple operators can be chained after each other using the `|>` operator
 
 ```Swift
 intSignal
@@ -125,7 +125,7 @@ Signal operators can be _lifted_ to operate upon `SignalProducer`s instead using
 In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s
 just if the operator had been applied to each signal yielded from `start()`.
 
-The `|>` operator implicitely lifts signal operators, when used with `SignalProducer`s.
+The `|>` operator implicitly lifts signal operators, when used with `SignalProducer`s.
 
 ## Transforming signals
 
@@ -165,7 +165,7 @@ sendNext(sink, 4)     // prints 4
 
 ### Reducing
 
-The `reduce` operator is used to aggregate a signals value into a signle combine value. Note, that the final value is only sended after the source signal completes.
+The `reduce` operator is used to aggregate a signals value into a single combine value. Note, that the final value is only sent after the source signal completes.
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()

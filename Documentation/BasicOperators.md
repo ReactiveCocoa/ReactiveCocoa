@@ -187,7 +187,7 @@ These operators combine multiple signals into a single new signal.
 
 ### Combining latest values
 
-The `combineLatest` function combines the latest values of two (or more) signals. The resulting signal will not send a value until both inputs have sent at least one value each.
+The `combineLatest` function combines the latest values of two (or more) signals. The resulting signal will only send a the first value after both inputs have sent at least one value each. After that, each value on either of the inputs will cause a new value on the output.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
@@ -208,7 +208,7 @@ The `combineLatestWith` operator works in the same way, but as an operator.
 
 ### Zipping
 
-The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals.
+The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals. That means the output signal will always wait for both input signals to send and ouptut.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()

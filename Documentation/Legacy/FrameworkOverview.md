@@ -179,11 +179,11 @@ a [stream](#streams):
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
-[List]: https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Data-List.html
+[List]: https://downloads.haskell.org/~ghc/latest/docs/html/libraries/Data-List.html
 [Memory Management]: MemoryManagement.md
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
-[Monoid]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Data-Monoid.html
-[MonadZip]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.7.0.2/Control-Monad-Zip.html
+[Monoid]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/Data-Monoid.html
+[MonadZip]: http://downloads.haskell.org/~ghc/latest/docs/html/libraries/Control-Monad-Zip.html
 [NSButton+RACCommandSupport]: ../../ReactiveCocoa/Objective-C/NSButton+RACCommandSupport.h
 [RACCommand]: ../../ReactiveCocoa/Objective-C/RACCommand.h
 [RACDisposable]: ../../ReactiveCocoa/Objective-C/RACDisposable.h

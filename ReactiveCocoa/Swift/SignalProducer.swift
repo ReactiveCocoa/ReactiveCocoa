@@ -309,6 +309,16 @@ public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T,
 	return producer.lift(transform)
 }
 
+/// Applies a Signal operator to a Property.
+///
+/// Example:
+///
+/// 	intProperty
+/// 	|> map { 2 * $0 }
+public func |> <P: PropertyType, X>(property: P, transform: Signal<P.Value, NoError> -> Signal<X, NoError>) -> SignalProducer<X, NoError> {
+	return property.producer.lift(transform)
+}
+
 /// Applies a SignalProducer operator to a SignalProducer.
 ///
 /// Example:
@@ -321,6 +331,21 @@ public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T,
 public func |> <T, E, X>(producer: SignalProducer<T, E>, @noescape transform: SignalProducer<T, E> -> X) -> X {
 	return transform(producer)
 }
+
+/// Applies a SignalProducer operator to a Property.
+///
+/// Example:
+///
+/// 	intProperty
+/// 	|> startOn(UIScheduler())
+/// 	|> start { signal in
+/// 		signal.observe(next: { num in println(num) })
+/// 	}
+public func |> <P: PropertyType, X>(property: P, @noescape transform: SignalProducer<P.Value, NoError> -> X) -> X {
+	return transform(property.producer)
+}
+
+
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.

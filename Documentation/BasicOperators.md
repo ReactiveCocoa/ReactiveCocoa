@@ -238,6 +238,30 @@ The `zipWith` operator works in the same way, but as an operator.
 The `flatten` operators transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer`.
 There are multiple different semantics of the operation which can be chosen as a `FlattenStrategy`.
 
+To understand, why there are different strategies and how they compare to each other, take a look at this example and
+imagine the column offsets as time:
+
+```Swift
+let values = [
+// imagine column offset as time
+[ 1,    2,      3 ],
+   [ 4,      5,     6 ],
+         [ 7,     8 ],
+]
+
+let merge =
+[ 1, 4, 2, 7,5, 3,8,6 ]
+
+let concat = 
+[ 1,    2,      3,4,      5,     6,7,     8]
+
+let latest =
+[ 1, 4,    7,     8 ]
+```
+
+Note, how the values interleave and which values are even included in the resulting array.
+
+
 ### Merging
 
 The `.Merge` strategy works by immediately forwarding every events of the inner `SignalProducer`s to the outer `SignalProducer`.

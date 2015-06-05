@@ -144,6 +144,8 @@ public struct SignalProducer<T, E: ErrorType> {
 		}
 
 		let bufferingObserver = Signal<T, E>.Observer { event in
+			lock.lock()
+			
 			let oldObservers = observers.modify { (var observers) in
 				if event.isTerminating {
 					return nil
@@ -154,8 +156,6 @@ public struct SignalProducer<T, E: ErrorType> {
 
 			// If not disposed…
 			if let liveObservers = oldObservers {
-				lock.lock()
-
 				if event.isTerminating {
 					terminationEvent = event
 				} else {
@@ -168,9 +168,9 @@ public struct SignalProducer<T, E: ErrorType> {
 				for observer in liveObservers {
 					observer.put(event)
 				}
-
-				lock.unlock()
 			}
+			
+			lock.unlock()
 		}
 
 		return (producer, bufferingObserver)

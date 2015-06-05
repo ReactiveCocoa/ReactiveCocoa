@@ -146,7 +146,7 @@ public final class Signal<T, E: ErrorType> {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
+	public func observe(error: (E -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (T -> Void)? = nil) -> Disposable? {
 		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 }
@@ -288,7 +288,7 @@ private final class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ()) -> Disposable? {
+private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSLock, onBothNext: () -> Void, onError: E -> Void, onBothCompleted: () -> Void, onInterrupted: () -> Void) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -325,7 +325,7 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E
 			let signalState = CombineLatestState<T>()
 			let otherState = CombineLatestState<U>()
 			
-			let onBothNext = { () -> () in
+			let onBothNext = {
 				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 			}
 			
@@ -736,7 +736,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 			let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
 			let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
 			
-			let flush = { () -> () in
+			let flush: () -> Void = {
 				var originalStates: (ZipState<T>, ZipState<U>)!
 				states.modify { states in
 					originalStates = states
@@ -1117,7 +1117,7 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Signal<T, E> -> Disposable? {
+public func observe<T, E>(error: (E -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (T -> Void)? = nil) -> Signal<T, E> -> Disposable? {
 	return { signal in
 		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 	}

@@ -14,15 +14,15 @@ extension RACScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		return self.schedule(action)
 	}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
@@ -59,11 +59,11 @@ extension RACSignal {
 	/// each invocation of start().
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
-			let next = { (obj: AnyObject?) -> () in
+			let next = { (obj: AnyObject?) in
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> () in
+			let error = { (nsError: NSError?) in
 				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 

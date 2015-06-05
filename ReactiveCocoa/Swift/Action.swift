@@ -143,7 +143,7 @@ public final class CocoaAction: NSObject {
 
 	private var _enabled = false
 	private var _executing = false
-	private let _execute: AnyObject? -> ()
+	private let _execute: AnyObject? -> Void
 	private let disposable = CompositeDisposable()
 
 	/// Initializes a Cocoa action that will invoke the given Action by

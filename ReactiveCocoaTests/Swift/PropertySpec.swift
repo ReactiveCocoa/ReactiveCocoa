@@ -191,7 +191,7 @@ class PropertySpec: QuickSpec {
 				expect(dynamicProperty).to(beNil())
 			}
 		}
-
+		
 		describe("binding") {
 			describe("from a Signal") {
 				it("should update the property with values sent from the signal") {
@@ -343,6 +343,29 @@ class PropertySpec: QuickSpec {
 					destinationProperty = nil
 
 					expect(bindingDisposable.disposed).to(beTruthy())
+				}
+				
+				describe("applying operators to the other property") {
+					it("should be possible to apply an unary signal operator to a property") {
+						var sourceProperty: MutableProperty<String> = MutableProperty(initialPropertyValue)
+						var destinationProperty: MutableProperty<String> = MutableProperty(initialPropertyValue)
+						
+						destinationProperty <~ sourceProperty
+							|> map { $0 + $0 }
+						
+						expect(destinationProperty.value).to(equal(initialPropertyValue + initialPropertyValue))
+					}
+					
+					it("should be possible to apply an unary signal producer operator to a property") {
+						var sourceProperty: MutableProperty<String> = MutableProperty(initialPropertyValue)
+						var destinationProperty: MutableProperty<String> = MutableProperty(initialPropertyValue)
+
+						destinationProperty <~ sourceProperty
+							|> flatMap(.Latest) { _ in SignalProducer(value: subsequentPropertyValue) }
+						
+						expect(destinationProperty.value).to(equal(subsequentPropertyValue))
+
+					}
 				}
 			}
 		}

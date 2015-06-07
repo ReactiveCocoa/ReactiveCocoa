@@ -89,21 +89,23 @@ public struct SignalProducer<T, E: ErrorType> {
 		return self { _ in () }
 	}
 
-	/// Creates a buffer for Events, with the given capacity, and a
-	/// SignalProducer for a signal that will send Events from the buffer.
+	/// Creates a queue for events that replays them when new signals are
+	/// created from the returned producer.
 	///
-	/// When events are put into the returned observer (sink), they will be
-	/// added to the buffer. If the buffer is already at capacity, the earliest
-	/// (oldest) event will be dropped to make room for the new event.
+	/// When values are put into the returned observer (sink), they will be
+	/// added to an internal buffer. If the buffer is already at capacity, 
+	/// the earliest (oldest) value will be dropped to make room for the new
+	/// value.
 	///
 	/// Signals created from the returned producer will stay alive until a
-	/// terminating event is added to the buffer. If the buffer does not contain
+	/// terminating event is added to the queue. If the queue does not contain
 	/// such an event when the Signal is started, all events sent to the
 	/// returned observer will be automatically forwarded to the Signal’s
 	/// observers until a terminating event is received.
 	///
-	/// After a terminating event has been added to the buffer, the observer
-	/// will not add any further events.
+	/// After a terminating event has been added to the queue, the observer
+	/// will not add any further events. This _does not_ count against the
+	/// value capacity so no buffered values will be dropped on termination.
 	public static func buffer(_ capacity: Int = Int.max) -> (SignalProducer, Signal<T, E>.Observer) {
 		precondition(capacity >= 0)
 

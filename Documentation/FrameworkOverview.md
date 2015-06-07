@@ -34,7 +34,7 @@ terminal events:
 
 ## Signals
 
-A **signal**, represented by the [Signal][] type, is any series of [events](#events)
+A **signal**, represented by the [`Signal`][] type, is any series of [events](#events)
 over time that can be observed.
 
 Signals are generally used to represent event streams that are already “in progress”,

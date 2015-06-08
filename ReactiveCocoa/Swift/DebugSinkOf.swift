@@ -10,7 +10,7 @@ import Foundation
 
 /// A replacement for SinkOf that allows stepping in through the debugger.
 public struct DebugSinkOf<T>: SinkType {
-	typealias Element = T
+	public typealias Element = T
 	
 	private let putElement: T -> ()
 	

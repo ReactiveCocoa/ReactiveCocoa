@@ -343,11 +343,10 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	precondition(leeway >= 0)
 
 	return SignalProducer { observer, compositeDisposable in
-		let disposable = scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
+		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 			sendNext(observer, scheduler.currentDate)
 		}
-
-		compositeDisposable.addDisposable(disposable)
+		return ()
 	}
 }
 
@@ -401,14 +400,13 @@ public func on<T, E>(started: (() -> ())? = nil, event: (Event<T, E> -> ())? = n
 public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	return { producer in
 		return SignalProducer { observer, compositeDisposable in
-			let schedulerDisposable = scheduler.schedule {
+			compositeDisposable += scheduler.schedule {
 				producer.startWithSignal { signal, signalDisposable in
 					compositeDisposable.addDisposable(signalDisposable)
 					signal.observe(observer)
 				}
 			}
-
-			compositeDisposable.addDisposable(schedulerDisposable)
+			return ()
 		}
 	}
 }

@@ -121,14 +121,14 @@ public final class Signal<T, E: ErrorType> {
 		let sink = Observer(observer)
 
 		var token: RemovalToken?
-		atomicObservers.modify { (var observers) in
+		atomicObservers.modify { (observers) in
 			token = observers?.insert(sink)
 			return observers
 		}
 
 		if let token = token {
 			return ActionDisposable {
-				atomicObservers.modify { (var observers) in
+				atomicObservers.modify { (observers) in
 					observers?.removeValueForToken(token)
 					return observers
 				}
@@ -147,7 +147,7 @@ public final class Signal<T, E: ErrorType> {
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
 	public func observe(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
+		return observe(Event.sink(next: next, error, completed: completed, interrupted: interrupted))
 	}
 }
 
@@ -298,7 +298,7 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: Combi
 		}
 
 		lock.unlock()
-	}, error: onError, completed: {
+	}, onError, completed: {
 		lock.lock()
 
 		signalState.completed = true
@@ -326,10 +326,10 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E
 			let otherState = CombineLatestState<U>()
 			
 			let onBothNext = { () -> () in
-				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
+				sendNext(observer, value: (signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = { sendError(observer, $0) }
+			let onError = { sendError(observer, error: $0) }
 			let onBothCompleted = { sendCompleted(observer) }
 			let onInterrupted = { sendInterrupted(observer) }
 			
@@ -415,7 +415,7 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
-			sendNext(observer, event)
+			sendNext(observer, value: event)
 
 			switch event {
 			case .Interrupted:
@@ -480,8 +480,8 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Sign
 				}
 
 				return
-			}, error: { error in
-				sendError(observer, error)
+			}, { error in
+				sendError(observer, error: error)
 			}, completed: {
 				let oldState = state.modify { (var st) in
 					st.signalCompleted = true
@@ -497,7 +497,7 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Sign
 
 			let samplerDisposable = sampler.observe(next: { _ in
 				if let value = state.value.latestValue {
-					sendNext(observer, value)
+					sendNext(observer, value: value)
 				}
 			}, completed: {
 				let oldState = state.modify { (var st) in
@@ -556,7 +556,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> ->
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before taking
 		// the last value).
-		let (scannedSignalWithInitialValue: Signal<U, E>, outputSignalObserver) = Signal.pipe()
+		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal.pipe()
 		let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
 
 		// Now that we've got takeLast() listening to the piped signal, send that initial value.
@@ -682,8 +682,8 @@ public func takeLast<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 				}
 
 				buffer.append(value)
-			}, error: { error in
-				sendError(observer, error)
+			}, { error in
+				sendError(observer, error: error)
 			}, completed: {
 				for bufferedValue in buffer {
 					sendNext(observer, bufferedValue)
@@ -752,7 +752,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 				while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
 					let left = originalStates.0.values.removeAtIndex(0)
 					let right = originalStates.1.values.removeAtIndex(0)
-					sendNext(observer, (left, right))
+					sendNext(observer, value: (left, right))
 				}
 				
 				if originalStates.0.isFinished || originalStates.1.isFinished {
@@ -760,7 +760,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 				}
 			}
 			
-			let onError = { sendError(observer, $0) }
+			let onError = { sendError(observer, error: $0) }
 			let onInterrupted = { sendInterrupted(observer) }
 			
 			let signalDisposable = signal.observe(next: { value in
@@ -808,7 +808,7 @@ internal func zipWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Sign
 
 /// Applies `operation` to values from `signal` with `Success`ful results
 /// forwarded on the returned signal and `Failure`s sent as `Error` events.
-public func try<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
+public func `try`<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return signal |> tryMap { value in
 			return operation(value).map {
@@ -883,7 +883,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 						}
 						
 						if let pendingValue = previousState.pendingValue {
-							sendNext(observer, pendingValue)
+							sendNext(observer, value: pendingValue)
 						}
 					}
 
@@ -914,7 +914,7 @@ public func combineLatest<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>)
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return combineLatest(a, b)
+	return combineLatest(a, b: b)
 		|> combineLatestWith(c)
 		|> map(repack)
 }
@@ -922,7 +922,7 @@ public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Erro
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return combineLatest(a, b, c)
+	return combineLatest(a, b: b, c: c)
 		|> combineLatestWith(d)
 		|> map(repack)
 }
@@ -930,7 +930,7 @@ public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, E
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return combineLatest(a, b, c, d)
+	return combineLatest(a, b: b, c: c, d: d)
 		|> combineLatestWith(e)
 		|> map(repack)
 }
@@ -938,7 +938,7 @@ public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b, c, d, e)
+	return combineLatest(a, b: b, c: c, d: d, e: e)
 		|> combineLatestWith(f)
 		|> map(repack)
 }
@@ -946,7 +946,7 @@ public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signa
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b, c, d, e, f)
+	return combineLatest(a, b: b, c: c, d: d, e: e, f: f)
 		|> combineLatestWith(g)
 		|> map(repack)
 }
@@ -954,7 +954,7 @@ public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Si
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b, c, d, e, f, g)
+	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g)
 		|> combineLatestWith(h)
 		|> map(repack)
 }
@@ -962,7 +962,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b:
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h)
+	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
 		|> combineLatestWith(i)
 		|> map(repack)
 }
@@ -970,7 +970,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>,
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
+	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
 		|> combineLatestWith(j)
 		|> map(repack)
 }
@@ -981,7 +981,7 @@ public func combineLatest<S: SequenceType, T, Error where S.Generator.Element ==
 	var generator = signals.generate()
 	if let first = generator.next() {
 		let initial = first |> map { [$0] }
-		return reduce(GeneratorSequence(generator), initial) { $0 |> combineLatestWith($1) }
+		return GeneratorSequence(generator).reduce(initial) { $0 |> combineLatestWith($1) }
 	}
 	
 	return Signal.never
@@ -996,7 +996,7 @@ public func zip<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return zip(a, b)
+	return zip(a, b: b)
 		|> zipWith(c)
 		|> map(repack)
 }
@@ -1004,7 +1004,7 @@ public func zip<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Sig
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return zip(a, b, c)
+	return zip(a, b: b, c: c)
 		|> zipWith(d)
 		|> map(repack)
 }
@@ -1012,7 +1012,7 @@ public func zip<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return zip(a, b, c, d)
+	return zip(a, b: b, c: c, d: d)
 		|> zipWith(e)
 		|> map(repack)
 }
@@ -1020,7 +1020,7 @@ public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return zip(a, b, c, d, e)
+	return zip(a, b: b, c: c, d: d, e: e)
 		|> zipWith(f)
 		|> map(repack)
 }
@@ -1028,7 +1028,7 @@ public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return zip(a, b, c, d, e, f)
+	return zip(a, b: b, c: c, d: d, e: e, f: f)
 		|> zipWith(g)
 		|> map(repack)
 }
@@ -1036,7 +1036,7 @@ public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Er
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return zip(a, b, c, d, e, f, g)
+	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g)
 		|> zipWith(h)
 		|> map(repack)
 }
@@ -1044,7 +1044,7 @@ public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B,
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return zip(a, b, c, d, e, f, g, h)
+	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
 		|> zipWith(i)
 		|> map(repack)
 }
@@ -1052,7 +1052,7 @@ public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
 public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return zip(a, b, c, d, e, f, g, h, i)
+	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
 		|> zipWith(j)
 		|> map(repack)
 }
@@ -1063,7 +1063,7 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T,
 	var generator = signals.generate()
 	if let first = generator.next() {
 		let initial = first |> map { [$0] }
-		return reduce(GeneratorSequence(generator), initial) { $0 |> zipWith($1) }
+		return GeneratorSequence(generator).reduce(initial) { $0 |> zipWith($1) }
 	}
 	
 	return Signal.never
@@ -1081,7 +1081,7 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 		return Signal { observer in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 			let schedulerDisposable = scheduler.scheduleAfter(date) {
-				sendError(observer, error)
+				sendError(observer, error: error)
 			}
 
 			let signalDisposable = signal.observe(observer)
@@ -1099,7 +1099,7 @@ public func promoteErrors<T, E: ErrorType>(_: E.Type) -> Signal<T, NoError> -> S
 	return { signal in
 		return Signal { observer in
 			return signal.observe(next: { value in
-				sendNext(observer, value)
+				sendNext(observer, value: value)
 			}, completed: {
 				sendCompleted(observer)
 			}, interrupted: {
@@ -1119,6 +1119,6 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -
 /// Signal.observe() as a free function, for easier use with |>.
 public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Signal<T, E> -> Disposable? {
 	return { signal in
-		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
+		return signal.observe(next: next, error, completed: completed, interrupted: interrupted)
 	}
 }

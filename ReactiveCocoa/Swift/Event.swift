@@ -146,7 +146,7 @@ public func == <T: Equatable, E: Equatable> (lhs: Event<T, E>, rhs: Event<T, E>)
 	}
 }
 
-extension Event: Printable {
+extension Event: CustomStringConvertible {
 	public var description: String {
 		switch self {
 		case let .Next(value):

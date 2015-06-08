@@ -92,7 +92,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				it("should start once per subscription") {
 					var subscriptions = 0
 
-					let producer = SignalProducer<NSNumber, NoError>.try {
+					let producer = SignalProducer<NSNumber, NoError>.`try` {
 						return .success(subscriptions++)
 					}
 					let racSignal = toRACSignal(producer)

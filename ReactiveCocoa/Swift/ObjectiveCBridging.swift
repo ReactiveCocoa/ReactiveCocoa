@@ -45,7 +45,7 @@ extension QueueScheduler {
 	}
 }
 
-private func defaultNSError(message: String, #file: String, #line: Int) -> NSError {
+private func defaultNSError(message: String, file: String, line: Int) -> NSError {
 	let error = Result<(), NSError>.error(file: file, line: line)
 
 	var userInfo = error.userInfo
@@ -60,11 +60,11 @@ extension RACSignal {
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { (obj: AnyObject?) -> () in
-				sendNext(observer, obj)
+				sendNext(observer, value: obj)
 			}
 
 			let error = { (nsError: NSError?) -> () in
-				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
+				sendError(observer, error: nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
@@ -98,7 +98,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
-		}, error: { error in
+		}, { error in
 			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()
@@ -124,7 +124,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)
-		}, error: { error in
+		}, { error in
 			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()
@@ -147,14 +147,14 @@ extension RACCommand {
 
 		enabledProperty <~ self.enabled.toSignalProducer()
 			|> map { $0 as! Bool }
-			|> catch { _ in SignalProducer<Bool, NoError>(value: false) }
+			|> `catch` { _ in SignalProducer<Bool, NoError>(value: false) }
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
-			let executionSignal = RACSignal.defer {
+			let executionSignal = RACSignal.`defer` {
 				return self.execute(input)
 			}
 
-			return executionSignal.toSignalProducer(file: file, line: line)
+			return executionSignal.toSignalProducer(file, line: line)
 		}
 	}
 }

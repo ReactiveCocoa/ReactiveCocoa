@@ -283,8 +283,8 @@ class SignalProducerSpec: QuickSpec {
 					return .success("OperationValue")
 				}
 
-				SignalProducer.try(operation).start()
-				SignalProducer.try(operation).start()
+				SignalProducer.`try`(operation).start()
+				SignalProducer.`try`(operation).start()
 
 				expect(operationRunTimes).to(equal(2))
 			}
@@ -295,7 +295,7 @@ class SignalProducerSpec: QuickSpec {
 					return .success(operationReturnValue)
 				}
 
-				let signalProducer = SignalProducer.try(operation)
+				let signalProducer = SignalProducer.`try`(operation)
 
 				expect(signalProducer).to(sendValue(operationReturnValue, sendError: nil, complete: true))
 			}
@@ -306,7 +306,7 @@ class SignalProducerSpec: QuickSpec {
 					return .failure(operationError)
 				}
 
-				let signalProducer = SignalProducer.try(operation)
+				let signalProducer = SignalProducer.`try`(operation)
 
 				expect(signalProducer).to(sendValue(nil, sendError: operationError, complete: false))
 			}
@@ -757,7 +757,7 @@ class SignalProducerSpec: QuickSpec {
 				var completed = false
 
 				baseProducer
-					|> catch { (error: TestError) -> SignalProducer<Int, TestError> in
+					|> `catch` { (error: TestError) -> SignalProducer<Int, TestError> in
 						expect(error).to(equal(TestError.Default))
 						expect(values).to(equal([1]))
 
@@ -1494,6 +1494,6 @@ extension SignalProducer {
 			}
 		}
 
-		return SignalProducer.try(operation)
+		return SignalProducer.`try`(operation)
 	}
 }

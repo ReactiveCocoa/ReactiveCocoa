@@ -70,11 +70,11 @@ internal struct Bag<T> {
 }
 
 extension Bag: SequenceType {
-	func generate() -> GeneratorOf<T> {
+	func generate() -> AnyGenerator<T> {
 		var index = 0
 		let count = elements.count
 
-		return GeneratorOf {
+		return anyGenerator {
 			if index < count {
 				return self.elements[index++].value
 			} else {
@@ -106,7 +106,7 @@ private struct BagElement<T> {
 	let token: RemovalToken
 }
 
-extension BagElement: Printable {
+extension BagElement: CustomStringConvertible {
 	var description: String {
 		return "BagElement(\(value))"
 	}

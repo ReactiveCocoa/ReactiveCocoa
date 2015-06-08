@@ -1463,7 +1463,7 @@ class SignalSpec: QuickSpec {
 		describe("try") {
 			it("should forward original values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> try { _ in
+				var signal = baseSignal |> `try` { _ in
 					return .success()
 				}
 				
@@ -1480,7 +1480,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should error if an attempt fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> try { _ in
+				var signal = baseSignal |> `try` { _ in
 					return .failure(.Default)
 				}
 				

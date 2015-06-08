@@ -907,70 +907,70 @@ private struct ThrottleState<T> {
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {
+public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
 	return a |> combineLatestWith(b)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return combineLatest(a, b: b)
+public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
+	return combineLatest(a, b)
 		|> combineLatestWith(c)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return combineLatest(a, b: b, c: c)
+public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
+	return combineLatest(a, b, c)
 		|> combineLatestWith(d)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return combineLatest(a, b: b, c: c, d: d)
+public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
+	return combineLatest(a, b, c, d)
 		|> combineLatestWith(e)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e)
+public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
+	return combineLatest(a, b, c, d, e)
 		|> combineLatestWith(f)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f)
+public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
+	return combineLatest(a, b, c, d, e, f)
 		|> combineLatestWith(g)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g)
+public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
+	return combineLatest(a, b, c, d, e, f, g)
 		|> combineLatestWith(h)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
+public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h)
 		|> combineLatestWith(i)
 		|> map(repack)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
+public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h, i)
 		|> combineLatestWith(j)
 		|> map(repack)
 }
@@ -989,70 +989,70 @@ public func combineLatest<S: SequenceType, T, Error where S.Generator.Element ==
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, Error>(a: Signal<A, Error>, b: Signal<B, Error>) -> Signal<(A, B), Error> {
+public func zip<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
 	return a |> zipWith(b)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return zip(a, b: b)
+public func zip<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
+	return zip(a, b)
 		|> zipWith(c)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return zip(a, b: b, c: c)
+public func zip<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
+	return zip(a, b, c)
 		|> zipWith(d)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return zip(a, b: b, c: c, d: d)
+public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
+	return zip(a, b, c, d)
 		|> zipWith(e)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return zip(a, b: b, c: c, d: d, e: e)
+public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
+	return zip(a, b, c, d, e)
 		|> zipWith(f)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f)
+public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
+	return zip(a, b, c, d, e, f)
 		|> zipWith(g)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g)
+public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
+	return zip(a, b, c, d, e, f, g)
 		|> zipWith(h)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
+public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
+	return zip(a, b, c, d, e, f, g, h)
 		|> zipWith(i)
 		|> map(repack)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, b: Signal<B, Error>, c: Signal<C, Error>, d: Signal<D, Error>, e: Signal<E, Error>, f: Signal<F, Error>, g: Signal<G, Error>, h: Signal<H, Error>, i: Signal<I, Error>, j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
+public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return zip(a, b, c, d, e, f, g, h, i)
 		|> zipWith(j)
 		|> map(repack)
 }

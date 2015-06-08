@@ -99,7 +99,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// Signals created from the returned producer will stay alive until a
 	/// terminating event is added to the queue. If the queue does not contain
-	/// such an event when the Signal is started, all events sent to the
+	/// such an event when the Signal is started, all values sent to the
 	/// returned observer will be automatically forwarded to the Signal’s
 	/// observers until a terminating event is received.
 	///

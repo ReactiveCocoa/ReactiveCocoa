@@ -19,8 +19,6 @@
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
-		CD183E831AED1E0E00848F5D /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD183E811AED1E0E00848F5D /* Box.framework */; };
-		CD183E861AED1EFA00848F5D /* Box.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CD183E811AED1E0E00848F5D /* Box.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
@@ -477,7 +475,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CD183E861AED1EFA00848F5D /* Box.framework in Copy Frameworks */,
 				CDC42E331AE7AC6D00965373 /* Result.framework in Copy Frameworks */,
 				D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */,
 				D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */,
@@ -819,7 +816,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD183E831AED1E0E00848F5D /* Box.framework in Frameworks */,
 				CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */,
 				D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */,
 				D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */,

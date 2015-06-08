@@ -49,7 +49,7 @@ private func defaultNSError(message: String, file: String, line: Int) -> NSError
 	let error = Result<(), NSError>.error(file: file, line: line)
 
 	var userInfo = error.userInfo
-	userInfo?[NSLocalizedDescriptionKey] = message
+	userInfo[NSLocalizedDescriptionKey] = message
 
 	return NSError(domain: error.domain, code: error.code, userInfo: userInfo)
 }
@@ -60,11 +60,11 @@ extension RACSignal {
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { (obj: AnyObject?) -> () in
-				sendNext(observer, value: obj)
+				sendNext(observer, obj)
 			}
 
 			let error = { (nsError: NSError?) -> () in
-				sendError(observer, error: nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
+				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
@@ -98,7 +98,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
-		}, { error in
+		}, error: { error in
 			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()
@@ -124,7 +124,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)
-		}, { error in
+		}, error: { error in
 			subscriber.sendError(error.nsError)
 		}, completed: {
 			subscriber.sendCompleted()

@@ -121,14 +121,14 @@ public final class Signal<T, E: ErrorType> {
 		let sink = Observer(observer)
 
 		var token: RemovalToken?
-		atomicObservers.modify { (observers) in
+		atomicObservers.modify { (var observers) in
 			token = observers?.insert(sink)
 			return observers
 		}
 
 		if let token = token {
 			return ActionDisposable {
-				atomicObservers.modify { (observers) in
+				atomicObservers.modify { (var observers) in
 					observers?.removeValueForToken(token)
 					return observers
 				}
@@ -146,8 +146,8 @@ public final class Signal<T, E: ErrorType> {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(next: next, error, completed: completed, interrupted: interrupted))
+	public func observe(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
+		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
 	}
 }
 
@@ -199,8 +199,8 @@ public func filter<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
 			return signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
-					if predicate(value.value) {
-						sendNext(observer, value.value)
+					if predicate(value) {
+						sendNext(observer, value)
 					}
 
 				default:
@@ -236,7 +236,7 @@ public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 				case let .Next(value):
 					if taken < count {
 						taken++
-						sendNext(observer, value.value)
+						sendNext(observer, value)
 					}
 
 					if taken == count {
@@ -288,7 +288,7 @@ private final class CombineLatestState<T> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSLock, onBothNext: () -> (), onError: E -> (), onBothCompleted: () -> (), onInterrupted: () -> ()) -> Disposable? {
+private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: E -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe(next: { value in
 		lock.lock()
 
@@ -298,7 +298,7 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, signalState: Combi
 		}
 
 		lock.unlock()
-	}, onError, completed: {
+	}, error: onError, completed: {
 		lock.lock()
 
 		signalState.completed = true
@@ -326,10 +326,10 @@ public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E
 			let otherState = CombineLatestState<U>()
 			
 			let onBothNext = { () -> () in
-				sendNext(observer, value: (signalState.latestValue!, otherState.latestValue!))
+				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = { sendError(observer, error: $0) }
+			let onError = { sendError(observer, $0) }
 			let onBothCompleted = { sendCompleted(observer) }
 			let onInterrupted = { sendInterrupted(observer) }
 			
@@ -415,7 +415,7 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
 		return signal.observe(Signal.Observer { event in
-			sendNext(observer, value: event)
+			sendNext(observer, event)
 
 			switch event {
 			case .Interrupted:
@@ -438,7 +438,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 		return signal.observe(Signal.Observer { event in
 			switch event {
 			case let .Next(innerEvent):
-				observer.put(innerEvent.value)
+				observer.put(innerEvent)
 
 			case .Error:
 				fatalError()
@@ -480,8 +480,8 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Sign
 				}
 
 				return
-			}, { error in
-				sendError(observer, error: error)
+			}, error: { error in
+				sendError(observer, error)
 			}, completed: {
 				let oldState = state.modify { (var st) in
 					st.signalCompleted = true
@@ -497,7 +497,7 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Sign
 
 			let samplerDisposable = sampler.observe(next: { _ in
 				if let value = state.value.latestValue {
-					sendNext(observer, value: value)
+					sendNext(observer, value)
 				}
 			}, completed: {
 				let oldState = state.modify { (var st) in
@@ -556,7 +556,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> ->
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before taking
 		// the last value).
-		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal.pipe()
+		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal<U, E>.pipe()
 		let outputSignal = scannedSignalWithInitialValue |> takeLast(1)
 
 		// Now that we've got takeLast() listening to the piped signal, send that initial value.
@@ -574,7 +574,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> ->
 /// that emitted value as the second argument. The result is emitted from the
 /// signal returned from `reduce`. That result is then passed to `combine` as the
 /// first argument when the next value is emitted, and so on.
-public func scan<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
+public func scan<T, U, E>(initial: U, _ combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
 	return { signal in
 		return Signal { observer in
 			var accumulator = initial
@@ -623,7 +623,7 @@ public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 			return signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
-					shouldSkip = shouldSkip && predicate(value.value)
+					shouldSkip = shouldSkip && predicate(value)
 					if !shouldSkip {
 						fallthrough
 					}
@@ -682,8 +682,8 @@ public func takeLast<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 				}
 
 				buffer.append(value)
-			}, { error in
-				sendError(observer, error: error)
+			}, error: { error in
+				sendError(observer, error)
 			}, completed: {
 				for bufferedValue in buffer {
 					sendNext(observer, bufferedValue)
@@ -705,7 +705,7 @@ public func takeWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 			return signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
-					if predicate(value.value) {
+					if predicate(value) {
 						fallthrough
 					} else {
 						sendCompleted(observer)
@@ -752,7 +752,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 				while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
 					let left = originalStates.0.values.removeAtIndex(0)
 					let right = originalStates.1.values.removeAtIndex(0)
-					sendNext(observer, value: (left, right))
+					sendNext(observer, (left, right))
 				}
 				
 				if originalStates.0.isFinished || originalStates.1.isFinished {
@@ -760,7 +760,7 @@ public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signa
 				}
 			}
 			
-			let onError = { sendError(observer, error: $0) }
+			let onError = { sendError(observer, $0) }
 			let onInterrupted = { sendInterrupted(observer) }
 			
 			let signalDisposable = signal.observe(next: { value in
@@ -864,7 +864,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				case let .Next(value):
 					var scheduleDate: NSDate!
 					state.modify { (var state) in
-						state.pendingValue = value.value
+						state.pendingValue = value
 
 						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
@@ -883,7 +883,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 						}
 						
 						if let pendingValue = previousState.pendingValue {
-							sendNext(observer, value: pendingValue)
+							sendNext(observer, pendingValue)
 						}
 					}
 
@@ -1081,7 +1081,7 @@ public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInter
 		return Signal { observer in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 			let schedulerDisposable = scheduler.scheduleAfter(date) {
-				sendError(observer, error: error)
+				sendError(observer, error)
 			}
 
 			let signalDisposable = signal.observe(observer)
@@ -1099,7 +1099,7 @@ public func promoteErrors<T, E: ErrorType>(_: E.Type) -> Signal<T, NoError> -> S
 	return { signal in
 		return Signal { observer in
 			return signal.observe(next: { value in
-				sendNext(observer, value: value)
+				sendNext(observer, value)
 			}, completed: {
 				sendCompleted(observer)
 			}, interrupted: {
@@ -1119,6 +1119,6 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -
 /// Signal.observe() as a free function, for easier use with |>.
 public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Signal<T, E> -> Disposable? {
 	return { signal in
-		return signal.observe(next: next, error, completed: completed, interrupted: interrupted)
+		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 	}
 }

@@ -84,7 +84,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 		set {
 			lock.lock()
 			_value = newValue
-			sendNext(observer, value: newValue)
+			sendNext(observer, newValue)
 			lock.unlock()
 		}
 	}
@@ -101,7 +101,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 		(producer, observer) = SignalProducer<T, NoError>.buffer(1)
 
 		_value = initialValue
-		sendNext(observer, value: initialValue)
+		sendNext(observer, initialValue)
 	}
 
 	deinit {

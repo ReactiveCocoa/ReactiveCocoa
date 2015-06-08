@@ -16,7 +16,7 @@ extension NSNotificationCenter {
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
 		return SignalProducer { observer, disposable in
 			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
-				sendNext(observer, value: notification)
+				sendNext(observer, notification)
 			}
 
 			disposable.addDisposable {
@@ -31,20 +31,21 @@ extension NSURLSession {
 	/// invocation of start().
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
+			// TODO Error out if this fails
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if let data = data, response = response {
-					sendNext(observer, value: (data, response))
+					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
-					sendError(observer, error: error)
+					sendError(observer, error!)
 				}
 			}
 
 			disposable.addDisposable {
-				task.cancel()
+				task?.cancel()
 			}
 
-			task.resume()
+			task?.resume()
 		}
 	}
 }

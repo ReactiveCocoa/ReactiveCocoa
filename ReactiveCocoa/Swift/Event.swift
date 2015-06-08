@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import Box
 import Result
 
 /// Represents a signal event.
@@ -15,11 +14,11 @@ import Result
 /// `Next* (Error | Completed | Interrupted)?`
 public enum Event<T, E: ErrorType> {
 	/// A value provided by the signal.
-	case Next(Box<T>)
+	case Next(T)
 
 	/// The signal terminated because of an error. No further events will be
 	/// received.
-	case Error(Box<E>)
+	case Error(E)
 
 	/// The signal successfully terminated. No further events will be received.
 	case Completed
@@ -56,7 +55,7 @@ public enum Event<T, E: ErrorType> {
 	public func map<U>(f: T -> U) -> Event<U, E> {
 		switch self {
 		case let .Next(value):
-			return .Next(value.map(f))
+			return .Next(f(value))
 
 		case let .Error(error):
 			return .Error(error)
@@ -76,7 +75,7 @@ public enum Event<T, E: ErrorType> {
 			return .Next(value)
 
 		case let .Error(error):
-			return .Error(error.map(f))
+			return .Error(f(error))
 
 		case .Completed:
 			return .Completed
@@ -90,7 +89,7 @@ public enum Event<T, E: ErrorType> {
 	public var value: T? {
 		switch self {
 		case let .Next(value):
-			return value.value
+			return value
 		default:
 			return nil
 		}
@@ -100,7 +99,7 @@ public enum Event<T, E: ErrorType> {
 	public var error: E? {
 		switch self {
 		case let .Error(error):
-			return error.value
+			return error
 		default:
 			return nil
 		}
@@ -108,14 +107,14 @@ public enum Event<T, E: ErrorType> {
 	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Sink {
+	public static func sink(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Sink {
 		return Sink { event in
 			switch event {
 			case let .Next(value):
-				next?(value.value)
+				next?(value)
 
 			case let .Error(err):
-				error?(err.value)
+				error?(err)
 
 			case .Completed:
 				completed?()
@@ -130,10 +129,10 @@ public enum Event<T, E: ErrorType> {
 public func == <T: Equatable, E: Equatable> (lhs: Event<T, E>, rhs: Event<T, E>) -> Bool {
 	switch (lhs, rhs) {
 	case let (.Next(left), .Next(right)):
-		return left.value == right.value
+		return left == right
 
 	case let (.Error(left), .Error(right)):
-		return left.value == right.value
+		return left == right
 
 	case (.Completed, .Completed):
 		return true
@@ -150,10 +149,10 @@ extension Event: CustomStringConvertible {
 	public var description: String {
 		switch self {
 		case let .Next(value):
-			return "NEXT \(value.value)"
+			return "NEXT \(value)"
 
 		case let .Error(error):
-			return "ERROR \(error.value)"
+			return "ERROR \(error)"
 
 		case .Completed:
 			return "COMPLETED"
@@ -165,13 +164,13 @@ extension Event: CustomStringConvertible {
 }
 
 /// Puts a `Next` event into the given sink.
-public func sendNext<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, value: T) {
-	sink.put(.Next(Box(value)))
+public func sendNext<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, _ value: T) {
+	sink.put(.Next(value))
 }
 
 /// Puts an `Error` event into the given sink.
-public func sendError<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, error: E) {
-	sink.put(.Error(Box(error)))
+public func sendError<T, E: ErrorType, S: SinkType where S.Element == Event<T, E>>(var sink: S, _ error: E) {
+	sink.put(.Error(error))
 }
 
 /// Puts a `Completed` event into the given sink.

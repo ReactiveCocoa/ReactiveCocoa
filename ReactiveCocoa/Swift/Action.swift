@@ -98,7 +98,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			}
 
 			if !startedExecuting {
-				sendError(observer, error: .NotEnabled)
+				sendError(observer, .NotEnabled)
 				return
 			}
 
@@ -107,7 +107,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 				signal.observe(Signal.Observer { event in
 					observer.put(event.mapError { .ProducerError($0) })
-					sendNext(self.eventsObserver, value: event)
+					sendNext(self.eventsObserver, event)
 				})
 			}
 

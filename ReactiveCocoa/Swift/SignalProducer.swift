@@ -526,6 +526,37 @@ public func combineLatest<S: SequenceType, T, Error where S.Generator.Element ==
 	return SignalProducer.empty
 }
 
+/// Works the same way as combineLatestWith except that when the given signal producer
+/// sends a value, it won't send a value.
+public func withLatestFrom<A, B, E>(otherSignalProducer: SignalProducer<B, E>) -> SignalProducer<A, E> -> SignalProducer<(A, B), E> {
+	return { producer in
+		return producer.lift(withLatestFrom)(otherSignalProducer)
+	}
+}
+
+/// Works the same way as combineLatestWith except that when the given signal producer
+/// sends a value, it won't send a value.
+public func withLatestFrom<A, B, C, E>(otherSignalProducer: SignalProducer<A, E>) -> SignalProducer<(B, C), E> -> SignalProducer<(B, C, A), E> {
+	return { producer in
+		return withLatestFrom(otherSignalProducer)(producer) |> map(repack)
+	}
+}
+
+/// Works the same way as combineLatestWith except that when the given signal producer
+/// sends a value, it won't send a value.
+public func withLatestFrom<A, B, C, D, E>(otherSignalProducer: SignalProducer<A, E>) -> SignalProducer<(B, C, D), E> -> SignalProducer<(B, C, D, A), E> {
+	return { producer in
+		return withLatestFrom(otherSignalProducer)(producer) |> map(repack)
+	}
+
+/// Works the same way as combineLatestWith except that when the given signal producer
+/// sends a value, it won't send a value.
+public func withLatestFrom<A, B, C, D, F, E>(otherSignalProducer: SignalProducer<A, E>) -> SignalProducer<(B, C, D, F), E> -> SignalProducer<(B, C, D, F, A), E> {
+	return { producer in
+		return withLatestFrom(otherSignalProducer)(producer) |> map(repack)
+	}
+}
+
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
 public func zip<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {

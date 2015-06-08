@@ -530,6 +530,41 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
+		describe("withLatestFrom") {
+			it("should forward the latest values from both inputs") {
+				let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+				let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
+
+				var result: (Int, Int) = (0, 0)
+				baseProducer
+					|> withLatestFrom(otherProducer)
+					|> start(next: { (a, b) in
+						result = (a, b)
+					})
+
+				expect(result.0).to(equal(2))
+				expect(result.1).to(equal(4))
+			}
+
+			it("should work with three producers") {
+				let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+				let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
+				let thirdProducer = SignalProducer<Int, NoError>(values: [5, 6])
+
+				var result: (Int, Int, Int) = (0, 0, 0)
+				baseProducer
+					|> combineLatestWith(otherProducer)
+					|> withLatestFrom(thirdProducer)
+					|> start(next: { (a, b, c) in
+						result = (a, b, c)
+					})
+
+				expect(result.0).to(equal(2))
+				expect(result.1).to(equal(4))
+				expect(result.2).to(equal(6))
+			}
+		}
+
 		describe("lift") {
 			describe("over unary operators") {
 				it("should invoke transformation once per started signal") {

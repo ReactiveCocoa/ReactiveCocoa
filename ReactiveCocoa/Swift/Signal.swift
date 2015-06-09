@@ -149,6 +149,23 @@ public final class Signal<T, E: ErrorType> {
 	}
 }
 
+public protocol SignalType {
+	/// The type of values being sent on the signal
+	typealias T
+	/// The type of error that can occur on the signal. If errors aren't possible
+	/// than `NoError` can be used.
+	typealias E: ReactiveCocoa.ErrorType
+
+	/// Proxy for the actual signal
+	var signal: Signal<T, E> { get }
+}
+
+extension Signal: SignalType {
+	public var signal: Signal<T, E> {
+		return self
+	}
+}
+
 infix operator |> {
 	associativity left
 

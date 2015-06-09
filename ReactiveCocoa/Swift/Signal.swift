@@ -389,7 +389,7 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 
 			return signal.observe(Signal.Observer { event in
 				switch event {
-				case let .Next(value):
+				case .Next:
 					if skipped >= count {
 						fallthrough
 					} else {

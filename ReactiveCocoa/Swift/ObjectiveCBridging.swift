@@ -71,8 +71,7 @@ extension RACSignal {
 				sendCompleted(observer)
 			}
 
-			let selfDisposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)
-			disposable.addDisposable(selfDisposable)
+			disposable += self.subscribeNext(next, error: error, completed: completed)
 		}
 	}
 }

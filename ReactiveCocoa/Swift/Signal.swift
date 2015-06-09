@@ -859,7 +859,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			let disposable = CompositeDisposable()
 			disposable.addDisposable(schedulerDisposable)
 
-			let signalDisposable = signal.observe(Signal.Observer { event in
+			disposable += signal.observe(Signal.Observer { event in
 				switch event {
 				case let .Next(value):
 					var scheduleDate: NSDate!
@@ -894,7 +894,6 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 				}
 			})
 
-			disposable.addDisposable(signalDisposable)
 			return disposable
 		}
 	}

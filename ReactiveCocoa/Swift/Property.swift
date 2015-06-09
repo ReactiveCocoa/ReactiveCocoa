@@ -35,7 +35,7 @@ public struct PropertyOf<T>: PropertyType {
 
 /// A property that never changes.
 public struct ConstantProperty<T>: PropertyType {
-	typealias Value = T
+	public typealias Value = T
 
 	public let value: T
 	public let producer: SignalProducer<T, NoError>

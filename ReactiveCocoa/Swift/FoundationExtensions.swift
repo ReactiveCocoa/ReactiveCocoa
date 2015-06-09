@@ -26,26 +26,29 @@ extension NSNotificationCenter {
 	}
 }
 
+private let defaultSessionError = NSError(domain: "org.reactivecocoa.ReactiveCocoa.rac_dataWithRequest", code: 1, userInfo: nil)
+
 extension NSURLSession {
 	/// Returns a producer that will execute the given request once for each
 	/// invocation of start().
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
-			// TODO Error out if this fails
-			let task = self.dataTaskWithRequest(request) { (data, response, error) in
+			guard let task = self.dataTaskWithRequest(request, completionHandler: { data, response, error in
 				if let data = data, response = response {
 					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
-					sendError(observer, error!)
+					sendError(observer, error ?? defaultSessionError)
 				}
+			}) else {
+				sendError(observer, defaultSessionError)
+				return
 			}
 
 			disposable.addDisposable {
-				task?.cancel()
+				task.cancel()
 			}
-
-			task?.resume()
+			task.resume()
 		}
 	}
 }

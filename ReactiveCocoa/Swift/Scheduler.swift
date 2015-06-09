@@ -311,6 +311,6 @@ public final class TestScheduler: DateSchedulerType {
 	/// Dequeues and executes all scheduled actions, leaving the scheduler's
 	/// date at `NSDate.distantFuture()`.
 	public func run() {
-		advanceToDate(NSDate.distantFuture() as NSDate)
+		advanceToDate(NSDate.distantFuture())
 	}
 }

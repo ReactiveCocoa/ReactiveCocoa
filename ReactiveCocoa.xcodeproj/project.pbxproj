@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
-		6C8A1BD61B0B72E800D8EE9E /* DebugSinkOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A1BD51B0B72E800D8EE9E /* DebugSinkOf.swift */; };
-		6C8A1BD71B0B72E800D8EE9E /* DebugSinkOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A1BD51B0B72E800D8EE9E /* DebugSinkOf.swift */; };
 		7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
@@ -488,7 +486,6 @@
 /* Begin PBXFileReference section */
 		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
-		6C8A1BD51B0B72E800D8EE9E /* DebugSinkOf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugSinkOf.swift; sourceTree = "<group>"; };
 		7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
@@ -1296,7 +1293,6 @@
 				D03B4A3919F4C25F009E02AC /* Signals */,
 				D03B4A3A19F4C26D009E02AC /* Internal Utilities */,
 				D03B4A3B19F4C281009E02AC /* Extensions */,
-				6C8A1BD51B0B72E800D8EE9E /* DebugSinkOf.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -1618,7 +1614,6 @@
 				D037654219EDA41200A782A9 /* NSText+RACSignalSupport.m in Sources */,
 				D037659C19EDA41200A782A9 /* RACKVOChannel.m in Sources */,
 				D03765C819EDA41200A782A9 /* RACScopedDisposable.m in Sources */,
-				6C8A1BD61B0B72E800D8EE9E /* DebugSinkOf.swift in Sources */,
 				D03764FE19EDA41200A782A9 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D03764EA19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */,
@@ -1781,7 +1776,6 @@
 				D03764FF19EDA41200A782A9 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D037664719EDA41200A782A9 /* UISegmentedControl+RACSignalSupport.m in Sources */,
 				D43F27A31A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m in Sources */,
-				6C8A1BD71B0B72E800D8EE9E /* DebugSinkOf.swift in Sources */,
 				D03764EB19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D0C312D419EF2A5800984962 /* Disposable.swift in Sources */,
 				D03765C119EDA41200A782A9 /* RACScheduler.m in Sources */,

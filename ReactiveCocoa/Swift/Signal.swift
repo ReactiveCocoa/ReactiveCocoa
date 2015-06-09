@@ -347,6 +347,38 @@ internal func combineLatestWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], 
 	}
 }
 
+/// Combines the latest value of the receiver with the latest value from
+/// the given signal.
+///
+/// The returned signal will not send a value when the otherSignal changes.
+public func withLatestFrom<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { signal in
+		return Signal { observer in
+			let lock = NSLock()
+			lock.name = "org.reactivecocoa.ReactiveCocoa.withLatestFrom"
+
+			let signalState = CombineLatestState<T>()
+			let otherState = CombineLatestState<U>()
+
+			let onNext = { () -> () in
+				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
+			}
+
+			let onError = { sendError(observer, $0) }
+			let onCompleted = { sendCompleted(observer) }
+			let onInterrupted = { sendInterrupted(observer) }
+
+			let signalDisposable = observeWithStates(signal, signalState, otherState, lock, onNext, onError, onCompleted, onInterrupted)
+			let signalCompletedDisposable = signal.observe(completed: onCompleted)
+			let otherDisposable = otherSignal.observe(next: { value in
+				otherState.latestValue = value
+			})
+
+			return CompositeDisposable(ignoreNil([ signalDisposable, signalCompletedDisposable, otherDisposable ]))
+		}
+	}
+}
+
 /// Delays `Next` and `Completed` events by the given interval, forwarding
 /// them on the given scheduler.
 ///

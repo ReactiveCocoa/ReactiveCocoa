@@ -420,7 +420,9 @@ class SignalSpec: QuickSpec {
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 100, userInfo: nil)
 				var error: NSError?
 
-				signal |> mapError { _ in producerError } |> observe(next: { _ in return }, error: { error = $0 })
+				signal
+					.mapError { _ in producerError }
+					.observe(next: { _ in return }, error: { error = $0 })
 
 				expect(error).to(beNil())
 

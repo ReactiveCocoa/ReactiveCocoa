@@ -205,17 +205,16 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Maps errors in the signal to a new error.
-public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F> {
-	return { signal in
+	/// Maps errors in the signal to a new error.
+	public func mapError<F>(transform: E -> F) -> Signal<T, F> {
 		return Signal { observer in
-			return signal.observe { event in
+			return self.signal.observe { event in
 				observer(event.mapError(transform))
 			}
 		}
 	}
+
 }
 
 /// Preserves only the values of the signal that pass the given predicate.

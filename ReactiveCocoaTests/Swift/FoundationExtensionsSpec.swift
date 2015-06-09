@@ -17,7 +17,7 @@ class FoundationExtensionsSpec: QuickSpec {
 
 			it("should send notifications on the producer") {
 				let center = NSNotificationCenter.defaultCenter()
-				let producer = center.rac_notifications(name: "rac_notifications_test")
+				let producer = center.rac_notifications("rac_notifications_test")
 
 				var notif: NSNotification? = nil
 				let disposable = producer.start(next: { notif = $0 })

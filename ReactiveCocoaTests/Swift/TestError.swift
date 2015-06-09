@@ -15,7 +15,7 @@ enum TestError: Int {
 	case Error2 = 2
 }
 
-extension TestError: ErrorType {
+extension TestError: ReactiveCocoa.ErrorType {
 	static var domain: String { return "org.reactivecocoa.ReactiveCocoa.Tests" }
 
 	var nsError: NSError {

@@ -10,6 +10,7 @@ import Result
 import Nimble
 import Quick
 import ReactiveCocoa
+import XCTest
 
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
@@ -212,14 +213,18 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			it("should apply and start a signal once per execution") {
 				let signal = command.execute(0)
 
-				signal.asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1" ]))
+				do {
+					try signal.asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1" ]))
 
-				signal.asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1" ]))
+					try signal.asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1" ]))
 
-				command.execute(2).asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1", "3" ]))
+					try command.execute(2).asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1", "3" ]))
+				} catch {
+					XCTFail("Failed to wait for completion")
+				}
 			}
 		}
 	}

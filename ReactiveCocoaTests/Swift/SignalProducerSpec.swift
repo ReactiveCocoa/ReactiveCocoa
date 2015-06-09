@@ -8,7 +8,6 @@
 
 import Foundation
 
-import Box
 import Result
 import Nimble
 import Quick
@@ -515,9 +514,9 @@ class SignalProducerSpec: QuickSpec {
 					var values = [Int]()
 					let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
-					producer.start { next in
+					producer.start(next: { next in
 						values.append(next)
-					}
+					})
 
 					sendNext(sink, 1)
 					sendNext(sink, 2)
@@ -1194,9 +1193,9 @@ class SignalProducerSpec: QuickSpec {
 				let result = events?.value
 
 				let expectedEvents: [Event<Int, TestError>] = [
-					.Next(Box(1)),
-					.Next(Box(2)),
-					.Error(Box(.Default))
+					.Next(1),
+					.Next(2),
+					.Error(.Default)
 				]
 
 				// TODO: if let result = result where result.count == expectedEvents.count
@@ -1479,7 +1478,7 @@ extension SignalProducer {
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
 	private static func tryWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
-		let resultCount = count(results)
+		let resultCount = results.count
 		var operationIndex = 0
 
 		precondition(resultCount > 0)

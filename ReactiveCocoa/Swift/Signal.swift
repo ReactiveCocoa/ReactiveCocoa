@@ -551,7 +551,7 @@ public func combinePrevious<T, E>(initial: T) -> Signal<T, E> -> Signal<(T, T), 
 }
 
 /// Like `scan`, but sends only the final value and then immediately completes.
-public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
+public func reduce<T, U, E>(initial: U, _ combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
 	return { signal in
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before taking
@@ -1117,7 +1117,7 @@ public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Signal<T, E> -> Disposable? {
+public func observe<T, E>(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Signal<T, E> -> Disposable? {
 	return { signal in
 		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
 	}

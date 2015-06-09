@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import Box
 import Result
 import Nimble
 import Quick
@@ -390,25 +389,6 @@ class SignalSpec: QuickSpec {
 				sendInterrupted(sink)
 				expect(testStr).to(beNil())
 			}
-
-			describe("trailing closure") {
-				it("receives next values") {
-					var values = [Int]()
-					let (signal, sink) = Signal<Int, NoError>.pipe()
-
-					signal.observe { next in
-						values.append(next)
-					}
-
-					sendNext(sink, 1)
-					sendNext(sink, 2)
-					sendNext(sink, 3)
-
-					sendCompleted(sink)
-
-					expect(values).to(equal([1, 2, 3]))
-				}
-			}
 		}
 
 		describe("map") {
@@ -626,7 +606,7 @@ class SignalSpec: QuickSpec {
 
 			it("should skip values according to a predicate") {
 				let (baseSignal, sink) = Signal<String, NoError>.pipe()
-				let signal = baseSignal |> skipRepeats { count($0) == count($1) }
+				let signal = baseSignal |> skipRepeats { $0.characters.count == $1.characters.count }
 
 				var values: [String] = []
 				signal.observe(next: { values.append($0) })
@@ -1291,8 +1271,8 @@ class SignalSpec: QuickSpec {
 				expect(latestEvent).toNot(beNil())
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case let .Next(box):
-						expect(box.value).to(equal(2))
+					case let .Next(value):
+						expect(value).to(equal(2))
 					default:
 						fail()
 					}
@@ -1327,10 +1307,10 @@ class SignalSpec: QuickSpec {
 				
 				expect(result).to(beEmpty())
 				
-				sendNext(sink, IntEvent.Next(Box(2)))
+				sendNext(sink, .Next(2))
 				expect(result).to(equal([ 2 ]))
 				
-				sendNext(sink, IntEvent.Next(Box(4)))
+				sendNext(sink, .Next(4))
 				expect(result).to(equal([ 2, 4 ]))
 			}
 
@@ -1340,7 +1320,7 @@ class SignalSpec: QuickSpec {
 				
 				expect(errored).to(beFalsy())
 				
-				sendNext(sink, IntEvent.Error(Box(TestError.Default)))
+				sendNext(sink, .Error(TestError.Default))
 				expect(errored).to(beTruthy())
 			}
 

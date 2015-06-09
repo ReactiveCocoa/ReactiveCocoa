@@ -156,7 +156,7 @@ public final class CocoaAction: NSObject {
 
 		super.init()
 
-		let enabledDisposable = action.enabled.producer
+		disposable += action.enabled.producer
 			|> observeOn(UIScheduler())
 			|> start(next: { [weak self] value in
 				self?.willChangeValueForKey("enabled")
@@ -164,17 +164,13 @@ public final class CocoaAction: NSObject {
 				self?.didChangeValueForKey("enabled")
 			})
 
-		disposable.addDisposable(enabledDisposable)
-
-		let executingDisposable = action.executing.producer
+		disposable += action.executing.producer
 			|> observeOn(UIScheduler())
 			|> start(next: { [weak self] value in
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")
 			})
-
-		disposable.addDisposable(executingDisposable)
 	}
 
 	/// Initializes a Cocoa action that will invoke the given Action by

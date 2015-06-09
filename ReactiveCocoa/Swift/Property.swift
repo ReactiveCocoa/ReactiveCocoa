@@ -35,7 +35,7 @@ public struct PropertyOf<T>: PropertyType {
 
 /// A property that never changes.
 public struct ConstantProperty<T>: PropertyType {
-	typealias Value = T
+	public typealias Value = T
 
 	public let value: T
 	public let producer: SignalProducer<T, NoError>
@@ -185,19 +185,16 @@ infix operator <~ {
 /// or when the signal sends a `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
-	let propertyDisposable = property.producer.start(completed: {
+	disposable += property.producer.start(completed: {
 		disposable.dispose()
 	})
 
-	disposable.addDisposable(propertyDisposable)
-
-	let signalDisposable = signal.observe(next: { [weak property] value in
+	disposable += signal.observe(next: { [weak property] value in
 		property?.value = value
 	}, completed: {
 		disposable.dispose()
 	})
 
-	disposable.addDisposable(signalDisposable)
 	return disposable
 }
 

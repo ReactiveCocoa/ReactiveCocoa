@@ -89,21 +89,23 @@ public struct SignalProducer<T, E: ErrorType> {
 		return self { _ in () }
 	}
 
-	/// Creates a buffer for Events, with the given capacity, and a
-	/// SignalProducer for a signal that will send Events from the buffer.
+	/// Creates a queue for events that replays them when new signals are
+	/// created from the returned producer.
 	///
-	/// When events are put into the returned observer (sink), they will be
-	/// added to the buffer. If the buffer is already at capacity, the earliest
-	/// (oldest) event will be dropped to make room for the new event.
+	/// When values are put into the returned observer (sink), they will be
+	/// added to an internal buffer. If the buffer is already at capacity, 
+	/// the earliest (oldest) value will be dropped to make room for the new
+	/// value.
 	///
 	/// Signals created from the returned producer will stay alive until a
-	/// terminating event is added to the buffer. If the buffer does not contain
-	/// such an event when the Signal is started, all events sent to the
+	/// terminating event is added to the queue. If the queue does not contain
+	/// such an event when the Signal is started, all values sent to the
 	/// returned observer will be automatically forwarded to the Signal’s
 	/// observers until a terminating event is received.
 	///
-	/// After a terminating event has been added to the buffer, the observer
-	/// will not add any further events.
+	/// After a terminating event has been added to the queue, the observer
+	/// will not add any further events. This _does not_ count against the
+	/// value capacity so no buffered values will be dropped on termination.
 	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<T, E>.Observer) {
 		precondition(capacity >= 0)
 
@@ -343,11 +345,10 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	precondition(leeway >= 0)
 
 	return SignalProducer { observer, compositeDisposable in
-		let disposable = scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
+		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 			sendNext(observer, scheduler.currentDate)
 		}
-
-		compositeDisposable.addDisposable(disposable)
+		return ()
 	}
 }
 
@@ -401,14 +402,13 @@ public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> 
 public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	return { producer in
 		return SignalProducer { observer, compositeDisposable in
-			let schedulerDisposable = scheduler.schedule {
+			compositeDisposable += scheduler.schedule {
 				producer.startWithSignal { signal, signalDisposable in
 					compositeDisposable.addDisposable(signalDisposable)
 					signal.observe(observer)
 				}
 			}
-
-			compositeDisposable.addDisposable(schedulerDisposable)
+			return ()
 		}
 	}
 }

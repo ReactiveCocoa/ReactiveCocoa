@@ -8,23 +8,23 @@
 
 import Foundation
 
-/// A replacement for SinkOf that allows stepping in through the debugger.
+/// A replacement for SinkOf that allows stepping into through the debugger.
 public struct DebugSinkOf<T>: SinkType {
-	typealias Element = T
+	public typealias Element = T
 	
 	private let putElement: T -> ()
 	
-	/// Construct an instance whose `put(x)` calls `putElement(x)`
+	/// Constructs a value whose `put(x)` calls `putElement(x)`
 	public init(_ putElement: T -> ()) {
 		self.putElement = putElement
 	}
 	
-	/// Construct an instance whose `put(x)` calls `base.put(x)`
+	/// Constructs a value whose `put(x)` calls `base.put(x)`
 	public init<S: SinkType where S.Element == T>(var _ base: S) {
 		putElement = { base.put($0) }
 	}
 
-	/// Write `x` to this sink.
+	/// Writes `x` to this sink.
 	public func put(x: T) {
 		putElement(x)
 	}

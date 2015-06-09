@@ -140,7 +140,7 @@ class SchedulerSpec: QuickSpec {
 				it("should run enqueued actions serially on the given queue") {
 					var value = 0
 
-					for i in 0..<5 {
+					for _ in 0..<5 {
 						scheduler.schedule {
 							expect(NSThread.isMainThread()).to(beFalsy())
 							value++
@@ -269,7 +269,7 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.run()
-				expect(scheduler.currentDate).to(equal(NSDate.distantFuture() as? NSDate))
+				expect(scheduler.currentDate).to(equal(NSDate.distantFuture() as NSDate))
 				expect(string).to(equal("fuzzbuzzfoobar"))
 			}
 		}

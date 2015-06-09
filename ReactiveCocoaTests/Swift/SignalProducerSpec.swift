@@ -45,7 +45,7 @@ class SignalProducerSpec: QuickSpec {
 
 				weak var testSink: TestSink?
 				producer.startWithSignal { signal, _ in
-					var sink = TestSink()
+					let sink = TestSink()
 					testSink = sink
 					signal.observe(sink)
 				}
@@ -376,7 +376,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = SignalProducer<Int, NoError>.never
 				producer.startWithSignal { signal, innerDisposable in
-					var sink = TestSink()
+					let sink = TestSink()
 					testSink = sink
 					signal.observe(sink)
 
@@ -494,7 +494,7 @@ class SignalProducerSpec: QuickSpec {
 				weak var testSink: TestSink?
 
 				var disposable: Disposable!
-				var test: () -> () = {
+				let test: () -> () = {
 					let producer = SignalProducer<Int, NoError>.never
 					let sink = TestSink()
 					testSink = sink

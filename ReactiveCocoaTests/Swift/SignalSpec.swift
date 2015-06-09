@@ -348,7 +348,7 @@ class SignalSpec: QuickSpec {
 				let (signal, sink) = Signal<Int, NoError>.pipe()
 
 				let test: () -> () = {
-					var innerStr: NSMutableString = NSMutableString()
+					let innerStr: NSMutableString = NSMutableString()
 					signal.observe(next: { value in
 						innerStr.appendString("\(value)")
 					})
@@ -370,7 +370,7 @@ class SignalSpec: QuickSpec {
 				let (signal, sink) = Signal<Int, NoError>.pipe()
 
 				let test: () -> () = {
-					var innerStr: NSMutableString = NSMutableString()
+					let innerStr: NSMutableString = NSMutableString()
 					signal.observe(next: { value in
 						innerStr.appendString("\(value)")
 					})
@@ -694,7 +694,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should complete immediately after taking given number of values") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
-				var testScheduler = TestScheduler()
+				let testScheduler = TestScheduler()
 				
 				var signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
@@ -717,7 +717,7 @@ class SignalSpec: QuickSpec {
 
 			it("should interrupt when 0") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
-				var testScheduler = TestScheduler()
+				let testScheduler = TestScheduler()
 
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
@@ -969,7 +969,7 @@ class SignalSpec: QuickSpec {
 		describe("delay") {
 			it("should send events on the given scheduler after the interval") {
 				let testScheduler = TestScheduler()
-				var signal: Signal<Int, NoError> = Signal { observer in
+				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						sendNext(observer, 1)
 					}
@@ -1005,7 +1005,7 @@ class SignalSpec: QuickSpec {
 
 			it("should schedule errors immediately") {
 				let testScheduler = TestScheduler()
-				var signal: Signal<Int, TestError> = Signal { observer in
+				let signal: Signal<Int, TestError> = Signal { observer in
 					testScheduler.schedule {
 						sendError(observer, TestError.Default)
 					}
@@ -1443,7 +1443,7 @@ class SignalSpec: QuickSpec {
 		describe("try") {
 			it("should forward original values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> `try` { _ in
+				let signal = baseSignal |> `try` { _ in
 					return .success()
 				}
 				
@@ -1460,7 +1460,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should error if an attempt fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> `try` { _ in
+				let signal = baseSignal |> `try` { _ in
 					return .failure(.Default)
 				}
 				
@@ -1477,7 +1477,7 @@ class SignalSpec: QuickSpec {
 		describe("tryMap") {
 			it("should forward mapped values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
+				let signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
 					return .success(num % 2 == 0)
 				}
 				
@@ -1495,7 +1495,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should error if a mapping fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				var signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
+				let signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
 					return .failure(.Default)
 				}
 				

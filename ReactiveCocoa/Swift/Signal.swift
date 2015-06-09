@@ -196,6 +196,17 @@ public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
 	}
 }
 
+extension SignalType {
+	/// Maps each value in the signal to a new value.
+	public func map<U>(transform: T -> U) -> Signal<U, E> {
+		return Signal { observer in
+			return self.signal.observe { event in
+				observer(event.map(transform))
+			}
+		}
+	}
+}
+
 /// Maps errors in the signal to a new error.
 public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F> {
 	return { signal in

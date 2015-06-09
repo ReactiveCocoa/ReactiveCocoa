@@ -394,7 +394,7 @@ class SignalSpec: QuickSpec {
 		describe("map") {
 			it("should transform the values of the signal") {
 				let (signal, sink) = Signal<Int, NoError>.pipe()
-				let mappedSignal = signal |> map { String($0 + 1) }
+				let mappedSignal = signal.map { String($0 + 1) }
 
 				var lastValue: String?
 

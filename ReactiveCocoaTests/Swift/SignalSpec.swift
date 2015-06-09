@@ -1440,10 +1440,10 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("try") {
+		describe("attempt") {
 			it("should forward original values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				let signal = baseSignal |> `try` { _ in
+				let signal = baseSignal |> attempt { _ in
 					return .success()
 				}
 				
@@ -1460,7 +1460,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should error if an attempt fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				let signal = baseSignal |> `try` { _ in
+				let signal = baseSignal |> attempt { _ in
 					return .failure(.Default)
 				}
 				
@@ -1474,10 +1474,10 @@ class SignalSpec: QuickSpec {
 			}
 		}
 		
-		describe("tryMap") {
+		describe("attemptMap") {
 			it("should forward mapped values upon success") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				let signal = baseSignal |> tryMap { num -> Result<Bool, TestError> in
+				let signal = baseSignal |> attemptMap { num -> Result<Bool, TestError> in
 					return .success(num % 2 == 0)
 				}
 				
@@ -1495,7 +1495,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should error if a mapping fails") {
 				let (baseSignal, sink) = Signal<Int, TestError>.pipe()
-				let signal = baseSignal |> tryMap { _ -> Result<Bool, TestError> in
+				let signal = baseSignal |> attemptMap { _ -> Result<Bool, TestError> in
 					return .failure(.Default)
 				}
 				

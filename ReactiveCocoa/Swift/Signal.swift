@@ -808,9 +808,9 @@ internal func zipWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Sign
 
 /// Applies `operation` to values from `signal` with `Success`ful results
 /// forwarded on the returned signal and `Failure`s sent as `Error` events.
-public func `try`<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
+public func attempt<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
-		return signal |> tryMap { value in
+		return signal |> attemptMap { value in
 			return operation(value).map {
 				return value
 			}
@@ -820,7 +820,7 @@ public func `try`<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal
 
 /// Applies `operation` to values from `signal` with `Success`ful results mapped
 /// on the returned signal and `Failure`s sent as `Error` events.
-public func tryMap<T, U, E>(operation: T -> Result<U, E>) -> Signal<T, E> -> Signal<U, E> {
+public func attemptMap<T, U, E>(operation: T -> Result<U, E>) -> Signal<T, E> -> Signal<U, E> {
 	return { signal in
 		return Signal { observer in
 			signal.observe(next: { value in

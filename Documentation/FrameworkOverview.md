@@ -34,7 +34,7 @@ terminal events:
 
 ## Signals
 
-A **signal**, represented by the [`Signal`][] type, is any series of [events](#events)
+A **signal**, represented by the [`Signal`][Signal] type, is any series of [events](#events)
 over time that can be observed.
 
 Signals are generally used to represent event streams that are already “in progress”,
@@ -46,8 +46,8 @@ Users must [observe](#observers) a signal in order to access its events.
 Observing a signal does not trigger any side effects. In other words,
 signals are entirely producer-driven and push-based, and consumers (observers)
 cannot have any effect on their lifetime. While observing a signal, the user
-can only evaluate the events in the same order as they are sent on the signal—there
-is no random access to values of the stream.
+can only evaluate the events in the same order as they are sent on the signal. There
+is no random access to values of a signal.
 
 Signals can be manipulated by applying [primitives][BasicOperators] to them.
 Typical primitives to manipulate a single signal like `filter`, `map` and
@@ -67,7 +67,7 @@ handled specially.
 A **pipe**, created by `Signal.pipe()`, is a [signal](#signals)
 that can be manually controlled.
 
-The method returns a [signal](#signals) and a [observer](#observers).
+The method returns a [signal](#signals) and an [observer](#observers).
 The signal can be controlled by sending events to the observer. This
 can be extremely useful for bridging non-RAC code into the world of signals.
 
@@ -92,8 +92,8 @@ even be completely different! Unlike a plain signal, no work is started (and
 thus no events are generated) until an observer is attached, and the work is
 restarted anew for each additional observer.
 
-Starting a signal returns a [disposable](#disposables) that can be used to
-interrupt/cancel the work associated with the signal.
+Starting a signal producer returns a [disposable](#disposables) that can be used to
+interrupt/cancel the work associated with the produced signal.
 
 Just like signals, signal producers can also be manipulated via primitives
 like `map`, `filter`, etc.

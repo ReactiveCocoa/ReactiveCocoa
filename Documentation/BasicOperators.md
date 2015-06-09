@@ -86,9 +86,9 @@ signal.observe(next: { next in
 Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
 
 ```Swift
-producer
+let producer = signalProducer
     |> on(started: {
-            println("Started")
+        println("Started")
         }, event: { event in
             println("Event: \(event)")
         }, error: { error in
@@ -103,8 +103,11 @@ producer
             println("Disposed")
         }, next: { next in
             println("Next: \(next)")
-        })
+    })
 ```
+
+Note, that will not print anything unless `producer` is started (possibly somewhere else).
+
 
 ## Operator composition
 

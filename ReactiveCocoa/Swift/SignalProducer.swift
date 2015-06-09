@@ -670,11 +670,6 @@ public func `catch`<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProduc
 	}
 }
 
-/// Create a fix point to enable recursive calling of a closure.
-private func fix<T, U>(f: (T -> U) -> T -> U) -> T -> U {
-	return { f(fix(f))($0) }
-}
-
 /// `concat`s `next` onto `producer`.
 public func concat<T, E>(next: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
 	return { producer in
@@ -698,26 +693,24 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			let iterate: Int -> () = fix { recur in
-				{ current in
-					producer.startWithSignal { signal, signalDisposable in
-						serialDisposable.innerDisposable = signalDisposable
+			func iterate(current: Int) {
+				producer.startWithSignal { signal, signalDisposable in
+					serialDisposable.innerDisposable = signalDisposable
 
-						signal.observe(Signal.Observer { event in
-							switch event {
-							case .Completed:
-								let remainingTimes = current - 1
-								if remainingTimes > 0 {
-									recur(remainingTimes)
-								} else {
-									sendCompleted(observer)
-								}
-
-							default:
-								observer.put(event)
+					signal.observe(Signal.Observer { event in
+						switch event {
+						case .Completed:
+							let remainingTimes = current - 1
+							if remainingTimes > 0 {
+								iterate(remainingTimes)
+							} else {
+								sendCompleted(observer)
 							}
-						})
-					}
+
+						default:
+							observer.put(event)
+						}
+					})
 				}
 			}
 

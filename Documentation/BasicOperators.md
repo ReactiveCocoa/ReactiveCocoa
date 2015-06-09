@@ -106,8 +106,7 @@ let producer = signalProducer
     })
 ```
 
-Note, that will not print anything unless `producer` is started (possibly somewhere else).
-
+Note, that nothing will be printed until `producer` is started (possibly somewhere else).
 
 ## Operator composition
 

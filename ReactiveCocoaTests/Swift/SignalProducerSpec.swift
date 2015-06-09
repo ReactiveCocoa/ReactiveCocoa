@@ -746,7 +746,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("catch") {
+		describe("flatMapError") {
 			it("should invoke the handler and start new producer for an error") {
 				let (baseProducer, baseSink) = SignalProducer<Int, TestError>.buffer()
 				sendNext(baseSink, 1)
@@ -756,7 +756,7 @@ class SignalProducerSpec: QuickSpec {
 				var completed = false
 
 				baseProducer
-					|> `catch` { (error: TestError) -> SignalProducer<Int, TestError> in
+					|> flatMapError { (error: TestError) -> SignalProducer<Int, TestError> in
 						expect(error).to(equal(TestError.Default))
 						expect(values).to(equal([1]))
 

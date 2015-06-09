@@ -642,9 +642,9 @@ public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>) -> Sig
 	}
 }
 
-/// Catches any error that may occur on the input producer, then starts a new
-/// producer in its place.
-public func `catch`<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, E> -> SignalProducer<T, F> {
+/// Catches any error that may occur on the input producer, mapping to a new producer
+/// that starts in its place.
+public func flatMapError<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, E> -> SignalProducer<T, F> {
 	return { producer in
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
@@ -727,7 +727,7 @@ public func retry<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 		if count == 0 {
 			return producer
 		} else {
-			return producer |> `catch` { _ in
+			return producer |> flatMapError { _ in
 				producer |> retry(count - 1)
 			}
 		}

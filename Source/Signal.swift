@@ -39,7 +39,7 @@ public func ignoreError<T, E>(replacement replacement: Event<T, NoError>)(signal
         return signal.observe(Signal.Observer { event in
             switch event {
             case let .Next(value):
-                sendNext(observer, value.value)
+                sendNext(observer, value)
             case .Error:
                 observer.put(replacement)
             case .Completed:
@@ -82,9 +82,9 @@ public func uncollect<S: SequenceType, E>(signal: Signal<S, E>) -> Signal<S.Gene
         return signal.observe(Signal.Observer { event in
             switch event {
             case let .Next(sequence):
-                map(sequence.value) { sendNext(observer, $0) }
+                sequence.map { sendNext(observer, $0) }
             case let .Error(error):
-                sendError(observer, error.value)
+                sendError(observer, error)
             case .Completed:
                 sendCompleted(observer)
             case .Interrupted:

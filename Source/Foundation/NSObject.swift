@@ -18,7 +18,7 @@ extension NSObject {
         return self.rac_valuesForKeyPath(keyPath, observer: nil)
             .toSignalProducer()
             |> map { $0 as! T }
-            |> `catch` { error in
+            |> flatMapError { error in
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty

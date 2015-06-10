@@ -18,7 +18,7 @@ final class SignalTests: XCTestCase {
 
         signal
             |> filterMap {
-                return $0 % 2 == 0 ? toString($0) : nil
+                return $0 % 2 == 0 ? String($0) : nil
             }
             |> observe(next: values.append)
 
@@ -36,7 +36,7 @@ final class SignalTests: XCTestCase {
     }
 
     func testIgnoreErrorCompletion() {
-        let (signal, sink) = Signal<Int, NSError>.pipe()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
         var completed = false
 
         signal
@@ -48,12 +48,12 @@ final class SignalTests: XCTestCase {
         1 --> sink
         XCTAssertFalse(completed)
 
-        NSError() --> sink
+        .Default --> sink
         XCTAssertTrue(completed)
     }
 
     func testIgnoreErrorInterruption() {
-        let (signal, sink) = Signal<Int, NSError>.pipe()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
         var interrupted = false
 
         signal
@@ -65,7 +65,7 @@ final class SignalTests: XCTestCase {
         1 --> sink
         XCTAssertFalse(interrupted)
 
-        NSError() --> sink
+        .Default --> sink
         XCTAssertTrue(interrupted)
     }
 
@@ -133,5 +133,13 @@ final class SignalTests: XCTestCase {
 
         [2, 3] --> sink
         XCTAssert(values == [1, 2, 3])
+    }
+}
+
+enum TestError: Swift.ErrorType, ReactiveCocoa.ErrorType {
+    case Default
+
+    var nsError: NSError {
+        return self as NSError
     }
 }

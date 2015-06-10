@@ -10,29 +10,23 @@
 		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 		D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
 		D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
 		D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
-		D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
 		D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
 		D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
 		D834572D1AFEE45B0070616A /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
 		D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 		D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
-		D83457311AFEE4930070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
 		D83457321AFEE4930070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
 		D83457331AFEE4930070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
-		D83457341AFEE4B20070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D83457351AFEE4B20070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D83457361AFEE4B20070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
-		D83457381AFEE4BE0070616A /* Box.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D83457391AFEE4BE0070616A /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D834573A1AFEE4BE0070616A /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
-		D834573B1AFEE57E0070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D834573C1AFEE57E0070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D834573D1AFEE57E0070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
 		D83457411AFEE6050070616A /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
@@ -74,7 +68,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */,
 				D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */,
 				D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */,
 			);
@@ -86,7 +79,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D83457381AFEE4BE0070616A /* Box.framework in CopyFiles */,
 				D83457391AFEE4BE0070616A /* ReactiveCocoa.framework in CopyFiles */,
 				D834573A1AFEE4BE0070616A /* Result.framework in CopyFiles */,
 			);
@@ -99,14 +91,12 @@
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D8003EAC1AFEC68A00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
 		D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003EAE1AFEC68A00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducer.swift; sourceTree = "<group>"; };
 		D8003EBC1AFED01000D7D3C5 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
 		D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerTests.swift; sourceTree = "<group>"; };
-		D8003EC81AFEE3ED00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
 		D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D86E77A91AFEE646004BF23D /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +116,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83457311AFEE4930070616A /* Box.framework in Frameworks */,
 				D83457321AFEE4930070616A /* ReactiveCocoa.framework in Frameworks */,
 				D83457331AFEE4930070616A /* Result.framework in Frameworks */,
 			);
@@ -136,7 +125,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */,
 				D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */,
 				D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */,
 			);
@@ -146,7 +134,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83457341AFEE4B20070616A /* Box.framework in Frameworks */,
 				D83457351AFEE4B20070616A /* ReactiveCocoa.framework in Frameworks */,
 				D83457361AFEE4B20070616A /* Result.framework in Frameworks */,
 			);
@@ -156,7 +143,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D834573B1AFEE57E0070616A /* Box.framework in Frameworks */,
 				D834573C1AFEE57E0070616A /* ReactiveCocoa.framework in Frameworks */,
 				D834573D1AFEE57E0070616A /* Result.framework in Frameworks */,
 			);
@@ -231,7 +217,6 @@
 			children = (
 				D86E77A91AFEE646004BF23D /* Rex.framework */,
 				D86E77AA1AFEE646004BF23D /* RexTests-Mac.xctest */,
-				D8003EAC1AFEC68A00D7D3C5 /* Box.framework */,
 				D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */,
 				D8003EAE1AFEC68A00D7D3C5 /* Result.framework */,
 			);
@@ -243,7 +228,6 @@
 			children = (
 				D86E77AB1AFEE646004BF23D /* Rex.framework */,
 				D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */,
-				D8003EC81AFEE3ED00D7D3C5 /* Box.framework */,
 				D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */,
 				D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */,
 			);

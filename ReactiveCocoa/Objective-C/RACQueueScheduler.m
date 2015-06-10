@@ -22,14 +22,14 @@
 	if (self == nil) return nil;
 
 	_queue = queue;
-#if !OS_OBJECT_HAVE_OBJC_SUPPORT
+#if !OS_OBJECT_USE_OBJC
 	dispatch_retain(_queue);
 #endif
 
 	return self;
 }
 
-#if !OS_OBJECT_HAVE_OBJC_SUPPORT
+#if !OS_OBJECT_USE_OBJC
 
 - (void)dealloc {
 	if (_queue != NULL) {

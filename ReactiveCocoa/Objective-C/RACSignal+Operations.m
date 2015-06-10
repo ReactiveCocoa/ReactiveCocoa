@@ -270,6 +270,17 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 }
 
++ (RACSignal *)try:(id (^)(NSError **errorPtr))tryBlock {
+	NSCParameterAssert(tryBlock != NULL);
+
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		NSError *error;
+		id value = tryBlock(&error);
+		RACSignal *signal = (value == nil ? [RACSignal error:error] : [RACSignal return:value]);
+		return [signal subscribe:subscriber];
+	}] setNameWithFormat:@"+try:"];
+}
+
 - (RACSignal *)try:(BOOL (^)(id value, NSError **errorPtr))tryBlock {
 	NSCParameterAssert(tryBlock != NULL);
 
@@ -611,7 +622,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		reduceWithIndex:^(id running, id next, NSUInteger index) {
 			return reduceBlock(running, next);
 		}]
-		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, RACDescription(start)];
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {
@@ -619,7 +630,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		scanWithStart:start reduceWithIndex:reduceBlock]
 		startWith:start]
 		takeLast:1]
-		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduceWithIndex:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduceWithIndex:", self.name, RACDescription(start)];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {

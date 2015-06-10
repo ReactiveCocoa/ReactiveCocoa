@@ -15,7 +15,7 @@
 #pragma mark RACStream
 
 + (instancetype)return:(id)value {
-	return [[self sequenceWithArray:@[ value ] offset:0] setNameWithFormat:@"+return: %@", [value rac_description]];
+	return [[self sequenceWithArray:@[ value ] offset:0] setNameWithFormat:@"+return: %@", RACDescription(value)];
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {

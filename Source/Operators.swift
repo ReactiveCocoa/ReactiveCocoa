@@ -22,8 +22,8 @@ precedence 90
 ///
 ///     value --> sink
 ///
-/// :param: value     the next value.
-/// :param: observer  the observer that will handle the value.
+/// - parameter value:     the next value.
+/// - parameter observer:  the observer that will handle the value.
 public func --><T,E: ErrorType>(value:T, sink:SinkOf<Event<T, E>>) {
     sendNext(sink, value)
 }
@@ -32,8 +32,8 @@ public func --><T,E: ErrorType>(value:T, sink:SinkOf<Event<T, E>>) {
 ///
 ///     error --> sink
 ///
-/// :param: error     the error to send.
-/// :param: observer  the observer that will handle the value.
+/// - parameter error:     the error to send.
+/// - parameter observer:  the observer that will handle the value.
 public func --><T,E: ErrorType>(error:E, sink:SinkOf<Event<T, E>>) {
     sendError(sink, error)
 }
@@ -44,7 +44,7 @@ prefix operator --| {}
 ///
 ///     --|sink
 ///
-/// :param: observer the sink to whcih the signal will be sent.
+/// - parameter observer: the sink to whcih the signal will be sent.
 public prefix func --|<T, E:ErrorType>(sink:SinkOf<Event<T, E>>) {
     return sendCompleted(sink)
 }

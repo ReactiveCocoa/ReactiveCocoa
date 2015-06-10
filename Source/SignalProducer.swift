@@ -52,7 +52,7 @@ public func groupBy<K: Hashable, T, E>(grouping: T -> K)(producer: SignalProduce
 
 /// Returns a signal that prints the signal events
 public func print<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E> {
-    return signal |> on(event: println)
+    return signal |> on(event: print)
 }
 
 /// Returns a signal that prints the signal `Next` events
@@ -61,7 +61,7 @@ public func printNext<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E
         |> on(event: { event in
             switch event {
             case let .Next(value):
-                println(event)
+                print(event)
                 
             default:
                 break
@@ -75,7 +75,7 @@ public func printError<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, 
         |> on(event: { event in
             switch event {
             case let .Error(value):
-                println(event)
+                print(event)
                 
             default:
                 break

@@ -16,7 +16,7 @@ extension NSUserDefaults {
     func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
 
         let center = NSNotificationCenter.defaultCenter()
-        let changes = center.rac_notifications(name: NSUserDefaultsDidChangeNotification)
+        let changes = center.rac_notifications(NSUserDefaultsDidChangeNotification)
             |> map { notification in
                 // The notification doesn't provide what changed so we have to look
                 // it up every time

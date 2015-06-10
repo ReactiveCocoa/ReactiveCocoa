@@ -1,14 +1,15 @@
-# ReactiveCocoa [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+# ReactiveCocoa
+
+_NOTE: This is legacy introduction to the Objective-C ReactiveCocoa. For the
+updated version that uses Swift please see the main [README][]_
 
 ReactiveCocoa (RAC) is an Objective-C framework inspired by [Functional Reactive
 Programming][]. It provides APIs for **composing and transforming streams of
 values**.
 
 If you're already familiar with functional reactive programming or know the basic
-premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
-overview and more in-depth information about how it all works in practice.
-
-_Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
+premise of ReactiveCocoa, check out the other documentation in this folder for a
+framework overview and more in-depth information about how it all works in practice.
 
 ## New to ReactiveCocoa?
 
@@ -21,10 +22,10 @@ If you want to learn more, we recommend these resources, roughly in order:
  1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
  1. [Framework Overview][]
  1. [Basic Operators][]
- 1. [Header documentation](ReactiveCocoa)
+ 1. [Header documentation](../../ReactiveCocoa/Objective-C)
  1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
     questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
- 1. The rest of the [Documentation][] folder
+ 1. The rest of this folder
  1. [Functional Reactive Programming on iOS](https://leanpub.com/iosfrp/) 
     (eBook)
  
@@ -236,7 +237,7 @@ locality, and better expression of intent.
 
 For more sample code, check out [C-41][] or [GroceryList][], which are real iOS
 apps written using ReactiveCocoa. Additional information about RAC can be found
-in the [Documentation][] folder.
+in this folder.
 
 ## When to use ReactiveCocoa
 
@@ -517,10 +518,6 @@ have been generously contributed by third parties.
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
 which are real iOS apps written using ReactiveCocoa.
 
-## Standalone Development
-
-If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
-
 ## More Info
 
 ReactiveCocoa is inspired by .NET's [Reactive
@@ -544,12 +541,12 @@ are some resources related to FRP:
 * [Escape from Callback Hell](http://elm-lang.org/learn/Escape-from-Callback-Hell.elm)
 * [Principles of Reactive Programming on Coursera](https://www.coursera.org/course/reactive)
 
-[Basic Operators]: Documentation/BasicOperators.md
-[Documentation]: Documentation
-[Framework Overview]: Documentation/FrameworkOverview.md
+[README]: ../../README.md
+[Basic Operators]: BasicOperators.md
+[Framework Overview]: FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
 [GroceryList]:  https://github.com/jspahrsummers/GroceryList
-[RACSequence]: ReactiveCocoa/Objective-C/RACSequence.h
-[RACSignal]: ReactiveCocoa/Objective-C/RACSignal.h
+[RACSequence]: ../../ReactiveCocoa/Objective-C/RACSequence.h
+[RACSignal]: ../../ReactiveCocoa/Objective-C/RACSignal.h
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [C-41]: https://github.com/AshFurrow/C-41

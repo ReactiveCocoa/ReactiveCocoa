@@ -1,417 +1,344 @@
-# 2.0
+# 3.0
 
-This release of ReactiveCocoa contains major breaking changes that we were
-unable to make after freezing the 1.0 API. All changes are focused on
-eliminating bad code and bad usage patterns, reducing confusion, and increasing
-flexibility in the framework.
+ReactiveCocoa 3.0 includes the first official Swift API, which is intended to
+eventually supplant the Objective-C API entirely.
 
-For a complete list of changes in ReactiveCocoa 2.0, see [the
-milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&state=closed).
+However, because migration is hard and time-consuming, and because Objective-C
+is still in widespread use, 99% of RAC 2.x code will continue to work under RAC
+3.0 without any changes.
 
-**[Breaking changes](#breaking-changes)**
+Since the 3.0 changes are entirely additive, this document will discuss how
+concepts from the Objective-C API map to the Swift API. For a complete diff of
+all changes, see [the 3.0 pull
+request](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1382).
 
- 1. [Simplified and safer KVO](#simplified-and-safer-kvo)
- 1. [Safer commands with less state](#safer-commands-with-less-state)
- 1. [Fallback nil value for RAC macro](#fallback-nil-values-for-rac-macro)
- 1. [Explicit schedulers for time-based operators](#explicit-schedulers-for-time-based-operators)
- 1. [More powerful selector signals](#more-powerful-selector-signals)
- 1. [Simpler two-way bindings](#simpler-two-way-bindings)
- 1. [Better bindings for AppKit](#better-bindings-for-appkit)
- 1. [More obvious sequencing operator](#more-obvious-sequencing-operator)
- 1. [Renamed signal binding method](#renamed-signal-binding-method)
- 1. [Consistent selector lifting](#consistent-selector-lifting)
- 1. [Renamed scheduled signal constructors](#renamed-scheduled-signal-constructors)
- 1. [Notification immediately before object deallocation](#notification-immediately-before-object-deallocation)
- 1. [Extensible queue-based schedulers](#extensible-queue-based-schedulers)
- 1. [GCD time values replaced with NSDate](#gcd-time-values-replaced-with-nsdate)
- 1. [Windows and numbered buffers removed](#windows-and-numbered-buffers-removed)
- 1. [NSTask extension removed](#nstask-extension-removed)
- 1. [RACSubscriber class now private](#racsubscriber-class-now-private)
+**[Additions](#additions)**
 
-**[Additions and improvements](#additions-and-improvements)**
+ 1. [Parameterized types](#parameterized-types)
+ 1. [Interrupted event](#interrupted-event)
+ 1. [Objective-C bridging](#objective-c-bridging)
 
- 1. [Commands for UIButton](#commands-for-uibutton)
- 1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
- 1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
- 1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
- 1. [Bindings for UIKit classes](#bindings-for-uikit-classes)
- 1. [Signal subscription side effects](#signal-subscription-side-effects)
- 1. [Test scheduler](#test-scheduler)
+**[Replacements](#replacements)**
 
-## Breaking changes
+ 1. [Hot signals are now Signals](#hot-signals-are-now-signals)
+ 1. [Cold signals are now SignalProducers](#cold-signals-are-now-signalproducers)
+ 1. [Commands are now Actions](#commands-are-now-actions)
+ 1. [Flattening/merging, concatenating, and switching are now one operator](#flatteningmerging-concatenating-and-switching-are-now-one-operator)
+ 1. [Using PropertyType instead of RACObserve and RAC](#using-propertytype-instead-of-racobserve-and-rac)
+ 1. [Using Signal.pipe instead of RACSubject](#using-signalpipe-instead-of-racsubject)
+ 1. [Using SignalProducer.buffer instead of replaying](#using-signalproducerbuffer-instead-of-replaying)
+ 1. [Using startWithSignal instead of multicasting](#using-startwithsignal-instead-of-multicasting)
 
-### Simplified and safer KVO
+**[Minor changes](#minor-changes)**
 
-`RACAble` and `RACAbleWithStart` have been replaced with a single
-[RACObserve](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/601) macro.
-`RACObserve` always starts with the current value of the property, and will
-[notice the
-deallocation](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/678) of `weak`
-properties (unlike vanilla KVO).
+ 1. [Disposable changes](#disposable-changes)
+ 1. [Scheduler changes](#scheduler-changes)
 
-Unlike the previous macros, which only required one argument for key paths on
-`self`, `RACObserve` always requires two arguments.
+## Additions
 
-**To update:**
+### Parameterized types
 
- * Replace uses of `RACAbleWithStart(self.key)` with `RACObserve(self, key)`.
- * Replace uses of `RACAble(self.key)` with `[RACObserve(self, key) skip:1]` (if
-   skipping the starting value is necessary).
+Thanks to Swift, **it is now possible to express the type of value that a signal
+can send. RAC also requires that the type of errors be specified.**
 
-### Safer commands with less state
+For example, `Signal<Int, NSError>` is a signal that may send zero or more
+integers, and which may send an error of type `NSError`.
 
-`RACCommand` has been [completely
-refactored](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/733). It is no
-longer a `RACSignal`, and the behavior of `-addSignalBlock:` has been moved to
-the initializer, making the class almost entirely immutable.
+**If it is impossible for a signal to error out, use the built-in
+[`NoError`](ReactiveCocoa/Swift/Errors.swift) type**
+(which can be referred to, but never created) to represent that
+case—for example, `Signal<String, NoError>` is a signal that may send zero or
+more strings, and which will _not_ send an error under any circumstances.
 
-Reflecting the most common use case, KVO-notifying properties have been changed
-into signals instead. During the change, `canExecute` was also renamed to
-`enabled`, which should make its purpose more obvious for binding to the UI.
+Together, these additions make it much simpler to reason about signal
+interactions, and protect against several kinds of common bugs that occurred in
+Objective-C.
 
-In addition, changes to `executing`, `errors`, and `enabled` are now guaranteed
-to fire on the main thread, so UI observers no longer [run in the background
-unexpectedly](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/533).
+### Interrupted event
 
-All together, these improvements should make `RACCommand` more composable and
-less imperative, so it fits into the framework better.
+In addition to the `Next`, `Error`, and `Completed` events that have always been
+part of RAC, version 3.0 [adds another terminating
+event](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1735)—called
+`Interrupted`—that is used to communicate cancellation.
 
-**To update:**
+Now, **whenever a [producer](#cold-signals-are-now-signalproducers) is disposed
+of, one final `Interrupted` event will be sent to all consumers,** giving them
+a chance to react to the cancellation.
 
- * Move execution logic from `-addSignalBlock:` or `-subscribeNext:` into the
-   `signalBlock` passed to the initializer.
- * Instead of subscribing to the result of `-addSignalBlock:`, subscribe to
-   `executionSignals` or the result of `-execute:` instead.
- * Replace uses of `RACAbleWithStart(command, executing)` with
-   `command.executing`.
- * Replace uses of `RACAbleWithStart(command, canExecute)` with
-   `command.enabled`.
- * Remove uses of `deliverOn:RACScheduler.mainThreadScheduler` on
-   `RACCommand` properties, as they are now unnecessary.
+Similarly, observing a [hot signal](#hot-signals-are-now-signals) that has
+already terminated will immediately result in an `Interrupted` event, to clearly
+indicate that no further events are possible.
 
-### Fallback nil values for RAC macro
+This brings disposal semantics more in line with normal event delivery, where
+events propagate downstream from producers to consumers. The result is a simpler
+model for reasoning about non-erroneous, yet unsuccessful, signal terminations.
 
-The `RAC` macro now [always
-requires](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/670) two or three
-arguments:
+**Note:** Custom `Signal` and `SignalProducer` operators should handle any received
+`Interrupted` event by forwarding it to their own observers. This ensures that
+interruption correctly propagates through the whole signal chain.
 
- 1. The object to bind to.
- 1. The key path to set when new values are sent.
- 1. (Optional) A value to set when `nil` is sent on the signal.
+### Objective-C bridging
 
-This is necessary to avoid a `-setNilValueForKey:` exception when observing
-a primitive property _through_ an intermediate object which gets set to `nil`.
+**To support interoperation between the Objective-C APIs introduced in RAC 2 and
+the Swift APIs introduced in RAC 3, the framework offers [bridging
+functions](ReactiveCocoa/Swift/ObjectiveCBridging.swift)** that can convert types
+back and forth between the two.
 
-This is not actually a change in key-value observing behavior — it's a caveat
-with KVO regardless — but `RACObserve` makes it more prominent, because the
-deallocation of `weak` properties will be considered a change to `nil`.
+Because the APIs are based on fundamentally different designs, the conversion is
+not always one-to-one; however, every attempt has been made to faithfully
+translate the concepts between the two APIs (and languages).
 
-**To update:**
+**Common conversions include:**
 
- * Replace uses of `RAC(self.objectProperty)` with `RAC(self, objectProperty)`.
- * When binding a signal that might send nil (like a key path observation) to
-   a primitive property, provide a default value: `RAC(self, integerProperty, @5)`
+* The `RACSignal.toSignalProducer` method **†**
+    * Converts `RACSignal *` to `SignalProducer<AnyObject?, NSError>`
+* The `toRACSignal()` function
+    * Converts `SignalProducer<AnyObject?, ErrorType>` to `RACSignal *`
+    * Converts `Signal<AnyObject?, ErrorType>` to `RACSignal *`
+* The `RACCommand.toAction` method **‡**
+    * Converts `RACCommand *` to `Action<AnyObject?, AnyObject?, NSError>`
+* The `toRACCommand` function **‡**
+    * Converts `Action<AnyObject?, AnyObject?, ErrorType>` to `RACCommand *`
 
-### Explicit schedulers for time-based operators
+**†** It is not possible (in the general case) to convert arbitrary `RACSignal`
+instances to `Signal`s, because any `RACSignal` subscription could potentially
+involve side effects. To obtain a `Signal`, use `RACSignal.toSignalProducer`
+followed by `SignalProducer.start`, thereby making those side effects explicit.
 
-`-bufferWithTime:`, `+interval:`, and `-timeout:` have been unintuitive and
-error-prone because of their implicit use of a background scheduler.
+**‡** Unfortunately, the `executing` properties of actions and commands are not
+synchronized across the API bridge. To ensure consistency, only observe the
+`executing` property from the base object (the one passed _into_ the bridge, not
+retrieved from it), so updates occur no matter which object is used for
+execution.
 
-All of the aforementioned methods now require [a scheduler
-argument](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/588), so that it's
-clear how events should be delivered.
+## Replacements
 
-**To update:**
+### Hot signals are now Signals
 
- * To match the previous behavior exactly, pass in `[RACScheduler scheduler]`.
-   Note that this creates a _new_ background scheduler for events to arrive upon.
- * If you were already using `-deliverOn:` to force one of the above operators
-   to deliver onto a specific scheduler, you can eliminate that hop and pass the
-   scheduler into the operator directly.
+In the terminology of RAC 2, a “hot” `RACSignal` does not trigger any side effects
+when a `-subscribe…` method is called upon it. In other words, hot signals are
+entirely producer-driven and push-based, and consumers (subscribers) cannot have
+any effect on their lifetime.
 
-### More powerful selector signals
+This pattern is useful for notifying observers about events that will occur _no
+matter what_. For example, a `loading` boolean might flip between true and false
+regardless of whether anything is observing it.
 
-`-rac_signalForSelector:` has been [completely
-refactored](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/590) to support
-listening for invocations of existing methods, new and existing methods with
-multiple arguments, and existing methods with return values.
+Concretely, _every_ `RACSubject` is a kind of hot signal, because the events
+being forwarded are not determined by the number of subscribers on the subject.
 
-`+rac_signalForSelector:` (the class method variant) was removed, because
-swizzling class methods is dangerous and difficult to do correctly.
+In RAC 3, **“hot” signals are now solely represented by the
+[`Signal`](ReactiveCocoa/Swift/Signal.swift) class**, and “cold” signals have been
+[separated into their own type](#cold-signals-are-now-signalproducers). This
+reduces complexity by making it clear that no `Signal` object can trigger side
+effects when observed.
 
-**To update:**
+### Cold signals are now SignalProducers
 
- * Most existing uses of `-rac_signalForSelector:` shouldn't require
-   any changes. However, the `super` implementation (if available) of any targeted selector will
-   now be invoked, where it wasn't previously. Verify that existing uses can
-   handle this case.
- * Replace uses of `+rac_signalForSelector:` by implementing the class method
-   and sending arguments onto a `RACSubject` instead.
+In the terminology of RAC 2, a “cold” `RACSignal` performs its work one time for
+_every_ subscription. In other words, cold signals perform side effects when
+a `-subscribe…` method is called upon them, and may be able to cancel
+in-progress work if `-dispose` is called upon the returned `RACDisposable`.
 
-### Simpler two-way bindings
+This pattern is broadly useful because it minimizes unnecessary work, and
+allows operators like `take`, `retry`, `concat`, etc. to manipulate when work is
+started and cancelled. Cold signals are also similar to how [futures and
+promises](http://en.wikipedia.org/wiki/Futures_and_promises) work, and can be
+useful for structuring asynchronous code (like network requests).
 
-`RACPropertySubject` and `RACBinding` have been
-[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/695) with
-`RACChannel` and `RACChannelTerminal`. Similarly, `RACObservablePropertySubject`
-has been replaced with `RACKVOChannel`.
+In RAC 3, **“cold” signals are now solely represented by the
+[`SignalProducer`](ReactiveCocoa/Swift/SignalProducer.swift) class**, which
+clearly indicates their relationship to [“hot”
+signals](#hot-signals-are-now-signals). As the name indicates, a signal
+_producer_ is responsible for creating
+a [_signal_](#hot-signals-are-now-signals) (when started), and can
+perform work as part of that process—meanwhile, the signal can have any number
+of observers without any additional side effects.
 
-In addition to slightly better terminology and more obvious usage, channels only
-offer two-way bindings by default, which is a simplification over the previous N-way binding
-interface.
+### Commands are now Actions
 
-Because of the sweeping conceptual changes, the old APIs have been completely
-removed without deprecation.
+Instead of the ambiguously named `RACCommand`, the Swift API offers the
+[`Action`](ReactiveCocoa/Swift/Action.swift) type—named as such because it’s
+mainly useful in UI programming—to fulfill the same purpose.
 
-**To update:**
+Like the rest of the Swift API, actions are
+[parameterized](#parameterized-types) by the types they use. **An action must
+indicate the type of input it accepts, the type of output it produces, and
+what kinds of errors can occur (if any).** This eliminates a few classes of type
+error, and clarifies intention.
 
- * Instead of creating a `RACPropertySubject`, create a `RACChannel`. Replace
-   N-way property subjects (where N is greater than 2) with multiple
-   `RACChannel`s.
- * Instead of creating a `RACObservablePropertySubject`, create
-   a `RACKVOChannel` or use the `RACChannelTo` macro.
- * Replace uses of `RACBinding` with `RACChannelTerminal`.
- * Replace uses of `RACBind(self.objectProperty)` with `RACChannelTo(self,
-   objectProperty)`. Add a default value for primitive properties:
-   `RACChannelTo(self, integerProperty, @5)`
- * Replace uses of `-bindTo:` with the explicit subscription of two endpoints:
+Actions are also intended to be simpler overall than their predecessor:
 
-```objc
-[binding1.followingEndpoint subscribe:binding2.leadingEndpoint];
-[[binding2.leadingEndpoint skip:1] subscribe:binding1.followingEndpoint];
+ * **Unlike commands, actions are not bound to or dependent upon the main
+   thread**, making it easier to reason about when they can be executed and when
+   they will generate notifications.
+ * **Actions also only support serial execution**, because concurrent execution
+   was a rarely used feature of `RACCommand` that added significant complexity
+   to the interface and implementation.
+
+Because actions are frequently used in conjunction with AppKit or UIKit, there
+is also a `CocoaAction` class that erases the type parameters of an `Action`,
+allowing it to be used from Objective-C.
+
+As an example, an action can be wrapped and bound to `UIControl` like so:
+
+```swift
+self.cocoaAction = CocoaAction(underlyingAction)
+self.button.addTarget(self.cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchUpInside)
 ```
 
-### Better bindings for AppKit
-
-`-rac_bind:toObject:withKeyPath:` and related methods have been
-[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/638) with
-`-rac_channelToBinding:options:`, which returns a `RACChannelTerminal` that can be used as
-a two-way binding or a one-way signal.
-
-**To update:**
-
- * If possible, refactor code to use the new `RACChannel` interface. This
-   bridges Cocoa Bindings with the full power of ReactiveCocoa.
- * For a direct conversion, use `-bind:toObject:withKeyPath:options:` with the
-   following options:
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES }` for `-rac_bind:toObject:withKeyPath:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSNullPlaceholderBindingOption: nilValue }` for `-rac_bind:toObject:withKeyPath:nilValue:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: valueTransformer }` for `-rac_bind:toObject:withKeyPath:transform:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: NSNegateBooleanTransformerName }` for `-rac_bind:toObject:withNegatedKeyPath:`
-
-### More obvious sequencing operator
-
-To make the sequencing and transformation operators less confusing,
-`-sequenceMany:` has been removed, and `-sequenceNext:` has been
-[renamed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/635) to `-then:`.
-
-**To update:**
-
- * Replace uses of `-sequenceMany:` with `-flattenMap:` and a block that doesn't
-   use its argument.
- * Replace uses of `-sequenceNext:` with `-then:`.
-
-### Renamed signal binding method
-
-`-toProperty:onObject:` and `-[NSObject rac_deriveProperty:from:]` have been
-[combined](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/617) into a new
-`-[RACSignal setKeyPath:onObject:nilValue:]` method.
-
-The `nilValue` parameter was added in parallel with the
-[RAC](#fallback-nil-values-for-rac-macro) macro, but the semantics are otherwise
-identical.
-
-**To update:**
-
- * Replace `-toProperty:onObject:` and `-rac_deriveProperty:from:` with
-   `-setKeyPath:onObject:`.
- * When binding a signal that might send nil (like a key path observation) to
-   a primitive property, provide a default value: `[signal setKeyPath:@"integerProperty" onObject:self nilValue:@5]`
-
-### Consistent selector lifting
-
-In the interests of [parametricity](http://en.wikipedia.org/wiki/Parametricity),
-`-rac_liftSelector:withObjects:` has been
-[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/609) with
-`-rac_liftSelector:withSignals:`, which requires all arguments to be signals.
-This makes usage more consistent.
-
-`-rac_liftBlock:withArguments:` has been removed, because it's redundant with
-`RACSignal` operators.
-
-The `-rac_lift` proxy has also been removed, because there's no way to [make it
-consistent](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/520) in the
-same way.
-
-**To update:**
-
- * Wrap non-signal arguments with `+[RACSignal return:]` and add a nil
-   terminator.
- * Replace block lifting with `+combineLatest:reduce:`.
- * Replace uses of `-rac_lift` with `-rac_liftSelector:withSignals:`.
-
-### Renamed scheduled signal constructors
-
-`+start:`, `+startWithScheduler:block`, and `+startWithScheduler:subjectBlock:`
-have been combined into a single
-[+startEagerlyWithScheduler:block:](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/536)
-constructor.
-
-The key improvements here are a more intuitive name, a required `RACScheduler`
-to make it clear where the block is executed, and use of `<RACSubscriber>`
-instead of `RACSubject` to make it more obvious how to use the block argument.
-
-**To update:**
-
- * Use `[RACScheduler scheduler]` to match the previous implicit scheduling
-   behavior of `+start:`.
- * Refactor blocks that return values and set `success`/`error`, to send events
-   to the given `<RACSubscriber>` instead.
-
-### Notification immediately before object deallocation
-
-`-rac_didDeallocSignal` has been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/585) in favor of
-[-rac_willDeallocSignal](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/580),
-because most teardown should happen _before_ the object becomes invalid.
-
-`-rac_addDeallocDisposable:` has also been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/586) in favor of
-using the object's `rac_deallocDisposable` directly.
-
-**To update:**
-
- * Replace uses of `-rac_didDeallocSignal` with `rac_willDeallocSignal`.
- * Replace uses of `-rac_addDeallocDisposable:` by invoking `-addDisposable:` on
-   the object's `rac_deallocDisposable` instead.
-
-### Extensible queue-based schedulers
-
-`RACQueueScheduler` has been [exposed as a public
-class](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/561), so consumers can create
-their own scheduler implementations using GCD queues.
-
-The
-[RACTargetQueueScheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/561)
-subclass replaces the `+schedulerWithQueue:name:` method.
-
-**To update:**
-
-Replace uses of `+schedulerWithQueue:name:` with `-[RACTargetQueueScheduler initWithName:targetQueue:]`.
-
-### GCD time values replaced with NSDate
-
-`NSDate` now [replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/664)
-`dispatch_time_t` values in `RACScheduler`, because dates are easier to use, more
-convertible to other formats, and can be used to implement a [virtualized time
-scheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/171).
-
-**To update:**
-
-Replace `dispatch_time_t` calculations with `NSDate`.
-
-### Windows and numbered buffers removed
-
-`-windowWithStart:close:` and `-buffer:` have been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/616) because
-they're not well-tested, and their functionality can be achieved with other
-operators.
-
-`-bufferWithTime:` is still supported.
-
-**To update:**
-
- * Refactor uses of `-windowWithStart:close:` with different patterns.
- * Replace uses of `-buffer:` with [take, collect, and
-   repeat](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587).
-
-### NSTask extension removed
-
-`NSTask+RACSupport` has been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/556), because it
-was buggy and unsupported.
-
-**To update:**
-
-Use a vanilla `NSTask`, and send events onto `RACSubject`s instead.
-
-### RACSubscriber class now private
-
-The `RACSubscriber` class (not to be confused with the protocol) should never be
-used directly, so it has been
-[hidden](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/584).
-
-**To update:**
-
-Replace uses of `RACSubscriber` with `id<RACSubscriber>` or `RACSubject`.
-
-## Additions and improvements
-
-### Commands for UIButton
-
-`UIButton` now has a [rac_command
-property](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/558).
-
-Any command set will be executed when the button is tapped, and the button will
-be disabled whenever the command is unable to execute.
-
-### Signal for UIActionSheet button clicks
-
-`UIActionSheet` now has a [rac_buttonClickedSignal
-property](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/611), which will
-fire whenever one of the sheet's buttons is clicked.
-
-### Better documentation for asynchronous backtraces
-
-Documentation has been
-[added](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/680) to
-`RACBacktrace` explaining how to start collecting backtraces and print them out
-in the debugger.
-
-The `+captureBacktrace…` methods have been renamed to `+backtrace…`, and
-`+printBacktrace` has been removed in favor of using `po [RACBacktrace backtrace]`
-from the debugger.
-
-The `rac_` GCD functions which collect backtraces have also been exposed,
-primarily for use on iOS.
-
-### Fixed libextobjc duplicated symbols
-
-If [libextobjc](https://github.com/jspahrsummers/libextobjc) was used in
-a project that statically linked ReactiveCocoa, duplicate symbol errors could
-result.
-
-To avoid this issue, RAC now
-[renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
-libextobjc symbols that it uses.
-
-### Bindings for UIKit classes
-
-RACChannel interfaces have been [added](https://github.com/ReactiveCocoa/pull/686)
-to many UIKit classes, greatly simplifying glue code between your models and views.
-
-For example, assuming you want to bind a `person` model's `name` property:
-
-```objc
-UITextField *nameField = ...;
-RACChannelTerminal *nameTerminal = RACChannelTo(model, name);
-RACChannelTerminal *nameFieldTerminal = [nameField rac_newTextChannel];
-[nameTerminal subscribe:nameFieldTerminal];
-[nameFieldTerminal subscribe:nameTerminal];
+### Flattening/merging, concatenating, and switching are now one operator
+
+RAC 2 offers several operators for transforming a signal-of-signals into one
+`RACSignal`, including:
+
+ * `-flatten`
+ * `-flattenMap:`
+ * `+merge:`
+ * `-concat`
+ * `+concat:`
+ * `-switchToLatest`
+
+Because `-flattenMap:` is the easiest to use, it was often
+incorrectly chosen even when concatenation or switching semantics are more
+appropriate.
+
+**RAC 3 distills these concepts down into just two operators, `flatten` and `flatMap`.**
+Note that these do _not_ have the same behavior as `-flatten` and `-flattenMap:`
+from RAC 2. Instead, both accept a “strategy” which determines how the
+producer-of-producers should be integrated, which can be one of:
+
+ * `.Merge`, which is equivalent to RAC 2’s `-flatten` or `+merge:`
+ * `.Concat`, which is equivalent to `-concat` or `+concat:`
+ * `.Latest`, which is equivalent to `-switchToLatest`
+
+This reduces the API surface area, and forces callers to consciously think about
+which strategy is most appropriate for a given use.
+
+**For streams of exactly one value, calls to `-flattenMap:` can be replaced with
+`flatMap(.Concat)`**, which has the additional benefit of predictable behavior if
+the input stream is refactored to have more values in the future.
+
+### Using PropertyType instead of RACObserve and RAC
+
+To be more Swift-like, RAC 3 de-emphasizes [Key-Value Coding](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueCoding/Articles/KeyValueCoding.html) (KVC)
+and [Key-Value Observing](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html) (KVO)
+in favor of a less “magical” representation for properties.
+**The [`PropertyType` protocol and implementations](ReactiveCocoa/Swift/Property.swift)
+replace most uses of the `RACObserve()` and `RAC()` macros.**
+
+For example, `MutableProperty` can be used to represent a property that can be
+bound to. If changes to that property should be visible to consumers, it can
+additionally be wrapped in `PropertyOf` (to hide the mutable bits) and exposed
+publicly.
+
+**If KVC or KVO is required by a specific API**—for example, to observe changes
+to `NSOperation.executing`—RAC 3 offers a `DynamicProperty` type that can wrap
+those key paths. Use this class with caution, though, as it can’t offer any type
+safety, and many APIs (especially in AppKit and UIKit) are not documented to be
+KVO-compliant.
+
+### Using Signal.pipe instead of RACSubject
+
+Since the `Signal` type, like `RACSubject`, is [always “hot”](#hot-signals-are-now-signals),
+there is a special class method for creating a controllable signal. **The
+`Signal.pipe` method can replace the use of subjects**, and expresses intent
+better by separating the observing API from the sending API.
+
+To use a pipe, set up observers on the signal as desired, then send values to
+the sink:
+
+```swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
+
+signal.observe(next: { value in
+    println(value)
+})
+
+// Prints each number
+sendNext(sink, 0)
+sendNext(sink, 1)
+sendNext(sink, 2)
 ```
 
-You may also bind multiple controls to the same property, for example a UISlider for
-coarse editing and a UIStepper for fine-grained editing.
+### Using SignalProducer.buffer instead of replaying
 
-### Signal subscription side effects
+The producer version of
+[`Signal.pipe`](#using-signalpipe-instead-of-racsubject),
+**the `SignalProducer.buffer` method can replace replaying** with
+`RACReplaySubject` or any of the `-replay…` methods.
 
-`RACSignal` now has the
-[-initially:](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/685)
-operator, which executes a given block each time the signal is subscribed to.
-This is symmetric to `-finally:`.
+Conceptually, `buffer` creates a (optionally bounded) queue for events, much
+like `RACReplaySubject`, and replays those events when new `Signal`s are created
+from the producer.
 
-### Test scheduler
+For example, to replay the values of an existing `Signal`, it just needs to be
+fed into the write end of the buffer:
 
-`RACTestScheduler` is a [new kind](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/716) of scheduler that
-virtualizes time. Enqueued blocks can be stepped through at any pace, no matter
-how far in the future they're scheduled for, making it easy to test time-based
-behavior without actually waiting in unit tests.
+```swift
+let signal: Signal<Int, NoError>
+let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+// Saves observed values in the buffer
+signal.observe(sink)
+
+// Prints each value buffered
+producer.start(next: { value in
+    println(value)
+})
+```
+
+### Using startWithSignal instead of multicasting
+
+`RACMulticastConnection` and the `-publish` and `-multicast:` operators were
+always poorly understood features of RAC 2. In RAC 3, thanks to the `Signal` and
+`SignalProducer` split, **the `SignalProducer.startWithSignal` method can
+replace multicasting**.
+
+`startWithSignal` allows any number of observers to attach to the created signal
+_before_ any work is begun—therefore, the work (and any side effects) still
+occurs just once, but the values can be distributed to multiple interested
+observers. This fulfills the same purpose of multicasting, in a much clearer and
+more tightly-scoped way.
+
+For example:
+
+```swift
+let producer = timer(5, onScheduler: QueueScheduler.mainQueueScheduler) |> take(3)
+
+// Starts just one timer, sending the dates to two different observers as they
+// are generated.
+producer.startWithSignal { signal, disposable in
+    signal.observe(next: { date in
+        println(date)
+    })
+
+    signal.observe(someOtherObserver)
+}
+```
+
+## Minor changes
+
+### Disposable changes
+
+[Disposables](ReactiveCocoa/Swift/Disposable.swift) haven’t changed much overall
+in RAC 3, besides the addition of a protocol and minor naming tweaks.
+
+The biggest change to be aware of is that **setting
+`SerialDisposable.innerDisposable` will always dispose of the previous value**,
+which helps prevent resource leaks or logic errors from forgetting to dispose
+manually.
+
+### Scheduler changes
+
+RAC 3 replaces the multipurpose `RACScheduler` class with two protocols,
+[`SchedulerType` and `DateSchedulerType`](ReactiveCocoa/Swift/Scheduler.swift), with multiple implementations of each.
+This design indicates and enforces the capabilities of each scheduler using the type
+system.
+
+In addition, **the `mainThreadScheduler` has been replaced with `UIScheduler` and
+`QueueScheduler.mainQueueScheduler`**. The `UIScheduler` type runs operations as
+soon as possible on the main thread—even synchronously (if possible), thereby
+replacing RAC 2’s `-performOnMainThread` operator—while
+`QueueScheduler.mainQueueScheduler` will always enqueue work after the current
+run loop iteration, and can be used to schedule work at a future date.

@@ -14,7 +14,7 @@ final class PropertyTests: XCTestCase {
 
     func testSignalPropertyValues() {
         let (signal, sink) = Signal<Int, NoError>.pipe()
-        var property = SignalProperty(0, signal)
+        let property = SignalProperty(0, signal)
 
         var latest = -1
         property.producer.start(next: {
@@ -28,7 +28,7 @@ final class PropertyTests: XCTestCase {
     }
 
     func testSignalPropertyLifetime() {
-        let (signal, sink) = Signal<Int, NoError>.pipe()
+        let (signal, _) = Signal<Int, NoError>.pipe()
         var property: SignalProperty? = SignalProperty(0, signal)
 
         var completed = false

@@ -60,7 +60,7 @@ public func printNext<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, E
     return signal
         |> on(event: { event in
             switch event {
-            case let .Next(value):
+            case .Next:
                 print(event)
                 
             default:
@@ -74,7 +74,7 @@ public func printError<T, E>(signal: SignalProducer<T, E>) -> SignalProducer<T, 
     return signal
         |> on(event: { event in
             switch event {
-            case let .Error(value):
+            case .Error:
                 print(event)
                 
             default:

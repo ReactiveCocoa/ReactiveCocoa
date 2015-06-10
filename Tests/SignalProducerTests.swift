@@ -28,9 +28,10 @@ final class SignalProducerTests: XCTestCase {
                 } else {
                     group |> start(next: odds.append)
                 }
-                },completed: { completed = true },
-                interrupted: {
-                    interrupted = true
+            },completed: {
+                completed = true
+            }, interrupted: {
+                interrupted = true
             })
 
         1 --> sink
@@ -49,6 +50,7 @@ final class SignalProducerTests: XCTestCase {
         
         1 --> sink
         XCTAssert(interrupted)
+        XCTAssertFalse(completed)
     }
     
     func testCompletionOperator() {

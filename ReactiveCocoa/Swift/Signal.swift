@@ -238,21 +238,27 @@ extension SignalType {
 	}
 }
 
-/// Unwraps non-`nil` values from `signal` and forwards them on the returned
-/// signal, `nil` values are dropped.
-public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
-	return signal
-		.filter { $0 != nil }
-		.map { $0! }
-	// TODO Using this currently segfaults the compiler
-	// return signal.ignoreNil()
+/// Maps values from `signal` and forwards the non-nil ones on the returned signal.
+public func filterMap<T, U, E>(transform: T -> U?) -> Signal<T, E> -> Signal<U, E> {
+	return { $0.filterMap(transform) }
 }
 
-extension SignalType where T: OptionalType {
-	public func ignoreNil() -> Signal<T.T, E> {
-		return signal
-			.filter { $0.optional != nil }
-			.map { $0.optional! }
+extension SignalType {
+	public func filterMap<U>(transform: T -> U?) -> Signal<U, E> {
+		return Signal { observer in
+			return self.signal.observe { event in
+				switch event {
+				case let .Next(value):
+					transform(value).flatMap { sendNext(observer, $0) }
+				case let .Error(error):
+					sendError(observer, error)
+				case .Completed:
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
+			}
+		}
 	}
 }
 

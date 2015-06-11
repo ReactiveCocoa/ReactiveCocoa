@@ -454,10 +454,10 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("ignoreNil") {
+		describe("filterMap") {
 			it("should forward only non-nil values") {
 				let (signal, sink) = Signal<Int?, NoError>.pipe()
-				let mappedSignal = signal |> ignoreNil
+				let mappedSignal = signal.filterMap { $0 }
 
 				var lastValue: Int?
 

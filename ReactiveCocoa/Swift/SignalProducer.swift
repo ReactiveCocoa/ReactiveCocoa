@@ -422,6 +422,12 @@ public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>
 	}
 }
 
+private func combineLatestWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Signal<[T], E> {
+	return { signal in
+		return signal.combineLatestWith(otherSignal).map { $0.0 + [$0.1] }
+	}
+}
+
 internal func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>) -> SignalProducer<[T], E> -> SignalProducer<[T], E> {
 	return { producer in
 		return producer.lift(combineLatestWith)(otherSignalProducer)
@@ -433,6 +439,12 @@ internal func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>)
 public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<(T, U), E> {
 	return { producer in
 		return producer.lift(zipWith)(otherSignalProducer)
+	}
+}
+
+private func zipWith<T, E>(otherSignal: Signal<T, E>) -> Signal<[T], E> -> Signal<[T], E> {
+	return { signal in
+		return signal.zipWith(otherSignal).map { $0.0 + [$0.1] }
 	}
 }
 

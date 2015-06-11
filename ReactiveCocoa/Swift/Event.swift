@@ -159,6 +159,19 @@ extension Event: CustomStringConvertible {
 	}
 }
 
+/// Event protocol for constraining signal extensions
+public protocol EventType {
+	typealias T
+	typealias E: ErrorType
+	var event: Event<T, E> { get }
+}
+
+extension Event : EventType {
+	public var event: Event<T, E> {
+		return self
+	}
+}
+
 /// Puts a `Next` event into the given sink.
 public func sendNext<T, E: ErrorType>(sink: Event<T, E>.Sink, _ value: T) {
 	sink(.Next(value))

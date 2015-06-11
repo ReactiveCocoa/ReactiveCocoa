@@ -238,35 +238,21 @@ extension SignalType {
 	}
 }
 
-public protocol OptionalType {
-	typealias T
-	var optional: T? { get }
-}
-
-extension Optional : OptionalType {
-	public var optional: T? {
-		return self
-	}
-}
-
 /// Unwraps non-`nil` values from `signal` and forwards them on the returned
 /// signal, `nil` values are dropped.
 public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
 	return signal |> filter { $0 != nil } |> map { $0! }
+	// TODO Using this currently segfaults the compiler
+	// return signal.ignoreNil()
 }
 
-// TODO Figure out how to do without crashing the compiler.
-//public func ignoreNil<T, E>(signal: Signal<T?, E>) -> Signal<T, E> {
-//	return signal.ignoreNil()
-//}
-//
-//extension SignalType where T: OptionalType {
-//	public func ignoreNil() -> Signal<T.T, E> {
-//		return signal
-//			.filter { $0.optional != nil }
-//			.map { $0.optional! }
-//	}
-//}
+extension SignalType where T: OptionalType {
+	public func ignoreNil() -> Signal<T.T, E> {
+		return signal
+			.filter { $0.optional != nil }
+			.map { $0.optional! }
+	}
+}
 
 /// Returns a signal that will yield the first `count` values from the
 /// input signal.
@@ -520,6 +506,8 @@ extension SignalType {
 /// The inverse of materialize(), this will translate a signal of `Event`
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
+	// TODO Currently using dematerialize segfaults the compiler
+	// return signal.dematerialize()
 	return Signal { observer in
 		return signal.observe { event in
 			switch event {
@@ -539,41 +527,26 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 	}
 }
 
-public protocol EventType {
-	typealias T
-	typealias E: ErrorType
-	var event: Event<T, E> { get }
-}
-
-extension Event : EventType {
-	public var event: Event<T, E> {
-		return self
-	}
-}
-
 extension SignalType where T: EventType, E == NoError {
 	public func dematerialize() -> Signal<T.T, T.E> {
 		return Signal { _ in nil }
-		// TODO Commenting out the segfault causes a sigtrap in the compiler.
-//		return Signal { (observer: Event<T.T, T.E>.Sink) in
-//			return self.signal.observe { event in
-//				switch event {
-//				case let .Next(innerEvent):
-//					// TODO This segfaults the compiler as does switching all inner cases explicitly
-//					//observer(innerEvent.event)
-//					break
-//
-//				case .Error:
-//					fatalError()
-//
-//				case .Completed:
-//					sendCompleted(observer)
-//
-//				case .Interrupted:
-//					sendInterrupted(observer)
-//				}
-//			}
-//		}
+		return Signal { (observer: Event<T.T, T.E>.Sink) in
+			return self.signal.observe { event in
+				switch event {
+				case let .Next(innerEvent):
+					observer(innerEvent.event)
+
+				case .Error:
+					fatalError()
+
+				case .Completed:
+					sendCompleted(observer)
+
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
+			}
+		}
 	}
 }
 

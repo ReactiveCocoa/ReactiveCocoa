@@ -173,18 +173,6 @@ infix operator |> {
 	precedence 95
 }
 
-/// Applies a Signal operator to a Signal.
-///
-/// Example:
-///
-/// 	intSignal
-/// 	|> filter { num in num % 2 == 0 }
-/// 	|> map(toString)
-/// 	|> observe(next: { string in println(string) })
-public func |> <T, E, X>(signal: Signal<T, E>, @noescape transform: Signal<T, E> -> X) -> X {
-	return transform(signal)
-}
-
 /// Maps each value in the signal to a new value.
 public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
 	return { $0.map(transform) }

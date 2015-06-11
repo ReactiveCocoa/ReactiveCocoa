@@ -592,7 +592,7 @@ class SignalProducerSpec: QuickSpec {
 
 					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
 						return { otherSignal in
-							return zip(signal, otherSignal) |> map { first, second in first + second }
+							return zip(signal, otherSignal).map { first, second in first + second }
 						}
 					}
 

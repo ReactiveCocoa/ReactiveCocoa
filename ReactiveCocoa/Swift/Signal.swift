@@ -1284,17 +1284,3 @@ extension SignalType where E == NoError {
 		}
 	}
 }
-
-/// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(sink: Event<T, E>.Sink) -> Signal<T, E> -> Disposable? {
-	return { signal in
-		return signal.observe(sink)
-	}
-}
-
-/// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E>(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Signal<T, E> -> Disposable? {
-	return { signal in
-		return signal.observe(next: next, error: error, completed: completed, interrupted: interrupted)
-	}
-}

@@ -956,8 +956,8 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				
 				signal
-				|> observeOn(testScheduler)
-				|> observe(next: { result.append($0) })
+					.observeOn(testScheduler)
+					.observe(next: { result.append($0) })
 				
 				sendNext(observer, 1)
 				sendNext(observer, 2)
@@ -986,8 +986,8 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				
 				signal
-				|> delay(10, onScheduler: testScheduler)
-				|> observe(next: { number in
+					.delay(10, onScheduler: testScheduler)
+					.observe(next: { number in
 						result.append(number)
 					}, completed: {
 						completed = true
@@ -1017,8 +1017,8 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				
 				signal
-				|> delay(10, onScheduler: testScheduler)
-				|> observe(error: { _ in errored = true })
+					.delay(10, onScheduler: testScheduler)
+					.observe(error: { _ in errored = true })
 				
 				testScheduler.advance()
 				expect(errored).to(beTruthy())
@@ -1265,8 +1265,8 @@ class SignalSpec: QuickSpec {
 				let (signal, observer) = Signal<Int, TestError>.pipe()
 				var latestEvent: Event<Int, TestError>?
 				signal
-				|> materialize
-				|> observe(next: { latestEvent = $0 })
+					.materialize()
+					.observe(next: { latestEvent = $0 })
 				
 				sendNext(observer, 2)
 				
@@ -1607,11 +1607,11 @@ class SignalSpec: QuickSpec {
 			describe("tuple") {
 				beforeEach {
 					combineLatest(signalA, signalB, signalC)
-					|> observe(next: {
-						combinedValues = [$0, $1, $2]
-					}, completed: {
-						completed = true
-					})
+						.observe(next: {
+							combinedValues = [$0, $1, $2]
+						}, completed: {
+							completed = true
+						})
 				}
 				
 				itBehavesLike(combineLatestExampleName)
@@ -1620,7 +1620,7 @@ class SignalSpec: QuickSpec {
 			describe("sequence") {
 				beforeEach {
 					combineLatest([signalA, signalB, signalC])
-					|> observe(next: {
+					.observe(next: {
 						combinedValues = $0
 					}, completed: {
 						completed = true
@@ -1703,11 +1703,11 @@ class SignalSpec: QuickSpec {
 			describe("tuple") {
 				beforeEach {
 					zip(signalA, signalB, signalC)
-					|> observe(next: {
-						zippedValues = [$0, $1, $2]
-					}, completed: {
-						completed = true
-					})
+						.observe(next: {
+							zippedValues = [$0, $1, $2]
+						}, completed: {
+							completed = true
+						})
 				}
 				
 				itBehavesLike(zipExampleName)
@@ -1716,11 +1716,11 @@ class SignalSpec: QuickSpec {
 			describe("sequence") {
 				beforeEach {
 					zip([signalA, signalB, signalC])
-					|> observe(next: {
-						zippedValues = $0
-					}, completed: {
-						completed = true
-					})
+						.observe(next: {
+							zippedValues = $0
+						}, completed: {
+							completed = true
+						})
 				}
 				
 				itBehavesLike(zipExampleName)

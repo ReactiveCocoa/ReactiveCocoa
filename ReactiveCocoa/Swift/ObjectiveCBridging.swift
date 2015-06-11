@@ -98,7 +98,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 		let selfDisposable = producer.start(next: { value in
 			subscriber.sendNext(value)
 		}, error: { error in
-			subscriber.sendError(error.nsError)
+			subscriber.sendError(error as NSError)
 		}, completed: {
 			subscriber.sendCompleted()
 		})
@@ -124,7 +124,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 		let selfDisposable = signal.observe(next: { value in
 			subscriber.sendNext(value)
 		}, error: { error in
-			subscriber.sendError(error.nsError)
+			subscriber.sendError(error as NSError)
 		}, completed: {
 			subscriber.sendCompleted()
 		})

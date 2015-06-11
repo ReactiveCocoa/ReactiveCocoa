@@ -33,7 +33,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("should forward errors")	{
-				let error = TestError.Default.nsError
+				let error = TestError.Default as NSError
 
 				let racSignal = RACSignal.error(error)
 				let producer = racSignal.toSignalProducer()
@@ -83,9 +83,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					}
 
 					sendError(sink, expectedError)
-
-					expect(error?.domain).to(equal(TestError.domain))
-					expect(error?.code).to(equal(expectedError.rawValue))
+					expect(error).to(equal(expectedError as NSError))
 				}
 			}
 
@@ -108,9 +106,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = toRACSignal(producer).materialize()
 
 					let event = racSignal.first() as? RACEvent
-
-					expect(event?.error.domain).to(equal(TestError.domain))
-					expect(event?.error.code).to(equal(TestError.Error1.rawValue))
+					expect(event?.error).to(equal(TestError.Error1 as NSError))
 				}
 			}
 		}

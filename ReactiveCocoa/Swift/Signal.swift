@@ -154,7 +154,7 @@ public protocol SignalType {
 	typealias T
 	/// The type of error that can occur on the signal. If errors aren't possible
 	/// than `NoError` can be used.
-	typealias E: ReactiveCocoa.ErrorType
+	typealias E: ErrorType
 
 	/// Proxy for the actual signal
 	var signal: Signal<T, E> { get }
@@ -541,7 +541,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 
 public protocol EventType {
 	typealias T
-	typealias E: ReactiveCocoa.ErrorType
+	typealias E: ErrorType
 	var event: Event<T, E> { get }
 }
 

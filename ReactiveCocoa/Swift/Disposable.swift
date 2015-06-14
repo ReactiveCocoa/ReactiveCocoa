@@ -77,8 +77,10 @@ public final class CompositeDisposable: Disposable {
 		/// that are no longer needed.
 		public func remove() {
 			if let token = bagToken.swap(nil) {
-				disposable?.disposables.modify { (var bag) in
-					bag?.removeValueForToken(token)
+				disposable?.disposables.modify { bag in
+					guard var bag = bag else { return nil }
+
+					bag.removeValueForToken(token)
 					return bag
 				}
 			}
@@ -122,10 +124,11 @@ public final class CompositeDisposable: Disposable {
 		}
 
 		var handle: DisposableHandle? = nil
-		disposables.modify { (var ds) in
-			if let token = ds?.insert(d!) {
-				handle = DisposableHandle(bagToken: token, disposable: self)
-			}
+		disposables.modify { ds in
+			guard var ds = ds else { return nil }
+
+			let token = ds.insert(d!)
+			handle = DisposableHandle(bagToken: token, disposable: self)
 
 			return ds
 		}

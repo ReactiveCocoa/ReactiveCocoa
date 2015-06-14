@@ -273,7 +273,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("SignalProducer.try") {
+		describe("SignalProducer.attempt") {
 			it("should run the operation once per start()") {
 				var operationRunTimes = 0
 				let operation: () -> Result<String, NSError> = {
@@ -282,8 +282,8 @@ class SignalProducerSpec: QuickSpec {
 					return .success("OperationValue")
 				}
 
-				SignalProducer.`try`(operation).start()
-				SignalProducer.`try`(operation).start()
+				SignalProducer.attempt(operation).start()
+				SignalProducer.attempt(operation).start()
 
 				expect(operationRunTimes).to(equal(2))
 			}
@@ -294,7 +294,7 @@ class SignalProducerSpec: QuickSpec {
 					return .success(operationReturnValue)
 				}
 
-				let signalProducer = SignalProducer.`try`(operation)
+				let signalProducer = SignalProducer.attempt(operation)
 
 				expect(signalProducer).to(sendValue(operationReturnValue, sendError: nil, complete: true))
 			}
@@ -305,7 +305,7 @@ class SignalProducerSpec: QuickSpec {
 					return .failure(operationError)
 				}
 
-				let signalProducer = SignalProducer.`try`(operation)
+				let signalProducer = SignalProducer.attempt(operation)
 
 				expect(signalProducer).to(sendValue(nil, sendError: operationError, complete: false))
 			}
@@ -1180,7 +1180,7 @@ class SignalProducerSpec: QuickSpec {
 					.failure(.Default)
 				]
 
-				let original = SignalProducer.tryWithResults(results)
+				let original = SignalProducer.attemptWithResults(results)
 				let producer = original |> times(3)
 
 				let events = producer
@@ -1224,7 +1224,7 @@ class SignalProducerSpec: QuickSpec {
 					.success(1)
 				]
 
-				let original = SignalProducer.tryWithResults(results)
+				let original = SignalProducer.attemptWithResults(results)
 				let producer = original |> retry(2)
 
 				let result = producer |> single
@@ -1239,7 +1239,7 @@ class SignalProducerSpec: QuickSpec {
 					.failure(.Error2),
 				]
 
-				let original = SignalProducer.tryWithResults(results)
+				let original = SignalProducer.attemptWithResults(results)
 				let producer = original |> retry(2)
 
 				let result = producer |> single
@@ -1254,7 +1254,7 @@ class SignalProducerSpec: QuickSpec {
 					.success(3)
 				]
 
-				let original = SignalProducer.tryWithResults(results)
+				let original = SignalProducer.attemptWithResults(results)
 				let producer = original |> retry(2)
 
 				let result = producer |> single
@@ -1469,7 +1469,7 @@ class SignalProducerSpec: QuickSpec {
 extension SignalProducer {
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
-	private static func tryWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
+	private static func attemptWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
 		let resultCount = results.count
 		var operationIndex = 0
 
@@ -1485,6 +1485,6 @@ extension SignalProducer {
 			}
 		}
 
-		return SignalProducer.`try`(operation)
+		return SignalProducer.attempt(operation)
 	}
 }

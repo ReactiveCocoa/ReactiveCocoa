@@ -235,7 +235,30 @@ public struct SignalProducer<T, E: ErrorType> {
 
 		startHandler(wrapperObserver, producerDisposable)
 	}
+}
 
+public protocol SignalProducerType {
+	/// The type of values being sent on the producer
+	typealias T
+	/// The type of error that can occur on the producer. If errors aren't possible
+	/// than `NoError` can be used.
+	typealias E: ErrorType
+
+	/// Proxy for the real producer
+	var producer: SignalProducer<T, E> { get }
+
+	/// Creates a Signal from the producer, passes it into the given closure,
+	/// then starts sending events on the Signal when the closure has returned.
+	func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ())
+}
+
+extension SignalProducer: SignalProducerType {
+	public var producer: SignalProducer {
+		return self
+	}
+}
+
+extension SignalProducerType {
 	/// Creates a Signal from the producer, then attaches the given sink to the
 	/// Signal as an observer.
 	///
@@ -298,36 +321,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 		}
 	}
-}
 
-public protocol SignalProducerType {
-	/// The type of values being sent on the producer
-	typealias T
-	/// The type of error that can occur on the producer. If errors aren't possible
-	/// than `NoError` can be used.
-	typealias E: ErrorType
-
-	/// Proxy for the real producer
-	var producer: SignalProducer<T, E> { get }
-
-	/// Creates a Signal from the producer, passes it into the given closure,
-	/// then starts sending events on the Signal when the closure has returned.
-	func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ())
-
-	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
-	func lift<U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F>
-
-	/// Lifts a binary Signal operator to operate upon SignalProducers instead.
-	func lift<U, F, V, G>(transform: Signal<U, F> -> Signal<T, E> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G>
-}
-
-extension SignalProducer: SignalProducerType {
-	public var producer: SignalProducer {
-		return self
-	}
-}
-
-extension SignalProducerType {
 	/// Maps each value in the producer to a new value.
 	public func map<U>(transform: T -> U) -> SignalProducer<U, E> {
 		return lift { $0.map(transform) }
@@ -828,7 +822,7 @@ extension SignalProducerType {
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			self.producer.startWithSignal { signal, signalDisposable in
+			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
 				signal.observe(next: { value in

@@ -602,28 +602,6 @@ class SignalProducerSpec: QuickSpec {
 					expect(result?.value).to(equal([5, 7, 9]))
 				}
 			}
-
-			describe("map") {
-				it("should transform the values of the signal") {
-					let (signal, sink) = SignalProducer<Int, NoError>.buffer()
-					let mappedSignal = signal.map { String($0 + 1) }
-
-					var lastValue: String?
-
-					mappedSignal.start(next: {
-						lastValue = $0
-						return
-					})
-
-					expect(lastValue).to(beNil())
-
-					sendNext(sink, 0)
-					expect(lastValue).to(equal("1"))
-
-					sendNext(sink, 1)
-					expect(lastValue).to(equal("2"))
-				}
-			}
 		}
 		
 		describe("sequence operators") {

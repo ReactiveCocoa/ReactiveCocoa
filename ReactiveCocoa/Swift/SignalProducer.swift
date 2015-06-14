@@ -184,7 +184,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Upon success, the started signal will send the resulting value then
 	/// complete. Upon failure, the started signal will send the error that
 	/// occurred.
-	public static func `try`(operation: () -> Result<T, E>) -> SignalProducer {
+	public static func attempt(operation: () -> Result<T, E>) -> SignalProducer {
 		return self { observer, disposable in
 			operation().analysis(ifSuccess: { value in
 				sendNext(observer, value)

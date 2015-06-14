@@ -624,20 +624,18 @@ extension SignalProducerType {
 			}
 		}
 	}
-}
 
-/// Starts the returned signal on the given Scheduler.
-///
-/// This implies that any side effects embedded in the producer will be
-/// performed on the given scheduler as well.
-///
-/// Events may still be sent upon other schedulers—this merely affects where
-/// the `start()` method is run.
-public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
+	/// Starts the returned signal on the given Scheduler.
+	///
+	/// This implies that any side effects embedded in the producer will be
+	/// performed on the given scheduler as well.
+	///
+	/// Events may still be sent upon other schedulers—this merely affects where
+	/// the `start()` method is run.
+	public func startOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
 		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
-				producer.startWithSignal { signal, signalDisposable in
+				self.startWithSignal { signal, signalDisposable in
 					compositeDisposable.addDisposable(signalDisposable)
 					signal.observe(observer)
 				}
@@ -813,40 +811,6 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 	}
 
 	return .empty
-}
-
-/// Forwards the latest value from `producer` whenever `sampler` sends a Next
-/// event.
-///
-/// If `sampler` fires before a value has been observed on `producer`, nothing
-/// happens.
-///
-/// Returns a producer that will send values from `producer`, sampled (possibly
-/// multiple times) by `sampler`, then complete once both inputs have completed.
-public func sampleOn<T, E>(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(sampleOn)(sampler)
-	}
-}
-
-/// Forwards events from `producer` until `trigger` sends a Next or Completed
-/// event, at which point the returned producer will complete.
-public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(takeUntil)(trigger)
-	}
-}
-
-/// Forwards events from `producer` until `replacement` begins sending events.
-///
-/// Returns a signal which passes through `next`s and `error` from `producer`
-/// until `replacement` sends an event, at which point the returned producer
-/// will send that event and switch to passing through events from `replacement`
-/// instead, regardless of whether `producer` has sent events already.
-public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(takeUntilReplacement)(replacement)
-	}
 }
 
 /// Catches any error that may occur on the input producer, mapping to a new producer

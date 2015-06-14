@@ -355,8 +355,8 @@ class SignalProducerSpec: QuickSpec {
 				var disposable: Disposable!
 
 				SignalProducer<Int, NoError>(value: 42)
-					|> startOn(TestScheduler())
-					|> startWithSignal { signal, innerDisposable in
+					.startOn(TestScheduler())
+					.startWithSignal { signal, innerDisposable in
 						signal.observe(interrupted: {
 							interrupted = true
 						})
@@ -718,7 +718,7 @@ class SignalProducerSpec: QuickSpec {
 					invoked = true
 				}
 
-				producer |> startOn(scheduler) |> start()
+				producer.startOn(scheduler).start()
 				expect(invoked).to(beFalsy())
 
 				scheduler.advance()
@@ -732,7 +732,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = timer(2, onScheduler: testScheduler, withLeeway: 0)
 
 				var next: NSDate?
-				producer |> startOn(startScheduler) |> start(next: { next = $0 })
+				producer.startOn(startScheduler).start(next: { next = $0 })
 
 				startScheduler.advanceByInterval(2)
 				expect(next).to(beNil())

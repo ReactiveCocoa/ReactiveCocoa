@@ -76,12 +76,8 @@ extension RACSignal {
 	}
 }
 
-/// Turns each value into an Optional.
-private func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
-	return signal.optionalize()
-}
-
 private extension SignalType {
+	/// Turns each value into an Optional.
 	private func optionalize() -> Signal<T?, E> {
 		return signal.map { Optional($0) }
 	}
@@ -92,7 +88,7 @@ private extension SignalType {
 ///
 /// Any `Interrupted` events will be silently discarded.
 public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACSignal {
-	return toRACSignal(producer |> optionalize)
+	return toRACSignal(producer.lift { $0.optionalize() })
 }
 
 /// Creates a RACSignal that will start() the producer once for each

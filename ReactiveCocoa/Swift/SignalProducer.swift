@@ -533,20 +533,6 @@ extension SignalProducerType where T: Equatable {
 }
 
 
-/// Applies a Signal operator to a SignalProducer (equivalent to
-/// SignalProducer.lift).
-///
-/// This will create a new SignalProducer which will apply the given Signal
-/// operator to _every_ created Signal, just as if the operator had been applied
-/// to each Signal yielded from start().
-///
-/// Example:
-///
-/// 	let filteredProducer = intProducer |> filter { num in num % 2 == 0 }
-public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
-	return producer.lift(transform)
-}
-
 /// Applies a SignalProducer operator to a SignalProducer.
 ///
 /// Example:

@@ -500,8 +500,6 @@ extension SignalType {
 /// The inverse of materialize(), this will translate a signal of `Event`
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
-	// TODO Currently using dematerialize segfaults the compiler
-	// return signal.dematerialize()
 	return Signal { observer in
 		return signal.observe { event in
 			switch event {
@@ -521,28 +519,28 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 	}
 }
 
-extension SignalType where T: EventType, E == NoError {
-	public func dematerialize() -> Signal<T.T, T.E> {
-		return Signal { _ in nil }
-		return Signal { (observer: Event<T.T, T.E>.Sink) in
-			return self.signal.observe { event in
-				switch event {
-				case let .Next(innerEvent):
-					observer(innerEvent.event)
-
-				case .Error:
-					fatalError()
-
-				case .Completed:
-					sendCompleted(observer)
-
-				case .Interrupted:
-					sendInterrupted(observer)
-				}
-			}
-		}
-	}
-}
+// TODO Currently using dematerialize segfaults the compiler
+//extension SignalType where T: EventType, E == NoError {
+//	public func dematerialize() -> Signal<T.T, T.E> {
+//		return Signal { (observer: Event<T.T, T.E>.Sink) in
+//			return self.signal.observe { event in
+//				switch event {
+//				case let .Next(innerEvent):
+//					observer(innerEvent.event)
+//
+//				case .Error:
+//					fatalError()
+//
+//				case .Completed:
+//					sendCompleted(observer)
+//
+//				case .Interrupted:
+//					sendInterrupted(observer)
+//				}
+//			}
+//		}
+//	}
+//}
 
 private struct SampleState<T> {
 	var latestValue: T? = nil

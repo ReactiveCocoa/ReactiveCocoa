@@ -963,7 +963,7 @@ public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T
 
 /// Starts the producer, then blocks, waiting for the first value.
 public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer |> take(1) |> single
+	return producer.take(1) |> single
 }
 
 /// Starts the producer, then blocks, waiting for events: Next and Completed.
@@ -975,15 +975,15 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 	var result: Result<T, E>?
 
 	producer
-		|> take(2)
-		|> start(next: { value in
+		.take(2)
+		.start(next: { value in
 			if result != nil {
 				// Move into failure state after recieving another value.
 				result = nil
 				return
 			}
 			result = .success(value)
-		}, { error in
+		}, error: { error in
 			result = .failure(error)
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
@@ -998,7 +998,7 @@ public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
 
 /// Starts the producer, then blocks, waiting for the last value.
 public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer |> takeLast(1) |> single
+	return producer.takeLast(1) |> single
 }
 
 /// Starts the producer, then blocks, waiting for completion.
@@ -1096,7 +1096,7 @@ public func flatten<T, E>(strategy: FlattenStrategy) -> SignalProducer<SignalPro
 /// producer will forward that error immediately.
 public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<U, E> {
 	return { producer in
-		return producer |> map(transform) |> flatten(strategy)
+		return producer.map(transform) |> flatten(strategy)
 	}
 }
 

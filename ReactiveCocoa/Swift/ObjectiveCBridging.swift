@@ -151,7 +151,7 @@ extension RACCommand {
 		let enabledProperty = MutableProperty(true)
 
 		enabledProperty <~ self.enabled.toSignalProducer()
-			|> map { $0 as! Bool }
+			.map { $0 as! Bool }
 			|> flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
@@ -166,7 +166,7 @@ extension RACCommand {
 
 extension Action {
 	private var commandEnabled: RACSignal {
-		let enabled = self.enabled.producer |> map { $0 as NSNumber }
+		let enabled = self.enabled.producer.map { $0 as NSNumber }
 		return toRACSignal(enabled)
 	}
 }

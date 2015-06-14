@@ -157,16 +157,16 @@ public final class CocoaAction: NSObject {
 		super.init()
 
 		disposable += action.enabled.producer
-			|> observeOn(UIScheduler())
-			|> start(next: { [weak self] value in
+			.observeOn(UIScheduler())
+			.start(next: { [weak self] value in
 				self?.willChangeValueForKey("enabled")
 				self?._enabled = value
 				self?.didChangeValueForKey("enabled")
 			})
 
 		disposable += action.executing.producer
-			|> observeOn(UIScheduler())
-			|> start(next: { [weak self] value in
+			.observeOn(UIScheduler())
+			.start(next: { [weak self] value in
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")

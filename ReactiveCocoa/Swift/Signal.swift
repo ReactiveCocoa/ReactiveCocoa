@@ -177,12 +177,8 @@ infix operator |> {
 	precedence 95
 }
 
-/// Maps each value in the signal to a new value.
-public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
-	return { $0.map(transform) }
-}
-
 extension SignalType {
+	/// Maps each value in the signal to a new value.
 	public func map<U>(transform: T -> U) -> Signal<U, E> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -190,14 +186,8 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Maps errors in the signal to a new error.
-public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F> {
-	return { $0.mapError(transform) }
-}
-
-extension SignalType {
+	/// Maps errors in the signal to a new error.
 	public func mapError<F>(transform: E -> F) -> Signal<T, F> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -205,14 +195,8 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Preserves only the values of the signal that pass the given predicate.
-public func filter<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.filter(predicate) }
-}
-
-extension SignalType {
+	/// Preserves only the values of the signal that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -228,14 +212,8 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Maps values from `signal` and forwards the non-nil ones on the returned signal.
-public func filterMap<T, U, E>(transform: T -> U?) -> Signal<T, E> -> Signal<U, E> {
-	return { $0.filterMap(transform) }
-}
-
-extension SignalType {
+	/// Maps values from `signal` and forwards the non-nil ones on the returned signal.
 	public func filterMap<U>(transform: T -> U?) -> Signal<U, E> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -252,15 +230,8 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Returns a signal that will yield the first `count` values from the
-/// input signal.
-public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.take(count) }
-}
-
-extension SignalType {
+	/// Returns a signal that will yield the first `count` values from `self`
 	public func take(count: Int) -> Signal<T, E> {
 		precondition(count >= 0)
 
@@ -303,26 +274,16 @@ private final class CollectState<T> {
 	}
 }
 
-/// Returns a signal that will yield an array of values when `signal` completes.
-public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
-	return signal.collect()
-}
-
 extension SignalType {
+	/// Returns a signal that will yield an array of values when `self` completes.
 	public func collect() -> Signal<[T], E> {
 		return signal
 			.reduce(CollectState()) { $0.append($1) }
 			.map { $0.values }
 	}
-}
 
-/// Forwards all events onto the given scheduler, instead of whichever
-/// scheduler they originally arrived upon.
-public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.observeOn(scheduler) }
-}
-
-extension SignalType {
+	/// Forwards all events onto the given scheduler, instead of whichever
+	/// scheduler they originally arrived upon.
 	public func observeOn(scheduler: SchedulerType) -> Signal<T, E> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -399,15 +360,11 @@ extension SignalType {
 	}
 }
 
-/// Delays `Next` and `Completed` events by the given interval, forwarding
-/// them on the given scheduler.
-///
-/// `Error` and `Interrupted` events are always scheduled immediately.
-public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.delay(interval, onScheduler: scheduler) }
-}
-
 extension SignalType {
+	/// Delays `Next` and `Completed` events by the given interval, forwarding
+	/// them on the given scheduler.
+	///
+	/// `Error` and `Interrupted` events are always scheduled immediately.
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
 		precondition(interval >= 0)
 
@@ -428,15 +385,9 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Returns a signal that will skip the first `count` values, then forward
-/// everything afterward.
-public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.skip(count) }
-}
-
-extension SignalType {
+	/// Returns a signal that will skip the first `count` values, then forward
+	/// everything afterward.
 	public func skip(count: Int) -> Signal<T, E> {
 		precondition(count >= 0)
 
@@ -462,21 +413,15 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Treats all Events from the input signal as plain values, allowing them to be
-/// manipulated just like any other value.
-///
-/// In other words, this brings Events “into the monad.”
-///
-/// When a Completed or Error event is received, the resulting signal will send
-/// the Event itself and then complete. When an Interrupted event is received,
-/// the resulting signal will send the Event itself and then interrupt.
-public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
-	return signal.materialize()
-}
-
-extension SignalType {
+	/// Treats all Events from `self` as plain values, allowing them to be manipulated
+	/// just like any other value.
+	///
+	/// In other words, this brings Events “into the monad.”
+	///
+	/// When a Completed or Error event is received, the resulting signal will send
+	/// the Event itself and then complete. When an Interrupted event is received,
+	/// the resulting signal will send the Event itself and then interrupt.
 	public func materialize() -> Signal<Event<T, E>, NoError> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -638,28 +583,18 @@ extension SignalType {
 	}
 }
 
-/// Forwards events from `signal` with history: values of the returned signal
-/// are a tuple whose first member is the previous value and whose second member
-/// is the current value. `initial` is supplied as the first member when `signal`
-/// sends its first value.
-public func combinePrevious<T, E>(initial: T) -> Signal<T, E> -> Signal<(T, T), E> {
-	return { $0.combinePrevious(initial) }
-}
-
 extension SignalType {
+	/// Forwards events from `self` with history: values of the returned signal
+	/// are a tuple whose first member is the previous value and whose second member
+	/// is the current value. `initial` is supplied as the first member when `self`
+	/// sends its first value.
 	public func combinePrevious(initial: T) -> Signal<(T, T), E> {
 		return signal.scan((initial, initial)) { previousCombinedValues, newValue in
 			return (previousCombinedValues.1, newValue)
 		}
 	}
-}
 
-/// Like `scan`, but sends only the final value and then immediately completes.
-public func reduce<T, U, E>(initial: U, _ combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
-	return { $0.reduce(initial, combine) }
-}
-
-extension SignalType {
+	/// Like `scan`, but sends only the final value and then immediately completes.
 	public func reduce<U>(initial: U, _ combine: (U, T) -> U) -> Signal<U, E> {
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before taking
@@ -675,18 +610,12 @@ extension SignalType {
 
 		return outputSignal
 	}
-}
 
-/// Aggregates `signal`'s values into a single combined value. When `signal` emits
-/// its first value, `combine` is invoked with `initial` as the first argument and
-/// that emitted value as the second argument. The result is emitted from the
-/// signal returned from `reduce`. That result is then passed to `combine` as the
-/// first argument when the next value is emitted, and so on.
-public func scan<T, U, E>(initial: U, _ combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
-	return { $0.scan(initial, combine) }
-}
-
-extension SignalType {
+	/// Aggregates `selfs`'s values into a single combined value. When `self` emits
+	/// its first value, `combine` is invoked with `initial` as the first argument and
+	/// that emitted value as the second argument. The result is emitted from the
+	/// signal returned from `reduce`. That result is then passed to `combine` as the
+	/// first argument when the next value is emitted, and so on.
 	public func scan<U>(initial: U, _ combine: (U, T) -> U) -> Signal<U, E> {
 		return Signal { observer in
 			var accumulator = initial
@@ -701,25 +630,17 @@ extension SignalType {
 	}
 }
 
-/// Forwards only those values from `signal` which are not duplicates of the
-/// immedately preceding value. The first value is always forwarded.
-public func skipRepeats<T: Equatable, E>(signal: Signal<T, E>) -> Signal<T, E> {
-	return signal.skipRepeats()
-}
-
 extension SignalType where T: Equatable {
+	/// Forwards only those values from `self` which are not duplicates of the
+	/// immedately preceding value. The first value is always forwarded.
 	public func skipRepeats() -> Signal<T, E> {
 		return skipRepeats { $0 == $1 }
 	}
 }
 
-/// Forwards only those values from `signal` which do not pass `isRepeat` with
-/// respect to the previous value. The first value is always forwarded.
-public func skipRepeats<T, E>(isRepeat: (T, T) -> Bool) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.skipRepeats(isRepeat) }
-}
-
 extension SignalType {
+	/// Forwards only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value. The first value is always forwarded.
 	public func skipRepeats(isRepeat: (T, T) -> Bool) -> Signal<T, E> {
 		return signal
 			.map { Optional($0) }
@@ -733,15 +654,9 @@ extension SignalType {
 			}
 			.map { $0.1! }
 	}
-}
 
-/// Does not forward any values from `signal` until `predicate` returns false,
-/// at which point the returned signal behaves exactly like `signal`.
-public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.skipWhile(predicate) }
-}
-
-extension SignalType {
+	/// Does not forward any values from `self` until `predicate` returns false,
+	/// at which point the returned signal behaves exactly like `signal`.
 	public func skipWhile(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			var shouldSkip = true
@@ -799,13 +714,9 @@ extension SignalType {
 	}
 }
 
-/// Waits until `signal` completes and then forwards the final `count` values
-/// on the returned signal.
-public func takeLast<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeLast(count) }
-}
-
 extension SignalType {
+	/// Waits until `self` completes and then forwards the final `count` values
+	/// on the returned signal.
 	public func takeLast(count: Int) -> Signal<T, E> {
 		return Signal { observer in
 			var buffer = [T]()
@@ -832,15 +743,9 @@ extension SignalType {
 			})
 		}
 	}
-}
 
-/// Forwards any values from `signal` until `predicate` returns false,
-/// at which point the returned signal will complete.
-public func takeWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeWhile(predicate) }
-}
-
-extension SignalType {
+	/// Forwards any values from `self` until `predicate` returns false,
+	/// at which point the returned signal will complete.
 	public func takeWhile(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			return self.signal.observe { event in
@@ -946,13 +851,9 @@ extension SignalType {
 	}
 }
 
-/// Applies `operation` to values from `signal` with `Success`ful results
-/// forwarded on the returned signal and `Failure`s sent as `Error` events.
-public func attempt<T, E>(operation: T -> Result<(), E>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.attempt(operation) }
-}
-
 extension SignalType {
+	/// Applies `operation` to values from `self` with `Success`ful results
+	/// forwarded on the returned signal and `Failure`s sent as `Error` events.
 	public func attempt(operation: T -> Result<(), E>) -> Signal<T, E> {
 		return signal.attemptMap { value in
 			return operation(value).map {
@@ -960,15 +861,9 @@ extension SignalType {
 			}
 		}
 	}
-}
 
-/// Applies `operation` to values from `signal` with `Success`ful results mapped
-/// on the returned signal and `Failure`s sent as `Error` events.
-public func attemptMap<T, U, E>(operation: T -> Result<U, E>) -> Signal<T, E> -> Signal<U, E> {
-	return { $0.attemptMap(operation) }
-}
-
-extension SignalType {
+	/// Applies `operation` to values from `self` with `Success`ful results mapped
+	/// on the returned signal and `Failure`s sent as `Error` events.
 	public func attemptMap<U>(operation: T -> Result<U, E>) -> Signal<U, E> {
 		return Signal { observer in
 			self.signal.observe(next: { value in
@@ -986,21 +881,15 @@ extension SignalType {
 			})
 		}
 	}
-}
 
-/// Throttle values sent by the receiver, so that at least `interval`
-/// seconds pass between each, then forwards them on the given scheduler.
-///
-/// If multiple values are received before the interval has elapsed, the
-/// latest value is the one that will be passed on.
-///
-/// If the input signal terminates while a value is being throttled, that value
-/// will be discarded and the returned signal will terminate immediately.
-public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.throttle(interval, onScheduler: scheduler) }
-}
-
-extension SignalType {
+	/// Throttle values sent by the receiver, so that at least `interval`
+	/// seconds pass between each, then forwards them on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	///
+	/// If the input signal terminates while a value is being throttled, that value
+	/// will be discarded and the returned signal will terminate immediately.
 	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
 		precondition(interval >= 0)
 
@@ -1224,16 +1113,12 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T,
 	return Signal.never
 }
 
-/// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
-/// errors with `error` on `scheduler`.
-///
-/// If the interval is 0, the timeout will be scheduled immediately. The signal
-/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-public func timeoutWithError<T, E>(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
-}
-
 extension SignalType {
+	/// Forwards events from `self` until `interval`. Then if signal isn't completed yet,
+	/// errors with `error` on `scheduler`.
+	///
+	/// If the interval is 0, the timeout will be scheduled immediately. The signal
+	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
 	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
 		precondition(interval >= 0)
 
@@ -1251,16 +1136,12 @@ extension SignalType {
 	}
 }
 
-/// Promotes a signal that does not generate errors into one that can.
-///
-/// This does not actually cause errors to be generated for the given signal,
-/// but makes it easier to combine with other signals that may error; for
-/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
-public func promoteErrors<T, E: ErrorType>(_: E.Type) -> Signal<T, NoError> -> Signal<T, E> {
-	return { $0.promoteErrors() }
-}
-
 extension SignalType where E == NoError {
+	/// Promotes a signal that does not generate errors into one that can.
+	///
+	/// This does not actually cause errors to be generated for the given signal,
+	/// but makes it easier to combine with other signals that may error; for
+	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
 	public func promoteErrors<F: ErrorType>() -> Signal<T, F> {
 		return Signal { observer in
 			return self.signal.observe(next: { value in

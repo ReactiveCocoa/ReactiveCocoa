@@ -25,7 +25,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return nil
 				}
 
-				let producer = racSignal.toSignalProducer() |> map { $0 as! Int }
+				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
 				expect((producer |> single)?.value).to(equal(0))
 				expect((producer |> single)?.value).to(equal(1))

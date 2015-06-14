@@ -556,8 +556,10 @@ class SignalProducerSpec: QuickSpec {
 				it("should not miss any events") {
 					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3, 4])
 
-					let producer = baseProducer.lift(map { $0 * $0 })
-					let result = producer |> collect |> single
+					let producer = baseProducer.lift { signal in
+						return signal.map { $0 * $0 }
+					}
+					let result = producer.collect() |> single
 
 					expect(result?.value).to(equal([1, 4, 9, 16]))
 				}
@@ -597,7 +599,7 @@ class SignalProducerSpec: QuickSpec {
 					}
 
 					let producer = baseProducer.lift(transform)(otherProducer)
-					let result = producer |> collect |> single
+					let result = producer.collect() |> single
 
 					expect(result?.value).to(equal([5, 7, 9]))
 				}
@@ -615,14 +617,14 @@ class SignalProducerSpec: QuickSpec {
 			
 			it("should combine the events to one array") {
 				let producer = combineLatest([producerA, producerB])
-				let result = producer |> collect |> single
+				let result = producer.collect() |> single
 				
 				expect(result?.value).to(equal([[1, 4], [2, 4]]))
 			}
 			
 			it("should zip the events to one array") {
 				let producer = zip([producerA, producerB])
-				let result = producer |> collect |> single
+				let result = producer.collect() |> single
 				
 				expect(result?.value).to(equal([[1, 3], [2, 4]]))
 			}
@@ -1055,11 +1057,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				it("should not deadlock") {
-					let result = SignalProducer<Int, NoError>(value: 1)
+					let producer = SignalProducer<Int, NoError>(value: 1)
 						|> flatMap(.Latest) { _ in SignalProducer(value: 10) }
-						|> take(1)
-						|> last
 
+					let result = producer.take(1) |> last
 					expect(result?.value).to(equal(10))
 				}
 			}
@@ -1159,7 +1160,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
 				let producer = original |> times(3)
 
-				let result = producer |> collect |> single
+				let result = producer.collect() |> single
 				expect(result?.value).to(equal([ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]))
 			}
 
@@ -1167,7 +1168,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original |> times(1)
 
-				let result = producer |> collect |> single
+				let result = producer.collect() |> single
 				expect(result?.value).to(equal([ 1 ]))
 			}
 
@@ -1190,8 +1191,8 @@ class SignalProducerSpec: QuickSpec {
 				let producer = original |> times(3)
 
 				let events = producer
-					|> materialize
-					|> collect
+					.materialize()
+					.collect()
 					|> single
 				let result = events?.value
 
@@ -1217,7 +1218,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original |> times(Int.max)
 
-				let result = producer |> take(1) |> single
+				let result = producer.take(1) |> single
 				expect(result?.value).to(equal(1))
 			}
 		}
@@ -1458,8 +1459,8 @@ class SignalProducerSpec: QuickSpec {
 
 				var downstreamDisposable: Disposable!
 				producer
-					|> observeOn(TestScheduler())
-					|> startWithSignal { signal, innerDisposable in
+					.observeOn(TestScheduler())
+					.startWithSignal { signal, innerDisposable in
 						downstreamDisposable = innerDisposable
 					}
 				

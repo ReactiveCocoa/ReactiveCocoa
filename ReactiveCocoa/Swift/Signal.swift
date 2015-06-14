@@ -121,15 +121,19 @@ public final class Signal<T, E: ErrorType> {
 		let sink = Observer(observer)
 
 		var token: RemovalToken?
-		atomicObservers.modify { (var observers) in
-			token = observers?.insert(sink)
+		atomicObservers.modify { observers in
+			guard var observers = observers else { return nil }
+
+			token = observers.insert(sink)
 			return observers
 		}
 
 		if let token = token {
 			return ActionDisposable {
-				atomicObservers.modify { (var observers) in
-					observers?.removeValueForToken(token)
+				atomicObservers.modify { observers in
+					guard var observers = observers else { return nil }
+
+					observers.removeValueForToken(token)
 					return observers
 				}
 			}

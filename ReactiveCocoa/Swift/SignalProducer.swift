@@ -120,8 +120,9 @@ public struct SignalProducer<T, E: ErrorType> {
 			lock.lock()
 
 			var token: RemovalToken?
-			observers.modify { (var observers) in
-				token = observers?.insert(observer)
+			observers.modify { observers in
+				guard var observers = observers else { return nil }
+				token = observers.insert(observer)
 				return observers
 			}
 
@@ -137,8 +138,10 @@ public struct SignalProducer<T, E: ErrorType> {
 
 			if let token = token {
 				disposable.addDisposable {
-					observers.modify { (var observers) in
-						observers?.removeValueForToken(token)
+					observers.modify { observers in
+						guard var observers = observers else { return nil }
+
+						observers.removeValueForToken(token)
 						return observers
 					}
 				}

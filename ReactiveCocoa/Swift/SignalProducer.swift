@@ -322,7 +322,212 @@ extension SignalProducerType {
 	public func map<U>(transform: T -> U) -> SignalProducer<U, E> {
 		return producer.lift(ReactiveCocoa.map(transform))
 	}
+
+	/// Maps errors in the producer to a new error.
+	public func mapError<F>(transform: E -> F) -> SignalProducer<T, F> {
+		return producer.lift(ReactiveCocoa.mapError(transform))
+	}
+	
+	/// Preserves only the values of the producer that pass the given predicate.
+	public func filter(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.filter(predicate))
+	}
+
+	/// Maps values from the producer and forwards the non-nil ones on the
+	/// returned producer.
+	public func filterMap<U>(transform: T -> U?) -> SignalProducer<U, E> {
+		return producer.lift(ReactiveCocoa.filterMap(transform))
+	}
+
+	/// Returns a producer that will yield the first `count` values from the
+	/// input producer.
+	public func take(count: Int) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.take(count))
+	}
+
+	/// Returns a signal that will yield an array of values when `signal` completes.
+	public func collect() -> SignalProducer<[T], E> {
+		return producer.lift(ReactiveCocoa.collect)
+	}
+
+	/// Forwards all events onto the given scheduler, instead of whichever
+	/// scheduler they originally arrived upon.
+	public func observeOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.observeOn(scheduler))
+	}
+
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given producer.
+	///
+	/// The returned producer will not send a value until both inputs have sent at
+	/// least one value each. If either producer is interrupted, the returned producer
+	/// will also be interrupted.
+	public func combineLatestWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
+		return producer.lift(ReactiveCocoa.combineLatestWith)(otherProducer)
+	}
+
+	/// Delays `Next` and `Completed` events by the given interval, forwarding
+	/// them on the given scheduler.
+	///
+	/// `Error` and `Interrupted` events are always scheduled immediately.
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.delay(interval, onScheduler: scheduler))
+	}
+
+	/// Returns a producer that will skip the first `count` values, then forward
+	/// everything afterward.
+	public func skip(count: Int) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.skip(count))
+	}
+
+	/// Treats all Events from the input producer as plain values, allowing them to be
+	/// manipulated just like any other value.
+	///
+	/// In other words, this brings Events “into the monad.”
+	///
+	/// When a Completed or Error event is received, the resulting producer will send
+	/// the Event itself and then complete. When an Interrupted event is received,
+	/// the resulting producer will send the Event itself and then interrupt.
+	public func materialize() -> SignalProducer<Event<T, E>, NoError> {
+		return producer.lift(ReactiveCocoa.materialize)
+	}
+
+	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input producers have
+	/// completed, or interrupt if either input producer is interrupted.
+	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.sampleOn)(sampler)
+	}
+
+	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// event, at which point the returned producer will complete.
+	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.takeUntil)(trigger)
+	}
+
+	/// Forwards events from `self` with history: values of the returned producer
+	/// are a tuple whose first member is the previous value and whose second member
+	/// is the current value. `initial` is supplied as the first member when `self`
+	/// sends its first value.
+	public func combinePrevious(initial: T) -> SignalProducer<(T, T), E> {
+		return producer.lift(ReactiveCocoa.combinePrevious(initial))
+	}
+
+	/// Like `scan`, but sends only the final value and then immediately completes.
+	public func reduce<U>(initial: U, _ combine: (U, T) -> U) -> SignalProducer<U, E> {
+		return producer.lift(ReactiveCocoa.reduce(initial, combine))
+	}
+
+	/// Aggregates `self`'s values into a single combined value. When `self` emits
+	/// its first value, `combine` is invoked with `initial` as the first argument and
+	/// that emitted value as the second argument. The result is emitted from the
+	/// producer returned from `scan`. That result is then passed to `combine` as the
+	/// first argument when the next value is emitted, and so on.
+	public func scan<U>(initial: U, _ combine: (U, T) -> U) -> SignalProducer<U, E> {
+		return producer.lift(ReactiveCocoa.scan(initial, combine))
+	}
+
+	/// Forwards only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value. The first value is always forwarded.
+	public func skipRepeats(isRepeat: (T, T) -> Bool) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.skipRepeats(isRepeat))
+	}
+
+	/// Does not forward any values from `self` until `predicate` returns false,
+	/// at which point the returned signal behaves exactly like `self`.
+	public func skipWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.skipWhile(predicate))
+	}
+
+	/// Forwards events from `self` until `replacement` begins sending events.
+	///
+	/// Returns a producer which passes through `Next`, `Error`, and `Interrupted`
+	/// events from `self` until `replacement` sends an event, at which point the
+	/// returned producer will send that event and switch to passing through events
+	/// from `replacement` instead, regardless of whether `self` has sent events
+	/// already.
+	public func takeUntilReplacement(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.takeUntilReplacement)(replacement)
+	}
+
+	/// Waits until `self` completes and then forwards the final `count` values
+	/// on the returned producer.
+	public func takeLast(count: Int) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.takeLast(count))
+	}
+
+	/// Forwards any values from `self` until `predicate` returns false,
+	/// at which point the returned producer will complete.
+	public func takeWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.takeWhile(predicate))
+	}
+
+	/// Zips elements of two producers into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input producers.
+	public func zipWith<U>(otherSignal: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
+		return producer.lift(ReactiveCocoa.zipWith)(otherSignal)
+	}
+
+	/// Applies `operation` to values from `self` with `Success`ful results
+	/// forwarded on the returned producer and `Failure`s sent as `Error` events.
+	public func attempt(operation: T -> Result<(), E>) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.attempt(operation))
+	}
+
+	/// Applies `operation` to values from `self` with `Success`ful results mapped
+	/// on the returned producer and `Failure`s sent as `Error` events.
+	public func attemptMap<U>(operation: T -> Result<U, E>) -> SignalProducer<U, E> {
+		return producer.lift(ReactiveCocoa.attemptMap(operation))
+	}
+
+	/// Throttle values sent by the receiver, so that at least `interval`
+	/// seconds pass between each, then forwards them on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	///
+	/// If `self` terminates while a value is being throttled, that value
+	/// will be discarded and the returned producer will terminate immediately.
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.throttle(interval, onScheduler: scheduler))
+	}
+
+	/// Forwards events from `self` until `interval`. Then if producer isn't completed yet,
+	/// errors with `error` on `scheduler`.
+	///
+	/// If the interval is 0, the timeout will be scheduled immediately. The producer
+	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler))
+	}
+
 }
+
+extension SignalProducerType where E == NoError {
+	/// Promotes a producer that does not generate errors into one that can.
+	///
+	/// This does not actually cause errors to be generated for the given producer,
+	/// but makes it easier to combine with other producers that may error; for
+	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
+	public func promoteErrors<F: ErrorType>() -> SignalProducer<T, F> {
+		return producer.lift(ReactiveCocoa.promoteErrors(F))
+	}
+}
+
+extension SignalProducerType where T: Equatable {
+	/// Forwards only those values from `self` which are not duplicates of the
+	/// immedately preceding value. The first value is always forwarded.
+	public func skipRepeats() -> SignalProducer<T, E> {
+		return producer.lift(ReactiveCocoa.skipRepeats)
+	}
+}
+
 
 /// Applies a Signal operator to a SignalProducer (equivalent to
 /// SignalProducer.lift).

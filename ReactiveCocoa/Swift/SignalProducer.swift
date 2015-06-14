@@ -127,11 +127,11 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 
 			for event in events {
-				observer.put(event)
+				observer(event)
 			}
 
 			if let terminationEvent = terminationEvent {
-				observer.put(terminationEvent)
+				observer(terminationEvent)
 			}
 
 			lock.unlock()
@@ -148,7 +148,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 		}
 
-		let bufferingObserver = Signal<T, E>.Observer { event in
+		let bufferingObserver: Signal<T, E>.Observer = { event in
 			lock.lock()
 			
 			let oldObservers = observers.modify { (observers) in
@@ -171,7 +171,7 @@ public struct SignalProducer<T, E: ErrorType> {
 				}
 
 				for observer in liveObservers {
-					observer.put(event)
+					observer(event)
 				}
 			}
 			
@@ -223,8 +223,8 @@ public struct SignalProducer<T, E: ErrorType> {
 			return
 		}
 
-		let wrapperObserver = Signal<T, E>.Observer { event in
-			sink.put(event)
+		let wrapperObserver: Signal<T, E>.Observer = { event in
+			sink(event)
 
 			if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal
@@ -241,7 +241,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
-	public func start<S: SinkType where S.Element == Event<T, E>>(sink: S) -> Disposable {
+	public func start(sink: Event<T, E>.Sink) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
@@ -365,7 +365,7 @@ public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> 
 			producer.startWithSignal { signal, disposable in
 				compositeDisposable.addDisposable(disposable)
 
-				let innerObserver = Signal<T, E>.Observer { receivedEvent in
+				let innerObserver: Signal<T, E>.Observer = { receivedEvent in
 					event?(receivedEvent)
 
 					switch receivedEvent {
@@ -386,7 +386,7 @@ public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> 
 						terminated?()
 					}
 
-					observer.put(receivedEvent)
+					observer(receivedEvent)
 				}
 
 				signal.observe(innerObserver)
@@ -700,7 +700,7 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 				producer.startWithSignal { signal, signalDisposable in
 					serialDisposable.innerDisposable = signalDisposable
 
-					signal.observe(Signal.Observer { event in
+					signal.observe { event in
 						switch event {
 						case .Completed:
 							let remainingTimes = current - 1
@@ -711,9 +711,9 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 							}
 
 						default:
-							observer.put(event)
+							observer(event)
 						}
-					})
+					}
 				}
 			}
 
@@ -815,7 +815,7 @@ public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ()) -> Si
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> SignalProducer<T, E> -> Disposable {
+public func start<T, E>(sink: Event<T, E>.Sink) -> SignalProducer<T, E> -> Disposable {
 	return { producer in
 		return producer.start(sink)
 	}
@@ -995,7 +995,7 @@ private final class ConcatState<T, E: ErrorType> {
 		signalProducer.startWithSignal { signal, disposable in
 			let handle = self.disposable.addDisposable(disposable)
 
-			signal.observe(Signal.Observer { event in
+			signal.observe { event in
 				switch event {
 				case .Completed, .Interrupted:
 					handle.remove()
@@ -1005,9 +1005,9 @@ private final class ConcatState<T, E: ErrorType> {
 					}
 
 				default:
-					self.observer.put(event)
+					self.observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -1033,7 +1033,7 @@ private func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 
 					let handle = disposable.addDisposable(innerDisposable)
 
-					innerSignal.observe(Signal<T,E>.Observer { event in
+					innerSignal.observe { event in
 						switch event {
 						case .Completed, .Interrupted:
 							if event.isTerminating {
@@ -1043,9 +1043,9 @@ private func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> S
 							decrementInFlight()
 
 						default:
-							relayObserver.put(event)
+							relayObserver(event)
 						}
-					})
+					}
 				}
 			}, error: { error in
 				sendError(relayObserver, error)
@@ -1093,7 +1093,7 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 						return state
 					}
 
-					innerSignal.observe(Signal.Observer { event in
+					innerSignal.observe { event in
 						switch event {
 						case .Interrupted:
 							// If interruption occurred as a result of a new signal
@@ -1121,9 +1121,9 @@ private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>,
 							}
 
 						default:
-							sink.put(event)
+							sink(event)
 						}
-					})
+					}
 				}
 			}, error: { error in
 				sendError(sink, error)

@@ -43,17 +43,17 @@ class SignalProducerSpec: QuickSpec {
 					}
 				}
 
-				weak var testSink: TestSink?
+				weak var objectRetainedByObserver: NSObject?
 				producer.startWithSignal { signal, _ in
-					let sink = TestSink()
-					testSink = sink
-					signal.observe(sink)
+					let object = NSObject()
+					objectRetainedByObserver = object
+					signal.observe { _ in object }
 				}
 
-				expect(testSink).toNot(beNil())
+				expect(objectRetainedByObserver).toNot(beNil())
 
 				disposable.dispose()
-				expect(testSink).to(beNil())
+				expect(objectRetainedByObserver).to(beNil())
 			}
 
 			it("should dispose of added disposables upon completion") {
@@ -371,22 +371,21 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should release signal observers if disposed") {
-				weak var testSink: TestSink?
+				weak var objectRetainedByObserver: NSObject?
 				var disposable: Disposable!
 
 				let producer = SignalProducer<Int, NoError>.never
 				producer.startWithSignal { signal, innerDisposable in
-					let sink = TestSink()
-					testSink = sink
-					signal.observe(sink)
-
+					var object = NSObject()
+					objectRetainedByObserver = object
+					signal.observe { _ in object }
 					disposable = innerDisposable
 				}
 
-				expect(testSink).toNot(beNil())
+				expect(objectRetainedByObserver).toNot(beNil())
 
 				disposable.dispose()
-				expect(testSink).to(beNil())
+				expect(objectRetainedByObserver).to(beNil())
 			}
 
 			it("should not trigger effects if disposed before closure return") {
@@ -491,22 +490,20 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			it("should release sink when disposed") {
-				weak var testSink: TestSink?
-
+				weak var objectRetainedByObserver: NSObject?
 				var disposable: Disposable!
 				let test: () -> () = {
 					let producer = SignalProducer<Int, NoError>.never
-					let sink = TestSink()
-					testSink = sink
-
-					disposable = producer.start(sink)
+					let object = NSObject()
+					objectRetainedByObserver = object
+					disposable = producer.start { _ in object }
 				}
 
 				test()
-				expect(testSink).toNot(beNil())
+				expect(objectRetainedByObserver).toNot(beNil())
 
 				disposable.dispose()
-				expect(testSink).to(beNil())
+				expect(objectRetainedByObserver).to(beNil())
 			}
 
 			describe("trailing closure") {
@@ -1467,11 +1464,6 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 	}
-}
-
-/// Observer that can be weakly captured to monitor its lifetime
-private final class TestSink : SinkType {
-	func put(x: Event<Int, NoError>) {}
 }
 
 extension SignalProducer {

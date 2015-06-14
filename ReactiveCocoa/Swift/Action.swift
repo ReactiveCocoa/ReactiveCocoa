@@ -105,10 +105,10 @@ public final class Action<Input, Output, Error: ErrorType> {
 			self.executeClosure(input).startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observe(Signal.Observer { event in
-					observer.put(event.mapError { .ProducerError($0) })
+				signal.observe { event in
+					observer(event.mapError { .ProducerError($0) })
 					sendNext(self.eventsObserver, event)
-				})
+				}
 			}
 
 			disposable.addDisposable {

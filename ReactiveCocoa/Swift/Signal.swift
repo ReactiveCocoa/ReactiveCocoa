@@ -36,7 +36,7 @@ public final class Signal<T, E: ErrorType> {
 		/// When set to `true`, the Signal should interrupt as soon as possible.
 		let interrupted = Atomic(false)
 
-		let sink = Observer { event in
+		let sink: Observer = { event in
 			switch event {
 			case .Interrupted:
 				// Normally we disallow recursive events, but
@@ -60,7 +60,7 @@ public final class Signal<T, E: ErrorType> {
 					self.sendLock.lock()
 
 					for sink in observers {
-						sink.put(event)
+						sink(event)
 					}
 
 					let shouldInterrupt = !event.isTerminating && interrupted.value
@@ -106,7 +106,7 @@ public final class Signal<T, E: ErrorType> {
 	private func interrupt() {
 		if let observers = self.atomicObservers.swap(nil) {
 			for sink in observers {
-				sink.put(.Interrupted)
+				sink(.Interrupted)
 			}
 		}
 	}
@@ -117,12 +117,10 @@ public final class Signal<T, E: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to disconnect the sink. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
-	public func observe<S: SinkType where S.Element == Event<T, E>>(observer: S) -> Disposable? {
-		let sink = Observer(observer)
-
+	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { (var observers) in
-			token = observers?.insert(sink)
+			token = observers?.insert(observer)
 			return observers
 		}
 
@@ -134,7 +132,7 @@ public final class Signal<T, E: ErrorType> {
 				}
 			}
 		} else {
-			sink.put(.Interrupted)
+			observer(.Interrupted)
 			return nil
 		}
 	}
@@ -174,9 +172,9 @@ public func |> <T, E, X>(signal: Signal<T, E>, @noescape transform: Signal<T, E>
 public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
-				observer.put(event.map(transform))
-			})
+			return signal.observe { event in
+				observer(event.map(transform))
+			}
 		}
 	}
 }
@@ -185,9 +183,9 @@ public func map<T, U, E>(transform: T -> U) -> Signal<T, E> -> Signal<U, E> {
 public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
-				observer.put(event.mapError(transform))
-			})
+			return signal.observe { event in
+				observer(event.mapError(transform))
+			}
 		}
 	}
 }
@@ -196,7 +194,7 @@ public func mapError<T, E, F>(transform: E -> F) -> Signal<T, E> -> Signal<T, F>
 public func filter<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case let .Next(value):
 					if predicate(value.value) {
@@ -204,9 +202,9 @@ public func filter<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
 					}
 
 				default:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -231,7 +229,7 @@ public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 
 			var taken = 0
 
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case let .Next(value):
 					if taken < count {
@@ -244,9 +242,9 @@ public func take<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 					}
 
 				default:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -272,13 +270,13 @@ public func collect<T, E>(signal: Signal<T, E>) -> Signal<[T], E> {
 public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				scheduler.schedule {
-					observer.put(event)
+					observer(event)
 				}
 
 				return
-			})
+			}
 		}
 	}
 }
@@ -356,20 +354,20 @@ public func delay<T, E>(interval: NSTimeInterval, onScheduler scheduler: DateSch
 
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case .Error, .Interrupted:
 					scheduler.schedule {
-						observer.put(event)
+						observer(event)
 					}
 
 				default:
 					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 					scheduler.scheduleAfter(date) {
-						observer.put(event)
+						observer(event)
 					}
 				}
-			})
+			}
 		}
 	}
 }
@@ -387,7 +385,7 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 		return Signal { observer in
 			var skipped = 0
 
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case let .Next(value):
 					if skipped >= count {
@@ -397,9 +395,9 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 					}
 
 				default:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -414,7 +412,7 @@ public func skip<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 /// the resulting signal will send the Event itself and then interrupt.
 public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoError> {
 	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
+		return signal.observe { event in
 			sendNext(observer, event)
 
 			switch event {
@@ -427,7 +425,7 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 			case .Next:
 				break
 			}
-		})
+		}
 	}
 }
 
@@ -435,10 +433,10 @@ public func materialize<T, E>(signal: Signal<T, E>) -> Signal<Event<T, E>, NoErr
 /// _values_ into a signal of those events themselves.
 public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
 	return Signal { observer in
-		return signal.observe(Signal.Observer { event in
+		return signal.observe { event in
 			switch event {
 			case let .Next(innerEvent):
-				observer.put(innerEvent.value)
+				observer(innerEvent.value)
 
 			case .Error:
 				fatalError()
@@ -449,7 +447,7 @@ public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<
 			case .Interrupted:
 				sendInterrupted(observer)
 			}
-		})
+		}
 	}
 }
 
@@ -523,7 +521,7 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Sig
 	return { signal in
 		return Signal { observer in
 			let signalDisposable = signal.observe(observer)
-			let triggerDisposable = trigger.observe(Signal.Observer { event in
+			let triggerDisposable = trigger.observe { event in
 				switch event {
 				case .Next, .Completed:
 					sendCompleted(observer)
@@ -531,7 +529,7 @@ public func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Sig
 				case .Error, .Interrupted:
 					break
 				}
-			})
+			}
 
 			return CompositeDisposable(ignoreNil([ signalDisposable, triggerDisposable ]))
 		}
@@ -579,12 +577,12 @@ public func scan<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> S
 		return Signal { observer in
 			var accumulator = initial
 
-			return signal.observe(Signal.Observer { event in
-				observer.put(event.map { value in
+			return signal.observe { event in
+				observer(event.map { value in
 					accumulator = combine(accumulator, value)
 					return accumulator
 				})
-			})
+			}
 		}
 	}
 }
@@ -620,7 +618,7 @@ public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 		return Signal { observer in
 			var shouldSkip = true
 
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case let .Next(value):
 					shouldSkip = shouldSkip && predicate(value.value)
@@ -629,9 +627,9 @@ public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 					}
 
 				default:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -646,20 +644,20 @@ public func skipWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 public func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			let signalDisposable = signal.observe(Signal.Observer { event in
+			let signalDisposable = signal.observe { event in
 				switch event {
 				case .Completed:
 					break
 
 				case .Next, .Error, .Interrupted:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 
-			let replacementDisposable = replacement.observe(Signal.Observer { event in
+			let replacementDisposable = replacement.observe { event in
 				signalDisposable?.dispose()
-				observer.put(event)
-			})
+				observer(event)
+			}
 
 			return CompositeDisposable(ignoreNil([ signalDisposable, replacementDisposable ]))
 		}
@@ -702,7 +700,7 @@ public func takeLast<T, E>(count: Int) -> Signal<T, E> -> Signal<T, E> {
 public func takeWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E> {
 	return { signal in
 		return Signal { observer in
-			return signal.observe(Signal.Observer { event in
+			return signal.observe { event in
 				switch event {
 				case let .Next(value):
 					if predicate(value.value) {
@@ -712,9 +710,9 @@ public func takeWhile<T, E>(predicate: T -> Bool) -> Signal<T, E> -> Signal<T, E
 					}
 
 				default:
-					observer.put(event)
+					observer(event)
 				}
-			})
+			}
 		}
 	}
 }
@@ -859,7 +857,7 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 			let disposable = CompositeDisposable()
 			disposable.addDisposable(schedulerDisposable)
 
-			disposable += signal.observe(Signal.Observer { event in
+			disposable += signal.observe { event in
 				switch event {
 				case let .Next(value):
 					var scheduleDate: NSDate!
@@ -889,10 +887,10 @@ public func throttle<T, E>(interval: NSTimeInterval, onScheduler scheduler: Date
 
 				default:
 					schedulerDisposable.innerDisposable = scheduler.schedule {
-						observer.put(event)
+						observer(event)
 					}
 				}
-			})
+			}
 
 			return disposable
 		}
@@ -1109,7 +1107,7 @@ public func promoteErrors<T, E: ErrorType>(_: E.Type) -> Signal<T, NoError> -> S
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T, E, S: SinkType where S.Element == Event<T, E>>(sink: S) -> Signal<T, E> -> Disposable? {
+public func observe<T, E>(sink: Event<T, E>.Sink) -> Signal<T, E> -> Disposable? {
 	return { signal in
 		return signal.observe(sink)
 	}

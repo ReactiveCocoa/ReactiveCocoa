@@ -27,9 +27,9 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
-				expect((producer |> single)?.value).to(equal(0))
-				expect((producer |> single)?.value).to(equal(1))
-				expect((producer |> single)?.value).to(equal(2))
+				expect((producer.single())?.value).to(equal(0))
+				expect((producer.single())?.value).to(equal(1))
+				expect((producer.single())?.value).to(equal(2))
 			}
 
 			it("should forward errors")	{
@@ -37,7 +37,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				let racSignal = RACSignal.error(error)
 				let producer = racSignal.toSignalProducer()
-				let result = producer |> last
+				let result = producer.last()
 
 				expect(result?.error).to(equal(error))
 			}

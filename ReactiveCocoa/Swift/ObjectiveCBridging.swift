@@ -152,7 +152,7 @@ extension RACCommand {
 
 		enabledProperty <~ self.enabled.toSignalProducer()
 			.map { $0 as! Bool }
-			|> flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
+			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
 		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.`defer` {

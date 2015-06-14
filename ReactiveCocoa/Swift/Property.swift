@@ -149,7 +149,7 @@ extension MutableProperty: SinkType {
 		if let object = object {
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
-				|> flatMapError { error in
+				.flatMapError { error in
 					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}

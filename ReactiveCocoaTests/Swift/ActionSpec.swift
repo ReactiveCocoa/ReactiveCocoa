@@ -175,7 +175,7 @@ class ActionSpec: QuickSpec {
 
 				expect(values).to(equal([ true ]))
 
-				let result = action.apply(0) |> first
+				let result = action.apply(0).first()
 				expect(result?.value).to(equal(1))
 				expect(values).toEventually(equal([ true, false, true ]))
 			}
@@ -191,7 +191,7 @@ class ActionSpec: QuickSpec {
 
 				expect(values).to(equal([ false ]))
 
-				let result = action.apply(0) |> first
+				let result = action.apply(0).first()
 				expect(result?.value).to(equal(1))
 				expect(values).toEventually(equal([ false, true, false ]))
 			}

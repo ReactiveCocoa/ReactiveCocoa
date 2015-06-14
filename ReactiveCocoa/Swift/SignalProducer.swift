@@ -307,6 +307,9 @@ public protocol SignalProducerType {
 	/// than `NoError` can be used.
 	typealias E: ErrorType
 
+	/// Proxy for the real producer
+	var producer: SignalProducer<T, E> { get }
+
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
 	func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ())
@@ -319,6 +322,9 @@ public protocol SignalProducerType {
 }
 
 extension SignalProducer: SignalProducerType {
+	public var producer: SignalProducer {
+		return self
+	}
 }
 
 extension SignalProducerType {
@@ -813,15 +819,16 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 	return .empty
 }
 
-/// Catches any error that may occur on the input producer, mapping to a new producer
-/// that starts in its place.
-public func flatMapError<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, E> -> SignalProducer<T, F> {
-	return { producer in
+extension SignalProducerType {
+
+	/// Catches any error that may occur on the input producer, mapping to a new producer
+	/// that starts in its place.
+	public func flatMapError<F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, F> {
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			producer.startWithSignal { signal, signalDisposable in
+			self.producer.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
 				signal.observe(next: { value in
@@ -839,21 +846,17 @@ public func flatMapError<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalP
 			}
 		}
 	}
-}
 
-/// `concat`s `next` onto `producer`.
-public func concat<T, E>(next: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
+	/// `concat`s `next` onto `self`.
+	public func concat(next: SignalProducer<T, E>) -> SignalProducer<T, E> {
 		return SignalProducer(values: [producer, next]) |> flatten(.Concat)
 	}
-}
 
-/// Repeats `producer` a total of `count` times.
-/// Repeating `1` times results in a equivalent signal producer.
-public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	precondition(count >= 0)
+	/// Repeats `self` a total of `count` times. Repeating `1` times results in
+	/// an equivalent signal producer.
+	public func times(count: Int) -> SignalProducer<T, E> {
+		precondition(count >= 0)
 
-	return { producer in
 		if count == 0 {
 			return .empty
 		} else if count == 1 {
@@ -865,7 +868,7 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			disposable.addDisposable(serialDisposable)
 
 			func iterate(current: Int) {
-				producer.startWithSignal { signal, signalDisposable in
+				self.startWithSignal { signal, signalDisposable in
 					serialDisposable.innerDisposable = signalDisposable
 
 					signal.observe { event in
@@ -888,31 +891,27 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			iterate(count)
 		}
 	}
-}
 
-/// Ignores errors up to `count` times.
-public func retry<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	precondition(count >= 0)
+	/// Ignores errors up to `count` times.
+	public func retry(count: Int) -> SignalProducer<T, E> {
+		precondition(count >= 0)
 
-	return { producer in
 		if count == 0 {
 			return producer
 		} else {
-			return producer |> flatMapError { _ in
-				producer |> retry(count - 1)
+			return flatMapError { _ in
+				self.retry(count - 1)
 			}
 		}
 	}
-}
 
-/// Waits for completion of `producer`, *then* forwards all events from
-/// `replacement`. Any error sent from `producer` is forwarded immediately, in
-/// which case `replacement` will not be started, and none of its events will be
-/// be forwarded. All values sent from `producer` are ignored.
-public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<U, E> {
-	return { producer in
+	/// Waits for completion of `producer`, *then* forwards all events from
+	/// `replacement`. Any error sent from `producer` is forwarded immediately, in
+	/// which case `replacement` will not be started, and none of its events will be
+	/// be forwarded. All values sent from `producer` are ignored.
+	public func then<U>(replacement: SignalProducer<U, E>) -> SignalProducer<U, E> {
 		let relay = SignalProducer<U, E> { observer, observerDisposable in
-			producer.startWithSignal { signal, signalDisposable in
+			self.startWithSignal { signal, signalDisposable in
 				observerDisposable.addDisposable(signalDisposable)
 
 				signal.observe(error: { error in
@@ -925,54 +924,51 @@ public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T
 			}
 		}
 
-		return relay |> concat(replacement)
+		return relay.concat(replacement)
 	}
-}
 
-/// Starts the producer, then blocks, waiting for the first value.
-public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer.take(1) |> single
-}
+	/// Starts the producer, then blocks, waiting for the first value.
+	public func first() -> Result<T, E>? {
+		return take(1).single()
+	}
 
-/// Starts the producer, then blocks, waiting for events: Next and Completed.
-/// When a single value or error is sent, the returned `Result` will represent
-/// those cases. However, when no values are sent, or when more than one value
-/// is sent, `nil` will be returned.
-public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>?
+	/// Starts the producer, then blocks, waiting for events: Next and Completed.
+	/// When a single value or error is sent, the returned `Result` will represent
+	/// those cases. However, when no values are sent, or when more than one value
+	/// is sent, `nil` will be returned.
+	public func single() -> Result<T, E>? {
+		let semaphore = dispatch_semaphore_create(0)
+		var result: Result<T, E>?
 
-	producer
-		.take(2)
-		.start(next: { value in
-			if result != nil {
-				// Move into failure state after recieving another value.
-				result = nil
-				return
-			}
-			result = .success(value)
-		}, error: { error in
-			result = .failure(error)
-			dispatch_semaphore_signal(semaphore)
-		}, completed: {
-			dispatch_semaphore_signal(semaphore)
-		}, interrupted: {
-			dispatch_semaphore_signal(semaphore)
-		})
+		take(2).start(next: { value in
+				if result != nil {
+					// Move into failure state after recieving another value.
+					result = nil
+					return
+				}
+				result = .success(value)
+			}, error: { error in
+				result = .failure(error)
+				dispatch_semaphore_signal(semaphore)
+			}, completed: {
+				dispatch_semaphore_signal(semaphore)
+			}, interrupted: {
+				dispatch_semaphore_signal(semaphore)
+			})
 
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-	return result
-}
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+		return result
+	}
 
-/// Starts the producer, then blocks, waiting for the last value.
-public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer.takeLast(1) |> single
-}
+	/// Starts the producer, then blocks, waiting for the last value.
+	public func last() -> Result<T, E>? {
+		return takeLast(1).single()
+	}
 
-/// Starts the producer, then blocks, waiting for completion.
-public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
-	let result = producer |> then(SignalProducer(value: ())) |> last
-	return result ?? .success(())
+	/// Starts the producer, then blocks, waiting for completion.
+	public func wait() -> Result<(), E> {
+		return then(SignalProducer(value: ())).last() ?? .success(())
+	}
 }
 
 /// SignalProducer.startWithSignal() as a free function, for easier use with |>.

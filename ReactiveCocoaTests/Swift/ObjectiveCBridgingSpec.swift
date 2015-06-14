@@ -152,19 +152,19 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let producer = action.apply(0)
 				expect(results).to(equal([]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1 ]))
 
 				let otherProducer = action.apply(2)
 				expect(results).to(equal([ 1, 1 ]))
 
-				otherProducer |> start()
+				otherProducer.start()
 				expect(results).toEventually(equal([ 1, 1, 3 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}

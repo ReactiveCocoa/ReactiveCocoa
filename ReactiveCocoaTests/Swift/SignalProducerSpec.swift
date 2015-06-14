@@ -413,7 +413,7 @@ class SignalProducerSpec: QuickSpec {
 				var interrupted = false
 
 				SignalProducer<Int, NoError>(value: 42)
-					|> startWithSignal { signal, disposable in
+					.startWithSignal { signal, disposable in
 						expect(interrupted).to(beFalsy())
 
 						signal.observe(interrupted: {
@@ -1080,9 +1080,8 @@ class SignalProducerSpec: QuickSpec {
 						interrupted = false
 						completed = false
 
-						outerProducer
-							|> flatten(strategy)
-							|> start(interrupted: { _ in
+						let producer = outerProducer |> flatten(strategy)
+						producer.start(interrupted: { _ in
 								interrupted = true
 							}, completed: { _ in
 								completed = true

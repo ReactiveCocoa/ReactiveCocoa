@@ -971,27 +971,6 @@ extension SignalProducerType {
 	}
 }
 
-/// SignalProducer.startWithSignal() as a free function, for easier use with |>.
-public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ()) -> SignalProducer<T, E> -> () {
-	return { producer in
-		return producer.startWithSignal(setUp)
-	}
-}
-
-/// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(sink: Event<T, E>.Sink) -> SignalProducer<T, E> -> Disposable {
-	return { producer in
-		return producer.start(sink)
-	}
-}
-
-/// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> Disposable {
-	return { producer in
-		return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
-	}
-}
-
 /// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {
 	/// The producers should be merged, so that any value received on any of the

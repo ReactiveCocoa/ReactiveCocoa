@@ -318,12 +318,12 @@ class SignalProducerSpec: QuickSpec {
 				var value: Int?
 
 				SignalProducer<Int, NoError>(value: 42)
-					|> on(started: {
+					.on(started: {
 						started = true
 					}, next: {
 						value = $0
 					})
-					|> startWithSignal { _ in
+					.startWithSignal { _ in
 						expect(started).to(beFalsy())
 						expect(value).to(beNil())
 					}
@@ -396,12 +396,12 @@ class SignalProducerSpec: QuickSpec {
 				var value: Int?
 
 				SignalProducer<Int, NoError>(value: 42)
-					|> on(started: {
+					.on(started: {
 						started = true
 					}, next: {
 						value = $0
 					})
-					|> startWithSignal { _, disposable in
+					.startWithSignal { _, disposable in
 						expect(started).to(beFalsy())
 						expect(value).to(beNil())
 
@@ -686,7 +686,7 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					|> on(started: { () -> () in
+					.on(started: { () -> () in
 						started += 1
 					}, event: { (e: Event<Int, TestError>) -> () in
 						event += 1

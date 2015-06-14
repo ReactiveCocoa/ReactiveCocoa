@@ -307,6 +307,10 @@ public protocol SignalProducerType {
 	/// than `NoError` can be used.
 	typealias E: ErrorType
 
+	/// Creates a Signal from the producer, passes it into the given closure,
+	/// then starts sending events on the Signal when the closure has returned.
+	func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ())
+
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
 	func lift<U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F>
 
@@ -584,14 +588,14 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	}
 }
 
-/// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
+extension SignalProducerType {
+	/// Injects side effects to be performed upon the specified signal events.
+	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			disposed.map(compositeDisposable.addDisposable)
 
-			producer.startWithSignal { signal, disposable in
+			self.startWithSignal { signal, disposable in
 				compositeDisposable.addDisposable(disposable)
 
 				signal.observe { receivedEvent in

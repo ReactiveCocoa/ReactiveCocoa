@@ -66,8 +66,8 @@ public final class Action<Input, Output, Error: ErrorType> {
 		errors = events.filterMap { $0.error }
 
 		_enabled <~ enabledIf.producer
-			|> combineLatestWith(executing.producer)
-			|> map(Action.shouldBeEnabled)
+			.combineLatestWith(executing.producer)
+			.map(Action.shouldBeEnabled)
 	}
 
 	/// Initializes an action that will be enabled by default, and create a

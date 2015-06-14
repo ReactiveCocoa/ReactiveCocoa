@@ -1212,7 +1212,6 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: S
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`. No events will be sent if the sequence is empty.
-// TODO
 public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T, Error>>(signals: S) -> Signal<[T], Error> {
 	var generator = signals.generate()
 	if let first = generator.next() {

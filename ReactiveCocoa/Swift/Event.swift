@@ -27,7 +27,7 @@ public enum Event<T, E: ErrorType> {
 	/// will be received.
 	case Interrupted
 	
-	public typealias Sink = Event<T,E> -> ()
+	public typealias Sink = Event<T, E> -> ()
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).

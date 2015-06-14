@@ -300,6 +300,30 @@ public struct SignalProducer<T, E: ErrorType> {
 	}
 }
 
+public protocol SignalProducerType {
+	/// The type of values being sent on the producer
+	typealias T
+	/// The type of error that can occur on the producer. If errors aren't possible
+	/// than `NoError` can be used.
+	typealias E: ErrorType
+
+	/// Proxy for the actual producer
+	var producer: SignalProducer<T, E> { get }
+}
+
+extension SignalProducer: SignalProducerType {
+	public var producer: SignalProducer {
+		return self
+	}
+}
+
+extension SignalProducerType {
+	/// Maps each value in the producer to a new value.
+	public func map<U>(transform: T -> U) -> SignalProducer<U, E> {
+		return producer.lift(ReactiveCocoa.map(transform))
+	}
+}
+
 /// Applies a Signal operator to a SignalProducer (equivalent to
 /// SignalProducer.lift).
 ///

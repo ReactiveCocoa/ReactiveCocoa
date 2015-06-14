@@ -165,7 +165,7 @@ public protocol SignalType {
 }
 
 extension Signal: SignalType {
-	public var signal: Signal<T, E> {
+	public var signal: Signal {
 		return self
 	}
 }

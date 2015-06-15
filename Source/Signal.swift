@@ -51,6 +51,10 @@ public func ignoreError<T, E>(#replacement: Event<T, NoError>)(signal: Signal<T,
     }
 }
 
+/// Lifts values from `signal` into an optional.
+public func optionalize<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
+    return signal |> map { Optional($0) }
+}
 
 /// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
 /// terminates with `event` on `scheduler`.

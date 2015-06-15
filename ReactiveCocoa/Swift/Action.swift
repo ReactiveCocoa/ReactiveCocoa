@@ -44,6 +44,13 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Whether the instantiator of this action wants it to be enabled.
 	private let userEnabled: PropertyOf<Bool>
 
+	/// Lazy creation and storage of a UI bindable CocoaAction. The default
+	/// version force casts the AnyObject? input from CocoaAction to match
+	/// `Input` but this property can be overriden for alternative behavior.
+	public lazy var cocoaAction: CocoaAction = { _ in
+		CocoaAction(self) { $0 as! Input }
+	}()
+
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
 	private let executingQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Action.executingQueue", DISPATCH_QUEUE_SERIAL)

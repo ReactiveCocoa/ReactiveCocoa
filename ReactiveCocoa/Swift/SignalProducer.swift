@@ -510,7 +510,6 @@ extension SignalProducerType {
 	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
 		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
 	}
-
 }
 
 extension SignalProducerType where E == NoError {
@@ -1271,4 +1270,27 @@ private struct LatestState<T, E: ErrorType> {
 	var innerSignalComplete: Bool = true
 
 	var replacingInnerSignal: Bool = false
+}
+
+// These free functions are to workaround compiler crashes when attempting
+// to lift binary signal operators directly with closures.
+
+private func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { $0.combineLatestWith(otherSignal) }
+}
+
+private func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { $0.zipWith(otherSignal) }
+}
+
+private func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.sampleOn(sampler) }
+}
+
+private func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.takeUntil(trigger) }
+}
+
+private func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.takeUntilReplacement(replacement) }
 }

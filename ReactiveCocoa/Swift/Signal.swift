@@ -327,17 +327,13 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: Com
 	}, interrupted: onInterrupted)
 }
 
-/// Combines the latest value of the receiver with the latest value from
-/// the given signal.
-///
-/// The returned signal will not send a value until both inputs have sent
-/// at least one value each. If either signal is interrupted, the returned signal
-/// will also be interrupted.
-public func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
-	return { $0.combineLatestWith(otherSignal) }
-}
-
 extension SignalType {
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given signal.
+	///
+	/// The returned signal will not send a value until both inputs have sent
+	/// at least one value each. If either signal is interrupted, the returned signal
+	/// will also be interrupted.
 	public func combineLatestWith<U>(otherSignal: Signal<U, E>) -> Signal<(T, U), E> {
 		return Signal { observer in
 			let lock = NSLock()
@@ -496,20 +492,16 @@ private struct SampleState<T> {
 	var samplerCompleted: Bool = false
 }
 
-/// Forwards the latest value from `signal` whenever `sampler` sends a Next
-/// event.
-///
-/// If `sampler` fires before a value has been observed on `signal`, nothing
-/// happens.
-///
-/// Returns a signal that will send values from `signal`, sampled (possibly
-/// multiple times) by `sampler`, then complete once both input signals have
-/// completed, or interrupt if either input signal is interrupted.
-public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.sampleOn(sampler) }
-}
-
 extension SignalType {
+	/// Forwards the latest value from `signal` whenever `sampler` sends a Next
+	/// event.
+	///
+	/// If `sampler` fires before a value has been observed on `signal`, nothing
+	/// happens.
+	///
+	/// Returns a signal that will send values from `signal`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input signals have
+	/// completed, or interrupt if either input signal is interrupted.
 	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<T, E> {
 		return Signal { observer in
 			let state = Atomic(SampleState<T>())
@@ -559,13 +551,9 @@ extension SignalType {
 	}
 }
 
-/// Forwards events from `signal` until `trigger` sends a Next or Completed
-/// event, at which point the returned signal will complete.
-public func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeUntil(trigger) }
-}
-
 extension SignalType {
+	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// event, at which point the returned signal will complete.
 	public func takeUntil(trigger: Signal<(), NoError>) -> Signal<T, E> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
@@ -680,18 +668,14 @@ extension SignalType {
 	}
 }
 
-/// Forwards events from `signal` until `replacement` begins sending events.
-///
-/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
-/// events from `signal` until `replacement` sends an event, at which point the
-/// returned signal will send that event and switch to passing through events
-/// from `replacement` instead, regardless of whether `signal` has sent events
-/// already.
-public func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeUntilReplacement(replacement) }
-}
-
 extension SignalType {
+	/// Forwards events from `self` until `replacement` begins sending events.
+	///
+	/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
+	/// events from `signal` until `replacement` sends an event, at which point the
+	/// returned signal will send that event and switch to passing through events
+	/// from `replacement` instead, regardless of whether `self` has sent events
+	/// already.
 	public func takeUntilReplacement(replacement: Signal<T, E>) -> Signal<T, E> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
@@ -777,13 +761,9 @@ private struct ZipState<T> {
 	}
 }
 
-/// Zips elements of two signals into pairs. The elements of any Nth pair
-/// are the Nth elements of the two input signals.
-public func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
-	return { $0.zipWith(otherSignal) }
-}
-
 extension SignalType {
+	/// Zips elements of two signals into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input signals.
 	public func zipWith<U>(otherSignal: Signal<U, E>) -> Signal<(T, U), E> {
 		return Signal { observer in
 			let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())

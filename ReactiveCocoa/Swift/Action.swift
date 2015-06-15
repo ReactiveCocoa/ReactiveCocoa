@@ -44,9 +44,12 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Whether the instantiator of this action wants it to be enabled.
 	private let userEnabled: PropertyOf<Bool>
 
-	/// Lazy creation and storage of a UI bindable CocoaAction. The default
-	/// version force casts the AnyObject? input from CocoaAction to match
-	/// `Input` but this property can be overriden for alternative behavior.
+	/// Lazy creation and storage of a UI bindable CocoaAction.
+	///
+	/// The default version force casts the AnyObject? input from CocoaAction to
+	/// match `Input` but this property can be overriden for alternative behavior.
+	/// In cases where the input type is ignored use `Any` instead of `Void` or
+	/// `()` because the bound control sends self as input.
 	public lazy var cocoaAction: CocoaAction = { _ in
 		CocoaAction(self) { $0 as! Input }
 	}()

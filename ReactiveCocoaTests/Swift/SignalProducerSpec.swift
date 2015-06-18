@@ -396,7 +396,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = SignalProducer<Int, NoError>.never
 				producer.startWithSignal { signal, innerDisposable in
-					var object = NSObject()
+					let object = NSObject()
 					objectRetainedByObserver = object
 					signal.observe { _ in object }
 					disposable = innerDisposable

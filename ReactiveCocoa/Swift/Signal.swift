@@ -146,10 +146,10 @@ public protocol SignalType {
 	/// The type of values being sent on the signal.
 	typealias T
 	/// The type of error that can occur on the signal. If errors aren't possible
-	/// than `NoError` can be used.
+	/// then `NoError` can be used.
 	typealias E: ErrorType
 
-	/// Proxy for the actual signal.
+	/// Extracts a signal from the receiver.
 	var signal: Signal<T, E> { get }
 
 	/// Observes the Signal by sending any future events to the given sink.

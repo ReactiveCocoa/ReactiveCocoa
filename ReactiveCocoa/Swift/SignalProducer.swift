@@ -241,10 +241,10 @@ public protocol SignalProducerType {
 	/// The type of values being sent on the producer
 	typealias T
 	/// The type of error that can occur on the producer. If errors aren't possible
-	/// than `NoError` can be used.
+	/// then `NoError` can be used.
 	typealias E: ErrorType
 
-	/// Proxy for the real producer
+	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<T, E> { get }
 
 	/// Creates a Signal from the producer, passes it into the given closure,

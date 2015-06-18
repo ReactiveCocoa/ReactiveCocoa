@@ -391,6 +391,27 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("trailing closure") {
+			it("receives next values") {
+				var values = [Int]()
+				let (signal, sink) = Signal<Int, NoError>.pipe()
+
+				signal.observe { next in
+					values.append(next)
+				}
+
+				sendNext(sink, 1)
+				expect(values).to(equal([1]))
+
+				signal |> observe { next in
+					values.append(next)
+				}
+
+				sendNext(sink, 2)
+				expect(values).to(equal([1, 2, 2]))
+			}
+		}
+
 		describe("map") {
 			it("should transform the values of the signal") {
 				let (signal, sink) = Signal<Int, NoError>.pipe()

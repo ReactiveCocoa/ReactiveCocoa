@@ -39,6 +39,7 @@
 		D86FFBD11B34AD6F001A89B3 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
 		D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
 		D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD41B34B0FE001A89B3 /* UIControl.swift */; };
+		D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD71B34B242001A89B3 /* UILabel.swift */; };
 		D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
 		D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
@@ -118,6 +119,7 @@
 		D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RexTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D86FFBD01B34AD6F001A89B3 /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
 		D86FFBD41B34B0FE001A89B3 /* UIControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
+		D86FFBD71B34B242001A89B3 /* UILabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		D8F0973A1B17F2F7002E15BA /* NSData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSData.swift; sourceTree = "<group>"; };
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
+				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -483,6 +486,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */,
 				D8F0974E1B190ECE002E15BA /* Property.swift in Sources */,
 				D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,

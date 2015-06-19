@@ -14,7 +14,7 @@ extension UIButton {
     /// a target of the button for `TouchUpInside` events. When property changes occur the
     /// previous action is removed as a target. This also binds the enabled state of the
     /// action to the `rex_enabled` property on the button.
-    public var rac_pressed: MutableProperty<CocoaAction> {
+    public var rex_pressed: MutableProperty<CocoaAction> {
         return associatedObject(self, &pressed, { _ in
             let initial = CocoaAction.rex_disabled
             let property = MutableProperty(initial)

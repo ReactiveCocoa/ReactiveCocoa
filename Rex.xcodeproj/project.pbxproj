@@ -40,6 +40,9 @@
 		D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
 		D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD41B34B0FE001A89B3 /* UIControl.swift */; };
 		D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD71B34B242001A89B3 /* UILabel.swift */; };
+		D86FFBDA1B34B3F0001A89B3 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD91B34B3F0001A89B3 /* Action.swift */; };
+		D86FFBDB1B34B3F0001A89B3 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD91B34B3F0001A89B3 /* Action.swift */; };
+		D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBDC1B34B691001A89B3 /* UIButton.swift */; };
 		D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
 		D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
@@ -120,6 +123,8 @@
 		D86FFBD01B34AD6F001A89B3 /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
 		D86FFBD41B34B0FE001A89B3 /* UIControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
 		D86FFBD71B34B242001A89B3 /* UILabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
+		D86FFBD91B34B3F0001A89B3 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		D86FFBDC1B34B691001A89B3 /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		D8F0973A1B17F2F7002E15BA /* NSData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSData.swift; sourceTree = "<group>"; };
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
@@ -184,6 +189,7 @@
 		D8003E901AFEC3D400D7D3C5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				D86FFBD91B34B3F0001A89B3 /* Action.swift */,
 				7DE995CA1B03A56800CA9420 /* Operators.swift */,
 				D8F0974C1B190ECE002E15BA /* Property.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
@@ -261,6 +267,7 @@
 		D86FFBD31B34B0E2001A89B3 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				D86FFBDC1B34B691001A89B3 /* UIButton.swift */,
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 			);
@@ -461,6 +468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8F0974D1B190ECE002E15BA /* Property.swift in Sources */,
+				D86FFBDA1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D86FFBD11B34AD6F001A89B3 /* Association.swift in Sources */,
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
 				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
@@ -487,6 +495,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */,
+				D86FFBDB1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D8F0974E1B190ECE002E15BA /* Property.swift in Sources */,
 				D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
@@ -496,6 +505,7 @@
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
+				D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,10 +12,8 @@ import UIKit
 extension UIControl {
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return associatedProperty(self, &Keys.enabled, { self.enabled }, { self.enabled = $0 })
+        return associatedProperty(self, &enabled, { self.enabled }, { self.enabled = $0 })
     }
 }
 
-private struct Keys {
-    static var enabled: UInt8 = 0
-}
+private var enabled: UInt8 = 0

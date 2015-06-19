@@ -38,6 +38,7 @@
 		D83457411AFEE6050070616A /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
 		D86FFBD11B34AD6F001A89B3 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
 		D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
+		D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD41B34B0FE001A89B3 /* UIControl.swift */; };
 		D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
 		D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
@@ -116,6 +117,7 @@
 		D86E77AB1AFEE646004BF23D /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RexTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D86FFBD01B34AD6F001A89B3 /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
+		D86FFBD41B34B0FE001A89B3 /* UIControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
 		D8F0973A1B17F2F7002E15BA /* NSData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSData.swift; sourceTree = "<group>"; };
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				D8F097391B17F2BF002E15BA /* Foundation */,
+				D86FFBD31B34B0E2001A89B3 /* UIKit */,
 				D8003E911AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Source;
@@ -251,6 +254,14 @@
 				D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */,
 			);
 			path = iOS;
+			sourceTree = "<group>";
+		};
+		D86FFBD31B34B0E2001A89B3 /* UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
+			);
+			path = UIKit;
 			sourceTree = "<group>";
 		};
 		D8F097391B17F2BF002E15BA /* Foundation */ = {
@@ -479,6 +490,7 @@
 				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
+				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

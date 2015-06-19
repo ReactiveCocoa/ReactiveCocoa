@@ -6,6 +6,9 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveCocoa
+import UIKit
+
 extension UILabel {
     /// Wraps a label's `enabled` state in a bindable property.
     public var rex_text: MutableProperty<String> {

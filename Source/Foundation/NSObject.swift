@@ -51,8 +51,8 @@ extension NSObject {
     ///
     /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
     /// bindings on Cocoa objects.
-    public func rex_valueProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
-        return associatedObject(host, key) {
+    public func rex_valueProperty<T>(key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
+        return associatedObject(self, key) {
             let property = MutableProperty(initial())
             property.producer.start(next: setter)
             return property

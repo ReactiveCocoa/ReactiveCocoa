@@ -24,7 +24,7 @@ extension UIButton {
                 |> start { previous, next in
                     self.removeTarget(previous, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
                     self.addTarget(next, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
-            }
+                }
 
             self.rex_enabled <~ property.producer |> flatMap(.Latest) { $0.rex_enabledProducer }
             return property
@@ -34,11 +34,7 @@ extension UIButton {
     /// Wraps a button's `title` text in a bindable property. Note that this only applies
     /// to `UIControlState.Normal`.
     public var rex_title: MutableProperty<String> {
-        return associatedProperty(self, &title, {
-            self.titleForState(.Normal)
-        }, {
-            self.setTitle($0, forState: .Normal)
-        })
+        return associatedProperty(self, &title, { self.titleForState(.Normal) }, { self.setTitle($0, forState: .Normal) })
     }
 }
 

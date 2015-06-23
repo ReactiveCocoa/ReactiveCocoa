@@ -29,3 +29,23 @@
 }
 
 @end
+
+@interface RACSubscriptingAssignmentTrampoline (SAKSubscriptingAssignmentTrampolineForCell)
+
+// The object to bind to.
+@property (nonatomic, strong, readonly) id target;
+
+// A value to use when `nil` is sent on the bound signal.
+@property (nonatomic, strong, readonly) id nilValue;
+
+@end
+
+@implementation SAKSubscriptingAssignmentTrampolineForCell
+
+- (void)setObject:(RACSignal *)signal forKeyedSubscript:(NSString *)keyPath {
+	NSCAssert1([self.target isKindOfClass:[UITableViewCell class]], @"%@ should be kind of UITableViewCell", self.target);
+	
+	[super setObject:[signal takeUntil:[(UITableViewCell *)self.target rac_prepareForReuseSignal]] forKeyedSubscript:keyPath];
+}
+
+@end

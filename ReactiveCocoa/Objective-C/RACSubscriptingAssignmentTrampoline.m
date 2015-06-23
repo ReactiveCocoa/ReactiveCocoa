@@ -40,3 +40,11 @@
 }
 
 @end
+
+@implementation SAKSubscriptingAssignmentTrampolineOnMainThread
+
+- (void)setObject:(RACSignal *)signal forKeyedSubscript:(NSString *)keyPath {
+	[super setObject:[signal deliverOnMainThread] forKeyedSubscript:keyPath];
+}
+
+@end

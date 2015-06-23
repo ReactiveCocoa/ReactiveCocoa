@@ -42,13 +42,28 @@
         (RAC_(TARGET, __VA_ARGS__, nil)) \
         (RAC_(TARGET, __VA_ARGS__))
 
-/// Do not use this directly. Use the RAC macro above.
+/// Same as RAC marco but only deliver on main thread. It's very useful for UI.
+#define RACOnMainThread(TARGET, ...) \
+	metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+		(RACOnMainThread_(TARGET, __VA_ARGS__, nil)) \
+		(RACOnMainThread_(TARGET, __VA_ARGS__))
+
+/// Do not use these directly. Use the RAC or RACOnMainThread macro above.
 #define RAC_(TARGET, KEYPATH, NILVALUE) \
     [[RACSubscriptingAssignmentTrampoline alloc] initWithTarget:(TARGET) nilValue:(NILVALUE)][@keypath(TARGET, KEYPATH)]
+
+#define RACOnMainThread_(TARGET, KEYPATH, NILVALUE) \
+	[[SAKSubscriptingAssignmentTrampolineOnMainThread alloc] initWithTarget:(TARGET) nilValue:(NILVALUE)][@keypath(TARGET, KEYPATH)]
+
+
 
 @interface RACSubscriptingAssignmentTrampoline : NSObject
 
 - (id)initWithTarget:(id)target nilValue:(id)nilValue;
 - (void)setObject:(RACSignal *)signal forKeyedSubscript:(NSString *)keyPath;
+
+@end
+
+@interface SAKSubscriptingAssignmentTrampolineOnMainThread : RACSubscriptingAssignmentTrampoline
 
 @end

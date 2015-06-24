@@ -84,7 +84,7 @@ public final class Signal<T, E: ErrorType> {
 
 	/// A Signal that never sends any events to its observers.
 	public class var never: Signal {
-		return self { _ in nil }
+		return self.init { _ in nil }
 	}
 
 	/// Creates a Signal that will be controlled by sending events to the given
@@ -94,7 +94,7 @@ public final class Signal<T, E: ErrorType> {
 	/// observer.
 	public class func pipe() -> (Signal, Observer) {
 		var sink: Observer!
-		let signal = self { innerSink in
+		let signal = self.init { innerSink in
 			sink = innerSink
 			return nil
 		}

@@ -79,14 +79,14 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// A producer for a Signal that will immediately complete without sending
 	/// any values.
 	public static var empty: SignalProducer {
-		return self { observer, disposable in
+		return self.init { observer, disposable in
 			sendCompleted(observer)
 		}
 	}
 
 	/// A producer for a Signal that never sends any events to its observers.
 	public static var never: SignalProducer {
-		return self { _ in () }
+		return self.init { _ in () }
 	}
 
 	/// Creates a queue for events that replays them when new signals are
@@ -116,7 +116,7 @@ public struct SignalProducer<T, E: ErrorType> {
 		var terminationEvent: Event<T,E>?
 		let observers: Atomic<Bag<Signal<T, E>.Observer>?> = Atomic(Bag())
 
-		let producer = self { observer, disposable in
+		let producer = self.init { observer, disposable in
 			lock.lock()
 
 			var token: RemovalToken?
@@ -188,7 +188,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// complete. Upon failure, the started signal will send the error that
 	/// occurred.
 	public static func attempt(operation: () -> Result<T, E>) -> SignalProducer {
-		return self { observer, disposable in
+		return self.init { observer, disposable in
 			operation().analysis(ifSuccess: { value in
 				sendNext(observer, value)
 				sendCompleted(observer)

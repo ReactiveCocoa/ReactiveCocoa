@@ -98,6 +98,30 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 		}
 
+		describe("ignoreNil") {
+			it("should forward only non-nil values") {
+				let (producer, sink) = SignalProducer<Int?, NoError>.buffer()
+				let mappedProducer = producer.ignoreNil()
+
+				var lastValue: Int?
+
+				mappedProducer.start(next: { lastValue = $0 })
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, nil)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, nil)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+			}
+		}
+
 		describe("scan") {
 			it("should incrementally accumulate a value") {
 				let (baseProducer, sink) = SignalProducer<String, NoError>.buffer()
@@ -917,49 +941,49 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 		}
 
-//		describe("dematerialize") {
-//			typealias IntEvent = Event<Int, TestError>
-//			var sink: Signal<IntEvent, NoError>.Observer!
-//			var dematerialized: Signal<Int, TestError>!
-//			
-//			beforeEach {
-//				let (producer, observer) = SignalProducer<IntEvent, NoError>.buffer()
-//				sink = observer
-//				dematerialized = dematerialize(signal)
-//			}
-//			
-//			it("should send values for Next events") {
-//				var result: [Int] = []
-//				dematerialized.start(next: { result.append($0) })
-//				
-//				expect(result).to(beEmpty())
-//				
-//				sendNext(sink, .Next(2))
-//				expect(result).to(equal([ 2 ]))
-//				
-//				sendNext(sink, .Next(4))
-//				expect(result).to(equal([ 2, 4 ]))
-//			}
-//
-//			it("should error out for Error events") {
-//				var errored = false
-//				dematerialized.start(error: { _ in errored = true })
-//				
-//				expect(errored).to(beFalsy())
-//				
-//				sendNext(sink, .Error(TestError.Default))
-//				expect(errored).to(beTruthy())
-//			}
-//
-//			it("should complete early for Completed events") {
-//				var completed = false
-//				dematerialized.start(completed: { completed = true })
-//				
-//				expect(completed).to(beFalsy())
-//				sendNext(sink, IntEvent.Completed)
-//				expect(completed).to(beTruthy())
-//			}
-//		}
+		describe("dematerialize") {
+			typealias IntEvent = Event<Int, TestError>
+			var sink: Signal<IntEvent, NoError>.Observer!
+			var dematerialized: SignalProducer<Int, TestError>!
+			
+			beforeEach {
+				let (producer, observer) = SignalProducer<IntEvent, NoError>.buffer()
+				sink = observer
+				dematerialized = producer.dematerialize()
+			}
+			
+			it("should send values for Next events") {
+				var result: [Int] = []
+				dematerialized.start(next: { result.append($0) })
+				
+				expect(result).to(beEmpty())
+				
+				sendNext(sink, .Next(2))
+				expect(result).to(equal([ 2 ]))
+				
+				sendNext(sink, .Next(4))
+				expect(result).to(equal([ 2, 4 ]))
+			}
+
+			it("should error out for Error events") {
+				var errored = false
+				dematerialized.start(error: { _ in errored = true })
+				
+				expect(errored).to(beFalsy())
+				
+				sendNext(sink, .Error(TestError.Default))
+				expect(errored).to(beTruthy())
+			}
+
+			it("should complete early for Completed events") {
+				var completed = false
+				dematerialized.start(completed: { completed = true })
+				
+				expect(completed).to(beFalsy())
+				sendNext(sink, IntEvent.Completed)
+				expect(completed).to(beTruthy())
+			}
+		}
 
 		describe("takeLast") {
 			var sink: Signal<Int, TestError>.Observer!

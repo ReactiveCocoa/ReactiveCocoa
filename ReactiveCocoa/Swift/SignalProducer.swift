@@ -540,6 +540,24 @@ extension SignalProducer {
 	}
 }
 
+extension SignalProducer where T: OptionalType {
+	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+	/// values are dropped.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func ignoreNil() -> SignalProducer<T.T, E> {
+		return lift { $0.ignoreNil() }
+	}
+}
+
+extension SignalProducer where T: EventType, E: NoErrorType {
+	/// The inverse of materialize(), this will translate a signal of `Event`
+	/// _values_ into a signal of those events themselves.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func dematerialize() -> SignalProducer<T.T, T.E> {
+		return lift { $0.dematerialize() }
+	}
+}
+
 extension SignalProducer where E: NoErrorType {
 	/// Promotes a producer that does not generate errors into one that can.
 	///

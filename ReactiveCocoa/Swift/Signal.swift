@@ -203,7 +203,7 @@ extension Signal {
 
 	/// Preserves only the values of the signal that pass the given predicate.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func filter(predicate: T -> Bool) -> Signal<T, E> {
+	public func filter(predicate: T -> Bool) -> Signal {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
@@ -240,7 +240,7 @@ extension Signal {
 
 	/// Returns a signal that will yield the first `count` values from `self`
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func take(count: Int) -> Signal<T, E> {
+	public func take(count: Int) -> Signal {
 		precondition(count >= 0)
 
 		return Signal { observer in
@@ -293,7 +293,7 @@ extension Signal {
 
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func observeOn(scheduler: SchedulerType) -> Signal<T, E> {
+	public func observeOn(scheduler: SchedulerType) -> Signal {
 		return Signal { observer in
 			return self.observe { event in
 				scheduler.schedule {
@@ -372,7 +372,7 @@ extension Signal {
 	///
 	/// `Error` and `Interrupted` events are always scheduled immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal {
 		precondition(interval >= 0)
 
 		return Signal { observer in
@@ -396,7 +396,7 @@ extension Signal {
 	/// Returns a signal that will skip the first `count` values, then forward
 	/// everything afterward.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skip(count: Int) -> Signal<T, E> {
+	public func skip(count: Int) -> Signal {
 		precondition(count >= 0)
 
 		if (count == 0) {
@@ -494,7 +494,7 @@ extension Signal {
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<T, E> {
+	public func sampleOn(sampler: Signal<(), NoError>) -> Signal {
 		return Signal { observer in
 			let state = Atomic(SampleState<T>())
 			let disposable = CompositeDisposable()
@@ -547,7 +547,7 @@ extension Signal {
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeUntil(trigger: Signal<(), NoError>) -> Signal<T, E> {
+	public func takeUntil(trigger: Signal<(), NoError>) -> Signal {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			disposable += self.observe(observer)
@@ -630,7 +630,7 @@ extension Signal where T: Equatable {
 	/// Forwards only those values from `self` which are not duplicates of the
 	/// immedately preceding value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipRepeats() -> Signal<T, E> {
+	public func skipRepeats() -> Signal {
 		return skipRepeats { $0 == $1 }
 	}
 }
@@ -639,7 +639,7 @@ extension Signal {
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipRepeats(isRepeat: (T, T) -> Bool) -> Signal<T, E> {
+	public func skipRepeats(isRepeat: (T, T) -> Bool) -> Signal {
 		return signal
 			.map { Optional($0) }
 			.combinePrevious(nil)
@@ -656,7 +656,7 @@ extension Signal {
 	/// Does not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `signal`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipWhile(predicate: T -> Bool) -> Signal<T, E> {
+	public func skipWhile(predicate: T -> Bool) -> Signal {
 		return Signal { observer in
 			var shouldSkip = true
 
@@ -685,7 +685,7 @@ extension Signal {
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeUntilReplacement(replacement: Signal<T, E>) -> Signal<T, E> {
+	public func takeUntilReplacement(replacement: Signal) -> Signal {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
@@ -714,7 +714,7 @@ extension Signal {
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned signal.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeLast(count: Int) -> Signal<T, E> {
+	public func takeLast(count: Int) -> Signal {
 		return Signal { observer in
 			var buffer = [T]()
 			buffer.reserveCapacity(count)
@@ -744,7 +744,7 @@ extension Signal {
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned signal will complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeWhile(predicate: T -> Bool) -> Signal<T, E> {
+	public func takeWhile(predicate: T -> Bool) -> Signal {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
@@ -850,7 +850,7 @@ extension Signal {
 	/// Applies `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned signal and `Failure`s sent as `Error` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func attempt(operation: T -> Result<(), E>) -> Signal<T, E> {
+	public func attempt(operation: T -> Result<(), E>) -> Signal {
 		return attemptMap { value in
 			return operation(value).map {
 				return value
@@ -888,7 +888,7 @@ extension Signal {
 	/// If the input signal terminates while a value is being throttled, that value
 	/// will be discarded and the returned signal will terminate immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal {
 		precondition(interval >= 0)
 
 		return Signal { observer in
@@ -1138,7 +1138,7 @@ extension Signal {
 	/// If the interval is 0, the timeout will be scheduled immediately. The signal
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<T, E> {
+	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal {
 		precondition(interval >= 0)
 
 		return Signal { observer in

@@ -273,6 +273,26 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
+		describe("trailing closure") {
+			it("receives next values") {
+				var values = [Int]()
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer(1)
+				sendNext(sink, 1)
+
+				producer.start { next in
+					values.append(next)
+				}
+
+				expect(values).to(equal([1]))
+
+				producer |> start { next in
+					values.append(next)
+				}
+
+				expect(values).to(equal([1, 1]))
+			}
+		}
+
 		describe("SignalProducer.attempt") {
 			it("should run the operation once per start()") {
 				var operationRunTimes = 0

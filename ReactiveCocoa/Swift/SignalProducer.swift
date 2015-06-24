@@ -258,7 +258,7 @@ extension SignalProducer: SignalProducerType {
 	}
 }
 
-extension SignalProducerType {
+extension SignalProducer {
 	/// Creates a Signal from the producer, then attaches the given sink to the
 	/// Signal as an observer.
 	///
@@ -540,7 +540,7 @@ extension SignalProducerType {
 	}
 }
 
-extension SignalProducerType where E == NoError {
+extension SignalProducer where E: NoErrorType {
 	/// Promotes a producer that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given producer,
@@ -552,7 +552,7 @@ extension SignalProducerType where E == NoError {
 	}
 }
 
-extension SignalProducerType where T: Equatable {
+extension SignalProducer where T: Equatable {
 	/// Forwards only those values from `self` which are not duplicates of the
 	/// immedately preceding value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -605,7 +605,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	}
 }
 
-extension SignalProducerType {
+extension SignalProducer {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
@@ -852,13 +852,12 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 	return .empty
 }
 
-extension SignalProducerType {
-
+extension SignalProducer {
 	/// Catches any error that may occur on the input producer, mapping to a new producer
 	/// that starts in its place.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMapError<F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, F> {
-		return SignalProducer { observer, disposable in
+		return SignalProducer<T, F> { observer, disposable in
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
@@ -884,7 +883,7 @@ extension SignalProducerType {
 	/// `concat`s `next` onto `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func concat(next: SignalProducer<T, E>) -> SignalProducer<T, E> {
-		return SignalProducer(values: [producer, next]) |> flatten(.Concat)
+		return SignalProducer<SignalProducer<T, E>, E>(values: [self, next]) |> flatten(.Concat)
 	}
 
 	/// Repeats `self` a total of `count` times. Repeating `1` times results in
@@ -1009,7 +1008,7 @@ extension SignalProducerType {
 	/// Starts the producer, then blocks, waiting for completion.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func wait() -> Result<(), E> {
-		return then(SignalProducer(value: ())).last() ?? .success(())
+		return then(SignalProducer<(), E>(value: ())).last() ?? .success(())
 	}
 }
 

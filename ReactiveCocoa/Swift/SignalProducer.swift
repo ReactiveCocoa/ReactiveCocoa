@@ -547,8 +547,8 @@ extension SignalProducerType where E == NoError {
 	/// but makes it easier to combine with other producers that may error; for
 	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func promoteErrors<F: ErrorType>() -> SignalProducer<T, F> {
-		return lift { $0.promoteErrors() }
+	public func promoteErrors<F: ErrorType>(_: F.Type) -> SignalProducer<T, F> {
+		return lift { $0.promoteErrors(F) }
 	}
 }
 

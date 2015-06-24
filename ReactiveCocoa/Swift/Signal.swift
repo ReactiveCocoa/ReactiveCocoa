@@ -1149,7 +1149,7 @@ extension Signal where E: NoErrorType {
 	/// but makes it easier to combine with other signals that may error; for
 	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func promoteErrors<F: ErrorType>() -> Signal<T, F> {
+	public func promoteErrors<F: ErrorType>(_: F.Type) -> Signal<T, F> {
 		return Signal<T, F> { observer in
 			return self.observe(next: { value in
 				sendNext(observer, value)

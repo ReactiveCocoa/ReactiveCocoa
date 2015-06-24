@@ -284,12 +284,6 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				expect(values).to(equal([1]))
-
-				producer |> start { next in
-					values.append(next)
-				}
-
-				expect(values).to(equal([1, 1]))
 			}
 		}
 

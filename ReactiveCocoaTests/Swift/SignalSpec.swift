@@ -402,13 +402,6 @@ class SignalSpec: QuickSpec {
 
 				sendNext(sink, 1)
 				expect(values).to(equal([1]))
-
-				signal |> observe { next in
-					values.append(next)
-				}
-
-				sendNext(sink, 2)
-				expect(values).to(equal([1, 2, 2]))
 			}
 		}
 

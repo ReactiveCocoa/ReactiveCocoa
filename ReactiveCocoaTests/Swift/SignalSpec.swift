@@ -1338,7 +1338,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (signal, observer) = Signal<IntEvent, NoError>.pipe()
 				sink = observer
-				dematerialized = dematerialize(signal)
+				dematerialized = signal.dematerialize()
 			}
 			
 			it("should send values for Next events") {

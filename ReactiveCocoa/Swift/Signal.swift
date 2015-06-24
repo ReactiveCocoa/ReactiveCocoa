@@ -451,52 +451,31 @@ extension SignalType {
 	}
 }
 
-/// The inverse of materialize(), this will translate a signal of `Event`
-/// _values_ into a signal of those events themselves.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func dematerialize<T, E>(signal: Signal<Event<T, E>, NoError>) -> Signal<T, E> {
-	return Signal { observer in
-		return signal.observe { event in
-			switch event {
-			case let .Next(innerEvent):
-				observer(innerEvent)
+// TODO Also constrain on E == NoError - http://www.openradar.me/21512469
+extension Signal where T: EventType {
+	/// The inverse of materialize(), this will translate a signal of `Event`
+	/// _values_ into a signal of those events themselves.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func dematerialize() -> Signal<T.T, T.E> {
+		return Signal<T.T, T.E> { observer in
+			return self.observe { event in
+				switch event {
+				case let .Next(innerEvent):
+					observer(innerEvent.event)
 
-			case .Error:
-				fatalError()
+				case .Error:
+					fatalError()
 
-			case .Completed:
-				sendCompleted(observer)
+				case .Completed:
+					sendCompleted(observer)
 
-			case .Interrupted:
-				sendInterrupted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
 			}
 		}
 	}
 }
-
-// TODO Currently using dematerialize segfaults the compiler
-//extension SignalType where T: EventType, E == NoError {
-//  @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-//	public func dematerialize() -> Signal<T.T, T.E> {
-//		return Signal { (observer: Event<T.T, T.E>.Sink) in
-//			return self.observe { event in
-//				switch event {
-//				case let .Next(innerEvent):
-//					observer(innerEvent.event)
-//
-//				case .Error:
-//					fatalError()
-//
-//				case .Completed:
-//					sendCompleted(observer)
-//
-//				case .Interrupted:
-//					sendInterrupted(observer)
-//				}
-//			}
-//		}
-//	}
-//}
 
 private struct SampleState<T> {
 	var latestValue: T? = nil

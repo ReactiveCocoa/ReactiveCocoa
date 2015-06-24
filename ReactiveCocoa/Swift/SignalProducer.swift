@@ -338,7 +338,7 @@ extension SignalProducer {
 	
 	/// Preserves only the values of the producer that pass the given predicate.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func filter(predicate: T -> Bool) -> SignalProducer<T, E> {
+	public func filter(predicate: T -> Bool) -> SignalProducer {
 		return lift { $0.filter(predicate) }
 	}
 
@@ -352,7 +352,7 @@ extension SignalProducer {
 	/// Returns a producer that will yield the first `count` values from the
 	/// input producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func take(count: Int) -> SignalProducer<T, E> {
+	public func take(count: Int) -> SignalProducer {
 		return lift { $0.take(count) }
 	}
 
@@ -365,7 +365,7 @@ extension SignalProducer {
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func observeOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
+	public func observeOn(scheduler: SchedulerType) -> SignalProducer {
 		return lift { $0.observeOn(scheduler) }
 	}
 
@@ -385,14 +385,14 @@ extension SignalProducer {
 	///
 	/// `Error` and `Interrupted` events are always scheduled immediately.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer {
 		return lift { $0.delay(interval, onScheduler: scheduler) }
 	}
 
 	/// Returns a producer that will skip the first `count` values, then forward
 	/// everything afterward.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func skip(count: Int) -> SignalProducer<T, E> {
+	public func skip(count: Int) -> SignalProducer {
 		return lift { $0.skip(count) }
 	}
 
@@ -419,14 +419,14 @@ extension SignalProducer {
 	/// multiple times) by `sampler`, then complete once both input producers have
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer {
 		return lift(ReactiveCocoa.sampleOn)(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer {
 		return lift(ReactiveCocoa.takeUntil)(trigger)
 	}
 
@@ -458,14 +458,14 @@ extension SignalProducer {
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func skipRepeats(isRepeat: (T, T) -> Bool) -> SignalProducer<T, E> {
+	public func skipRepeats(isRepeat: (T, T) -> Bool) -> SignalProducer {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 
 	/// Does not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func skipWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+	public func skipWhile(predicate: T -> Bool) -> SignalProducer {
 		return lift { $0.skipWhile(predicate) }
 	}
 
@@ -477,21 +477,21 @@ extension SignalProducer {
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeUntilReplacement(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> {
+	public func takeUntilReplacement(replacement: SignalProducer) -> SignalProducer {
 		return lift(ReactiveCocoa.takeUntilReplacement)(replacement)
 	}
 
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeLast(count: Int) -> SignalProducer<T, E> {
+	public func takeLast(count: Int) -> SignalProducer {
 		return lift { $0.takeLast(count) }
 	}
 
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+	public func takeWhile(predicate: T -> Bool) -> SignalProducer {
 		return lift { $0.takeWhile(predicate) }
 	}
 
@@ -505,7 +505,7 @@ extension SignalProducer {
 	/// Applies `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned producer and `Failure`s sent as `Error` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func attempt(operation: T -> Result<(), E>) -> SignalProducer<T, E> {
+	public func attempt(operation: T -> Result<(), E>) -> SignalProducer {
 		return lift { $0.attempt(operation) }
 	}
 
@@ -525,7 +525,7 @@ extension SignalProducer {
 	/// If `self` terminates while a value is being throttled, that value
 	/// will be discarded and the returned producer will terminate immediately.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer {
 		return lift { $0.throttle(interval, onScheduler: scheduler) }
 	}
 
@@ -535,7 +535,7 @@ extension SignalProducer {
 	/// If the interval is 0, the timeout will be scheduled immediately. The producer
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer {
 		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
 	}
 }
@@ -556,7 +556,7 @@ extension SignalProducer where T: Equatable {
 	/// Forwards only those values from `self` which are not duplicates of the
 	/// immedately preceding value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func skipRepeats() -> SignalProducer<T, E> {
+	public func skipRepeats() -> SignalProducer {
 		return lift { $0.skipRepeats() }
 	}
 }
@@ -608,7 +608,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 extension SignalProducer {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
+	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			disposed.map(compositeDisposable.addDisposable)
@@ -651,7 +651,7 @@ extension SignalProducer {
 	/// Events may still be sent upon other schedulers—this merely affects where
 	/// the `start()` method is run.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func startOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
+	public func startOn(scheduler: SchedulerType) -> SignalProducer {
 		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
 				self.startWithSignal { signal, signalDisposable in
@@ -882,14 +882,14 @@ extension SignalProducer {
 
 	/// `concat`s `next` onto `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func concat(next: SignalProducer<T, E>) -> SignalProducer<T, E> {
-		return SignalProducer<SignalProducer<T, E>, E>(values: [self, next]) |> flatten(.Concat)
+	public func concat(next: SignalProducer) -> SignalProducer {
+		return SignalProducer<SignalProducer, E>(values: [self, next]) |> flatten(.Concat)
 	}
 
 	/// Repeats `self` a total of `count` times. Repeating `1` times results in
 	/// an equivalent signal producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func times(count: Int) -> SignalProducer<T, E> {
+	public func times(count: Int) -> SignalProducer {
 		precondition(count >= 0)
 
 		if count == 0 {
@@ -929,7 +929,7 @@ extension SignalProducer {
 
 	/// Ignores errors up to `count` times.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func retry(count: Int) -> SignalProducer<T, E> {
+	public func retry(count: Int) -> SignalProducer {
 		precondition(count >= 0)
 
 		if count == 0 {

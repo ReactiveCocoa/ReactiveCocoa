@@ -174,7 +174,7 @@ extension MutableProperty: SinkType {
 infix operator <~ {
 	associativity right
 
-	// Binds tighter than assignment but looser than everything else, including `|>`
+	// Binds tighter than assignment but looser than everything else
 	precedence 93
 }
 

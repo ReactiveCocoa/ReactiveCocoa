@@ -162,13 +162,6 @@ extension Signal: SignalType {
 	}
 }
 
-infix operator |> {
-	associativity left
-
-	// Bind tighter than assignment, but looser than everything else.
-	precedence 95
-}
-
 extension Signal {
 	/// Observes the Signal by invoking the given callbacks when events are
 	/// received. If the Signal has already terminated, the `interrupted`

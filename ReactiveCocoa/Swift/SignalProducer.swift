@@ -562,19 +562,6 @@ extension SignalProducer where T: Equatable {
 }
 
 
-/// Applies a SignalProducer operator to a SignalProducer.
-///
-/// Example:
-///
-/// 	filteredProducer
-/// 	|> startOn(UIScheduler())
-/// 	|> start { signal in
-/// 		signal.observe(next: { num in println(num) })
-/// 	}
-public func |> <T, E, X>(producer: SignalProducer<T, E>, @noescape transform: SignalProducer<T, E> -> X) -> X {
-	return transform(producer)
-}
-
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.
 ///

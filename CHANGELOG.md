@@ -304,7 +304,7 @@ more tightly-scoped way.
 For example:
 
 ```swift
-let producer = timer(5, onScheduler: QueueScheduler.mainQueueScheduler) |> take(3)
+let producer = timer(5, onScheduler: QueueScheduler.mainQueueScheduler).take(3)
 
 // Starts just one timer, sending the dates to two different observers as they
 // are generated.

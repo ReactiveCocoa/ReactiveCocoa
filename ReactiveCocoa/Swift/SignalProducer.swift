@@ -1095,6 +1095,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 	///
 	/// The returned producer completes only when `producer` and all producers
 	/// emitted from `producer` complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func concat() -> SignalProducer<T.T, E> {
 		return SignalProducer<T.T, E> { observer, disposable in
 			let state = ConcatState(observer: observer, disposable: disposable)
@@ -1202,6 +1203,7 @@ private final class ConcatState<T, E: ErrorType> {
 extension SignalProducer where T: SignalProducerType, E == T.E {
 	/// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
 	/// added earlier. Returns a SignalProducer that will forward events from the inner producers as they arrive.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> SignalProducer<T.T, E> {
 		return SignalProducer<T.T, E> { relayObserver, disposable in
 			let inFlight = Atomic(1)
@@ -1254,6 +1256,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 	///
 	/// The returned producer completes when `producer` and the latest inner
 	/// producer have both completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func switchToLatest() -> SignalProducer<T.T, E> {
 		return SignalProducer<T.T, E> { sink, disposable in
 			let latestInnerDisposable = SerialDisposable()

@@ -492,6 +492,30 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("ignoreNil") {
+			it("should forward only non-nil values") {
+				let (signal, sink) = Signal<Int?, NoError>.pipe()
+				let mappedSignal = signal.ignoreNil()
+
+				var lastValue: Int?
+
+				mappedSignal.observe(next: { lastValue = $0 })
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, nil)
+				expect(lastValue).to(beNil())
+
+				sendNext(sink, 1)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, nil)
+				expect(lastValue).to(equal(1))
+
+				sendNext(sink, 2)
+				expect(lastValue).to(equal(2))
+			}
+		}
+
 		describe("scan") {
 			it("should incrementally accumulate a value") {
 				let (baseSignal, sink) = Signal<String, NoError>.pipe()

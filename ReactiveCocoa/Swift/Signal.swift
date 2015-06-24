@@ -638,6 +638,15 @@ extension SignalType {
 	}
 }
 
+extension Signal where T: OptionalType {
+	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+	/// values are dropped.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func ignoreNil() -> Signal<T.T, E> {
+		return filter { $0.optional != nil }.map { $0.optional! }
+	}
+}
+
 extension SignalType where T: Equatable {
 	/// Forwards only those values from `self` which are not duplicates of the
 	/// immedately preceding value. The first value is always forwarded.

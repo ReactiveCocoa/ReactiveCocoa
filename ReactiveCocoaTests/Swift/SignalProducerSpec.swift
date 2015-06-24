@@ -811,7 +811,7 @@ class SignalProducerSpec: QuickSpec {
 						sendSubsequent = { sendNext(outerSink, subsequentProducer) }
 						completeOuter = { sendCompleted(outerSink) }
 
-						(outerProducer |> flatten(.Concat)).start()
+						outerProducer.flatten(.Concat).start()
 						sendNext(outerSink, previousProducer)
 					}
 
@@ -846,7 +846,7 @@ class SignalProducerSpec: QuickSpec {
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 					var error: TestError?
-					(outerProducer |> flatten(.Concat)).start(error: { e in
+					(outerProducer.flatten(.Concat)).start(error: { e in
 						error = e
 					})
 
@@ -857,7 +857,7 @@ class SignalProducerSpec: QuickSpec {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 					var error: TestError?
-					(outerProducer |> flatten(.Concat)).start(error: { e in
+					outerProducer.flatten(.Concat).start(error: { e in
 						error = e
 					})
 
@@ -879,7 +879,7 @@ class SignalProducerSpec: QuickSpec {
 						completeInner = { sendCompleted(innerSink) }
 
 						completed = false
-						(outerProducer |> flatten(.Concat)).start(completed: {
+						outerProducer.flatten(.Concat).start(completed: {
 							completed = true
 						})
 
@@ -932,7 +932,7 @@ class SignalProducerSpec: QuickSpec {
 						sendNext(outerSink, producerA)
 						sendNext(outerSink, producerB)
 
-						(outerProducer |> flatten(.Merge)).start(next: { i in
+						outerProducer.flatten(.Merge).start(next: { i in
 							recv.append(i)
 						}, error: { _ in () }, completed: {
 							outerCompleted = true
@@ -964,7 +964,7 @@ class SignalProducerSpec: QuickSpec {
 						let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 						var error: TestError?
-						(outerProducer |> flatten(.Merge)).start(error: { e in
+						outerProducer.flatten(.Merge).start(error: { e in
 							error = e
 						})
 						expect(error).to(equal(TestError.Default))
@@ -974,7 +974,7 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 						var error: TestError?
-						(outerProducer |> flatten(.Merge)).start(error: { e in
+						outerProducer.flatten(.Merge).start(error: { e in
 							error = e
 						})
 
@@ -994,7 +994,7 @@ class SignalProducerSpec: QuickSpec {
 					var errored = false
 					var completed = false
 
-					(outer |> flatten(.Latest)).start(
+					outer.flatten(.Latest).start(
 						next: {
 							receivedValues.append($0)
 						},
@@ -1029,17 +1029,15 @@ class SignalProducerSpec: QuickSpec {
 				it("should forward an error from an inner signal") {
 					let inner = SignalProducer<Int, TestError>(error: .Default)
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
-					let producer = outer |> flatten(.Latest)
-					let result = producer.first()
 
+					let result = outer.flatten(.Latest).first()
 					expect(result?.error).to(equal(TestError.Default))
 				}
 
 				it("should forward an error from the outer signal") {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(error: .Default)
-					let producer = outer |> flatten(.Latest)
-					let result = producer.first()
 
+					let result = outer.flatten(.Latest).first()
 					expect(result?.error).to(equal(TestError.Default))
 				}
 
@@ -1048,7 +1046,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 
 					var completed = false
-					(outer |> flatten(.Latest)).start(completed: {
+					outer.flatten(.Latest).start(completed: {
 						completed = true
 					})
 
@@ -1059,7 +1057,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 					var completed = false
-					(outer |> flatten(.Latest)).start(completed: {
+					outer.flatten(.Latest).start(completed: {
 						completed = true
 					})
 
@@ -1068,7 +1066,7 @@ class SignalProducerSpec: QuickSpec {
 
 				it("should not deadlock") {
 					let producer = SignalProducer<Int, NoError>(value: 1)
-						|> flatMap(.Latest) { _ in SignalProducer(value: 10) }
+						.flatMap(.Latest) { _ in SignalProducer(value: 10) }
 
 					let result = producer.take(1).last()
 					expect(result?.value).to(equal(10))
@@ -1094,8 +1092,9 @@ class SignalProducerSpec: QuickSpec {
 						interrupted = false
 						completed = false
 
-						let producer = outerProducer |> flatten(strategy)
-						producer.start(interrupted: { _ in
+						outerProducer
+							.flatten(strategy)
+							.start(interrupted: { _ in
 								interrupted = true
 							}, completed: { _ in
 								completed = true

@@ -364,9 +364,7 @@ extension Signal {
 			return disposable
 		}
 	}
-}
 
-extension Signal {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
@@ -541,9 +539,7 @@ extension Signal {
 			return disposable
 		}
 	}
-}
 
-extension Signal {
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -565,9 +561,7 @@ extension Signal {
 			return disposable
 		}
 	}
-}
 
-extension Signal {
 	/// Forwards events from `self` with history: values of the returned signal
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
@@ -674,9 +668,7 @@ extension Signal {
 			}
 		}
 	}
-}
 
-extension Signal {
 	/// Forwards events from `self` until `replacement` begins sending events.
 	///
 	/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
@@ -708,9 +700,7 @@ extension Signal {
 			return disposable
 		}
 	}
-}
 
-extension Signal {
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned signal.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -844,9 +834,7 @@ extension Signal {
 			return disposable
 		}
 	}
-}
 
-extension Signal {
 	/// Applies `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned signal and `Failure`s sent as `Error` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")

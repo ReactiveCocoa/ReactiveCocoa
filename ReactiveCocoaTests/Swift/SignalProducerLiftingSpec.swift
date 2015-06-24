@@ -74,30 +74,6 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 		}
 
-		describe("filterMap") {
-			it("should forward only non-nil values") {
-				let (producer, sink) = SignalProducer<Int?, NoError>.buffer()
-				let mappedProducer = producer.filterMap { $0 }
-
-				var lastValue: Int?
-
-				mappedProducer.start(next: { lastValue = $0 })
-				expect(lastValue).to(beNil())
-
-				sendNext(sink, nil)
-				expect(lastValue).to(beNil())
-
-				sendNext(sink, 1)
-				expect(lastValue).to(equal(1))
-
-				sendNext(sink, nil)
-				expect(lastValue).to(equal(1))
-
-				sendNext(sink, 2)
-				expect(lastValue).to(equal(2))
-			}
-		}
-
 		describe("ignoreNil") {
 			it("should forward only non-nil values") {
 				let (producer, sink) = SignalProducer<Int?, NoError>.buffer()

@@ -335,18 +335,11 @@ extension SignalProducer {
 	public func mapError<F>(transform: E -> F) -> SignalProducer<T, F> {
 		return lift { $0.mapError(transform) }
 	}
-	
+
 	/// Preserves only the values of the producer that pass the given predicate.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func filter(predicate: T -> Bool) -> SignalProducer {
 		return lift { $0.filter(predicate) }
-	}
-
-	/// Maps values from the producer and forwards the non-nil ones on the
-	/// returned producer.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func filterMap<U>(transform: T -> U?) -> SignalProducer<U, E> {
-		return lift { $0.filterMap(transform) }
 	}
 
 	/// Returns a producer that will yield the first `count` values from the

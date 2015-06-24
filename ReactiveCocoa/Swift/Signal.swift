@@ -211,26 +211,18 @@ extension Signal {
 			}
 		}
 	}
+}
 
-	/// Maps values from `signal` and forwards the non-nil ones on the returned signal.
+extension Signal where T: OptionalType {
+	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+	/// values are dropped.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func filterMap<U>(transform: T -> U?) -> Signal<U, E> {
-		return Signal<U, E> { observer in
-			return self.observe { event in
-				switch event {
-				case let .Next(value):
-					transform(value).flatMap { sendNext(observer, $0) }
-				case let .Error(error):
-					sendError(observer, error)
-				case .Completed:
-					sendCompleted(observer)
-				case .Interrupted:
-					sendInterrupted(observer)
-				}
-			}
-		}
+	public func ignoreNil() -> Signal<T.T, E> {
+		return filter { $0.optional != nil }.map { $0.optional! }
 	}
+}
 
+extension Signal {
 	/// Returns a signal that will yield the first `count` values from `self`
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func take(count: Int) -> Signal {
@@ -600,15 +592,6 @@ extension Signal {
 				})
 			}
 		}
-	}
-}
-
-extension Signal where T: OptionalType {
-	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
-	/// values are dropped.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func ignoreNil() -> Signal<T.T, E> {
-		return filter { $0.optional != nil }.map { $0.optional! }
 	}
 }
 

@@ -449,8 +449,7 @@ extension Signal {
 	}
 }
 
-// TODO Also constrain on E == NoError - http://www.openradar.me/21512469
-extension Signal where T: EventType {
+extension Signal where T: EventType, E: NoErrorType {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -462,7 +461,7 @@ extension Signal where T: EventType {
 					observer(innerEvent.event)
 
 				case .Error:
-					fatalError()
+					fatalError("NoErrorType should be impossible to construct")
 
 				case .Completed:
 					sendCompleted(observer)
@@ -1143,7 +1142,7 @@ extension Signal {
 	}
 }
 
-extension SignalType where E == NoError {
+extension Signal where E: NoErrorType {
 	/// Promotes a signal that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given signal,
@@ -1152,12 +1151,14 @@ extension SignalType where E == NoError {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func promoteErrors<F: ErrorType>() -> Signal<T, F> {
 		return Signal<T, F> { observer in
-			return self.signal.observe(next: { value in
+			return self.observe(next: { value in
 				sendNext(observer, value)
 			}, completed: {
 				sendCompleted(observer)
 			}, interrupted: {
 				sendInterrupted(observer)
+			}, error: { _ in
+				fatalError("NoErrorType should be impossible to construct")
 			})
 		}
 	}

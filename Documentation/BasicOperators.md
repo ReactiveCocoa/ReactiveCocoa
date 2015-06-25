@@ -143,7 +143,7 @@ The `map` operator is used to transform the values in a signal, creating a new s
 let (signal, sink) = Signal<String, NoError>.pipe()
 signal
     |> map { string in string.uppercaseString }
-    |> observe(next: { println($0) })
+    |> observe(next: println)
 
 sendNext(sink, "a")     // Prints A
 sendNext(sink, "b")     // Prints B
@@ -159,7 +159,7 @@ The `filter` operator is used to include only values in a signal that satisfy a 
 let (signal, sink) = Signal<Int, NoError>.pipe()
 signal
     |> filter { number in number % 2 == 0 }
-    |> observe(next: { println($0) })
+    |> observe(next: println)
 
 sendNext(sink, 1)     // Not printed
 sendNext(sink, 2)     // Prints 2
@@ -176,7 +176,7 @@ let (signal, sink) = Signal<Int, NoError>.pipe()
 
 signal
     |> reduce(1) { $0 * $1 }
-    |> observe(next: { println($0) })
+    |> observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
@@ -198,7 +198,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) }, completed: { println("Completed") })
+    |> observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -221,7 +221,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) }, completed: { println("Completed") })
+    |> observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -273,7 +273,7 @@ let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>
 
 signal
     |> flatten(FlattenStrategy.Merge)
-    |> start(next: { println($0) })
+    |> start(next: println)
 
 sendNext(sink, numbersSignal)
 sendNext(sink, lettersSignal)
@@ -298,7 +298,7 @@ let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>
 
 signal
     |> flatten(FlattenStrategy.Concat)
-    |> start(next: { println($0) })
+    |> start(next: println)
 
 sendNext(sink, numbersSignal)
 sendNext(sink, lettersSignal)
@@ -325,7 +325,7 @@ let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>
 
 signal
     |> flatten(FlattenStrategy.Latest)
-    |> start(next: { println($0) })
+    |> start(next: println)
 
 sendNext(sink, numbersSignal)   // nothing printed
 sendNext(numbersSink, 1)        // prints 1
@@ -351,7 +351,7 @@ let (signalB, sinkB) = SignalProducer<String, NSError>.buffer(5)
 
 signalA
     |> catch { error in signalB }
-    |> start(next: { println($0)})
+    |> start(next: println)
 
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
@@ -382,8 +382,8 @@ let producer = SignalProducer<String, NSError> { (sink, _) in
 producer
     |> on(error: {e in println("Error")})             // prints "Error" twice
     |> retry(2)
-    |> start(next: { println($0)},                    // prints "Success"
-        error: { error in println("Signal Error")})
+    |> start(next: println,                           // prints "Success"
+            error: { _ in println("Signal Error")})
 ```
 
 If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
@@ -411,7 +411,7 @@ let (signal, sink) = Signal<String, CustomError>.pipe()
 
 signal
     |> mapError { $0.nsError }
-    |> observe(error: {println($0)})
+    |> observe(error: println)
 
 sendError(sink, CustomError(404))   // Prints NSError with code 404
 ```

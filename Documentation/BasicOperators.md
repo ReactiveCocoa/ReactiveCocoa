@@ -47,7 +47,7 @@ code-style will be used.
 
 ### Observation
 
-Signals can be observed with the `observe` function. It takes a `Sink` as argument to which any future events are sent. 
+`Signal`s can be observed with the `observe` function. It takes an `Observer` as argument to which any future events are sent. 
 
 ```Swift
 signal.observe(Signal.Observer { event in
@@ -79,6 +79,8 @@ signal.observe(next: { next in
 )
 ```
 
+Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
+
 `observe` is also available as operator that can be used with [|>](#pipe)
 
 ### Injecting effects
@@ -88,7 +90,7 @@ Side effects can be injected on a `SignalProducer` with the `on` operator withou
 ```Swift
 let producer = signalProducer
     |> on(started: {
-        println("Started")
+	        println("Started")
         }, event: { event in
             println("Event: \(event)")
         }, error: { error in
@@ -106,6 +108,7 @@ let producer = signalProducer
     })
 ```
 
+Similar to `observe`, all the parameters are optional and you only need to provide callbacks for the events you care about.
 Note, that nothing will be printed until `producer` is started (possibly somewhere else).
 
 ## Operator composition
@@ -123,9 +126,8 @@ intSignal
 
 ### Lifting
 
-Signal operators can be _lifted_ to operate upon `SignalProducer`s instead using the `lift` operator.
-In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s
-just if the operator had been applied to each signal yielded from `start()`.
+Signal operators can be _lifted_ to operate upon `SignalProducer`s with the `lift` operator.
+In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s just if the operator had been applied to each signal yielded from `start()`.
 
 The `|>` operator implicitly lifts signal operators, when used with `SignalProducer`s.
 
@@ -165,7 +167,7 @@ sendNext(sink, 3)     // Not printed
 sendNext(sink, 4)     // prints 4
 ```
 
-### Reducing
+### Aggregating
 
 The `reduce` operator is used to aggregate a signals value into a single combine value. Note, that the final value is only sent after the source signal completes.
 
@@ -185,7 +187,7 @@ sendCompleted(sink)   // prints 6
 
 ## Combining signals
 
-These operators combine multiple signals into a single new signal.
+These operators combine values from multiple signals into a unified new signal.
 
 ### Combining latest values
 
@@ -196,8 +198,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) },
-          completed: { println("Completed") })
+    |> observe(next: { println($0) }, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -213,22 +214,21 @@ The `combineLatestWith` operator works in the same way, but as an operator.
 
 ### Zipping
 
-The `zip` function combines values of two signals into pairs. The elements of any Nth pair are the Nth elements of the two input signals. That means the output signal will always wait for both input signals to send and output.
+The `zip` function combines values of two (or more) signals into pairs. The elements of any Nth pair are the Nth elements of the input signals. That means the output signal will always wait for all input signals to send and output.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    |> observe(next: { println($0) },
-          completed: { println("Completed") })
+    |> observe(next: { println($0) }, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
-sendNext(lettersSink, "A")  // prints (1, A)
-sendNext(numbersSink, 2)    // prints (2, A)
+sendNext(lettersSink, "A")  // prints (0, A)
+sendNext(numbersSink, 2)    // nothing printed
 sendCompleted(numbersSink)  // nothing printed
-sendNext(lettersSink, "B")  // prints (2, B)
+sendNext(lettersSink, "B")  // prints (1, B)
 sendNext(lettersSink, "C")  // prints (2, C) & "Completed"
 
 ```
@@ -237,11 +237,9 @@ The `zipWith` operator works in the same way, but as an operator.
 
 ## Flattening producers
 
-The `flatten` operators transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer`.
-There are multiple different semantics of the operation which can be chosen as a `FlattenStrategy`.
+The `flatten` operator transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer` whose values are forwarded from the inner producer in accordance with the provided `FlattenStrategy`.
 
-To understand, why there are different strategies and how they compare to each other, take a look at this example and
-imagine the column offsets as time:
+To understand, why there are different strategies and how they compare to each other, take a look at this example and imagine the column offsets as time:
 
 ```Swift
 let values = [
@@ -266,7 +264,7 @@ Note, how the values interleave and which values are even included in the result
 
 ### Merging
 
-The `.Merge` strategy works by immediately forwarding every events of the inner `SignalProducer`s to the outer `SignalProducer`.
+The `.Merge` strategy immediately forwards every value of the inner `SignalProducer`s to the outer `SignalProducer`. Any error sent on the outer producer or any inner producer is immediately sent on the flattened producer and terminates it.
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
@@ -291,8 +289,7 @@ sendNext(lettersSink, "C")  // prints C
 
 ### Concatenating
 
-The `.Concat` strategy works by concatenating the `SignalProducer`s such that their values are sent in the order of the `SignalProducer`s themselves. 
-This implies, that values of a `SignalProducer` are only sent, when the preceding `SignalProducer` has completed
+The `.Concat` strategy is used to serialize work of the inner `SignalProducer`s. The outer producer is started immediately. Each subsequent producer is not started until the preceeding one has completed. Errors are immediately forwarded to the flattened producer.
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
@@ -319,7 +316,7 @@ sendCompleted(lettersSink)
 
 ### Switching
 
-The `.Latest` strategy works by forwarding only events from the latest input `SignalProducer`.
+The `.Latest` strategy forwards only values from the latest input `SignalProducer`.
 
 ```Swift
 let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
@@ -367,13 +364,13 @@ sendNext(sinkB, "b")        // prints b
 
 ### Retrying
 
-The `retry` operator ignores up to `count` errors and tries to restart the `SignalProducer`.
+The `retry` operator will restart the original `SignalProducer` on error up to `count` times.
 
 ```Swift
 var tries = 0
 let limit = 2
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
-let signal = SignalProducer<String, NSError> { (sink, _) in
+let producer = SignalProducer<String, NSError> { (sink, _) in
     if tries++ < limit {
         sendError(sink, error)
     } else {
@@ -382,7 +379,7 @@ let signal = SignalProducer<String, NSError> { (sink, _) in
     }
 }
 
-signal
+producer
     |> on(error: {e in println("Error")})             // prints "Error" twice
     |> retry(2)
     |> start(next: { println($0)},                    // prints "Success"

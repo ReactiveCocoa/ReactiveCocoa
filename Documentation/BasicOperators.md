@@ -345,20 +345,17 @@ These operators are used to handle errors that might occur on a signal.
 The `catch` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
 
 ```Swift
-let (signalA, sinkA) = SignalProducer<String, NSError>.buffer(5)
-let (signalB, sinkB) = SignalProducer<String, NSError>.buffer(5)
-
-signalA
-    |> catch { error in signalB }
-    |> start(next: println)
-
+let (producer, sink) = SignalProducer<String, NSError>.buffer(5)
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
-sendNext(sinkA, "A")        // prints A
-sendNext(sinkB, "a")        // nothing printed
-sendError(sinkA, error)     // prints a
-sendNext(sinkA, "B")        // nothing printed
-sendNext(sinkB, "b")        // prints b
+producer
+    |> catch { error in SignalProducer<String, NSError>(value: "Default") }
+    |> start(next: println)
+
+
+sendNext(sink, "First")     // prints "First"
+sendNext(sink, "Second")    // prints "Second"
+sendError(sink, error)      // prints "Default"
 ```
 
 ### Retrying

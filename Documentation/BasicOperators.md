@@ -151,7 +151,7 @@ sendNext(sink, "b")     // Prints B
 sendNext(sink, "c")     // Prints C
 ```
 
-[Interactive visualisation of the `map` operator](http://neilpa.me/rac-marbles/#map)
+[Interactive visualisation of the `map` operator.](http://neilpa.me/rac-marbles/#map)
 
 ### Filtering
 
@@ -169,7 +169,7 @@ sendNext(sink, 3)     // Not printed
 sendNext(sink, 4)     // prints 4
 ```
 
-[Interactive visualisation of the `filter` operator](http://neilpa.me/rac-marbles/#filter)
+[Interactive visualisation of the `filter` operator.](http://neilpa.me/rac-marbles/#filter)
 
 ### Aggregating
 
@@ -204,7 +204,7 @@ sendNext(sink, 3)     // nothing printed
 sendCompleted(sink)   // prints 6
 ```
 
-[Interactive visualisation of the `reduce` operator](http://neilpa.me/rac-marbles/#reduce)
+[Interactive visualisation of the `reduce` operator.](http://neilpa.me/rac-marbles/#reduce)
 
 ## Combining signals
 
@@ -233,7 +233,7 @@ sendCompleted(lettersSink)  // prints "Completed"
 
 The `combineLatestWith` operator works in the same way, but as an operator.
 
-[Interactive visualisation of the `combineLatest` operator](http://neilpa.me/rac-marbles/#combineLatest)
+[Interactive visualisation of the `combineLatest` operator.](http://neilpa.me/rac-marbles/#combineLatest)
 
 ### Zipping
 
@@ -258,7 +258,7 @@ sendNext(lettersSink, "C")  // prints (2, C) & "Completed"
 
 The `zipWith` operator works in the same way, but as an operator.
 
-[Interactive visualisation of the `zip` operator](http://neilpa.me/rac-marbles/#zip)
+[Interactive visualisation of the `zip` operator.](http://neilpa.me/rac-marbles/#zip)
 
 ## Flattening producers
 
@@ -310,7 +310,7 @@ sendNext(lettersSink, "c")    // prints "c"
 sendNext(numbersSink, "3")    // prints "3"
 ```
 
-[Interactive visualisation of the `flatten(.Merge)` operator](http://neilpa.me/rac-marbles/#merge)
+[Interactive visualisation of the `flatten(.Merge)` operator.](http://neilpa.me/rac-marbles/#merge)
 
 ### Concatenating
 
@@ -337,7 +337,7 @@ sendNext(numbersSink, "3")    // prints "3"
 sendCompleted(numbersSink)
 ```
 
-[Interactive visualisation of the `flatten(.Concat)` operator](http://neilpa.me/rac-marbles/#concat)
+[Interactive visualisation of the `flatten(.Concat)` operator.](http://neilpa.me/rac-marbles/#concat)
 
 ### Switching
 

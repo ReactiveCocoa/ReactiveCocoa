@@ -27,13 +27,9 @@ extension Signal {
         }
     }
 
-    /// Returns a signal that drops `Error` events, replacing them with `Completed`.
-    public func ignoreError() -> Signal<T, NoError> {
-        return ignoreError(replacement: .Completed)
-    }
-
-    /// Returns a signal that drops `Error` sending `replacement` terminal event instead.
-    public func ignoreError(replacement replacement: Event<T, NoError>) -> Signal<T, NoError> {
+    /// Returns a signal that drops `Error` sending `replacement` terminal event
+    /// instead, defaulting to `Completed`.
+    public func ignoreError(replacement replacement: Event<T, NoError> = .Completed) -> Signal<T, NoError> {
         precondition(replacement.isTerminating)
 
         return Signal<T, NoError> { observer in

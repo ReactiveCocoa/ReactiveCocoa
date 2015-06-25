@@ -51,8 +51,8 @@ extension SignalProducer {
     }
 
     /// Returns a signal that drops `Error` events, replacing them with `Completed`.
-    public func ignoreError() -> SignalProducer<T, NoError> {
-        return lift { $0.ignoreError() }
+    public func ignoreError(replacement: Event<T, NoError> = .Completed) -> SignalProducer<T, NoError> {
+        return lift { $0.ignoreError(replacement: replacement) }
     }
 
     /// Returns a signal that prints the signal events

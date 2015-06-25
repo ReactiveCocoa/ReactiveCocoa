@@ -109,7 +109,8 @@ let producer = signalProducer
 ```
 
 Similar to `observe`, all the parameters are optional and you only need to provide callbacks for the events you care about.
-Note, that nothing will be printed until `producer` is started (possibly somewhere else).
+
+Note that nothing will be printed until `producer` is started (possibly somewhere else).
 
 ## Operator composition
 

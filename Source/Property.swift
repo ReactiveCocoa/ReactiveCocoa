@@ -37,27 +37,27 @@ public struct SignalProperty<T>: PropertyType {
 
 extension Signal where E: NoErrorType {
     /// Creates a new property bound to `self` starting with `initialValue`.
-    public func propertyOf(initialValue: T) -> PropertyOf<T> {
+    public func toProperty(initialValue: T) -> PropertyOf<T> {
         return PropertyOf(SignalProperty(initialValue, ignoreError()))
     }
 
     /// Wraps `sink` in a property bound to `self`. Values sent on the signal are
     /// `put` into the `sink` to update it.
-    public func propertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
-        return put(sink).propertyOf(sink)
+    public func toPropertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
+        return put(sink).toProperty(sink)
     }
 }
 
 extension SignalProducer where E: NoErrorType {
     /// Creates a new property bound to `producer` starting with `initialValue`.
-    public func propertyOf(initialValue: T) -> PropertyOf<T> {
+    public func toProperty(initialValue: T) -> PropertyOf<T> {
         return PropertyOf(SignalProperty(initialValue, ignoreError()))
     }
 
     /// Wraps `sink` in a property bound to `self`. Values sent on the signal are
     /// `put` into the `sink` to update it.
-    public func propertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
-        return put(sink).propertyOf(sink)
+    public func toPropertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
+        return put(sink).toProperty(sink)
     }
 }
 

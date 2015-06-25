@@ -177,7 +177,7 @@ let (signal, sink) = Signal<Int, NoError>.pipe()
 
 let collected = signal |> collect
 
-collected.observe(next: { println($0) })
+collected.observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed

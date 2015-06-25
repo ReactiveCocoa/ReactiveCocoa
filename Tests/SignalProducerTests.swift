@@ -21,12 +21,12 @@ final class SignalProducerTests: XCTestCase {
         var completed = false
 
         disposable += producer
-            |> groupBy { $0 % 2 == 0 }
-            |> start(next: { key, group in
+            .groupBy { $0 % 2 == 0 }
+            .start(next: { key, group in
                 if key {
-                    group |> start(next: evens.append)
+                    group.start(next: { evens.append($0) })
                 } else {
-                    group |> start(next: odds.append)
+                    group.start(next: { odds.append($0) })
                 }
             },completed: {
                 completed = true
@@ -62,16 +62,17 @@ final class SignalProducerTests: XCTestCase {
         var completed = false
         
         disposable += producer
-            |> groupBy { $0 % 2 == 0 }
-            |> start(next: { key, group in
+            .groupBy { $0 % 2 == 0 }
+            .start(next: { key, group in
                 if key {
-                    group |> start(next: evens.append)
+                    group.start(next: { evens.append($0) })
                 } else {
-                    group |> start(next: odds.append)
+                    group.start(next: { odds.append($0) })
                 }
-                },completed: { completed = true },
-                interrupted: {
-                    interrupted = true
+            },completed: {
+                completed = true
+            }, interrupted: {
+                interrupted = true
             })
         
         1 --> sink

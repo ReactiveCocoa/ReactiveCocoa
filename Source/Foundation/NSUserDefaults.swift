@@ -14,23 +14,23 @@ extension NSUserDefaults {
     /// convertible this will generate events whenever _any_ value in NSUserDefaults
     /// changes.
     func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
-
         let center = NSNotificationCenter.defaultCenter()
+        let initial = objectForKey(key)
+
         let changes = center.rac_notifications(NSUserDefaultsDidChangeNotification)
-            |> map { notification in
+            .map { _ in
                 // The notification doesn't provide what changed so we have to look
                 // it up every time
-                return self.objectForKey(key)
-        }
+                self.objectForKey(key)
+            }
 
-        return SignalProducer<AnyObject?, NoError>(value: objectForKey(key))
-            |> concat(changes)
-            |> skipRepeats { previous, next in
-                if let previous = previous as? NSObject,
-                    let next = next as? NSObject {
-                        return previous == next
+        return SignalProducer<AnyObject?, NoError>(value: initial)
+            .concat(changes)
+            .skipRepeats { previous, next in
+                if let previous = previous as? NSObject, next = next as? NSObject {
+                    return previous == next
                 }
                 return false
-        }
+            }
     }
 }

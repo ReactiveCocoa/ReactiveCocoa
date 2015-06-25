@@ -17,10 +17,10 @@ final class SignalTests: XCTestCase {
         var values: [String] = []
 
         signal
-            |> filterMap {
+            .filterMap {
                 return $0 % 2 == 0 ? String($0) : nil
             }
-            |> observe(next: values.append)
+            .observe(next: { values.append($0) })
 
         1 --> sink
         XCTAssert(values == [])
@@ -40,8 +40,8 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            |> ignoreError
-            |> observe(completed: {
+            .ignoreError()
+            .observe(completed: {
                 completed = true
             })
 
@@ -57,8 +57,8 @@ final class SignalTests: XCTestCase {
         var interrupted = false
 
         signal
-            |> ignoreError(replacement: .Interrupted)
-            |> observe(interrupted: {
+            .ignoreError(replacement: .Interrupted)
+            .observe(interrupted: {
                 interrupted = true
             })
 
@@ -76,8 +76,8 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            |> observe(
+            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .observe(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             )
@@ -99,8 +99,8 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            |> observe(
+            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .observe(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             )
@@ -120,8 +120,8 @@ final class SignalTests: XCTestCase {
         var values: [Int] = []
 
         signal
-            |> uncollect
-            |> observe(next: {
+            .uncollect()
+            .observe(next: {
                 values.append($0)
             })
 
@@ -136,10 +136,6 @@ final class SignalTests: XCTestCase {
     }
 }
 
-enum TestError: Swift.ErrorType, ReactiveCocoa.ErrorType {
+enum TestError: ErrorType {
     case Default
-
-    var nsError: NSError {
-        return self as NSError
-    }
 }

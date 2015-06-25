@@ -12,10 +12,10 @@ import Foundation
 import ReactiveCocoa
 
 infix operator --> {
-associativity left
+    associativity left
 
-// bind as strong as assignment.
-precedence 90
+    // bind as strong as assignment.
+    precedence 90
 }
 
 /// Sends the value as the next event. Usage:
@@ -24,7 +24,7 @@ precedence 90
 ///
 /// - parameter value:     the next value.
 /// - parameter observer:  the observer that will handle the value.
-public func --><T, E>(value:T, sink:SinkOf<Event<T, E>>) {
+public func --><T, E>(value: T, sink: Signal<T, E>.Observer) {
     sendNext(sink, value)
 }
 
@@ -34,7 +34,7 @@ public func --><T, E>(value:T, sink:SinkOf<Event<T, E>>) {
 ///
 /// - parameter error:     the error to send.
 /// - parameter observer:  the observer that will handle the value.
-public func --><T, E>(error:E, sink:SinkOf<Event<T, E>>) {
+public func --><T, E>(error: E, sink: Signal<T, E>.Observer) {
     sendError(sink, error)
 }
 
@@ -45,6 +45,6 @@ prefix operator --| {}
 ///     --|sink
 ///
 /// - parameter observer: the sink to whcih the signal will be sent.
-public prefix func --|<T, E>(sink:SinkOf<Event<T, E>>) {
+public prefix func --|<T, E>(sink: Signal<T, E>.Observer) {
     return sendCompleted(sink)
 }

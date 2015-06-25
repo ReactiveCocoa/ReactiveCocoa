@@ -144,20 +144,20 @@ class ActionSpec: QuickSpec {
 				action = Action { value in SignalProducer(value: value + 1) }
 				expect(action.enabled.value).to(beTruthy())
 
-				expect(action.cocoaAction.enabled).toEventually(beTruthy())
+				expect(action.unsafeCocoaAction.enabled).toEventually(beTruthy())
 			}
 
 			#if os(OSX)
 				it("should be compatible with AppKit") {
 					let control = NSControl(frame: NSZeroRect)
-					control.target = action.cocoaAction
+					control.target = action.unsafeCocoaAction
 					control.action = CocoaAction.selector
 					control.performClick(nil)
 				}
 			#elseif os(iOS)
 				it("should be compatible with UIKit") {
 					let control = UIControl(frame: CGRectZero)
-					control.addTarget(action.cocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
+					control.addTarget(action.unsafeCocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
 					control.sendActionsForControlEvents(UIControlEvents.TouchDown)
 				}
 			#endif
@@ -165,7 +165,7 @@ class ActionSpec: QuickSpec {
 			it("should generate KVO notifications for enabled") {
 				var values: [Bool] = []
 
-				action.cocoaAction
+				action.unsafeCocoaAction
 					.rac_valuesForKeyPath("enabled", observer: nil)
 					.toSignalProducer()
 					|> map { $0! as! Bool }
@@ -181,7 +181,7 @@ class ActionSpec: QuickSpec {
 			it("should generate KVO notifications for executing") {
 				var values: [Bool] = []
 
-				action.cocoaAction
+				action.unsafeCocoaAction
 					.rac_valuesForKeyPath("executing", observer: nil)
 					.toSignalProducer()
 					|> map { $0! as! Bool }

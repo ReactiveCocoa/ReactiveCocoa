@@ -267,24 +267,22 @@ Note, how the values interleave and which values are even included in the result
 The `.Merge` strategy immediately forwards every value of the inner `SignalProducer`s to the outer `SignalProducer`. Any error sent on the outer producer or any inner producer is immediately sent on the flattened producer and terminates it.
 
 ```Swift
-let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal
-    |> flatten(FlattenStrategy.Merge)
-    |> start(next: println)
+signal |> flatten(FlattenStrategy.Merge) |> start(next: println)
 
-sendNext(sink, numbersSignal)
-sendNext(sink, lettersSignal)
+sendNext(sink, producerA)
+sendNext(sink, producerB)
 sendCompleted(sink)
 
-sendNext(numbersSink, 1)    // prints 1
-sendNext(lettersSink, "A")  // prints A
-sendNext(numbersSink, 2)    // prints 2
-sendNext(lettersSink, "B")  // prints B
-sendNext(numbersSink, 3)    // prints 3
-sendNext(lettersSink, "C")  // prints C
+sendNext(lettersSink, "a")    // prints "a"
+sendNext(numbersSink, "1")    // prints "1"
+sendNext(lettersSink, "b")    // prints "b"
+sendNext(numbersSink, "2")    // prints "2"
+sendNext(lettersSink, "c")    // prints "c"
+sendNext(numbersSink, "3")    // prints "3"
 ```
 
 ### Concatenating
@@ -292,26 +290,24 @@ sendNext(lettersSink, "C")  // prints C
 The `.Concat` strategy is used to serialize work of the inner `SignalProducer`s. The outer producer is started immediately. Each subsequent producer is not started until the preceeding one has completed. Errors are immediately forwarded to the flattened producer.
 
 ```Swift
-let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal
-    |> flatten(FlattenStrategy.Concat)
-    |> start(next: println)
+signal |> flatten(FlattenStrategy.Concat) |> start(next: println)
 
-sendNext(sink, numbersSignal)
-sendNext(sink, lettersSignal)
+sendNext(sink, producerA)
+sendNext(sink, producerB)
 sendCompleted(sink)
 
-sendNext(numbersSink, 1)    // prints 1
-sendNext(lettersSink, "A")  // nothing printed
-sendNext(numbersSink, 2)    // prints 2
-sendNext(lettersSink, "B")  // nothing printed
-sendNext(numbersSink, 3)    // prints 3
-sendNext(lettersSink, "C")  // nothing printed
-sendCompleted(numbersSink)  // prints A, B, C
-sendCompleted(lettersSink)
+sendNext(numbersSink, "1")    // nothing printed
+sendNext(lettersSink, "a")    // prints "a"
+sendNext(lettersSink, "b")    // prints "b"
+sendNext(numbersSink, "2")    // nothing printed
+sendNext(lettersSink, "c")    // prints "c"
+sendCompleted(lettersSink)    // prints "1", "2"
+sendNext(numbersSink, "3")    // prints "3"
+sendCompleted(numbersSink)
 ```
 
 ### Switching
@@ -319,22 +315,25 @@ sendCompleted(lettersSink)
 The `.Latest` strategy forwards only values from the latest input `SignalProducer`.
 
 ```Swift
-let (numbersSignal, numbersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (lettersSignal, lettersSink) = SignalProducer<AnyObject, NoError>.buffer(5)
-let (signal, sink) = SignalProducer<SignalProducer<AnyObject, NoError>, NoError>.buffer(5)
+let (producerA, sinkA) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, sinkB) = SignalProducer<String, NoError>.buffer(5)
+let (producerC, sinkC) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal
-    |> flatten(FlattenStrategy.Latest)
-    |> start(next: println)
+signal |> flatten(FlattenStrategy.Latest) |> start(next: println)
 
-sendNext(sink, numbersSignal)   // nothing printed
-sendNext(numbersSink, 1)        // prints 1
-sendNext(lettersSink, "A")      // nothing printed
-sendNext(sink, lettersSignal)   // prints A
-sendNext(numbersSink, 2)        // nothing printed
-sendNext(lettersSink, "B")      // prints B
-sendNext(numbersSink, 3)        // nothing printed
-sendNext(lettersSink, "C")      // prints C
+sendNext(sink, producerA)   // nothing printed
+sendNext(sinkC, "X")        // nothing printed
+sendNext(sinkA, "a")        // prints "a"
+sendNext(sinkB, "1")        // nothing printed
+sendNext(sink, producerB)   // prints "1"
+sendNext(sinkA, "b")        // nothing printed
+sendNext(sinkB, "2")        // prints "2"
+sendNext(sinkC, "Y")        // nothing printed
+sendNext(sinkA, "c")        // nothing printed
+sendNext(sink, producerC)   // prints "X", "Y"
+sendNext(sinkB, "3")        // nothing printed
+sendNext(sinkC, "Z")        // prints "Z"
 ```
 
 ## Handling errors

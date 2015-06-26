@@ -18,7 +18,6 @@ code-style will be used.
 **[Operator composition](#signal-operator-composition)**
 
   1. [Lifting](#lifting)
-  1. [Pipe](#pipe)
 
 **[Transforming signals](#transforming-signals)**
 
@@ -80,15 +79,13 @@ signal.observe(next: { next in
 
 Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
 
-`observe` is also available as operator that can be used with [|>](#pipe)
-
 ### Injecting effects
 
 Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
 
 ```Swift
 let producer = signalProducer
-    |> on(started: {
+    .on(started: {
         println("Started")
     }, event: { event in
         println("Event: \(event)")
@@ -113,23 +110,9 @@ Note that nothing will be printed until `producer` is started (possibly somewher
 
 ## Operator composition
 
-### Pipe
-
-The `|>` operator can be used to apply a signal operator to a signal. Multiple operators can be chained after each other using the `|>` operator
-
-```Swift
-intSignal
-    |> filter { num in num % 2 == 0 }
-    |> map(toString)
-    |> observe(next: { string in println(string) })
-```
-
 ### Lifting
 
-Signal operators can be _lifted_ to operate upon `SignalProducer`s with the `lift` operator.
-In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s just if the operator had been applied to each signal yielded from `start()`.
-
-The `|>` operator implicitly lifts signal operators, when used with `SignalProducer`s.
+Signal operators can be _lifted_ to operate upon `SignalProducer`s with the `lift` operator. In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s as if the operator had been applied to each signal yielded from `start()`.
 
 ## Transforming signals
 
@@ -142,8 +125,8 @@ The `map` operator is used to transform the values in a signal, creating a new s
 ```Swift
 let (signal, sink) = Signal<String, NoError>.pipe()
 signal
-    |> map { string in string.uppercaseString }
-    |> observe(next: println)
+    .map { string in string.uppercaseString }
+    .observe(next: println)
 
 sendNext(sink, "a")     // Prints A
 sendNext(sink, "b")     // Prints B
@@ -159,8 +142,8 @@ The `filter` operator is used to include only values in a signal that satisfy a 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
 signal
-    |> filter { number in number % 2 == 0 }
-    |> observe(next: println)
+    .filter { number in number % 2 == 0 }
+    .observe(next: println)
 
 sendNext(sink, 1)     // Not printed
 sendNext(sink, 2)     // Prints 2
@@ -178,8 +161,8 @@ The `reduce` operator is used to aggregate a signals values into a single combin
 let (signal, sink) = Signal<Int, NoError>.pipe()
 
 signal
-    |> reduce(1) { $0 * $1 }
-    |> observe(next: println)
+    .reduce(1) { $0 * $1 }
+    .observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
@@ -191,10 +174,7 @@ The `collect` operator is used to aggregate a signals values into a single array
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
-
-let collected = signal |> collect
-
-collected.observe(next: println)
+signal.collect().observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
@@ -217,7 +197,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    |> observe(next: println, completed: { println("Completed") })
+    .observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -242,7 +222,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    |> observe(next: println, completed: { println("Completed") })
+    .observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -294,7 +274,7 @@ let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Merge) |> start(next: println)
+signal.flatten(.Merge).start(next: println)
 
 sendNext(sink, producerA)
 sendNext(sink, producerB)
@@ -319,7 +299,7 @@ let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Concat) |> start(next: println)
+signal.flatten(.Concat).start(next: println)
 
 sendNext(sink, producerA)
 sendNext(sink, producerB)
@@ -347,7 +327,7 @@ let (producerB, sinkB) = SignalProducer<String, NoError>.buffer(5)
 let (producerC, sinkC) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Latest) |> start(next: println)
+signal.flatten(.Latest).start(next: println)
 
 sendNext(sink, producerA)   // nothing printed
 sendNext(sinkC, "X")        // nothing printed
@@ -376,8 +356,8 @@ let (producer, sink) = SignalProducer<String, NSError>.buffer(5)
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
 producer
-    |> catch { error in SignalProducer<String, NSError>(value: "Default") }
-    |> start(next: println)
+    .catch { error in SignalProducer<String, NSError>(value: "Default") }
+    .start(next: println)
 
 
 sendNext(sink, "First")     // prints "First"
@@ -403,10 +383,10 @@ let producer = SignalProducer<String, NSError> { (sink, _) in
 }
 
 producer
-    |> on(error: {e in println("Error")})             // prints "Error" twice
-    |> retry(2)
-    |> start(next: println,                           // prints "Success"
-            error: { _ in println("Signal Error")})
+    .on(error: {e in println("Error")})             // prints "Error" twice
+    .retry(2)
+    .start(next: println,                           // prints "Success"
+          error: { _ in println("Signal Error")})
 ```
 
 If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
@@ -433,7 +413,7 @@ enum CustomError: String, ErrorType {
 let (signal, sink) = Signal<String, NSError>.pipe()
 
 signal
-    |> mapError { (error: NSError) -> CustomError in
+    .mapError { (error: NSError) -> CustomError in
         switch error.domain {
         case "com.example.foo":
             return .Foo
@@ -443,7 +423,7 @@ signal
             return .Other
         }
     }
-    |> observe(error: println)
+    .observe(error: println)
 
 sendError(sink, NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```
@@ -457,8 +437,8 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NSError>.pipe()
 
 numbersSignal
-    |> promoteErrors(NSError)
-    |> combineLatestWith(lettersSignal)
+    .promoteErrors(NSError)
+    .combineLatestWith(lettersSignal)
 ```
 
 The given signal will still not actually generate errors, but some operators to [combine signals](#combining-signals) require the incoming signals to have matching error types.

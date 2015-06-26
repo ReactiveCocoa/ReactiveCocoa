@@ -173,22 +173,6 @@ sendNext(sink, 4)     // prints 4
 
 ### Aggregating
 
-The `collect` operator is used to aggregate a signals values into a single array value. Note, that the final value is only sent after the source signal completes.
-
-```Swift
-let (signal, sink) = Signal<Int, NoError>.pipe()
-
-let collected = signal |> collect
-
-collected.observe(next: println)
-
-sendNext(sink, 1)     // nothing printed
-sendNext(sink, 2)     // nothing printed
-sendNext(sink, 3)     // nothing printed
-sendCompleted(sink)   // prints [1, 2, 3]
-```
-
-
 The `reduce` operator is used to aggregate a signals values into a single combine value. Note, that the final value is only sent after the source signal completes.
 
 ```Swift
@@ -202,6 +186,21 @@ sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
 sendNext(sink, 3)     // nothing printed
 sendCompleted(sink)   // prints 6
+```
+
+The `collect` operator is used to aggregate a signals values into a single array value. Note, that the final value is only sent after the source signal completes.
+
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
+
+let collected = signal |> collect
+
+collected.observe(next: println)
+
+sendNext(sink, 1)     // nothing printed
+sendNext(sink, 2)     // nothing printed
+sendNext(sink, 3)     // nothing printed
+sendCompleted(sink)   // prints [1, 2, 3]
 ```
 
 [Interactive visualisation of the `reduce` operator.](http://neilpa.me/rac-marbles/#reduce)

@@ -68,15 +68,14 @@ Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` 
 
 ```Swift
 signal.observe(next: { next in
-        println("Next: \(next)")
-    }, error: { error in
-        println("Error: \(error)")
-    }, completed: {
-        println("Completed")
-    }, interrupted: {
-        println("Interrupted")
-    }
-)
+    println("Next: \(next)")
+}, error: { error in
+    println("Error: \(error)")
+}, completed: {
+    println("Completed")
+}, interrupted: {
+    println("Interrupted")
+})
 ```
 
 Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
@@ -90,21 +89,21 @@ Side effects can be injected on a `SignalProducer` with the `on` operator withou
 ```Swift
 let producer = signalProducer
     |> on(started: {
-	        println("Started")
-        }, event: { event in
-            println("Event: \(event)")
-        }, error: { error in
-            println("Error: \(error)")
-        }, completed: {
-            println("Completed")
-        }, interrupted: {
-            println("Interrupted")
-        }, terminated: {
-            println("Terminated")
-        }, disposed: {
-            println("Disposed")
-        }, next: { next in
-            println("Next: \(next)")
+        println("Started")
+    }, event: { event in
+        println("Event: \(event)")
+    }, error: { error in
+        println("Error: \(error)")
+    }, completed: {
+        println("Completed")
+    }, interrupted: {
+        println("Interrupted")
+    }, terminated: {
+        println("Terminated")
+    }, disposed: {
+        println("Disposed")
+    }, next: { next in
+        println("Next: \(next)")
     })
 ```
 

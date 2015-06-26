@@ -416,27 +416,36 @@ If the `SignalProducer` does not succeed after `count` tries, the resulting `Sig
 The `mapError` operator transforms errors in the signal to new errors. 
 
 ```Swift
-struct CustomError: ErrorType {
-    let code: Int
-    
-    init(_ code: Int) {
-        self.code = code
-    }
+enum CustomError: String, ErrorType {
+    case Foo = "Foo"
+    case Bar = "Bar"
+    case Other = "Other"
     
     var nsError: NSError {
-        get {
-            return NSError(domain: "domain", code: self.code, userInfo: nil)
-        }
+        return NSError(domain: "CustomError.\(rawValue)", code: 0, userInfo: nil)
+    }
+    
+    var description: String {
+        return "\(rawValue) Error"
     }
 }
 
-let (signal, sink) = Signal<String, CustomError>.pipe()
+let (signal, sink) = Signal<String, NSError>.pipe()
 
 signal
-    |> mapError { $0.nsError }
+    |> mapError { (error: NSError) -> CustomError in
+        switch error.domain {
+        case "com.example.foo":
+            return .Foo
+        case "com.example.bar":
+            return .Bar
+        default:
+            return .Other
+        }
+    }
     |> observe(error: println)
 
-sendError(sink, CustomError(404))   // Prints NSError with code 404
+sendError(sink, NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```
 
 ### Promote

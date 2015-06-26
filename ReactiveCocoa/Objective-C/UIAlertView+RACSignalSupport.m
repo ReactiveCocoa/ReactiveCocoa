@@ -39,7 +39,7 @@ static void RACUseDelegateProxy(UIAlertView *self) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self.rac_description];
+		setNameWithFormat:@"%@ -rac_buttonClickedSignal", RACDescription(self)];
 
 	RACUseDelegateProxy(self);
 
@@ -53,7 +53,7 @@ static void RACUseDelegateProxy(UIAlertView *self) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_willDismissSignal", self.rac_description];
+		setNameWithFormat:@"%@ -rac_willDismissSignal", RACDescription(self)];
 
 	RACUseDelegateProxy(self);
 

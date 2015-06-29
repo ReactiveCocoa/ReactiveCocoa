@@ -46,12 +46,7 @@ extension QueueScheduler {
 }
 
 private func defaultNSError(message: String, #file: String, #line: Int) -> NSError {
-	let error = Result<(), NSError>.error(file: file, line: line)
-
-	var userInfo = error.userInfo
-	userInfo?[NSLocalizedDescriptionKey] = message
-
-	return NSError(domain: error.domain, code: error.code, userInfo: userInfo)
+	return Result<(), NSError>.error(message: message, file: file, line: line)
 }
 
 extension RACSignal {

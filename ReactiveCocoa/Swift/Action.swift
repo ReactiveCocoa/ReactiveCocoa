@@ -100,7 +100,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			var startedExecuting = false
 
 			dispatch_sync(self.executingQueue) {
-				if Action.shouldBeEnabled(userEnabled: self.userEnabled.value, executing: self._executing.value) {
+				if self._enabled.value {
 					self._executing.value = true
 					startedExecuting = true
 				}

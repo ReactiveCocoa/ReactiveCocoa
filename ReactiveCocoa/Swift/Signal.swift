@@ -572,7 +572,7 @@ public func reduce<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> ->
 /// Aggregates `signal`'s values into a single combined value. When `signal` emits
 /// its first value, `combine` is invoked with `initial` as the first argument and
 /// that emitted value as the second argument. The result is emitted from the
-/// signal returned from `reduce`. That result is then passed to `combine` as the
+/// signal returned from `scan`. That result is then passed to `combine` as the
 /// first argument when the next value is emitted, and so on.
 public func scan<T, U, E>(initial: U, combine: (U, T) -> U) -> Signal<T, E> -> Signal<U, E> {
 	return { signal in

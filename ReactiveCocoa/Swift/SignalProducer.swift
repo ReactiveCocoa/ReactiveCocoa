@@ -109,70 +109,82 @@ public struct SignalProducer<T, E: ErrorType> {
 	public static func buffer(_ capacity: Int = Int.max) -> (SignalProducer, Signal<T, E>.Observer) {
 		precondition(capacity >= 0)
 
-		let lock = NSLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer"
+		// This is effectively used as a synchronous mutex, but permitting
+		// limited recursive locking (see below).
+		//
+		// The queue is a "variable" just so we can use its address as the key
+		// and the value for dispatch_queue_set_specific().
+		var queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer", DISPATCH_QUEUE_SERIAL)
+		dispatch_queue_set_specific(queue, &queue, &queue, nil)
 
-		var events: [Event<T, E>] = []
-		var terminationEvent: Event<T,E>?
-		let observers: Atomic<Bag<Signal<T, E>.Observer>?> = Atomic(Bag())
+		// Used as an atomic variable so we can remove observers without needing
+		// to run on the queue.
+		let state: Atomic<BufferState<T, E>> = Atomic(BufferState())
 
 		let producer = self { observer, disposable in
-			lock.lock()
-
+			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
-			observers.modify { (var observers) in
-				token = observers?.insert(observer)
-				return observers
+
+			let replay: () -> () = {
+				let originalState = state.modify { (var state) in
+					token = state.observers?.insert(observer)
+					return state
+				}
+
+				for value in originalState.values {
+					sendNext(observer, value)
+				}
+
+				if let terminationEvent = originalState.terminationEvent {
+					observer.put(terminationEvent)
+				}
 			}
 
-			for event in events {
-				observer.put(event)
+			// Prevent other threads from sending events while we're replaying,
+			// but don't deadlock if we're replaying in response to a buffer
+			// event observed elsewhere.
+			//
+			// In other words, this permits limited signal recursion for the
+			// specific case of replaying past events.
+			if dispatch_get_specific(&queue) != nil {
+				replay()
+			} else {
+				dispatch_sync(queue, replay)
 			}
-
-			if let terminationEvent = terminationEvent {
-				observer.put(terminationEvent)
-			}
-
-			lock.unlock()
 
 			if let token = token {
 				disposable.addDisposable {
-					observers.modify { (var observers) in
-						observers?.removeValueForToken(token)
-						return observers
+					state.modify { (var state) in
+						state.observers?.removeValueForToken(token)
+						return state
 					}
 				}
 			}
 		}
 
 		let bufferingObserver = Signal<T, E>.Observer { event in
-			lock.lock()
-			
-			let oldObservers = observers.modify { (var observers) in
-				if event.isTerminating {
-					return nil
-				} else {
-					return observers
-				}
-			}
+			// Send serially with respect to other senders, and never while
+			// another thread is in the process of replaying.
+			dispatch_sync(queue) {
+				let originalState = state.modify { (var state) in
+					if let value = event.value {
+						state.addValue(value, upToCapacity: capacity)
+					} else {
+						// Disconnect all observers and prevent future
+						// attachments.
+						state.terminationEvent = event
+						state.observers = nil
+					}
 
-			// If not disposed…
-			if let liveObservers = oldObservers {
-				if event.isTerminating {
-					terminationEvent = event
-				} else {
-					events.append(event)
-					while events.count > capacity {
-						events.removeAtIndex(0)
+					return state
+				}
+
+				if let observers = originalState.observers {
+					for observer in observers {
+						observer.put(event)
 					}
 				}
-
-				for observer in liveObservers {
-					observer.put(event)
-				}
 			}
-			
-			lock.unlock()
 		}
 
 		return (producer, bufferingObserver)
@@ -293,6 +305,30 @@ public struct SignalProducer<T, E: ErrorType> {
 					}
 				}
 			}
+		}
+	}
+}
+
+private struct BufferState<T, Error: ErrorType> {
+	// All values in the buffer.
+	var values: [T] = []
+
+	// Any terminating event sent to the buffer.
+	//
+	// This will be nil if termination has not occurred.
+	var terminationEvent: Event<T, Error>?
+
+	// The observers currently attached to the buffered producer, or nil if the
+	// producer was terminated.
+	var observers: Bag<Signal<T, Error>.Observer>? = Bag()
+
+	// Appends a new value to the buffer, trimming it down to the given capacity
+	// if necessary.
+	mutating func addValue(value: T, upToCapacity capacity: Int) {
+		values.append(value)
+
+		while values.count > capacity {
+			values.removeAtIndex(0)
 		}
 	}
 }

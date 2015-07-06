@@ -15,6 +15,8 @@ import Result
 /// different order between Signals, or the stream might be completely
 /// different!
 public struct SignalProducer<T, E: ErrorType> {
+	public typealias ProducedSignal = Signal<T, E>
+
 	private let startHandler: (Signal<T, E>.Observer, CompositeDisposable) -> ()
 
 	/// Initializes a SignalProducer that will invoke the given closure once

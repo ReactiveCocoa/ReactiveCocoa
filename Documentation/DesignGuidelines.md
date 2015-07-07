@@ -32,48 +32,48 @@ This states that an event stream consists of:
 
 After a terminating event, no other events will be received.
 
-### `Next`s provide values or indicate the occurrence of events
-### Errors behave like exceptions and propagate immediately
-### Interruption cancels outstanding work and usually propagates immediately
-### Completion indicates success
-### Events are serial
-### Events cannot be sent recursively
-### Events are sent synchronously by default
+#### `Next`s provide values or indicate the occurrence of events
+#### Errors behave like exceptions and propagate immediately
+#### Interruption cancels outstanding work and usually propagates immediately
+#### Completion indicates success
+#### Events are serial
+#### Events cannot be sent recursively
+#### Events are sent synchronously by default
 
 ## The `Signal` contract
 
-### Signals start work when instantiated
-### Observing a signal does not have side effects
-### All observers of a signal see the same events at the same time
-### Signals are retained until a terminating event occurs
-### Terminating events dispose of signal resources
+#### Signals start work when instantiated
+#### Observing a signal does not have side effects
+#### All observers of a signal see the same events at the same time
+#### Signals are retained until a terminating event occurs
+#### Terminating events dispose of signal resources
 
 ## The `SignalProducer` contract
 
-### Signal producers start work on demand by creating signals
-### Each produced signal may send different events at different times
-### Disposing of a produced signal will interrupt it
-### Signal operators can be lifted to apply to signal producers
+#### Signal producers start work on demand by creating signals
+#### Each produced signal may send different events at different times
+#### Disposing of a produced signal will interrupt it
+#### Signal operators can be lifted to apply to signal producers
 
 ## Best practices
 
-### Indent signal and producer chains consistently
-### Process only as many values as needed
-### Deliver events onto a known scheduler
-### Switch schedulers in as few places as possible
-### Capture side effects within signal producers
-### Share the side effects of a signal producer by sharing one produced signal
-### Prefer managing lifetime with operators over explicit disposal
-### Avoid using buffers when possible
+#### Indent signal and producer chains consistently
+#### Process only as many values as needed
+#### Deliver events onto a known scheduler
+#### Switch schedulers in as few places as possible
+#### Capture side effects within signal producers
+#### Share the side effects of a signal producer by sharing one produced signal
+#### Prefer managing lifetime with operators over explicit disposal
+#### Avoid using buffers when possible
 
 ## Implementing new operators
 
-### Prefer writing operators that apply to both signals and producers
-### Compose existing operators when possible
-### Avoid introducing concurrency
-### Cancel work and clean up all resources in a disposable
-### Forward error and interruption events
-### Never block in an operator function
+#### Prefer writing operators that apply to both signals and producers
+#### Compose existing operators when possible
+#### Avoid introducing concurrency
+#### Cancel work and clean up all resources in a disposable
+#### Forward error and interruption events
+#### Never block in an operator function
 
 [Framework Overview]: FrameworkOverview.md
 

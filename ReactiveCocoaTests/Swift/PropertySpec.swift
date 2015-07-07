@@ -76,7 +76,7 @@ class PropertySpec: QuickSpec {
 
 			it("should not deadlock on recursive value access") {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
-				var property = MutableProperty(0)
+				let property = MutableProperty(0)
 				var value: Int?
 
 				property <~ producer
@@ -86,6 +86,20 @@ class PropertySpec: QuickSpec {
 
 				sendNext(sink, 10)
 				expect(value).to(equal(10))
+			}
+
+			it("should not deadlock on recursive observation") {
+				let property = MutableProperty(0)
+
+				var value: Int?
+				property.producer.start(next: { _ in
+					property.producer.start(next: { x in value = x })
+				})
+
+				expect(value).to(equal(0))
+
+				property.value = 1
+				expect(value).to(equal(1))
 			}
 		}
 

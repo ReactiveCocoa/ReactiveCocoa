@@ -16,6 +16,7 @@ resource for getting up to speed on the functionality provided by RAC.
  1. Completion indicates success
  1. Events are serial
  1. Events cannot be sent recursively
+ 1. Events are sent synchronously by default
 
 **[The `Signal` contract](#the-signal-contract)**
 
@@ -34,7 +35,23 @@ resource for getting up to speed on the functionality provided by RAC.
 
 **[Best practices](#best-practices)**
 
+ 1. Indent signal and producer chains consistently
+ 1. Process only as many values as needed
+ 1. Deliver events onto a known scheduler
+ 1. Switch schedulers in as few places as possible
+ 1. Capture side effects within signal producers
+ 1. Share the side effects of a signal producer by sharing one produced signal
+ 1. Prefer managing lifetime with operators over explicit disposal
+ 1. Avoid using buffers when possible
+
 **[Implementing new operators](#implementing-new-operators)**
+
+ 1. Prefer writing operators that apply to both signals and producers
+ 1. Compose existing operators when possible
+ 1. Avoid introducing concurrency
+ 1. Cancel work and clean up all resources in a disposable
+ 1. Forward error and interruption events
+ 1. Never block in an operator function
 
 ## The `Event` contract
 

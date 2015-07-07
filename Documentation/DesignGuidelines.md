@@ -8,11 +8,11 @@ This document assumes basic familiarity
 with the features of ReactiveCocoa. The [Framework Overview][] is a better
 resource for getting up to speed on the functionality provided by RAC.
 
-1. [The `Event` contract](#the-event-contract)
-1. [The `Signal` contract](#the-signal-contract)
-1. [The `SignalProducer` contract](#the-signalproducer-contract)
-1. [Best practices](#best-practices)
-1. [Implementing new operators](#implementing-new-operators)
+1. **[The `Event` contract](#the-event-contract)**
+1. **[The `Signal` contract](#the-signal-contract)**
+1. **[The `SignalProducer` contract](#the-signalproducer-contract)**
+1. **[Best practices](#best-practices)**
+1. **[Implementing new operators](#implementing-new-operators)**
 
 ## The `Event` contract
 

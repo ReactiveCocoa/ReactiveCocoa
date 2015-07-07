@@ -16,6 +16,21 @@ resource for getting up to speed on the functionality provided by RAC.
 
 ## The `Event` contract
 
+Events are fundamental to ReactiveCocoa. Signals and signal producers both send
+events, and may be collectively called “event streams.”
+
+Event streams must conform to the following grammar:
+
+```
+Next* (Interrupted | Error | Completed)?
+```
+
+This states that an event stream consists of:
+
+ 1. Any number of `Next` events
+ 1. Optionally followed by one terminating event, which is any of `Interrupted`, `Error`, or `Completed`
+
+After a terminating event, no other events will be received.
 
 ### `Next`s provide values or indicate the occurrence of events
 ### Errors behave like exceptions and propagate immediately

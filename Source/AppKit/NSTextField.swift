@@ -12,34 +12,30 @@ import AppKit
 
 extension NSTextField {
     /// Producer will forward all text changes related to current NSTextField
-    public var rex_stringValueChanged : SignalProducer <String, NoError> {
-        return SignalProducer(values: [self.rex_stringValueChangedFromCode, self.rex_stringValueChangedFromUI]) |> flatten(FlattenStrategy.Merge)
+    public var rex_textChanged : SignalProducer <String, NoError> {
+        return SignalProducer(values: [rex_textChangedOnSelector, rex_textChangedOnNotification]) |> flatten(FlattenStrategy.Merge)
     }
     
-    public var rex_stringValueChangedFromCode : SignalProducer<String, NoError> {
-        let signalProducer : SignalProducer = self.rac_signalForSelector(Selector("setStringValue:")).toSignalProducer()
+    private var rex_textChangedOnSelector : SignalProducer<String, NoError> {
+        let signalProducer : SignalProducer = self.rac_signalForSelector("setStringValue:").toSignalProducer()
         return signalProducer
-            |> map { value in
-                let tuple = value as? RACTuple ?? RACTuple()
-                if let first = tuple.first as? String {
-                    return first
-                }
-                else {
+            |> map { next in
+                if let tuple = next as? RACTuple, text = tuple.first as? String {
+                    return text
+                } else {
                     return ""
                 }
             }
-            |> catch() { _ in SignalProducer<String, NoError>.empty }
+            |> ignoreError
     }
     
-    public var rex_stringValueChangedFromUI: SignalProducer<String, NoError> {
+    private var rex_textChangedOnNotification: SignalProducer<String, NoError> {
         return self.rac_textSignal().toSignalProducer()
-            |> flatMap(FlattenStrategy.Merge) { stringValue in
-                return SignalProducer<String, NSError> { observer, disposable in
-                    let stringValue = stringValue as? String ?? ""
-                    sendNext(observer, stringValue)
-                    sendCompleted(observer)
-                }
+            |> map { next in
+                precondition(next == nil || next is String)
+                
+                return next as? String ?? ""
             }
-            |> catch() { _ in SignalProducer<String, NoError>.empty }
+            |> ignoreError
     }
 }

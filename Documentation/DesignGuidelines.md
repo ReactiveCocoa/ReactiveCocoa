@@ -73,7 +73,7 @@ After a terminating event, no other events will be received.
 #### Avoid introducing concurrency
 #### Cancel work and clean up all resources in a disposable
 #### Forward error and interruption events
-#### Never block in an operator function
+#### Avoid blocking in operators
 
 [Framework Overview]: FrameworkOverview.md
 

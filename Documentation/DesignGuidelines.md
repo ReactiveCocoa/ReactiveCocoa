@@ -52,8 +52,8 @@ After a terminating event, no other events will be received.
 
 #### Signal producers start work on demand by creating signals
 #### Each produced signal may send different events at different times
-#### Disposing of a produced signal will interrupt it
 #### Signal operators can be lifted to apply to signal producers
+#### Disposing of a produced signal will interrupt it
 
 ## Best practices
 
@@ -70,9 +70,9 @@ After a terminating event, no other events will be received.
 
 #### Prefer writing operators that apply to both signals and producers
 #### Compose existing operators when possible
-#### Avoid introducing concurrency
-#### Cancel work and clean up all resources in a disposable
 #### Forward error and interruption events
+#### Cancel work and clean up all resources in a disposable
+#### Avoid introducing concurrency
 #### Avoid blocking in operators
 
 [Framework Overview]: FrameworkOverview.md

@@ -130,7 +130,17 @@ events to the observer.
 #### Forward error and interruption events
 #### Cancel work and clean up all resources in a disposable
 #### Avoid introducing concurrency
+
 #### Avoid blocking in operators
+
+Signal or producer operators should return a new signal or producer
+(respectively) as quickly as possible. Any work that the operator needs to
+perform should be part of the event handling logic, _not_ part of the operator
+invocation itself.
+
+This guideline can be safely ignored when the purpose of an operator is to
+synchronously retrieve one or more values from a stream, like `single()` or
+`wait()`.
 
 [flatten]: BasicOperators.md#flattening-producers
 [Framework Overview]: FrameworkOverview.md

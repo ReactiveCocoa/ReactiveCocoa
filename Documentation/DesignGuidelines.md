@@ -142,6 +142,14 @@ was passed to the initializer. This means that instantiating a `Signal` may have
 side effects, or start work even before the initializer returns.
 
 #### Observing a signal does not have side effects
+
+The work associated with a `Signal` does not start or stop when observers are
+added or removed, so the `observe()` method (or the cancellation thereof) never
+has side effects.
+
+A signal’s side effects can only be stopped through [a terminating
+event](#signals-are-retained-until-a-terminating-event-occurs).
+
 #### All observers of a signal see the same events at the same time
 #### Signals are retained until a terminating event occurs
 #### Terminating events dispose of signal resources

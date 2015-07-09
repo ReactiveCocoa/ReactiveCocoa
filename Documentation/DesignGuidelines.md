@@ -133,7 +133,14 @@ handler finishes.
 
 ## The `Signal` contract
 
+**TODO**
+
 #### Signals start work when instantiated
+
+When a `Signal` is created, it immediately executes the generator closure that
+was passed to the initializer. This means that instantiating a `Signal` may have
+side effects, or start work even before the initializer returns.
+
 #### Observing a signal does not have side effects
 #### All observers of a signal see the same events at the same time
 #### Signals are retained until a terminating event occurs
@@ -141,12 +148,16 @@ handler finishes.
 
 ## The `SignalProducer` contract
 
+**TODO**
+
 #### Signal producers start work on demand by creating signals
 #### Each produced signal may send different events at different times
 #### Signal operators can be lifted to apply to signal producers
 #### Disposing of a produced signal will interrupt it
 
 ## Best practices
+
+**TODO**
 
 #### Indent signal and producer chains consistently
 #### Process only as many values as needed
@@ -169,6 +180,8 @@ sooner, potentially saving a significant amount of work.
 #### Avoid using buffers when possible
 
 ## Implementing new operators
+
+**TODO**
 
 #### Prefer writing operators that apply to both signals and producers
 #### Compose existing operators when possible

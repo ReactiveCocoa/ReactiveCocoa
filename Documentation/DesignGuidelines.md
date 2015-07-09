@@ -49,6 +49,18 @@ Most of the event stream operators act upon `Next` events, as they represent the
 “meaningful data” of a signal or producer.
 
 #### Errors behave like exceptions and propagate immediately
+
+`Error` events indicate that something went wrong. Errors are fatal, and
+propagate as quickly as possible to the consumer for handling.
+
+Errors also behave like exceptions, in that they “skip” operators, terminating
+them along the way. In other words, most operators immediately stop doing work
+when an error is received, and then propagate the error onward.
+
+Consequently, errors should only be used to represent “abnormal” termination. If
+it is important to let operators (or consumers) finish their work, a `Next`
+event describing the result might be more appropriate.
+
 #### Interruption cancels outstanding work and usually propagates immediately
 #### Completion indicates success
 #### Events are serial

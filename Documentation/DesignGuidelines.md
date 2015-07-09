@@ -33,6 +33,21 @@ This states that an event stream consists of:
 After a terminating event, no other events will be received.
 
 #### `Next`s provide values or indicate the occurrence of events
+
+`Next` events contain a payload known as the “value.” Only `Next` events are
+said to have a value. Since an event stream can contain any number of `Next`s,
+there are few restrictions on what those values can mean or be used for, except
+that they must be of the same type.
+
+As an example, the value might represent an element from a collection, or
+a progress update about some long-running operation. The value of a `Next` event
+might even represent nothing at all—for example, it’s common to use a value type
+of `()` to indicate that something happened, without being more specific about
+what that something was.
+
+Most of the event stream operators act upon `Next` events, as they represent the
+“meaningful data” of a signal or producer.
+
 #### Errors behave like exceptions and propagate immediately
 #### Interruption cancels outstanding work and usually propagates immediately
 #### Completion indicates success

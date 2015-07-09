@@ -278,8 +278,6 @@ public func observeOn<T, E>(scheduler: SchedulerType) -> Signal<T, E> -> Signal<
 				scheduler.schedule {
 					observer(event)
 				}
-
-				return
 			}
 		}
 	}
@@ -480,8 +478,6 @@ public func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Sign
 					st.latestValue = value
 					return st
 				}
-
-				return
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {

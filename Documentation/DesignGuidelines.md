@@ -61,8 +61,26 @@ Consequently, errors should only be used to represent “abnormal” termination
 it is important to let operators (or consumers) finish their work, a `Next`
 event describing the result might be more appropriate.
 
-#### Interruption cancels outstanding work and usually propagates immediately
 #### Completion indicates success
+
+#### Interruption cancels outstanding work and usually propagates immediately
+
+An `Interrupted` event is sent when an event stream should cancel processing.
+Interruption is somewhere between [success](#completion-indicates-success)
+and [failure](#errors-behave-like-exceptions-and-propagate-immediately)—the
+operation was not successful, because it did not get to finish, but it didn’t
+necessarily “fail” either.
+
+Most operators will propagate interruption immediately, but there are some
+exceptions. For example, the [flattening operators][flatten] will ignore
+`Interrupted` events that occur on the _inner_ producers, since the cancellation
+of an inner operation should not necessarily cancel the larger unit of work.
+
+RAC will automatically send an `Interrupted` event upon disposal, but it can
+also be sent manually if necessary. Additionally, [custom
+operators](#implementing-new-operators) must make sure to forward interruption
+events to the observer.
+
 #### Events are serial
 #### Events cannot be sent recursively
 #### Events are sent synchronously by default
@@ -102,5 +120,6 @@ event describing the result might be more appropriate.
 #### Avoid introducing concurrency
 #### Avoid blocking in operators
 
+[flatten]: BasicOperators.md#flattening-producers
 [Framework Overview]: FrameworkOverview.md
 

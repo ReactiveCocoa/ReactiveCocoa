@@ -131,6 +131,9 @@ default, meaning that the observer will be synchronously invoked for each event
 as it is sent, and that the underlying work will not resume until the event
 handler finishes.
 
+This is similar to how `NSNotificationCenter` or `UIControl` events are
+distributed.
+
 ## The `Signal` contract
 
 **TODO**
@@ -151,6 +154,20 @@ A signal’s side effects can only be stopped through [a terminating
 event](#signals-are-retained-until-a-terminating-event-occurs).
 
 #### All observers of a signal see the same events at the same time
+
+Because [observation does not have side
+effects](#observing-a-signal-does-not-have-side-effects), a `Signal` never
+customizes events for different observers. When an event is sent upon a signal,
+it will be distributed to all observers “at the same time.”
+
+Since [events are synchronous by
+default](#events-are-sent-synchronously-by-default), the observers will not
+actually see the event simultaneously, but the behavior will be as close as
+possible.
+
+In other words, there are never different event “timelines” per observer. All
+observers effectively see the same stream of events.
+
 #### Signals are retained until a terminating event occurs
 #### Terminating events dispose of signal resources
 

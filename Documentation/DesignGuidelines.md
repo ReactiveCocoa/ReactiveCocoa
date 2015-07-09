@@ -63,6 +63,18 @@ event describing the result might be more appropriate.
 
 #### Completion indicates success
 
+An event stream sends `Completed` when the operation has completed successfully,
+or to indicate that the stream has terminated normally.
+
+Many operators manipulate the `Completed` event to shorten or extend the
+lifetime of an event stream.
+
+For example, `take()` will complete after the specified number of values have
+been received, thereby terminating the stream early. On the other hand, most
+operators that accept multiple signals or producers will wait until _all_ of
+them have completed before forwarding a `Completed` event, since a successful
+outcome will usually depend on all the inputs.
+
 #### Interruption cancels outstanding work and usually propagates immediately
 
 An `Interrupted` event is sent when an event stream should cancel processing.

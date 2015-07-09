@@ -122,6 +122,15 @@ an already-running event handler.
 
 #### Events are sent synchronously by default
 
+RAC does not implicitly introduce concurrency or asynchrony. Operators that
+accept a scheduler may, but they must be explicitly invoked by the consumer of
+the framework.
+
+A “vanilla” signal or producer will send all of its events synchronously by
+default, meaning that the observer will be synchronously invoked for each event
+as it is sent, and that the underlying work will not resume until the event
+handler finishes.
+
 ## The `Signal` contract
 
 #### Signals start work when instantiated

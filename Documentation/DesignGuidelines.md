@@ -118,6 +118,17 @@ events to the observer.
 
 #### Indent signal and producer chains consistently
 #### Process only as many values as needed
+
+Keeping an event stream alive longer than necessary can waste CPU and memory, as
+unnecessary work is performed for results that will never be used.
+
+If only a certain number of values or certain number of time is required from
+a signal or producer, operators like `take()` or `takeUntil()` can be used to
+automatically complete the stream once a certain condition is fulfilled.
+
+The benefit is exponential, too, as this will terminate dependent operators
+sooner, potentially saving a significant amount of work.
+
 #### Deliver events onto a known scheduler
 #### Switch schedulers in as few places as possible
 #### Capture side effects within signal producers
@@ -132,7 +143,6 @@ events to the observer.
 #### Forward error and interruption events
 #### Cancel work and clean up all resources in a disposable
 #### Avoid introducing concurrency
-
 #### Avoid blocking in operators
 
 Signal or producer operators should return a new signal or producer

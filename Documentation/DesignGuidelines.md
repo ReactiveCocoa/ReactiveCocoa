@@ -169,6 +169,16 @@ In other words, there are never different event “timelines” per observer. Al
 observers effectively see the same stream of events.
 
 #### Signals are retained until a terminating event occurs
+
+Because [signals start work immediately](#signals-start-work-when-instantiated)
+and [don’t care when observers are added or
+removed](#observing-a-signal-does-not-have-side-effects), a `Signal` must be
+able to keep itself alive, or else it might deallocate immediately.
+
+Consequently, a `Signal` will stay alive until the closure passed to `init`
+sends a terminating event to the given observer. Releasing the observer before
+sending a terminating event is undefined behavior.
+
 #### Terminating events dispose of signal resources
 
 ## The `SignalProducer` contract

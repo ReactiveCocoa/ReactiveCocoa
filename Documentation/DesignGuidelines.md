@@ -96,6 +96,14 @@ operators](#implementing-new-operators) must make sure to forward interruption
 events to the observer.
 
 #### Events are serial
+
+RAC guarantees that all events upon a stream will arrive serially. In other
+words, it’s impossible for the observer of a signal or producer to receive
+multiple `Event`s concurrently, even if the events are sent on multiple threads
+simultaneously.
+
+This simplifies operator implementations and consumers.
+
 #### Events cannot be sent recursively
 #### Events are sent synchronously by default
 

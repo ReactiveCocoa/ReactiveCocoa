@@ -351,7 +351,6 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 			sendNext(observer, scheduler.currentDate)
 		}
-		return ()
 	}
 }
 
@@ -411,7 +410,6 @@ public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> S
 					signal.observe(observer)
 				}
 			}
-			return ()
 		}
 	}
 }

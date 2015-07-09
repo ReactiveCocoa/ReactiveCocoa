@@ -105,6 +105,21 @@ simultaneously.
 This simplifies operator implementations and consumers.
 
 #### Events cannot be sent recursively
+
+Just like RAC guarantees that [events will not be received
+concurrently](#events-are-serial), it also guarantees that they won’t be
+received recursively. As a consequence, operators and observers _do not_ need to
+be reentrant.
+
+If an event is sent upon a signal from a thread that is _already processing_
+a previous event from that signal, deadlock will result. This is because
+recursive signals are usually programmer error, and the determinacy of
+a deadlock is preferable to nondeterministic race conditions.
+
+When a recursive signal is explicitly desired, the recursive event should be
+time-shifted, with an operator like `delay()`, to ensure that it isn’t sent from
+an already-running event handler.
+
 #### Events are sent synchronously by default
 
 ## The `Signal` contract

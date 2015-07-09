@@ -55,7 +55,9 @@ propagate as quickly as possible to the consumer for handling.
 
 Errors also behave like exceptions, in that they “skip” operators, terminating
 them along the way. In other words, most operators immediately stop doing work
-when an error is received, and then propagate the error onward.
+when an error is received, and then propagate the error onward. This even
+applies to time-shifted operators, like `delay()`—which, despite its name, will
+forward any errors immediately.
 
 Consequently, errors should only be used to represent “abnormal” termination. If
 it is important to let operators (or consumers) finish their work, a `Next`

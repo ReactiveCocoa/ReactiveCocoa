@@ -200,7 +200,6 @@ do not allow tasks to be reordered or depend on one another.
 
 
 [Design Guidelines]: DesignGuidelines.md
-[Memory Management]: MemoryManagement.md
 [BasicOperators]: BasicOperators.md
 [README]: ../README.md
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift

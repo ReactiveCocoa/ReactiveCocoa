@@ -202,7 +202,7 @@ released, and any resources being used to generate events should be disposed of.
 The easiest way to ensure proper resource cleanup is to return a [disposable][Disposables]
 from the generator closure, which will be disposed of when termination occurs.
 The disposable should be responsible for releasing memory, closing file handles,
-cancelling network requests, or anything else that may have been associated with
+canceling network requests, or anything else that may have been associated with
 the work being performed.
 
 ## The `SignalProducer` contract
@@ -223,7 +223,7 @@ instantiating the signal, the closure that was passed to
 of [events][] after any observers have been attached.
 
 Although the producer itself is not _really_ responsible for the execution of
-work, it’s common to speak of “starting” and “cancelling” a producer. These terms
+work, it’s common to speak of “starting” and “canceling” a producer. These terms
 refer to producing a `Signal` that will start work, and [disposing of that
 signal](#disposing-of-a-produced-signal-will-interrupt-it) to stop work.
 
@@ -351,6 +351,24 @@ results of that one [signal][Signals] to all observers, by attaching them within
 the closure passed to the [`startWithSignal`][startWithSignal] method.
 
 #### Prefer managing lifetime with operators over explicit disposal
+
+Although the [disposable][Disposables] returned from [`start`][start] makes
+canceling a [signal producer][Signal Producers] really easy, explicit use of
+disposables can quickly lead to a rat's nest of resource management and cleanup
+code.
+
+There are almost always higher-level [operators][] that can be used instead of manual
+disposal:
+
+ * [`take`][take] can be used to automatically terminate a stream once a certain
+   number of values have been received.
+ * [`takeUntil`][takeUntil] can be used to automatically terminate
+   a [signal][Signals] or producer when an event occurs (for example, when
+   a “Cancel” button is pressed in the UI).
+ * [Properties][] and the `<~` operator can be used to “bind” the result of
+   a signal or producer, until termination or until the property is deallocated.
+   This can replace a manual observation that sets a value somewhere.
+
 #### Avoid using buffers when possible
 
 ## Implementing new operators

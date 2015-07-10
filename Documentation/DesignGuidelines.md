@@ -136,11 +136,16 @@ distributed.
 
 ## The `Signal` contract
 
-**TODO**
+A [signal][Signals] is an “always on” stream that obeys [the `Event`
+contract](#the-event-contract).
+
+`Signal` is a reference type, because each signal has identity—in other words, each
+signal has its own lifetime, and may eventually terminate. Once terminated,
+a signal cannot be restarted.
 
 #### Signals start work when instantiated
 
-`Signal.init` immediately executes the generator closure that is passed to it.
+[`Signal.init`][Signal.init] immediately executes the generator closure that is passed to it.
 This means that side effects may occur even before the initializer returns.
 
 It is also possible to send events before the initializer returns. However,
@@ -165,8 +170,13 @@ it will be [synchronously](#events-are-sent-synchronously-by-default)
 distributed to all observers that are attached at that time, much like
 how `NSNotificationCenter` sends notifications.
 
-In other words, there are never different event “timelines” per observer. All
+In other words, there are not different event “timelines” per observer. All
 observers effectively see the same stream of events.
+
+There is one exception to this rule: adding an observer to a signal _after_ it
+has already terminated will result in exactly one
+[`Interrupted`](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
+event.
 
 #### A signal is retained until the underlying observer is released
 
@@ -259,5 +269,6 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [Operators]: BasicOperators.md
 [Properties]: FrameworkOverview.md#properties
 [Schedulers]: FrameworkOverview.md#schedulers
+[Signal.init]: ../ReactiveCocoa/Swift/Signal.swift
 [take]: ../ReactiveCocoa/Swift/Signal.swift
 

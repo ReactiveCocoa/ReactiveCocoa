@@ -262,7 +262,9 @@ automatically created and passed back.
 Disposing of this object will
 [interrupt](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
 the produced `Signal`, thereby canceling outstanding work and sending an
-`Interrupted` [event][Events] to all [observers][].
+`Interrupted` [event][Events] to all [observers][], and will also dispose of
+everything added to the [`CompositeDisposable`][CompositeDisposable] in
+[SignalProducer.init].
 
 Note that disposing of one produced `Signal` will not affect other signals created
 by the same `SignalProducer`.
@@ -409,7 +411,6 @@ possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
 #### Forward error and interruption events
-#### Cancel work and clean up all resources in a disposable
 #### Avoid introducing concurrency
 
 Concurrency is an extremely common source of bugs in programming. To minimize
@@ -431,6 +432,7 @@ This guideline can be safely ignored when the purpose of an operator is to
 synchronously retrieve one or more values from a stream, like `single()` or
 `wait()`.
 
+[CompositeDisposable]: ../ReactiveCocoa/Swift/Disposable.swift
 [Disposables]: FrameworkOverview.md#disposables
 [Events]: FrameworkOverview.md#events
 [Framework Overview]: FrameworkOverview.md

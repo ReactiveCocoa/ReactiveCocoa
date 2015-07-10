@@ -288,7 +288,18 @@ automatically complete the stream once a certain condition is fulfilled.
 The benefit is exponential, too, as this will terminate dependent operators
 sooner, potentially saving a significant amount of work.
 
-#### Deliver events onto a known scheduler
+#### Observe events on a known scheduler
+
+When receiving a [signal][Signals] or [producer][Signal Producers] from unknown
+code, it can be difficult to know which thread [events][] will arrive upon. Although
+events are [guaranteed to be serial](#events-are-serial), sometimes stronger
+guarantees are needed, like when performing UI updates (which must occur on the
+main thread).
+
+Whenever such a guarantee is important, the [`observeOn`][observeOn]
+[operator][Operators] should be used to force events to be received upon
+a specific [scheduler][Schedulers].
+
 #### Switch schedulers in as few places as possible
 #### Capture side effects within signal producers
 #### Share the side effects of a signal producer by sharing one produced signal
@@ -340,6 +351,7 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [flatten]: BasicOperators.md#flattening-producers
 [lift]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [observe]: ../ReactiveCocoa/Swift/Signal.swift
+[observeOn]: ../ReactiveCocoa/Swift/Signal.swift
 [start]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [startWithSignal]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [take]: ../ReactiveCocoa/Swift/Signal.swift

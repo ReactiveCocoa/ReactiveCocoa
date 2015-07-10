@@ -411,6 +411,15 @@ little code written from scratch.
 #### Forward error and interruption events
 #### Cancel work and clean up all resources in a disposable
 #### Avoid introducing concurrency
+
+Concurrency is an extremely common source of bugs in programming. To minimize
+the potential for deadlocks and race conditions, operators should not
+concurrently perform their work.
+
+Callers always have the ability to [observe events on a specific
+scheduler](#observe-events-on-a-known-scheduler), and RAC offers built-in ways
+to parallelize work, so custom operators don’t need to be concerned with it.
+
 #### Avoid blocking in operators
 
 Signal or producer operators should return a new signal or producer

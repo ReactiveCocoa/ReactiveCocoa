@@ -411,6 +411,13 @@ possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
 #### Forward error and interruption events
+
+Unless an operator is specifically built to handle
+[errors](#errors-behave-like-exceptions-and-propagate-immediately) and
+[interruption](#interruption-cancels-outstanding-work-and-usually-propagates-immedaitely)
+in a custom way, it should propagate those events to the observer as soon as
+possible, to ensure that their semantics are honored.
+
 #### Avoid introducing concurrency
 
 Concurrency is an extremely common source of bugs in programming. To minimize

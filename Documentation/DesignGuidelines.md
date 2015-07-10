@@ -207,10 +207,44 @@ the work being performed.
 
 ## The `SignalProducer` contract
 
-**TODO**
+A [signal producer][Signal Producers] is like a “recipe” for creating
+[signals][]. Signal producers do not do anything by themselves—[work begins only
+when a signal is produced](#signal-producers-start-work-on-demand-by-creating-signals).
+
+Since a signal producer is just a declaration of _how_ to create signals, it is
+a value type, and has no memory management to speak of.
 
 #### Signal producers start work on demand by creating signals
+
+The [`start`][start] and [`startWithSignal`][startWithSignal] methods each
+produce a `Signal` (implicitly and explicitly, respectively). After
+instantiating the signal, the closure that was passed to
+[`SignalProducer.init`][SignalProducer.init] will be executed, to start the flow
+of [events][] after any observers have been attached.
+
+Although the producer itself is not _really_ responsible for the execution of
+work, it’s common to speak of “starting” and “cancelling” a producer. These terms
+refer to producing a `Signal` that will start work, and cancelling that work
+using the [disposable][Disposables] from [`start`][start] or
+[`startWithSignal`][startWithSignal].
+
+A producer can be started any number of times (including zero), and the work
+associated with it will execute exactly that many times as well.
+
 #### Each produced signal may send different events at different times
+
+Because signal producers [start work on
+demand](#signal-producers-start-work-on-demand-by-creating-signals), there may
+be different [observers][] associated with each execution, and those observers
+may see completely different [event][Events] timelines.
+
+In other words, events are generated from scratch for each time the producer is
+started, and can be completely different (or in a completely different order)
+from other times the producer is started.
+
+Nonetheless, each execution of a signal producer will follow [the `Event`
+contract](#the-event-contract).
+
 #### Signal operators can be lifted to apply to signal producers
 #### Disposing of a produced signal will interrupt it
 
@@ -265,11 +299,14 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [Operators]: BasicOperators.md
 [Properties]: FrameworkOverview.md#properties
 [Schedulers]: FrameworkOverview.md#schedulers
-[Signal producers]: FrameworkOverview.md#signal-producers
+[Signal Producers]: FrameworkOverview.md#signal-producers
 [Signal.init]: ../ReactiveCocoa/Swift/Signal.swift
 [Signal.pipe]: ../ReactiveCocoa/Swift/Signal.swift
+[SignalProducer.init]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [Signals]: FrameworkOverview.md#signals
 [delay]: ../ReactiveCocoa/Swift/Signal.swift
 [flatten]: BasicOperators.md#flattening-producers
 [observe]: ../ReactiveCocoa/Swift/Signal.swift
+[start]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[startWithSignal]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [take]: ../ReactiveCocoa/Swift/Signal.swift

@@ -6,7 +6,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 
 This document assumes basic familiarity
 with the features of ReactiveCocoa. The [Framework Overview][] is a better
-resource for getting up to speed on the functionality provided by RAC.
+resource for getting up to speed on the main types and concepts provided by RAC.
 
 1. **[The `Event` contract](#the-event-contract)**
 1. **[The `Signal` contract](#the-signal-contract)**
@@ -16,7 +16,7 @@ resource for getting up to speed on the functionality provided by RAC.
 
 ## The `Event` contract
 
-Events are fundamental to ReactiveCocoa. Signals and signal producers both send
+[Events][] are fundamental to ReactiveCocoa. [Signals][] and [signal producers][] both send
 events, and may be collectively called “event streams.”
 
 Event streams must conform to the following grammar:
@@ -45,7 +45,7 @@ might even represent nothing at all—for example, it’s common to use a value 
 of `()` to indicate that something happened, without being more specific about
 what that something was.
 
-Most of the event stream operators act upon `Next` events, as they represent the
+Most of the event stream [operators][] act upon `Next` events, as they represent the
 “meaningful data” of a signal or producer.
 
 #### Errors behave like exceptions and propagate immediately
@@ -54,9 +54,9 @@ Most of the event stream operators act upon `Next` events, as they represent the
 propagate as quickly as possible to the consumer for handling.
 
 Errors also behave like exceptions, in that they “skip” operators, terminating
-them along the way. In other words, most operators immediately stop doing work
+them along the way. In other words, most [operators][] immediately stop doing work
 when an error is received, and then propagate the error onward. This even
-applies to time-shifted operators, like `delay()`—which, despite its name, will
+applies to time-shifted operators, like [`delay`][delay]—which, despite its name, will
 forward any errors immediately.
 
 Consequently, errors should only be used to represent “abnormal” termination. If
@@ -71,7 +71,7 @@ or to indicate that the stream has terminated normally.
 Many operators manipulate the `Completed` event to shorten or extend the
 lifetime of an event stream.
 
-For example, `take()` will complete after the specified number of values have
+For example, [`take`][take] will complete after the specified number of values have
 been received, thereby terminating the stream early. On the other hand, most
 operators that accept multiple signals or producers will wait until _all_ of
 them have completed before forwarding a `Completed` event, since a successful
@@ -85,12 +85,12 @@ and [failure](#errors-behave-like-exceptions-and-propagate-immediately)—the
 operation was not successful, because it did not get to finish, but it didn’t
 necessarily “fail” either.
 
-Most operators will propagate interruption immediately, but there are some
+Most [operators][] will propagate interruption immediately, but there are some
 exceptions. For example, the [flattening operators][flatten] will ignore
 `Interrupted` events that occur on the _inner_ producers, since the cancellation
 of an inner operation should not necessarily cancel the larger unit of work.
 
-RAC will automatically send an `Interrupted` event upon disposal, but it can
+RAC will automatically send an `Interrupted` event upon [disposal][Disposables], but it can
 also be sent manually if necessary. Additionally, [custom
 operators](#implementing-new-operators) must make sure to forward interruption
 events to the observer.
@@ -102,13 +102,13 @@ words, it’s impossible for the observer of a signal or producer to receive
 multiple `Event`s concurrently, even if the events are sent on multiple threads
 simultaneously.
 
-This simplifies operator implementations and consumers.
+This simplifies [operator][Operators] implementations and [observers][].
 
 #### Events cannot be sent recursively
 
 Just like RAC guarantees that [events will not be received
 concurrently](#events-are-serial), it also guarantees that they won’t be
-received recursively. As a consequence, operators and observers _do not_ need to
+received recursively. As a consequence, [operators][] and [observers][] _do not_ need to
 be reentrant.
 
 If an event is sent upon a signal from a thread that is _already processing_
@@ -117,17 +117,17 @@ recursive signals are usually programmer error, and the determinacy of
 a deadlock is preferable to nondeterministic race conditions.
 
 When a recursive signal is explicitly desired, the recursive event should be
-time-shifted, with an operator like `delay()`, to ensure that it isn’t sent from
+time-shifted, with an operator like [`delay`][delay], to ensure that it isn’t sent from
 an already-running event handler.
 
 #### Events are sent synchronously by default
 
-RAC does not implicitly introduce concurrency or asynchrony. Operators that
-accept a scheduler may, but they must be explicitly invoked by the consumer of
+RAC does not implicitly introduce concurrency or asynchrony. [Operators][] that
+accept a [scheduler][Schedulers] may, but they must be explicitly invoked by the consumer of
 the framework.
 
 A “vanilla” signal or producer will send all of its events synchronously by
-default, meaning that the observer will be synchronously invoked for each event
+default, meaning that the [observer][Observers] will be synchronously invoked for each event
 as it is sent, and that the underlying work will not resume until the event
 handler finishes.
 
@@ -249,5 +249,15 @@ synchronously retrieve one or more values from a stream, like `single()` or
 `wait()`.
 
 [flatten]: BasicOperators.md#flattening-producers
+[delay]: ../ReactiveCocoa/Swift/Signal.swift
+[Disposables]: FrameworkOverview.md#disposables
+[Events]: FrameworkOverview.md#events
 [Framework Overview]: FrameworkOverview.md
+[Signals]: FrameworkOverview.md#signals
+[Signal producers]: FrameworkOverview.md#signal-producers
+[Observers]: FrameworkOverview.md#observers
+[Operators]: BasicOperators.md
+[Properties]: FrameworkOverview.md#properties
+[Schedulers]: FrameworkOverview.md#schedulers
+[take]: ../ReactiveCocoa/Swift/Signal.swift
 

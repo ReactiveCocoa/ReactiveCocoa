@@ -6,7 +6,7 @@ Because the APIs are based on fundamentally different designs, the conversion is
 
 Below is the list of common conversions currently available.
 
-### Converting `RACSignal` to `SignalProducer` (or `Signal`)
+### Conversion Between `RACSignal` And `SignalProducer` (or `Signal`)
 
 In RAC 3, "cold" signals are represented by the `SignalProducer` type, and "hot" signals are represented by the `Signal` type. ([Learn more about RAC 3's architectural changes](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/swift-development/CHANGELOG.md)).
 
@@ -36,7 +36,7 @@ func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal
 
 The `RACSignal` created by these functions will observe the given signal. 
 
-### Converting `RACCommand` to `Action`
+### Conversion Between `RACCommand` And `Action`
 
 Use `RACCommand.toAction` to convert `RACCommand *` to `Action<AnyObject?, AnyObject?, NSError>`.
 
@@ -55,6 +55,6 @@ func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -
 
 Unfortunately, the `executing` properties of actions and commands are not synchronized across the API bridge. To ensure consistency, only observe the `executing` property from the base object (the one passed _into_ the bridge, not retrieved from it), so updates occur no matter which object is used for execution.
 
-### Converting `SchedulerType`s to `RACScheduler
+### Conversion Between `SchedulerType`s And `RACScheduler`
 
 TODO`

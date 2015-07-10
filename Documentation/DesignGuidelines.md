@@ -168,20 +168,25 @@ how `NSNotificationCenter` sends notifications.
 In other words, there are never different event “timelines” per observer. All
 observers effectively see the same stream of events.
 
-#### Signals are retained until a terminating event occurs
+#### A signal is retained until the underlying observer is released
 
-Because [signals start work immediately](#signals-start-work-when-instantiated)
-and [don’t care when observers are added or
-removed](#observing-a-signal-does-not-have-side-effects), a `Signal` must be
-able to keep itself alive, or else it might deallocate immediately.
+Even if the caller does not maintain a reference to the `Signal`:
 
-Consequently, a `Signal` will stay alive until the closure passed to `init`
-sends a terminating event to the given observer. Releasing the observer before
-sending a terminating event is undefined behavior.
+ - A signal created with `init` is kept alive until the generator closure
+   releases the observer argument.
+ - A signal created with `Signal.pipe` is kept alive until the returned observer
+   is released.
+
+This ensures that signals associated long-running work do not deallocate
+prematurely.
+
+Note that is is possible to release a signal before a terminating event has been
+sent upon it. This should usually be avoided, as it can result in resource
+leaks, but is sometimes useful when termination is undesirable.
 
 #### Terminating events dispose of signal resources
 
-When a `Signal` terminates in response to an event, all observers will be
+When a terminating event is sent along a `Signal`, all observers will be
 released, and any resources being used to generate events should be disposed of.
 
 The easiest way to ensure proper resource cleanup is to return a `Disposable`

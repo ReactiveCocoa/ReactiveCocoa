@@ -148,14 +148,14 @@ a signal cannot be restarted.
 [`Signal.init`][Signal.init] immediately executes the generator closure that is passed to it.
 This means that side effects may occur even before the initializer returns.
 
-It is also possible to send events before the initializer returns. However,
-since it is impossible for any observers to be attached at this point, any
+It is also possible to send [events][] before the initializer returns. However,
+since it is impossible for any [observers][] to be attached at this point, any
 events sent this way cannot be received.
 
 #### Observing a signal does not have side effects
 
-The work associated with a `Signal` does not start or stop when observers are
-added or removed, so the `observe()` method (or the cancellation thereof) never
+The work associated with a `Signal` does not start or stop when [observers][] are
+added or removed, so the [`observe`][observe] method (or the cancellation thereof) never
 has side effects.
 
 A signal’s side effects can only be stopped through [a terminating
@@ -165,7 +165,7 @@ event](#signals-are-retained-until-a-terminating-event-occurs).
 
 Because [observation does not have side
 effects](#observing-a-signal-does-not-have-side-effects), a `Signal` never
-customizes events for different observers. When an event is sent upon a signal,
+customizes events for different [observers][]. When an event is sent upon a signal,
 it will be [synchronously](#events-are-sent-synchronously-by-default)
 distributed to all observers that are attached at that time, much like
 how `NSNotificationCenter` sends notifications.
@@ -176,30 +176,30 @@ observers effectively see the same stream of events.
 There is one exception to this rule: adding an observer to a signal _after_ it
 has already terminated will result in exactly one
 [`Interrupted`](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
-event.
+event sent to that specific observer.
 
 #### A signal is retained until the underlying observer is released
 
 Even if the caller does not maintain a reference to the `Signal`:
 
- - A signal created with `init` is kept alive until the generator closure
-   releases the observer argument.
- - A signal created with `Signal.pipe` is kept alive until the returned observer
+ - A signal created with [`Signal.init`][Signal.init] is kept alive until the generator closure
+   releases the [observer][Observers] argument.
+ - A signal created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer
    is released.
 
 This ensures that signals associated long-running work do not deallocate
 prematurely.
 
-Note that is is possible to release a signal before a terminating event has been
+Note that is is possible to release a signal before a terminating [event][Events] has been
 sent upon it. This should usually be avoided, as it can result in resource
-leaks, but is sometimes useful when termination is undesirable.
+leaks, but is sometimes useful to disable termination.
 
 #### Terminating events dispose of signal resources
 
-When a terminating event is sent along a `Signal`, all observers will be
+When a terminating [event][Events] is sent along a `Signal`, all [observers][] will be
 released, and any resources being used to generate events should be disposed of.
 
-The easiest way to ensure proper resource cleanup is to return a `Disposable`
+The easiest way to ensure proper resource cleanup is to return a [disposable][Disposables]
 from the generator closure, which will be disposed of when termination occurs.
 The disposable should be responsible for releasing memory, closing file handles,
 cancelling network requests, or anything else that may have been associated with
@@ -258,17 +258,18 @@ This guideline can be safely ignored when the purpose of an operator is to
 synchronously retrieve one or more values from a stream, like `single()` or
 `wait()`.
 
-[flatten]: BasicOperators.md#flattening-producers
-[delay]: ../ReactiveCocoa/Swift/Signal.swift
 [Disposables]: FrameworkOverview.md#disposables
 [Events]: FrameworkOverview.md#events
 [Framework Overview]: FrameworkOverview.md
-[Signals]: FrameworkOverview.md#signals
-[Signal producers]: FrameworkOverview.md#signal-producers
 [Observers]: FrameworkOverview.md#observers
 [Operators]: BasicOperators.md
 [Properties]: FrameworkOverview.md#properties
 [Schedulers]: FrameworkOverview.md#schedulers
+[Signal producers]: FrameworkOverview.md#signal-producers
 [Signal.init]: ../ReactiveCocoa/Swift/Signal.swift
+[Signal.pipe]: ../ReactiveCocoa/Swift/Signal.swift
+[Signals]: FrameworkOverview.md#signals
+[delay]: ../ReactiveCocoa/Swift/Signal.swift
+[flatten]: BasicOperators.md#flattening-producers
+[observe]: ../ReactiveCocoa/Swift/Signal.swift
 [take]: ../ReactiveCocoa/Swift/Signal.swift
-

@@ -246,6 +246,14 @@ Nonetheless, each execution of a signal producer will follow [the `Event`
 contract](#the-event-contract).
 
 #### Signal operators can be lifted to apply to signal producers
+
+Due to the relationship between signals and signal producers, it is possible to
+automatically promote any [operators][] over one or more `Signal`s to apply to
+the same number of `SignalProducer`s instead, using the [`lift`][lift] method.
+
+`lift` will apply the behavior of the specified operator to each `Signal` that
+is [created when the signal produced is started](#signal-producers-start-work-on-demand-by-creating-signals).
+
 #### Disposing of a produced signal will interrupt it
 
 ## Best practices
@@ -306,6 +314,7 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [Signals]: FrameworkOverview.md#signals
 [delay]: ../ReactiveCocoa/Swift/Signal.swift
 [flatten]: BasicOperators.md#flattening-producers
+[lift]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [observe]: ../ReactiveCocoa/Swift/Signal.swift
 [start]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [startWithSignal]: ../ReactiveCocoa/Swift/SignalProducer.swift

@@ -383,6 +383,19 @@ These guidelines cover some of the common pitfalls and help preserve the
 expected API contracts.
 
 #### Prefer writing operators that apply to both signals and producers
+
+Since any [signal operator can apply to signal
+producers](#signal-operators-can-be-lifted-to-apply-to-signal-producers),
+writing custom operators in terms of [`Signal`][Signals] means that
+[`SignalProducer`][Signal Producers] will get it “for free.”
+
+Even if the caller only needs to apply the new operator to signal producers at
+first, this generality can save time and effort in the future.
+
+Of course, some capabilities _require_ producers (for example, any retrying or
+repeating), so it may not always be possible to write a signal-based version
+instead.
+
 #### Compose existing operators when possible
 #### Forward error and interruption events
 #### Cancel work and clean up all resources in a disposable

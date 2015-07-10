@@ -333,6 +333,23 @@ that it is started. This also means that if the producer is never started,
 a search will never have to be performed either.
 
 #### Share the side effects of a signal producer by sharing one produced signal
+
+If multiple [observers][] are interested in the results of a [signal
+producer][Signal Producers], calling [`start`][start] once for each observer
+means that the work associated with the producer will [execute that many
+times](#signal-producers-start-work-on-demand-by-creating-signals) and [may not
+generate the same results](#each-produced-signal-may-send-different-events-at-different-times).
+
+If:
+
+ 1. the observers need to receive the exact same results
+ 1. the observers know about each other, or
+ 1. the code starting the producer knows about each observer
+
+… it may be more appropriate to start the producer _just once_, and share the
+results of that one [signal][Signals] to all observers, by attaching them within
+the closure passed to the [`startWithSignal`][startWithSignal] method.
+
 #### Prefer managing lifetime with operators over explicit disposal
 #### Avoid using buffers when possible
 

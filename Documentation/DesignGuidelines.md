@@ -181,8 +181,8 @@ sending a terminating event is undefined behavior.
 
 #### Terminating events dispose of signal resources
 
-When a `Signal` terminates, and therefore its observers terminate, in response
-to an event, any resources being used to generate events should be disposed of.
+When a `Signal` terminates in response to an event, all observers will be
+released, and any resources being used to generate events should be disposed of.
 
 The easiest way to ensure proper resource cleanup is to return a `Disposable`
 from the generator closure, which will be disposed of when termination occurs.

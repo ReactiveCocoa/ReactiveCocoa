@@ -275,14 +275,14 @@ predictable, understandable, and performant.
 They are, however, only guidelines. Use best judgement when determining whether
 to apply the recommendations here to a given piece of code.
 
-#### Indent signal and producer chains consistently
 #### Process only as many values as needed
 
 Keeping an event stream alive longer than necessary can waste CPU and memory, as
 unnecessary work is performed for results that will never be used.
 
 If only a certain number of values or certain number of time is required from
-a signal or producer, operators like `take()` or `takeUntil()` can be used to
+a [signal][Signals] or [producer][Signal Producers], operators like
+[`take`][take] or [`takeUntil`][takeUntil] can be used to
 automatically complete the stream once a certain condition is fulfilled.
 
 The benefit is exponential, too, as this will terminate dependent operators
@@ -343,3 +343,4 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [start]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [startWithSignal]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [take]: ../ReactiveCocoa/Swift/Signal.swift
+[takeUntil]: ../ReactiveCocoa/Swift/Signal.swift

@@ -382,7 +382,8 @@ Implementing a new operator requires a careful attention to detail and a focus
 on simplicity, to avoid introducing bugs into the calling code.
 
 These guidelines cover some of the common pitfalls and help preserve the
-expected API contracts.
+expected API contracts. It may also help to look at the implementations of
+existing `Signal` and `SignalProducer` operators for reference points.
 
 #### Prefer writing operators that apply to both signals and producers
 

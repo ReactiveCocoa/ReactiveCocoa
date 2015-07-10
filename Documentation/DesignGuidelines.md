@@ -269,7 +269,11 @@ by the same `SignalProducer`.
 
 ## Best practices
 
-**TODO**
+The following recommendations are intended to help keep RAC-based code
+predictable, understandable, and performant.
+
+They are, however, only guidelines. Use best judgement when determining whether
+to apply the recommendations here to a given piece of code.
 
 #### Indent signal and producer chains consistently
 #### Process only as many values as needed
@@ -293,7 +297,16 @@ sooner, potentially saving a significant amount of work.
 
 ## Implementing new operators
 
-**TODO**
+RAC provides a long list of built-in [operators][] that should cover most use
+cases; however, RAC is not a closed system. It's entirely valid to implement
+additional operators for specialized uses, or for consideration in ReactiveCocoa
+itself.
+
+Implementing a new operator requires a careful attention to detail and a focus
+on simplicity, to avoid introducing bugs into the calling code.
+
+These guidelines cover some of the common pitfalls and help preserve the
+expected API contracts.
 
 #### Prefer writing operators that apply to both signals and producers
 #### Compose existing operators when possible

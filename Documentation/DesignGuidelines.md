@@ -369,8 +369,6 @@ disposal:
    a signal or producer, until termination or until the property is deallocated.
    This can replace a manual observation that sets a value somewhere.
 
-#### Avoid using buffers when possible
-
 ## Implementing new operators
 
 RAC provides a long list of built-in [operators][] that should cover most use

@@ -313,6 +313,25 @@ a [property][Properties]. This ensures that events arrive on the expected
 scheduler, without introducing multiple thread hops before their arrival.
 
 #### Capture side effects within signal producers
+
+Because [signal producers start work on
+demand](#signal-producers-start-work-on-demand-by-creating-signals), any
+functions or methods that return a [signal producer][Signal Producers] should
+make sure that side effects are captured _within_ the producer itself, instead
+of being part of the function or method call.
+
+For example, a function like this:
+
+```swift
+func search(text: String) -> SignalProducer<Result, NetworkError>
+```
+
+… should _not_ immediately start a search.
+
+Instead, the returned producer should execute the search once for every time
+that it is started. This also means that if the producer is never started,
+a search will never have to be performed either.
+
 #### Share the side effects of a signal producer by sharing one produced signal
 #### Prefer managing lifetime with operators over explicit disposal
 #### Avoid using buffers when possible

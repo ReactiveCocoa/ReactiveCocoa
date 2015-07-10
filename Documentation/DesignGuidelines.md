@@ -301,6 +301,17 @@ Whenever such a guarantee is important, the [`observeOn`][observeOn]
 a specific [scheduler][Schedulers].
 
 #### Switch schedulers in as few places as possible
+
+Notwithstanding the [above](#observe-events-on-a-known-scheduler), [events][]
+should only be delivered to a specific [scheduler][Schedulers] when absolutely
+necessary. Switching schedulers can introduce unnecessary delays and cause an
+increase in CPU load.
+
+Generally, [`observeOn`][observeOn] should only be used right before observing
+the [signal][Signals], starting the [producer][Signal Producer], or binding to
+a [property][Properties]. This ensures that events arrive on the expected
+scheduler, without introducing multiple thread hops before their arrival.
+
 #### Capture side effects within signal producers
 #### Share the side effects of a signal producer by sharing one produced signal
 #### Prefer managing lifetime with operators over explicit disposal

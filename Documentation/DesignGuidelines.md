@@ -224,9 +224,8 @@ of [events][] after any observers have been attached.
 
 Although the producer itself is not _really_ responsible for the execution of
 work, it’s common to speak of “starting” and “cancelling” a producer. These terms
-refer to producing a `Signal` that will start work, and cancelling that work
-using the [disposable][Disposables] from [`start`][start] or
-[`startWithSignal`][startWithSignal].
+refer to producing a `Signal` that will start work, and [disposing of that
+signal](#disposing-of-a-produced-signal-will-interrupt-it) to stop work.
 
 A producer can be started any number of times (including zero), and the work
 associated with it will execute exactly that many times as well.
@@ -255,6 +254,18 @@ the same number of `SignalProducer`s instead, using the [`lift`][lift] method.
 is [created when the signal produced is started](#signal-producers-start-work-on-demand-by-creating-signals).
 
 #### Disposing of a produced signal will interrupt it
+
+When a producer is started using the [`start`][start] or
+[`startWithSignal`][startWithSignal] methods, a [`Disposable`][Disposables] is
+automatically created and passed back.
+
+Disposing of this object will
+[interrupt](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
+the produced `Signal`, thereby canceling outstanding work and sending an
+`Interrupted` [event][Events] to all [observers][].
+
+Note that disposing of one produced `Signal` will not affect other signals created
+by the same `SignalProducer`.
 
 ## Best practices
 

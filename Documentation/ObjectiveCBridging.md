@@ -1,6 +1,6 @@
 # Objective-C Bridging
 
-While ReactiveCocoa 3.0 introduces an entirely new design, it also aims for maximum compatibility with RAC 2 to ease the pain of migratin. To support interoperability with RAC 2's Objective-C APIs, RAC 3 offers bridging functions that can convert RAC 2 types to RAC 3 and vice versa. 
+While ReactiveCocoa 3.0 introduces an entirely new design, it also aims for maximum compatibility with RAC 2 to ease the pain of migration. To support interoperability with RAC 2's Objective-C APIs, RAC 3 offers bridging functions that can convert RAC 2 types to RAC 3 and vice versa. 
 
 Because the APIs are based on fundamentally different designs, the conversion is not always one-to-one; however, every attempt has been made to faithfully translate the concepts between the two APIs (and languages).
 
@@ -57,4 +57,4 @@ Unfortunately, the `executing` properties of actions and commands are not synchr
 
 ### Conversion Between `SchedulerType`s And `RACScheduler`
 
-TODO`
+TODO

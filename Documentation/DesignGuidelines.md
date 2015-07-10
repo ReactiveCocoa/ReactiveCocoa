@@ -140,9 +140,12 @@ distributed.
 
 #### Signals start work when instantiated
 
-When a `Signal` is created, it immediately executes the generator closure that
-was passed to the initializer. This means that instantiating a `Signal` may have
-side effects, or start work even before the initializer returns.
+`Signal.init` immediately executes the generator closure that is passed to it.
+This means that side effects may occur even before the initializer returns.
+
+It is also possible to send events before the initializer returns. However,
+since it is impossible for any observers to be attached at this point, any
+events sent this way cannot be received.
 
 #### Observing a signal does not have side effects
 

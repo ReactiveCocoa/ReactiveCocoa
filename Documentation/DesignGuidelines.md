@@ -419,6 +419,36 @@ Unless an operator is specifically built to handle
 in a custom way, it should propagate those events to the observer as soon as
 possible, to ensure that their semantics are honored.
 
+#### Switch over `Event` values
+
+Instead of using [`start(error:completed:interrupted:next:)`][start] or
+[`observe(error:completed:interrupted:next:)`][observe], create your own
+[observer][Observers] to process raw [`Event`][Events] values, and use
+a `switch` statement to determine the event type.
+
+For example:
+
+```swift
+producer.start(SinkOf { event in
+    switch event {
+    case let .Next(value):
+        println("Next event: \(value)")
+
+    case let .Error(error):
+        println("Error event: \(error)")
+
+    case .Completed:
+        println("Completed event")
+
+    case .Interrupted:
+        println("Interrupted event")
+    }
+})
+```
+
+Since the compiler will generate a warning if the `switch` is missing any case,
+this prevents mistakes in a custom operator’s event handling.
+
 #### Avoid introducing concurrency
 
 Concurrency is an extremely common source of bugs in programming. To minimize

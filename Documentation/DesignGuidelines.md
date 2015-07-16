@@ -50,8 +50,9 @@ Most of the event stream [operators][] act upon `Next` events, as they represent
 
 #### Errors behave like exceptions and propagate immediately
 
-`Error` events indicate that something went wrong. Errors are fatal, and
-propagate as quickly as possible to the consumer for handling.
+`Error` events indicate that something went wrong, and contain a concrete error
+that indicates what happened. Errors are fatal, and propagate as quickly as
+possible to the consumer for handling.
 
 Errors also behave like exceptions, in that they “skip” operators, terminating
 them along the way. In other words, most [operators][] immediately stop doing work
@@ -62,6 +63,10 @@ forward any errors immediately.
 Consequently, errors should only be used to represent “abnormal” termination. If
 it is important to let operators (or consumers) finish their work, a `Next`
 event describing the result might be more appropriate.
+
+If an event stream can _never_ error out, it should be parameterized with the
+special [`NoError`][NoError] type, which statically guarantees that an error
+event cannot be sent upon the stream.
 
 #### Completion indicates success
 
@@ -474,6 +479,7 @@ synchronously retrieve one or more values from a stream, like `single()` or
 [Disposables]: FrameworkOverview.md#disposables
 [Events]: FrameworkOverview.md#events
 [Framework Overview]: FrameworkOverview.md
+[NoError]: ../ReactiveCocoa/Swift/Errors.swift
 [Observers]: FrameworkOverview.md#observers
 [Operators]: BasicOperators.md
 [Properties]: FrameworkOverview.md#properties

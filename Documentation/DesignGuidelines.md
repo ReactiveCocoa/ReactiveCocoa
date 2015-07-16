@@ -416,7 +416,7 @@ To minimize duplication and possible bugs, use the provided operators as much as
 possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
-#### Forward error and interruption events
+#### Forward error and interruption events as soon as possible
 
 Unless an operator is specifically built to handle
 [errors](#errors-behave-like-exceptions-and-propagate-immediately) and

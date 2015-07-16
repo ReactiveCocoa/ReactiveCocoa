@@ -192,7 +192,7 @@ Even if the caller does not maintain a reference to the `Signal`:
  - A signal created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer
    is released.
 
-This ensures that signals associated long-running work do not deallocate
+This ensures that signals associated with long-running work do not deallocate
 prematurely.
 
 Note that is is possible to release a signal before a terminating [event][Events] has been

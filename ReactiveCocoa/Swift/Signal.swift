@@ -25,9 +25,9 @@ public final class Signal<T, E: ErrorType> {
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
-	/// The Signal will remain alive until a terminating event is sent to the
-	/// observer, at which point the disposable returned from the closure will
-	/// be disposed as well.
+	/// The disposable returned from the closure will be automatically disposed
+	/// if a terminating event is sent to the observer. The Signal itself will
+	/// remain alive until the observer is released.
 	public init(_ generator: Observer -> Disposable?) {
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 

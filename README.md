@@ -152,7 +152,7 @@ Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library. T
 
 The following are some of the concrete differences, along with their rationales.
 
-#### Naming
+### Naming
 
 Most operations in Rx borrow names from
 [LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx), which uses terms
@@ -165,7 +165,7 @@ significantly better alternatives from [Haskell](https://www.haskell.org) or
 [Elm](http://elm-lang.org) (which is the primary source for the “signal”
 terminology).
 
-#### Signals and Signal Producers (“hot” and “cold” observables)
+### Signals and Signal Producers (“hot” and “cold” observables)
 
 One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and
 “warm”
@@ -194,7 +194,7 @@ communicates intent much better.
 In other words, **ReactiveCocoa’s changes here are [simple, not
 easy](http://www.infoq.com/presentations/Simple-Made-Easy)**.
 
-#### UI programming
+### UI programming
 
 Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
 very common, it has few features tailored to that particular case.

@@ -169,18 +169,6 @@ significantly better alternatives from [Haskell](https://www.haskell.org) or
 [Elm](http://elm-lang.org) (which is the primary source for the “signal”
 terminology).
 
-#### UI programming
-
-Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
-very common, it has few features tailored to that particular case.
-
-RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net),
-including the basis for [Actions](Documentation/FrameworkOverview.md#actions).
-
-Unlike ReactiveUI, which unfortunately cannot directly change Rx to make it more
-friendly for UI programming, ReactiveCocoa has been improved many times
-specifically for this purpose—even when it means diverging further from Rx.
-
 #### Signals and Signal Producers (“hot” and “cold” observables)
 
 One of the most confusing aspects of aspects of Rx is that of “hot”, “cold”, and
@@ -208,6 +196,18 @@ communicates intent much better.
 
 In other words, ReactiveCocoa’s changes here are [simple, not
 easy](http://www.infoq.com/presentations/Simple-Made-Easy).
+
+#### UI programming
+
+Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
+very common, it has few features tailored to that particular case.
+
+RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net),
+including the basis for [Actions](Documentation/FrameworkOverview.md#actions).
+
+Unlike ReactiveUI, which unfortunately cannot directly change Rx to make it more
+friendly for UI programming, ReactiveCocoa has been improved many times
+specifically for this purpose—even when it means diverging further from Rx.
 
 ## Getting started
 

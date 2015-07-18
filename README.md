@@ -138,16 +138,18 @@ our event stream.
 ## Objective-C and Swift
 
 Although ReactiveCocoa was started as an Objective-C framework, as of version
-3.0, all major feature development is concentrated on the Swift API.
+3.0, all major feature development is concentrated on the [Swift API][].
 
-RAC’s Objective-C API and Swift API are entirely separate, but there is
+RAC’s [Objective-C API][] and Swift API are entirely separate, but there is
 a [bridge][Objective-C Bridging] to convert between the two. This
 is mostly meant as a compatibility layer for older ReactiveCocoa projects, or to
 use Cocoa extensions which haven’t been added to the Swift API yet.
 
 The Objective-C API will continue to exist and be supported for the foreseeable
-future, but it won’t receive many improvements. **We highly recommend that all
-new projects use the Swift API.**
+future, but it won’t receive many improvements. For more information about using
+this API, please consult our [legacy documentation][].
+
+**We highly recommend that all new projects use the Swift API.**
 
 ## How does ReactiveCocoa relate to Rx?
 
@@ -254,7 +256,10 @@ introductory examples of using it.
 [Documentation]: Documentation
 [Events]: Documentation/FrameworkOverview.md#events
 [Framework Overview]: Documentation/FrameworkOverview.md
+[Legacy Documentation]: Documentation/Legacy
+[Objective-C API]: ReactiveCocoa/Objective-C
 [Objective-C Bridging]: Documentation/ObjectiveCBridging.md
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers
 [Signals]: Documentation/FrameworkOverview.md#signals
+[Swift API]: ReactiveCocoa/Swift
 [flatMapLatest]: Documentation/BasicOperators.md#switching-to-the-latest

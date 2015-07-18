@@ -29,8 +29,8 @@ _Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsori
 ReactiveCocoa is inspired by [functional reactive
 programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
 Rather than using mutable variables which are replaced and modified in-place,
-RAC offers “event streams,” represented by the `Signal` and `SignalProducer`
-types, that send values over time.
+RAC offers “event streams,” represented by the [`Signal`][Signals] and
+[`SignalProducer`][Signal producers] types, that send values over time.
 
 Event streams unify all of Cocoa’s common patterns for asynchrony and event
 handling, including:
@@ -87,7 +87,7 @@ let searchResults = searchStrings
 This has transformed our producer of `String`s into a producer of `Array`s
 containing the search results.
 
-Additionally, `flatMap(.Latest)` here ensures that _only one search_—the
+Additionally, [`flatMap(.Latest)`][flatMapLatest] here ensures that _only one search_—the
 latest—is allowed to be running. If the user types another character while the
 network request is still in flight, it will be cancelled before starting a new
 one. Just think of how much code that would take to do by hand!
@@ -162,7 +162,7 @@ The following are some of the concrete differences, along with their rationales.
 
 #### Naming
 
-Most operations in Rx borrow names from
+Many operations in Rx borrow names from
 [LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx), which uses terms
 reminiscient of relational databases, like `Select` and `Where`. Streams over
 time are known as `Observable`s, which parallels the `Enumerable` type in .NET.
@@ -175,8 +175,7 @@ terminology).
 
 #### Signals and Signal Producers (“hot” and “cold” observables)
 
-One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and
-“warm”
+One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and “warm”
 observables](http://www.introtorx.com/content/v1.0.10621.0/14_HotAndColdObservables.html) (event streams).
 
 In short, given just a method or function declaration like this, in C#:
@@ -195,7 +194,7 @@ that makes it extremely hard to understand Rx code (and pre-3.0 ReactiveCocoa
 code) at a glance.
 
 [ReactiveCocoa 3.0][CHANGELOG] has solved this problem by distinguishing side
-effects with the separate `Signal` and `SignalProducer` types. Although this
+effects with the separate [`Signal`][Signals] and [`SignalProducer`][Signal producers] types. Although this
 means there’s another type to learn about, it improves code clarity and helps
 communicates intent much better.
 
@@ -237,13 +236,16 @@ github "ReactiveCocoa/ReactiveCocoa"
 ```
 
 If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
-[unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that have been generously contributed by third parties.
+[unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa)
+that have been generously contributed by third parties.
 
 
 [Actions]: Documentation/FrameworkOverview.md#actions
+[flatMapLatest]: Documentation/BasicOperators.md#switching-to-the-latest
 [CHANGELOG]: CHANGELOG.md
 [Code]: ReactiveCocoa
 [Documentation]: Documentation
 [Events]: Documentation/FrameworkOverview.md#events
 [ObjectiveCBridging]: Documentation/ObjectiveCBridging.md
+[Signals]: Documentation/FrameworkOverview.md#signals
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers

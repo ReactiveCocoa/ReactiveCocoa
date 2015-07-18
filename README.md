@@ -47,12 +47,91 @@ code and state to bridge the gap.
 
 ## Example: online search
 
-TODO
+Let’s say you have a text field, and whenever the user types something into it,
+you want to make a network request which searches for that query.
 
-That demonstrates some of what RAC can do, but it doesn't demonstrate why RAC is
-so powerful. It's hard to appreciate RAC from README-sized examples, but it
-makes it possible to write code with less state, less boilerplate, better code
-locality, and better expression of intent.
+#### Observing text edits
+
+The first step is to observe edits to the text field, using a RAC extension to
+`UITextField` specifically for this purpose:
+
+```swift
+let searchStrings = textField.rac_textSignal()
+    |> toSignalProducer()
+    |> map { text in text as! String }
+```
+
+This gives us a [signal
+producer](Documentation/FrameworkOverview.md#signal-producers) which sends
+values of type `String`. _(The cast is [currently
+necessary](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2182) to bridge
+this extension method from Objective-C.)_
+
+#### Making network requests
+
+With each string, we want to execute a network request. Luckily, RAC offers an
+`NSURLSession` extension for doing exactly that:
+
+```swift
+let searchResults = searchStrings
+    |> flatMap(.Latest) { query in
+        let URLRequest = self.searchRequestWithEscapedQuery(query)
+        return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
+    }
+    |> map { data, URLResponse in
+        let string = String(data: data, encoding: NSUTF8StringEncoding)!
+        return parseJSONResultsFromString(string)
+    }
+```
+
+This has transformed our producer of `String`s into a producer of `Array`s
+containing the search results.
+
+Additionally, `flatMap(.Latest)` here ensures that _only one search_—the
+latest—is allowed to be running. If the user types another character while the
+network request is still in flight, it will be cancelled before starting a new
+one. Just think of how much code that would take to do by hand!
+
+#### Receiving the results
+
+This won’t actually execute yet, because producers must be _started_ in order to
+receive the results (which prevents doing work when the results are never used).
+That’s easy enough:
+
+```swift
+searchResults.start(next: { results in
+    println("Search results: \(results)")
+}, error: { error in
+    println("Error searching: \(error)")
+})
+```
+
+Here, we watch for the `Next` and `Error`
+[events](Documentation/FrameworkOverview.md#events), and just log to the
+console. This could easily do something else instead, like update a table view
+or a label on screen.
+
+#### Throttling requests
+
+Now, let’s say you only want to actually perform the search when the user pauses
+typing, to minimize traffic.
+
+ReactiveCocoa has a declarative `throttle` operator that we can apply to our
+search strings:
+
+```swift
+let searchStrings = textField.rac_textSignal()
+    |> toSignalProducer()
+    |> map { text in text as! String }
+    |> throttle(0.5, onScheduler: UIScheduler())
+```
+
+This prevents values from being sent less than 0.5 seconds apart, so the user
+must stop editing for at least that long before we’ll use their search string.
+
+To do this manually would require significant state, and end up much harder to
+read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into
+our event stream.
 
 ## How does ReactiveCocoa relate to Rx?
 

@@ -20,7 +20,6 @@ types will be referred to by name.
 **[Operator composition](#operator-composition)**
 
   1. [Lifting](#lifting)
-  1. [Pipe](#pipe)
 
 **[Transforming event streams](#transforming-event-streams)**
 
@@ -82,15 +81,13 @@ signal.observe(next: { next in
 
 Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
 
-`observe` is also available as operator that can be used with [|>](#pipe)
-
 ### Injecting effects
 
 Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
 
 ```Swift
 let producer = signalProducer
-    |> on(started: {
+    .on(started: {
         println("Started")
     }, event: { event in
         println("Event: \(event)")
@@ -136,9 +133,6 @@ This will create a new `SignalProducer` which will apply the given operator to
 _every_ `Signal` created, just as if the operator had been applied to each
 produced `Signal` individually.
 
-The `|>` operator implicitly lifts `Signal` operators, so it can be used to
-apply them directly to `SignalProducer`s.
-
 ## Transforming event streams
 
 These operators transform an event stream into a new stream.
@@ -152,8 +146,8 @@ a new stream with the results.
 let (signal, sink) = Signal<String, NoError>.pipe()
 
 signal
-    |> map { string in string.uppercaseString }
-    |> observe(next: println)
+    .map { string in string.uppercaseString }
+    .observe(next: println)
 
 sendNext(sink, "a")     // Prints A
 sendNext(sink, "b")     // Prints B
@@ -171,8 +165,8 @@ satisfy a predicate.
 let (signal, sink) = Signal<Int, NoError>.pipe()
 
 signal
-    |> filter { number in number % 2 == 0 }
-    |> observe(next: println)
+    .filter { number in number % 2 == 0 }
+    .observe(next: println)
 
 sendNext(sink, 1)     // Not printed
 sendNext(sink, 2)     // Prints 2
@@ -192,8 +186,8 @@ completes.
 let (signal, sink) = Signal<Int, NoError>.pipe()
 
 signal
-    |> reduce(1) { $0 * $1 }
-    |> observe(next: println)
+    .reduce(1) { $0 * $1 }
+    .observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
@@ -207,10 +201,7 @@ stream completes.
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
-
-let collected = signal |> collect
-
-collected.observe(next: println)
+signal.collect().observe(next: println)
 
 sendNext(sink, 1)     // nothing printed
 sendNext(sink, 2)     // nothing printed
@@ -239,7 +230,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    |> observe(next: println, completed: { println("Completed") })
+    .observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -268,7 +259,7 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    |> observe(next: println, completed: { println("Completed") })
+    .observe(next: println, completed: { println("Completed") })
 
 sendNext(numbersSink, 0)    // nothing printed
 sendNext(numbersSink, 1)    // nothing printed
@@ -320,7 +311,7 @@ let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Merge) |> start(next: println)
+signal.flatten(.Merge).start(next: println)
 
 sendNext(sink, producerA)
 sendNext(sink, producerB)
@@ -345,7 +336,7 @@ let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Concat) |> start(next: println)
+signal.flatten(.Concat).start(next: println)
 
 sendNext(sink, producerA)
 sendNext(sink, producerB)
@@ -373,7 +364,7 @@ let (producerB, sinkB) = SignalProducer<String, NoError>.buffer(5)
 let (producerC, sinkC) = SignalProducer<String, NoError>.buffer(5)
 let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal |> flatten(FlattenStrategy.Latest) |> start(next: println)
+signal.flatten(.Latest).start(next: println)
 
 sendNext(sink, producerA)   // nothing printed
 sendNext(sinkC, "X")        // nothing printed
@@ -402,8 +393,8 @@ let (producer, sink) = SignalProducer<String, NSError>.buffer(5)
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
 producer
-    |> catch { error in SignalProducer<String, NSError>(value: "Default") }
-    |> start(next: println)
+    .catch { error in SignalProducer<String, NSError>(value: "Default") }
+    .start(next: println)
 
 
 sendNext(sink, "First")     // prints "First"
@@ -429,10 +420,10 @@ let producer = SignalProducer<String, NSError> { (sink, _) in
 }
 
 producer
-    |> on(error: {e in println("Error")})             // prints "Error" twice
-    |> retry(2)
-    |> start(next: println,                           // prints "Success"
-            error: { _ in println("Signal Error")})
+    .on(error: {e in println("Error")})             // prints "Error" twice
+    .retry(2)
+    .start(next: println,                           // prints "Success"
+          error: { _ in println("Signal Error")})
 ```
 
 If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
@@ -459,7 +450,7 @@ enum CustomError: String, ErrorType {
 let (signal, sink) = Signal<String, NSError>.pipe()
 
 signal
-    |> mapError { (error: NSError) -> CustomError in
+    .mapError { (error: NSError) -> CustomError in
         switch error.domain {
         case "com.example.foo":
             return .Foo
@@ -469,7 +460,7 @@ signal
             return .Other
         }
     }
-    |> observe(error: println)
+    .observe(error: println)
 
 sendError(sink, NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```
@@ -483,8 +474,8 @@ let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersSink) = Signal<String, NSError>.pipe()
 
 numbersSignal
-    |> promoteErrors(NSError)
-    |> combineLatestWith(lettersSignal)
+    .promoteErrors(NSError)
+    .combineLatestWith(lettersSignal)
 ```
 
 The given stream will still not _actually_ generate errors, but this is useful

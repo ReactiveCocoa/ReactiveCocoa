@@ -27,7 +27,7 @@ public enum Event<T, E: ErrorType> {
 	/// will be received.
 	case Interrupted
 	
-	public typealias Sink = Event<T, E> -> ()
+ 	public typealias Sink = Event -> ()
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -156,6 +156,22 @@ extension Event: CustomStringConvertible {
 		case .Interrupted:
 			return "INTERRUPTED"
 		}
+	}
+}
+
+/// Event protocol for constraining signal extensions
+public protocol EventType {
+	// The value type of an event.
+	typealias T
+	/// The error type of an event. If errors aren't possible then `NoError` can be used.
+	typealias E: ErrorType
+	/// Extracts the event from the receiver.
+	var event: Event<T, E> { get }
+}
+
+extension Event: EventType {
+	public var event: Event<T, E> {
+		return self
 	}
 }
 

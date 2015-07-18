@@ -53,8 +53,6 @@ Signals can be manipulated by applying [primitives][BasicOperators] to them.
 Typical primitives to manipulate a single signal like `filter`, `map` and
 `reduce` are available, as well as primitives to manipulate multiple signals
 at once (`zip`). Primitives operate only on the `Next` events of a signal.
-The `|>` operator is used to apply primitives to a signal. It can also be used
-to compose basic primitives into more complex ones.
 
 The lifetime of a signal consists of any number of `Next` events, followed by
 one terminating event, which may be any one of `Error`, `Completed`, or
@@ -98,7 +96,7 @@ interrupt/cancel the work associated with the produced signal.
 Just like signals, signal producers can also be manipulated via primitives
 like `map`, `filter`, etc.
 Every signal primitive can be “lifted” to operate upon signal producers instead,
-using the `lift` method, or implicitly through the `|>` operator.
+using the `lift` method.
 Furthermore, there are additional primitives that control _when_ and _how_ work
 is started—for example, `times`.
 

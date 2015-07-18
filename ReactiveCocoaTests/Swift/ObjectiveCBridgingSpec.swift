@@ -25,19 +25,19 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return nil
 				}
 
-				let producer = racSignal.toSignalProducer() |> map { $0 as! Int }
+				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
-				expect((producer |> single)?.value).to(equal(0))
-				expect((producer |> single)?.value).to(equal(1))
-				expect((producer |> single)?.value).to(equal(2))
+				expect((producer.single())?.value).to(equal(0))
+				expect((producer.single())?.value).to(equal(1))
+				expect((producer.single())?.value).to(equal(2))
 			}
 
 			it("should forward errors")	{
-				let error = TestError.Default.nsError
+				let error = TestError.Default as NSError
 
 				let racSignal = RACSignal.error(error)
 				let producer = racSignal.toSignalProducer()
-				let result = producer |> last
+				let result = producer.last()
 
 				expect(result?.error).to(equal(error))
 			}
@@ -83,9 +83,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					}
 
 					sendError(sink, expectedError)
-
-					expect(error?.domain).to(equal(TestError.domain))
-					expect(error?.code).to(equal(expectedError.rawValue))
+					expect(error).to(equal(expectedError as NSError))
 				}
 			}
 
@@ -108,9 +106,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = toRACSignal(producer).materialize()
 
 					let event = racSignal.first() as? RACEvent
-
-					expect(event?.error.domain).to(equal(TestError.domain))
-					expect(event?.error.code).to(equal(TestError.Error1.rawValue))
+					expect(event?.error).to(equal(TestError.Error1 as NSError))
 				}
 			}
 		}
@@ -156,19 +152,19 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let producer = action.apply(0)
 				expect(results).to(equal([]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1 ]))
 
 				let otherProducer = action.apply(2)
 				expect(results).to(equal([ 1, 1 ]))
 
-				otherProducer |> start()
+				otherProducer.start()
 				expect(results).toEventually(equal([ 1, 1, 3 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}

@@ -8,27 +8,14 @@
 
 import Foundation
 
-/// Represents an error that can be sent upon or received from a signal.
-public protocol ErrorType {
-	/// An NSError corresponding to the receiver.
-	var nsError: NSError { get }
-}
-
-extension NSError: ErrorType {
-	public var nsError: NSError {
-		return self
-	}
-}
-
 /// An “error” that is impossible to construct.
 ///
 /// This can be used to describe signals or producers where errors will never
 /// be generated. For example, `Signal<Int, NoError>` describes a signal that
 /// sends integers and is guaranteed never to error out.
-public enum NoError {}
+public final class NoError: ErrorType {
+	public let _domain: String = ""
+	public let _code: Int = 0
 
-extension NoError: ErrorType {
-	public var nsError: NSError {
-		fatalError("Impossible to construct NoError")
-	}
+	private init() {}
 }

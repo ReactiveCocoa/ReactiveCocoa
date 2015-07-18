@@ -246,7 +246,54 @@ public struct SignalProducer<T, E: ErrorType> {
 
 		startHandler(wrapperObserver, producerDisposable)
 	}
+}
 
+private struct BufferState<T, Error: ErrorType> {
+	// All values in the buffer.
+	var values: [T] = []
+
+	// Any terminating event sent to the buffer.
+	//
+	// This will be nil if termination has not occurred.
+	var terminationEvent: Event<T, Error>?
+
+	// The observers currently attached to the buffered producer, or nil if the
+	// producer was terminated.
+	var observers: Bag<Signal<T, Error>.Observer>? = Bag()
+
+	// Appends a new value to the buffer, trimming it down to the given capacity
+	// if necessary.
+	mutating func addValue(value: T, upToCapacity capacity: Int) {
+		values.append(value)
+
+		while values.count > capacity {
+			values.removeAtIndex(0)
+		}
+	}
+}
+
+public protocol SignalProducerType {
+	/// The type of values being sent on the producer
+	typealias T
+	/// The type of error that can occur on the producer. If errors aren't possible
+	/// then `NoError` can be used.
+	typealias E: ErrorType
+
+	/// Extracts a signal producer from the receiver.
+	var producer: SignalProducer<T, E> { get }
+
+	/// Creates a Signal from the producer, passes it into the given closure,
+	/// then starts sending events on the Signal when the closure has returned.
+	func startWithSignal(@noescape setUp: (Signal<T, E>, Disposable) -> ())
+}
+
+extension SignalProducer: SignalProducerType {
+	public var producer: SignalProducer {
+		return self
+	}
+}
+
+extension SignalProducerType {
 	/// Creates a Signal from the producer, then attaches the given sink to the
 	/// Signal as an observer.
 	///
@@ -278,8 +325,9 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ created Signal, just as if the
 	/// operator had been applied to each Signal yielded from start().
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
-		return SignalProducer<U, F> { observer, outerDisposable in
+		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable.addDisposable(innerDisposable)
 
@@ -294,9 +342,10 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
 	/// yielded from start().
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<U, F> -> Signal<T, E> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
-			return SignalProducer<V, G> { observer, outerDisposable in
+			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
 					outerDisposable.addDisposable(disposable)
 
@@ -309,64 +358,262 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 		}
 	}
-}
 
-private struct BufferState<T, Error: ErrorType> {
-	// All values in the buffer.
-	var values: [T] = []
+	/// Maps each value in the producer to a new value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func map<U>(transform: T -> U) -> SignalProducer<U, E> {
+		return lift { $0.map(transform) }
+	}
 
-	// Any terminating event sent to the buffer.
-	//
-	// This will be nil if termination has not occurred.
-	var terminationEvent: Event<T, Error>?
+	/// Maps errors in the producer to a new error.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func mapError<F>(transform: E -> F) -> SignalProducer<T, F> {
+		return lift { $0.mapError(transform) }
+	}
 
-	// The observers currently attached to the buffered producer, or nil if the
-	// producer was terminated.
-	var observers: Bag<Signal<T, Error>.Observer>? = Bag()
+	/// Preserves only the values of the producer that pass the given predicate.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func filter(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return lift { $0.filter(predicate) }
+	}
 
-	// Appends a new value to the buffer, trimming it down to the given capacity
-	// if necessary.
-	mutating func addValue(value: T, upToCapacity capacity: Int) {
-		values.append(value)
+	/// Returns a producer that will yield the first `count` values from the
+	/// input producer.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func take(count: Int) -> SignalProducer<T, E> {
+		return lift { $0.take(count) }
+	}
 
-		while values.count > capacity {
-			values.removeAtIndex(0)
-		}
+	/// Returns a signal that will yield an array of values when `signal` completes.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect() -> SignalProducer<[T], E> {
+		return lift { $0.collect() }
+	}
+
+	/// Forwards all events onto the given scheduler, instead of whichever
+	/// scheduler they originally arrived upon.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func observeOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
+		return lift { $0.observeOn(scheduler) }
+	}
+
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given producer.
+	///
+	/// The returned producer will not send a value until both inputs have sent at
+	/// least one value each. If either producer is interrupted, the returned producer
+	/// will also be interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func combineLatestWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
+		return lift(ReactiveCocoa.combineLatestWith)(otherProducer)
+	}
+
+	/// Delays `Next` and `Completed` events by the given interval, forwarding
+	/// them on the given scheduler.
+	///
+	/// `Error` and `Interrupted` events are always scheduled immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return lift { $0.delay(interval, onScheduler: scheduler) }
+	}
+
+	/// Returns a producer that will skip the first `count` values, then forward
+	/// everything afterward.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skip(count: Int) -> SignalProducer<T, E> {
+		return lift { $0.skip(count) }
+	}
+
+	/// Treats all Events from the input producer as plain values, allowing them to be
+	/// manipulated just like any other value.
+	///
+	/// In other words, this brings Events “into the monad.”
+	///
+	/// When a Completed or Error event is received, the resulting producer will send
+	/// the Event itself and then complete. When an Interrupted event is received,
+	/// the resulting producer will send the Event itself and then interrupt.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func materialize() -> SignalProducer<Event<T, E>, NoError> {
+		return lift { $0.materialize() }
+	}
+
+	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input producers have
+	/// completed, or interrupt if either input producer is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+		return lift(ReactiveCocoa.sampleOn)(sampler)
+	}
+
+	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// event, at which point the returned producer will complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
+		return lift(ReactiveCocoa.takeUntil)(trigger)
+	}
+
+	/// Forwards events from `self` with history: values of the returned producer
+	/// are a tuple whose first member is the previous value and whose second member
+	/// is the current value. `initial` is supplied as the first member when `self`
+	/// sends its first value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func combinePrevious(initial: T) -> SignalProducer<(T, T), E> {
+		return lift { $0.combinePrevious(initial) }
+	}
+
+	/// Like `scan`, but sends only the final value and then immediately completes.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func reduce<U>(initial: U, _ combine: (U, T) -> U) -> SignalProducer<U, E> {
+		return lift { $0.reduce(initial, combine) }
+	}
+
+	/// Aggregates `self`'s values into a single combined value. When `self` emits
+	/// its first value, `combine` is invoked with `initial` as the first argument and
+	/// that emitted value as the second argument. The result is emitted from the
+	/// producer returned from `scan`. That result is then passed to `combine` as the
+	/// first argument when the next value is emitted, and so on.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func scan<U>(initial: U, _ combine: (U, T) -> U) -> SignalProducer<U, E> {
+		return lift { $0.scan(initial, combine) }
+	}
+
+	/// Forwards only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipRepeats(isRepeat: (T, T) -> Bool) -> SignalProducer<T, E> {
+		return lift { $0.skipRepeats(isRepeat) }
+	}
+
+	/// Does not forward any values from `self` until `predicate` returns false,
+	/// at which point the returned signal behaves exactly like `self`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return lift { $0.skipWhile(predicate) }
+	}
+
+	/// Forwards events from `self` until `replacement` begins sending events.
+	///
+	/// Returns a producer which passes through `Next`, `Error`, and `Interrupted`
+	/// events from `self` until `replacement` sends an event, at which point the
+	/// returned producer will send that event and switch to passing through events
+	/// from `replacement` instead, regardless of whether `self` has sent events
+	/// already.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeUntilReplacement(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> {
+		return lift(ReactiveCocoa.takeUntilReplacement)(replacement)
+	}
+
+	/// Waits until `self` completes and then forwards the final `count` values
+	/// on the returned producer.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeLast(count: Int) -> SignalProducer<T, E> {
+		return lift { $0.takeLast(count) }
+	}
+
+	/// Forwards any values from `self` until `predicate` returns false,
+	/// at which point the returned producer will complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeWhile(predicate: T -> Bool) -> SignalProducer<T, E> {
+		return lift { $0.takeWhile(predicate) }
+	}
+
+	/// Zips elements of two producers into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input producers.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func zipWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
+		return lift(ReactiveCocoa.zipWith)(otherProducer)
+	}
+
+	/// Applies `operation` to values from `self` with `Success`ful results
+	/// forwarded on the returned producer and `Failure`s sent as `Error` events.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func attempt(operation: T -> Result<(), E>) -> SignalProducer<T, E> {
+		return lift { $0.attempt(operation) }
+	}
+
+	/// Applies `operation` to values from `self` with `Success`ful results mapped
+	/// on the returned producer and `Failure`s sent as `Error` events.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func attemptMap<U>(operation: T -> Result<U, E>) -> SignalProducer<U, E> {
+		return lift { $0.attemptMap(operation) }
+	}
+
+	/// Throttle values sent by the receiver, so that at least `interval`
+	/// seconds pass between each, then forwards them on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	///
+	/// If `self` terminates while a value is being throttled, that value
+	/// will be discarded and the returned producer will terminate immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return lift { $0.throttle(interval, onScheduler: scheduler) }
+	}
+
+	/// Forwards events from `self` until `interval`. Then if producer isn't completed yet,
+	/// errors with `error` on `scheduler`.
+	///
+	/// If the interval is 0, the timeout will be scheduled immediately. The producer
+	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
 	}
 }
 
-/// Applies a Signal operator to a SignalProducer (equivalent to
-/// SignalProducer.lift).
-///
-/// This will create a new SignalProducer which will apply the given Signal
-/// operator to _every_ created Signal, just as if the operator had been applied
-/// to each Signal yielded from start().
-///
-/// Example:
-///
-/// 	let filteredProducer = intProducer |> filter { num in num % 2 == 0 }
-public func |> <T, E, U, F>(producer: SignalProducer<T, E>, transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
-	return producer.lift(transform)
+extension SignalProducer where T: OptionalType {
+	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+	/// values are dropped.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func ignoreNil() -> SignalProducer<T.T, E> {
+		return lift { $0.ignoreNil() }
+	}
 }
 
-/// Applies a SignalProducer operator to a SignalProducer.
-///
-/// Example:
-///
-/// 	filteredProducer
-/// 	|> startOn(UIScheduler())
-/// 	|> start { signal in
-/// 		signal.observe(next: { num in println(num) })
-/// 	}
-public func |> <T, E, X>(producer: SignalProducer<T, E>, @noescape transform: SignalProducer<T, E> -> X) -> X {
-	return transform(producer)
+extension SignalProducer where T: EventType, E: NoError {
+	/// The inverse of materialize(), this will translate a signal of `Event`
+	/// _values_ into a signal of those events themselves.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func dematerialize() -> SignalProducer<T.T, T.E> {
+		return lift { $0.dematerialize() }
+	}
 }
+
+extension SignalProducerType where E: NoError {
+	/// Promotes a producer that does not generate errors into one that can.
+	///
+	/// This does not actually cause errors to be generated for the given producer,
+	/// but makes it easier to combine with other producers that may error; for
+	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func promoteErrors<F: ErrorType>(_: F.Type) -> SignalProducer<T, F> {
+		return lift { $0.promoteErrors(F) }
+	}
+}
+
+extension SignalProducerType where T: Equatable {
+	/// Forwards only those values from `self` which are not duplicates of the
+	/// immedately preceding value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipRepeats() -> SignalProducer<T, E> {
+		return lift { $0.skipRepeats() }
+	}
+}
+
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<NSDate, NoError> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 	// at least 10% of the timer interval.
@@ -378,6 +625,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate, NoError> {
 	precondition(interval >= 0)
 	precondition(leeway >= 0)
@@ -389,17 +637,18 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	}
 }
 
-/// Injects side effects to be performed upon the specified signal events.
-public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
+extension SignalProducerType {
+	/// Injects side effects to be performed upon the specified signal events.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			disposed.map(compositeDisposable.addDisposable)
 
-			producer.startWithSignal { signal, disposable in
+			self.startWithSignal { signal, disposable in
 				compositeDisposable.addDisposable(disposable)
 
-				let innerObserver: Signal<T, E>.Observer = { receivedEvent in
+				signal.observe { receivedEvent in
 					event?(receivedEvent)
 
 					switch receivedEvent {
@@ -422,25 +671,22 @@ public func on<T, E>(started started: (() -> ())? = nil, event: (Event<T, E> -> 
 
 					observer(receivedEvent)
 				}
-
-				signal.observe(innerObserver)
 			}
 		}
 	}
-}
 
-/// Starts the returned signal on the given Scheduler.
-///
-/// This implies that any side effects embedded in the producer will be
-/// performed on the given scheduler as well.
-///
-/// Events may still be sent upon other schedulers—this merely affects where
-/// the `start()` method is run.
-public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
+	/// Starts the returned signal on the given Scheduler.
+	///
+	/// This implies that any side effects embedded in the producer will be
+	/// performed on the given scheduler as well.
+	///
+	/// Events may still be sent upon other schedulers—this merely affects where
+	/// the `start()` method is run.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func startOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
 		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
-				producer.startWithSignal { signal, signalDisposable in
+				self.startWithSignal { signal, signalDisposable in
 					compositeDisposable.addDisposable(signalDisposable)
 					signal.observe(observer)
 				}
@@ -449,244 +695,204 @@ public func startOn<T, E>(scheduler: SchedulerType) -> SignalProducer<T, E> -> S
 	}
 }
 
-/// Combines the latest value of the receiver with the latest value from
-/// the given producer.
-///
-/// Signals started by the returned producer will not send a value until both
-/// inputs have sent at least one value each.
-public func combineLatestWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<(T, U), E> {
-	return { producer in
-		return producer.lift(combineLatestWith)(otherSignalProducer)
-	}
-}
-
-internal func combineLatestWith<T, E>(otherSignalProducer: SignalProducer<T, E>) -> SignalProducer<[T], E> -> SignalProducer<[T], E> {
-	return { producer in
-		return producer.lift(combineLatestWith)(otherSignalProducer)
-	}
-}
-
-/// Zips elements of two signal producers into pairs. The elements of any Nth
-/// pair are the Nth elements of the two input producers.
-public func zipWith<T, U, E>(otherSignalProducer: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<(T, U), E> {
-	return { producer in
-		return producer.lift(zipWith)(otherSignalProducer)
-	}
-}
-
-internal func zipWith<T, E>(otherSignalProducer: SignalProducer<T, E>) -> SignalProducer<[T], E> -> SignalProducer<[T], E> {
-	return { producer in
-		return producer.lift(zipWith)(otherSignalProducer)
-	}
+/// Combines the values of all the given producers, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
+	return a.combineLatestWith(b)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	return a |> combineLatestWith(b)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
+	return combineLatest(a, b)
+		.combineLatestWith(c)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	return combineLatest(a, b: b)
-		|> combineLatestWith(c)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
+	return combineLatest(a, b, c)
+		.combineLatestWith(d)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
-	return combineLatest(a, b: b, c: c)
-		|> combineLatestWith(d)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
+	return combineLatest(a, b, c, d)
+		.combineLatestWith(e)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
-	return combineLatest(a, b: b, c: c, d: d)
-		|> combineLatestWith(e)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
+	return combineLatest(a, b, c, d, e)
+		.combineLatestWith(f)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e)
-		|> combineLatestWith(f)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
+	return combineLatest(a, b, c, d, e, f)
+		.combineLatestWith(g)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f)
-		|> combineLatestWith(g)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
+	return combineLatest(a, b, c, d, e, f, g)
+		.combineLatestWith(h)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g)
-		|> combineLatestWith(h)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h)
+		.combineLatestWith(i)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
-		|> combineLatestWith(i)
-		|> map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>, j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
-		|> combineLatestWith(j)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return combineLatest(a, b, c, d, e, f, g, h, i)
+		.combineLatestWith(j)
+		.map(repack)
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(signalProducers: S) -> SignalProducer<[T], Error> {
-	var generator = signalProducers.generate()
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(producers: S) -> SignalProducer<[T], Error> {
+	var generator = producers.generate()
 	if let first = generator.next() {
-		let initial = first |> map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { $0 |> combineLatestWith($1) }
+		let initial = first.map { [$0] }
+		return GeneratorSequence(generator).reduce(initial) { producer, next in
+			producer.combineLatestWith(next).map { $0.0 + [$0.1] }
+		}
 	}
 	
-	return SignalProducer.empty
+	return .empty
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	return a |> zipWith(b)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
+	return a.zipWith(b)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	return zip(a, b: b)
-		|> zipWith(c)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
+	return zip(a, b)
+		.zipWith(c)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
-	return zip(a, b: b, c: c)
-		|> zipWith(d)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
+	return zip(a, b, c)
+		.zipWith(d)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
-	return zip(a, b: b, c: c, d: d)
-		|> zipWith(e)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
+	return zip(a, b, c, d)
+		.zipWith(e)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
-	return zip(a, b: b, c: c, d: d, e: e)
-		|> zipWith(f)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
+	return zip(a, b, c, d, e)
+		.zipWith(f)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f)
-		|> zipWith(g)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
+	return zip(a, b, c, d, e, f)
+		.zipWith(g)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g)
-		|> zipWith(h)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
+	return zip(a, b, c, d, e, f, g)
+		.zipWith(h)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h)
-		|> zipWith(i)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
+	return zip(a, b, c, d, e, f, g, h)
+		.zipWith(i)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, b: SignalProducer<B, Error>, c: SignalProducer<C, Error>, d: SignalProducer<D, Error>, e: SignalProducer<E, Error>, f: SignalProducer<F, Error>, g: SignalProducer<G, Error>, h: SignalProducer<H, Error>, i: SignalProducer<I, Error>, j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return zip(a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i)
-		|> zipWith(j)
-		|> map(repack)
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
+	return zip(a, b, c, d, e, f, g, h, i)
+		.zipWith(j)
+		.map(repack)
 }
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(signalProducers: S) -> SignalProducer<[T], Error> {
-	var generator = signalProducers.generate()
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(producers: S) -> SignalProducer<[T], Error> {
+	var generator = producers.generate()
 	if let first = generator.next() {
-		let initial = first |> map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { $0 |> zipWith($1) }
+		let initial = first.map { [$0] }
+		return GeneratorSequence(generator).reduce(initial) { producer, next in
+			producer.zipWith(next).map { $0.0 + [$0.1] }
+		}
 	}
-	
-	return SignalProducer.empty
+
+	return .empty
 }
 
-/// Forwards the latest value from `producer` whenever `sampler` sends a Next
-/// event.
-///
-/// If `sampler` fires before a value has been observed on `producer`, nothing
-/// happens.
-///
-/// Returns a producer that will send values from `producer`, sampled (possibly
-/// multiple times) by `sampler`, then complete once both inputs have completed.
-public func sampleOn<T, E>(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(sampleOn)(sampler)
-	}
-}
-
-/// Forwards events from `producer` until `trigger` sends a Next or Completed
-/// event, at which point the returned producer will complete.
-public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(takeUntil)(trigger)
-	}
-}
-
-/// Forwards events from `producer` until `replacement` begins sending events.
-///
-/// Returns a signal which passes through `next`s and `error` from `producer`
-/// until `replacement` sends an event, at which point the returned producer
-/// will send that event and switch to passing through events from `replacement`
-/// instead, regardless of whether `producer` has sent events already.
-public func takeUntilReplacement<T, E>(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return producer.lift(takeUntilReplacement)(replacement)
-	}
-}
-
-/// Catches any error that may occur on the input producer, mapping to a new producer
-/// that starts in its place.
-public func flatMapError<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, E> -> SignalProducer<T, F> {
-	return { producer in
+extension SignalProducerType {
+	/// Catches any error that may occur on the input producer, mapping to a new producer
+	/// that starts in its place.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMapError<F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, F> {
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			producer.startWithSignal { signal, signalDisposable in
+			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
 				signal.observe(next: { value in
@@ -706,19 +912,21 @@ public func flatMapError<T, E, F>(handler: E -> SignalProducer<T, F>) -> SignalP
 	}
 }
 
-/// `concat`s `next` onto `producer`.
-public func concat<T, E>(next: SignalProducer<T, E>) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	return { producer in
-		return SignalProducer(values: [producer, next]) |> flatten(.Concat)
+extension SignalProducer {
+	/// `concat`s `next` onto `self`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func concat(next: SignalProducer) -> SignalProducer {
+		return SignalProducer<SignalProducer, E>(values: [self, next]).concat()
 	}
 }
 
-/// Repeats `producer` a total of `count` times.
-/// Repeating `1` times results in a equivalent signal producer.
-public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	precondition(count >= 0)
+extension SignalProducerType {
+	/// Repeats `self` a total of `count` times. Repeating `1` times results in
+	/// an equivalent signal producer.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func times(count: Int) -> SignalProducer<T, E> {
+		precondition(count >= 0)
 
-	return { producer in
 		if count == 0 {
 			return .empty
 		} else if count == 1 {
@@ -730,7 +938,7 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			disposable.addDisposable(serialDisposable)
 
 			func iterate(current: Int) {
-				producer.startWithSignal { signal, signalDisposable in
+				self.startWithSignal { signal, signalDisposable in
 					serialDisposable.innerDisposable = signalDisposable
 
 					signal.observe { event in
@@ -753,31 +961,29 @@ public func times<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T,
 			iterate(count)
 		}
 	}
-}
 
-/// Ignores errors up to `count` times.
-public func retry<T, E>(count: Int) -> SignalProducer<T, E> -> SignalProducer<T, E> {
-	precondition(count >= 0)
+	/// Ignores errors up to `count` times.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func retry(count: Int) -> SignalProducer<T, E> {
+		precondition(count >= 0)
 
-	return { producer in
 		if count == 0 {
 			return producer
 		} else {
-			return producer |> flatMapError { _ in
-				producer |> retry(count - 1)
+			return flatMapError { _ in
+				self.retry(count - 1)
 			}
 		}
 	}
-}
 
-/// Waits for completion of `producer`, *then* forwards all events from
-/// `replacement`. Any error sent from `producer` is forwarded immediately, in
-/// which case `replacement` will not be started, and none of its events will be
-/// be forwarded. All values sent from `producer` are ignored.
-public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<U, E> {
-	return { producer in
+	/// Waits for completion of `producer`, *then* forwards all events from
+	/// `replacement`. Any error sent from `producer` is forwarded immediately, in
+	/// which case `replacement` will not be started, and none of its events will be
+	/// be forwarded. All values sent from `producer` are ignored.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func then<U>(replacement: SignalProducer<U, E>) -> SignalProducer<U, E> {
 		let relay = SignalProducer<U, E> { observer, observerDisposable in
-			producer.startWithSignal { signal, signalDisposable in
+			self.startWithSignal { signal, signalDisposable in
 				observerDisposable.addDisposable(signalDisposable)
 
 				signal.observe(error: { error in
@@ -790,74 +996,54 @@ public func then<T, U, E>(replacement: SignalProducer<U, E>) -> SignalProducer<T
 			}
 		}
 
-		return relay |> concat(replacement)
+		return relay.concat(replacement)
 	}
-}
 
-/// Starts the producer, then blocks, waiting for the first value.
-public func first<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer |> take(1) |> single
-}
-
-/// Starts the producer, then blocks, waiting for events: Next and Completed.
-/// When a single value or error is sent, the returned `Result` will represent
-/// those cases. However, when no values are sent, or when more than one value
-/// is sent, `nil` will be returned.
-public func single<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T, E>?
-
-	producer
-		|> take(2)
-		|> start(next: { value in
-			if result != nil {
-				// Move into failure state after recieving another value.
-				result = nil
-				return
-			}
-			result = .success(value)
-		}, error: { error in
-			result = .failure(error)
-			dispatch_semaphore_signal(semaphore)
-		}, completed: {
-			dispatch_semaphore_signal(semaphore)
-		}, interrupted: {
-			dispatch_semaphore_signal(semaphore)
-		})
-
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-	return result
-}
-
-/// Starts the producer, then blocks, waiting for the last value.
-public func last<T, E>(producer: SignalProducer<T, E>) -> Result<T, E>? {
-	return producer |> takeLast(1) |> single
-}
-
-/// Starts the producer, then blocks, waiting for completion.
-public func wait<T, E>(producer: SignalProducer<T, E>) -> Result<(), E> {
-	let result = producer |> then(SignalProducer(value: ())) |> last
-	return result ?? .success(())
-}
-
-/// SignalProducer.startWithSignal() as a free function, for easier use with |>.
-public func startWithSignal<T, E>(setUp: (Signal<T, E>, Disposable) -> ()) -> SignalProducer<T, E> -> () {
-	return { producer in
-		return producer.startWithSignal(setUp)
+	/// Starts the producer, then blocks, waiting for the first value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func first() -> Result<T, E>? {
+		return take(1).single()
 	}
-}
 
-/// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(sink: Event<T, E>.Sink) -> SignalProducer<T, E> -> Disposable {
-	return { producer in
-		return producer.start(sink)
+	/// Starts the producer, then blocks, waiting for events: Next and Completed.
+	/// When a single value or error is sent, the returned `Result` will represent
+	/// those cases. However, when no values are sent, or when more than one value
+	/// is sent, `nil` will be returned.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func single() -> Result<T, E>? {
+		let semaphore = dispatch_semaphore_create(0)
+		var result: Result<T, E>?
+
+		take(2).start(next: { value in
+				if result != nil {
+					// Move into failure state after recieving another value.
+					result = nil
+					return
+				}
+				result = .success(value)
+			}, error: { error in
+				result = .failure(error)
+				dispatch_semaphore_signal(semaphore)
+			}, completed: {
+				dispatch_semaphore_signal(semaphore)
+			}, interrupted: {
+				dispatch_semaphore_signal(semaphore)
+			})
+
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+		return result
 	}
-}
 
-/// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T, E>(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> -> Disposable {
-	return { producer in
-		return producer.start(next: next, error: error, completed: completed, interrupted: interrupted)
+	/// Starts the producer, then blocks, waiting for the last value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func last() -> Result<T, E>? {
+		return takeLast(1).single()
+	}
+
+	/// Starts the producer, then blocks, waiting for completion.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func wait() -> Result<(), E> {
+		return then(SignalProducer<(), E>(value: ())).last() ?? .success(())
 	}
 }
 
@@ -898,73 +1084,79 @@ extension FlattenStrategy: CustomStringConvertible {
 	}
 }
 
-/// Flattens the inner producers sent upon `producer` (into a single producer of
-/// values), according to the semantics of the given strategy.
-///
-/// If `producer` or an active inner producer emits an error, the returned
-/// producer will forward that error immediately.
-///
-/// `Interrupted` events on inner producers will be treated like `Completed`
-/// events on inner producers.
-public func flatten<T, E>(strategy: FlattenStrategy) -> SignalProducer<SignalProducer<T, E>, E> -> SignalProducer<T, E> {
-	return { producer in
+
+extension SignalProducer where T: SignalProducerType, E == T.E {
+	/// Flattens the inner producers sent upon `producer` (into a single producer of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `producer` or an active inner producer emits an error, the returned
+	/// producer will forward that error immediately.
+	///
+	/// `Interrupted` events on inner producers will be treated like `Completed`
+	/// events on inner producers.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<T.T, E> {
 		switch strategy {
 		case .Merge:
-			return producer |> merge
+			return producer.merge()
 
 		case .Concat:
-			return producer |> concat
+			return producer.concat()
 
 		case .Latest:
-			return producer |> switchToLatest
+			return producer.switchToLatest()
 		}
 	}
 }
 
-/// Maps each event from `producer` to a new producer, then flattens the
-/// resulting producers (into a single producer of values), according to the
-/// semantics of the given strategy.
-///
-/// If `producer` or any of the created producers emit an error, the returned
-/// producer will forward that error immediately.
-public func flatMap<T, U, E>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<T, E> -> SignalProducer<U, E> {
-	return { producer in
-		return producer |> map(transform) |> flatten(strategy)
+extension SignalProducer {
+	/// Maps each event from `producer` to a new producer, then flattens the
+	/// resulting producers (into a single producer of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `producer` or any of the created producers emit an error, the returned
+	/// producer will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMap<U>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<U, E> {
+		return map(transform).flatten(strategy)
 	}
 }
 
-/// Returns a producer which sends all the values from each producer emitted from
-/// `producer`, waiting until each inner producer completes before beginning to
-/// send the values from the next inner producer.
-///
-/// If any of the inner producers emit an error, the returned producer will emit
-/// that error.
-///
-/// The returned producer completes only when `producer` and all producers
-/// emitted from `producer` complete.
-private func concat<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
-	return SignalProducer { observer, disposable in
-		let state = ConcatState(observer: observer, disposable: disposable)
+extension SignalProducer where T: SignalProducerType, E == T.E {
+	/// Returns a producer which sends all the values from each producer emitted from
+	/// `producer`, waiting until each inner producer completes before beginning to
+	/// send the values from the next inner producer.
+	///
+	/// If any of the inner producers emit an error, the returned producer will emit
+	/// that error.
+	///
+	/// The returned producer completes only when `producer` and all producers
+	/// emitted from `producer` complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	private func concat() -> SignalProducer<T.T, E> {
+		return SignalProducer<T.T, E> { observer, disposable in
+			let state = ConcatState(observer: observer, disposable: disposable)
 
-		producer.startWithSignal { signal, signalDisposable in
-			disposable.addDisposable(signalDisposable)
-		
-			signal.observe(next: { producer in
-				state.enqueueSignalProducer(producer)
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				// Add one last producer to the queue, whose sole job is to
-				// "turn out the lights" by completing `observer`.
-				let completion = SignalProducer<T, E> { innerObserver, _ in
-					sendCompleted(innerObserver)
-					sendCompleted(observer)
-				}
+			self.startWithSignal { signal, signalDisposable in
+				disposable.addDisposable(signalDisposable)
+			
+				signal.observe(next: {
+					state.enqueueSignalProducer($0.producer)
+				}, error: { error in
+					sendError(observer, error)
+				}, completed: {
+					// Add one last producer to the queue, whose sole job is to
+					// "turn out the lights" by completing `observer`.
+					let completion = SignalProducer<T.T, E> { innerObserver, _ in
+						sendCompleted(innerObserver)
+						sendCompleted(observer)
+					}
 
-				state.enqueueSignalProducer(completion)
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+					state.enqueueSignalProducer(completion)
+				}, interrupted: {
+					sendInterrupted(observer)
+				})
+			}
 		}
 	}
 }
@@ -1045,133 +1237,137 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 }
 
-/// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
-/// added earlier. Returns a SignalProducer that will forward events from the inner producers as they arrive.
-private func merge<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
-	return SignalProducer<T, E> { relayObserver, disposable in
-		let inFlight = Atomic(1)
-		let decrementInFlight: () -> () = {
-			let orig = inFlight.modify { $0 - 1 }
-			if orig == 1 {
-				sendCompleted(relayObserver)
-			}
-		}
-
-		producer.startWithSignal { signal, signalDisposable in
-			disposable.addDisposable(signalDisposable)
-
-			signal.observe(next: { producer in
-				producer.startWithSignal { innerSignal, innerDisposable in
-					inFlight.modify { $0 + 1 }
-
-					let handle = disposable.addDisposable(innerDisposable)
-
-					innerSignal.observe { event in
-						switch event {
-						case .Completed, .Interrupted:
-							if event.isTerminating {
-								handle.remove()
-							}
-
-							decrementInFlight()
-
-						default:
-							relayObserver(event)
-						}
-					}
+extension SignalProducer where T: SignalProducerType, E == T.E {
+	/// Merges a `producer` of SignalProducers down into a single producer, biased toward the producers
+	/// added earlier. Returns a SignalProducer that will forward events from the inner producers as they arrive.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	private func merge() -> SignalProducer<T.T, E> {
+		return SignalProducer<T.T, E> { relayObserver, disposable in
+			let inFlight = Atomic(1)
+			let decrementInFlight: () -> () = {
+				let orig = inFlight.modify { $0 - 1 }
+				if orig == 1 {
+					sendCompleted(relayObserver)
 				}
-			}, error: { error in
-				sendError(relayObserver, error)
-			}, completed: {
-				decrementInFlight()
-			}, interrupted: {
-				sendInterrupted(relayObserver)
-			})
-		}
-	}
-}
+			}
 
-/// Returns a producer that forwards values from the latest producer sent on
-/// `producer`, ignoring values sent on previous inner producers.
-///
-/// An error sent on `producer` or the latest inner producer will be sent on the
-/// returned producer.
-///
-/// The returned producer completes when `producer` and the latest inner
-/// producer have both completed.
-private func switchToLatest<T, E>(producer: SignalProducer<SignalProducer<T, E>, E>) -> SignalProducer<T, E> {
-	return SignalProducer<T, E> { sink, disposable in
-		let latestInnerDisposable = SerialDisposable()
-		disposable.addDisposable(latestInnerDisposable)
+			self.startWithSignal { signal, signalDisposable in
+				disposable.addDisposable(signalDisposable)
 
-		let state = Atomic(LatestState<T, E>())
+				signal.observe(next: { producer in
+					producer.startWithSignal { innerSignal, innerDisposable in
+						inFlight.modify { $0 + 1 }
 
-		producer.startWithSignal { signal, signalDisposable in
-			disposable.addDisposable(signalDisposable)
+						let handle = disposable.addDisposable(innerDisposable)
 
-			signal.observe(next: { innerProducer in
-				innerProducer.startWithSignal { innerSignal, innerDisposable in
-					state.modify { (var state) in
-						// When we replace the disposable below, this prevents the
-						// generated Interrupted event from doing any work.
-						state.replacingInnerSignal = true
-						return state
-					}
-
-					latestInnerDisposable.innerDisposable = innerDisposable
-
-					state.modify { (var state) in
-						state.replacingInnerSignal = false
-						state.innerSignalComplete = false
-						return state
-					}
-
-					innerSignal.observe { event in
-						switch event {
-						case .Interrupted:
-							// If interruption occurred as a result of a new signal
-							// arriving, we don't want to notify our observer.
-							let original = state.modify { (var state) in
-								if !state.replacingInnerSignal {
-									state.innerSignalComplete = true
+						innerSignal.observe { event in
+							switch event {
+							case .Completed, .Interrupted:
+								if event.isTerminating {
+									handle.remove()
 								}
 
-								return state
-							}
+								decrementInFlight()
 
-							if !original.replacingInnerSignal && original.outerSignalComplete {
-								sendCompleted(sink)
+							default:
+								relayObserver(event)
 							}
-
-						case .Completed:
-							let original = state.modify { (var state) in
-								state.innerSignalComplete = true
-								return state
-							}
-
-							if original.outerSignalComplete {
-								sendCompleted(sink)
-							}
-
-						default:
-							sink(event)
 						}
 					}
-				}
-			}, error: { error in
-				sendError(sink, error)
-			}, completed: {
-				let original = state.modify { (var state) in
-					state.outerSignalComplete = true
-					return state
-				}
+				}, error: { error in
+					sendError(relayObserver, error)
+				}, completed: {
+					decrementInFlight()
+				}, interrupted: {
+					sendInterrupted(relayObserver)
+				})
+			}
+		}
+	}
 
-				if original.innerSignalComplete {
-					sendCompleted(sink)
-				}
-			}, interrupted: {
-				sendInterrupted(sink)
-			})
+	/// Returns a producer that forwards values from the latest producer sent on
+	/// `producer`, ignoring values sent on previous inner producers.
+	///
+	/// An error sent on `producer` or the latest inner producer will be sent on the
+	/// returned producer.
+	///
+	/// The returned producer completes when `producer` and the latest inner
+	/// producer have both completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	private func switchToLatest() -> SignalProducer<T.T, E> {
+		return SignalProducer<T.T, E> { sink, disposable in
+			let latestInnerDisposable = SerialDisposable()
+			disposable.addDisposable(latestInnerDisposable)
+
+			let state = Atomic(LatestState<T, E>())
+
+			self.startWithSignal { signal, signalDisposable in
+				disposable.addDisposable(signalDisposable)
+
+				signal.observe(next: { innerProducer in
+					innerProducer.startWithSignal { innerSignal, innerDisposable in
+						state.modify { (var state) in
+							// When we replace the disposable below, this prevents the
+							// generated Interrupted event from doing any work.
+							state.replacingInnerSignal = true
+							return state
+						}
+
+						latestInnerDisposable.innerDisposable = innerDisposable
+
+						state.modify { (var state) in
+							state.replacingInnerSignal = false
+							state.innerSignalComplete = false
+							return state
+						}
+
+						innerSignal.observe { event in
+							switch event {
+							case .Interrupted:
+								// If interruption occurred as a result of a new signal
+								// arriving, we don't want to notify our observer.
+								let original = state.modify { (var state) in
+									if !state.replacingInnerSignal {
+										state.innerSignalComplete = true
+									}
+
+									return state
+								}
+
+								if !original.replacingInnerSignal && original.outerSignalComplete {
+									sendCompleted(sink)
+								}
+
+							case .Completed:
+								let original = state.modify { (var state) in
+									state.innerSignalComplete = true
+									return state
+								}
+
+								if original.outerSignalComplete {
+									sendCompleted(sink)
+								}
+
+							default:
+								sink(event)
+							}
+						}
+					}
+				}, error: { error in
+					sendError(sink, error)
+				}, completed: {
+					let original = state.modify { (var state) in
+						state.outerSignalComplete = true
+						return state
+					}
+
+					if original.innerSignalComplete {
+						sendCompleted(sink)
+					}
+				}, interrupted: {
+					sendInterrupted(sink)
+				})
+			}
 		}
 	}
 }
@@ -1181,4 +1377,27 @@ private struct LatestState<T, E: ErrorType> {
 	var innerSignalComplete: Bool = true
 
 	var replacingInnerSignal: Bool = false
+}
+
+// These free functions are to workaround compiler crashes when attempting
+// to lift binary signal operators directly with closures.
+
+private func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { $0.combineLatestWith(otherSignal) }
+}
+
+private func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
+	return { $0.zipWith(otherSignal) }
+}
+
+private func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.sampleOn(sampler) }
+}
+
+private func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.takeUntil(trigger) }
+}
+
+private func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
+	return { $0.takeUntilReplacement(replacement) }
 }

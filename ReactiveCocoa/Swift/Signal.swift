@@ -25,9 +25,9 @@ public final class Signal<T, E: ErrorType> {
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
-	/// The Signal will remain alive until a terminating event is sent to the
-	/// observer, at which point the disposable returned from the closure will
-	/// be disposed as well.
+	/// The disposable returned from the closure will be automatically disposed
+	/// if a terminating event is sent to the observer. The Signal itself will
+	/// remain alive until the observer is released.
 	public init(_ generator: Observer -> Disposable?) {
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
@@ -284,8 +284,6 @@ extension Signal {
 				scheduler.schedule {
 					observer(event)
 				}
-
-				return
 			}
 		}
 	}
@@ -486,8 +484,6 @@ extension Signal {
 					st.latestValue = value
 					return st
 				}
-
-				return
 			}, error: { error in
 				sendError(observer, error)
 			}, completed: {
@@ -578,7 +574,7 @@ extension Signal {
 	/// Aggregates `selfs`'s values into a single combined value. When `self` emits
 	/// its first value, `combine` is invoked with `initial` as the first argument and
 	/// that emitted value as the second argument. The result is emitted from the
-	/// signal returned from `reduce`. That result is then passed to `combine` as the
+	/// signal returned from `scan`. That result is then passed to `combine` as the
 	/// first argument when the next value is emitted, and so on.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func scan<U>(initial: U, _ combine: (U, T) -> U) -> Signal<U, E> {

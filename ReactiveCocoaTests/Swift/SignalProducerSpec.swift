@@ -271,6 +271,58 @@ class SignalProducerSpec: QuickSpec {
 				expect(value).to(equal(123))
 				expect(completed).to(beTruthy())
 			}
+
+			it("should not deadlock when started while sending") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				sendNext(sink, 1)
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+
+				var values: [Int] = []
+				producer.start(completed: {
+					values = []
+
+					producer.start(next: { value in
+						values.append(value)
+					})
+				})
+
+				sendCompleted(sink)
+				expect(values).to(equal([ 1, 2, 3 ]))
+			}
+
+			it("should buffer values before sending recursively to new observers") {
+				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+
+				var values: [Int] = []
+				var lastBufferedValues: [Int] = []
+
+				producer.start(next: { newValue in
+					values.append(newValue)
+
+					var bufferedValues: [Int] = []
+					
+					producer.start(next: { bufferedValue in
+						bufferedValues.append(bufferedValue)
+					})
+
+					expect(bufferedValues).to(equal(values))
+					lastBufferedValues = bufferedValues
+				})
+
+				sendNext(sink, 1)
+				expect(values).to(equal([ 1 ]))
+				expect(lastBufferedValues).to(equal(values))
+
+				sendNext(sink, 2)
+				expect(values).to(equal([ 1, 2 ]))
+				expect(lastBufferedValues).to(equal(values))
+
+				sendNext(sink, 3)
+				expect(values).to(equal([ 1, 2, 3 ]))
+				expect(lastBufferedValues).to(equal(values))
+			}
 		}
 
 		describe("trailing closure") {

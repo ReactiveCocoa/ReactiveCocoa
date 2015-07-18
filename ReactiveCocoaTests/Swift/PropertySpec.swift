@@ -360,6 +360,15 @@ class PropertySpec: QuickSpec {
 				}
 			}
 		}
+		
+		describe("propertyOf") {
+			describe("from a Signal") {
+				it("should initially take on the supplied value") {
+					let property = Signal.never |> propertyOf(initialPropertyValue)
+					expect(property.value).to(equal(initialPropertyValue))
+				}
+			}
+		}
 	}
 }
 

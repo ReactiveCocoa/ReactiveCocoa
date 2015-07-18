@@ -85,10 +85,12 @@ let searchResults = searchStrings
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
         return parseJSONResultsFromString(string)
     }
+    |> observeOn(UIScheduler())
 ```
 
 This has transformed our producer of `String`s into a producer of `Array`s
-containing the search results.
+containing the search results, which will be forwarded on the main thread
+(thanks to the [`UIScheduler`][Schedulers]).
 
 Additionally, [`flatMap(.Latest)`][flatMapLatest] here ensures that _only one search_—the
 latest—is allowed to be running. If the user types another character while the
@@ -104,14 +106,60 @@ That’s easy enough:
 ```swift
 searchResults.start(next: { results in
     println("Search results: \(results)")
-}, error: { error in
-    println("Error searching: \(error)")
 })
 ```
 
-Here, we watch for the `Next` and `Error` [events][], and just log to the
-console. This could easily do something else instead, like update a table view
-or a label on screen.
+Here, we watch for the `Next` [event][Events], which contains our results, and
+just log them to the console. This could easily do something else instead, like
+update a table view or a label on screen.
+
+#### Handling errors
+
+In this example so far, any network error will generate an `Error`
+[event][Events], which will terminate the event stream. Unfortunately, this
+means that future queries won’t even be attempted.
+
+To remedy this, we need to decide what to do with errors that occur. The
+quickest solution would be to log them, then ignore them:
+
+```swift
+    |> flatMap(.Latest) { query in
+        let URLRequest = self.searchRequestWithEscapedQuery(query)
+
+        return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
+            |> catch { error in
+                println("Network error occurred: \(error)")
+                return SignalProducer.empty
+            }
+    }
+```
+
+By replacing errors with the `empty` event stream, we’re able to effectively
+ignore them.
+
+However, it’s probably more appropriate to retry at least a couple of times
+before giving up. Conveniently, there’s a [`retry`][retry] operator to do exactly that!
+
+Our improved `searchResults` producer might look like this:
+
+```swift
+let searchResults = searchStrings
+    |> flatMap(.Latest) { query in
+        let URLRequest = self.searchRequestWithEscapedQuery(query)
+
+        return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
+            |> retry(2)
+            |> catch { error in
+                println("Network error occurred: \(error)")
+                return SignalProducer.empty
+            }
+    }
+    |> map { data, URLResponse in
+        let string = String(data: data, encoding: NSUTF8StringEncoding)!
+        return parseJSONResultsFromString(string)
+    }
+    |> observeOn(UIScheduler())
+```
 
 #### Throttling requests
 
@@ -273,7 +321,9 @@ introductory examples of using it.
 [Legacy Documentation]: Documentation/Legacy
 [Objective-C API]: ReactiveCocoa/Objective-C
 [Objective-C Bridging]: Documentation/ObjectiveCBridging.md
+[Schedulers]: Documentation/FrameworkOverview.md#schedulers
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers
 [Signals]: Documentation/FrameworkOverview.md#signals
 [Swift API]: ReactiveCocoa/Swift
 [flatMapLatest]: Documentation/BasicOperators.md#switching-to-the-latest
+[retry]: Documentation/BasicOperators.md#retrying

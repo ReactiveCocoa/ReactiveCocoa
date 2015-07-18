@@ -46,6 +46,9 @@ Because all of these different mechanisms can be represented in the _same_ way,
 it’s easy to declaratively chain and combine them together, with less spaghetti
 code and state to bridge the gap.
 
+For more information about the concepts in ReactiveCocoa, see the [Framework
+Overview][].
+
 ## Example: online search
 
 Let’s say you have a text field, and whenever the user types something into it,
@@ -138,7 +141,7 @@ Although ReactiveCocoa was started as an Objective-C framework, as of version
 3.0, all major feature development is concentrated on the Swift API.
 
 RAC’s Objective-C API and Swift API are entirely separate, but there is
-a [bridge][ObjectiveCBridging] to convert between the two. This
+a [bridge][Objective-C Bridging] to convert between the two. This
 is mostly meant as a compatibility layer for older ReactiveCocoa projects, or to
 use Cocoa extensions which haven’t been added to the Swift API yet.
 
@@ -239,13 +242,19 @@ If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
 [unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa)
 that have been generously contributed by third parties.
 
+Once you’ve set up your project, check out the [Framework Overview][] for
+a tour of ReactiveCocoa’s concepts, and the [Basic Operators][] for some
+introductory examples of using it.
+
 
 [Actions]: Documentation/FrameworkOverview.md#actions
-[flatMapLatest]: Documentation/BasicOperators.md#switching-to-the-latest
+[Basic Operators]: Documentation/BasicOperators.md
 [CHANGELOG]: CHANGELOG.md
 [Code]: ReactiveCocoa
 [Documentation]: Documentation
 [Events]: Documentation/FrameworkOverview.md#events
-[ObjectiveCBridging]: Documentation/ObjectiveCBridging.md
-[Signals]: Documentation/FrameworkOverview.md#signals
+[Framework Overview]: Documentation/FrameworkOverview.md
+[Objective-C Bridging]: Documentation/ObjectiveCBridging.md
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers
+[Signals]: Documentation/FrameworkOverview.md#signals
+[flatMapLatest]: Documentation/BasicOperators.md#switching-to-the-latest

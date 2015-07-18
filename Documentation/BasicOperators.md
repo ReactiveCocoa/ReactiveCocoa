@@ -1,32 +1,34 @@
 # Basic Operators
 
 This document explains some of the most common operators used in ReactiveCocoa,
-and includes examples demonstrating their use. Note that operators in this context
-refer to functions that transform signals, _not_ custom Swift operators. In other
-words, these are the composeable primitives provided by ReactiveCocoa for working
-with signals. Roughly speaking they take the shape of `(Input..., Signal...) -> Signal`.
+and includes examples demonstrating their use.
 
-Additionally, this document will use the term "signal" when dealing with concepts that
-apply to both `Signal` and `SignalProducer`. When the distinction matters the inline
-code-style will be used.
+Note that “operators,” in this context, refers to functions that transform
+[signals][] and [signal producers][], _not_ custom Swift operators. In other
+words, these are composable primitives provided by ReactiveCocoa for working
+with event streams.
 
-**[Performing side effects with signals](#performing-side-effects-with-signals)**
+This document will use the term “event stream” when dealing with concepts that
+apply to both `Signal` and `SignalProducer`. When the distinction matters, the
+types will be referred to by name.
+
+**[Performing side effects with event streams](#performing-side-effects-with-event-streams)**
 
   1. [Observation](#observation)
   1. [Injecting effects](#injecting-effects)
 
-**[Operator composition](#signal-operator-composition)**
+**[Operator composition](#operator-composition)**
 
   1. [Lifting](#lifting)
   1. [Pipe](#pipe)
 
-**[Transforming signals](#transforming-signals)**
+**[Transforming event streams](#transforming-event-streams)**
 
   1. [Mapping](#mapping)
   1. [Filtering](#filtering)
   1. [Aggregating](#aggregating)
 
-**[Combining signals](#combining-signals)**
+**[Combining event streams](#combining-event-streams)**
 
   1. [Combining latest values](#combining-latest-values)
   1. [Zipping](#zipping)
@@ -43,7 +45,7 @@ code-style will be used.
   1. [Mapping errors](#mapping-error)
   1. [Retrying](#retrying)
 
-## Performing side effects with signals
+## Performing side effects with event streams
 
 ### Observation
 
@@ -115,7 +117,8 @@ Note that nothing will be printed until `producer` is started (possibly somewher
 
 ### Pipe
 
-The `|>` operator can be used to apply a signal operator to a signal. Multiple operators can be chained after each other using the `|>` operator
+The `|>` operator can be used to apply a primitive to an event stream. Multiple
+operators can be chained after each other using the `|>` operator:
 
 ```Swift
 intSignal
@@ -126,21 +129,28 @@ intSignal
 
 ### Lifting
 
-Signal operators can be _lifted_ to operate upon `SignalProducer`s with the `lift` operator.
-In other words, this will create a new `SignalProducer` which will apply the given signal operator to _every_ signal created from the incoming `SignalProducer`s just if the operator had been applied to each signal yielded from `start()`.
+`Signal` operators can be _lifted_ to operate upon `SignalProducer`s using the
+`lift` method.
 
-The `|>` operator implicitly lifts signal operators, when used with `SignalProducer`s.
+This will create a new `SignalProducer` which will apply the given operator to
+_every_ `Signal` created, just as if the operator had been applied to each
+produced `Signal` individually.
 
-## Transforming signals
+The `|>` operator implicitly lifts `Signal` operators, so it can be used to
+apply them directly to `SignalProducer`s.
 
-These operators transform a signal into a new signal.
+## Transforming event streams
+
+These operators transform an event stream into a new stream.
 
 ### Mapping
 
-The `map` operator is used to transform the values in a signal, creating a new signal with the results.
+The `map` operator is used to transform the values in a event stream, creating
+a new stream with the results.
 
 ```Swift
 let (signal, sink) = Signal<String, NoError>.pipe()
+
 signal
     |> map { string in string.uppercaseString }
     |> observe(next: println)
@@ -154,10 +164,12 @@ sendNext(sink, "c")     // Prints C
 
 ### Filtering
 
-The `filter` operator is used to include only values in a signal that satisfy a predicate
+The `filter` operator is used to only include values in an event stream that
+satisfy a predicate.
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
+
 signal
     |> filter { number in number % 2 == 0 }
     |> observe(next: println)
@@ -172,7 +184,9 @@ sendNext(sink, 4)     // prints 4
 
 ### Aggregating
 
-The `reduce` operator is used to aggregate a signals values into a single combine value. Note, that the final value is only sent after the source signal completes.
+The `reduce` operator is used to aggregate a event stream’s values into a single
+combined value. Note that the final value is only sent after the input stream
+completes.
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
@@ -187,7 +201,9 @@ sendNext(sink, 3)     // nothing printed
 sendCompleted(sink)   // prints 6
 ```
 
-The `collect` operator is used to aggregate a signals values into a single array value. Note, that the final value is only sent after the source signal completes.
+The `collect` operator is used to aggregate a event stream’s values into
+a single array value. Note that the final value is only sent after the input
+stream completes.
 
 ```Swift
 let (signal, sink) = Signal<Int, NoError>.pipe()
@@ -204,13 +220,19 @@ sendCompleted(sink)   // prints [1, 2, 3]
 
 [Interactive visualisation of the `reduce` operator.](http://neilpa.me/rac-marbles/#reduce)
 
-## Combining signals
+## Combining event streams
 
-These operators combine values from multiple signals into a unified new signal.
+These operators combine values from multiple event streams into a new, unified
+stream.
 
 ### Combining latest values
 
-The `combineLatest` function combines the latest values of two (or more) signals. The resulting signal will only send a the first value after both inputs have sent at least one value each. After that, each value on either of the inputs will cause a new value on the output.
+The `combineLatest` function combines the latest values of two (or more) event
+streams.
+
+The resulting stream will only send its first value after each input has sent at
+least one value. After that, new values on any of the inputs will result in
+a new value on the output.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
@@ -235,7 +257,11 @@ The `combineLatestWith` operator works in the same way, but as an operator.
 
 ### Zipping
 
-The `zip` function combines values of two (or more) signals into pairs. The elements of any Nth pair are the Nth elements of the input signals. That means the output signal will always wait for all input signals to send and output.
+The `zip` function joins values of two (or more) event streams pair-wise. The
+elements of any Nth tuple correspond to the Nth elements of the input streams.
+
+That means the Nth value of the output stream cannot be sent until each input
+has sent at least N values.
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
@@ -365,7 +391,7 @@ sendNext(sinkC, "Z")        // prints "Z"
 
 ## Handling errors
 
-These operators are used to handle errors that might occur on a signal.
+These operators are used to handle errors that might occur on an event stream.
 
 ### Catching errors
 
@@ -413,7 +439,7 @@ If the `SignalProducer` does not succeed after `count` tries, the resulting `Sig
 
 ### Mapping errors
 
-The `mapError` operator transforms errors in the signal to new errors. 
+The `mapError` operator transforms any error in an event stream into a new error. 
 
 ```Swift
 enum CustomError: String, ErrorType {
@@ -450,7 +476,7 @@ sendError(sink, NSError(domain: "com.example.foo", code: 42, userInfo: nil))    
 
 ### Promote
 
-The `promoteErrors` operator promotes a signal that does not generate errors into one that can. 
+The `promoteErrors` operator promotes an event stream that does not generate errors into one that can. 
 
 ```Swift
 let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
@@ -461,7 +487,9 @@ numbersSignal
     |> combineLatestWith(lettersSignal)
 ```
 
-The given signal will still not actually generate errors, but some operators to [combine signals](#combining-signals) require the incoming signals to have matching error types.
+The given stream will still not _actually_ generate errors, but this is useful
+because some operators to [combine streams](#combining-event-streams) require
+the inputs to have matching error types.
 
 
 [Signals]: FrameworkOverview.md#signals

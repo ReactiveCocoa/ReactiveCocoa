@@ -44,6 +44,15 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Whether the instantiator of this action wants it to be enabled.
 	private let userEnabled: PropertyOf<Bool>
 
+	/// Lazy creation and storage of a UI bindable `CocoaAction``. The default behavior
+	/// force casts the AnyObject? input to match the action's `Input` type. This makes
+	/// it unsafe for use when the action is paramerterized for something like `Void`
+	/// input. In those cases, explicitly assign a value to this property that transforms
+	/// the input to suit your needs.
+	public lazy var unsafeCocoaAction: CocoaAction = { _ in
+		CocoaAction(self) { $0 as! Input }
+	}()
+
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
 	private let executingQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Action.executingQueue", DISPATCH_QUEUE_SERIAL)
@@ -91,7 +100,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			var startedExecuting = false
 
 			dispatch_sync(self.executingQueue) {
-				if Action.shouldBeEnabled(userEnabled: self.userEnabled.value, executing: self._executing.value) {
+				if self._enabled.value {
 					self._executing.value = true
 					startedExecuting = true
 				}

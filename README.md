@@ -167,10 +167,10 @@ The following are some of the concrete differences, along with their rationales.
 
 #### Naming
 
-Many operations in Rx borrow names from
-[LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx), which uses terms
-reminiscient of relational databases, like `Select` and `Where`. Streams over
-time are known as `Observable`s, which parallels the `Enumerable` type in .NET.
+In most versions of Rx, Streams over time are known as `Observable`s, which
+parallels the `Enumerable` type in .NET. Additionally, most operations in Rx.NET
+borrow names from [LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx),
+which uses terms reminiscient of relational databases, like `Select` and `Where`.
 
 **RAC is focused on matching Swift naming first and foremost**, with terms like
 `map` and `filter` instead. Other naming differences are typically inspired by

@@ -434,7 +434,7 @@ extension SignalType {
 }
 
 // Have to extend `Signal` directly to avoid a compiler crash.
-extension Signal where T: EventType, E: NoErrorType {
+extension Signal where T: EventType, E: NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -446,7 +446,7 @@ extension Signal where T: EventType, E: NoErrorType {
 					observer(innerEvent.event)
 
 				case .Error:
-					fatalError("NoErrorType should be impossible to construct")
+					fatalError("NoError is impossible to construct")
 
 				case .Completed:
 					sendCompleted(observer)
@@ -1116,7 +1116,7 @@ extension SignalType {
 	}
 }
 
-extension SignalType where E: NoErrorType {
+extension SignalType where E: NoError {
 	/// Promotes a signal that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given signal,
@@ -1132,7 +1132,7 @@ extension SignalType where E: NoErrorType {
 			}, interrupted: {
 				sendInterrupted(observer)
 			}, error: { _ in
-				fatalError("NoErrorType should be impossible to construct")
+				fatalError("NoError is impossible to construct")
 			})
 		}
 	}

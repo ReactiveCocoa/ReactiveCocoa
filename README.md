@@ -1,6 +1,6 @@
 # ReactiveCocoa [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
-ReactiveCocoa (RAC) is an Objective-C and Swift framework inspired by
+ReactiveCocoa (RAC) is a Cocoa framework inspired by
 [Functional Reactive
 Programming](http://en.wikipedia.org/wiki/Functional_reactive_programming). It
 provides APIs for composing and transforming **streams of values over time**.
@@ -136,7 +136,17 @@ our event stream.
 
 ## Objective-C and Swift
 
-TODO
+Although ReactiveCocoa was started as an Objective-C framework, as of version
+3.0, all major feature development is concentrated on the Swift API.
+
+RAC’s Objective-C API and Swift API are entirely separate, but there is
+a [bridge](Documentation/ObjectiveCBridging.md) to convert between the two. This
+is mostly meant as a compatibility layer for older ReactiveCocoa projects, or to
+use Cocoa extensions which haven’t been added to the Swift API yet.
+
+The Objective-C API will continue to exist and be supported for the foreseeable
+future, but it won’t receive many improvements. **We highly recommend that all
+new projects use the Swift API.**
 
 ## How does ReactiveCocoa relate to Rx?
 
@@ -152,7 +162,7 @@ Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library. T
 
 The following are some of the concrete differences, along with their rationales.
 
-### Naming
+#### Naming
 
 Most operations in Rx borrow names from
 [LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx), which uses terms
@@ -165,7 +175,7 @@ significantly better alternatives from [Haskell](https://www.haskell.org) or
 [Elm](http://elm-lang.org) (which is the primary source for the “signal”
 terminology).
 
-### Signals and Signal Producers (“hot” and “cold” observables)
+#### Signals and Signal Producers (“hot” and “cold” observables)
 
 One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and
 “warm”
@@ -194,7 +204,7 @@ communicates intent much better.
 In other words, **ReactiveCocoa’s changes here are [simple, not
 easy](http://www.infoq.com/presentations/Simple-Made-Easy)**.
 
-### UI programming
+#### UI programming
 
 Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
 very common, it has few features tailored to that particular case.

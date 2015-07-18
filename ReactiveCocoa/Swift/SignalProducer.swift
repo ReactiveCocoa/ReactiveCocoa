@@ -327,7 +327,7 @@ extension SignalProducerType {
 	/// operator had been applied to each Signal yielded from start().
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F>(transform: Signal<T, E> -> Signal<U, F>) -> SignalProducer<U, F> {
-		return SignalProducer<U, F> { observer, outerDisposable in
+		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable.addDisposable(innerDisposable)
 
@@ -345,7 +345,7 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<U, F> -> Signal<T, E> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
-			return SignalProducer<V, G> { observer, outerDisposable in
+			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
 					outerDisposable.addDisposable(disposable)
 
@@ -641,7 +641,7 @@ extension SignalProducerType {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
-		return SignalProducer<T, E> { observer, compositeDisposable in
+		return SignalProducer { observer, compositeDisposable in
 			started?()
 			disposed.map(compositeDisposable.addDisposable)
 
@@ -684,7 +684,7 @@ extension SignalProducerType {
 	/// the `start()` method is run.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func startOn(scheduler: SchedulerType) -> SignalProducer<T, E> {
-		return SignalProducer<T, E> { observer, compositeDisposable in
+		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
 				self.startWithSignal { signal, signalDisposable in
 					compositeDisposable.addDisposable(signalDisposable)
@@ -888,7 +888,7 @@ extension SignalProducerType {
 	/// that starts in its place.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMapError<F>(handler: E -> SignalProducer<T, F>) -> SignalProducer<T, F> {
-		return SignalProducer<T, F> { observer, disposable in
+		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
@@ -933,7 +933,7 @@ extension SignalProducerType {
 			return producer
 		}
 
-		return SignalProducer<T, E> { observer, disposable in
+		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 

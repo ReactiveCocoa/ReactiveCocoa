@@ -165,7 +165,7 @@ Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library. T
 
 The following are some of the concrete differences, along with their rationales.
 
-#### Naming
+### Naming
 
 In most versions of Rx, Streams over time are known as `Observable`s, which
 parallels the `Enumerable` type in .NET. Additionally, most operations in Rx.NET
@@ -178,7 +178,7 @@ significantly better alternatives from [Haskell](https://www.haskell.org) or
 [Elm](http://elm-lang.org) (which is the primary source for the “signal”
 terminology).
 
-#### Signals and Signal Producers (“hot” and “cold” observables)
+### Signals and Signal Producers (“hot” and “cold” observables)
 
 One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and “warm”
 observables](http://www.introtorx.com/content/v1.0.10621.0/14_HotAndColdObservables.html) (event streams).
@@ -206,7 +206,7 @@ communicates intent much better.
 In other words, **ReactiveCocoa’s changes here are [simple, not
 easy](http://www.infoq.com/presentations/Simple-Made-Easy)**.
 
-#### Typed errors
+### Typed errors
 
 When [signals][] and [signal producers][] are allowed to [error][Events] in ReactiveCocoa,
 the kind of error must be specified in the type system. For example,
@@ -220,7 +220,7 @@ error. **This eliminates many bugs caused by unexpected error events.**
 In Rx systems with types, event streams only specify the type of their
 values—not the type of their errors—so this sort of guarantee is impossible.
 
-#### UI programming
+### UI programming
 
 Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
 very common, it has few features tailored to that particular case.

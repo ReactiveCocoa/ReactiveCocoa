@@ -6,14 +6,12 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// An optional protocol for use in type constraints.
 public protocol OptionalType {
 	/// The type contained in the otpional.
 	typealias T
 
-	/// Extracts a signal from the receiver.
+	/// Extracts an optional from the receiver.
 	var optional: T? { get }
 }
 

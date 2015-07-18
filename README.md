@@ -7,6 +7,7 @@ provides APIs for composing and transforming **streams of values over time**.
 
  1. [Introduction](#introduction)
  1. [Example: online search](#example-online-search)
+ 1. [Objective-C and Swift](#objective-c-and-swift)
  1. [How does ReactiveCocoa relate to Rx?](#how-does-reactivecocoa-relate-to-rx)
  1. [Getting started](#getting-started)
 
@@ -133,9 +134,80 @@ To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into
 our event stream.
 
-## How does ReactiveCocoa relate to Rx?
+## Objective-C and Swift
 
 TODO
+
+## How does ReactiveCocoa relate to Rx?
+
+ReactiveCocoa was originally inspired, and therefore heavily influenced, by
+Microsoft’s [Reactive
+Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library.
+
+There are many ports of Rx, including the new
+[RxSwift](https://github.com/kzaher/RxSwift), but ReactiveCocoa is
+_intentionally_ not a direct port.
+
+Where RAC differs from Rx, it is usually to create a simpler API, address
+common sources of confusion, and more closely match Cocoa conventions.
+
+The following are some of the concrete differences, along with their rationales.
+
+#### Naming
+
+Most operations in Rx borrow names from
+[LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx), which uses terms
+reminiscient of relational databases, like `Select` and `Where`.
+
+Also in Rx, streams over time are known as `Observable`s, which parallels the
+`Enumerable` type in .NET. This could be confusing in Cocoa, because of Key-Value
+Observing and similar concepts.
+
+RAC is focused on matching Swift naming first and foremost, with terms like
+`map` and `filter` instead. Other naming differences are typically inspired by
+significantly better alternatives from [Haskell](https://www.haskell.org) or
+[Elm](http://elm-lang.org) (which is the primary source for the “signal”
+terminology).
+
+#### UI programming
+
+Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
+very common, it has few features tailored to that particular case.
+
+RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net),
+including the basis for [Actions](Documentation/FrameworkOverview.md#actions).
+
+Unlike ReactiveUI, which unfortunately cannot directly change Rx to make it more
+friendly for UI programming, ReactiveCocoa has been improved many times
+specifically for this purpose—even when it means diverging further from Rx.
+
+#### Signals and Signal Producers (“hot” and “cold” observables)
+
+One of the most confusing aspects of aspects of Rx is that of “hot”, “cold”, and
+“warm” observables (event streams).
+
+The problem is, given just a method or function declaration like this:
+
+```csharp
+IObservable<string> Search(string query)
+```
+
+… it is **impossible to tell** whether subscribing to (observing) that
+`IObservable` will involve side effects. If it _does_ involve side effects, it’s
+also impossible to tell whether _each subscription_ has a side effect, or if only
+the first one does.
+
+This example is contrived, but it demonstrates **a real, pervasive problem**
+that makes it extremely hard to understand Rx code (and pre-3.0 ReactiveCocoa
+code) at a glance.
+
+[ReactiveCocoa 3.0](CHANGELOG.md) has solved this problem by distinguishing side
+effects with the separate `Signal` and `SignalProducer` types. Although this
+means there are more names to learn, it improves code clarity and helps
+communicates intent much better.
+
+In other words, ReactiveCocoa’s changes here are [simple, not
+easy](http://www.infoq.com/presentations/Simple-Made-Easy).
 
 ## Getting started
 

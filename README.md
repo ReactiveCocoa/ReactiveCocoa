@@ -206,6 +206,20 @@ communicates intent much better.
 In other words, **ReactiveCocoa’s changes here are [simple, not
 easy](http://www.infoq.com/presentations/Simple-Made-Easy)**.
 
+#### Typed errors
+
+When [signals][] and [signal producers][] are allowed to [error][Events] in ReactiveCocoa,
+the kind of error must be specified in the type system. For example,
+`Signal<Int, NSError>` is a signal of integer values that may send an error of
+type `NSError`.
+
+More importantly, RAC allows the special type `NoError` to be used instead,
+which _statically guarantees_ that an event stream is not allowed to send an
+error. **This eliminates many bugs caused by unexpected error events.**
+
+In Rx systems with types, event streams only specify the type of their
+values—not the type of their errors—so this sort of guarantee is impossible.
+
 #### UI programming
 
 Rx is basically agnostic as to how it’s used. Although UI programming with Rx is

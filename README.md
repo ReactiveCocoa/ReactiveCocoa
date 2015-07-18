@@ -12,9 +12,9 @@ provides APIs for composing and transforming **streams of values over time**.
  1. [Getting started](#getting-started)
 
 If you’re already familiar with functional reactive programming or what
-ReactiveCocoa is about, check out the [Documentation](Documentation) folder for more in-depth
+ReactiveCocoa is about, check out the [Documentation][] folder for more in-depth
 information about how it all works. Then, dive straight into our [documentation
-comments](ReactiveCocoa) for learning more about individual APIs.
+comments][Code] for learning more about individual APIs.
 
 If you have a question, please see if any discussions in our [GitHub
 issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?q=is%3Aissue+label%3Aquestion+) or [Stack
@@ -62,8 +62,7 @@ let searchStrings = textField.rac_textSignal()
     |> map { text in text as! String }
 ```
 
-This gives us a [signal
-producer](Documentation/FrameworkOverview.md#signal-producers) which sends
+This gives us a [signal producer][Signal producers] which sends
 values of type `String`. _(The cast is [currently
 necessary](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2182) to bridge
 this extension method from Objective-C.)_
@@ -107,8 +106,7 @@ searchResults.start(next: { results in
 })
 ```
 
-Here, we watch for the `Next` and `Error`
-[events](Documentation/FrameworkOverview.md#events), and just log to the
+Here, we watch for the `Next` and `Error` [events][], and just log to the
 console. This could easily do something else instead, like update a table view
 or a label on screen.
 
@@ -140,7 +138,7 @@ Although ReactiveCocoa was started as an Objective-C framework, as of version
 3.0, all major feature development is concentrated on the Swift API.
 
 RAC’s Objective-C API and Swift API are entirely separate, but there is
-a [bridge](Documentation/ObjectiveCBridging.md) to convert between the two. This
+a [bridge][ObjectiveCBridging] to convert between the two. This
 is mostly meant as a compatibility layer for older ReactiveCocoa projects, or to
 use Cocoa extensions which haven’t been added to the Swift API yet.
 
@@ -196,7 +194,7 @@ This example is contrived, but it demonstrates **a real, pervasive problem**
 that makes it extremely hard to understand Rx code (and pre-3.0 ReactiveCocoa
 code) at a glance.
 
-[ReactiveCocoa 3.0](CHANGELOG.md) has solved this problem by distinguishing side
+[ReactiveCocoa 3.0][CHANGELOG] has solved this problem by distinguishing side
 effects with the separate `Signal` and `SignalProducer` types. Although this
 means there’s another type to learn about, it improves code clarity and helps
 communicates intent much better.
@@ -210,7 +208,7 @@ Rx is basically agnostic as to how it’s used. Although UI programming with Rx 
 very common, it has few features tailored to that particular case.
 
 RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net),
-including the basis for [Actions](Documentation/FrameworkOverview.md#actions).
+including the basis for [Actions][].
 
 Unlike ReactiveUI, which unfortunately cannot directly change Rx to make it more
 friendly for UI programming, **ReactiveCocoa has been improved many times
@@ -240,3 +238,12 @@ github "ReactiveCocoa/ReactiveCocoa"
 
 If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
 [unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that have been generously contributed by third parties.
+
+
+[Actions]: Documentation/FrameworkOverview.md#actions
+[CHANGELOG]: CHANGELOG.md
+[Code]: ReactiveCocoa
+[Documentation]: Documentation
+[Events]: Documentation/FrameworkOverview.md#events
+[ObjectiveCBridging]: Documentation/ObjectiveCBridging.md
+[Signal producers]: Documentation/FrameworkOverview.md#signal-producers

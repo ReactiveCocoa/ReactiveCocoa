@@ -2304,7 +2304,7 @@ qck_describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 				// because a delayed interval may cause the _next_ value to
 				// send sooner than the interval.
 				NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
-				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue * 3 + 0.05;
+				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue * 3 + 0.1;
 
 				expect(@(currentTime - startTime)).to(beGreaterThanOrEqualTo(@(expectedMinInterval)));
 				expect(@(currentTime - startTime)).to(beLessThanOrEqualTo(@(expectedMaxInterval)));

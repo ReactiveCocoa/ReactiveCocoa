@@ -3,362 +3,496 @@
 This document explains some of the most common operators used in ReactiveCocoa,
 and includes examples demonstrating their use.
 
-Operators that apply to [sequences][Sequences] _and_ [signals][Signals] are
-known as [stream][Streams] operators.
+Note that “operators,” in this context, refers to functions that transform
+[signals][] and [signal producers][], _not_ custom Swift operators. In other
+words, these are composable primitives provided by ReactiveCocoa for working
+with event streams.
 
-**[Performing side effects with signals](#performing-side-effects-with-signals)**
+This document will use the term “event stream” when dealing with concepts that
+apply to both `Signal` and `SignalProducer`. When the distinction matters, the
+types will be referred to by name.
 
- 1. [Subscription](#subscription)
- 1. [Injecting effects](#injecting-effects)
+**[Performing side effects with event streams](#performing-side-effects-with-event-streams)**
 
-**[Transforming streams](#transforming-streams)**
+  1. [Observation](#observation)
+  1. [Injecting effects](#injecting-effects)
 
- 1. [Mapping](#mapping)
- 1. [Filtering](#filtering)
+**[Operator composition](#operator-composition)**
 
-**[Combining streams](#combining-streams)**
+  1. [Lifting](#lifting)
+  1. [Pipe](#pipe)
 
- 1. [Concatenating](#concatenating)
- 1. [Flattening](#flattening)
- 1. [Mapping and flattening](#mapping-and-flattening)
+**[Transforming event streams](#transforming-event-streams)**
 
-**[Combining signals](#combining-signals)**
+  1. [Mapping](#mapping)
+  1. [Filtering](#filtering)
+  1. [Aggregating](#aggregating)
 
- 1. [Sequencing](#sequencing)
- 1. [Merging](#merging)
- 1. [Combining latest values](#combining-latest-values)
- 1. [Switching](#switching)
+**[Combining event streams](#combining-event-streams)**
 
-## Performing side effects with signals
+  1. [Combining latest values](#combining-latest-values)
+  1. [Zipping](#zipping)
 
-Most signals start out "cold," which means that they will not do any work until
-[subscription](#subscription).
+**[Flattening producers](#flattening-producers)**
 
-Upon subscription, a signal or its [subscribers][Subscription] can perform _side
-effects_, like logging to the console, making a network request, updating the
-user interface, etc.
+  1. [Concatenating](#concatenating)
+  1. [Merging](#merging)
+  1. [Switching to the latest](#switching-to-the-latest)
 
-Side effects can also be [injected](#injecting-effects) into a signal, where
-they won't be performed immediately, but will instead take effect with each
-subscription later.
+**[Handling errors](#handling-errors)**
 
-### Subscription
+  1. [Catching errors](#catch)
+  1. [Mapping errors](#mapping-error)
+  1. [Retrying](#retrying)
 
-The [-subscribe…][RACSignal] methods give you access to the current and future values in a signal:
+## Performing side effects with event streams
 
-```objc
-RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
+### Observation
 
-// Outputs: A B C D E F G H I
-[letters subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
+`Signal`s can be observed with the `observe` function. It takes an `Observer` as argument to which any future events are sent. 
+
+```Swift
+signal.observe(Signal.Observer { event in
+    switch event {
+    case let .Next(next):
+        println("Next: \(next)")
+    case let .Error(error):
+        println("Error: \(error)")
+    case .Completed:
+        println("Completed")
+    case .Interrupted:
+        println("Interrupted")
+    }
+})
 ```
 
-For a cold signal, side effects will be performed once _per subscription_:
+Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
-```objc
-__block unsigned subscriptions = 0;
-
-RACSignal *loggingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-    subscriptions++;
-    [subscriber sendCompleted];
-    return nil;
-}];
-
-// Outputs:
-// subscription 1
-[loggingSignal subscribeCompleted:^{
-    NSLog(@"subscription %u", subscriptions);
-}];
-
-// Outputs:
-// subscription 2
-[loggingSignal subscribeCompleted:^{
-    NSLog(@"subscription %u", subscriptions);
-}];
+```Swift
+signal.observe(next: { next in
+    println("Next: \(next)")
+}, error: { error in
+    println("Error: \(error)")
+}, completed: {
+    println("Completed")
+}, interrupted: {
+    println("Interrupted")
+})
 ```
 
-This behavior can be changed using a [connection][Connections].
+Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
+
+`observe` is also available as operator that can be used with [|>](#pipe)
 
 ### Injecting effects
 
-The [-do…][RACSignal+Operations] methods add side effects to a signal without actually
-subscribing to it:
+Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
 
-```objc
-__block unsigned subscriptions = 0;
-
-RACSignal *loggingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-    subscriptions++;
-    [subscriber sendCompleted];
-    return nil;
-}];
-
-// Does not output anything yet
-loggingSignal = [loggingSignal doCompleted:^{
-    NSLog(@"about to complete subscription %u", subscriptions);
-}];
-
-// Outputs:
-// about to complete subscription 1
-// subscription 1
-[loggingSignal subscribeCompleted:^{
-    NSLog(@"subscription %u", subscriptions);
-}];
+```Swift
+let producer = signalProducer
+    |> on(started: {
+        println("Started")
+    }, event: { event in
+        println("Event: \(event)")
+    }, error: { error in
+        println("Error: \(error)")
+    }, completed: {
+        println("Completed")
+    }, interrupted: {
+        println("Interrupted")
+    }, terminated: {
+        println("Terminated")
+    }, disposed: {
+        println("Disposed")
+    }, next: { next in
+        println("Next: \(next)")
+    })
 ```
 
-## Transforming streams
+Similar to `observe`, all the parameters are optional and you only need to provide callbacks for the events you care about.
 
-These operators transform a single stream into a new stream.
+Note that nothing will be printed until `producer` is started (possibly somewhere else).
+
+## Operator composition
+
+### Pipe
+
+The `|>` operator can be used to apply a primitive to an event stream. Multiple
+operators can be chained after each other using the `|>` operator:
+
+```Swift
+intSignal
+    |> filter { num in num % 2 == 0 }
+    |> map(toString)
+    |> observe(next: { string in println(string) })
+```
+
+### Lifting
+
+`Signal` operators can be _lifted_ to operate upon `SignalProducer`s using the
+`lift` method.
+
+This will create a new `SignalProducer` which will apply the given operator to
+_every_ `Signal` created, just as if the operator had been applied to each
+produced `Signal` individually.
+
+The `|>` operator implicitly lifts `Signal` operators, so it can be used to
+apply them directly to `SignalProducer`s.
+
+## Transforming event streams
+
+These operators transform an event stream into a new stream.
 
 ### Mapping
 
-The [-map:][RACStream] method is used to transform the values in a stream, and
-create a new stream with the results:
+The `map` operator is used to transform the values in a event stream, creating
+a new stream with the results.
 
-```objc
-RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
+```Swift
+let (signal, sink) = Signal<String, NoError>.pipe()
 
-// Contains: AA BB CC DD EE FF GG HH II
-RACSequence *mapped = [letters map:^(NSString *value) {
-    return [value stringByAppendingString:value];
-}];
+signal
+    |> map { string in string.uppercaseString }
+    |> observe(next: println)
+
+sendNext(sink, "a")     // Prints A
+sendNext(sink, "b")     // Prints B
+sendNext(sink, "c")     // Prints C
 ```
+
+[Interactive visualisation of the `map` operator.](http://neilpa.me/rac-marbles/#map)
 
 ### Filtering
 
-The [-filter:][RACStream] method uses a block to test each value, including it
-into the resulting stream only if the test passes:
+The `filter` operator is used to only include values in an event stream that
+satisfy a predicate.
 
-```objc
-RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
 
-// Contains: 2 4 6 8
-RACSequence *filtered = [numbers filter:^ BOOL (NSString *value) {
-    return (value.intValue % 2) == 0;
-}];
+signal
+    |> filter { number in number % 2 == 0 }
+    |> observe(next: println)
+
+sendNext(sink, 1)     // Not printed
+sendNext(sink, 2)     // Prints 2
+sendNext(sink, 3)     // Not printed
+sendNext(sink, 4)     // prints 4
 ```
 
-## Combining streams
+[Interactive visualisation of the `filter` operator.](http://neilpa.me/rac-marbles/#filter)
 
-These operators combine multiple streams into a single new stream.
+### Aggregating
 
-### Concatenating
+The `reduce` operator is used to aggregate a event stream’s values into a single
+combined value. Note that the final value is only sent after the input stream
+completes.
 
-The [-concat:][RACStream] method appends one stream's values to another:
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
 
-```objc
-RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
-RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
+signal
+    |> reduce(1) { $0 * $1 }
+    |> observe(next: println)
 
-// Contains: A B C D E F G H I 1 2 3 4 5 6 7 8 9
-RACSequence *concatenated = [letters concat:numbers];
+sendNext(sink, 1)     // nothing printed
+sendNext(sink, 2)     // nothing printed
+sendNext(sink, 3)     // nothing printed
+sendCompleted(sink)   // prints 6
 ```
 
-### Flattening
+The `collect` operator is used to aggregate a event stream’s values into
+a single array value. Note that the final value is only sent after the input
+stream completes.
 
-The [-flatten][RACStream] operator is applied to a stream-of-streams, and
-combines their values into a single new stream.
+```Swift
+let (signal, sink) = Signal<Int, NoError>.pipe()
 
-Sequences are [concatenated](#concatenating):
+let collected = signal |> collect
 
-```objc
-RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
-RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
-RACSequence *sequenceOfSequences = @[ letters, numbers ].rac_sequence;
+collected.observe(next: println)
 
-// Contains: A B C D E F G H I 1 2 3 4 5 6 7 8 9
-RACSequence *flattened = [sequenceOfSequences flatten];
+sendNext(sink, 1)     // nothing printed
+sendNext(sink, 2)     // nothing printed
+sendNext(sink, 3)     // nothing printed
+sendCompleted(sink)   // prints [1, 2, 3]
 ```
 
-Signals are [merged](#merging):
+[Interactive visualisation of the `reduce` operator.](http://neilpa.me/rac-marbles/#reduce)
 
-```objc
-RACSubject *letters = [RACSubject subject];
-RACSubject *numbers = [RACSubject subject];
-RACSignal *signalOfSignals = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-    [subscriber sendNext:letters];
-    [subscriber sendNext:numbers];
-    [subscriber sendCompleted];
-    return nil;
-}];
+## Combining event streams
 
-RACSignal *flattened = [signalOfSignals flatten];
-
-// Outputs: A 1 B C 2
-[flattened subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-
-[letters sendNext:@"A"];
-[numbers sendNext:@"1"];
-[letters sendNext:@"B"];
-[letters sendNext:@"C"];
-[numbers sendNext:@"2"];
-```
-
-### Mapping and flattening
-
-[Flattening](#flattening) isn't that interesting on its own, but understanding
-how it works is important for [-flattenMap:][RACStream].
-
-`-flattenMap:` is used to transform each of a stream's values into _a new
-stream_. Then, all of the streams returned will be flattened down into a single
-stream. In other words, it's [-map:](#mapping) followed by [-flatten](#flattening).
-
-This can be used to extend or edit sequences:
-
-```objc
-RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
-
-// Contains: 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9
-RACSequence *extended = [numbers flattenMap:^(NSString *num) {
-    return @[ num, num ].rac_sequence;
-}];
-
-// Contains: 1_ 3_ 5_ 7_ 9_
-RACSequence *edited = [numbers flattenMap:^(NSString *num) {
-    if (num.intValue % 2 == 0) {
-        return [RACSequence empty];
-    } else {
-        NSString *newNum = [num stringByAppendingString:@"_"];
-        return [RACSequence return:newNum]; 
-    }
-}];
-```
-
-Or create multiple signals of work which are automatically recombined:
-
-```objc
-RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
-
-[[letters
-    flattenMap:^(NSString *letter) {
-        return [database saveEntriesForLetter:letter];
-    }]
-    subscribeCompleted:^{
-        NSLog(@"All database entries saved successfully.");
-    }];
-```
-
-## Combining signals
-
-These operators combine multiple signals into a single new [RACSignal][].
-
-### Sequencing
-
-[-then:][RACSignal+Operations] starts the original signal,
-waits for it to complete, and then only forwards the values from a new signal:
-
-```objc
-RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
-
-// The new signal only contains: 1 2 3 4 5 6 7 8 9
-//
-// But when subscribed to, it also outputs: A B C D E F G H I
-RACSignal *sequenced = [[letters
-    doNext:^(NSString *letter) {
-        NSLog(@"%@", letter);
-    }]
-    then:^{
-        return [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence.signal;
-    }];
-```
-
-This is most useful for executing all the side effects of one signal, then
-starting another, and only returning the second signal's values.
-
-### Merging
-
-The [+merge:][RACSignal+Operations] method will forward the values from many
-signals into a single stream, as soon as those values arrive:
-
-```objc
-RACSubject *letters = [RACSubject subject];
-RACSubject *numbers = [RACSubject subject];
-RACSignal *merged = [RACSignal merge:@[ letters, numbers ]];
-
-// Outputs: A 1 B C 2
-[merged subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-
-[letters sendNext:@"A"];
-[numbers sendNext:@"1"];
-[letters sendNext:@"B"];
-[letters sendNext:@"C"];
-[numbers sendNext:@"2"];
-```
+These operators combine values from multiple event streams into a new, unified
+stream.
 
 ### Combining latest values
 
-The [+combineLatest:][RACSignal+Operations] and `+combineLatest:reduce:` methods
-will watch multiple signals for changes, and then send the latest values from
-_all_ of them when a change occurs:
+The `combineLatest` function combines the latest values of two (or more) event
+streams.
 
-```objc
-RACSubject *letters = [RACSubject subject];
-RACSubject *numbers = [RACSubject subject];
-RACSignal *combined = [RACSignal
-    combineLatest:@[ letters, numbers ]
-    reduce:^(NSString *letter, NSString *number) {
-        return [letter stringByAppendingString:number];
-    }];
+The resulting stream will only send its first value after each input has sent at
+least one value. After that, new values on any of the inputs will result in
+a new value on the output.
 
-// Outputs: B1 B2 C2 C3
-[combined subscribeNext:^(id x) {
-    NSLog(@"%@", x);
-}];
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
-[letters sendNext:@"A"];
-[letters sendNext:@"B"];
-[numbers sendNext:@"1"];
-[numbers sendNext:@"2"];
-[letters sendNext:@"C"];
-[numbers sendNext:@"3"];
+combineLatest(numbersSignal, lettersSignal)
+    |> observe(next: println, completed: { println("Completed") })
+
+sendNext(numbersSink, 0)    // nothing printed
+sendNext(numbersSink, 1)    // nothing printed
+sendNext(lettersSink, "A")  // prints (1, A)
+sendNext(numbersSink, 2)    // prints (2, A)
+sendCompleted(numbersSink)  // nothing printed
+sendNext(lettersSink, "B")  // prints (2, B)
+sendNext(lettersSink, "C")  // prints (2, C)
+sendCompleted(lettersSink)  // prints "Completed"
 ```
 
-Note that the combined signal will only send its first value when all of the
-inputs have sent at least one. In the example above, `@"A"` was never
-forwarded because `numbers` had not sent a value yet.
+The `combineLatestWith` operator works in the same way, but as an operator.
 
-### Switching
+[Interactive visualisation of the `combineLatest` operator.](http://neilpa.me/rac-marbles/#combineLatest)
 
-The [-switchToLatest][RACSignal+Operations] operator is applied to
-a signal-of-signals, and always forwards the values from the latest signal:
+### Zipping
 
-```objc
-RACSubject *letters = [RACSubject subject];
-RACSubject *numbers = [RACSubject subject];
-RACSubject *signalOfSignals = [RACSubject subject];
+The `zip` function joins values of two (or more) event streams pair-wise. The
+elements of any Nth tuple correspond to the Nth elements of the input streams.
 
-RACSignal *switched = [signalOfSignals switchToLatest];
+That means the Nth value of the output stream cannot be sent until each input
+has sent at least N values.
 
-// Outputs: A B 1 D
-[switched subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NoError>.pipe()
 
-[signalOfSignals sendNext:letters];
-[letters sendNext:@"A"];
-[letters sendNext:@"B"];
+zip(numbersSignal, lettersSignal)
+    |> observe(next: println, completed: { println("Completed") })
 
-[signalOfSignals sendNext:numbers];
-[letters sendNext:@"C"];
-[numbers sendNext:@"1"];
+sendNext(numbersSink, 0)    // nothing printed
+sendNext(numbersSink, 1)    // nothing printed
+sendNext(lettersSink, "A")  // prints (0, A)
+sendNext(numbersSink, 2)    // nothing printed
+sendCompleted(numbersSink)  // nothing printed
+sendNext(lettersSink, "B")  // prints (1, B)
+sendNext(lettersSink, "C")  // prints (2, C) & "Completed"
 
-[signalOfSignals sendNext:letters];
-[numbers sendNext:@"2"];
-[letters sendNext:@"D"];
 ```
 
-[Connections]: FrameworkOverview.md#connections
-[RACSequence]: ../ReactiveCocoa/RACSequence.h
-[RACSignal]: ../ReactiveCocoa/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoa/RACStream.h
-[Sequences]: FrameworkOverview.md#sequences
+The `zipWith` operator works in the same way, but as an operator.
+
+[Interactive visualisation of the `zip` operator.](http://neilpa.me/rac-marbles/#zip)
+
+## Flattening producers
+
+The `flatten` operator transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer` whose values are forwarded from the inner producer in accordance with the provided `FlattenStrategy`.
+
+To understand, why there are different strategies and how they compare to each other, take a look at this example and imagine the column offsets as time:
+
+```Swift
+let values = [
+// imagine column offset as time
+[ 1,    2,      3 ],
+   [ 4,      5,     6 ],
+         [ 7,     8 ],
+]
+
+let merge =
+[ 1, 4, 2, 7,5, 3,8,6 ]
+
+let concat = 
+[ 1,    2,      3,4,      5,     6,7,     8]
+
+let latest =
+[ 1, 4,    7,     8 ]
+```
+
+Note, how the values interleave and which values are even included in the resulting array.
+
+
+### Merging
+
+The `.Merge` strategy immediately forwards every value of the inner `SignalProducer`s to the outer `SignalProducer`. Any error sent on the outer producer or any inner producer is immediately sent on the flattened producer and terminates it.
+
+```Swift
+let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
+
+signal |> flatten(FlattenStrategy.Merge) |> start(next: println)
+
+sendNext(sink, producerA)
+sendNext(sink, producerB)
+sendCompleted(sink)
+
+sendNext(lettersSink, "a")    // prints "a"
+sendNext(numbersSink, "1")    // prints "1"
+sendNext(lettersSink, "b")    // prints "b"
+sendNext(numbersSink, "2")    // prints "2"
+sendNext(lettersSink, "c")    // prints "c"
+sendNext(numbersSink, "3")    // prints "3"
+```
+
+[Interactive visualisation of the `flatten(.Merge)` operator.](http://neilpa.me/rac-marbles/#merge)
+
+### Concatenating
+
+The `.Concat` strategy is used to serialize work of the inner `SignalProducer`s. The outer producer is started immediately. Each subsequent producer is not started until the preceeding one has completed. Errors are immediately forwarded to the flattened producer.
+
+```Swift
+let (producerA, lettersSink) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, numbersSink) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
+
+signal |> flatten(FlattenStrategy.Concat) |> start(next: println)
+
+sendNext(sink, producerA)
+sendNext(sink, producerB)
+sendCompleted(sink)
+
+sendNext(numbersSink, "1")    // nothing printed
+sendNext(lettersSink, "a")    // prints "a"
+sendNext(lettersSink, "b")    // prints "b"
+sendNext(numbersSink, "2")    // nothing printed
+sendNext(lettersSink, "c")    // prints "c"
+sendCompleted(lettersSink)    // prints "1", "2"
+sendNext(numbersSink, "3")    // prints "3"
+sendCompleted(numbersSink)
+```
+
+[Interactive visualisation of the `flatten(.Concat)` operator.](http://neilpa.me/rac-marbles/#concat)
+
+### Switching to the latest
+
+The `.Latest` strategy forwards only values from the latest input `SignalProducer`.
+
+```Swift
+let (producerA, sinkA) = SignalProducer<String, NoError>.buffer(5)
+let (producerB, sinkB) = SignalProducer<String, NoError>.buffer(5)
+let (producerC, sinkC) = SignalProducer<String, NoError>.buffer(5)
+let (signal, sink) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
+
+signal |> flatten(FlattenStrategy.Latest) |> start(next: println)
+
+sendNext(sink, producerA)   // nothing printed
+sendNext(sinkC, "X")        // nothing printed
+sendNext(sinkA, "a")        // prints "a"
+sendNext(sinkB, "1")        // nothing printed
+sendNext(sink, producerB)   // prints "1"
+sendNext(sinkA, "b")        // nothing printed
+sendNext(sinkB, "2")        // prints "2"
+sendNext(sinkC, "Y")        // nothing printed
+sendNext(sinkA, "c")        // nothing printed
+sendNext(sink, producerC)   // prints "X", "Y"
+sendNext(sinkB, "3")        // nothing printed
+sendNext(sinkC, "Z")        // prints "Z"
+```
+
+## Handling errors
+
+These operators are used to handle errors that might occur on an event stream.
+
+### Catching errors
+
+The `catch` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
+
+```Swift
+let (producer, sink) = SignalProducer<String, NSError>.buffer(5)
+let error = NSError(domain: "domain", code: 0, userInfo: nil)
+
+producer
+    |> catch { error in SignalProducer<String, NSError>(value: "Default") }
+    |> start(next: println)
+
+
+sendNext(sink, "First")     // prints "First"
+sendNext(sink, "Second")    // prints "Second"
+sendError(sink, error)      // prints "Default"
+```
+
+### Retrying
+
+The `retry` operator will restart the original `SignalProducer` on error up to `count` times.
+
+```Swift
+var tries = 0
+let limit = 2
+let error = NSError(domain: "domain", code: 0, userInfo: nil)
+let producer = SignalProducer<String, NSError> { (sink, _) in
+    if tries++ < limit {
+        sendError(sink, error)
+    } else {
+        sendNext(sink, "Success")
+        sendCompleted(sink)
+    }
+}
+
+producer
+    |> on(error: {e in println("Error")})             // prints "Error" twice
+    |> retry(2)
+    |> start(next: println,                           // prints "Success"
+            error: { _ in println("Signal Error")})
+```
+
+If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
+
+### Mapping errors
+
+The `mapError` operator transforms any error in an event stream into a new error. 
+
+```Swift
+enum CustomError: String, ErrorType {
+    case Foo = "Foo"
+    case Bar = "Bar"
+    case Other = "Other"
+    
+    var nsError: NSError {
+        return NSError(domain: "CustomError.\(rawValue)", code: 0, userInfo: nil)
+    }
+    
+    var description: String {
+        return "\(rawValue) Error"
+    }
+}
+
+let (signal, sink) = Signal<String, NSError>.pipe()
+
+signal
+    |> mapError { (error: NSError) -> CustomError in
+        switch error.domain {
+        case "com.example.foo":
+            return .Foo
+        case "com.example.bar":
+            return .Bar
+        default:
+            return .Other
+        }
+    }
+    |> observe(error: println)
+
+sendError(sink, NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
+```
+
+### Promote
+
+The `promoteErrors` operator promotes an event stream that does not generate errors into one that can. 
+
+```Swift
+let (numbersSignal, numbersSink) = Signal<Int, NoError>.pipe()
+let (lettersSignal, lettersSink) = Signal<String, NSError>.pipe()
+
+numbersSignal
+    |> promoteErrors(NSError)
+    |> combineLatestWith(lettersSignal)
+```
+
+The given stream will still not _actually_ generate errors, but this is useful
+because some operators to [combine streams](#combining-event-streams) require
+the inputs to have matching error types.
+
+
 [Signals]: FrameworkOverview.md#signals
-[Streams]: FrameworkOverview.md#streams
-[Subscription]: FrameworkOverview.md#subscription
+[Signal Producers]: FrameworkOverview.md#signal-producers
+[Observation]: FrameworkOverview.md#observation
+

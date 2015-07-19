@@ -80,7 +80,7 @@ qck_describe(@"RACTestObject", ^{
 			value = x;
 		}];
 
-		[object objectValue];
+		(void)[object objectValue];
 		expect(value).to(equal([RACTuple tupleWithObjectsFromArray:@[]]));
 	});
 

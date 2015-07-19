@@ -6,253 +6,310 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 
 This document assumes basic familiarity
 with the features of ReactiveCocoa. The [Framework Overview][] is a better
-resource for getting up to speed on the functionality provided by RAC.
+resource for getting up to speed on the main types and concepts provided by RAC.
 
-**[The RACSequence contract](#the-racsequence-contract)**
+**[The `Event` contract](#the-event-contract)**
 
- 1. [Evaluation occurs lazily by default](#evaluation-occurs-lazily-by-default)
- 1. [Evaluation blocks the caller](#evaluation-blocks-the-caller)
- 1. [Side effects occur only once](#side-effects-occur-only-once)
+ 1. [`Next`s provide values or indicate the occurrence of events](#nexts-provide-values-or-indicate-the-occurrence-of-events)
+ 1. [Errors behave like exceptions and propagate immediately](#errors-behave-like-exceptions-and-propagate-immediately)
+ 1. [Completion indicates success](#completion-indicates-success)
+ 1. [Interruption cancels outstanding work and usually propagates immediately](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
+ 1. [Events are serial](#events-are-serial)
+ 1. [Events cannot be sent recursively](#events-cannot-be-sent-recursively)
+ 1. [Events are sent synchronously by default](#events-are-sent-synchronously-by-default)
 
-**[The RACSignal contract](#the-racsignal-contract)**
+**[The `Signal` contract](#the-signal-contract)**
 
- 1. [Signal events are serialized](#signal-events-are-serialized)
- 1. [Subscription will always occur on a scheduler](#subscription-will-always-occur-on-a-scheduler)
- 1. [Errors are propagated immediately](#errors-are-propagated-immediately)
- 1. [Side effects occur for each subscription](#side-effects-occur-for-each-subscription)
- 1. [Subscriptions are automatically disposed upon completion or error](#subscriptions-are-automatically-disposed-upon-completion-or-error)
- 1. [Disposal cancels in-progress work and cleans up resources](#disposal-cancels-in-progress-work-and-cleans-up-resources)
+ 1. [Signals start work when instantiated](#signals-start-work-when-instantiated)
+ 1. [Observing a signal does not have side effects](#observing-a-signal-does-not-have-side-effects)
+ 1. [All observers of a signal see the same events in the same order](#all-observers-of-a-signal-see-the-same-events-in-the-same-order)
+ 1. [A signal is retained until the underlying observer is released](#a-signal-is-retained-until-the-underlying-observer-is-released)
+ 1. [Terminating events dispose of signal resources](#terminating-events-dispose-of-signal-resources)
+
+**[The `SignalProducer` contract](#the-signalproducer-contract)**
+
+ 1. [Signal producers start work on demand by creating signals](#signal-producers-start-work-on-demand-by-creating-signals)
+ 1. [Each produced signal may send different events at different times](#each-produced-signal-may-send-different-events-at-different-times)
+ 1. [Signal operators can be lifted to apply to signal producers](#signal-operators-can-be-lifted-to-apply-to-signal-producers)
+ 1. [Disposing of a produced signal will interrupt it](#disposing-of-a-produced-signal-will-interrupt-it)
 
 **[Best practices](#best-practices)**
 
- 1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
- 1. [Indent stream operations consistently](#indent-stream-operations-consistently)
- 1. [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
- 1. [Avoid retaining streams for too long](#avoid-retaining-streams-for-too-long)
- 1. [Process only as much of a stream as needed](#process-only-as-much-of-a-stream-as-needed)
- 1. [Deliver signal events onto a known scheduler](#deliver-signal-events-onto-a-known-scheduler)
+ 1. [Process only as many values as needed](#process-only-as-many-values-as-needed)
+ 1. [Observe events on a known scheduler](#observe-events-on-a-known-scheduler)
  1. [Switch schedulers in as few places as possible](#switch-schedulers-in-as-few-places-as-possible)
- 1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
- 1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
- 1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
- 1. [Avoid explicit subscriptions and disposal](#avoid-explicit-subscriptions-and-disposal)
- 1. [Avoid using subjects when possible](#avoid-using-subjects-when-possible)
+ 1. [Capture side effects within signal producers](#capture-side-effects-within-signal-producers)
+ 1. [Share the side effects of a signal producer by sharing one produced signal](#share-the-side-effects-of-a-signal-producer-by-sharing-one-produced-signal)
+ 1. [Prefer managing lifetime with operators over explicit disposal](#prefer-managing-lifetime-with-operators-over-explicit-disposal)
 
 **[Implementing new operators](#implementing-new-operators)**
 
- 1. [Prefer building on RACStream methods](#prefer-building-on-racstream-methods)
+ 1. [Prefer writing operators that apply to both signals and producers](#prefer-writing-operators-that-apply-to-both-signals-and-producers)
  1. [Compose existing operators when possible](#compose-existing-operators-when-possible)
+ 1. [Forward error and interruption events as soon as possible](#forward-error-and-interruption-events-as-soon-as-possible)
+ 1. [Switch over `Event` values](#switch-over-event-values)
  1. [Avoid introducing concurrency](#avoid-introducing-concurrency)
- 1. [Cancel work and clean up all resources in a disposable](#cancel-work-and-clean-up-all-resources-in-a-disposable)
- 1. [Do not block in an operator](#do-not-block-in-an-operator)
- 1. [Avoid stack overflow from deep recursion](#avoid-stack-overflow-from-deep-recursion)
+ 1. [Avoid blocking in operators](#avoid-blocking-in-operators)
 
-## The RACSequence contract
+## The `Event` contract
 
-[RACSequence][] is a _pull-driven_ stream. Sequences behave similarly to
-built-in collections, but with a few unique twists.
+[Events][] are fundamental to ReactiveCocoa. [Signals][] and [signal producers][] both send
+events, and may be collectively called “event streams.”
 
-### Evaluation occurs lazily by default
+Event streams must conform to the following grammar:
 
-Sequences are evaluated lazily by default. For example, in this sequence:
-
-```objc
-NSArray *strings = @[ @"A", @"B", @"C" ];
-RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
-    return [str stringByAppendingString:@"_"];
-}];
+```
+Next* (Interrupted | Error | Completed)?
 ```
 
-… no string appending is actually performed until the values of the sequence are
-needed. Accessing `sequence.head` will perform the concatenation of `A_`,
-accessing `sequence.tail.head` will perform the concatenation of `B_`, and so
-on.
+This states that an event stream consists of:
 
-This generally avoids performing unnecessary work (since values that are never
-used are never calculated), but means that sequence processing [should be
-limited only to what's actually
-needed](#process-only-as-much-of-a-stream-as-needed).
+ 1. Any number of `Next` events
+ 1. Optionally followed by one terminating event, which is any of `Interrupted`, `Error`, or `Completed`
 
-Once evaluated, the values in a sequence are memoized and do not need to be
-recalculated. Accessing `sequence.head` multiple times will only do the work of
-one string concatenation.
+After a terminating event, no other events will be received.
 
-If lazy evaluation is undesirable – for instance, because limiting memory usage
-is more important than avoiding unnecessary work – the
-[eagerSequence][RACSequence] property can be used to force a sequence (and any
-sequences derived from it afterward) to evaluate eagerly.
+#### `Next`s provide values or indicate the occurrence of events
 
-### Evaluation blocks the caller
+`Next` events contain a payload known as the “value.” Only `Next` events are
+said to have a value. Since an event stream can contain any number of `Next`s,
+there are few restrictions on what those values can mean or be used for, except
+that they must be of the same type.
 
-Regardless of whether a sequence is lazy or eager, evaluation of any part of
-a sequence will block the calling thread until completed. This is necessary
-because values must be synchronously retrieved from a sequence.
+As an example, the value might represent an element from a collection, or
+a progress update about some long-running operation. The value of a `Next` event
+might even represent nothing at all—for example, it’s common to use a value type
+of `()` to indicate that something happened, without being more specific about
+what that something was.
 
-If evaluating a sequence is expensive enough that it might block the thread for
-a significant amount of time, consider creating a signal with
-[-signalWithScheduler:][RACSequence] and using that instead.
+Most of the event stream [operators][] act upon `Next` events, as they represent the
+“meaningful data” of a signal or producer.
 
-### Side effects occur only once
+#### Errors behave like exceptions and propagate immediately
 
-When the block passed to a sequence operator involves side effects, it is
-important to realize that those side effects will only occur once per value
-– namely, when the value is evaluated:
+`Error` events indicate that something went wrong, and contain a concrete error
+that indicates what happened. Errors are fatal, and propagate as quickly as
+possible to the consumer for handling.
 
-```objc
-NSArray *strings = @[ @"A", @"B", @"C" ];
-RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
-    NSLog(@"%@", str);
-    return [str stringByAppendingString:@"_"];
-}];
+Errors also behave like exceptions, in that they “skip” operators, terminating
+them along the way. In other words, most [operators][] immediately stop doing work
+when an error is received, and then propagate the error onward. This even
+applies to time-shifted operators, like [`delay`][delay]—which, despite its name, will
+forward any errors immediately.
 
-// Logs "A" during this call.
-NSString *concatA = sequence.head;
+Consequently, errors should only be used to represent “abnormal” termination. If
+it is important to let operators (or consumers) finish their work, a `Next`
+event describing the result might be more appropriate.
 
-// Logs "B" during this call.
-NSString *concatB = sequence.tail.head;
+If an event stream can _never_ error out, it should be parameterized with the
+special [`NoError`][NoError] type, which statically guarantees that an error
+event cannot be sent upon the stream.
 
-// Does not log anything.
-NSString *concatB2 = sequence.tail.head;
+#### Completion indicates success
 
-RACSequence *derivedSequence = [sequence map:^(NSString *str) {
-    return [@"_" stringByAppendingString:str];
-}];
+An event stream sends `Completed` when the operation has completed successfully,
+or to indicate that the stream has terminated normally.
 
-// Still does not log anything, because "B_" was already evaluated, and the log
-// statement associated with it will never be re-executed.
-NSString *concatB3 = derivedSequence.tail.head;
-```
+Many operators manipulate the `Completed` event to shorten or extend the
+lifetime of an event stream.
 
-## The RACSignal contract
+For example, [`take`][take] will complete after the specified number of values have
+been received, thereby terminating the stream early. On the other hand, most
+operators that accept multiple signals or producers will wait until _all_ of
+them have completed before forwarding a `Completed` event, since a successful
+outcome will usually depend on all the inputs.
 
-[RACSignal][] is a _push-driven_ stream with a focus on asynchronous event
-delivery through _subscriptions_. For more information about signals and
-subscriptions, see the [Framework Overview][].
+#### Interruption cancels outstanding work and usually propagates immediately
 
-### Signal events are serialized
+An `Interrupted` event is sent when an event stream should cancel processing.
+Interruption is somewhere between [success](#completion-indicates-success)
+and [failure](#errors-behave-like-exceptions-and-propagate-immediately)—the
+operation was not successful, because it did not get to finish, but it didn’t
+necessarily “fail” either.
 
-A signal may choose to deliver its events on any thread. Consecutive events are
-even allowed to arrive on different threads or schedulers, unless explicitly
-[delivered onto a particular
-scheduler](#deliver-signal-events-onto-a-known-scheduler).
+Most [operators][] will propagate interruption immediately, but there are some
+exceptions. For example, the [flattening operators][flatten] will ignore
+`Interrupted` events that occur on the _inner_ producers, since the cancellation
+of an inner operation should not necessarily cancel the larger unit of work.
 
-However, RAC guarantees that no two signal events will ever arrive concurrently.
-While an event is being processed, no other events will be delivered. The
-senders of any other events will be forced to wait until the current event has
-been handled.
+RAC will automatically send an `Interrupted` event upon [disposal][Disposables], but it can
+also be sent manually if necessary. Additionally, [custom
+operators](#implementing-new-operators) must make sure to forward interruption
+events to the observer.
 
-Most notably, this means that the blocks passed to
-[-subscribeNext:error:completed:][RACSignal] do not need to be synchronized with
-respect to each other, because they will never be invoked simultaneously.
+#### Events are serial
 
-### Subscription will always occur on a scheduler
+RAC guarantees that all events upon a stream will arrive serially. In other
+words, it’s impossible for the observer of a signal or producer to receive
+multiple `Event`s concurrently, even if the events are sent on multiple threads
+simultaneously.
 
-To ensure consistent behavior for the `+createSignal:` and `-subscribe:`
-methods, each [RACSignal][] subscription is guaranteed to take place on
-a valid [RACScheduler][].
+This simplifies [operator][Operators] implementations and [observers][].
 
-If the subscriber's thread already has a [+currentScheduler][RACScheduler],
-scheduling takes place immediately; otherwise, scheduling occurs as soon as
-possible on a background scheduler. Note that the main thread is always
-associated with the [+mainThreadScheduler][RACScheduler], so subscription will
-always be immediate there.
+#### Events cannot be sent recursively
 
-See the documentation for [-subscribe:][RACSignal] for more information.
+Just like RAC guarantees that [events will not be received
+concurrently](#events-are-serial), it also guarantees that they won’t be
+received recursively. As a consequence, [operators][] and [observers][] _do not_ need to
+be reentrant.
 
-### Errors are propagated immediately
+If an event is sent upon a signal from a thread that is _already processing_
+a previous event from that signal, deadlock will result. This is because
+recursive signals are usually programmer error, and the determinacy of
+a deadlock is preferable to nondeterministic race conditions.
 
-In RAC, `error` events have exception semantics. When an error is sent on
-a signal, it will be immediately forwarded to all dependent signals, causing the
-entire chain to terminate.
+When a recursive signal is explicitly desired, the recursive event should be
+time-shifted, with an operator like [`delay`][delay], to ensure that it isn’t sent from
+an already-running event handler.
 
-[Operators][RACSignal+Operations] whose primary purpose is to change
-error-handling behavior – like `-catch:`, `-catchTo:`, or `-materialize` – are
-obviously not subject to this rule.
+#### Events are sent synchronously by default
 
-### Side effects occur for each subscription
+RAC does not implicitly introduce concurrency or asynchrony. [Operators][] that
+accept a [scheduler][Schedulers] may, but they must be explicitly invoked by the consumer of
+the framework.
 
-Each new subscription to a [RACSignal][] will trigger its side effects. This
-means that any side effects will happen as many times as subscriptions to the
-signal itself.
+A “vanilla” signal or producer will send all of its events synchronously by
+default, meaning that the [observer][Observers] will be synchronously invoked for each event
+as it is sent, and that the underlying work will not resume until the event
+handler finishes.
 
-Consider this example:
-```objc
-__block int aNumber = 0;
+This is similar to how `NSNotificationCenter` or `UIControl` events are
+distributed.
 
-// Signal that will have the side effect of incrementing `aNumber` block 
-// variable for each subscription before sending it.
-RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-	aNumber++;
-	[subscriber sendNext:@(aNumber)];
-	[subscriber sendCompleted];
-	return nil;
-}];
+## The `Signal` contract
 
-// This will print "subscriber one: 1"
-[aSignal subscribeNext:^(id x) {
-	NSLog(@"subscriber one: %@", x);
-}];
+A [signal][Signals] is an “always on” stream that obeys [the `Event`
+contract](#the-event-contract).
 
-// This will print "subscriber two: 2"
-[aSignal subscribeNext:^(id x) {
-	NSLog(@"subscriber two: %@", x);
-}];
-```
+`Signal` is a reference type, because each signal has identity—in other words, each
+signal has its own lifetime, and may eventually terminate. Once terminated,
+a signal cannot be restarted.
 
-Side effects are repeated for each subscription. The same applies to
-[stream][RACStream] and [signal][RACSignal+Operations] operators:
+#### Signals start work when instantiated
 
-```objc
-__block int missilesToLaunch = 0;
+[`Signal.init`][Signal.init] immediately executes the generator closure that is passed to it.
+This means that side effects may occur even before the initializer returns.
 
-// Signal that will have the side effect of changing `missilesToLaunch` on
-// subscription.
-RACSignal *processedSignal = [[RACSignal
-    return:@"missiles"]
-	map:^(id x) {
-		missilesToLaunch++;
-		return [NSString stringWithFormat:@"will launch %d %@", missilesToLaunch, x];
-	}];
+It is also possible to send [events][] before the initializer returns. However,
+since it is impossible for any [observers][] to be attached at this point, any
+events sent this way cannot be received.
 
-// This will print "First will launch 1 missiles"
-[processedSignal subscribeNext:^(id x) {
-	NSLog(@"First %@", x);
-}];
+#### Observing a signal does not have side effects
 
-// This will print "Second will launch 2 missiles"
-[processedSignal subscribeNext:^(id x) {
-	NSLog(@"Second %@", x);
-}];
-```
+The work associated with a `Signal` does not start or stop when [observers][] are
+added or removed, so the [`observe`][observe] method (or the cancellation thereof) never
+has side effects.
 
-To suppress this behavior and have multiple subscriptions to a signal execute
-its side effects only once, a signal can be 
-[multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
+A signal’s side effects can only be stopped through [a terminating
+event](#signals-are-retained-until-a-terminating-event-occurs).
 
-Side effects can be insidious and produce problems that are difficult to
-diagnose. For this reason it is suggested to 
-[make side effects explicit](#make-the-side-effects-of-a-signal-explicit) when 
-possible.
+#### All observers of a signal see the same events in the same order
 
-### Subscriptions are automatically disposed upon completion or error
+Because [observation does not have side
+effects](#observing-a-signal-does-not-have-side-effects), a `Signal` never
+customizes events for different [observers][]. When an event is sent upon a signal,
+it will be [synchronously](#events-are-sent-synchronously-by-default)
+distributed to all observers that are attached at that time, much like
+how `NSNotificationCenter` sends notifications.
 
-When a [subscriber][RACSubscriber] is sent a `completed` or `error` event, the
-associated subscription will automatically be disposed. This behavior usually
-eliminates the need to manually dispose of subscriptions.
+In other words, there are not different event “timelines” per observer. All
+observers effectively see the same stream of events.
 
-See the [Memory Management][] document for more information about signal
-lifetime.
+There is one exception to this rule: adding an observer to a signal _after_ it
+has already terminated will result in exactly one
+[`Interrupted`](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
+event sent to that specific observer.
 
-### Disposal cancels in-progress work and cleans up resources
+#### A signal is retained until the underlying observer is released
 
-When a subscription is disposed, manually or automatically, any in-progress or
-outstanding work associated with that subscription is gracefully cancelled as
-soon as possible, and any resources associated with the subscription are cleaned
-up.
+Even if the caller does not maintain a reference to the `Signal`:
 
-Disposing of the subscription to a signal representing a file upload, for
-example, would cancel any in-flight network request, and free the file data from
-memory.
+ - A signal created with [`Signal.init`][Signal.init] is kept alive until the generator closure
+   releases the [observer][Observers] argument.
+ - A signal created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer
+   is released.
+
+This ensures that signals associated with long-running work do not deallocate
+prematurely.
+
+Note that is is possible to release a signal before a terminating [event][Events] has been
+sent upon it. This should usually be avoided, as it can result in resource
+leaks, but is sometimes useful to disable termination.
+
+#### Terminating events dispose of signal resources
+
+When a terminating [event][Events] is sent along a `Signal`, all [observers][] will be
+released, and any resources being used to generate events should be disposed of.
+
+The easiest way to ensure proper resource cleanup is to return a [disposable][Disposables]
+from the generator closure, which will be disposed of when termination occurs.
+The disposable should be responsible for releasing memory, closing file handles,
+canceling network requests, or anything else that may have been associated with
+the work being performed.
+
+## The `SignalProducer` contract
+
+A [signal producer][Signal Producers] is like a “recipe” for creating
+[signals][]. Signal producers do not do anything by themselves—[work begins only
+when a signal is produced](#signal-producers-start-work-on-demand-by-creating-signals).
+
+Since a signal producer is just a declaration of _how_ to create signals, it is
+a value type, and has no memory management to speak of.
+
+#### Signal producers start work on demand by creating signals
+
+The [`start`][start] and [`startWithSignal`][startWithSignal] methods each
+produce a `Signal` (implicitly and explicitly, respectively). After
+instantiating the signal, the closure that was passed to
+[`SignalProducer.init`][SignalProducer.init] will be executed, to start the flow
+of [events][] after any observers have been attached.
+
+Although the producer itself is not _really_ responsible for the execution of
+work, it’s common to speak of “starting” and “canceling” a producer. These terms
+refer to producing a `Signal` that will start work, and [disposing of that
+signal](#disposing-of-a-produced-signal-will-interrupt-it) to stop work.
+
+A producer can be started any number of times (including zero), and the work
+associated with it will execute exactly that many times as well.
+
+#### Each produced signal may send different events at different times
+
+Because signal producers [start work on
+demand](#signal-producers-start-work-on-demand-by-creating-signals), there may
+be different [observers][] associated with each execution, and those observers
+may see completely different [event][Events] timelines.
+
+In other words, events are generated from scratch for each time the producer is
+started, and can be completely different (or in a completely different order)
+from other times the producer is started.
+
+Nonetheless, each execution of a signal producer will follow [the `Event`
+contract](#the-event-contract).
+
+#### Signal operators can be lifted to apply to signal producers
+
+Due to the relationship between signals and signal producers, it is possible to
+automatically promote any [operators][] over one or more `Signal`s to apply to
+the same number of `SignalProducer`s instead, using the [`lift`][lift] method.
+
+`lift` will apply the behavior of the specified operator to each `Signal` that
+is [created when the signal produced is started](#signal-producers-start-work-on-demand-by-creating-signals).
+
+#### Disposing of a produced signal will interrupt it
+
+When a producer is started using the [`start`][start] or
+[`startWithSignal`][startWithSignal] methods, a [`Disposable`][Disposables] is
+automatically created and passed back.
+
+Disposing of this object will
+[interrupt](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
+the produced `Signal`, thereby canceling outstanding work and sending an
+`Interrupted` [event][Events] to all [observers][], and will also dispose of
+everything added to the [`CompositeDisposable`][CompositeDisposable] in
+[SignalProducer.init].
+
+Note that disposing of one produced `Signal` will not affect other signals created
+by the same `SignalProducer`.
 
 ## Best practices
 
@@ -262,348 +319,129 @@ predictable, understandable, and performant.
 They are, however, only guidelines. Use best judgement when determining whether
 to apply the recommendations here to a given piece of code.
 
-### Use descriptive declarations for methods and properties that return a signal
+#### Process only as many values as needed
 
-When a method or property has a return type of [RACSignal][], it can be
-difficult to understand the signal's semantics at a glance.
+Keeping an event stream alive longer than necessary can waste CPU and memory, as
+unnecessary work is performed for results that will never be used.
 
-There are three key questions that can inform a declaration:
+If only a certain number of values or certain number of time is required from
+a [signal][Signals] or [producer][Signal Producers], operators like
+[`take`][take] or [`takeUntil`][takeUntil] can be used to
+automatically complete the stream once a certain condition is fulfilled.
 
- 1. Is the signal _hot_ (already activated by the time it's returned to the
-    caller) or _cold_ (activated when subscribed to)?
- 1. Will the signal include zero, one, or more values?
- 1. Does the signal have side effects?
+The benefit is exponential, too, as this will terminate dependent operators
+sooner, potentially saving a significant amount of work.
 
-**Hot signals without side effects** should typically be properties instead of
-methods. The use of a property indicates that no initialization is needed before
-subscribing to the signal's events, and that additional subscribers will not
-change the semantics. Signal properties should usually be named after events
-(e.g., `textChanged`).
+#### Observe events on a known scheduler
 
-**Cold signals without side effects** should be returned from methods that have
-noun-like names (e.g., `-currentText`). A method declaration indicates that the
-signal might not be kept around, hinting that work is performed at the time of
-subscription. If the signal sends multiple values, the noun should be pluralized
-(e.g., `-currentModels`).
+When receiving a [signal][Signals] or [producer][Signal Producers] from unknown
+code, it can be difficult to know which thread [events][] will arrive upon. Although
+events are [guaranteed to be serial](#events-are-serial), sometimes stronger
+guarantees are needed, like when performing UI updates (which must occur on the
+main thread).
 
-**Signals with side effects** should be returned from methods that have
-verb-like names (e.g., `-logIn`). The verb indicates that the method is not
-idempotent and that callers must be careful to call it only when the side
-effects are desired. If the signal will send one or more values, include a noun
-that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
+Whenever such a guarantee is important, the [`observeOn`][observeOn]
+[operator][Operators] should be used to force events to be received upon
+a specific [scheduler][Schedulers].
 
-### Indent stream operations consistently
+#### Switch schedulers in as few places as possible
 
-It's easy for stream-heavy code to become very dense and confusing if not
-properly formatted. Use consistent indentation to highlight where chains of
-streams begin and end.
+Notwithstanding the [above](#observe-events-on-a-known-scheduler), [events][]
+should only be delivered to a specific [scheduler][Schedulers] when absolutely
+necessary. Switching schedulers can introduce unnecessary delays and cause an
+increase in CPU load.
 
-When invoking a single method upon a stream, no additional indentation is
-necessary (block arguments aside):
+Generally, [`observeOn`][observeOn] should only be used right before observing
+the [signal][Signals], starting the [producer][Signal Producer], or binding to
+a [property][Properties]. This ensures that events arrive on the expected
+scheduler, without introducing multiple thread hops before their arrival.
 
-```objc
-RACStream *result = [stream startWith:@0];
+#### Capture side effects within signal producers
 
-RACStream *result2 = [stream map:^(NSNumber *value) {
-    return @(value.integerValue + 1);
-}];
+Because [signal producers start work on
+demand](#signal-producers-start-work-on-demand-by-creating-signals), any
+functions or methods that return a [signal producer][Signal Producers] should
+make sure that side effects are captured _within_ the producer itself, instead
+of being part of the function or method call.
+
+For example, a function like this:
+
+```swift
+func search(text: String) -> SignalProducer<Result, NetworkError>
 ```
 
-When transforming the same stream multiple times, ensure that all of the
-steps are aligned. Complex operators like [+zip:reduce:][RACStream] or
-[+combineLatest:reduce:][RACSignal+Operations] may be split over multiple lines
-for readability:
+… should _not_ immediately start a search.
 
-```objc
-RACStream *result = [[[RACStream
-    zip:@[ firstStream, secondStream ]
-    reduce:^(NSNumber *first, NSNumber *second) {
-        return @(first.integerValue + second.integerValue);
-    }]
-    filter:^ BOOL (NSNumber *value) {
-        return value.integerValue >= 0;
-    }]
-    map:^(NSNumber *value) {
-        return @(value.integerValue + 1);
-    }];
-```
+Instead, the returned producer should execute the search once for every time
+that it is started. This also means that if the producer is never started,
+a search will never have to be performed either.
 
-Of course, streams nested within block arguments should start at the natural
-indentation of the block:
+#### Share the side effects of a signal producer by sharing one produced signal
 
-```objc
-[[signal
-    then:^{
-        @strongify(self);
+If multiple [observers][] are interested in the results of a [signal
+producer][Signal Producers], calling [`start`][start] once for each observer
+means that the work associated with the producer will [execute that many
+times](#signal-producers-start-work-on-demand-by-creating-signals) and [may not
+generate the same results](#each-produced-signal-may-send-different-events-at-different-times).
 
-        return [[self
-            doSomethingElse]
-            catch:^(NSError *error) {
-                @strongify(self);
-                [self presentError:error];
+If:
 
-                return [RACSignal empty];
-            }];
-    }]
-    subscribeCompleted:^{
-        NSLog(@"All done.");
-    }];
-```
+ 1. the observers need to receive the exact same results
+ 1. the observers know about each other, or
+ 1. the code starting the producer knows about each observer
 
-### Use the same type for all the values of a stream
+… it may be more appropriate to start the producer _just once_, and share the
+results of that one [signal][Signals] to all observers, by attaching them within
+the closure passed to the [`startWithSignal`][startWithSignal] method.
 
-[RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows
-streams to be composed of heterogenous objects, just like Cocoa collections do.
-However, using different object types within the same stream complicates the use
-of operators and
-puts an additional burden on any consumers of that stream, who must be careful to
-only invoke supported methods.
+#### Prefer managing lifetime with operators over explicit disposal
 
-Whenever possible, streams should only contain objects of the same type.
+Although the [disposable][Disposables] returned from [`start`][start] makes
+canceling a [signal producer][Signal Producers] really easy, explicit use of
+disposables can quickly lead to a rat's nest of resource management and cleanup
+code.
 
-### Avoid retaining streams for too long
+There are almost always higher-level [operators][] that can be used instead of manual
+disposal:
 
-Retaining any [RACStream][] longer than it's needed will cause any dependencies
-to be retained as well, potentially keeping memory usage much higher than it
-would be otherwise.
-
-A [RACSequence][] should be retained only for as long as the `head` of the
-sequence is needed. If the head will no longer be used, retain the `tail` of the
-node instead of the node itself.
-
-See the [Memory Management][] guide for more information on object lifetime.
-
-### Process only as much of a stream as needed
-
-As well as [consuming additional
-memory](#avoid-retaining-streams-for-too-long), unnecessarily
-keeping a stream or [RACSignal][] subscription alive can result in increased CPU
-usage, as unnecessary work is performed for results that will never be used.
-
-If only a certain number of values are needed from a stream, the
-[-take:][RACStream] operator can be used to retrieve only that many values, and
-then automatically terminate the stream immediately thereafter.
-
-Operators like `-take:` and [-takeUntil:][RACSignal+Operations] automatically propagate cancellation
-up the stack as well. If nothing else needs the rest of the values, any
-dependencies will be terminated too, potentially saving a significant amount of
-work.
-
-### Deliver signal events onto a known scheduler
-
-When a signal is returned from a method, or combined with such a signal, it can
-be difficult to know which thread events will be delivered upon. Although
-events are [guaranteed to be serial](#signal-events-are-serialized), sometimes
-stronger guarantees are needed, like when performing UI updates (which must
-occur on the main thread).
-
-Whenever such a guarantee is important, the [-deliverOn:][RACSignal+Operations]
-operator should be used to force a signal's events to arrive on a specific
-[RACScheduler][].
-
-### Switch schedulers in as few places as possible
-
-Notwithstanding the above, events should only be delivered to a specific
-[scheduler][RACScheduler] when absolutely necessary. Switching schedulers can
-introduce unnecessary delays and cause an increase in CPU load.
-
-Generally, the use of [-deliverOn:][RACSignal+Operations] should be restricted
-to the end of a signal chain – e.g., before subscription, or before the values
-are bound to a property.
-
-### Make the side effects of a signal explicit
-
-As much as possible, [RACSignal][] side effects should be avoided, because
-subscribers may find the [behavior of side
-effects](#side-effects-occur-for-each-subscription) unexpected.
-
-However, because Cocoa is predominantly imperative, it is sometimes useful to
-perform side effects when signal events occur. Although most [RACStream][] and
-[RACSignal][RACSignal+Operations] operators accept arbitrary blocks (which can
-contain side effects), the use of `-doNext:`, `-doError:`, and `-doCompleted:`
-will make side effects more explicit and self-documenting:
-
-```objc
-NSMutableArray *nexts = [NSMutableArray array];
-__block NSError *receivedError = nil;
-__block BOOL success = NO;
-
-RACSignal *bookkeepingSignal = [[[valueSignal
-    doNext:^(id x) {
-        [nexts addObject:x];
-    }]
-    doError:^(NSError *error) {
-        receivedError = error;
-    }]
-    doCompleted:^{
-        success = YES;
-    }];
-
-RAC(self, value) = bookkeepingSignal;
-```
-
-### Share the side effects of a signal by multicasting
-
-[Side effects occur for each
-subscription](#side-effects-occur-for-each-subscription) by default, but there
-are certain situations where side effects should only occur once – for example,
-a network request typically should not be repeated when a new subscriber is
-added.
-
-The `-publish` and `-multicast:` operators of [RACSignal][RACSignal+Operations]
-allow a single subscription to be shared to any number of subscribers by using
-a [RACMulticastConnection][]:
-
-```objc
-// This signal starts a new request on each subscription.
-RACSignal *networkRequest = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-    AFHTTPRequestOperation *operation = [client
-        HTTPRequestOperationWithRequest:request
-        success:^(AFHTTPRequestOperation *operation, id response) {
-            [subscriber sendNext:response];
-            [subscriber sendCompleted];
-        }
-        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-
-    [client enqueueHTTPRequestOperation:operation];
-    return [RACDisposable disposableWithBlock:^{
-        [operation cancel];
-    }];
-}];
-
-// Starts a single request, no matter how many subscriptions `connection.signal`
-// gets. This is equivalent to the -replay operator, or similar to
-// +startEagerlyWithScheduler:block:.
-RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject subject]];
-[connection connect];
-
-[connection.signal subscribeNext:^(id response) {
-    NSLog(@"subscriber one: %@", response);
-}];
-
-[connection.signal subscribeNext:^(id response) {
-    NSLog(@"subscriber two: %@", response);
-}];
-```
-
-### Debug streams by giving them names
-
-Every [RACStream][] has a `name` property to assist with debugging. A stream's
-`-description` includes its name, and all operators provided by RAC will
-automatically add to the name. This usually makes it possible to identify
-a stream from its default name alone.
-
-For example, this snippet:
-
-```objc
-RACSignal *signal = [[[RACObserve(self, username) 
-    distinctUntilChanged] 
-    take:3] 
-    filter:^(NSString *newUsername) {
-        return [newUsername isEqualToString:@"joshaber"];
-    }];
-
-NSLog(@"%@", signal);
-```
-
-… would log a name similar to `[[[RACObserve(self, username)] -distinctUntilChanged]
--take: 3] -filter:`.
-
-Names can also be manually applied by using [-setNameWithFormat:][RACStream].
-
-[RACSignal][] also offers `-logNext`, `-logError`,
-`-logCompleted`, and `-logAll` methods, which will automatically log signal
-events as they occur, and include the name of the signal in the messages. This
-can be used to conveniently inspect a signal in real-time.
-
-### Avoid explicit subscriptions and disposal
-
-Although [-subscribeNext:error:completed:][RACSignal] and its variants are the
-most basic way to process a signal, their use can complicate code by
-being less declarative, encouraging the use of side effects, and potentially
-duplicating built-in functionality.
-
-Likewise, explicit use of the [RACDisposable][] class can quickly lead to
-a rat's nest of resource management and cleanup code.
-
-There are almost always higher-level patterns that can be used instead of manual
-subscriptions and disposal:
-
- * The [RAC()][RAC] or [RACChannelTo()][RACChannelTo] macros can be used to bind
-   a signal to a property, instead of performing manual updates when changes
-   occur.
- * The [-rac_liftSelector:withSignals:][NSObject+RACLifting] method can be used
-   to automatically invoke a selector when one or more signals fire.
- * Operators like [-takeUntil:][RACSignal+Operations] can be used to
-   automatically dispose of a subscription when an event occurs (like a "Cancel"
-   button being pressed in the UI).
-
-Generally, the use of built-in [stream][RACStream] and
-[signal][RACSignal+Operations] operators will lead to simpler and less
-error-prone code than replicating the same behaviors in a subscription callback.
-
-### Avoid using subjects when possible
-
-[Subjects][] are a powerful tool for bridging imperative code
-into the world of signals, but, as the "mutable variables" of RAC, they can
-quickly lead to complexity when overused.
-
-Since they can be manipulated from anywhere, at any time, subjects often break
-the linear flow of stream processing and make logic much harder to follow. They
-also don't support meaningful
-[disposal](#disposal-cancels-in-progress-work-and-cleans-up-resources), which
-can result in unnecessary work.
-
-Subjects can usually be replaced with other patterns from ReactiveCocoa:
-
- * Instead of feeding initial values into a subject, consider generating the
-   values in a [+createSignal:][RACSignal] block instead.
- * Instead of delivering intermediate results to a subject, try combining the
-   output of multiple signals with operators like
-   [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
- * Instead of using subjects to share results with multiple subscribers,
-   [multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base
-   signal instead.
- * Instead of implementing an action method which simply controls a subject, use
-   a [command][RACCommand] or
-   [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
-
-When subjects _are_ necessary, they should almost always be the "base" input
-for a signal chain, not used in the middle of one.
+ * [`take`][take] can be used to automatically terminate a stream once a certain
+   number of values have been received.
+ * [`takeUntil`][takeUntil] can be used to automatically terminate
+   a [signal][Signals] or producer when an event occurs (for example, when
+   a “Cancel” button is pressed in the UI).
+ * [Properties][] and the `<~` operator can be used to “bind” the result of
+   a signal or producer, until termination or until the property is deallocated.
+   This can replace a manual observation that sets a value somewhere.
 
 ## Implementing new operators
 
-RAC provides a long list of built-in operators for [streams][RACStream] and
-[signals][RACSignal+Operations] that should cover most use cases; however, RAC
-is not a closed system. It's entirely valid to implement additional operators
-for specialized uses, or for consideration in ReactiveCocoa itself.
+RAC provides a long list of built-in [operators][] that should cover most use
+cases; however, RAC is not a closed system. It's entirely valid to implement
+additional operators for specialized uses, or for consideration in ReactiveCocoa
+itself.
 
 Implementing a new operator requires a careful attention to detail and a focus
 on simplicity, to avoid introducing bugs into the calling code.
 
 These guidelines cover some of the common pitfalls and help preserve the
-expected API contracts.
+expected API contracts. It may also help to look at the implementations of
+existing `Signal` and `SignalProducer` operators for reference points.
 
-### Prefer building on RACStream methods
+#### Prefer writing operators that apply to both signals and producers
 
-[RACStream][] offers a simpler interface than [RACSequence][] and [RACSignal][],
-and all stream operators are automatically applicable to sequences and signals
-as well.
+Since any [signal operator can apply to signal
+producers](#signal-operators-can-be-lifted-to-apply-to-signal-producers),
+writing custom operators in terms of [`Signal`][Signals] means that
+[`SignalProducer`][Signal Producers] will get it “for free.”
 
-For these reasons, new operators should be implemented using only [RACStream][]
-methods whenever possible. The minimal required methods of the class, including
-`-bind:`, `-zipWith:`, and `-concat:`, are quite powerful, and many tasks can
-be accomplished without needing anything else.
+Even if the caller only needs to apply the new operator to signal producers at
+first, this generality can save time and effort in the future.
 
-If a new [RACSignal][] operator needs to handle `error` and `completed` events,
-consider using the [-materialize][RACSignal+Operations] method to bring the
-events into the stream. All of the events of a materialized signal can be
-manipulated by stream operators, which helps minimize the use of non-stream
-operators.
+Of course, some capabilities _require_ producers (for example, any retrying or
+repeating), so it may not always be possible to write a signal-based version
+instead.
 
-### Compose existing operators when possible
+#### Compose existing operators when possible
 
 Considerable thought has been put into the operators provided by RAC, and they
 have been validated through automated tests and through their real world use in
@@ -615,137 +453,85 @@ To minimize duplication and possible bugs, use the provided operators as much as
 possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
-### Avoid introducing concurrency
+#### Forward error and interruption events as soon as possible
+
+Unless an operator is specifically built to handle
+[errors](#errors-behave-like-exceptions-and-propagate-immediately) and
+[interruption](#interruption-cancels-outstanding-work-and-usually-propagates-immedaitely)
+in a custom way, it should propagate those events to the observer as soon as
+possible, to ensure that their semantics are honored.
+
+#### Switch over `Event` values
+
+Instead of using [`start(error:completed:interrupted:next:)`][start] or
+[`observe(error:completed:interrupted:next:)`][observe], create your own
+[observer][Observers] to process raw [`Event`][Events] values, and use
+a `switch` statement to determine the event type.
+
+For example:
+
+```swift
+producer.start(SinkOf { event in
+    switch event {
+    case let .Next(value):
+        println("Next event: \(value)")
+
+    case let .Error(error):
+        println("Error event: \(error)")
+
+    case .Completed:
+        println("Completed event")
+
+    case .Interrupted:
+        println("Interrupted event")
+    }
+})
+```
+
+Since the compiler will generate a warning if the `switch` is missing any case,
+this prevents mistakes in a custom operator’s event handling.
+
+#### Avoid introducing concurrency
 
 Concurrency is an extremely common source of bugs in programming. To minimize
 the potential for deadlocks and race conditions, operators should not
 concurrently perform their work.
 
-Callers always have the ability to subscribe or deliver events on a specific
-[RACScheduler][], and RAC offers powerful ways to [parallelize
-work][Parallelizing Independent Work] without making operators unnecessarily
-complex.
+Callers always have the ability to [observe events on a specific
+scheduler](#observe-events-on-a-known-scheduler), and RAC offers built-in ways
+to parallelize work, so custom operators don’t need to be concerned with it.
 
-### Cancel work and clean up all resources in a disposable
+#### Avoid blocking in operators
 
-When implementing a signal with the [+createSignal:][RACSignal] method, the
-provided block is expected to return a [RACDisposable][]. This disposable
-should:
-
- * As soon as it is convenient, gracefully cancel any in-progress work that was
-   started by the signal.
- * Immediately dispose of any subscriptions to other signals, thus triggering
-   their cancellation and cleanup code as well.
- * Release any memory or other resources that were allocated by the signal.
-
-This helps fulfill [the RACSignal
-contract](#disposal-cancels-in-progress-work-and-cleans-up-resources).
-
-### Do not block in an operator
-
-Stream operators should return a new stream more-or-less immediately. Any work
-that the operator needs to perform should be part of evaluating the new stream,
-_not_ part of the operator invocation itself.
-
-```objc
-// WRONG!
-- (RACSequence *)map:(id (^)(id))block {
-    RACSequence *result = [RACSequence empty];
-    for (id obj in self) {
-        id mappedObj = block(obj);
-        result = [result concat:[RACSequence return:mappedObj]];
-    }
-
-    return result;
-}
-
-// Right!
-- (RACSequence *)map:(id (^)(id))block {
-    return [self flattenMap:^(id obj) {
-        id mappedObj = block(obj);
-        return [RACSequence return:mappedObj];
-    }];
-}
-```
+Signal or producer operators should return a new signal or producer
+(respectively) as quickly as possible. Any work that the operator needs to
+perform should be part of the event handling logic, _not_ part of the operator
+invocation itself.
 
 This guideline can be safely ignored when the purpose of an operator is to
-synchronously retrieve one or more values from a stream (like
-[-first][RACSignal+Operations]).
+synchronously retrieve one or more values from a stream, like `single()` or
+`wait()`.
 
-### Avoid stack overflow from deep recursion
-
-Any operator that might recurse indefinitely should use the
-`-scheduleRecursiveBlock:` method of [RACScheduler][]. This method will
-transform recursion into iteration instead, preventing a stack overflow.
-
-For example, this would be an incorrect implementation of
-[-repeat][RACSignal+Operations], due to its potential to overflow the call stack
-and cause a crash:
-
-```objc
-- (RACSignal *)repeat {
-    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-
-        __block void (^resubscribe)(void) = ^{
-            RACDisposable *disposable = [self subscribeNext:^(id x) {
-                [subscriber sendNext:x];
-            } error:^(NSError *error) {
-                [subscriber sendError:error];
-            } completed:^{
-                resubscribe();
-            }];
-
-            [compoundDisposable addDisposable:disposable];
-        };
-
-        return compoundDisposable;
-    }];
-}
-```
-
-By contrast, this version will avoid a stack overflow:
-
-```objc
-- (RACSignal *)repeat {
-    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-
-        RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
-        RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
-            RACDisposable *disposable = [self subscribeNext:^(id x) {
-                [subscriber sendNext:x];
-            } error:^(NSError *error) {
-                [subscriber sendError:error];
-            } completed:^{
-                reschedule();
-            }];
-
-            [compoundDisposable addDisposable:disposable];
-        }];
-
-        [compoundDisposable addDisposable:disposable];
-        return compoundDisposable;
-    }];
-}
-```
-
+[CompositeDisposable]: ../ReactiveCocoa/Swift/Disposable.swift
+[Disposables]: FrameworkOverview.md#disposables
+[Events]: FrameworkOverview.md#events
 [Framework Overview]: FrameworkOverview.md
-[Memory Management]: MemoryManagement.md
-[NSObject+RACLifting]: ../ReactiveCocoa/NSObject+RACLifting.h
-[NSObject+RACSelectorSignal]: ../ReactiveCocoa/NSObject+RACSelectorSignal.h
-[RAC]: ../ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACChannelTo]: ../ReactiveCocoa/RACKVOChannel.h
-[RACCommand]: ../ReactiveCocoa/RACCommand.h
-[RACDisposable]: ../ReactiveCocoa/RACDisposable.h
-[RACEvent]: ../ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ../ReactiveCocoa/RACMulticastConnection.h
-[RACObserve]: ../ReactiveCocoa/NSObject+RACPropertySubscribing.h
-[RACScheduler]: ../ReactiveCocoa/RACScheduler.h
-[RACSequence]: ../ReactiveCocoa/RACSequence.h
-[RACSignal]: ../ReactiveCocoa/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoa/RACStream.h
-[RACSubscriber]: ../ReactiveCocoa/RACSubscriber.h
-[Subjects]: FrameworkOverview.md#subjects
-[Parallelizing Independent Work]: ../README.md#parallelizing-independent-work
+[NoError]: ../ReactiveCocoa/Swift/Errors.swift
+[Observers]: FrameworkOverview.md#observers
+[Operators]: BasicOperators.md
+[Properties]: FrameworkOverview.md#properties
+[Schedulers]: FrameworkOverview.md#schedulers
+[Signal Producers]: FrameworkOverview.md#signal-producers
+[Signal.init]: ../ReactiveCocoa/Swift/Signal.swift
+[Signal.pipe]: ../ReactiveCocoa/Swift/Signal.swift
+[SignalProducer.init]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[Signals]: FrameworkOverview.md#signals
+[delay]: ../ReactiveCocoa/Swift/Signal.swift
+[flatten]: BasicOperators.md#flattening-producers
+[lift]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[observe]: ../ReactiveCocoa/Swift/Signal.swift
+[observeOn]: ../ReactiveCocoa/Swift/Signal.swift
+[start]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[startWithSignal]: ../ReactiveCocoa/Swift/SignalProducer.swift
+[take]: ../ReactiveCocoa/Swift/Signal.swift
+[takeUntil]: ../ReactiveCocoa/Swift/Signal.swift

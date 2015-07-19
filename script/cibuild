@@ -41,11 +41,15 @@ config ()
     # Individual names can be quoted to avoid word splitting.
     : ${SCHEMES:=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
 
+    # A whitespace-separated list of executables that must be present and locatable.
+    : ${REQUIRED_TOOLS="xctool"}
+
     export XCWORKSPACE
     export XCODEPROJ
     export BOOTSTRAP
     export XCTOOL_OPTIONS
     export SCHEMES
+    export REQUIRED_TOOLS
 }
 
 ##
@@ -55,6 +59,12 @@ config ()
 main ()
 {
     config
+
+    if [ -n "$REQUIRED_TOOLS" ]
+    then
+        echo "*** Checking dependencies..."
+        check_deps
+    fi
 
     if [ -f "$BOOTSTRAP" ]
     then
@@ -76,6 +86,19 @@ main ()
 
         exit $status
     )
+}
+
+check_deps ()
+{
+    for tool in $REQUIRED_TOOLS
+    do
+        which -s "$tool"
+        if [ "$?" -ne "0" ]
+        then
+            echo "*** Error: $tool not found. Please install it and cibuild again."
+            exit 1
+        fi
+    done
 }
 
 find_pattern ()
@@ -105,9 +128,6 @@ parse_build ()
 build_scheme ()
 {
     local scheme=$1
-
-    echo "*** Cleaning $scheme..."
-    run_xctool -scheme "$scheme" clean >/dev/null || exit $?
 
     echo "*** Building and testing $scheme..."
     echo

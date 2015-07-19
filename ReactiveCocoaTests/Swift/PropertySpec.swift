@@ -360,6 +360,19 @@ class PropertySpec: QuickSpec {
 				}
 			}
 		}
+		
+		describe("f") {
+			it("should not crash when used with `|>`") {
+				SignalProducer.never |> f(initialPropertyValue)
+			}
+		}
+	}
+}
+
+func f<T>(initialValue: T) -> SignalProducer<T, NoError> -> () {
+	return { _ in
+		MutableProperty(initialValue)
+		return ()
 	}
 }
 

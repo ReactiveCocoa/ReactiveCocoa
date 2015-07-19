@@ -188,13 +188,6 @@ public final class CocoaAction: NSObject {
 		self.init(action, { _ in input })
 	}
 
-	/// Initializes a Cocoa action that will invoke the given Action with the
-	/// object given to execute(), if it can be downcast successfully, or nil
-	/// otherwise.
-	public convenience init<Input: AnyObject, Output, Error>(_ action: Action<Input?, Output, Error>) {
-		self.init(action, { $0 as? Input })
-	}
-
 	deinit {
 		disposable.dispose()
 	}

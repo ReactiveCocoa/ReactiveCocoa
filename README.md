@@ -173,7 +173,7 @@ search strings:
 let searchStrings = textField.rac_textSignal()
     |> toSignalProducer()
     |> map { text in text as! String }
-    |> throttle(0.5, onScheduler: UIScheduler())
+    |> throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```
 
 This prevents values from being sent less than 0.5 seconds apart, so the user

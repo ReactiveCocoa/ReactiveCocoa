@@ -185,8 +185,8 @@ our event stream.
 
 ## Objective-C and Swift
 
-Although ReactiveCocoa was started as an Objective-C framework, as of version
-3.0, all major feature development is concentrated on the [Swift API][].
+Although ReactiveCocoa was started as an Objective-C framework, as of [version
+3.0][CHANGELOG], all major feature development is concentrated on the [Swift API][].
 
 RAC’s [Objective-C API][] and Swift API are entirely separate, but there is
 a [bridge][Objective-C Bridging] to convert between the two. This
@@ -228,7 +228,7 @@ terminology).
 
 ### Signals and Signal Producers (“hot” and “cold” observables)
 
-One of the most confusing aspects of aspects of Rx is that of [“hot”, “cold”, and “warm”
+One of the most confusing aspects of Rx is that of [“hot”, “cold”, and “warm”
 observables](http://www.introtorx.com/content/v1.0.10621.0/14_HotAndColdObservables.html) (event streams).
 
 In short, given just a method or function declaration like this, in C#:

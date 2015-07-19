@@ -10,8 +10,7 @@ public protocol PropertyType {
 	var producer: SignalProducer<Value, NoError> { get }
 }
 
-/// Represents a read-only view to a property of type T that allows observation
-/// of its changes.
+/// A read-only property that allows observation of its changes.
 public struct PropertyOf<T>: PropertyType {
 	public typealias Value = T
 
@@ -25,11 +24,23 @@ public struct PropertyOf<T>: PropertyType {
 	public var producer: SignalProducer<T, NoError> {
 		return _producer()
 	}
-
-	/// Initializes the receiver as a wrapper around the given property.
+	
+	/// Initializes the receiver as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == T>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
+	}
+	
+	public init(initialValue: T, producer: SignalProducer<T, NoError>) {
+		let mutableProperty = MutableProperty(initialValue)
+		mutableProperty <~ producer
+		self.init(mutableProperty)
+	}
+	
+	public init(initialValue: T, producer: Signal<T, NoError>) {
+		let mutableProperty = MutableProperty(initialValue)
+		mutableProperty <~ producer
+		self.init(mutableProperty)
 	}
 }
 
@@ -227,20 +238,4 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
-}
-
-
-/// Creates a new property bound to `signal` starting with `initialValue`.
-public func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> PropertyOf<T> {
-	let mutableProperty = MutableProperty(initialValue)
-	mutableProperty <~ signal
-	return PropertyOf(mutableProperty)
-}
-
-
-/// Creates a new property bound to `producer` starting with `initialValue`.
-public func propertyOf<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> PropertyOf<T> {
-	let mutableProperty = MutableProperty(initialValue)
-	mutableProperty <~ producer
-	return PropertyOf(mutableProperty)
 }

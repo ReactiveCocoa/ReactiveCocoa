@@ -364,7 +364,7 @@ class PropertySpec: QuickSpec {
 		describe("propertyOf") {
 			describe("from a Signal") {
 				it("should initially take on the supplied value") {
-					let property = Signal.never |> propertyOf(initialPropertyValue)
+					let property = PropertyOf(initialValue: initialPropertyValue, producer: Signal.never)
 					expect(property.value).to(equal(initialPropertyValue))
 				}
 			}

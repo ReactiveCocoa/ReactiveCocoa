@@ -369,9 +369,8 @@ class PropertySpec: QuickSpec {
 	}
 }
 
-func f<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> SignalProducer<T, NoError> {
-	let mutableProperty = MutableProperty(initialValue)
-	return producer
+func f<T>(initialValue: T)(producer: SignalProducer<T, NoError>) {
+	MutableProperty(initialValue)
 }
 
 private class ObservableObject: NSObject {

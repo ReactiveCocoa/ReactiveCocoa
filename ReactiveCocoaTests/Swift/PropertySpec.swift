@@ -361,15 +361,18 @@ class PropertySpec: QuickSpec {
 			}
 		}
 		
-		describe("propertyOf") {
-			describe("from a Signal") {
-				it("should initially take on the supplied value") {
-					let property = Signal.never |> propertyOf(initialPropertyValue)
-					expect(property.value).to(equal(initialPropertyValue))
-				}
+		describe("f") {
+			it("should not crash when used with `|>`") {
+				SignalProducer.never |> f(initialPropertyValue)
 			}
 		}
 	}
+}
+
+func f<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> PropertyOf<T> {
+	let mutableProperty = MutableProperty(initialValue)
+	mutableProperty <~ producer
+	return PropertyOf(mutableProperty)
 }
 
 private class ObservableObject: NSObject {

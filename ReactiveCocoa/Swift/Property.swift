@@ -229,18 +229,3 @@ public func <~ <Destination: MutablePropertyType, Source: PropertyType where Sou
 	return destinationProperty <~ sourceProperty.producer
 }
 
-
-/// Creates a new property bound to `signal` starting with `initialValue`.
-public func propertyOf<T>(initialValue: T)(signal: Signal<T, NoError>) -> PropertyOf<T> {
-	let mutableProperty = MutableProperty(initialValue)
-	mutableProperty <~ signal
-	return PropertyOf(mutableProperty)
-}
-
-
-/// Creates a new property bound to `producer` starting with `initialValue`.
-public func propertyOf<T>(initialValue: T)(producer: SignalProducer<T, NoError>) -> PropertyOf<T> {
-	let mutableProperty = MutableProperty(initialValue)
-	mutableProperty <~ producer
-	return PropertyOf(mutableProperty)
-}

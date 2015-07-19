@@ -228,4 +228,3 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
-

@@ -104,21 +104,57 @@ class PropertySpec: QuickSpec {
 		}
 
 		describe("PropertyOf") {
-			it("should pass through behaviors of the input property") {
-				let constantProperty = ConstantProperty(initialPropertyValue)
-				let propertyOf = PropertyOf(constantProperty)
+			describe("from a PropertyType") {
+				it("should pass through behaviors of the input property") {
+					let constantProperty = ConstantProperty(initialPropertyValue)
+					let propertyOf = PropertyOf(constantProperty)
 
-				var sentValue: String?
-				var producerCompleted = false
+					var sentValue: String?
+					var producerCompleted = false
 
-				propertyOf.producer.start(next: { value in
-					sentValue = value
-				}, completed: {
-					producerCompleted = true
-				})
+					propertyOf.producer.start(next: { value in
+						sentValue = value
+					}, completed: {
+						producerCompleted = true
+					})
 
-				expect(sentValue).to(equal(initialPropertyValue))
-				expect(producerCompleted).to(beTruthy())
+					expect(sentValue).to(equal(initialPropertyValue))
+					expect(producerCompleted).to(beTruthy())
+				}
+			}
+			
+			describe("from a value and SignalProducer") {
+				it("should initially take on the supplied value") {
+					let property = PropertyOf(
+						initialValue: initialPropertyValue,
+						producer: SignalProducer.never)
+					
+					expect(property.value).to(equal(initialPropertyValue))
+				}
+				
+				it("should take on each value sent on the producer") {
+					let property = PropertyOf(
+						initialValue: initialPropertyValue,
+						producer: SignalProducer(value: subsequentPropertyValue))
+					
+					expect(property.value).to(equal(subsequentPropertyValue))
+				}
+			}
+			
+			describe("from a value and Signal") {
+				it("should initially take on the supplied value, then values sent on the signal") {
+					let (signal, observer) = Signal<String, NoError>.pipe()
+
+					let property = PropertyOf(
+						initialValue: initialPropertyValue,
+						signal: signal)
+					
+					expect(property.value).to(equal(initialPropertyValue))
+					
+					sendNext(observer, subsequentPropertyValue)
+					
+					expect(property.value).to(equal(subsequentPropertyValue))
+				}
 			}
 		}
 
@@ -357,15 +393,6 @@ class PropertySpec: QuickSpec {
 					destinationProperty = nil
 
 					expect(bindingDisposable.disposed).to(beTruthy())
-				}
-			}
-		}
-		
-		describe("propertyOf") {
-			describe("from a Signal") {
-				it("should initially take on the supplied value") {
-					let property = PropertyOf(initialValue: initialPropertyValue, producer: Signal.never)
-					expect(property.value).to(equal(initialPropertyValue))
 				}
 			}
 		}

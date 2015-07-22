@@ -1071,7 +1071,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should forward original values upon success") {
 				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
 				let producer = baseProducer.attempt { _ in
-					return .success()
+					return .Success()
 				}
 				
 				var current: Int?
@@ -1088,7 +1088,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should error if an attempt fails") {
 				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
 				let producer = baseProducer.attempt { _ in
-					return .failure(.Default)
+					return .Failure(.Default)
 				}
 				
 				var error: TestError?
@@ -1105,7 +1105,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should forward mapped values upon success") {
 				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
 				let producer = baseProducer.attemptMap { num -> Result<Bool, TestError> in
-					return .success(num % 2 == 0)
+					return .Success(num % 2 == 0)
 				}
 				
 				var even: Bool?
@@ -1123,7 +1123,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should error if a mapping fails") {
 				let (baseProducer, sink) = SignalProducer<Int, TestError>.buffer()
 				let producer = baseProducer.attemptMap { _ -> Result<Bool, TestError> in
-					return .failure(.Default)
+					return .Failure(.Default)
 				}
 				
 				var error: TestError?

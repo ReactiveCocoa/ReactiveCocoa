@@ -1058,6 +1058,27 @@ class SignalSpec: QuickSpec {
 				expect(signal).notTo(beNil())
 			}
 
+			it("should not send values when it's less than interval") {
+				var values: [Int] = []
+				signal.observe(next: { value in
+					values.append(value)
+				})
+
+				sendNext(observer, 0)
+				scheduler.advanceByInterval(0.5)
+				expect(values).to(equal([]))
+
+				scheduler.advanceByInterval(2)
+				expect(values).to(equal([0]))
+
+				sendNext(observer, 1)
+				scheduler.advance()
+				expect(values).to(equal([0]))
+
+				scheduler.advanceByInterval(0.5)
+				expect(values).to(equal([0]))
+			}
+
 			it("should send values on the given scheduler at no less than the interval") {
 				var values: [Int] = []
 				signal.observe(next: { value in
@@ -1069,7 +1090,7 @@ class SignalSpec: QuickSpec {
 				sendNext(observer, 0)
 				expect(values).to(equal([]))
 
-				scheduler.advance()
+				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0 ]))
 
 				sendNext(observer, 1)
@@ -1085,7 +1106,7 @@ class SignalSpec: QuickSpec {
 				sendNext(observer, 3)
 				expect(values).to(equal([ 0, 2 ]))
 
-				scheduler.advance()
+				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0, 2, 3 ]))
 
 				sendNext(observer, 4)
@@ -1108,12 +1129,16 @@ class SignalSpec: QuickSpec {
 				})
 
 				sendNext(observer, 0)
-				scheduler.advance()
+				scheduler.advanceByInterval(3)
 				expect(values).to(equal([ 0 ]))
 
 				sendNext(observer, 1)
 				sendCompleted(observer)
 				expect(completed).to(beFalsy())
+
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+				expect(completed).to(beTruthy())
 
 				scheduler.run()
 				expect(values).to(equal([ 0 ]))

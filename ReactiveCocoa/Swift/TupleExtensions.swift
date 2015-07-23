@@ -15,7 +15,7 @@ internal func repack<A>(t: (), value: A) -> (A) {
 	return (value)
 }
 
-internal func repack<A, B>(t: (A), value: B) -> (A, B) {
+internal func repack<A, B>(t: A, value: B) -> (A, B) {
 	return (t, value)
 }
 

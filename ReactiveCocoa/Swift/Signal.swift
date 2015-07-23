@@ -753,8 +753,8 @@ extension SignalType {
 					var updatedStates = states
 					let extractCount = min(states.0.values.count, states.1.values.count)
 					
-					removeRange(&updatedStates.0.values, 0 ..< extractCount)
-					removeRange(&updatedStates.1.values, 0 ..< extractCount)
+					updatedStates.0.values.removeRange(0 ..< extractCount)
+					updatedStates.1.values.removeRange(0 ..< extractCount)
 					return updatedStates
 				}
 				

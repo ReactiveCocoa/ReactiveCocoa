@@ -1072,6 +1072,9 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([0]))
 
 				sendNext(observer, 1)
+				scheduler.advance()
+				expect(values).to(equal([0]))
+
 				scheduler.advanceByInterval(0.5)
 				expect(values).to(equal([0]))
 			}
@@ -1087,7 +1090,7 @@ class SignalSpec: QuickSpec {
 				sendNext(observer, 0)
 				expect(values).to(equal([]))
 
-				scheduler.advance()
+				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0 ]))
 
 				sendNext(observer, 1)
@@ -1103,7 +1106,7 @@ class SignalSpec: QuickSpec {
 				sendNext(observer, 3)
 				expect(values).to(equal([ 0, 2 ]))
 
-				scheduler.advance()
+				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0, 2, 3 ]))
 
 				sendNext(observer, 4)
@@ -1126,12 +1129,16 @@ class SignalSpec: QuickSpec {
 				})
 
 				sendNext(observer, 0)
-				scheduler.advance()
+				scheduler.advanceByInterval(3)
 				expect(values).to(equal([ 0 ]))
 
 				sendNext(observer, 1)
 				sendCompleted(observer)
 				expect(completed).to(beFalsy())
+
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+				expect(completed).to(beTruthy())
 
 				scheduler.run()
 				expect(values).to(equal([ 0 ]))

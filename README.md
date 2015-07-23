@@ -60,8 +60,7 @@ The first step is to observe edits to the text field, using a RAC extension to
 `UITextField` specifically for this purpose:
 
 ```swift
-let searchStrings = textField.rac_textSignal()
-    |> toSignalProducer()
+let searchStrings = textField.rac_textSignal().toSignalProducer()
     |> map { text in text as! String }
 ```
 

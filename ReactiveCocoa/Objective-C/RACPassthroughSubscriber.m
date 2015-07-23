@@ -11,6 +11,8 @@
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
 
+#if !defined(DTRACE_PROBES_DISABLED) || !DTRACE_PROBES_DISABLED
+
 static const char *cleanedDTraceString(NSString *original) {
 	return [original stringByReplacingOccurrencesOfString:@"\\s+" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, original.length)].UTF8String;
 }
@@ -25,6 +27,8 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 	return cleanedDTraceString(desc);
 }
+
+#endif
 
 @interface RACPassthroughSubscriber ()
 

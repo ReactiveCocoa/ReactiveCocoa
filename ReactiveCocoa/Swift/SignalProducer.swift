@@ -1020,9 +1020,9 @@ extension SignalProducerType {
 					result = nil
 					return
 				}
-				result = .success(value)
+				result = .Success(value)
 			}, error: { error in
-				result = .failure(error)
+				result = .Failure(error)
 				dispatch_semaphore_signal(semaphore)
 			}, completed: {
 				dispatch_semaphore_signal(semaphore)
@@ -1043,7 +1043,7 @@ extension SignalProducerType {
 	/// Starts the producer, then blocks, waiting for completion.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func wait() -> Result<(), E> {
-		return then(SignalProducer<(), E>(value: ())).last() ?? .success(())
+		return then(SignalProducer<(), E>(value: ())).last() ?? .Success(())
 	}
 }
 

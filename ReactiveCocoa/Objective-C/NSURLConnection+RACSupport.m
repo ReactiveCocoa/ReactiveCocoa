@@ -21,7 +21,8 @@
 		createSignal:^(id<RACSubscriber> subscriber) {
 			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 			queue.name = @"org.reactivecocoa.ReactiveCocoa.NSURLConnectionRACSupport";
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 			[NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
 				// The docs say that `nil` data means an error occurred, but
 				// `nil` responses can also occur in practice (circumstances
@@ -36,7 +37,8 @@
 					[subscriber sendCompleted];
 				}
 			}];
-
+#pragma clang diagnostic pop
+			
 			return [RACDisposable disposableWithBlock:^{
 				// It's not clear if this will actually cancel the connection,
 				// but we can at least prevent _some_ unnecessary work --

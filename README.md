@@ -169,8 +169,7 @@ ReactiveCocoa has a declarative `throttle` operator that we can apply to our
 search strings:
 
 ```swift
-let searchStrings = textField.rac_textSignal()
-    |> toSignalProducer()
+let searchStrings = textField.rac_textSignal().toSignalProducer()
     |> map { text in text as! String }
     |> throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```

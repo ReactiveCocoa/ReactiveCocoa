@@ -1058,6 +1058,24 @@ class SignalSpec: QuickSpec {
 				expect(signal).notTo(beNil())
 			}
 
+			it("should not send values when it's less than interval") {
+				var values: [Int] = []
+				signal.observe(next: { value in
+					values.append(value)
+				})
+
+				sendNext(observer, 0)
+				scheduler.advanceByInterval(0.5)
+				expect(values).to(equal([]))
+
+				scheduler.advanceByInterval(2)
+				expect(values).to(equal([0]))
+
+				sendNext(observer, 1)
+				scheduler.advanceByInterval(0.5)
+				expect(values).to(equal([0]))
+			}
+
 			it("should send values on the given scheduler at no less than the interval") {
 				var values: [Int] = []
 				signal.observe(next: { value in

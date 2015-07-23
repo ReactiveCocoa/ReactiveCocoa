@@ -141,7 +141,7 @@ class SignalProducerSpec: QuickSpec {
 		describe("init(result:)") {
 			it("should immediately send the value then complete") {
 				let producerValue = "StringValue"
-				let producerResult = .success(producerValue) as Result<String, NSError>
+				let producerResult = .Success(producerValue) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
 				expect(signalProducer).to(sendValue(producerValue, sendError: nil, complete: true))
@@ -149,7 +149,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should immediately send the error") {
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
-				let producerResult = .failure(producerError) as Result<String, NSError>
+				let producerResult = .Failure(producerError) as Result<String, NSError>
 				let signalProducer = SignalProducer(result: producerResult)
 
 				expect(signalProducer).to(sendValue(nil, sendError: producerError, complete: false))
@@ -345,7 +345,7 @@ class SignalProducerSpec: QuickSpec {
 				let operation: () -> Result<String, NSError> = {
 					operationRunTimes++
 
-					return .success("OperationValue")
+					return .Success("OperationValue")
 				}
 
 				SignalProducer.attempt(operation).start()
@@ -357,7 +357,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should send the value then complete") {
 				let operationReturnValue = "OperationValue"
 				let operation: () -> Result<String, NSError> = {
-					return .success(operationReturnValue)
+					return .Success(operationReturnValue)
 				}
 
 				let signalProducer = SignalProducer.attempt(operation)
@@ -368,7 +368,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should send the error") {
 				let operationError = NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil)
 				let operation: () -> Result<String, NSError> = {
-					return .failure(operationError)
+					return .Failure(operationError)
 				}
 
 				let signalProducer = SignalProducer.attempt(operation)
@@ -1242,9 +1242,9 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should not repeat upon error") {
 				let results: [Result<Int, TestError>] = [
-					.success(1),
-					.success(2),
-					.failure(.Default)
+					.Success(1),
+					.Success(2),
+					.Failure(.Default)
 				]
 
 				let original = SignalProducer.attemptWithResults(results)
@@ -1286,9 +1286,9 @@ class SignalProducerSpec: QuickSpec {
 		describe("retry") {
 			it("should start a signal N times upon error") {
 				let results: [Result<Int, TestError>] = [
-					.failure(.Error1),
-					.failure(.Error2),
-					.success(1)
+					.Failure(.Error1),
+					.Failure(.Error2),
+					.Success(1)
 				]
 
 				let original = SignalProducer.attemptWithResults(results)
@@ -1301,9 +1301,9 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should forward errors that occur after all retries") {
 				let results: [Result<Int, TestError>] = [
-					.failure(.Default),
-					.failure(.Error1),
-					.failure(.Error2),
+					.Failure(.Default),
+					.Failure(.Error1),
+					.Failure(.Error2),
 				]
 
 				let original = SignalProducer.attemptWithResults(results)
@@ -1316,9 +1316,9 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should not retry upon completion") {
 				let results: [Result<Int, TestError>] = [
-					.success(1),
-					.success(2),
-					.success(3)
+					.Success(1),
+					.Success(2),
+					.Success(3)
 				]
 
 				let original = SignalProducer.attemptWithResults(results)

@@ -109,12 +109,6 @@ public final class MutableProperty<T>: MutablePropertyType {
 	}
 }
 
-extension MutableProperty: SinkType {
-	public func put(value: T) {
-		self.value = value
-	}
-}
-
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
 /// Coding and Key-Value Observing.
 ///

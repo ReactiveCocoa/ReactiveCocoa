@@ -33,17 +33,14 @@ extension NSURLSession {
 	/// invocation of start().
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
-			guard let task = self.dataTaskWithRequest(request, completionHandler: { data, response, error in
+			let task = self.dataTaskWithRequest(request, completionHandler: { data, response, error in
 				if let data = data, response = response {
 					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
 					sendError(observer, error ?? defaultSessionError)
 				}
-			}) else {
-				sendError(observer, defaultSessionError)
-				return
-			}
+			})
 
 			disposable.addDisposable {
 				task.cancel()

@@ -11,14 +11,6 @@ import Foundation
 /// Adds a value into an N-tuple, returning an (N+1)-tuple.
 ///
 /// Supports creating tuples up to 10 elements long.
-internal func repack<A>(t: (), value: A) -> (A) {
-	return (value)
-}
-
-internal func repack<A, B>(t: (A), value: B) -> (A, B) {
-	return (t.0, value)
-}
-
 internal func repack<A, B, C>(t: (A, B), value: C) -> (A, B, C) {
 	return (t.0, t.1, value)
 }

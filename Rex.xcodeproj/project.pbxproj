@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5173EBC61B625A2600C9B48E /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC51B625A2600C9B48E /* UIBarItem.swift */; };
+		5173EBC81B625A6800C9B48E /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */; };
 		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -102,6 +104,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5173EBC51B625A2600C9B48E /* UIBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarItem.swift; sourceTree = "<group>"; };
+		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		7DE995CA1B03A56800CA9420 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
@@ -267,6 +271,8 @@
 		D86FFBD31B34B0E2001A89B3 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				5173EBC51B625A2600C9B48E /* UIBarItem.swift */,
+				5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */,
 				D86FFBDC1B34B691001A89B3 /* UIButton.swift */,
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
@@ -474,7 +480,9 @@
 				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
 				D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */,
+				5173EBC81B625A6800C9B48E /* UIBarButtonItem.swift in Sources */,
 				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
+				5173EBC61B625A2600C9B48E /* UIBarItem.swift in Sources */,
 				D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

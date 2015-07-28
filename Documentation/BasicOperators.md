@@ -112,18 +112,6 @@ Note that nothing will be printed until `producer` is started (possibly somewher
 
 ## Operator composition
 
-### Pipe
-
-The `|>` operator can be used to apply a primitive to an event stream. Multiple
-operators can be chained after each other using the `|>` operator:
-
-```Swift
-intSignal
-    |> filter { num in num % 2 == 0 }
-    |> map(toString)
-    |> observe(next: { string in println(string) })
-```
-
 ### Lifting
 
 `Signal` operators can be _lifted_ to operate upon `SignalProducer`s using the

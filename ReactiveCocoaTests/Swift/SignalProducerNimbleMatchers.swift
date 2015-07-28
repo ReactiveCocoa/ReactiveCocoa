@@ -20,7 +20,7 @@ public func sendValues<T: Equatable, E: Equatable>(values: [T], sendError maybeS
 		precondition(maybeSendError == nil || !complete, "Signals can't both send an error and complete")
 
 		failureMessage.postfixMessage = "Send values \(values). Send error \(maybeSendError). Complete: \(complete)"
-		let maybeProducer = actualExpression.evaluate()
+		let maybeProducer = try actualExpression.evaluate()
 
 		if let signalProducer = maybeProducer {
 			var sentValues: [T] = []

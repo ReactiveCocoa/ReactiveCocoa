@@ -36,7 +36,7 @@ types will be referred to by name.
 
   1. [Concatenating](#concatenating)
   1. [Merging](#merging)
-  1. [Switching](#switching)
+  1. [Switching to the latest](#switching-to-the-latest)
 
 **[Handling errors](#handling-errors)**
 
@@ -354,7 +354,7 @@ sendCompleted(numbersSink)
 
 [Interactive visualisation of the `flatten(.Concat)` operator.](http://neilpa.me/rac-marbles/#concat)
 
-### Switching
+### Switching to the latest
 
 The `.Latest` strategy forwards only values from the latest input `SignalProducer`.
 

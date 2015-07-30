@@ -352,7 +352,7 @@ necessary. Switching schedulers can introduce unnecessary delays and cause an
 increase in CPU load.
 
 Generally, [`observeOn`][observeOn] should only be used right before observing
-the [signal][Signals], starting the [producer][Signal Producer], or binding to
+the [signal][Signals], starting the [producer][Signal Producers], or binding to
 a [property][Properties]. This ensures that events arrive on the expected
 scheduler, without introducing multiple thread hops before their arrival.
 

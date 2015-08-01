@@ -192,6 +192,12 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 	return disposable
 }
 
+/// Binds a signal to a property of Optional type
+public func <~ <P: MutablePropertyType, T where P.Value == Optional<T>>(property: P, signal: Signal<T, NoError>) -> Disposable {
+	return property <~ signal.map {
+		return .Some($0)
+	}
+}
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
@@ -214,6 +220,13 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 	return disposable
 }
 
+/// Creates a signal from the given producer, which will be immediately bound to
+/// the given property of Optional type
+public func <~ <P: MutablePropertyType, T where P.Value == Optional<T>>(property: P, producer: SignalProducer<T, NoError>) -> Disposable {
+	return property <~ producer.map {
+		return .Some($0)
+	}
+}
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
@@ -221,4 +234,14 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
+}
+
+/// Binds `destinationProperty` to the latest values of `sourceProperty`.
+///
+/// The binding will automatically terminate when either property is
+/// deinitialized.
+public func <~ <Destination: MutablePropertyType, Source: PropertyType where Optional<Source.Value> == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+	return destinationProperty <~ sourceProperty.producer.map {
+		return .Some($0)
+	}
 }

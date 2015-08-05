@@ -288,8 +288,8 @@ To add RAC to your application:
     [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
     application’s repository.
  1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Drag and drop `ReactiveCocoa.xcodeproj`, `Box.xcodeproj` and `Result.xcodeproj`
-    into your application’s Xcode project or workspace.
+ 1. Drag and drop `ReactiveCocoa.xcodeproj`, `Carthage/Checkouts/Box/Box.xcodeproj` and
+    `Carthage/Checkouts/Result/Result.xcodeproj` into your application’s Xcode project or workspace.
  1. On the “General” tab of your application target’s settings, add
     `ReactiveCocoa.framework`, `Box.framework` and `Result.framework` to the
     “Embedded Binaries” section.

@@ -36,7 +36,7 @@ types will be referred to by name.
 
   1. [Concatenating](#concatenating)
   1. [Merging](#merging)
-  1. [Switching](#switching)
+  1. [Switching to the latest](#switching-to-the-latest)
 
 **[Handling errors](#handling-errors)**
 
@@ -111,18 +111,6 @@ Similar to `observe`, all the parameters are optional and you only need to provi
 Note that nothing will be printed until `producer` is started (possibly somewhere else).
 
 ## Operator composition
-
-### Pipe
-
-The `|>` operator can be used to apply a primitive to an event stream. Multiple
-operators can be chained after each other using the `|>` operator:
-
-```Swift
-intSignal
-    |> filter { num in num % 2 == 0 }
-    |> map(toString)
-    |> observe(next: { string in println(string) })
-```
 
 ### Lifting
 
@@ -354,7 +342,7 @@ sendCompleted(numbersSink)
 
 [Interactive visualisation of the `flatten(.Concat)` operator.](http://neilpa.me/rac-marbles/#concat)
 
-### Switching
+### Switching to the latest
 
 The `.Latest` strategy forwards only values from the latest input `SignalProducer`.
 

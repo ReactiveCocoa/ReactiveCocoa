@@ -10,8 +10,7 @@ public protocol PropertyType {
 	var producer: SignalProducer<Value, NoError> { get }
 }
 
-/// Represents a read-only view to a property of type T that allows observation
-/// of its changes.
+/// A read-only property that allows observation of its changes.
 public struct PropertyOf<T>: PropertyType {
 	public typealias Value = T
 
@@ -25,11 +24,27 @@ public struct PropertyOf<T>: PropertyType {
 	public var producer: SignalProducer<T, NoError> {
 		return _producer()
 	}
-
-	/// Initializes the receiver as a wrapper around the given property.
+	
+	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == T>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
+	}
+	
+	/// Initializes a property that first takes on `initialValue`, then each value 
+	/// sent on a signal created by `producer`.
+	public init(initialValue: T, producer: SignalProducer<T, NoError>) {
+		let mutableProperty = MutableProperty(initialValue)
+		mutableProperty <~ producer
+		self.init(mutableProperty)
+	}
+	
+	/// Initializes a property that first takes on `initialValue`, then each value
+	/// sent on `signal`.
+	public init(initialValue: T, signal: Signal<T, NoError>) {
+		let mutableProperty = MutableProperty(initialValue)
+		mutableProperty <~ signal
+		self.init(mutableProperty)
 	}
 }
 

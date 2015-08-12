@@ -12,6 +12,6 @@ import UIKit
 extension UILabel {
     /// Wraps a label's `text` value in a bindable property.
     public var rex_text: MutableProperty<String> {
-        return associatedProperty(self, "text")
+        return rex_stringProperty("text")
     }
 }

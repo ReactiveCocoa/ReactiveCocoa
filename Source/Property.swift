@@ -62,5 +62,5 @@ private func put<S: SinkType, E>(sink: S)(signal: Signal<S.Element, E>) -> Signa
         |> scan(sink) { (var value, change) in
             value.put(change)
             return value
-    }
+        }
 }

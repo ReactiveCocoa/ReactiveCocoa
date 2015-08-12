@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import Foundation
 import ReactiveCocoa
 
 extension NSUserDefaults {
@@ -14,7 +15,6 @@ extension NSUserDefaults {
     /// convertible this will generate events whenever _any_ value in NSUserDefaults
     /// changes.
     func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
-
         let center = NSNotificationCenter.defaultCenter()
         let changes = center.rac_notifications(name: NSUserDefaultsDidChangeNotification)
             |> map { notification in
@@ -31,6 +31,6 @@ extension NSUserDefaults {
                         return previous == next
                 }
                 return false
-        }
+            }
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
 		5173EBC61B625A2600C9B48E /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC51B625A2600C9B48E /* UIBarItem.swift */; };
 		5173EBC81B625A6800C9B48E /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */; };
 		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
@@ -104,6 +105,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4238D5951B4D5950008534C0 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSTextField.swift; path = AppKit/NSTextField.swift; sourceTree = "<group>"; };
 		5173EBC51B625A2600C9B48E /* UIBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarItem.swift; sourceTree = "<group>"; };
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		7DE995CA1B03A56800CA9420 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
@@ -181,6 +183,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4238D5941B4D593E008534C0 /* AppKit */ = {
+			isa = PBXGroup;
+			children = (
+				4238D5951B4D5950008534C0 /* NSTextField.swift */,
+			);
+			name = AppKit;
+			sourceTree = "<group>";
+		};
 		D8003E841AFEC3D400D7D3C5 = {
 			isa = PBXGroup;
 			children = (
@@ -200,6 +210,7 @@
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				D8F097391B17F2BF002E15BA /* Foundation */,
 				D86FFBD31B34B0E2001A89B3 /* UIKit */,
+				4238D5941B4D593E008534C0 /* AppKit */,
 				D8003E911AFEC3D400D7D3C5 /* Supporting Files */,
 			);
 			path = Source;
@@ -400,6 +411,7 @@
 		D8003E851AFEC3D400D7D3C5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Neil Pankey";
 				TargetAttributes = {
@@ -481,8 +493,9 @@
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
 				D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */,
 				5173EBC81B625A6800C9B48E /* UIBarButtonItem.swift in Sources */,
-				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
 				5173EBC61B625A2600C9B48E /* UIBarItem.swift in Sources */,
+				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
+				4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */,
 				D8F0973D1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

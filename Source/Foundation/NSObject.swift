@@ -23,7 +23,7 @@ extension NSObject {
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty
-        }
+            }
     }
 
     /// Attaches a `MutableProperty` relying on KVC for the initial value and subsequent

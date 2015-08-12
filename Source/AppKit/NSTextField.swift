@@ -13,7 +13,10 @@ import AppKit
 extension NSTextField {
     /// only changes from UI will be produced here
     public var rex_textSignal: SignalProducer<String, NoError> {
-        return NSNotificationCenter.defaultCenter().rac_notifications(name: NSControlTextDidChangeNotification, object: self)
-            |> map { notification in (notification.object as! NSTextField).stringValue }
+        return NSNotificationCenter.defaultCenter()
+            .rac_notifications(name: NSControlTextDidChangeNotification, object: self)
+            |> map { notification in
+                (notification.object as! NSTextField).stringValue
+            }
     }
 }

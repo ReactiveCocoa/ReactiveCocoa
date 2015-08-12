@@ -31,6 +31,6 @@ extension NSUserDefaults {
                         return previous == next
                 }
                 return false
-        }
+            }
     }
 }

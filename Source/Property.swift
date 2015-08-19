@@ -35,43 +35,16 @@ public struct SignalProperty<T>: PropertyType {
     }
 }
 
-extension Signal where E: NoErrorType {
+extension Signal where E: NoError {
     /// Creates a new property bound to `self` starting with `initialValue`.
     public func toProperty(initialValue: T) -> PropertyOf<T> {
         return PropertyOf(SignalProperty(initialValue, ignoreError()))
     }
-
-    /// Wraps `sink` in a property bound to `self`. Values sent on the signal are
-    /// `put` into the `sink` to update it.
-    public func toPropertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
-        return put(sink).toProperty(sink)
-    }
 }
 
-extension SignalProducer where E: NoErrorType {
+extension SignalProducer where E: NoError {
     /// Creates a new property bound to `producer` starting with `initialValue`.
     public func toProperty(initialValue: T) -> PropertyOf<T> {
         return PropertyOf(SignalProperty(initialValue, ignoreError()))
-    }
-
-    /// Wraps `sink` in a property bound to `self`. Values sent on the signal are
-    /// `put` into the `sink` to update it.
-    public func toPropertySink<S: SinkType where S.Element == T>(sink: S) -> PropertyOf<S> {
-        return put(sink).toProperty(sink)
-    }
-}
-
-extension Signal {
-    private func put<S: SinkType where S.Element == T>(sink: S) -> Signal<S, E> {
-        return scan(sink) { (var value, change) in
-            value.put(change)
-            return value
-        }
-    }
-}
-
-extension SignalProducer {
-    private func put<S: SinkType where S.Element == T>(sink: S) -> SignalProducer<S, E> {
-        return lift { $0.put(sink) }
     }
 }

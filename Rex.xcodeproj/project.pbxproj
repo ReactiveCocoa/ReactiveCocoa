@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
-		7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -87,7 +85,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		7DE995CA1B03A56800CA9420 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -163,7 +160,6 @@
 		D8003E901AFEC3D400D7D3C5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				7DE995CA1B03A56800CA9420 /* Operators.swift */,
 				D8F0974C1B190ECE002E15BA /* Property.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
@@ -429,7 +425,6 @@
 			files = (
 				D8F0974D1B190ECE002E15BA /* Property.swift in Sources */,
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
-				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
 				D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
@@ -455,7 +450,6 @@
 				D8F0974E1B190ECE002E15BA /* Property.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
-				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,

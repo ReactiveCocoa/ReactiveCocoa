@@ -22,16 +22,16 @@ final class SignalTests: XCTestCase {
             }
             .observe(next: { values.append($0) })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssert(values == [])
 
-        2 --> sink
+        sendNext(sink, 2)
         XCTAssert(values == ["2"])
 
-        3 --> sink
+        sendNext(sink, 3)
         XCTAssert(values == ["2"])
 
-        6 --> sink
+        sendNext(sink, 6)
         XCTAssert(values == ["2", "6"])
     }
 
@@ -45,10 +45,10 @@ final class SignalTests: XCTestCase {
                 completed = true
             })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssertFalse(completed)
 
-        .Default --> sink
+        sendError(sink, .Default)
         XCTAssertTrue(completed)
     }
 
@@ -62,10 +62,10 @@ final class SignalTests: XCTestCase {
                 interrupted = true
             })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssertFalse(interrupted)
 
-        .Default --> sink
+        sendError(sink, .Default)
         XCTAssertTrue(interrupted)
     }
 
@@ -125,13 +125,13 @@ final class SignalTests: XCTestCase {
                 values.append($0)
             })
 
-        [] --> sink
+        sendNext(sink, [])
         XCTAssert(values.isEmpty)
 
-        [1] --> sink
+        sendNext(sink, [1])
         XCTAssert(values == [1])
 
-        [2, 3] --> sink
+        sendNext(sink, [2, 3])
         XCTAssert(values == [1, 2, 3])
     }
 }

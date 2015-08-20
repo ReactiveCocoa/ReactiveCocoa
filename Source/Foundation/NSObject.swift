@@ -45,7 +45,7 @@ extension NSObject {
     ///
     /// N.B. Ensure that `self` isn't strongly captured by `placeholder`, otherwise this will
     /// create a retain cycle causing `self` to never dealloc.
-    public func rex_classProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
+    public func rex_classProperty<T: AnyObject>(keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
         return associatedProperty(self, keyPath, placeholder)
     }
 

@@ -10,7 +10,7 @@ import ReactiveCocoa
 import UIKit
 import XCTest
 
-class UILabelTests: XCTestCase {
+class UILabelDeallocTests: XCTestCase {
 
     weak var _label: UILabel?
 
@@ -19,7 +19,7 @@ class UILabelTests: XCTestCase {
         super.tearDown()
     }
 
-    func testPropertiesDontCreateRetainCycles() {
+    func testTextPropertyDoesntCreateRetainCycle() {
         let label = UILabel(frame: CGRectZero)
         _label = label
 

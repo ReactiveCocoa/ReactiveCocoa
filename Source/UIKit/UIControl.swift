@@ -14,8 +14,8 @@ extension UIControl {
     public func rex_controlEvents(events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
         return rac_signalForControlEvents(events)
             .toSignalProducer()
-            |> map { $0 as? UIControl }
-            |> catch { _ in SignalProducer(value: nil) }
+            .map { $0 as? UIControl }
+            .flatMapError { _ in SignalProducer(value: nil) }
     }
 
     /// Wraps a control's `enabled` state in a bindable property.

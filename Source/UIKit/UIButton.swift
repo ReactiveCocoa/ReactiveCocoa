@@ -15,18 +15,18 @@ extension UIButton {
     /// previous action is removed as a target. This also binds the enabled state of the
     /// action to the `rex_enabled` property on the button.
     public var rex_pressed: MutableProperty<CocoaAction> {
-        return associatedObject(self, &pressed, { _ in
+        return associatedObject(self, key: &pressed, initial: { _ in
             let initial = CocoaAction.rex_disabled
             let property = MutableProperty(initial)
 
             property.producer
-                |> combinePrevious(initial)
-                |> start { previous, next in
+                .combinePrevious(initial)
+                .start(next: { previous, next in
                     self.removeTarget(previous, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
                     self.addTarget(next, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
-                }
+                })
 
-            self.rex_enabled <~ property.producer |> flatMap(.Latest) { $0.rex_enabledProducer }
+            self.rex_enabled <~ property.producer.flatMap(.Latest) { $0.rex_enabledProducer }
             return property
         })
     }

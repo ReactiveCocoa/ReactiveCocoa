@@ -33,6 +33,9 @@ public func associatedProperty(host: AnyObject, keyPath: StaticString) -> Mutabl
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
+///
+/// N.B. Ensure that `host` isn't strongly captured by `placeholder`, otherwise this will
+/// create a retain cycle with `host` causing it to never dealloc.
 public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
     let initial: () -> T  = { [weak host] _ in
         host?.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()

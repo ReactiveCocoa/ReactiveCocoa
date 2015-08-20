@@ -232,7 +232,7 @@ Even if the caller does not maintain a reference to the `Signal`:
 This ensures that signals associated with long-running work do not deallocate
 prematurely.
 
-Note that is is possible to release a signal before a terminating [event][Events] has been
+Note that it is possible to release a signal before a terminating [event][Events] has been
 sent upon it. This should usually be avoided, as it can result in resource
 leaks, but is sometimes useful to disable termination.
 

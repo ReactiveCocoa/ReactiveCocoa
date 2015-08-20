@@ -15,11 +15,11 @@ class UILabelTests: XCTestCase {
     weak var _label: UILabel?
 
     override func tearDown() {
-        XCTAssert(_label == nil, "Retain cycle in bindings preventing dealloc")
+        XCTAssert(_label == nil, "Retain cycle detected in UILabel properties")
         super.tearDown()
     }
 
-    func testBindingsDealloc() {
+    func testPropertiesDontCreateRetainCycles() {
         let label = UILabel(frame: CGRectZero)
         _label = label
 

@@ -49,6 +49,9 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
+///
+/// N.B. Ensure that `host` isn't strongly captured by `initial` or `setter`, otherwise this
+/// will create a retain cycle with `host` causing it to never dealloc.
 public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
     return associatedObject(host, key) {
         let property = MutableProperty(initial())
@@ -57,9 +60,12 @@ public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initi
     }
 }
 
-/// On first use attaches the object returned from `initial` to the `host` object
-/// using `key` via `objc_setAssociatedObject`. On subsequent usage, returns said
-/// object via `objc_getAssociatedObject`.
+/// On first use attaches the object returned from `initial` to the `host` object using
+/// `key` via `objc_setAssociatedObject`. On subsequent usage, returns said object via
+/// `objc_getAssociatedObject`.
+///
+/// N.B. Ensure that `host` isn't strongly captured by `initial`, otherwise this will
+/// create a retain cycle with `host` causing it to never dealloc.
 public func associatedObject<T: AnyObject>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T) -> T {
     var value = objc_getAssociatedObject(host, key) as? T
     if value == nil {

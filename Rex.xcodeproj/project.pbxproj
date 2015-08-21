@@ -303,10 +303,10 @@
 		D8F073131B861B110047D546 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
-				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
-				8295FD851B873081007C9000 /* UIControlTests.swift */,
-				8295FD881B873490007C9000 /* UIButtonTests.swift */,
 				8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */,
+				8295FD881B873490007C9000 /* UIButtonTests.swift */,
+				8295FD851B873081007C9000 /* UIControlTests.swift */,
+				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";

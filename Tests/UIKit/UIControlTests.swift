@@ -10,7 +10,7 @@ import ReactiveCocoa
 import UIKit
 import XCTest
 
-class UIControlDeallocTests: XCTestCase {
+class UIControlTests: XCTestCase {
     
     weak var _control: UIControl?
     

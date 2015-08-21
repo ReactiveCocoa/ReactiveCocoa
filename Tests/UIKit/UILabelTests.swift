@@ -10,7 +10,7 @@ import ReactiveCocoa
 import UIKit
 import XCTest
 
-class UILabelDeallocTests: XCTestCase {
+class UILabelTests: XCTestCase {
 
     weak var _label: UILabel?
 

@@ -19,7 +19,7 @@ class UIBarButtonItemTests: XCTestCase {
         super.tearDown()
     }
     
-    func testEnabledPropertyDoesntCreateRetainCycle() {
+    func testActionPropertyDoesntCreateRetainCycle() {
         let barButtonItem = UIBarButtonItem()
         _barButtonItem = barButtonItem
         

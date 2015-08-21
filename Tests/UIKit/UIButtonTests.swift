@@ -25,15 +25,24 @@ class UIButtonTests: XCTestCase {
         
         button.rex_enabled <~ SignalProducer(value: false)
         XCTAssert(_button?.enabled == false)
-        
+    }
+
+    func testPressedPropertyDoesntCreateRetainCycle() {
+        let button = UIButton(frame: CGRectZero)
+        _button = button
+
         let action = Action<(),(),NoError> {
             SignalProducer(value: ())
         }
         button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
-        
+    }
+
+    func testTitlePropertyDoesntCreateRetainCycle() {
+        let button = UIButton(frame: CGRectZero)
+        _button = button
+
         button.rex_title <~ SignalProducer(value: "button")
         XCTAssert(_button?.titleForState(.Normal) == "button")
-
     }
 
 }

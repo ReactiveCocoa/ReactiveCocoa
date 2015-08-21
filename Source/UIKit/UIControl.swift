@@ -20,7 +20,7 @@ extension UIControl {
 
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return rex_valueProperty(&enabled, { self.enabled }, { self.enabled = $0 })
+        return rex_valueProperty(&enabled, { [weak self] in self?.enabled ?? true }, { [weak self] in self?.enabled = $0 })
     }
 }
 

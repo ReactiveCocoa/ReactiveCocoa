@@ -24,6 +24,33 @@ final class NSObjectTests: XCTestCase {
     }
 }
 
+final class NSObjectDeallocTests: XCTestCase {
+
+    weak var _object: Object?
+
+    override func tearDown() {
+        XCTAssert(_object == nil, "Retain cycle detected")
+        super.tearDown()
+    }
+
+    func testStringPropertyDoesntCreateRetainCycle() {
+        let object = Object()
+        _object = object
+
+        object.rex_stringProperty("string") <~ SignalProducer(value: "Test")
+        XCTAssert(_object?.string == "Test")
+    }
+
+    func testClassPropertyDoesntCreateRetainCycle() {
+        let object = Object()
+        _object = object
+
+        object.rex_classProperty("string", placeholder: { _ in "" }) <~ SignalProducer(value: "Test")
+        XCTAssert(_object?.string == "Test")
+    }
+}
+
+
 class Object: NSObject {
     dynamic var string = "foo"
 }

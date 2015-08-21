@@ -42,7 +42,10 @@ extension NSObject {
     ///
     /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
     /// bindings on Cocoa objects.
-    public func rex_classProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
+    ///
+    /// N.B. Ensure that `self` isn't strongly captured by `placeholder`, otherwise this will
+    /// create a retain cycle causing `self` to never dealloc.
+    public func rex_classProperty<T: AnyObject>(keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
         return associatedProperty(self, keyPath: keyPath, placeholder: placeholder)
     }
 
@@ -52,6 +55,9 @@ extension NSObject {
     ///
     /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
     /// bindings on Cocoa objects.
+    ///
+    /// N.B. Ensure that `self` isn't strongly captured by `initial` or `setter`, otherwise this
+    /// will create a retain cycle causing `self` to never dealloc.
     public func rex_valueProperty<T>(key: UnsafePointer<()>, _ initial: () -> T, _ setter: T -> ()) -> MutableProperty<T> {
         return associatedObject(self, key: key) {
             let property = MutableProperty(initial())

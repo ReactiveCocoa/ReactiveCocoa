@@ -16,7 +16,7 @@ public protocol OptionalType {
 }
 
 extension Optional: OptionalType {
-	public var optional: T? {
+	public var optional: Wrapped? {
 		return self
 	}
 }

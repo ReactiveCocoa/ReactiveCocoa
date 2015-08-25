@@ -643,7 +643,7 @@ extension SignalProducerType {
 	public func on(started started: (() -> ())? = nil, event: (Event<T, E> -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (T -> ())? = nil) -> SignalProducer<T, E> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
-			disposed.map(compositeDisposable.addDisposable)
+			_ = disposed.map(compositeDisposable.addDisposable)
 
 			self.startWithSignal { signal, disposable in
 				compositeDisposable.addDisposable(disposable)

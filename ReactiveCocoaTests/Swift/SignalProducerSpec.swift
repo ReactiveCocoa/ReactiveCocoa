@@ -1544,11 +1544,11 @@ extension SignalProducer {
 
 		let operation: () -> Result<T, E> = {
 			if operationIndex < resultCount {
-				return results[advance(results.startIndex, operationIndex++)]
+				return results[results.startIndex.advancedBy(operationIndex++)]
 			} else {
 				fail("Operation started too many times")
 
-				return results[advance(results.startIndex, 0)]
+				return results[results.startIndex.advancedBy(0)]
 			}
 		}
 

@@ -1068,6 +1068,28 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == Signal<T,
 	return Signal.never
 }
 
+/// Silents the Signal errors.
+/// It's useful to bind a Signal into a property (binding operator supports only Signals of ErrorType == NoError)
+///
+/// Returns a Signal that propagates all the source Signal events but the error event
+public func silent<T, E>() -> Signal<T, E> -> Signal<T, NoError> {
+    return { signal in
+        return Signal { observer in
+            signal.observe { (event) -> Void in
+                switch event {
+                    case .Error(_): break
+                case .Completed:
+                    observer(.Completed)
+                case .Interrupted:
+                    observer(.Interrupted)
+                case .Next(let next):
+                    observer(.Next(next))
+                }
+            }
+        }
+    }
+}
+
 /// Forwards events from `signal` until `interval`. Then if signal isn't completed yet,
 /// errors with `error` on `scheduler`.
 ///

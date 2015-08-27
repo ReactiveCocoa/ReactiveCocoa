@@ -87,6 +87,10 @@ public final class UIScheduler: SchedulerType {
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerType {
 	internal let queue: dispatch_queue_t
+	
+	internal init(queue: dispatch_queue_t) {
+		self.queue = queue
+	}
 
 	/// A singleton QueueScheduler that always targets the main thread's GCD
 	/// queue.
@@ -100,15 +104,8 @@ public final class QueueScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	/// Initializes a scheduler that will target the given queue with its work.
-	///
-	/// Note that you _must_ specify a serial queue for this scheduler.
-	public init(queue: dispatch_queue_t) {
-		self.queue = queue
-	}
-
 	/// Initializes a scheduler that will target the global queue with the given
-	/// priority.
+	/// quality of service class.
 	public convenience init(qos: dispatch_qos_class_t = QOS_CLASS_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
 		let attrs = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, qos, 0)
 		self.init(queue: dispatch_queue_create(name, attrs))

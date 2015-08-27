@@ -9,6 +9,7 @@
 import Foundation
 import Nimble
 import Quick
+@testable
 import ReactiveCocoa
 
 class SchedulerSpec: QuickSpec {
@@ -127,14 +128,11 @@ class SchedulerSpec: QuickSpec {
 			}
 
 			describe("on a given queue") {
-				var queue: dispatch_queue_t!
 				var scheduler: QueueScheduler!
 
 				beforeEach {
-					queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
-					dispatch_suspend(queue)
-
-					scheduler = QueueScheduler(queue: queue)
+					scheduler = QueueScheduler(qos: QOS_CLASS_DEFAULT)
+					dispatch_suspend(scheduler.queue)
 				}
 
 				it("should run enqueued actions serially on the given queue") {
@@ -149,7 +147,7 @@ class SchedulerSpec: QuickSpec {
 
 					expect(value).to(equal(0))
 
-					dispatch_resume(queue)
+					dispatch_resume(scheduler.queue)
 					expect{value}.toEventually(equal(5))
 				}
 
@@ -162,7 +160,7 @@ class SchedulerSpec: QuickSpec {
 
 					expect(didRun).to(beFalsy())
 
-					dispatch_resume(queue)
+					dispatch_resume(scheduler.queue)
 					expect{didRun}.toEventually(beTruthy())
 				}
 
@@ -182,7 +180,7 @@ class SchedulerSpec: QuickSpec {
 
 					expect(count).to(equal(0))
 
-					dispatch_resume(queue)
+					dispatch_resume(scheduler.queue)
 					expect{count}.toEventually(equal(timesToRun))
 				}
 			}

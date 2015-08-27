@@ -2461,7 +2461,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY" = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -2474,7 +2474,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY" = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -2556,7 +2556,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY" = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -2624,7 +2624,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY" = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;

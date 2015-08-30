@@ -17,11 +17,13 @@ import ReactiveCocoa
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
 public func associatedProperty(host: AnyObject, keyPath: StaticString) -> MutableProperty<String> {
+    // Workaround compiler warning when using keyPath.stringValue
+    let key = "\(keyPath)"
     let initial: () -> String  = { [weak host] _ in
-        host?.valueForKeyPath(keyPath.stringValue) as? String ?? ""
+        host?.valueForKeyPath(key) as? String ?? ""
     }
     let setter: String -> () = { [weak host] newValue in
-        host?.setValue(newValue, forKeyPath: keyPath.stringValue)
+        host?.setValue(newValue, forKeyPath: key)
     }
     return associatedProperty(host, keyPath.utf8Start, initial, setter)
 }
@@ -37,11 +39,13 @@ public func associatedProperty(host: AnyObject, keyPath: StaticString) -> Mutabl
 /// N.B. Ensure that `host` isn't strongly captured by `placeholder`, otherwise this will
 /// create a retain cycle with `host` causing it to never dealloc.
 public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
+    // Workaround compiler warning when using keyPath.stringValue
+    let key = "\(keyPath)"
     let initial: () -> T  = { [weak host] _ in
-        host?.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()
+        host?.valueForKeyPath(key) as? T ?? placeholder()
     }
     let setter: T -> () = { [weak host] newValue in
-        host?.setValue(newValue, forKeyPath: keyPath.stringValue)
+        host?.setValue(newValue, forKeyPath: key)
     }
     return associatedProperty(host, keyPath.utf8Start, initial, setter)
 }

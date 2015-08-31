@@ -149,7 +149,7 @@ extension MutableProperty: SinkType {
 			return object?.valueForKeyPath(keyPath)
 		}
 
-		@objc(setRac_value:) set(newValue) {
+		@objc(setRac_value:) set {
 			object?.setValue(newValue, forKeyPath: keyPath)
 		}
 	}

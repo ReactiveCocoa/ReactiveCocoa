@@ -871,6 +871,16 @@ public func start<T, E>(error: (E -> ())? = nil, completed: (() -> ())? = nil, i
 	}
 }
 
+/// Silents the SignalProducer errors
+/// It's useful to bind a SignalProducer into a property (binding operator supports only Signals of ErrorType == NoError)
+///
+/// Returns a SignalProducer that propagates all the source SignalProducer events but the error event
+public func silent<T, E>() -> SignalProducer<T, E> -> SignalProducer<T, NoError> {
+    return { producer in
+        producer.lift(silent())
+    }
+}
+
 /// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {
 	/// The producers should be merged, so that any value received on any of the

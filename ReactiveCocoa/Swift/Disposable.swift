@@ -119,24 +119,25 @@ public final class CompositeDisposable: Disposable {
 	/// Adds the given disposable to the list, then returns a handle which can
 	/// be used to opaquely remove the disposable later (if desired).
 	public func addDisposable(d: Disposable?) -> DisposableHandle {
-		if d == nil {
-			return DisposableHandle.empty
-		}
+		if let d = d {
+			var handle: DisposableHandle? = nil
+			disposables.modify { ds in
+				guard var ds = ds else { return nil }
 
-		var handle: DisposableHandle? = nil
-		disposables.modify { ds in
-			guard var ds = ds else { return nil }
+				let token = ds.insert(d)
+				handle = DisposableHandle(bagToken: token, disposable: self)
 
-			let token = ds.insert(d!)
-			handle = DisposableHandle(bagToken: token, disposable: self)
+				return ds
+			}
 
-			return ds
-		}
+			if let handle = handle {
+				return handle
+			} else {
+				d.dispose()
+				return DisposableHandle.empty
+			}
 
-		if let handle = handle {
-			return handle
 		} else {
-			d!.dispose()
 			return DisposableHandle.empty
 		}
 	}

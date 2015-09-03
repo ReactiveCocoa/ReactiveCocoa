@@ -232,7 +232,7 @@ Even if the caller does not maintain a reference to the `Signal`:
 This ensures that signals associated with long-running work do not deallocate
 prematurely.
 
-Note that is is possible to release a signal before a terminating [event][Events] has been
+Note that it is possible to release a signal before a terminating [event][Events] has been
 sent upon it. This should usually be avoided, as it can result in resource
 leaks, but is sometimes useful to disable termination.
 
@@ -352,7 +352,7 @@ necessary. Switching schedulers can introduce unnecessary delays and cause an
 increase in CPU load.
 
 Generally, [`observeOn`][observeOn] should only be used right before observing
-the [signal][Signals], starting the [producer][Signal Producer], or binding to
+the [signal][Signals], starting the [producer][Signal Producers], or binding to
 a [property][Properties]. This ensures that events arrive on the expected
 scheduler, without introducing multiple thread hops before their arrival.
 

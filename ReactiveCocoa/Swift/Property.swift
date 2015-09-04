@@ -176,7 +176,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
 		super.init()
-		object?.rac_willDeallocSignal()?.toSignalProducer().start(completed: { self })
+		object?.rac_willDeallocSignal()?.toSignalProducer().startCompleted { self }
 	}
 }
 
@@ -194,15 +194,20 @@ infix operator <~ {
 /// or when the signal sends a `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
-	disposable += property.producer.start(completed: {
+	disposable += property.producer.startCompleted {
 		disposable.dispose()
-	})
+	}
 
-	disposable += signal.observe(next: { [weak property] value in
-		property?.value = value
-	}, completed: {
-		disposable.dispose()
-	})
+	disposable += signal.observe { [weak property] event in
+		switch event {
+		case .Next(let value):
+			property?.value = value
+		case .Completed:
+			disposable.dispose()
+		default:
+			break
+		}
+	}
 
 	return disposable
 }
@@ -221,9 +226,9 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 		property <~ signal
 		disposable = signalDisposable
 
-		property.producer.start(completed: {
+		property.producer.startCompleted {
 			signalDisposable.dispose()
-		})
+		}
 	}
 
 	return disposable

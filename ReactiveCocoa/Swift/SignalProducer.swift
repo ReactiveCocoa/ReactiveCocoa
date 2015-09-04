@@ -299,7 +299,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
-	public func start(sink: Event<T, E>.Sink) -> Disposable {
+	public func start(sink: Event<T, E>.Sink = Event<T, E>.sink()) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
@@ -311,13 +311,43 @@ extension SignalProducerType {
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callbacks when events are
+	/// the Signal, which will invoke the given callback when `next` events are
 	/// received.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func start(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable {
-		return start(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
+	public func startNext(next: T -> ()) -> Disposable {
+		return start(Event.sink(next: next))
+	}
+
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when an `error` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal.
+	public func startError(error: E -> ()) -> Disposable {
+		return start(Event.sink(error: error))
+	}
+	
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when a `completed` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal.
+	public func startCompleted(completed: () -> ()) -> Disposable {
+		return start(Event.sink(completed: completed))
+	}
+	
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when an `interrupted` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal.
+	public func startInterrupted(interrupted: () -> ()) -> Disposable {
+		return start(Event.sink(interrupted: interrupted))
 	}
 
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
@@ -895,18 +925,21 @@ extension SignalProducerType {
 			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
-				signal.observe(next: { value in
-					sendNext(observer, value)
-				}, error: { error in
-					handler(error).startWithSignal { signal, signalDisposable in
-						serialDisposable.innerDisposable = signalDisposable
-						signal.observe(observer)
+				signal.observe { event in
+					switch event {
+					case .Next(let value):
+						sendNext(observer, value)
+					case .Error(let error):
+						handler(error).startWithSignal { signal, signalDisposable in
+							serialDisposable.innerDisposable = signalDisposable
+							signal.observe(observer)
+						}
+					case .Completed:
+						sendCompleted(observer)
+					case .Interrupted:
+						sendInterrupted(observer)
 					}
-				}, completed: {
-					sendCompleted(observer)
-				}, interrupted: {
-					sendInterrupted(observer)
-				})
+				}
 			}
 		}
 	}
@@ -986,13 +1019,18 @@ extension SignalProducerType {
 			self.startWithSignal { signal, signalDisposable in
 				observerDisposable.addDisposable(signalDisposable)
 
-				signal.observe(error: { error in
-					sendError(observer, error)
-				}, completed: {
-					sendCompleted(observer)
-				}, interrupted: {
-					sendInterrupted(observer)
-				})
+				signal.observe { event in
+					switch event {
+					case .Error(let error):
+						sendError(observer, error)
+					case .Completed:
+						sendCompleted(observer)
+					case .Interrupted:
+						sendInterrupted(observer)
+					default:
+						break
+					}
+				}
 			}
 		}
 
@@ -1014,22 +1052,23 @@ extension SignalProducerType {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: Result<T, E>?
 
-		take(2).start(next: { value in
+		take(2).start { event in
+			switch event {
+			case .Next(let value):
 				if result != nil {
 					// Move into failure state after recieving another value.
 					result = nil
 					return
 				}
 				result = .Success(value)
-			}, error: { error in
+			case .Error(let error):
 				result = .Failure(error)
 				dispatch_semaphore_signal(semaphore)
-			}, completed: {
+			case .Completed, .Interrupted:
 				dispatch_semaphore_signal(semaphore)
-			}, interrupted: {
-				dispatch_semaphore_signal(semaphore)
-			})
-
+			}
+		}
+		
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 		return result
 	}
@@ -1140,22 +1179,25 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 			self.startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 			
-				signal.observe(next: {
-					state.enqueueSignalProducer($0.producer)
-				}, error: { error in
-					sendError(observer, error)
-				}, completed: {
-					// Add one last producer to the queue, whose sole job is to
-					// "turn out the lights" by completing `observer`.
-					let completion = SignalProducer<T.T, E> { innerObserver, _ in
-						sendCompleted(innerObserver)
-						sendCompleted(observer)
+				signal.observe { event in
+					switch event {
+					case .Next(let value):
+						state.enqueueSignalProducer(value.producer)
+					case .Error(let error):
+						sendError(observer, error)
+					case .Completed:
+						// Add one last producer to the queue, whose sole job is to
+						// "turn out the lights" by completing `observer`.
+						let completion = SignalProducer<T.T, E> { innerObserver, _ in
+							sendCompleted(innerObserver)
+							sendCompleted(observer)
+						}
+						
+						state.enqueueSignalProducer(completion)
+					case .Interrupted:
+						sendInterrupted(observer)
 					}
-
-					state.enqueueSignalProducer(completion)
-				}, interrupted: {
-					sendInterrupted(observer)
-				})
+				}
 			}
 		}
 	}
@@ -1254,33 +1296,36 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 			self.startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observe(next: { producer in
-					producer.startWithSignal { innerSignal, innerDisposable in
-						inFlight.modify { $0 + 1 }
-
-						let handle = disposable.addDisposable(innerDisposable)
-
-						innerSignal.observe { event in
-							switch event {
-							case .Completed, .Interrupted:
-								if event.isTerminating {
-									handle.remove()
+				signal.observe { event in
+					switch event {
+					case .Next(let producer):
+						producer.startWithSignal { innerSignal, innerDisposable in
+							inFlight.modify { $0 + 1 }
+							
+							let handle = disposable.addDisposable(innerDisposable)
+							
+							innerSignal.observe { event in
+								switch event {
+								case .Completed, .Interrupted:
+									if event.isTerminating {
+										handle.remove()
+									}
+									
+									decrementInFlight()
+									
+								default:
+									relayObserver(event)
 								}
-
-								decrementInFlight()
-
-							default:
-								relayObserver(event)
 							}
 						}
+					case .Error(let error):
+						sendError(relayObserver, error)
+					case .Completed:
+						decrementInFlight()
+					case .Interrupted:
+						sendInterrupted(relayObserver)
 					}
-				}, error: { error in
-					sendError(relayObserver, error)
-				}, completed: {
-					decrementInFlight()
-				}, interrupted: {
-					sendInterrupted(relayObserver)
-				})
+				}
 			}
 		}
 	}
@@ -1304,69 +1349,72 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 			self.startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observe(next: { innerProducer in
-					innerProducer.startWithSignal { innerSignal, innerDisposable in
-						state.modify { (var state) in
-							// When we replace the disposable below, this prevents the
-							// generated Interrupted event from doing any work.
-							state.replacingInnerSignal = true
-							return state
-						}
-
-						latestInnerDisposable.innerDisposable = innerDisposable
-
-						state.modify { (var state) in
-							state.replacingInnerSignal = false
-							state.innerSignalComplete = false
-							return state
-						}
-
-						innerSignal.observe { event in
-							switch event {
-							case .Interrupted:
-								// If interruption occurred as a result of a new signal
-								// arriving, we don't want to notify our observer.
-								let original = state.modify { (var state) in
-									if !state.replacingInnerSignal {
-										state.innerSignalComplete = true
+				signal.observe { event in
+					switch event {
+					case .Next(let innerProducer):
+						innerProducer.startWithSignal { innerSignal, innerDisposable in
+							state.modify { (var state) in
+								// When we replace the disposable below, this prevents the
+								// generated Interrupted event from doing any work.
+								state.replacingInnerSignal = true
+								return state
+							}
+							
+							latestInnerDisposable.innerDisposable = innerDisposable
+							
+							state.modify { (var state) in
+								state.replacingInnerSignal = false
+								state.innerSignalComplete = false
+								return state
+							}
+							
+							innerSignal.observe { event in
+								switch event {
+								case .Interrupted:
+									// If interruption occurred as a result of a new signal
+									// arriving, we don't want to notify our observer.
+									let original = state.modify { (var state) in
+										if !state.replacingInnerSignal {
+											state.innerSignalComplete = true
+										}
+										
+										return state
 									}
-
-									return state
+									
+									if !original.replacingInnerSignal && original.outerSignalComplete {
+										sendCompleted(sink)
+									}
+									
+								case .Completed:
+									let original = state.modify { (var state) in
+										state.innerSignalComplete = true
+										return state
+									}
+									
+									if original.outerSignalComplete {
+										sendCompleted(sink)
+									}
+									
+								default:
+									sink(event)
 								}
-
-								if !original.replacingInnerSignal && original.outerSignalComplete {
-									sendCompleted(sink)
-								}
-
-							case .Completed:
-								let original = state.modify { (var state) in
-									state.innerSignalComplete = true
-									return state
-								}
-
-								if original.outerSignalComplete {
-									sendCompleted(sink)
-								}
-
-							default:
-								sink(event)
 							}
 						}
+					case .Error(let error):
+						sendError(sink, error)
+					case .Completed:
+						let original = state.modify { (var state) in
+							state.outerSignalComplete = true
+							return state
+						}
+						
+						if original.innerSignalComplete {
+							sendCompleted(sink)
+						}
+					case .Interrupted:
+						sendInterrupted(sink)
 					}
-				}, error: { error in
-					sendError(sink, error)
-				}, completed: {
-					let original = state.modify { (var state) in
-						state.outerSignalComplete = true
-						return state
-					}
-
-					if original.innerSignalComplete {
-						sendCompleted(sink)
-					}
-				}, interrupted: {
-					sendInterrupted(sink)
-				})
+				}
 			}
 		}
 	}

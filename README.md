@@ -1,5 +1,5 @@
 # Rex [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-Extensions for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework. This currently targets Swift 1.2, for Swift 2 support see the [`swift2` branch](https://github.com/neilpa/Rex/tree/swift2).
+Extensions for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
 
 ## Signal
 All `Signal` operators can also be lifted to`SignalProducer`.

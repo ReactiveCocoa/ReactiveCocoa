@@ -257,7 +257,7 @@ class SignalProducerSpec: QuickSpec {
 				
 				sendCompleted(sink)
 				
-				producer.startCompleted {
+				producer.startWithCompleted {
 					completed = true
 				}
 				
@@ -295,10 +295,10 @@ class SignalProducerSpec: QuickSpec {
 				sendNext(sink, 3)
 
 				var values: [Int] = []
-				producer.startCompleted {
+				producer.startWithCompleted {
 					values = []
 
-					producer.startNext { value in
+					producer.startWithNext { value in
 						values.append(value)
 					}
 				}
@@ -313,12 +313,12 @@ class SignalProducerSpec: QuickSpec {
 				var values: [Int] = []
 				var lastBufferedValues: [Int] = []
 
-				producer.startNext { newValue in
+				producer.startWithNext { newValue in
 					values.append(newValue)
 
 					var bufferedValues: [Int] = []
 					
-					producer.startNext { bufferedValue in
+					producer.startWithNext { bufferedValue in
 						bufferedValues.append(bufferedValue)
 					}
 
@@ -346,7 +346,7 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer(1)
 				sendNext(sink, 1)
 
-				producer.startNext { next in
+				producer.startWithNext { next in
 					values.append(next)
 				}
 
@@ -438,8 +438,10 @@ class SignalProducerSpec: QuickSpec {
 				SignalProducer<Int, NoError>(value: 42)
 					.startOn(TestScheduler())
 					.startWithSignal { signal, innerDisposable in
-						signal.observeInterrupted {
-							interrupted = true
+						signal.observe { event in
+							if case .Interrupted = event {
+								interrupted = true
+							}
 						}
 
 						disposable = innerDisposable
@@ -497,8 +499,10 @@ class SignalProducerSpec: QuickSpec {
 					.startWithSignal { signal, disposable in
 						expect(interrupted).to(beFalsy())
 
-						signal.observeInterrupted {
-							interrupted = true
+						signal.observe { event in
+							if case .Interrupted = event {
+								interrupted = true
+							}
 						}
 
 						disposable.dispose()
@@ -565,8 +569,10 @@ class SignalProducerSpec: QuickSpec {
 				let producer = SignalProducer<(), NoError>.never
 
 				var interrupted = false
-				let disposable = producer.startInterrupted {
-					interrupted = true
+				let disposable = producer.start { event in
+					if case .Interrupted = event {
+						interrupted = true
+					}
 				}
 
 				expect(interrupted).to(beFalsy())
@@ -582,7 +588,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>.never
 					let object = NSObject()
 					objectRetainedByObserver = object
-					disposable = producer.startNext { _ in object }
+					disposable = producer.startWithNext { _ in object }
 				}
 
 				test()
@@ -597,7 +603,7 @@ class SignalProducerSpec: QuickSpec {
 					var values = [Int]()
 					let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
-					producer.startNext { next in
+					producer.startWithNext { next in
 						values.append(next)
 					}
 
@@ -716,7 +722,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
 
 				var dates: [NSDate] = []
-				producer.startNext { dates.append($0) }
+				producer.startWithNext { dates.append($0) }
 
 				scheduler.advanceByInterval(0.9)
 				expect(dates).to(equal([]))
@@ -818,7 +824,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = timer(2, onScheduler: testScheduler, withLeeway: 0)
 
 				var next: NSDate?
-				producer.startOn(startScheduler).startNext { next = $0 }
+				producer.startOn(startScheduler).startWithNext { next = $0 }
 
 				startScheduler.advanceByInterval(2)
 				expect(next).to(beNil())
@@ -923,7 +929,7 @@ class SignalProducerSpec: QuickSpec {
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 					var error: TestError?
-					(outerProducer.flatten(.Concat)).startError { e in
+					(outerProducer.flatten(.Concat)).startWithError { e in
 						error = e
 					}
 
@@ -934,7 +940,7 @@ class SignalProducerSpec: QuickSpec {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 					var error: TestError?
-					outerProducer.flatten(.Concat).startError { e in
+					outerProducer.flatten(.Concat).startWithError { e in
 						error = e
 					}
 
@@ -956,7 +962,7 @@ class SignalProducerSpec: QuickSpec {
 						completeInner = { sendCompleted(innerSink) }
 
 						completed = false
-						outerProducer.flatten(.Concat).startCompleted {
+						outerProducer.flatten(.Concat).startWithCompleted {
 							completed = true
 						}
 
@@ -1046,7 +1052,7 @@ class SignalProducerSpec: QuickSpec {
 						let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).startError { e in
+						outerProducer.flatten(.Merge).startWithError { e in
 							error = e
 						}
 						expect(error).to(equal(TestError.Default))
@@ -1056,7 +1062,7 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).startError { e in
+						outerProducer.flatten(.Merge).startWithError { e in
 							error = e
 						}
 
@@ -1130,7 +1136,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 
 					var completed = false
-					outer.flatten(.Latest).startCompleted {
+					outer.flatten(.Latest).startWithCompleted {
 						completed = true
 					}
 
@@ -1141,7 +1147,7 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 					var completed = false
-					outer.flatten(.Latest).startCompleted {
+					outer.flatten(.Latest).startWithCompleted {
 						completed = true
 					}
 
@@ -1406,7 +1412,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = original.then(subsequent)
 
 				var completed = false
-				producer.startCompleted {
+				producer.startWithCompleted {
 					completed = true
 				}
 

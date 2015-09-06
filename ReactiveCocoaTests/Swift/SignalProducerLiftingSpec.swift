@@ -20,7 +20,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var lastValue: String?
 
-				mappedProducer.startNext {
+				mappedProducer.startWithNext {
 					lastValue = $0
 					return
 				}
@@ -43,7 +43,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer
 					.mapError { _ in producerError }
-					.startError { error = $0 }
+					.startWithError { error = $0 }
 
 				expect(error).to(beNil())
 
@@ -59,7 +59,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var lastValue: Int?
 
-				mappedProducer.startNext { lastValue = $0 }
+				mappedProducer.startWithNext { lastValue = $0 }
 
 				expect(lastValue).to(beNil())
 
@@ -81,7 +81,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var lastValue: Int?
 
-				mappedProducer.startNext { lastValue = $0 }
+				mappedProducer.startWithNext { lastValue = $0 }
 				expect(lastValue).to(beNil())
 
 				sendNext(sink, nil)
@@ -105,7 +105,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var lastValue: String?
 
-				producer.startNext { lastValue = $0 }
+				producer.startWithNext { lastValue = $0 }
 
 				expect(lastValue).to(beNil())
 
@@ -185,7 +185,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = baseProducer.skip(1)
 
 				var lastValue: Int?
-				producer.startNext { lastValue = $0 }
+				producer.startWithNext { lastValue = $0 }
 
 				expect(lastValue).to(beNil())
 
@@ -201,7 +201,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = baseProducer.skip(0)
 
 				var lastValue: Int?
-				producer.startNext { lastValue = $0 }
+				producer.startWithNext { lastValue = $0 }
 
 				expect(lastValue).to(beNil())
 
@@ -219,7 +219,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = baseProducer.skipRepeats()
 
 				var values: [Bool] = []
-				producer.startNext { values.append($0) }
+				producer.startWithNext { values.append($0) }
 
 				expect(values).to(equal([]))
 
@@ -241,7 +241,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = baseProducer.skipRepeats { $0.characters.count == $1.characters.count }
 
 				var values: [String] = []
-				producer.startNext { values.append($0) }
+				producer.startWithNext { values.append($0) }
 
 				expect(values).to(equal([]))
 
@@ -272,7 +272,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				sink = observer
 				lastValue = nil
 
-				producer.startNext { lastValue = $0 }
+				producer.startWithNext { lastValue = $0 }
 			}
 
 			it("should skip while the predicate is true") {
@@ -348,7 +348,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				producer
 					.take(numbers.count)
-					.startCompleted { completed = true }
+					.startWithCompleted { completed = true }
 				
 				expect(completed).to(beFalsy())
 				testScheduler.run()
@@ -401,7 +401,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var result: [Int]?
 
-				producer.startNext { value in
+				producer.startWithNext { value in
 					expect(result).to(beNil())
 					result = value
 				}
@@ -421,7 +421,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var result: [Int]?
 
-				producer.startNext { result = $0 }
+				producer.startWithNext { result = $0 }
 
 				expect(result).to(beNil())
 				sendCompleted(sink)
@@ -434,7 +434,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				var error: TestError?
 
-				producer.startError { error = $0 }
+				producer.startWithError { error = $0 }
 
 				expect(error).to(beNil())
 				sendError(sink, .Default)
@@ -624,7 +624,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer
 					.observeOn(testScheduler)
-					.startNext { result.append($0) }
+					.startWithNext { result.append($0) }
 				
 				sendNext(observer, 1)
 				sendNext(observer, 2)
@@ -691,7 +691,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				producer
 					.delay(10, onScheduler: testScheduler)
-					.startError { _ in errored = true }
+					.startWithError { _ in errored = true }
 				
 				testScheduler.advance()
 				expect(errored).to(beTruthy())
@@ -714,7 +714,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should send values on the given scheduler at no less than the interval") {
 				var values: [Int] = []
-				producer.startNext { value in
+				producer.startWithNext { value in
 					values.append(value)
 				}
 
@@ -795,7 +795,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should forward the latest value when the sampler fires") {
 				var result: [Int] = []
-				sampledProducer.startNext { result.append($0) }
+				sampledProducer.startWithNext { result.append($0) }
 				
 				sendNext(observer, 1)
 				sendNext(observer, 2)
@@ -805,7 +805,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should do nothing if sampler fires before signal receives value") {
 				var result: [Int] = []
-				sampledProducer.startNext { result.append($0) }
+				sampledProducer.startWithNext { result.append($0) }
 				
 				sendNext(samplerObserver, ())
 				expect(result).to(beEmpty())
@@ -813,7 +813,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should send lates value multiple times when sampler fires multiple times") {
 				var result: [Int] = []
-				sampledProducer.startNext { result.append($0) }
+				sampledProducer.startWithNext { result.append($0) }
 				
 				sendNext(observer, 1)
 				sendNext(samplerObserver, ())
@@ -823,7 +823,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should complete when both inputs have completed") {
 				var completed = false
-				sampledProducer.startCompleted { completed = true }
+				sampledProducer.startWithCompleted { completed = true }
 				
 				sendCompleted(observer)
 				expect(completed).to(beFalsy())
@@ -848,7 +848,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should forward the latest values from both inputs") {
 				var latest: (Int, Double)?
-				combinedProducer.startNext { latest = $0 }
+				combinedProducer.startWithNext { latest = $0 }
 				
 				sendNext(observer, 1)
 				expect(latest).to(beNil())
@@ -865,7 +865,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should complete when both inputs have completed") {
 				var completed = false
-				combinedProducer.startCompleted { completed = true }
+				combinedProducer.startWithCompleted { completed = true }
 				
 				sendCompleted(observer)
 				expect(completed).to(beFalsy())
@@ -891,7 +891,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should combine pairs") {
 				var result: [String] = []
-				zipped.startNext { (left, right) in result.append("\(left)\(right)") }
+				zipped.startWithNext { (left, right) in result.append("\(left)\(right)") }
 
 				sendNext(leftSink, 1)
 				sendNext(leftSink, 2)
@@ -948,7 +948,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var latestEvent: Event<Int, TestError>?
 				producer
 					.materialize()
-					.startNext { latestEvent = $0 }
+					.startWithNext { latestEvent = $0 }
 				
 				sendNext(observer, 2)
 				
@@ -987,7 +987,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should send values for Next events") {
 				var result: [Int] = []
-				dematerialized.startNext { result.append($0) }
+				dematerialized.startWithNext { result.append($0) }
 				
 				expect(result).to(beEmpty())
 				
@@ -1000,7 +1000,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should error out for Error events") {
 				var errored = false
-				dematerialized.startError { _ in errored = true }
+				dematerialized.startWithError { _ in errored = true }
 				
 				expect(errored).to(beFalsy())
 				
@@ -1010,7 +1010,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should complete early for Completed events") {
 				var completed = false
-				dematerialized.startCompleted { completed = true }
+				dematerialized.startWithCompleted { completed = true }
 				
 				expect(completed).to(beFalsy())
 				sendNext(sink, IntEvent.Completed)
@@ -1030,7 +1030,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			
 			it("should send the last N values upon completion") {
 				var result: [Int] = []
-				lastThree.startNext { result.append($0) }
+				lastThree.startWithNext { result.append($0) }
 				
 				sendNext(sink, 1)
 				sendNext(sink, 2)
@@ -1044,7 +1044,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should send less than N values if not enough were received") {
 				var result: [Int] = []
-				lastThree.startNext { result.append($0) }
+				lastThree.startWithNext { result.append($0) }
 				
 				sendNext(sink, 1)
 				sendNext(sink, 2)
@@ -1150,7 +1150,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				var current: Int?
-				producer.startNext { value in
+				producer.startWithNext { value in
 					current = value
 				}
 				
@@ -1167,7 +1167,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				var error: TestError?
-				producer.startError { err in
+				producer.startWithError { err in
 					error = err
 				}
 				
@@ -1184,7 +1184,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				var even: Bool?
-				producer.startNext { value in
+				producer.startWithNext { value in
 					even = value
 				}
 				
@@ -1202,7 +1202,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				var error: TestError?
-				producer.startError { err in
+				producer.startWithError { err in
 					error = err
 				}
 				
@@ -1221,7 +1221,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				let (signal, baseSink) = SignalProducer<Int, NoError>.buffer()
 				sink = baseSink
-				signal.combinePrevious(initialValue).startNext { latestValues = $0 }
+				signal.combinePrevious(initialValue).startWithNext { latestValues = $0 }
 			}
 			
 			it("should forward the latest value with previous value") {

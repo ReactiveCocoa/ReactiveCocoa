@@ -88,7 +88,11 @@ class SignalSpec: QuickSpec {
 				}
 
 				var interrupted = false
-				signal?.observeInterrupted { interrupted = true }
+				signal?.observe { event in
+					if case .Interrupted = event {
+						interrupted = true
+					}
+				}
 
 				expect(interrupted).to(beFalsy())
 				expect(signal).toNot(beNil())
@@ -192,7 +196,11 @@ class SignalSpec: QuickSpec {
 				}
 
 				var interrupted = false
-				signal.observeInterrupted { interrupted = true }
+				signal.observe { event in
+					if case .Interrupted = event {
+						interrupted = true
+					}
+				}
 
 				expect(interrupted).to(beFalsy())
 				expect(disposable.disposed).to(beFalsy())

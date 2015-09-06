@@ -57,7 +57,7 @@ class PropertySpec: QuickSpec {
 
 				var sentValue: String?
 
-				mutableProperty.producer.startNext { value in
+				mutableProperty.producer.startWithNext { value in
 					sentValue = value
 				}
 
@@ -71,7 +71,7 @@ class PropertySpec: QuickSpec {
 
 				var signalCompleted = false
 
-				mutableProperty?.producer.startCompleted {
+				mutableProperty?.producer.startWithCompleted {
 					signalCompleted = true
 				}
 
@@ -85,7 +85,7 @@ class PropertySpec: QuickSpec {
 				var value: Int?
 
 				property <~ producer
-				property.producer.startNext { _ in
+				property.producer.startWithNext { _ in
 					value = property.value
 				}
 
@@ -97,8 +97,8 @@ class PropertySpec: QuickSpec {
 				let property = MutableProperty(0)
 
 				var value: Int?
-				property.producer.startNext { _ in
-					property.producer.startNext { x in value = x }
+				property.producer.startWithNext { _ in
+					property.producer.startWithNext { x in value = x }
 				}
 
 				expect(value).to(equal(0))
@@ -206,7 +206,7 @@ class PropertySpec: QuickSpec {
 
 			it("should observe changes to the property and underlying object") {
 				var values: [Int] = []
-				property.producer.startNext { value in
+				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
 					values.append((value as? Int) ?? -1)
 				}
@@ -228,7 +228,7 @@ class PropertySpec: QuickSpec {
 					let object = ObservableObject()
 					let property = DynamicProperty(object: object, keyPath: "rac_value")
 
-					property.producer.startCompleted {
+					property.producer.startWithCompleted {
 						completed = true
 					}
 

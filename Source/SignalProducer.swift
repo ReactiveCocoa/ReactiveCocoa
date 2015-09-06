@@ -57,7 +57,7 @@ extension SignalProducer {
 
     /// Returns a signal that prints the signal events
     public func print() -> SignalProducer<T, E> {
-        return on(event: Swift.print)
+        return on(event: { Swift.print($0) })
     }
 
     /// Returns a signal that prints the signal `Next` events

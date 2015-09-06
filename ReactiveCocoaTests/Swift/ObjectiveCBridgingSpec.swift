@@ -189,7 +189,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				expect(action.enabled.value).to(beTruthy())
 
-				action.values.observe(next: { results.append($0) })
+				action.values.observeNext { results.append($0) }
 
 				command = toRACCommand(action)
 				expect(command).notTo(beNil())

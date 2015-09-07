@@ -37,15 +37,15 @@ extension SignalProducer {
 
             }, error: { error in
                 sendError(observer, error)
-                groups.values.map { sendError($0, error) }
+                groups.values.forEach { sendError($0, error) }
 
             }, completed: { _ in
                 sendCompleted(observer)
-                groups.values.map { sendCompleted($0) }
+                groups.values.forEach { sendCompleted($0) }
 
             }, interrupted: { _ in
                 sendInterrupted(observer)
-                groups.values.map { sendInterrupted($0) }
+                groups.values.forEach { sendInterrupted($0) }
             })
         }
     }

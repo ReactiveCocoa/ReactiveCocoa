@@ -78,7 +78,7 @@ extension Signal where T: SequenceType {
             return self.observe { event in
                 switch event {
                 case let .Next(sequence):
-                    sequence.map { sendNext(observer, $0) }
+                    sequence.forEach { sendNext(observer, $0) }
                 case let .Error(error):
                     sendError(observer, error)
                 case .Completed:

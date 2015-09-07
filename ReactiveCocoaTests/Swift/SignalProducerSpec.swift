@@ -438,10 +438,8 @@ class SignalProducerSpec: QuickSpec {
 				SignalProducer<Int, NoError>(value: 42)
 					.startOn(TestScheduler())
 					.startWithSignal { signal, innerDisposable in
-						signal.observe { event in
-							if case .Interrupted = event {
-								interrupted = true
-							}
+						signal.observeInterrupted {
+							interrupted = true
 						}
 
 						disposable = innerDisposable
@@ -499,10 +497,8 @@ class SignalProducerSpec: QuickSpec {
 					.startWithSignal { signal, disposable in
 						expect(interrupted).to(beFalsy())
 
-						signal.observe { event in
-							if case .Interrupted = event {
-								interrupted = true
-							}
+						signal.observeInterrupted {
+							interrupted = true
 						}
 
 						disposable.dispose()
@@ -569,10 +565,8 @@ class SignalProducerSpec: QuickSpec {
 				let producer = SignalProducer<(), NoError>.never
 
 				var interrupted = false
-				let disposable = producer.start { event in
-					if case .Interrupted = event {
-						interrupted = true
-					}
+				let disposable = producer.startWithInterrupted {
+					interrupted = true
 				}
 
 				expect(interrupted).to(beFalsy())

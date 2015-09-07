@@ -163,37 +163,45 @@ extension Signal: SignalType {
 }
 
 extension SignalType {
-	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, the `interrupted`
-	/// callback will be invoked immediately.
+	/// Observes the Signal by invoking the given callback when `next` events are
+	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeNext(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(error: error, completed: completed, interrupted: interrupted, next: next))
+	public func observeNext(next: T -> ()) -> Disposable? {
+		return observe(Event.sink(next: next))
 	}
 
-	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, the `interrupted`
-	/// callback will be invoked immediately.
+	/// Observes the Signal by invoking the given callback when a `completed` event is
+	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callbacks. Disposing of the Disposable will have no effect on the Signal
+	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeCompleted(error error: (E -> ())? = nil, interrupted: (() -> ())? = nil, completed: (() -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(error: error, completed: completed, interrupted: interrupted, next: nil))
+	public func observeCompleted(completed: () -> ()) -> Disposable? {
+		return observe(Event.sink(completed: completed))
 	}
 	
-	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, the `interrupted`
-	/// callback will be invoked immediately.
+	/// Observes the Signal by invoking the given callback when an `error` event is
+	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callbacks. Disposing of the Disposable will have no effect on the Signal
+	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeError(completed completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, error: (E -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(error: error, completed: completed, interrupted: interrupted, next: nil))
+	public func observeError(error: E -> ()) -> Disposable? {
+		return observe(Event.sink(error: error))
+	}
+	
+	/// Observes the Signal by invoking the given callback when an `interrupted` event is
+	/// received. If the Signal has already terminated, the callback will be invoked
+	/// immediately.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeInterrupted(interrupted: () -> ()) -> Disposable? {
+		return observe(Event.sink(interrupted: interrupted))
 	}
 
 	/// Maps each value in the signal to a new value.

@@ -311,33 +311,43 @@ extension SignalProducerType {
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callbacks when events are
+	/// the Signal, which will invoke the given callback when `next` events are
 	/// received.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithNext(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable {
-		return start(Event.sink(error: error, completed: completed, interrupted: interrupted, next: next))
+	public func startWithNext(next: T -> ()) -> Disposable {
+		return start(Event.sink(next: next))
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callbacks when events are
+	/// the Signal, which will invoke the given callback when a `completed` event is
 	/// received.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithCompleted(error error: (E -> ())? = nil, interrupted: (() -> ())? = nil, completed: (() -> ())? = nil) -> Disposable {
-		return start(Event.sink(error: error, completed: completed, interrupted: interrupted, next: nil))
+	/// with the Signal.
+	public func startWithCompleted(completed: () -> ()) -> Disposable {
+		return start(Event.sink(completed: completed))
 	}
 	
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callbacks when events are
+	/// the Signal, which will invoke the given callback when an `error` event is
 	/// received.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithError(completed completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, error: (E -> ())? = nil) -> Disposable {
-		return start(Event.sink(error: error, completed: completed, interrupted: interrupted, next: nil))
+	/// with the Signal.
+	public func startWithError(error: E -> ()) -> Disposable {
+		return start(Event.sink(error: error))
+	}
+	
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when an `interrupted` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal.
+	public func startWithInterrupted(interrupted: () -> ()) -> Disposable {
+		return start(Event.sink(interrupted: interrupted))
 	}
 
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.

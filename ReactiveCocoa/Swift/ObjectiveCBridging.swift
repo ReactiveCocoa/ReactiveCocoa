@@ -94,9 +94,9 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start { event in
 			switch event {
-			case .Next(let value):
+			case let .Next(value):
 				subscriber.sendNext(value)
-			case .Error(let error):
+			case let .Error(error):
 				subscriber.sendError(error as NSError)
 			case .Completed:
 				subscriber.sendCompleted()
@@ -125,9 +125,9 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe { event in
 			switch event {
-			case .Next(let value):
+			case let .Next(value):
 				subscriber.sendNext(value)
-			case .Error(let error):
+			case let .Error(error):
 				subscriber.sendError(error as NSError)
 			case .Completed:
 				subscriber.sendCompleted()

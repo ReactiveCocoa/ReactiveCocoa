@@ -328,7 +328,7 @@ private final class CombineLatestState<T> {
 private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: E -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe { event in
 		switch event {
-		case .Next(let value):
+		case let .Next(value):
 			lock.lock()
 			
 			signalState.latestValue = value
@@ -337,7 +337,7 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: Com
 			}
 			
 			lock.unlock()
-		case .Error(let error):
+		case let .Error(error):
 			onError(error)
 		case .Completed:
 			lock.lock()
@@ -520,12 +520,12 @@ extension SignalType {
 
 			disposable += self.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					state.modify { (var st) in
 						st.latestValue = value
 						return st
 					}
-				case .Error(let error):
+				case let .Error(error):
 					sendError(observer, error)
 				case .Completed:
 					let oldState = state.modify { (var st) in
@@ -729,7 +729,7 @@ extension SignalType {
 
 			return self.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					// To avoid exceeding the reserved capacity of the buffer, we remove then add.
 					// Remove elements until we have room to add one more.
 					while (buffer.count + 1) > count {
@@ -737,7 +737,7 @@ extension SignalType {
 					}
 					
 					buffer.append(value)
-				case .Error(let error):
+				case let .Error(error):
 					sendError(observer, error)
 				case .Completed:
 					for bufferedValue in buffer {
@@ -822,14 +822,14 @@ extension SignalType {
 
 			disposable += self.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					states.modify { (var states) in
 						states.0.values.append(value)
 						return states
 					}
 					
 					flush()
-				case .Error(let error):
+				case let .Error(error):
 					onError(error)
 				case .Completed:
 					states.modify { (var states) in
@@ -845,14 +845,14 @@ extension SignalType {
 
 			disposable += otherSignal.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					states.modify { (var states) in
 						states.1.values.append(value)
 						return states
 					}
 					
 					flush()
-				case .Error(let error):
+				case let .Error(error):
 					onError(error)
 				case .Completed:
 					states.modify { (var states) in
@@ -888,13 +888,13 @@ extension SignalType {
 		return Signal { observer in
 			self.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					operation(value).analysis(ifSuccess: { value in
 						sendNext(observer, value)
 						}, ifFailure: { error in
 							sendError(observer, error)
 					})
-				case .Error(let error):
+				case let .Error(error):
 					sendError(observer, error)
 				case .Completed:
 					sendCompleted(observer)
@@ -1192,7 +1192,7 @@ extension SignalType where E: NoError {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					sendNext(observer, value)
 				case .Error(_):
 					fatalError("NoError is impossible to construct")

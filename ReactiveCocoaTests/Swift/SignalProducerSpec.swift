@@ -193,7 +193,7 @@ class SignalProducerSpec: QuickSpec {
 				var completed = false
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						values.append(value)
 					case .Completed:
 						completed = true
@@ -227,9 +227,9 @@ class SignalProducerSpec: QuickSpec {
 				var error: TestError?
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						values.append(value)
-					case .Error(let err):
+					case let .Error(err):
 						error = err
 					default:
 						break
@@ -274,7 +274,7 @@ class SignalProducerSpec: QuickSpec {
 				
 				producer.start { event in
 					switch event {
-					case .Next(let val):
+					case let .Next(val):
 						value = val
 					case .Completed:
 						completed = true
@@ -548,7 +548,7 @@ class SignalProducerSpec: QuickSpec {
 				var completed = false
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						values.append(value)
 					case .Completed:
 						completed = true
@@ -852,7 +852,7 @@ class SignalProducerSpec: QuickSpec {
 					}
 					.start { event in
 						switch event {
-						case .Next(let value):
+						case let .Next(value):
 							values.append(value)
 						case .Completed:
 							completed = true
@@ -1011,7 +1011,7 @@ class SignalProducerSpec: QuickSpec {
 
 						outerProducer.flatten(.Merge).start { event in
 							switch event {
-							case .Next(let i):
+							case let .Next(i):
 								recv.append(i)
 							case .Completed:
 								outerCompleted = true
@@ -1078,7 +1078,7 @@ class SignalProducerSpec: QuickSpec {
 
 					outer.flatten(.Latest).start { event in
 						switch event {
-						case .Next(let value):
+						case let .Next(value):
 							receivedValues.append(value)
 						case .Completed:
 							completed = true

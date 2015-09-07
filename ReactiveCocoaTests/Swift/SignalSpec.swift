@@ -119,7 +119,7 @@ class SignalSpec: QuickSpec {
 				
 				signal.observe { event in
 					switch event {
-					case .Next(let number):
+					case let .Next(number):
 						fromSignal.append(number)
 					case .Completed:
 						completed = true
@@ -285,7 +285,7 @@ class SignalSpec: QuickSpec {
 				
 				signal.observe { event in
 					switch event {
-					case .Next(let number):
+					case let .Next(number):
 						fromSignal.append(number)
 					case .Completed:
 						completed = true
@@ -535,7 +535,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -568,7 +568,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -716,7 +716,7 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -780,7 +780,7 @@ class SignalSpec: QuickSpec {
 				.take(0)
 				.observe { event in
 					switch event {
-					case .Next(let number):
+					case let .Next(number):
 						result.append(number)
 					case .Interrupted:
 						interrupted = true
@@ -866,7 +866,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -922,7 +922,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -977,7 +977,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						latestValue = value
 					case .Completed:
 						completed = true
@@ -1003,7 +1003,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						latestValue = value
 					case .Completed:
 						completed = true
@@ -1059,7 +1059,7 @@ class SignalSpec: QuickSpec {
 					.delay(10, onScheduler: testScheduler)
 					.observe { event in
 						switch event {
-						case .Next(let number):
+						case let .Next(number):
 							result.append(number)
 						case .Completed:
 							completed = true
@@ -1160,7 +1160,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						values.append(value)
 					case .Completed:
 						completed = true
@@ -1323,7 +1323,7 @@ class SignalSpec: QuickSpec {
 
 				zipped.observe { event in
 					switch event {
-					case .Next(let left, let right):
+					case let .Next(left, right):
 						result.append("\(left)\(right)")
 					case .Completed:
 						completed = true
@@ -1460,7 +1460,7 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				lastThree.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						result.append(value)
 					case .Error(_):
 						errored = true
@@ -1712,7 +1712,7 @@ class SignalSpec: QuickSpec {
 					combineLatest(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
-							case .Next(let value):
+							case let .Next(value):
 								combinedValues = [value.0, value.1, value.2]
 							case .Completed:
 								completed = true
@@ -1730,7 +1730,7 @@ class SignalSpec: QuickSpec {
 					combineLatest([signalA, signalB, signalC])
 					.observe { event in
 						switch event {
-						case .Next(let values):
+						case let .Next(values):
 							combinedValues = values
 						case .Completed:
 							completed = true
@@ -1818,7 +1818,7 @@ class SignalSpec: QuickSpec {
 					zip(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
-							case .Next(let value):
+							case let .Next(value):
 								zippedValues = [value.0, value.1, value.2]
 							case .Completed:
 								completed = true
@@ -1836,7 +1836,7 @@ class SignalSpec: QuickSpec {
 					zip([signalA, signalB, signalC])
 						.observe { event in
 							switch event {
-							case .Next(let values):
+							case let .Next(values):
 								zippedValues = values
 							case .Completed:
 								completed = true

@@ -927,9 +927,9 @@ extension SignalProducerType {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						sendNext(observer, value)
-					case .Error(let error):
+					case let .Error(error):
 						handler(error).startWithSignal { signal, signalDisposable in
 							serialDisposable.innerDisposable = signalDisposable
 							signal.observe(observer)
@@ -1021,7 +1021,7 @@ extension SignalProducerType {
 
 				signal.observe { event in
 					switch event {
-					case .Error(let error):
+					case let .Error(error):
 						sendError(observer, error)
 					case .Completed:
 						sendCompleted(observer)
@@ -1054,14 +1054,14 @@ extension SignalProducerType {
 
 		take(2).start { event in
 			switch event {
-			case .Next(let value):
+			case let .Next(value):
 				if result != nil {
 					// Move into failure state after recieving another value.
 					result = nil
 					return
 				}
 				result = .Success(value)
-			case .Error(let error):
+			case let .Error(error):
 				result = .Failure(error)
 				dispatch_semaphore_signal(semaphore)
 			case .Completed, .Interrupted:
@@ -1181,9 +1181,9 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 			
 				signal.observe { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						state.enqueueSignalProducer(value.producer)
-					case .Error(let error):
+					case let .Error(error):
 						sendError(observer, error)
 					case .Completed:
 						// Add one last producer to the queue, whose sole job is to
@@ -1298,7 +1298,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let producer):
+					case let .Next(producer):
 						producer.startWithSignal { innerSignal, innerDisposable in
 							inFlight.modify { $0 + 1 }
 							
@@ -1318,7 +1318,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 								}
 							}
 						}
-					case .Error(let error):
+					case let .Error(error):
 						sendError(relayObserver, error)
 					case .Completed:
 						decrementInFlight()
@@ -1351,7 +1351,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 
 				signal.observe { event in
 					switch event {
-					case .Next(let innerProducer):
+					case let .Next(innerProducer):
 						innerProducer.startWithSignal { innerSignal, innerDisposable in
 							state.modify { (var state) in
 								// When we replace the disposable below, this prevents the
@@ -1400,7 +1400,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 								}
 							}
 						}
-					case .Error(let error):
+					case let .Error(error):
 						sendError(sink, error)
 					case .Completed:
 						let original = state.modify { (var state) in

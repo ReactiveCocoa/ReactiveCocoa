@@ -31,7 +31,7 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						sentValue = value
 					case .Completed:
 						signalCompleted = true
@@ -119,7 +119,7 @@ class PropertySpec: QuickSpec {
 
 					propertyOf.producer.start { event in
 						switch event {
-						case .Next(let value):
+						case let .Next(value):
 							sentValue = value
 						case .Completed:
 							producerCompleted = true

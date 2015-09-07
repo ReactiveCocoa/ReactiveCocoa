@@ -200,7 +200,7 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 
 	disposable += signal.observe { [weak property] event in
 		switch event {
-		case .Next(let value):
+		case let .Next(value):
 			property?.value = value
 		case .Completed:
 			disposable.dispose()

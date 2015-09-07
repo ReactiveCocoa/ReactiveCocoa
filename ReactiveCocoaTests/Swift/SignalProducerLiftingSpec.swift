@@ -127,7 +127,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -160,7 +160,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -308,7 +308,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var completed = false
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -377,7 +377,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				.take(0)
 				.start { event in
 					switch event {
-					case .Next(let number):
+					case let .Next(number):
 						result.append(number)
 					case .Interrupted:
 						interrupted = true
@@ -463,7 +463,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -519,7 +519,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						lastValue = value
 					case .Completed:
 						completed = true
@@ -574,7 +574,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						latestValue = value
 					case .Completed:
 						completed = true
@@ -600,7 +600,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						latestValue = value
 					case .Completed:
 						completed = true
@@ -655,7 +655,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					.delay(10, onScheduler: testScheduler)
 					.start { event in
 						switch event {
-						case .Next(let number):
+						case let .Next(number):
 							result.append(number)
 						case .Completed:
 							completed = true
@@ -757,7 +757,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						values.append(value)
 					case .Completed:
 						completed = true
@@ -920,7 +920,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				zipped.start { event in
 					switch event {
-					case .Next(let left, let right):
+					case let .Next(left, right):
 						result.append("\(left)\(right)")
 					case .Completed:
 						completed = true
@@ -1057,7 +1057,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var errored = false
 				lastThree.start { event in
 					switch event {
-					case .Next(let value):
+					case let .Next(value):
 						result.append(value)
 					case .Error(_):
 						errored = true

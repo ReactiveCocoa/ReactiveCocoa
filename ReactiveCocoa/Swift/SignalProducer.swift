@@ -1261,12 +1261,12 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 						let handle = disposable.addDisposable(innerDisposable)
 
 						innerSignal.observe { event in
+							if event.isTerminating {
+								handle.remove()
+							}
+							
 							switch event {
 							case .Completed, .Interrupted:
-								if event.isTerminating {
-									handle.remove()
-								}
-
 								decrementInFlight()
 
 							default:

@@ -20,7 +20,7 @@ class FoundationExtensionsSpec: QuickSpec {
 				let producer = center.rac_notifications("rac_notifications_test")
 
 				var notif: NSNotification? = nil
-				let disposable = producer.start(next: { notif = $0 })
+				let disposable = producer.startWithNext { notif = $0 }
 
 				center.postNotificationName("some_other_notification", object: nil)
 				expect(notif).to(beNil())

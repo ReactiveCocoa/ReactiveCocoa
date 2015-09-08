@@ -163,15 +163,45 @@ extension Signal: SignalType {
 }
 
 extension SignalType {
-	/// Observes the Signal by invoking the given callbacks when events are
-	/// received. If the Signal has already terminated, the `interrupted`
-	/// callback will be invoked immediately.
+	/// Observes the Signal by invoking the given callback when `next` events are
+	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observe(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Disposable? {
-		return observe(Event.sink(next: next, error: error, completed: completed, interrupted: interrupted))
+	public func observeNext(next: T -> ()) -> Disposable? {
+		return observe(Event.sink(next: next))
+	}
+
+	/// Observes the Signal by invoking the given callback when a `completed` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeCompleted(completed: () -> ()) -> Disposable? {
+		return observe(Event.sink(completed: completed))
+	}
+	
+	/// Observes the Signal by invoking the given callback when an `error` event is
+	/// received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeError(error: E -> ()) -> Disposable? {
+		return observe(Event.sink(error: error))
+	}
+	
+	/// Observes the Signal by invoking the given callback when an `interrupted` event is
+	/// received. If the Signal has already terminated, the callback will be invoked
+	/// immediately.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeInterrupted(interrupted: () -> ()) -> Disposable? {
+		return observe(Event.sink(interrupted: interrupted))
 	}
 
 	/// Maps each value in the signal to a new value.
@@ -296,25 +326,32 @@ private final class CombineLatestState<T> {
 }
 
 private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: E -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
-	return signal.observe(next: { value in
-		lock.lock()
-
-		signalState.latestValue = value
-		if otherState.latestValue != nil {
-			onBothNext()
+	return signal.observe { event in
+		switch event {
+		case let .Next(value):
+			lock.lock()
+			
+			signalState.latestValue = value
+			if otherState.latestValue != nil {
+				onBothNext()
+			}
+			
+			lock.unlock()
+		case let .Error(error):
+			onError(error)
+		case .Completed:
+			lock.lock()
+			
+			signalState.completed = true
+			if otherState.completed {
+				onBothCompleted()
+			}
+			
+			lock.unlock()
+		case .Interrupted:
+			onInterrupted()
 		}
-
-		lock.unlock()
-	}, error: onError, completed: {
-		lock.lock()
-
-		signalState.completed = true
-		if otherState.completed {
-			onBothCompleted()
-		}
-
-		lock.unlock()
-	}, interrupted: onInterrupted)
+	}
 }
 
 extension SignalType {
@@ -481,42 +518,50 @@ extension SignalType {
 			let state = Atomic(SampleState<T>())
 			let disposable = CompositeDisposable()
 
-			disposable += self.observe(next: { value in
-				state.modify { (var st) in
-					st.latestValue = value
-					return st
+			disposable += self.observe { event in
+				switch event {
+				case let .Next(value):
+					state.modify { (var st) in
+						st.latestValue = value
+						return st
+					}
+				case let .Error(error):
+					sendError(observer, error)
+				case .Completed:
+					let oldState = state.modify { (var st) in
+						st.signalCompleted = true
+						return st
+					}
+					
+					if oldState.samplerCompleted {
+						sendCompleted(observer)
+					}
+				case .Interrupted:
+					sendInterrupted(observer)
 				}
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				let oldState = state.modify { (var st) in
-					st.signalCompleted = true
-					return st
+			}
+			
+			disposable += sampler.observe { event in
+				switch event {
+				case .Next(_):
+					if let value = state.value.latestValue {
+						sendNext(observer, value)
+					}
+				case .Completed:
+					let oldState = state.modify { (var st) in
+						st.samplerCompleted = true
+						return st
+					}
+					
+					if oldState.signalCompleted {
+						sendCompleted(observer)
+					}
+				case .Interrupted:
+					sendInterrupted(observer)
+				default:
+					break
 				}
-
-				if oldState.samplerCompleted {
-					sendCompleted(observer)
-				}
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
-
-			disposable += sampler.observe(next: { _ in
-				if let value = state.value.latestValue {
-					sendNext(observer, value)
-				}
-			}, completed: {
-				let oldState = state.modify { (var st) in
-					st.samplerCompleted = true
-					return st
-				}
-
-				if oldState.signalCompleted {
-					sendCompleted(observer)
-				}
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+			}
 
 			return disposable
 		}
@@ -682,25 +727,28 @@ extension SignalType {
 			var buffer = [T]()
 			buffer.reserveCapacity(count)
 
-			return self.observe(next: { value in
-				// To avoid exceeding the reserved capacity of the buffer, we remove then add.
-				// Remove elements until we have room to add one more.
-				while (buffer.count + 1) > count {
-					buffer.removeAtIndex(0)
+			return self.observe { event in
+				switch event {
+				case let .Next(value):
+					// To avoid exceeding the reserved capacity of the buffer, we remove then add.
+					// Remove elements until we have room to add one more.
+					while (buffer.count + 1) > count {
+						buffer.removeAtIndex(0)
+					}
+					
+					buffer.append(value)
+				case let .Error(error):
+					sendError(observer, error)
+				case .Completed:
+					for bufferedValue in buffer {
+						sendNext(observer, bufferedValue)
+					}
+					
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
 				}
-
-				buffer.append(value)
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				for bufferedValue in buffer {
-					sendNext(observer, bufferedValue)
-				}
-
-				sendCompleted(observer)
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+			}
 		}
 	}
 
@@ -772,37 +820,51 @@ extension SignalType {
 			let onError = { sendError(observer, $0) }
 			let onInterrupted = { sendInterrupted(observer) }
 
-			disposable += self.observe(next: { value in
-				states.modify { (var states) in
-					states.0.values.append(value)
-					return states
-				}
-				
-				flush()
-			}, error: onError, completed: {
-				states.modify { (var states) in
-					states.0.completed = true
-					return states
-				}
+			disposable += self.observe { event in
+				switch event {
+				case let .Next(value):
+					states.modify { (var states) in
+						states.0.values.append(value)
+						return states
+					}
 					
-				flush()
-			}, interrupted: onInterrupted)
-			
-			disposable += otherSignal.observe(next: { value in
-				states.modify { (var states) in
-					states.1.values.append(value)
-					return states
-				}
-				
-				flush()
-			}, error: onError, completed: {
-				states.modify { (var states) in
-					states.1.completed = true
-					return states
-				}
+					flush()
+				case let .Error(error):
+					onError(error)
+				case .Completed:
+					states.modify { (var states) in
+						states.0.completed = true
+						return states
+					}
 					
-				flush()
-			}, interrupted: onInterrupted)
+					flush()
+				case .Interrupted:
+					onInterrupted()
+				}
+			}
+
+			disposable += otherSignal.observe { event in
+				switch event {
+				case let .Next(value):
+					states.modify { (var states) in
+						states.1.values.append(value)
+						return states
+					}
+					
+					flush()
+				case let .Error(error):
+					onError(error)
+				case .Completed:
+					states.modify { (var states) in
+						states.1.completed = true
+						return states
+					}
+					
+					flush()
+				case .Interrupted:
+					onInterrupted()
+				}
+			}
 			
 			return disposable
 		}
@@ -824,19 +886,22 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attemptMap<U>(operation: T -> Result<U, E>) -> Signal<U, E> {
 		return Signal { observer in
-			self.observe(next: { value in
-				operation(value).analysis(ifSuccess: { value in
-					sendNext(observer, value)
-				}, ifFailure: { error in
+			self.observe { event in
+				switch event {
+				case let .Next(value):
+					operation(value).analysis(ifSuccess: { value in
+						sendNext(observer, value)
+						}, ifFailure: { error in
+							sendError(observer, error)
+					})
+				case let .Error(error):
 					sendError(observer, error)
-				})
-			}, error: { error in
-				sendError(observer, error)
-			}, completed: {
-				sendCompleted(observer)
-			}, interrupted: {
-				sendInterrupted(observer)
-			})
+				case .Completed:
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
+			}
 		}
 	}
 
@@ -1125,15 +1190,18 @@ extension SignalType where E: NoError {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func promoteErrors<F: ErrorType>(_: F.Type) -> Signal<T, F> {
 		return Signal { observer in
-			return self.observe(next: { value in
-				sendNext(observer, value)
-			}, completed: {
-				sendCompleted(observer)
-			}, interrupted: {
-				sendInterrupted(observer)
-			}, error: { _ in
-				fatalError("NoError is impossible to construct")
-			})
+			return self.observe { event in
+				switch event {
+				case let .Next(value):
+					sendNext(observer, value)
+				case .Error(_):
+					fatalError("NoError is impossible to construct")
+				case .Completed:
+					sendCompleted(observer)
+				case .Interrupted:
+					sendInterrupted(observer)
+				}
+			}
 		}
 	}
 }

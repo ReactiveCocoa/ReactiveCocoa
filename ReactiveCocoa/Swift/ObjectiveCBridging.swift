@@ -92,13 +92,18 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACS
 /// Any `Interrupted` events will be silently discarded.
 public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
-		let selfDisposable = producer.start(next: { value in
-			subscriber.sendNext(value)
-		}, error: { error in
-			subscriber.sendError(error as NSError)
-		}, completed: {
-			subscriber.sendCompleted()
-		})
+		let selfDisposable = producer.start { event in
+			switch event {
+			case let .Next(value):
+				subscriber.sendNext(value)
+			case let .Error(error):
+				subscriber.sendError(error as NSError)
+			case .Completed:
+				subscriber.sendCompleted()
+			default:
+				break
+			}
+		}
 
 		return RACDisposable {
 			selfDisposable.dispose()
@@ -118,14 +123,19 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
 /// Any `Interrupted` event will be silently discarded.
 public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
-		let selfDisposable = signal.observe(next: { value in
-			subscriber.sendNext(value)
-		}, error: { error in
-			subscriber.sendError(error as NSError)
-		}, completed: {
-			subscriber.sendCompleted()
-		})
-
+		let selfDisposable = signal.observe { event in
+			switch event {
+			case let .Next(value):
+				subscriber.sendNext(value)
+			case let .Error(error):
+				subscriber.sendError(error as NSError)
+			case .Completed:
+				subscriber.sendCompleted()
+			default:
+				break
+			}
+		}
+		
 		return RACDisposable {
 			selfDisposable?.dispose()
 		}

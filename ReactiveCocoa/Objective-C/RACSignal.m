@@ -186,7 +186,7 @@
 
 - (RACSignal *)concat:(RACSignal *)signal {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
+		RACCompoundDisposable *compoundDisposable = [[RACCompoundDisposable alloc] init];
 
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -194,11 +194,11 @@
 			[subscriber sendError:error];
 		} completed:^{
 			RACDisposable *concattedDisposable = [signal subscribe:subscriber];
-			serialDisposable.disposable = concattedDisposable;
+			[compoundDisposable addDisposable:concattedDisposable];
 		}];
 
-		serialDisposable.disposable = sourceDisposable;
-		return serialDisposable;
+		[compoundDisposable addDisposable:sourceDisposable];
+		return compoundDisposable;
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 

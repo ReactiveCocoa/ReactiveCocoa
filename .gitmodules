@@ -6,7 +6,7 @@
 	url = https://github.com/Quick/Quick.git
 [submodule "Carthage/Checkouts/xcconfigs"]
 	path = Carthage/Checkouts/xcconfigs
-	url = https://github.com/jspahrsummers/xcconfigs.git
+	url = https://github.com/nachosoto/xcconfigs.git
 [submodule "Carthage/Checkouts/Result"]
 	path = Carthage/Checkouts/Result
 	url = https://github.com/antitypical/Result.git

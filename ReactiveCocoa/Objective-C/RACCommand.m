@@ -145,15 +145,14 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	if (enabledSignal == nil) {
 		enabledSignal = [RACSignal return:@YES];
 	} else {
-		enabledSignal = [[[enabledSignal
-			startWith:@YES]
-			takeUntil:self.rac_willDeallocSignal]
-			replayLast];
+		enabledSignal = [enabledSignal startWith:@YES];
 	}
 	
-	_immediateEnabled = [[RACSignal
+	_immediateEnabled = [[[[RACSignal
 		combineLatest:@[ enabledSignal, moreExecutionsAllowed ]]
-		and];
+		and]
+		takeUntil:self.rac_willDeallocSignal]
+		replayLast];
 	
 	_enabled = [[[[[self.immediateEnabled
 		take:1]

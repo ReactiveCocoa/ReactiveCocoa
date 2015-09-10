@@ -32,6 +32,9 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 /// A subject that sends added execution signals.
 @property (nonatomic, strong, readonly) RACSubject *addedExecutionSignalsSubject;
 
+/// A subject that sends added execution signals.
+@property (nonatomic, strong, readonly) RACSubject *allowsConcurrentExecutionSubject;
+
 // `enabled`, but without a hop to the main thread.
 //
 // Values from this signal may arrive on any thread.
@@ -51,15 +54,13 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 }
 
 - (void)setAllowsConcurrentExecution:(BOOL)allowed {
-	[self willChangeValueForKey:@keypath(self.allowsConcurrentExecution)];
-
 	if (allowed) {
 		OSAtomicOr32Barrier(1, &_allowsConcurrentExecution);
 	} else {
 		OSAtomicAnd32Barrier(0, &_allowsConcurrentExecution);
 	}
 
-	[self didChangeValueForKey:@keypath(self.allowsConcurrentExecution)];
+	[self.allowsConcurrentExecutionSubject sendNext:@(_allowsConcurrentExecution)];
 }
 
 #pragma mark Lifecycle
@@ -75,6 +76,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 - (void)dealloc {
 	[_addedExecutionSignalsSubject sendCompleted];
+	[_allowsConcurrentExecutionSubject sendCompleted];
 }
 
 - (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(id input))signalBlock {
@@ -84,6 +86,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	if (self == nil) return nil;
 
 	_addedExecutionSignalsSubject = [RACSubject new];
+	_allowsConcurrentExecutionSubject = [RACSubject new];
 	_signalBlock = [signalBlock copy];
 
 	_executionSignals = [[[self.addedExecutionSignalsSubject
@@ -136,9 +139,9 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		distinctUntilChanged]
 		replayLast]
 		setNameWithFormat:@"%@ -executing", self];
-
+	
 	RACSignal *moreExecutionsAllowed = [RACSignal
-		if:RACObserve(self, allowsConcurrentExecution)
+		if:[self.allowsConcurrentExecutionSubject startWith:@NO]
 		then:[RACSignal return:@YES]
 		else:[immediateExecuting not]];
 	
@@ -195,14 +198,6 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 	[connection connect];
 	return [connection.signal setNameWithFormat:@"%@ -execute: %@", self, RACDescription(input)];
-}
-
-#pragma mark NSKeyValueObserving
-
-+ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
-	// Generate all KVO notifications manually to avoid the performance impact
-	// of unnecessary swizzling.
-	return NO;
 }
 
 @end

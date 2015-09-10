@@ -32,7 +32,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 /// A subject that sends added execution signals.
 @property (nonatomic, strong, readonly) RACSubject *addedExecutionSignalsSubject;
 
-/// A subject that sends added execution signals.
+/// A subject that sends the new value of `allowsConcurrentExecution` whenever it changes.
 @property (nonatomic, strong, readonly) RACSubject *allowsConcurrentExecutionSubject;
 
 // `enabled`, but without a hop to the main thread.

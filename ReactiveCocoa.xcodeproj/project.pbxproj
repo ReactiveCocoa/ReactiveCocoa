@@ -33,7 +33,6 @@
 		A9B315731B3940750001CB9C /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645119EDA41200A782A9 /* NSString+RACKeyPathUtilities.m */; };
 		A9B315741B3940750001CB9C /* NSString+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645319EDA41200A782A9 /* NSString+RACSequenceAdditions.m */; };
 		A9B315751B3940750001CB9C /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645519EDA41200A782A9 /* NSString+RACSupport.m */; };
-		A9B315771B3940750001CB9C /* NSURLConnection+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645919EDA41200A782A9 /* NSURLConnection+RACSupport.m */; };
 		A9B315781B3940750001CB9C /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m */; };
 		A9B315791B3940750001CB9C /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645D19EDA41200A782A9 /* RACArraySequence.m */; };
 		A9B3157A1B3940750001CB9C /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037646119EDA41200A782A9 /* RACBehaviorSubject.m */; };
@@ -116,7 +115,6 @@
 		A9B315E21B3940AB0001CB9C /* NSSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037644E19EDA41200A782A9 /* NSSet+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B315E41B3940AB0001CB9C /* NSString+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645219EDA41200A782A9 /* NSString+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B315E51B3940AB0001CB9C /* NSString+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645419EDA41200A782A9 /* NSString+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A9B315E71B3940AB0001CB9C /* NSURLConnection+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645819EDA41200A782A9 /* NSURLConnection+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B315E81B3940AB0001CB9C /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645A19EDA41200A782A9 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B315EA1B3940AB0001CB9C /* RACBehaviorSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646019EDA41200A782A9 /* RACBehaviorSubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B315EC1B3940AB0001CB9C /* RACChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646419EDA41200A782A9 /* RACChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1511,7 +1509,6 @@
 				A9B315E21B3940AB0001CB9C /* NSSet+RACSequenceAdditions.h in Headers */,
 				A9B315E41B3940AB0001CB9C /* NSString+RACSequenceAdditions.h in Headers */,
 				A9B315E51B3940AB0001CB9C /* NSString+RACSupport.h in Headers */,
-				A9B315E71B3940AB0001CB9C /* NSURLConnection+RACSupport.h in Headers */,
 				A9B315E81B3940AB0001CB9C /* NSUserDefaults+RACSupport.h in Headers */,
 				A9B315EA1B3940AB0001CB9C /* RACBehaviorSubject.h in Headers */,
 				A9B315EC1B3940AB0001CB9C /* RACChannel.h in Headers */,
@@ -1902,7 +1899,6 @@
 				A9B315731B3940750001CB9C /* NSString+RACKeyPathUtilities.m in Sources */,
 				A9B315741B3940750001CB9C /* NSString+RACSequenceAdditions.m in Sources */,
 				A9B315751B3940750001CB9C /* NSString+RACSupport.m in Sources */,
-				A9B315771B3940750001CB9C /* NSURLConnection+RACSupport.m in Sources */,
 				A9B315781B3940750001CB9C /* NSUserDefaults+RACSupport.m in Sources */,
 				A9B315791B3940750001CB9C /* RACArraySequence.m in Sources */,
 				A9B3157A1B3940750001CB9C /* RACBehaviorSubject.m in Sources */,
@@ -2313,6 +2309,7 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
@@ -2328,6 +2325,7 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
@@ -2343,6 +2341,7 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
@@ -2358,6 +2357,7 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
@@ -2461,9 +2461,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
@@ -2474,9 +2475,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
@@ -2556,9 +2558,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
@@ -2624,9 +2627,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;

@@ -25,9 +25,10 @@
 
 @end
 
-@interface NSObject (RACUnavailableDeallocating)
+@interface NSObject (RACDeallocatingDeprecated)
 
-- (RACSignal *)rac_didDeallocSignal __attribute__((unavailable("Use -rac_willDeallocSignal")));
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable __attribute__((unavailable("Add disposables to -rac_deallocDisposable instead")));
+- (RACSignal *)rac_didDeallocSignal __attribute__((deprecated("Use -rac_willDeallocSignal")));
+
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable __attribute__((deprecated("Add disposables to -rac_deallocDisposable instead")));
 
 @end

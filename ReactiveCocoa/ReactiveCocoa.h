@@ -31,9 +31,6 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/NSString+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSString+RACSupport.h>
 #import <ReactiveCocoa/NSIndexSet+RACSequenceAdditions.h>
-#if TARGET_OS_IOS
-#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
-#endif
 #import <ReactiveCocoa/NSUserDefaults+RACSupport.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACChannel.h>
@@ -85,9 +82,11 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 	#import <ReactiveCocoa/UITableViewHeaderFooterView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
+	#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #elif TARGET_OS_MAC
 	#import <ReactiveCocoa/NSControl+RACCommandSupport.h>
 	#import <ReactiveCocoa/NSControl+RACTextSignalSupport.h>
 	#import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
 	#import <ReactiveCocoa/NSText+RACSignalSupport.h>
+	#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #endif

@@ -54,6 +54,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 }
 
 - (void)setAllowsConcurrentExecution:(BOOL)allowed {
+	[self willChangeValueForKey:@keypath(self.allowsConcurrentExecution)];
+	
 	if (allowed) {
 		OSAtomicOr32Barrier(1, &_allowsConcurrentExecution);
 	} else {
@@ -61,6 +63,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	}
 
 	[self.allowsConcurrentExecutionSubject sendNext:@(_allowsConcurrentExecution)];
+	
+	[self didChangeValueForKey:@keypath(self.allowsConcurrentExecution)];
 }
 
 #pragma mark Lifecycle

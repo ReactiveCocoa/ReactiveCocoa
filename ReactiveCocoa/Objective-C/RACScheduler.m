@@ -210,18 +210,3 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 }
 
 @end
-
-@implementation RACScheduler (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
-	NSCParameterAssert(queue != NULL);
-
-	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:queue];
-}
-
-#pragma clang diagnostic pop
-
-@end

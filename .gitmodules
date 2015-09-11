@@ -9,4 +9,4 @@
 	url = https://github.com/nachosoto/xcconfigs.git
 [submodule "Carthage/Checkouts/Result"]
 	path = Carthage/Checkouts/Result
-	url = https://github.com/antitypical/Result.git
+	url = https://github.com/nachosoto/Result.git

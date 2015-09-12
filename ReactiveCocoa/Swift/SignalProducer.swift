@@ -1038,7 +1038,7 @@ extension SignalProducerType {
 	}
 
 	/// Starts the producer, then blocks, waiting for the first value.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	@warn_unused_result(message="Did you forget to check the result?")
 	public func first() -> Result<T, E>? {
 		return take(1).single()
 	}
@@ -1047,7 +1047,7 @@ extension SignalProducerType {
 	/// When a single value or error is sent, the returned `Result` will represent
 	/// those cases. However, when no values are sent, or when more than one value
 	/// is sent, `nil` will be returned.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	@warn_unused_result(message="Did you forget to check the result?")
 	public func single() -> Result<T, E>? {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: Result<T, E>?
@@ -1074,13 +1074,13 @@ extension SignalProducerType {
 	}
 
 	/// Starts the producer, then blocks, waiting for the last value.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	@warn_unused_result(message="Did you forget to check the result?")
 	public func last() -> Result<T, E>? {
 		return takeLast(1).single()
 	}
 
 	/// Starts the producer, then blocks, waiting for completion.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	@warn_unused_result(message="Did you forget to check the result?")
 	public func wait() -> Result<(), E> {
 		return then(SignalProducer<(), E>(value: ())).last() ?? .Success(())
 	}

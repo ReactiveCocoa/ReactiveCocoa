@@ -62,6 +62,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/RACUnit.h>
 
 #if TARGET_OS_WATCH
+#elif TARGET_OS_TV
 #elif TARGET_OS_IPHONE
 	#import <ReactiveCocoa/MKAnnotationView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIActionSheet+RACSignalSupport.h>

@@ -245,6 +245,22 @@ qck_it(@"should wait for all signals to complete or error before executing sends
 	expect([command.executing first]).toEventually(equal(@NO));
 });
 
+qck_it(@"should have allowsConcurrentExecution be observable", ^{
+	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+		return signal;
+	}];
+	
+	RACSubject *completion = [RACSubject subject];
+	RACSignal *allowsConcurrentExecution = [[RACObserve(command, allowsConcurrentExecution)
+		takeUntil:completion]
+		replayLast];
+	
+	command.allowsConcurrentExecution = YES;
+	
+	expect([allowsConcurrentExecution first]).to(beTrue());
+	[completion sendCompleted];
+});
+
 qck_it(@"should not deliver errors from executionSignals", ^{
 	RACSubject *subject = [RACSubject subject];
 	NSMutableArray *receivedEvents = [NSMutableArray array];

@@ -45,7 +45,6 @@
 		57A4D1D21BA13D7A00F7D4B1 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645119EDA41200A782A9 /* NSString+RACKeyPathUtilities.m */; };
 		57A4D1D31BA13D7A00F7D4B1 /* NSString+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645319EDA41200A782A9 /* NSString+RACSequenceAdditions.m */; };
 		57A4D1D41BA13D7A00F7D4B1 /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645519EDA41200A782A9 /* NSString+RACSupport.m */; };
-		57A4D1D51BA13D7A00F7D4B1 /* NSURLConnection+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645919EDA41200A782A9 /* NSURLConnection+RACSupport.m */; };
 		57A4D1D61BA13D7A00F7D4B1 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m */; };
 		57A4D1D71BA13D7A00F7D4B1 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D037645D19EDA41200A782A9 /* RACArraySequence.m */; };
 		57A4D1D81BA13D7A00F7D4B1 /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037646119EDA41200A782A9 /* RACBehaviorSubject.m */; };
@@ -115,7 +114,6 @@
 		57A4D21A1BA13D7A00F7D4B1 /* NSSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037644E19EDA41200A782A9 /* NSSet+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57A4D21B1BA13D7A00F7D4B1 /* NSString+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645219EDA41200A782A9 /* NSString+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57A4D21C1BA13D7A00F7D4B1 /* NSString+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645419EDA41200A782A9 /* NSString+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		57A4D21D1BA13D7A00F7D4B1 /* NSURLConnection+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645819EDA41200A782A9 /* NSURLConnection+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57A4D21E1BA13D7A00F7D4B1 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D037645A19EDA41200A782A9 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57A4D21F1BA13D7A00F7D4B1 /* RACBehaviorSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646019EDA41200A782A9 /* RACBehaviorSubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57A4D2201BA13D7A00F7D4B1 /* RACChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646419EDA41200A782A9 /* RACChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1671,7 +1669,6 @@
 				57A4D21A1BA13D7A00F7D4B1 /* NSSet+RACSequenceAdditions.h in Headers */,
 				57A4D21B1BA13D7A00F7D4B1 /* NSString+RACSequenceAdditions.h in Headers */,
 				57A4D21C1BA13D7A00F7D4B1 /* NSString+RACSupport.h in Headers */,
-				57A4D21D1BA13D7A00F7D4B1 /* NSURLConnection+RACSupport.h in Headers */,
 				57A4D21E1BA13D7A00F7D4B1 /* NSUserDefaults+RACSupport.h in Headers */,
 				57A4D21F1BA13D7A00F7D4B1 /* RACBehaviorSubject.h in Headers */,
 				57A4D2201BA13D7A00F7D4B1 /* RACChannel.h in Headers */,
@@ -2143,7 +2140,6 @@
 				57A4D1D21BA13D7A00F7D4B1 /* NSString+RACKeyPathUtilities.m in Sources */,
 				57A4D1D31BA13D7A00F7D4B1 /* NSString+RACSequenceAdditions.m in Sources */,
 				57A4D1D41BA13D7A00F7D4B1 /* NSString+RACSupport.m in Sources */,
-				57A4D1D51BA13D7A00F7D4B1 /* NSURLConnection+RACSupport.m in Sources */,
 				57A4D1D61BA13D7A00F7D4B1 /* NSUserDefaults+RACSupport.m in Sources */,
 				57A4D1D71BA13D7A00F7D4B1 /* RACArraySequence.m in Sources */,
 				57A4D1D81BA13D7A00F7D4B1 /* RACBehaviorSubject.m in Sources */,

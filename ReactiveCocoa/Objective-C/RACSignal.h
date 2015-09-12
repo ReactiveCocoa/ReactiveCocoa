@@ -210,10 +210,10 @@
 
 @end
 
-@interface RACSignal (Unavailable)
+@interface RACSignal (Deprecated)
 
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
 
 @end

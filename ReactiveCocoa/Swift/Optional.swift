@@ -9,10 +9,10 @@
 /// An optional protocol for use in type constraints.
 public protocol OptionalType {
 	/// The type contained in the otpional.
-	typealias T
+	typealias Wrapped
 
 	/// Extracts an optional from the receiver.
-	var optional: T? { get }
+	var optional: Wrapped? { get }
 }
 
 extension Optional: OptionalType {

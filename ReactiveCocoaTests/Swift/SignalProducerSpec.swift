@@ -1573,13 +1573,13 @@ class SignalProducerSpec: QuickSpec {
 extension SignalProducer {
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
-	private static func attemptWithResults<C: CollectionType where C.Generator.Element == Result<T, E>, C.Index.Distance == Int>(results: C) -> SignalProducer<T, E> {
+	private static func attemptWithResults<C: CollectionType where C.Generator.Element == Result<Value, Error>, C.Index.Distance == Int>(results: C) -> SignalProducer<Value, Error> {
 		let resultCount = results.count
 		var operationIndex = 0
 
 		precondition(resultCount > 0)
 
-		let operation: () -> Result<T, E> = {
+		let operation: () -> Result<Value, Error> = {
 			if operationIndex < resultCount {
 				return results[results.startIndex.advancedBy(operationIndex++)]
 			} else {

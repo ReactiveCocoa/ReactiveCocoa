@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import CoreFoundation
-
 /// A uniquely identifying token for removing a value that was inserted into a
 /// Bag.
 internal final class RemovalToken {

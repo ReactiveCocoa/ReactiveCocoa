@@ -6,8 +6,6 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
-import Result
-
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:

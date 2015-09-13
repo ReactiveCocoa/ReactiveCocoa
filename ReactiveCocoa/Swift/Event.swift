@@ -10,13 +10,13 @@
 ///
 /// Signals must conform to the grammar:
 /// `Next* (Error | Completed | Interrupted)?`
-public enum Event<Value, E: ErrorType> {
+public enum Event<Value, Err: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Value)
 
 	/// The signal terminated because of an error. No further events will be
 	/// received.
-	case Error(E)
+	case Error(Err)
 
 	/// The signal successfully terminated. No further events will be received.
 	case Completed
@@ -46,7 +46,7 @@ public enum Event<Value, E: ErrorType> {
 	}
 
 	/// Lifts the given function over the event's value.
-	public func map<U>(f: Value -> U) -> Event<U, E> {
+	public func map<U>(f: Value -> U) -> Event<U, Err> {
 		switch self {
 		case let .Next(value):
 			return .Next(f(value))
@@ -63,7 +63,7 @@ public enum Event<Value, E: ErrorType> {
 	}
 
 	/// Lifts the given function over the event's error.
-	public func mapError<F>(f: E -> F) -> Event<Value, F> {
+	public func mapError<F>(f: Err -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):
 			return .Next(value)
@@ -90,7 +90,7 @@ public enum Event<Value, E: ErrorType> {
 	}
 
 	/// Unwraps the contained `Error` value.
-	public var error: E? {
+	public var error: Err? {
 		switch self {
 		case let .Error(error):
 			return error
@@ -101,7 +101,7 @@ public enum Event<Value, E: ErrorType> {
 	
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
-	public static func sink(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (Value -> ())? = nil) -> Sink {
+	public static func sink(error error: (Err -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (Value -> ())? = nil) -> Sink {
 		return { event in
 			switch event {
 			case let .Next(value):
@@ -168,7 +168,7 @@ public protocol EventType {
 }
 
 extension Event: EventType {
-	public var event: Event<Value, E> {
+	public var event: Event<Value, Err> {
 		return self
 	}
 }

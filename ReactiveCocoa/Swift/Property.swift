@@ -68,7 +68,7 @@ public protocol MutablePropertyType: class, PropertyType {
 	var value: Value { get set }
 }
 
-/// A mutable property of type T that allows observation of its changes.
+/// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyType {

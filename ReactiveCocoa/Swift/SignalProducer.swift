@@ -1,8 +1,8 @@
 import Result
 
-/// A SignalProducer creates Signals that can produce values of type `T` and/or
-/// error out with errors of type `E`. If no errors should be possible, NoError
-/// can be specified for `E`.
+/// A SignalProducer creates Signals that can produce values of type `Value` and/or
+/// error out with errors of type `Error`. If no errors should be possible, NoError
+/// can be specified for `Error`.
 ///
 /// SignalProducers can be used to represent operations or tasks, like network
 /// requests, where each invocation of start() will create a new underlying
@@ -611,7 +611,7 @@ extension SignalProducer where Value: EventType, Error: NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func dematerialize() -> SignalProducer<Value.Value, Value.E> {
+	public func dematerialize() -> SignalProducer<Value.Value, Value.Err> {
 		return lift { $0.dematerialize() }
 	}
 }
@@ -807,7 +807,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func combineLatest<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(producers: S) -> SignalProducer<[T], Error> {
+public func combineLatest<S: SequenceType, Value, Error where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
 	var generator = producers.generate()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }
@@ -901,7 +901,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalProducer<T, Error>>(producers: S) -> SignalProducer<[T], Error> {
+public func zip<S: SequenceType, Value, Error where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
 	var generator = producers.generate()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }

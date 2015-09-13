@@ -1,8 +1,8 @@
 import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
-/// of values being sent (`T`) and the type of error that can occur (`E`). If no
-/// errors should be possible, NoError can be specified for `E`.
+/// of values being sent (`Value`) and the type of error that can occur (`Error`).
+/// If no errors should be possible, NoError can be specified for `Error`.
 ///
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the
@@ -343,22 +343,22 @@ extension Signal where Value: SignalProducerType, Error == Value.Error {
 	}
 }
 
-private final class ConcatState<T, E: ErrorType> {
+private final class ConcatState<Value, Error: ErrorType> {
 	/// The observer of a started `concat` producer.
-	let observer: Signal<T, E>.Observer
+	let observer: Signal<Value, Error>.Observer
 
 	/// The top level disposable of a started `concat` producer.
 	let disposable: CompositeDisposable
 
 	/// The active producer, if any, and the producers waiting to be started.
-	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+	let queuedSignalProducers: Atomic<[SignalProducer<Value, Error>]> = Atomic([])
 
-	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
+	init(observer: Signal<Value, Error>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
 		self.disposable = disposable
 	}
 
-	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+	func enqueueSignalProducer(producer: SignalProducer<Value, Error>) {
 		if disposable.disposed {
 			return
 		}
@@ -378,12 +378,12 @@ private final class ConcatState<T, E: ErrorType> {
 		}
 	}
 
-	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+	func dequeueSignalProducer() -> SignalProducer<Value, Error>? {
 		if disposable.disposed {
 			return nil
 		}
 
-		var nextSignalProducer: SignalProducer<T, E>?
+		var nextSignalProducer: SignalProducer<Value, Error>?
 
 		queuedSignalProducers.modify { (var queue) in
 			// Active producers remain in the queue until completed. Since
@@ -398,7 +398,7 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 
 	/// Subscribes to the given signal producer.
-	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+	func startNextSignalProducer(signalProducer: SignalProducer<Value, Error>) {
 		signalProducer.startWithSignal { signal, disposable in
 			let handle = self.disposable.addDisposable(disposable)
 
@@ -561,7 +561,7 @@ extension Signal where Value: SignalProducerType, Error == Value.Error {
 	}
 }
 
-private struct LatestState<T, E: ErrorType> {
+private struct LatestState<Value, Error: ErrorType> {
 	var outerSignalComplete: Bool = false
 	var innerSignalComplete: Bool = true
 	
@@ -800,8 +800,8 @@ extension Signal where Value: EventType, Error: NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func dematerialize() -> Signal<Value.Value, Value.E> {
-		return Signal<Value.Value, Value.E> { observer in
+	public func dematerialize() -> Signal<Value.Value, Value.Err> {
+		return Signal<Value.Value, Value.Err> { observer in
 			return self.observe { event in
 				switch event {
 				case let .Next(innerEvent):

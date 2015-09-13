@@ -120,7 +120,7 @@ public enum Event<Value, Err: ErrorType> {
 	}
 }
 
-public func == <Value: Equatable, E: Equatable> (lhs: Event<Value, E>, rhs: Event<Value, E>) -> Bool {
+public func == <Value: Equatable, Err: Equatable> (lhs: Event<Value, Err>, rhs: Event<Value, Err>) -> Bool {
 	switch (lhs, rhs) {
 	case let (.Next(left), .Next(right)):
 		return left == right
@@ -162,9 +162,9 @@ public protocol EventType {
 	// The value type of an event.
 	typealias Value
 	/// The error type of an event. If errors aren't possible then `NoError` can be used.
-	typealias E: ErrorType
+	typealias Err: ErrorType
 	/// Extracts the event from the receiver.
-	var event: Event<Value, E> { get }
+	var event: Event<Value, Err> { get }
 }
 
 extension Event: EventType {
@@ -174,21 +174,21 @@ extension Event: EventType {
 }
 
 /// Puts a `Next` event into the given sink.
-public func sendNext<Value, E: ErrorType>(sink: Event<Value, E>.Sink, _ value: Value) {
+public func sendNext<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink, _ value: Value) {
 	sink(.Next(value))
 }
 
 /// Puts an `Error` event into the given sink.
-public func sendError<Value, E: ErrorType>(sink: Event<Value, E>.Sink, _ error: E) {
+public func sendError<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink, _ error: Err) {
 	sink(.Error(error))
 }
 
 /// Puts a `Completed` event into the given sink.
-public func sendCompleted<Value, E: ErrorType>(sink: Event<Value, E>.Sink) {
+public func sendCompleted<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink) {
 	sink(.Completed)
 }
 
 /// Puts a `Interrupted` event into the given sink.
-public func sendInterrupted<Value, E: ErrorType>(sink: Event<Value, E>.Sink) {
+public func sendInterrupted<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink) {
 	sink(.Interrupted)
 }

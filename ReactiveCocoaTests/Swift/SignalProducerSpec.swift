@@ -1304,7 +1304,7 @@ class SignalProducerSpec: QuickSpec {
 					fail("Invalid result: \(result)")
 				} else {
 					// Can't test for equality because Array<T> is not Equatable,
-					// and neither is Event<T, E>.
+					// and neither is Event<Value, Error>.
 					expect(result![0] == expectedEvents[0]).to(beTruthy())
 					expect(result![1] == expectedEvents[1]).to(beTruthy())
 					expect(result![2] == expectedEvents[2]).to(beTruthy())

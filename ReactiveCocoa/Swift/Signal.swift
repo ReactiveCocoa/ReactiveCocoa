@@ -307,10 +307,10 @@ extension Signal where T: SignalProducerType, E == T.E {
 
 			disposable += signal.observe { event in
 				switch event {
-				case .Next(let value):
+				case let .Next(value):
 					state.enqueueSignalProducer(value.producer)
 
-				case .Error(let error):
+				case let .Error(error):
 					sendError(observer, error)
 
 				case .Completed:

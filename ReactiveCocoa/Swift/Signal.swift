@@ -309,7 +309,6 @@ extension Signal where T: SignalProducerType, E == T.E {
 				switch event {
 				case .Next(let value):
 					state.enqueueSignalProducer(value.producer)
-					break
 
 				case .Error(let error):
 					sendError(observer, error)
@@ -324,7 +323,6 @@ extension Signal where T: SignalProducerType, E == T.E {
 						})
 
 					state.enqueueSignalProducer(completion)
-					break
 
 				case .Interrupted:
 					sendInterrupted(observer)

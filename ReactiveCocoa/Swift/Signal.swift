@@ -289,6 +289,19 @@ extension Signal where T: SignalProducerType, E == T.E {
 	}
 }
 
+extension Signal {
+	/// Maps each event from `signal` to a new producer, then flattens the
+	/// resulting producers (into a signal of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `signal` or any of the created producers emit an error, the returned
+	/// signal will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMap<U>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> Signal<U, E> {
+		return map(transform).flatten(strategy)
+	}
+}
+
 extension Signal where T: SignalProducerType, E == T.E {
 	/// Returns a signal which sends all the values from producer signal emitted from
 	/// `signal`, waiting until each inner producer completes before beginning to

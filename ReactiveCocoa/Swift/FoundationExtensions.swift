@@ -17,7 +17,7 @@ extension NSNotificationCenter {
 			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sendNext(observer, notification)
 			}
-			
+
 			disposable.addDisposable {
 				self.removeObserver(notificationObserver)
 			}
@@ -40,7 +40,7 @@ extension NSURLSession {
 					sendError(observer, error ?? defaultSessionError)
 				}
 			}
-			
+
 			disposable.addDisposable {
 				task.cancel()
 			}

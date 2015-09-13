@@ -316,13 +316,9 @@ extension Signal where T: SignalProducerType, E == T.E {
 				case .Completed:
 					// Add one last producer to the queue, whose sole job is to
 					// "turn out the lights" by completing `observer`.
-					let completion: SignalProducer<T.T, E> = SignalProducer<T.T, E>
-						.empty
-						.on(completed: {
-							sendCompleted(observer)
-						})
-
-					state.enqueueSignalProducer(completion)
+					state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
+						sendCompleted(observer)
+					}))
 
 				case .Interrupted:
 					sendInterrupted(observer)

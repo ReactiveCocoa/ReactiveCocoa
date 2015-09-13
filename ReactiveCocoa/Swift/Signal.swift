@@ -423,7 +423,7 @@ extension Signal where T: SignalProducerType, E == T.E {
 			let disposable = CompositeDisposable()
 			signal.observe { event in
 				switch event {
-				case .Next(let producer):
+				case let .Next(producer):
 					producer.startWithSignal { innerSignal, innerDisposable in
 						inFlight.modify { $0 + 1 }
 
@@ -444,7 +444,7 @@ extension Signal where T: SignalProducerType, E == T.E {
 						}
 					}
 
-				case .Error(let error):
+				case let .Error(error):
 					sendError(relayObserver, error)
 
 				case .Completed:

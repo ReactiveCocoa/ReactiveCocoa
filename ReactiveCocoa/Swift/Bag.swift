@@ -18,7 +18,7 @@ internal final class RemovalToken {
 
 /// An unordered, non-unique collection of values of type T.
 internal struct Bag<T> {
-	private var elements = [BagElement<T>]()
+	private var elements: [BagElement<T>] = []
 	private var currentIdentifier: UInt = 0
 
 	/// Inserts the given value in the collection, and returns a token that can

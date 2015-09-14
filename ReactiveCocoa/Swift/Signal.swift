@@ -563,12 +563,11 @@ private struct LatestState<T, E: ErrorType> {
 	var replacingInnerSignal: Bool = false
 }
 
-// Have to extend `Signal` directly to avoid a compiler crash.
-extension Signal where T: OptionalType {
+extension SignalType where T: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func ignoreNil() -> Signal<T.T, E> {
+	public func ignoreNil() -> Signal<T.Wrapped, E> {
 		return filter { $0.optional != nil }.map { $0.optional! }
 	}
 }
@@ -786,8 +785,7 @@ extension SignalType {
 	}
 }
 
-// Have to extend `Signal` directly to avoid a compiler crash.
-extension Signal where T: EventType, E: NoError {
+extension SignalType where T: EventType, E: NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")

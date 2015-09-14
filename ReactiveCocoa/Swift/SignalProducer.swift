@@ -602,7 +602,7 @@ extension SignalProducer where T: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func ignoreNil() -> SignalProducer<T.T, E> {
+	public func ignoreNil() -> SignalProducer<T.Wrapped, E> {
 		return lift { $0.ignoreNil() }
 	}
 }

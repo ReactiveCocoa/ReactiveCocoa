@@ -103,7 +103,7 @@ public final class Signal<T, E: ErrorType> {
 
 	/// Interrupts all observers and terminates the stream.
 	private func interrupt() {
-		if let observers = atomicObservers.swap(nil) {
+		if let observers = self.atomicObservers.swap(nil) {
 			for sink in observers {
 				sink(.Interrupted)
 			}
@@ -346,7 +346,7 @@ private final class ConcatState<T, E: ErrorType> {
 	let disposable: CompositeDisposable
 
 	/// The active producer, if any, and the producers waiting to be started.
-	let queuedSignalProducers = Atomic([SignalProducer<T, E>]())
+	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
@@ -608,7 +608,7 @@ extension SignalType {
 /// A reference type which wraps an array to avoid copying it for performance and
 /// memory usage optimization.
 private final class CollectState<T> {
-	var values = [T]()
+	var values: [T] = []
 
 	func append(value: T) -> Self {
 		values.append(value)
@@ -811,9 +811,9 @@ extension SignalType where T: EventType, E: NoError {
 }
 
 private struct SampleState<T> {
-	var latestValue: T?
-	var signalCompleted = false
-	var samplerCompleted = false
+	var latestValue: T? = nil
+	var signalCompleted: Bool = false
+	var samplerCompleted: Bool = false
 }
 
 extension SignalType {
@@ -1014,9 +1014,11 @@ extension SignalType {
 			let disposable = CompositeDisposable()
 
 			let signalDisposable = self.observe { event in
-				if case .Completed = event {
-					return
-				} else {
+				switch event {
+				case .Completed:
+					break
+
+				case .Next, .Error, .Interrupted:
 					observer(event)
 				}
 			}
@@ -1081,7 +1083,7 @@ extension SignalType {
 }
 
 private struct ZipState<T> {
-	var values = [T]()
+	var values: [T] = []
 	var completed = false
 
 	var isFinished: Bool {
@@ -1196,9 +1198,9 @@ extension SignalType {
 				case let .Next(value):
 					operation(value).analysis(ifSuccess: { value in
 						sendNext(observer, value)
-						}) { error in
+-						}, ifFailure: { error in
 							sendError(observer, error)
-					}
+					})
 				case let .Error(error):
 					sendError(observer, error)
 				case .Completed:

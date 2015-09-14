@@ -15,15 +15,15 @@ extension RACScheduler: DateSchedulerType {
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return self.schedule(action)
+		return schedule(action)
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return self.after(date, schedule: action)
+		return after(date, schedule: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
+		return after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
 
@@ -54,11 +54,11 @@ extension RACSignal {
 	/// each invocation of start().
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
-			let next = { (obj: AnyObject?) -> () in
+			let next = { obj in
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> () in
+			let error = { nsError in
 				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
@@ -74,7 +74,7 @@ extension RACSignal {
 private extension SignalType {
 	/// Turns each value into an Optional.
 	private func optionalize() -> Signal<T?, E> {
-		return signal.map { Optional($0) }
+		return signal.map(Optional.init)
 	}
 }
 
@@ -135,7 +135,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 				break
 			}
 		}
-		
+
 		return RACDisposable {
 			selfDisposable?.dispose()
 		}

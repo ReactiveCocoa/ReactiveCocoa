@@ -346,7 +346,7 @@ private final class ConcatState<T, E: ErrorType> {
 	let disposable: CompositeDisposable
 
 	/// The active producer, if any, and the producers waiting to be started.
-	let queuedSignalProducers: Atomic<[SignalProducer<T, E>]> = Atomic([])
+	let queuedSignalProducers = Atomic([SignalProducer<T, E>]())
 
 	init(observer: Signal<T, E>.Observer, disposable: CompositeDisposable) {
 		self.observer = observer
@@ -969,7 +969,7 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats(isRepeat: (T, T) -> Bool) -> Signal<T, E> {
 		return signal
-			.map { Optional($0) }
+			.map(Optional.init)
 			.combinePrevious(nil)
 			.filter { a, b in
 				if let a = a, b = b where isRepeat(a, b) {

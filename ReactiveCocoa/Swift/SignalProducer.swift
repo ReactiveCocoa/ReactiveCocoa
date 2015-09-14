@@ -975,16 +975,14 @@ extension SignalProducerType {
 					serialDisposable.innerDisposable = signalDisposable
 
 					signal.observe { event in
-						switch event {
-						case .Completed:
+						if case .Completed = event {
 							let remainingTimes = current - 1
 							if remainingTimes > 0 {
 								iterate(remainingTimes)
 							} else {
 								sendCompleted(observer)
 							}
-
-						default:
+						} else {
 							observer(event)
 						}
 					}

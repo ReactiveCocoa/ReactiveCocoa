@@ -21,7 +21,7 @@ internal final class Atomic<T> {
 			return v
 		}
 
-		set {
+		set(newValue) {
 			lock()
 			_value = newValue
 			unlock()

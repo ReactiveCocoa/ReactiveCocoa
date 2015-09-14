@@ -15,15 +15,15 @@ extension RACScheduler: DateSchedulerType {
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return schedule(action)
+		return self.schedule(action)
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return after(date, schedule: action)
+		return self.after(date, schedule: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
+		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
 

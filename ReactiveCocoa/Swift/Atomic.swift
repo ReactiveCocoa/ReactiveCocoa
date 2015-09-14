@@ -8,7 +8,7 @@
 
 /// An atomic variable.
 internal final class Atomic<T> {
-	private var spinlock = OS_SPINLOCK_INIT
+	private var spinLock = OS_SPINLOCK_INIT
 	private var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
@@ -20,27 +20,27 @@ internal final class Atomic<T> {
 
 			return v
 		}
-	
-		set(newValue) {
+
+		set {
 			lock()
 			_value = newValue
 			unlock()
 		}
 	}
-	
+
 	/// Initializes the variable with the given initial value.
 	init(_ value: T) {
 		_value = value
 	}
-	
+
 	private func lock() {
-		withUnsafeMutablePointer(&spinlock, OSSpinLockLock)
+		OSSpinLockLock(&spinLock)
 	}
-	
+
 	private func unlock() {
-		withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock)
+		OSSpinLockUnlock(&spinLock)
 	}
-	
+
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
@@ -59,7 +59,7 @@ internal final class Atomic<T> {
 		
 		return oldValue
 	}
-	
+
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///

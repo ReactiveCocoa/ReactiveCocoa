@@ -1,4 +1,7 @@
-# 4.0 (alpha-1)
+# 4.0 
+
+**The RAC 4 APIs are work in progress**. There may be significant breaking
+changes in later alphas so be prepared for that before taking a dependency.
 
 If you're new to the Swift API and migrating from RAC 2, start with the
 [3.0 changes](#30). This section only covers the differences between 3.0 and
@@ -6,6 +9,8 @@ If you're new to the Swift API and migrating from RAC 2, start with the
 
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
+
+## Alpha 1
 
 #### Signal operators are protocol extensions
 
@@ -51,6 +56,8 @@ no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
 completely from RAC 4.
 
 #### Replacements for the start and observer overloads
+
+_These are likely to see further changes in a later alpha_
 
 The `observe` and `start` overloads taking `next`, `error`, etc. optional
 function parameters have been removed. This was necessitated by the change to

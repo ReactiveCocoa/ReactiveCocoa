@@ -51,6 +51,13 @@ completed from RAC4.
 
 #### Replacements for the start and observer overloads
 
+The `observe` and `start` overloads taking `next`, `error`, etc. optional
+function parameters have been removed. This was necessitated by the change to
+`Event.Sink` becoming a function type which introduced an unresolvable
+ambiguity. They've been replaced with methods taking a single function with
+the target `Event` case -- `observeNext`, `startWithNext`, and the same for
+error and completed. See #2311 and #2318 for more details.
+
 #### Renamed try and catch operators
 
 #### Renaming T and E generic parameters

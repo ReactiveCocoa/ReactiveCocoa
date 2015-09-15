@@ -110,10 +110,10 @@ run_xctool ()
 {
     if [ -n "$XCWORKSPACE" ]
     then
-        xctool -workspace "$XCWORKSPACE" $XCTOOL_OPTIONS "$@" 2>&1
+        xcodebuild -workspace "$XCWORKSPACE" $XCTOOL_OPTIONS "$@" 2>&1
     elif [ -n "$XCODEPROJ" ]
     then
-        xctool -project "$XCODEPROJ" $XCTOOL_OPTIONS "$@" 2>&1
+        xcodebuild -project "$XCODEPROJ" $XCTOOL_OPTIONS "$@" 2>&1
     else
         echo "*** No workspace or project file found."
         exit 1

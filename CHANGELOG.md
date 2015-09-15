@@ -1,32 +1,33 @@
 # 4.0 (alpha-1)
 
-If you're new to the Swift API and migrating from RAC2, starting with the [3.0
-changes](#30). This section only covers the differences when between 3.0 and
-4.0.
+If you're new to the Swift API and migrating from RAC 2, starting with the
+[3.0 changes](#30). This section only covers the differences when between 3.0
+and 4.0.
 
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
 
 #### Signal operators are protocol extensions
 
-The biggest change from RAC3 to RAC4 is that signal and producer operators are
-implemented as protocol extensions instead of global functions. This is similar
-to many of the collection protocol changes in the Swift 2 standard library.
+The biggest change from RAC 3 to RAC 4 is that signal and producer operators
+are implemented as protocol extensions instead of global functions. This is
+similar to many of the collection protocol changes in the Swift 2 standard
+library.
 
 This enables chaining signal operators with normal dot-method calling syntax.
 Previously the custom `|>` was required to enable chaining global functions
 without a mess of nested calls and parenthesis.
 
 ```swift
-/// RAC3
+/// RAC 3
 signal |> filter { $0 % 2 == 0 } |> map { $0 * $0 } |> observe { print($0) }
 
-/// RAC4
+/// RAC 4
 signal.filter { $0 % 2 == 0 } .map { $0 * $0 } .observe { print($0) }
 ```
 
 Additionally, this means that `SignalProducer` operators are less "magic". In
-RAC3 the `Signal` operators were implicitly lifted to work on `SignalProducer`
+RAC 3 the `Signal` operators were implicitly lifted to work on `SignalProducer`
 via `|>`. This was a point of confusion for some, especially when browsing the
 source looking for these operators. Now as protocol extensions, the
 `SignalProducer` operators are explicitly implementated in terms of their
@@ -47,7 +48,7 @@ function `Event -> ()`.
 
 The improvements to associated enum values in Swift 2 mean that `Event` cases
 no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
-completed from RAC4.
+completed from RAC 4.
 
 #### Replacements for the start and observer overloads
 

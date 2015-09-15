@@ -995,17 +995,13 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipWhile(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
-			var shouldSkip = true
+			var sendNext = false
 
 			return self.observe { event in
-				switch event {
-				case let .Next(value):
-					shouldSkip = shouldSkip && predicate(value)
-					if !shouldSkip {
-						fallthrough
-					}
-
-				default:
+				if case let .Next(value) = event where sendNext || !predicate(value) {
+					sendNext = true
+					observer(event)
+				} else {
 					observer(event)
 				}
 			}

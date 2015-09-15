@@ -1,6 +1,6 @@
 # 4.0 (alpha-1)
 
-If you're new to the Swift API and migrating from RAC 2, starting with the
+If you're new to the Swift API and migrating from RAC 2, start with the
 [3.0 changes](#30). This section only covers the differences when between 3.0
 and 4.0.
 

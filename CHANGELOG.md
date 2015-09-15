@@ -60,6 +60,11 @@ error and completed. See #2311 and #2318 for more details.
 
 #### Renamed try and catch operators
 
+The `try` and `catch` operators were renamed because of the addition of the
+error handling keywords with the same name. They are now `attempt` and
+`flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for
+consistency.
+
 #### Renaming T and E generic parameters
 
 Coming Soon to a later alpha near you.

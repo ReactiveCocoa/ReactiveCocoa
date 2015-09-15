@@ -1,3 +1,20 @@
+# 4.0 Alpha
+
+Start with the [3.0 changes](#3.0) if you're new to the Swift API. This section
+covers the the differences between 3.0 and 4.0.
+
+ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
+differences from Swift 1.2 to provide a cleaner API.
+
+### Operators are now protocol extensions
+
+### Removal of `|>` operator
+
+### Changes to start and observer overloads
+
+### Renaming `T` and `E` generic parameters (WIP)
+
+
 # 3.0
 
 ReactiveCocoa 3.0 includes the first official Swift API, which is intended to

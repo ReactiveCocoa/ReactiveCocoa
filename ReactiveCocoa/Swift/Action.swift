@@ -51,7 +51,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// the input to suit your needs.
 	public lazy var unsafeCocoaAction: CocoaAction = { _ in
 		CocoaAction(self) { $0 as! Input }
-		}()
+	}()
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.

@@ -164,12 +164,12 @@ public final class ScopedDisposable: Disposable {
 		innerDisposable = disposable
 	}
 
-	public func dispose() {
-		innerDisposable.dispose()
-	}
-
 	deinit {
 		dispose()
+	}
+
+	public func dispose() {
+		innerDisposable.dispose()
 	}
 }
 

@@ -51,7 +51,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// the input to suit your needs.
 	public lazy var unsafeCocoaAction: CocoaAction = { _ in
 		CocoaAction(self) { $0 as! Input }
-	}()
+		}()
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
@@ -172,7 +172,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("enabled")
 				self?._enabled = value
 				self?.didChangeValueForKey("enabled")
-			}
+		}
 
 		disposable += action.executing.producer
 			.observeOn(UIScheduler())
@@ -180,7 +180,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")
-			}
+		}
 	}
 
 	/// Initializes a Cocoa action that will invoke the given Action by
@@ -222,7 +222,7 @@ public func == <E: Equatable>(lhs: ActionError<E>, rhs: ActionError<E>) -> Bool 
 
 	case let (.ProducerError(left), .ProducerError(right)):
 		return left == right
-
+		
 	default:
 		return false
 	}

@@ -1198,7 +1198,7 @@ extension SignalType {
 				case let .Next(value):
 					operation(value).analysis(ifSuccess: { value in
 						sendNext(observer, value)
--						}, ifFailure: { error in
+						}, ifFailure: { error in
 							sendError(observer, error)
 					})
 				case let .Error(error):

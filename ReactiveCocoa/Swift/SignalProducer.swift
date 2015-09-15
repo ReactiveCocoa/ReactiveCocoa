@@ -36,17 +36,17 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Creates a producer for a Signal that will immediately send one value
 	/// then complete.
 	public init(value: T) {
-		self.init({ observer, disposable in
+		self.init { observer, disposable in
 			sendNext(observer, value)
 			sendCompleted(observer)
-		})
+		}
 	}
 
 	/// Creates a producer for a Signal that will immediately send an error.
 	public init(error: E) {
-		self.init({ observer, disposable in
+		self.init { observer, disposable in
 			sendError(observer, error)
-		})
+		}
 	}
 
 	/// Creates a producer for a Signal that will immediately send one value
@@ -65,7 +65,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// Creates a producer for a Signal that will immediately send the values
 	/// from the given sequence, then complete.
 	public init<S: SequenceType where S.Generator.Element == T>(values: S) {
-		self.init({ observer, disposable in
+		self.init { observer, disposable in
 			for value in values {
 				sendNext(observer, value)
 
@@ -75,7 +75,7 @@ public struct SignalProducer<T, E: ErrorType> {
 			}
 
 			sendCompleted(observer)
-		})
+		}
 	}
 
 	/// A producer for a Signal that will immediately complete without sending
@@ -88,7 +88,7 @@ public struct SignalProducer<T, E: ErrorType> {
 
 	/// A producer for a Signal that never sends any events to its observers.
 	public static var never: SignalProducer {
-		return self.init { _ in () }
+		return self.init { _ in  }
 	}
 
 	/// Creates a queue for events that replays them when new signals are
@@ -203,8 +203,8 @@ public struct SignalProducer<T, E: ErrorType> {
 			operation().analysis(ifSuccess: { value in
 				sendNext(observer, value)
 				sendCompleted(observer)
-			}, ifFailure: { error in
-				sendError(observer, error)
+				}, ifFailure: { error in
+					sendError(observer, error)
 			})
 		}
 	}

@@ -155,7 +155,7 @@ extension RACCommand {
 			.map { $0 as! Bool }
 			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
+		return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.`defer` {
 				return self.execute(input)
 			}
@@ -178,7 +178,7 @@ extension Action {
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }
@@ -189,7 +189,7 @@ public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }

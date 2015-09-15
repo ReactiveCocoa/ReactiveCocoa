@@ -1,1 +1,1 @@
-github "ReactiveCocoa/ReactiveCocoa" "v3.0-RC.1"
+github "ReactiveCocoa/ReactiveCocoa" ~> 3.0

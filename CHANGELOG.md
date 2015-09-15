@@ -1,7 +1,7 @@
 # 4.0 (alpha-1)
 
 If you're new to the Swift API and migrating from RAC2, starting with the [3.0
-changes](#3.0). This section only covers the differences when between 3.0 and
+changes](#30). This section only covers the differences when between 3.0 and
 4.0.
 
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the

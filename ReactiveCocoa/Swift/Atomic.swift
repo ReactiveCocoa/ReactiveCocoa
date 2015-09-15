@@ -20,27 +20,27 @@ internal final class Atomic<T> {
 
 			return v
 		}
-
+	
 		set(newValue) {
 			lock()
 			_value = newValue
 			unlock()
 		}
 	}
-
+	
 	/// Initializes the variable with the given initial value.
 	init(_ value: T) {
 		_value = value
 	}
-
+	
 	private func lock() {
 		OSSpinLockLock(&spinLock)
 	}
-
+	
 	private func unlock() {
 		OSSpinLockUnlock(&spinLock)
 	}
-
+	
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
@@ -59,7 +59,7 @@ internal final class Atomic<T> {
 		
 		return oldValue
 	}
-
+	
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///

@@ -82,7 +82,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 
-					sendError(sink, expectedError)
+					sendFailed(sink, expectedError)
 					expect(error).to(equal(expectedError as NSError))
 				}
 			}

@@ -58,15 +58,15 @@ extension RACSignal {
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> () in
-				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
+			let failed = { (nsError: NSError?) -> () in
+				sendFailed(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
 				sendCompleted(observer)
 			}
 
-			disposable += self.subscribeNext(next, error: error, completed: completed)
+			disposable += self.subscribeNext(next, error: failed, completed: completed)
 		}
 	}
 }
@@ -96,7 +96,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 			switch event {
 			case let .Next(value):
 				subscriber.sendNext(value)
-			case let .Error(error):
+			case let .Failed(error):
 				subscriber.sendError(error as NSError)
 			case .Completed:
 				subscriber.sendCompleted()
@@ -127,7 +127,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 			switch event {
 			case let .Next(value):
 				subscriber.sendNext(value)
-			case let .Error(error):
+			case let .Failed(error):
 				subscriber.sendError(error as NSError)
 			case .Completed:
 				subscriber.sendCompleted()

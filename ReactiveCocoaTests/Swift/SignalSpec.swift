@@ -39,14 +39,14 @@ class SignalSpec: QuickSpec {
 			it("should deallocate after erroring") {
 				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						sendFailed(observer, TestError.Default)
 					}
 					return nil
 				}
 				
 				var errored = false
 				
-				signal?.observeError { _ in errored = true }
+				signal?.observeFailed { _ in errored = true }
 				
 				expect(errored).to(beFalsy())
 				expect(signal).toNot(beNil())
@@ -142,14 +142,14 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<AnyObject, TestError> = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						sendFailed(observer, TestError.Default)
 					}
 					return disposable
 				}
 				
 				var errored = false
 				
-				signal.observeError { _ in errored = true }
+				signal.observeFailed { _ in errored = true }
 				
 				expect(errored).to(beFalsy())
 				expect(disposable.disposed).to(beFalsy())
@@ -225,7 +225,7 @@ class SignalSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						sendFailed(observer, TestError.Default)
 					}
 				}
 				test()
@@ -450,11 +450,11 @@ class SignalSpec: QuickSpec {
 
 				signal
 					.mapError { _ in producerError }
-					.observeError { err in error = err }
+					.observeFailed { err in error = err }
 
 				expect(error).to(beNil())
 
-				sendError(sink, TestError.Default)
+				sendFailed(sink, TestError.Default)
 				expect(error).to(equal(producerError))
 			}
 		}
@@ -837,10 +837,10 @@ class SignalSpec: QuickSpec {
 
 				var error: TestError?
 
-				signal.observeError { error = $0 }
+				signal.observeFailed { error = $0 }
 
 				expect(error).to(beNil())
-				sendError(sink, .Default)
+				sendFailed(sink, .Default)
 				expect(error).to(equal(TestError.Default))
 			}
 		}
@@ -1084,7 +1084,7 @@ class SignalSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				let signal: Signal<Int, TestError> = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						sendFailed(observer, TestError.Default)
 					}
 					return nil
 				}
@@ -1093,7 +1093,7 @@ class SignalSpec: QuickSpec {
 				
 				signal
 					.delay(10, onScheduler: testScheduler)
-					.observeError { _ in errored = true }
+					.observeFailed { _ in errored = true }
 				
 				testScheduler.advance()
 				expect(errored).to(beTruthy())
@@ -1365,10 +1365,10 @@ class SignalSpec: QuickSpec {
 					}
 				}
 				
-				sendError(observer, TestError.Default)
+				sendFailed(observer, TestError.Default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Error(_):
+					case .Failed(_):
 						()
 					default:
 						fail()
@@ -1403,11 +1403,11 @@ class SignalSpec: QuickSpec {
 
 			it("should error out for Error events") {
 				var errored = false
-				dematerialized.observeError { _ in errored = true }
+				dematerialized.observeFailed { _ in errored = true }
 				
 				expect(errored).to(beFalsy())
 				
-				sendNext(sink, .Error(TestError.Default))
+				sendNext(sink, .Failed(TestError.Default))
 				expect(errored).to(beTruthy())
 			}
 
@@ -1462,7 +1462,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						result.append(value)
-					case .Error(_):
+					case .Failed(_):
 						errored = true
 					default:
 						break
@@ -1474,7 +1474,7 @@ class SignalSpec: QuickSpec {
 				sendNext(sink, 3)
 				expect(errored).to(beFalsy())
 				
-				sendError(sink, TestError.Default)
+				sendFailed(sink, TestError.Default)
 				expect(errored).to(beTruthy())
 				expect(result).to(beEmpty())
 			}
@@ -1499,7 +1499,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Error(_):
+					case .Failed(_):
 						errored = true
 					default:
 						break
@@ -1525,7 +1525,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Error(_):
+					case .Failed(_):
 						errored = true
 					default:
 						break
@@ -1570,7 +1570,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var error: TestError?
-				signal.observeError { err in
+				signal.observeFailed { err in
 					error = err
 				}
 				
@@ -1605,7 +1605,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var error: TestError?
-				signal.observeError { err in
+				signal.observeFailed { err in
 					error = err
 				}
 				

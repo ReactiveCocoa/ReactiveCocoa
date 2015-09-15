@@ -37,7 +37,7 @@ extension NSURLSession {
 					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
-					sendError(observer, error ?? defaultSessionError)
+					sendFailed(observer, error ?? defaultSessionError)
 				}
 			}
 

@@ -84,7 +84,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.start()
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				sendError(sink, .Default)
+				sendFailed(sink, .Default)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 
@@ -229,7 +229,7 @@ class SignalProducerSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						values.append(value)
-					case let .Error(err):
+					case let .Failed(err):
 						error = err
 					default:
 						break
@@ -245,7 +245,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(values).to(equal([2, 3, 4]))
 				expect(error).to(beNil())
 
-				sendError(sink, .Default)
+				sendFailed(sink, .Default)
 
 				expect(values).to(equal([2, 3, 4]))
 				expect(error).to(equal(TestError.Default))
@@ -535,7 +535,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { _ in }
 				expect(addedDisposable.disposed).to(beFalsy())
 
-				sendError(sink, .Default)
+				sendFailed(sink, .Default)
 				expect(addedDisposable.disposed).to(beTruthy())
 			}
 		}
@@ -835,7 +835,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should invoke the handler and start new producer for an error") {
 				let (baseProducer, baseSink) = SignalProducer<Int, TestError>.buffer()
 				sendNext(baseSink, 1)
-				sendError(baseSink, .Default)
+				sendFailed(baseSink, .Default)
 
 				var values: [Int] = []
 				var completed = false
@@ -923,7 +923,7 @@ class SignalProducerSpec: QuickSpec {
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 					var error: TestError?
-					(outerProducer.flatten(.Concat)).startWithError { e in
+					(outerProducer.flatten(.Concat)).startWithFailed { e in
 						error = e
 					}
 
@@ -934,11 +934,11 @@ class SignalProducerSpec: QuickSpec {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 					var error: TestError?
-					outerProducer.flatten(.Concat).startWithError { e in
+					outerProducer.flatten(.Concat).startWithFailed { e in
 						error = e
 					}
 
-					sendError(outerSink, TestError.Default)
+					sendFailed(outerSink, TestError.Default)
 					expect(error).to(equal(TestError.Default))
 				}
 
@@ -1046,7 +1046,7 @@ class SignalProducerSpec: QuickSpec {
 						let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).startWithError { e in
+						outerProducer.flatten(.Merge).startWithFailed { e in
 							error = e
 						}
 						expect(error).to(equal(TestError.Default))
@@ -1056,11 +1056,11 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).startWithError { e in
+						outerProducer.flatten(.Merge).startWithFailed { e in
 							error = e
 						}
 
-						sendError(outerSink, TestError.Default)
+						sendFailed(outerSink, TestError.Default)
 						expect(error).to(equal(TestError.Default))
 					}
 				}
@@ -1082,7 +1082,7 @@ class SignalProducerSpec: QuickSpec {
 							receivedValues.append(value)
 						case .Completed:
 							completed = true
-						case .Error(_):
+						case .Failed(_):
 							errored = true
 						default:
 							break
@@ -1296,7 +1296,7 @@ class SignalProducerSpec: QuickSpec {
 				let expectedEvents: [Event<Int, TestError>] = [
 					.Next(1),
 					.Next(2),
-					.Error(.Default)
+					.Failed(.Default)
 				]
 
 				// TODO: if let result = result where result.count == expectedEvents.count

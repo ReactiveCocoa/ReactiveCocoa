@@ -1,18 +1,50 @@
-# 4.0 Alpha
+# 4.0 (alpha-1)
 
-Start with the [3.0 changes](#3.0) if you're new to the Swift API. This section
-covers the the differences between 3.0 and 4.0.
+If you're new to the Swift API and migrating from RAC2, starting with the [3.0
+changes](#3.0). This section only covers the differences when between 3.0 and
+4.0.
 
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
-differences from Swift 1.2 to provide a cleaner API.
+improvements from Swift 1.2 to provide a simpler API.
 
-### Operators are now protocol extensions
+### Signal operators are protocol extensions
 
-### Removal of `|>` operator
+The biggest change from RAC3 to RAC4 is that signal and producer operators are
+implemented as protocol extensions instead of global functions. This is similar
+to many of the collection protocol changes in the Swift 2 standard library.
 
-### Changes to start and observer overloads
+This enables chaining signal operators with normal dot-method calling syntax.
+Previously the custom `|>` was required to enable chaining global functions
+without a mess of nested calls and parenthesis.
+
+```swift
+/// RAC3
+signal |> filter { $0 % 2 == 0 } |> map { $0 * $0 } |> observe { print($0) }
+
+/// RAC4
+signal.filter { $0 % 2 == 0 } .map { $0 * $0 } .observe { print($0) }
+```
+
+Additionally, this means that `SignalProducer` operators are less "magic". In
+RAC3 the `Signal` operators were implicitly lifted to work on `SignalProducer`
+via `|>`. This was a point of confusion for some, especially when browsing the
+source looking for these operators. Now as protocol extensions, the
+`SignalProducer` operators are explicitly implementated in terms of their
+`Signal` counterpart when available.
+
+### Removal of `|>` custom operator
+
+As already alluded to above, the custom `|>` operator for chaining signals has
+been removed. Instead standard method calling syntax is used for chaining
+operators.
+
+### Replacement of the `start` and `observer` overloads
+
+### Replacements for `catch` and `try`
 
 ### Renaming `T` and `E` generic parameters (WIP)
+
+Coming Soon but not in the current alpha
 
 
 # 3.0

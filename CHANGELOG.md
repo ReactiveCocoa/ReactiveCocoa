@@ -1,8 +1,8 @@
 # 4.0 (alpha-1)
 
 If you're new to the Swift API and migrating from RAC 2, start with the
-[3.0 changes](#30). This section only covers the differences when between 3.0
-and 4.0.
+[3.0 changes](#30). This section only covers the differences between 3.0 and
+4.0.
 
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
@@ -48,7 +48,7 @@ function `Event -> ()`.
 
 The improvements to associated enum values in Swift 2 mean that `Event` cases
 no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
-completed from RAC 4.
+completely from RAC 4.
 
 #### Replacements for the start and observer overloads
 

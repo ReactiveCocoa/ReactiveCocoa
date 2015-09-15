@@ -97,7 +97,18 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 			case let .Next(value):
 				subscriber.sendNext(value)
 			case let .Error(error):
-				subscriber.sendError(error as NSError)
+				
+				// This is a workaround for rdar://22708537 which causes an NSError's
+				// UserInfo dictionary to get discarded during a cast from
+				// ErrorType to NSError in a generic function
+				let nsError: NSError
+				if error.dynamicType == NSError.self {
+					nsError = unsafeBitCast(error, NSError.self)
+				} else {
+					nsError = error as NSError
+				}
+				
+				subscriber.sendError(nsError)
 			case .Completed:
 				subscriber.sendCompleted()
 			default:
@@ -128,7 +139,18 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 			case let .Next(value):
 				subscriber.sendNext(value)
 			case let .Error(error):
-				subscriber.sendError(error as NSError)
+				
+				// This is a workaround for rdar://22708537 which causes an NSError's
+				// UserInfo dictionary to get discarded during a cast from
+				// ErrorType to NSError in a generic function
+				let nsError: NSError
+				if error.dynamicType == NSError.self {
+					nsError = unsafeBitCast(error, NSError.self)
+				} else {
+					nsError = error as NSError
+				}
+				
+				subscriber.sendError(nsError)
 			case .Completed:
 				subscriber.sendCompleted()
 			default:

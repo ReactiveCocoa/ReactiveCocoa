@@ -73,7 +73,7 @@ error handling keywords with the same name. They are now `attempt` and
 `flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for
 consistency.
 
-#### Added flatten and flatMap for signals-of-prodcuers
+#### Added flatten and flatMap for signal-of-producers
 
 This fills a gap that was missing in RAC 3. It's a common pattern to have a
 hot `Signal` of values that need to be mapped to "work" -- `SignalProducer`.

@@ -7,7 +7,7 @@ changes](#30). This section only covers the differences when between 3.0 and
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
 
-### Signal operators are protocol extensions
+#### Signal operators are protocol extensions
 
 The biggest change from RAC3 to RAC4 is that signal and producer operators are
 implemented as protocol extensions instead of global functions. This is similar
@@ -32,19 +32,24 @@ source looking for these operators. Now as protocol extensions, the
 `SignalProducer` operators are explicitly implementated in terms of their
 `Signal` counterpart when available.
 
-### Removal of `|>` custom operator
+#### Removal of `|>` custom operator
 
 As already alluded to above, the custom `|>` operator for chaining signals has
 been removed. Instead standard method calling syntax is used for chaining
 operators.
 
-### Replacement of the `start` and `observer` overloads
+#### `Event.Sink` is now a function
 
-### Replacements for `catch` and `try`
+With the removal of `SinkType` in Swift 2, the `Event.Sink` type is now just a
+function `Event -> ()`.
 
-### Renaming `T` and `E` generic parameters (WIP)
+#### Replacements for the `start` and `observer` overloads
 
-Coming Soon but not in the current alpha
+#### Renamed `try` and `catch`
+
+#### Renaming `T` and `E` generic parameters
+
+Coming Soon to a later alpha near you.
 
 
 # 3.0

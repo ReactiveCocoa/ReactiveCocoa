@@ -32,28 +32,28 @@ source looking for these operators. Now as protocol extensions, the
 `SignalProducer` operators are explicitly implementated in terms of their
 `Signal` counterpart when available.
 
-#### Removal of `|>` custom operator
+#### Removal of |> custom operator
 
 As already alluded to above, the custom `|>` operator for chaining signals has
 been removed. Instead standard method calling syntax is used for chaining
 operators.
 
-#### `Event.Sink` is now a function
+#### Event.Sink is now a function
 
 With the removal of `SinkType` in Swift 2, the `Event.Sink` type is now just a
 function `Event -> ()`.
 
-#### `Event` cases are no longer `Box`ed
+#### Event cases are no longer boxed
 
 The improvements to associated enum values in Swift 2 mean that `Event` cases
 no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
 completed from RAC4.
 
-#### Replacements for the `start` and `observer` overloads
+#### Replacements for the start and observer overloads
 
-#### Renamed `try` and `catch`
+#### Renamed try and catch operators
 
-#### Renaming `T` and `E` generic parameters
+#### Renaming T and E generic parameters
 
 Coming Soon to a later alpha near you.
 

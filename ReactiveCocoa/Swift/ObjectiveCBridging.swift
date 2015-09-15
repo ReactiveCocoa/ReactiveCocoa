@@ -73,7 +73,7 @@ extension RACSignal {
 
 private extension SignalType {
 	/// Turns each value into an Optional.
-	private func optionalize() -> Signal<T?, E> {
+	private func optionalize() -> Signal<Value?, Error> {
 		return signal.map { Optional($0) }
 	}
 }
@@ -82,7 +82,7 @@ private extension SignalType {
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACSignal {
+public func toRACSignal<Value: AnyObject, Error>(producer: SignalProducer<Value, Error>) -> RACSignal {
 	return toRACSignal(producer.lift { $0.optionalize() })
 }
 
@@ -90,7 +90,7 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACS
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
+public func toRACSignal<Value: AnyObject, Error>(producer: SignalProducer<Value?, Error>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start { event in
 			switch event {
@@ -114,14 +114,14 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RAC
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
+public func toRACSignal<Value: AnyObject, Error>(signal: Signal<Value, Error>) -> RACSignal {
 	return toRACSignal(signal.optionalize())
 }
 
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
+public func toRACSignal<Value: AnyObject, Error>(signal: Signal<Value?, Error>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = signal.observe { event in
 			switch event {
@@ -177,7 +177,7 @@ extension Action {
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
+public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Output, Error>) -> RACCommand {
 	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
@@ -188,7 +188,7 @@ public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
+public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Output?, Error>) -> RACCommand {
 	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}

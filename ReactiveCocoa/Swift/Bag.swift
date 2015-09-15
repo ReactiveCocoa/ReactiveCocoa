@@ -16,14 +16,14 @@ internal final class RemovalToken {
 	}
 }
 
-/// An unordered, non-unique collection of values of type T.
-internal struct Bag<T> {
-	private var elements: [BagElement<T>] = []
+/// An unordered, non-unique collection of values of type `Element`.
+internal struct Bag<Element> {
+	private var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func insert(value: T) -> RemovalToken {
+	mutating func insert(value: Element) -> RemovalToken {
 		let nextIdentifier = currentIdentifier &+ 1
 		if nextIdentifier == 0 {
 			reindex()
@@ -68,7 +68,7 @@ internal struct Bag<T> {
 }
 
 extension Bag: SequenceType {
-	func generate() -> AnyGenerator<T> {
+	func generate() -> AnyGenerator<Element> {
 		var index = 0
 		let count = elements.count
 
@@ -83,7 +83,7 @@ extension Bag: SequenceType {
 }
 
 extension Bag: CollectionType {
-	typealias Index = Array<T>.Index
+	typealias Index = Array<Element>.Index
 
 	var startIndex: Index {
 		return 0
@@ -93,13 +93,13 @@ extension Bag: CollectionType {
 		return elements.count
 	}
 
-	subscript(index: Index) -> T {
+	subscript(index: Index) -> Element {
 		return elements[index].value
 	}
 }
 
-private struct BagElement<T> {
-	let value: T
+private struct BagElement<Value> {
+	let value: Value
 	var identifier: UInt
 	let token: RemovalToken
 }

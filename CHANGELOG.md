@@ -43,6 +43,12 @@ operators.
 With the removal of `SinkType` in Swift 2, the `Event.Sink` type is now just a
 function `Event -> ()`.
 
+#### `Event` cases are no longer `Box`ed
+
+The improvements to associated enum values in Swift 2 mean that `Event` cases
+no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
+completed from RAC4.
+
 #### Replacements for the `start` and `observer` overloads
 
 #### Renamed `try` and `catch`

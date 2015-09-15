@@ -1271,8 +1271,8 @@ extension SignalType {
 }
 
 private struct ThrottleState<T> {
-	var previousDate: NSDate?
-	var pendingValue: T?
+	var previousDate: NSDate? = nil
+	var pendingValue: T? = nil
 }
 
 /// Combines the values of all the given signals, in the manner described by

@@ -75,8 +75,11 @@ consistency.
 
 #### Renaming T and E generic parameters
 
-Coming Soon to a later alpha near you.
+Probably coming to later alpha. See #2212 and #2349.
 
+#### Renaming Event.Error to Event.Failed
+
+Maybe coming to a later alpha. See #2360.
 
 # 3.0
 

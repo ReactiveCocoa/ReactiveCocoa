@@ -17,7 +17,7 @@ import Result
 public final class Signal<T, E: ErrorType> {
 	public typealias Observer = Event<T, E>.Sink
 
-	private let atomicObservers = Atomic(Bag<Observer>?())
+	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
 
 	/// Used to ensure that events are serialized during delivery to observers.
 	private let sendLock = NSLock()

@@ -34,13 +34,7 @@ public enum Event<T, E: ErrorType> {
 		case .Next:
 			return false
 
-		case .Error:
-			return true
-
-		case .Completed:
-			return true
-
-		case .Interrupted:
+		case .Error, .Completed, .Interrupted:
 			return true
 		}
 	}

@@ -67,10 +67,10 @@ public final class UIScheduler: SchedulerType {
 				action()
 			}
 
-			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
+			OSAtomicDecrement32(&self.queueLength)
 		}
 
-		let queued = withUnsafeMutablePointer(&queueLength, OSAtomicIncrement32)
+		let queued = OSAtomicIncrement32(&queueLength)
 
 		// If we're already running on the main thread, and there isn't work
 		// already enqueued, we can skip scheduling and just execute directly.

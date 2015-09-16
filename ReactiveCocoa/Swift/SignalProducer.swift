@@ -309,7 +309,7 @@ extension SignalProducerType {
 
 		return disposable
 	}
-	
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when `next` events are
 	/// received.
@@ -319,7 +319,7 @@ extension SignalProducerType {
 	public func startWithNext(next: T -> ()) -> Disposable {
 		return start(Event.sink(next: next))
 	}
-	
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when a `completed` event is
 	/// received.

@@ -24,13 +24,13 @@ public struct PropertyOf<T>: PropertyType {
 	public var producer: SignalProducer<T, NoError> {
 		return _producer()
 	}
-
+	
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == T>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 	}
-
+	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: T, producer: SignalProducer<T, NoError>) {
@@ -38,7 +38,7 @@ public struct PropertyOf<T>: PropertyType {
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
-
+	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initialValue: T, signal: Signal<T, NoError>) {

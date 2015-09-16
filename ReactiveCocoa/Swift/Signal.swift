@@ -228,8 +228,10 @@ extension SignalType {
 	public func filter(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			return self.observe { event in
-				if case let .Next(value) = event where predicate(value) {
-					sendNext(observer, value)
+				if case let .Next(value) = event {
+					if predicate(value) {
+						sendNext(observer, value)
+					}
 				} else {
 					observer(event)
 				}

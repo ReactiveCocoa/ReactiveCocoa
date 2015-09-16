@@ -37,8 +37,7 @@ public final class Signal<T, E: ErrorType> {
 		let interrupted = Atomic(false)
 
 		let sink: Observer = { event in
-			switch event {
-			case .Interrupted:
+			if case .Interrupted = event {
 				// Normally we disallow recursive events, but
 				// Interrupted is kind of a special snowflake, since it
 				// can inadvertently be sent by downstream consumers.
@@ -55,7 +54,7 @@ public final class Signal<T, E: ErrorType> {
 					generatorDisposable.dispose()
 				}
 
-			default:
+			} else {
 				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
 					self.sendLock.lock()
 
@@ -229,13 +228,9 @@ extension SignalType {
 	public func filter(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			return self.observe { event in
-				switch event {
-				case let .Next(value):
-					if predicate(value) {
-						sendNext(observer, value)
-					}
-
-				default:
+				if case let .Next(value) = event where predicate(value) {
+					sendNext(observer, value)
+				} else {
 					observer(event)
 				}
 			}
@@ -568,12 +563,11 @@ private struct LatestState<T, E: ErrorType> {
 	var replacingInnerSignal: Bool = false
 }
 
-// Have to extend `Signal` directly to avoid a compiler crash.
-extension Signal where T: OptionalType {
+extension SignalType where T: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func ignoreNil() -> Signal<T.T, E> {
+	public func ignoreNil() -> Signal<T.Wrapped, E> {
 		return filter { $0.optional != nil }.map { $0.optional! }
 	}
 }
@@ -593,8 +587,7 @@ extension SignalType {
 			var taken = 0
 
 			return self.observe { event in
-				switch event {
-				case let .Next(value):
+				if case let .Next(value) = event {
 					if taken < count {
 						taken++
 						sendNext(observer, value)
@@ -604,7 +597,7 @@ extension SignalType {
 						sendCompleted(observer)
 					}
 
-				default:
+				} else {
 					observer(event)
 				}
 			}
@@ -662,8 +655,10 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: Com
 			}
 			
 			lock.unlock()
+
 		case let .Error(error):
 			onError(error)
+
 		case .Completed:
 			lock.lock()
 			
@@ -673,6 +668,7 @@ private func observeWithStates<T, U, E>(signal: Signal<T, E>, _ signalState: Com
 			}
 			
 			lock.unlock()
+
 		case .Interrupted:
 			onInterrupted()
 		}
@@ -743,7 +739,7 @@ extension SignalType {
 	public func skip(count: Int) -> Signal<T, E> {
 		precondition(count >= 0)
 
-		if (count == 0) {
+		if count == 0 {
 			return signal
 		}
 
@@ -751,15 +747,9 @@ extension SignalType {
 			var skipped = 0
 
 			return self.observe { event in
-				switch event {
-				case .Next:
-					if skipped >= count {
-						fallthrough
-					} else {
-						skipped++
-					}
-
-				default:
+				if case .Next = event where skipped < count {
+					skipped++
+				} else {
 					observer(event)
 				}
 			}
@@ -795,8 +785,7 @@ extension SignalType {
 	}
 }
 
-// Have to extend `Signal` directly to avoid a compiler crash.
-extension Signal where T: EventType, E: NoError {
+extension SignalType where T: EventType, E: NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -868,7 +857,7 @@ extension SignalType {
 			
 			disposable += sampler.observe { event in
 				switch event {
-				case .Next(_):
+				case .Next:
 					if let value = state.value.latestValue {
 						sendNext(observer, value)
 					}
@@ -968,7 +957,7 @@ extension SignalType where T: Equatable {
 	/// immedately preceding value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats() -> Signal<T, E> {
-		return skipRepeats { $0 == $1 }
+		return skipRepeats(==)
 	}
 }
 
@@ -978,9 +967,9 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats(isRepeat: (T, T) -> Bool) -> Signal<T, E> {
 		return signal
-			.map { Optional($0) }
+			.map(Optional.init)
 			.combinePrevious(nil)
-			.filter { (a, b) in
+			.filter { a, b in
 				if let a = a, b = b where isRepeat(a, b) {
 					return false
 				} else {
@@ -1083,15 +1072,9 @@ extension SignalType {
 	public func takeWhile(predicate: T -> Bool) -> Signal<T, E> {
 		return Signal { observer in
 			return self.observe { event in
-				switch event {
-				case let .Next(value):
-					if predicate(value) {
-						fallthrough
-					} else {
-						sendCompleted(observer)
-					}
-
-				default:
+				if case let .Next(value) = event where !predicate(value) {
+					sendCompleted(observer)
+				} else {
 					observer(event)
 				}
 			}
@@ -1114,8 +1097,7 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func zipWith<U>(otherSignal: Signal<U, E>) -> Signal<(T, U), E> {
 		return Signal { observer in
-			let initialStates: (ZipState<T>, ZipState<U>) = (ZipState(), ZipState())
-			let states: Atomic<(ZipState<T>, ZipState<U>)> = Atomic(initialStates)
+			let states = Atomic(ZipState<T>(), ZipState<U>())
 			let disposable = CompositeDisposable()
 			
 			let flush = { () -> () in
@@ -1250,8 +1232,7 @@ extension SignalType {
 			disposable.addDisposable(schedulerDisposable)
 
 			disposable += self.observe { event in
-				switch event {
-				case let .Next(value):
+				if case let .Next(value) = event {
 					var scheduleDate: NSDate!
 					state.modify { (var state) in
 						state.pendingValue = value
@@ -1277,7 +1258,7 @@ extension SignalType {
 						}
 					}
 
-				default:
+				} else {
 					schedulerDisposable.innerDisposable = scheduler.schedule {
 						observer(event)
 					}
@@ -1519,7 +1500,7 @@ extension SignalType where E: NoError {
 				switch event {
 				case let .Next(value):
 					sendNext(observer, value)
-				case .Error(_):
+				case .Error:
 					fatalError("NoError is impossible to construct")
 				case .Completed:
 					sendCompleted(observer)

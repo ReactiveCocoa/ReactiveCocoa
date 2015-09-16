@@ -54,11 +54,11 @@ extension RACSignal {
 	/// each invocation of start().
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
-			let next = { (obj: AnyObject?) -> () in
+			let next = { obj in
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> () in
+			let error = { nsError in
 				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
@@ -74,7 +74,7 @@ extension RACSignal {
 private extension SignalType {
 	/// Turns each value into an Optional.
 	private func optionalize() -> Signal<T?, E> {
-		return signal.map { Optional($0) }
+		return signal.map(Optional.init)
 	}
 }
 
@@ -135,7 +135,7 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
 				break
 			}
 		}
-		
+
 		return RACDisposable {
 			selfDisposable?.dispose()
 		}
@@ -155,7 +155,7 @@ extension RACCommand {
 			.map { $0 as! Bool }
 			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
+		return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.`defer` {
 				return self.execute(input)
 			}
@@ -178,7 +178,7 @@ extension Action {
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }
@@ -189,7 +189,7 @@ public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }

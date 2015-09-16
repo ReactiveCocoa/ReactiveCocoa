@@ -34,13 +34,7 @@ public enum Event<T, E: ErrorType> {
 		case .Next:
 			return false
 
-		case .Error:
-			return true
-
-		case .Completed:
-			return true
-
-		case .Interrupted:
+		case .Error, .Completed, .Interrupted:
 			return true
 		}
 	}
@@ -81,24 +75,22 @@ public enum Event<T, E: ErrorType> {
 
 	/// Unwraps the contained `Next` value.
 	public var value: T? {
-		switch self {
-		case let .Next(value):
+		if case let .Next(value) = self {
 			return value
-		default:
+		} else {
 			return nil
 		}
 	}
 
 	/// Unwraps the contained `Error` value.
 	public var error: E? {
-		switch self {
-		case let .Error(error):
+		if case let .Error(error) = self {
 			return error
-		default:
+		} else {
 			return nil
 		}
 	}
-	
+
 	/// Creates a sink that can receive events of this type, then invoke the
 	/// given handlers based on the kind of event received.
 	public static func sink(error error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (T -> ())? = nil) -> Sink {

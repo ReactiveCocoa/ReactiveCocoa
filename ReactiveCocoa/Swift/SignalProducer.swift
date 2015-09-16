@@ -88,7 +88,7 @@ public struct SignalProducer<T, E: ErrorType> {
 
 	/// A producer for a Signal that never sends any events to its observers.
 	public static var never: SignalProducer {
-		return self.init { _ in  }
+		return self.init { _ in return }
 	}
 
 	/// Creates a queue for events that replays them when new signals are

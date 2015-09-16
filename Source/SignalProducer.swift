@@ -9,6 +9,25 @@
 import ReactiveCocoa
 
 extension SignalProducer {
+
+    /// Bring back the `start` overload. The `startNext` or pattern matching
+    /// on `start(Event)` is annoying in practice and more verbose. This is also
+    /// likely to change in a later RAC 4 alpha.
+    internal func start(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
+        return self.start { (event: Event<T, E>) in
+            switch event {
+            case let .Next(value):
+                next?(value)
+            case let .Error(err):
+                error?(err)
+            case .Completed:
+                completed?()
+            case .Interrupted:
+                interrupted?()
+            }
+        }
+    }
+
     /// Buckets each received value into a group based on the key returned
     /// from `grouping`. Termination events on the original signal are
     /// also forwarded to each producer group.

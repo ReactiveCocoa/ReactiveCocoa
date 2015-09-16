@@ -13,7 +13,7 @@ extension Signal {
     /// Bring back the `observe` overload. The `observeNext` or pattern matching
     /// on `observe(Event)` is still annoying in practice and more verbose. This is
     /// also likely to change in a later RAC 4 alpha.
-    public func observe(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
+    internal func observe(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
         return self.observe { (event: Event<T, E>) in
             switch event {
             case let .Next(value):

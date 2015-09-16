@@ -13,7 +13,7 @@ extension SignalProducer {
     /// Bring back the `start` overload. The `startNext` or pattern matching
     /// on `start(Event)` is annoying in practice and more verbose. This is also
     /// likely to change in a later RAC 4 alpha.
-    public func start(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
+    internal func start(next next: (T -> ())? = nil, error: (E -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
         return self.start { (event: Event<T, E>) in
             switch event {
             case let .Next(value):

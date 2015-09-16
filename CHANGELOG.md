@@ -1,3 +1,94 @@
+# 4.0 
+
+**The RAC 4 APIs are work in progress**. There may be significant breaking
+changes in later alphas so be prepared for that before taking a dependency.
+
+If you're new to the Swift API and migrating from RAC 2, start with the
+[3.0 changes](#30). This section only covers the differences between 3.0 and
+4.0.
+
+ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
+improvements from Swift 1.2 to provide a simpler API.
+
+## Alpha 1
+
+#### Signal operators are protocol extensions
+
+The biggest change from RAC 3 to RAC 4 is that signal and producer operators
+are implemented as protocol extensions instead of global functions. This is
+similar to many of the collection protocol changes in the Swift 2 standard
+library.
+
+This enables chaining signal operators with normal dot-method calling syntax.
+Previously the custom `|>` was required to enable chaining global functions
+without a mess of nested calls and parenthesis.
+
+```swift
+/// RAC 3
+signal |> filter { $0 % 2 == 0 } |> map { $0 * $0 } |> observe { print($0) }
+
+/// RAC 4
+signal.filter { $0 % 2 == 0 } .map { $0 * $0 } .observe { print($0) }
+```
+
+Additionally, this means that `SignalProducer` operators are less "magic". In
+RAC 3 the `Signal` operators were implicitly lifted to work on `SignalProducer`
+via `|>`. This was a point of confusion for some, especially when browsing the
+source looking for these operators. Now as protocol extensions, the
+`SignalProducer` operators are explicitly implementated in terms of their
+`Signal` counterpart when available.
+
+#### Removal of |> custom operator
+
+As already alluded to above, the custom `|>` operator for chaining signals has
+been removed. Instead standard method calling syntax is used for chaining
+operators.
+
+#### Event.Sink is now a function
+
+With the removal of `SinkType` in Swift 2, the `Event.Sink` type is now just a
+function `Event -> ()`.
+
+#### Event cases are no longer boxed
+
+The improvements to associated enum values in Swift 2 mean that `Event` cases
+no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
+completely from RAC 4.
+
+#### Replacements for the start and observer overloads
+
+_These are likely to see further changes in a later alpha_
+
+The `observe` and `start` overloads taking `next`, `error`, etc. optional
+function parameters have been removed. This was necessitated by the change to
+`Event.Sink` becoming a function type which introduced an unresolvable
+ambiguity. They've been replaced with methods taking a single function with
+the target `Event` case -- `observeNext`, `startWithNext`, and the same for
+error and completed. See #2311 and #2318 for more details.
+
+#### Renamed try and catch operators
+
+The `try` and `catch` operators were renamed because of the addition of the
+error handling keywords with the same name. They are now `attempt` and
+`flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for
+consistency.
+
+#### Added flatten and flatMap for signal-of-producers
+
+This fills a gap that was missing in RAC 3. It's a common pattern to have a
+hot `Signal` of values that need to be mapped to "work" -- `SignalProducer`.
+The addition of `flatten` and `flatMap` over signals-of-producers makes it
+easy to serialize (`Concat`) or parallelize (`Merge`) the work, or only run
+the most recent (`Latest`).
+
+#### Renaming T and E generic parameters
+
+Probably coming to later alpha. See #2212 and #2349.
+
+#### Renaming Event.Error to Event.Failed
+
+Maybe coming to a later alpha. See #2360.
+
 # 3.0
 
 ReactiveCocoa 3.0 includes the first official Swift API, which is intended to

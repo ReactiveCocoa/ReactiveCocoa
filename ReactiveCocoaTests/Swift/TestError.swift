@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+import Foundation
+
 enum TestError: Int {
 	case Default = 0
 	case Error1 = 1
@@ -13,4 +15,7 @@ enum TestError: Int {
 }
 
 extension TestError: ErrorType {
+}
+
+class TestNSError: NSError {
 }

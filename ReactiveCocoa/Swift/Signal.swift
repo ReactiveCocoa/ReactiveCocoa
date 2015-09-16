@@ -785,7 +785,7 @@ extension SignalType {
 	}
 }
 
-extension SignalType where T: EventType, E: NoError {
+extension SignalType where T: EventType, E == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -1487,7 +1487,7 @@ extension SignalType {
 	}
 }
 
-extension SignalType where E: NoError {
+extension SignalType where E == NoError {
 	/// Promotes a signal that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given signal,

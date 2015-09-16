@@ -607,7 +607,7 @@ extension SignalProducer where T: OptionalType {
 	}
 }
 
-extension SignalProducer where T: EventType, E: NoError {
+extension SignalProducerType where T: EventType, E == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -616,7 +616,7 @@ extension SignalProducer where T: EventType, E: NoError {
 	}
 }
 
-extension SignalProducerType where E: NoError {
+extension SignalProducerType where E == NoError {
 	/// Promotes a producer that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given producer,

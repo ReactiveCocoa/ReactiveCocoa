@@ -948,7 +948,7 @@ extension SignalType {
 				observer(event.map { value in
 					accumulator = combine(accumulator, value)
 					return accumulator
-					})
+				})
 			}
 		}
 	}

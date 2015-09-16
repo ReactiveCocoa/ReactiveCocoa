@@ -220,7 +220,7 @@ public func == <E: Equatable>(lhs: ActionError<E>, rhs: ActionError<E>) -> Bool 
 
 	case let (.ProducerError(left), .ProducerError(right)):
 		return left == right
-		
+
 	default:
 		return false
 	}

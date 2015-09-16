@@ -95,7 +95,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// created from the returned producer.
 	///
 	/// When values are put into the returned observer (sink), they will be
-	/// added to an internal buffer. If the buffer is already at capacity, 
+	/// added to an internal buffer. If the buffer is already at capacity,
 	/// the earliest (oldest) value will be dropped to make room for the new
 	/// value.
 	///
@@ -329,7 +329,7 @@ extension SignalProducerType {
 	public func startWithCompleted(completed: () -> ()) -> Disposable {
 		return start(Event.sink(completed: completed))
 	}
-	
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when an `error` event is
 	/// received.
@@ -339,7 +339,7 @@ extension SignalProducerType {
 	public func startWithError(error: E -> ()) -> Disposable {
 		return start(Event.sink(error: error))
 	}
-	
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when an `interrupted` event is
 	/// received.
@@ -815,7 +815,7 @@ public func combineLatest<S: SequenceType, T, Error where S.Generator.Element ==
 			producer.combineLatestWith(next).map { $0.0 + [$0.1] }
 		}
 	}
-	
+
 	return .empty
 }
 
@@ -1066,7 +1066,7 @@ extension SignalProducerType {
 				dispatch_semaphore_signal(semaphore)
 			}
 		}
-		
+
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 		return result
 	}

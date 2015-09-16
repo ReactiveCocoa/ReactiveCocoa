@@ -435,7 +435,7 @@ extension SignalProducerType {
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
-		return lift { sg -> Signal<T, E> -> Signal<(T, U), E> in { $0.combineLatestWith(sg) } }(otherProducer)
+		return lift { signal -> Signal<T, E> -> Signal<(T, U), E> in { $0.combineLatestWith(signal) } }(otherProducer)
 	}
 
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -478,14 +478,14 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
-		return lift { (sg) -> Signal<T, E> -> Signal<T, E> in { $0.sampleOn(sg) } }(sampler)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.sampleOn(signal) } }(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
-		return lift { (sg) -> Signal<T, E> -> Signal<T, E> in { $0.takeUntil(sg) } }(trigger)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.takeUntil(signal) } }(trigger)
 	}
 
 	/// Forwards events from `self` with history: values of the returned producer
@@ -536,7 +536,7 @@ extension SignalProducerType {
 	/// already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntilReplacement(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> {
-		return lift { (sg) -> Signal<T, E> -> Signal<T, E> in { $0.takeUntilReplacement(sg) } }(replacement)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.takeUntilReplacement(signal) } }(replacement)
 	}
 
 	/// Waits until `self` completes and then forwards the final `count` values
@@ -557,7 +557,7 @@ extension SignalProducerType {
 	/// are the Nth elements of the two input producers.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
-		return lift { sg -> Signal<T, E> -> Signal<(T, U), E> in { $0.zipWith(sg) } }(otherProducer)
+		return lift { signal -> Signal<T, E> -> Signal<(T, U), E> in { $0.zipWith(signal) } }(otherProducer)
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results

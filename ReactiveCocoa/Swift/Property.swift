@@ -24,21 +24,21 @@ public struct PropertyOf<T>: PropertyType {
 	public var producer: SignalProducer<T, NoError> {
 		return _producer()
 	}
-	
+
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == T>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 	}
-	
-	/// Initializes a property that first takes on `initialValue`, then each value 
+
+	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: T, producer: SignalProducer<T, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
-	
+
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initialValue: T, signal: Signal<T, NoError>) {
@@ -161,7 +161,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 				.flatMapError { error in
 					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
-				}
+			}
 		} else {
 			return .empty
 		}
@@ -172,7 +172,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-		
+
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
 		super.init()
@@ -181,10 +181,10 @@ public final class MutableProperty<T>: MutablePropertyType {
 }
 
 infix operator <~ {
-	associativity right
+associativity right
 
-	// Binds tighter than assignment but looser than everything else
-	precedence 93
+// Binds tighter than assignment but looser than everything else
+precedence 93
 }
 
 /// Binds a signal to a property, updating the property's value to the latest

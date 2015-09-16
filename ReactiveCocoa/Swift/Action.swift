@@ -170,7 +170,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("enabled")
 				self?._enabled = value
 				self?.didChangeValueForKey("enabled")
-			}
+		}
 
 		disposable += action.executing.producer
 			.observeOn(UIScheduler())
@@ -178,7 +178,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")
-			}
+		}
 	}
 
 	/// Initializes a Cocoa action that will invoke the given Action by
@@ -220,7 +220,7 @@ public func == <E: Equatable>(lhs: ActionError<E>, rhs: ActionError<E>) -> Bool 
 
 	case let (.ProducerError(left), .ProducerError(right)):
 		return left == right
-
+		
 	default:
 		return false
 	}

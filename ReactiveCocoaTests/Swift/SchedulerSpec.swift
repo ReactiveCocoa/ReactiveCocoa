@@ -140,7 +140,7 @@ class SchedulerSpec: QuickSpec {
 				it("should run enqueued actions serially on the given queue") {
 					var value = 0
 
-					for i in 0..<5 {
+					for _ in 0..<5 {
 						scheduler.schedule {
 							expect(NSThread.isMainThread()).to(beFalsy())
 							value++
@@ -190,14 +190,13 @@ class SchedulerSpec: QuickSpec {
 
 		describe("TestScheduler") {
 			var scheduler: TestScheduler!
-			var startInterval: NSTimeInterval!
+			var startDate: NSDate!
 
 			// How much dates are allowed to differ when they should be "equal."
 			let dateComparisonDelta = 0.00001
 
 			beforeEach {
-				let startDate = NSDate()
-				startInterval = startDate.timeIntervalSinceReferenceDate
+				startDate = NSDate()
 
 				scheduler = TestScheduler(startDate: startDate)
 				expect(scheduler.currentDate).to(equal(startDate))
@@ -219,7 +218,7 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.advance()
-				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval))
+				expect(scheduler.currentDate).to(beCloseTo(startDate))
 
 				expect(string).to(equal("foobar"))
 			}
@@ -240,11 +239,11 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.advanceByInterval(10)
-				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 10, within: dateComparisonDelta))
+				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(10), within: dateComparisonDelta))
 				expect(string).to(equal("foo"))
 
 				scheduler.advanceByInterval(10)
-				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 20, within: dateComparisonDelta))
+				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(20), within: dateComparisonDelta))
 				expect(string).to(equal("foobar"))
 			}
 
@@ -269,7 +268,7 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.run()
-				expect(scheduler.currentDate).to(equal(NSDate.distantFuture() as? NSDate))
+				expect(scheduler.currentDate).to(equal(NSDate.distantFuture()))
 				expect(string).to(equal("fuzzbuzzfoobar"))
 			}
 		}

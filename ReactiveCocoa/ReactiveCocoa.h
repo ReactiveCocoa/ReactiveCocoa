@@ -31,7 +31,6 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/NSString+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSString+RACSupport.h>
 #import <ReactiveCocoa/NSIndexSet+RACSequenceAdditions.h>
-#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #import <ReactiveCocoa/NSUserDefaults+RACSupport.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACChannel.h>
@@ -62,7 +61,9 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>
 
-#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+#if TARGET_OS_WATCH
+#elif TARGET_OS_TV
+#elif TARGET_OS_IPHONE
 	#import <ReactiveCocoa/MKAnnotationView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIActionSheet+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIAlertView+RACSignalSupport.h>
@@ -82,9 +83,11 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 	#import <ReactiveCocoa/UITableViewHeaderFooterView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
+	#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #elif TARGET_OS_MAC
 	#import <ReactiveCocoa/NSControl+RACCommandSupport.h>
 	#import <ReactiveCocoa/NSControl+RACTextSignalSupport.h>
 	#import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
 	#import <ReactiveCocoa/NSText+RACSignalSupport.h>
+	#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #endif

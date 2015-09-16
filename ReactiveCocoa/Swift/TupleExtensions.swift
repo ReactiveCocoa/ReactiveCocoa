@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// Adds a value into an N-tuple, returning an (N+1)-tuple.
 ///
 /// Supports creating tuples up to 10 elements long.

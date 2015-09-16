@@ -326,10 +326,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 @end
 
-@interface RACStream (Deprecated)
+@interface RACStream (Unavailable)
 
-- (instancetype)sequenceMany:(RACStream * (^)(void))block __attribute__((deprecated("Use -flattenMap: instead")));
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block __attribute__((deprecated("Renamed to -scanWithStart:reduce:")));
-- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock __attribute__((deprecated("Renamed to -combinePreviousWithStart:reduce:")));
+- (instancetype)sequenceMany:(RACStream * (^)(void))block __attribute__((unavailable("Use -flattenMap: instead")));
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block __attribute__((unavailable("Renamed to -scanWithStart:reduce:")));
+- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock __attribute__((unavailable("Renamed to -combinePreviousWithStart:reduce:")));
 
 @end

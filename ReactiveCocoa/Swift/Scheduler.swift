@@ -67,10 +67,10 @@ public final class UIScheduler: SchedulerType {
 				action()
 			}
 
-			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
+			OSAtomicDecrement32(&self.queueLength)
 		}
 
-		let queued = withUnsafeMutablePointer(&queueLength, OSAtomicIncrement32)
+		let queued = OSAtomicIncrement32(&queueLength)
 
 		// If we're already running on the main thread, and there isn't work
 		// already enqueued, we can skip scheduling and just execute directly.
@@ -219,7 +219,7 @@ public final class TestScheduler: DateSchedulerType {
 	private func schedule(action: ScheduledAction) -> Disposable {
 		lock.lock()
 		scheduledActions.append(action)
-		scheduledActions.sort { $0.less($1) }
+		scheduledActions.sortInPlace { $0.less($1) }
 		lock.unlock()
 
 		return ActionDisposable {
@@ -311,6 +311,6 @@ public final class TestScheduler: DateSchedulerType {
 	/// Dequeues and executes all scheduled actions, leaving the scheduler's
 	/// date at `NSDate.distantFuture()`.
 	public func run() {
-		advanceToDate(NSDate.distantFuture() as! NSDate)
+		advanceToDate(NSDate.distantFuture())
 	}
 }

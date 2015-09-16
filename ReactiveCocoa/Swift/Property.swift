@@ -124,12 +124,6 @@ public final class MutableProperty<T>: MutablePropertyType {
 	}
 }
 
-extension MutableProperty: SinkType {
-	public func put(value: T) {
-		self.value = value
-	}
-}
-
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
 /// Coding and Key-Value Observing.
 ///
@@ -164,7 +158,7 @@ extension MutableProperty: SinkType {
 		if let object = object {
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
-				|> catch { error in
+				.flatMapError { error in
 					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}
@@ -182,14 +176,14 @@ extension MutableProperty: SinkType {
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
 		super.init()
-		object?.rac_willDeallocSignal()?.toSignalProducer().start(completed: { self })
+		object?.rac_willDeallocSignal()?.toSignalProducer().startWithCompleted { self }
 	}
 }
 
 infix operator <~ {
 	associativity right
 
-	// Binds tighter than assignment but looser than everything else, including `|>`
+	// Binds tighter than assignment but looser than everything else
 	precedence 93
 }
 
@@ -200,15 +194,20 @@ infix operator <~ {
 /// or when the signal sends a `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
-	disposable += property.producer.start(completed: {
+	disposable += property.producer.startWithCompleted {
 		disposable.dispose()
-	})
+	}
 
-	disposable += signal.observe(next: { [weak property] value in
-		property?.value = value
-	}, completed: {
-		disposable.dispose()
-	})
+	disposable += signal.observe { [weak property] event in
+		switch event {
+		case let .Next(value):
+			property?.value = value
+		case .Completed:
+			disposable.dispose()
+		default:
+			break
+		}
+	}
 
 	return disposable
 }
@@ -227,9 +226,9 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 		property <~ signal
 		disposable = signalDisposable
 
-		property.producer.start(completed: {
+		property.producer.startWithCompleted {
 			signalDisposable.dispose()
-		})
+		}
 	}
 
 	return disposable

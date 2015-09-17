@@ -104,9 +104,9 @@ receive the results (which prevents doing work when the results are never used).
 That’s easy enough:
 
 ```swift
-searchResults.start(next: { results in
+searchResults.startWithNext { results in
     println("Search results: \(results)")
-})
+}
 ```
 
 Here, we watch for the `Next` [event][Events], which contains our results, and

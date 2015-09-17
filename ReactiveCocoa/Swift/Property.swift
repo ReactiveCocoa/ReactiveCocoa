@@ -161,7 +161,7 @@ public final class MutableProperty<T>: MutablePropertyType {
 				.flatMapError { error in
 					assert(false, "Received unexpected error from KVO signal: \(error)")
 					return .empty
-			}
+				}
 		} else {
 			return .empty
 		}
@@ -181,10 +181,10 @@ public final class MutableProperty<T>: MutablePropertyType {
 }
 
 infix operator <~ {
-associativity right
+	associativity right
 
-// Binds tighter than assignment but looser than everything else
-precedence 93
+	// Binds tighter than assignment but looser than everything else
+	precedence 93
 }
 
 /// Binds a signal to a property, updating the property's value to the latest

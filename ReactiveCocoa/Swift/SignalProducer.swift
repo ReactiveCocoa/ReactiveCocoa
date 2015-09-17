@@ -95,7 +95,7 @@ public struct SignalProducer<T, E: ErrorType> {
 	/// created from the returned producer.
 	///
 	/// When values are put into the returned observer (sink), they will be
-	/// added to an internal buffer. If the buffer is already at capacity, 
+	/// added to an internal buffer. If the buffer is already at capacity,
 	/// the earliest (oldest) value will be dropped to make room for the new
 	/// value.
 	///
@@ -435,7 +435,7 @@ extension SignalProducerType {
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
-		return lift(ReactiveCocoa.combineLatestWith)(otherProducer)
+		return lift { signal -> Signal<T, E> -> Signal<(T, U), E> in { $0.combineLatestWith(signal) } }(otherProducer)
 	}
 
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -478,14 +478,14 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
-		return lift(ReactiveCocoa.sampleOn)(sampler)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.sampleOn(signal) } }(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<T, E> {
-		return lift(ReactiveCocoa.takeUntil)(trigger)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.takeUntil(signal) } }(trigger)
 	}
 
 	/// Forwards events from `self` with history: values of the returned producer
@@ -536,7 +536,7 @@ extension SignalProducerType {
 	/// already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntilReplacement(replacement: SignalProducer<T, E>) -> SignalProducer<T, E> {
-		return lift(ReactiveCocoa.takeUntilReplacement)(replacement)
+		return lift { signal -> Signal<T, E> -> Signal<T, E> in { $0.takeUntilReplacement(signal) } }(replacement)
 	}
 
 	/// Waits until `self` completes and then forwards the final `count` values
@@ -557,7 +557,7 @@ extension SignalProducerType {
 	/// are the Nth elements of the two input producers.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, E>) -> SignalProducer<(T, U), E> {
-		return lift(ReactiveCocoa.zipWith)(otherProducer)
+		return lift { signal -> Signal<T, E> -> Signal<(T, U), E> in { $0.zipWith(signal) } }(otherProducer)
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
@@ -607,7 +607,7 @@ extension SignalProducer where T: OptionalType {
 	}
 }
 
-extension SignalProducer where T: EventType, E: NoError {
+extension SignalProducerType where T: EventType, E == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -616,7 +616,7 @@ extension SignalProducer where T: EventType, E: NoError {
 	}
 }
 
-extension SignalProducerType where E: NoError {
+extension SignalProducerType where E == NoError {
 	/// Promotes a producer that does not generate errors into one that can.
 	///
 	/// This does not actually cause errors to be generated for the given producer,
@@ -1112,27 +1112,4 @@ extension SignalProducer {
 	public func flatMap<U>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<U, E> {
 		return map(transform).flatten(strategy)
 	}
-}
-
-// These free functions are to workaround compiler crashes when attempting
-// to lift binary signal operators directly with closures.
-
-private func combineLatestWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
-	return { $0.combineLatestWith(otherSignal) }
-}
-
-private func zipWith<T, U, E>(otherSignal: Signal<U, E>) -> Signal<T, E> -> Signal<(T, U), E> {
-	return { $0.zipWith(otherSignal) }
-}
-
-private func sampleOn<T, E>(sampler: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.sampleOn(sampler) }
-}
-
-private func takeUntil<T, E>(trigger: Signal<(), NoError>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeUntil(trigger) }
-}
-
-private func takeUntilReplacement<T, E>(replacement: Signal<T, E>) -> Signal<T, E> -> Signal<T, E> {
-	return { $0.takeUntilReplacement(replacement) }
 }

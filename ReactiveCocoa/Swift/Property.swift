@@ -31,7 +31,7 @@ public struct PropertyOf<T>: PropertyType {
 		_producer = { property.producer }
 	}
 	
-	/// Initializes a property that first takes on `initialValue`, then each value 
+	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: T, producer: SignalProducer<T, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)

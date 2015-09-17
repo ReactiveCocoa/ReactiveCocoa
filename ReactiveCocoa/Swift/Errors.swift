@@ -11,6 +11,5 @@
 /// This can be used to describe signals or producers where errors will never
 /// be generated. For example, `Signal<Int, NoError>` describes a signal that
 /// sends integers and is guaranteed never to error out.
-public final class NoError: ErrorType {
-	private init() {}
+public enum NoError: ErrorType {
 }

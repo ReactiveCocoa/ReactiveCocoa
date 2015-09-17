@@ -170,7 +170,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("enabled")
 				self?._enabled = value
 				self?.didChangeValueForKey("enabled")
-		}
+			}
 
 		disposable += action.executing.producer
 			.observeOn(UIScheduler())
@@ -178,7 +178,7 @@ public final class CocoaAction: NSObject {
 				self?.willChangeValueForKey("executing")
 				self?._executing = value
 				self?.didChangeValueForKey("executing")
-		}
+			}
 	}
 
 	/// Initializes a Cocoa action that will invoke the given Action by

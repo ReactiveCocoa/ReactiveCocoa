@@ -913,7 +913,35 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 	return .empty
 }
 
+extension SignalProducer where T: SignalProducerType, E == T.E {
+	/// Flattens the inner producers sent upon `producer` (into a single producer of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `producer` or an active inner producer emits an error, the returned
+	/// producer will forward that error immediately.
+	///
+	/// `Interrupted` events on inner producers will be treated like `Completed`
+	/// events on inner producers.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<T.T, E> {
+		return lift { (signal: Signal<T, E>) -> Signal<T.T, E> in
+			return signal.flatten(strategy)
+		}
+	}
+}
+
 extension SignalProducerType {
+	/// Maps each event from `producer` to a new producer, then flattens the
+	/// resulting producers (into a single producer of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `producer` or any of the created producers emit an error, the returned
+	/// producer will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMap<U>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<U, E> {
+		return map(transform).flatten(strategy)
+	}
+
 	/// Catches any error that may occur on the input producer, mapping to a new producer
 	/// that starts in its place.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -1081,35 +1109,5 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func wait() -> Result<(), E> {
 		return then(SignalProducer<(), E>(value: ())).last() ?? .Success(())
-	}
-}
-
-extension SignalProducer where T: SignalProducerType, E == T.E {
-	/// Flattens the inner producers sent upon `producer` (into a single producer of
-	/// values), according to the semantics of the given strategy.
-	///
-	/// If `producer` or an active inner producer emits an error, the returned
-	/// producer will forward that error immediately.
-	///
-	/// `Interrupted` events on inner producers will be treated like `Completed`
-	/// events on inner producers.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func flatten(strategy: FlattenStrategy) -> SignalProducer<T.T, E> {
-		return lift { (signal: Signal<T, E>) -> Signal<T.T, E> in
-			return signal.flatten(strategy)
-		}
-	}
-}
-
-extension SignalProducer {
-	/// Maps each event from `producer` to a new producer, then flattens the
-	/// resulting producers (into a single producer of values), according to the
-	/// semantics of the given strategy.
-	///
-	/// If `producer` or any of the created producers emit an error, the returned
-	/// producer will forward that error immediately.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func flatMap<U>(strategy: FlattenStrategy, transform: T -> SignalProducer<U, E>) -> SignalProducer<U, E> {
-		return map(transform).flatten(strategy)
 	}
 }

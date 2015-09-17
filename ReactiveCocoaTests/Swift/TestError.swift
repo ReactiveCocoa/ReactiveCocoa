@@ -16,6 +16,3 @@ enum TestError: Int {
 
 extension TestError: ErrorType {
 }
-
-class TestNSError: NSError {
-}

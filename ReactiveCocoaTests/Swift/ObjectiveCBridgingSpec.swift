@@ -13,7 +13,6 @@ import ReactiveCocoa
 import XCTest
 
 class ObjectiveCBridgingSpec: QuickSpec {
-	
 	override func spec() {
 		describe("RACSignal.toSignalProducer") {
 			it("should subscribe once per start()") {
@@ -47,7 +46,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 		describe("toRACSignal") {
 			let key = "TestKey"
 			let userInfo: [String: String] = [key: "TestValue"]
-			let testNSError = TestNSError(domain: "TestDomain", code: 1, userInfo: userInfo)
+			let testNSError = NSError(domain: "TestDomain", code: 1, userInfo: userInfo)
 			describe("on a Signal") {
 				it("should forward events") {
 					let (signal, sink) = Signal<NSNumber, NoError>.pipe()
@@ -91,7 +90,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				}
 				
 				it("should maintain userInfo on NSError") {
-					let (signal, sink) = Signal<AnyObject, TestNSError>.pipe()
+					let (signal, sink) = Signal<AnyObject, NSError>.pipe()
 					let racSignal = toRACSignal(signal)
 					
 					var error: NSError?
@@ -131,7 +130,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				}
 				
 				it("should maintain userInfo on NSError") {
-					let producer = SignalProducer<AnyObject, TestNSError>(error: testNSError)
+					let producer = SignalProducer<AnyObject, NSError>(error: testNSError)
 					let racSignal = toRACSignal(producer).materialize()
 					
 					let event = racSignal.first() as? RACEvent

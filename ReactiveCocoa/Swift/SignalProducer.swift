@@ -913,7 +913,8 @@ public func zip<S: SequenceType, T, Error where S.Generator.Element == SignalPro
 	return .empty
 }
 
-extension SignalProducer where T: SignalProducerType, E == T.E {
+
+extension SignalProducerType where T: SignalProducerType, E == T.E {
 	/// Flattens the inner producers sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
 	///
@@ -929,6 +930,7 @@ extension SignalProducer where T: SignalProducerType, E == T.E {
 		}
 	}
 }
+
 
 extension SignalProducerType {
 	/// Maps each event from `producer` to a new producer, then flattens the

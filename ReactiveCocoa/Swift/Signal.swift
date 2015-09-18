@@ -262,7 +262,7 @@ public enum FlattenStrategy: Equatable {
 	case Latest
 }
 
-extension Signal where T: SignalProducerType, E == T.E {
+extension SignalType where T: SignalProducerType, E == T.E {
 	/// Flattens the inner producers sent upon `signal` (into a single signal of
 	/// values), according to the semantics of the given strategy.
 	///
@@ -286,7 +286,7 @@ extension Signal where T: SignalProducerType, E == T.E {
 	}
 }
 
-extension Signal {
+extension SignalType {
 	/// Maps each event from `signal` to a new producer, then flattens the
 	/// resulting producers (into a signal of values), according to the
 	/// semantics of the given strategy.
@@ -299,7 +299,7 @@ extension Signal {
 	}
 }
 
-extension Signal where T: SignalProducerType, E == T.E {
+extension SignalType where T: SignalProducerType, E == T.E {
 	/// Returns a signal which sends all the values from producer signal emitted from
 	/// `signal`, waiting until each inner producer completes before beginning to
 	/// send the values from the next inner producer.
@@ -416,7 +416,7 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 }
 
-extension Signal where T: SignalProducerType, E == T.E {
+extension SignalType where T: SignalProducerType, E == T.E {
 	/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producer
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")

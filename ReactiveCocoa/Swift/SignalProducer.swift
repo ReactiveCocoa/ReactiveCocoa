@@ -598,7 +598,7 @@ extension SignalProducerType {
 	}
 }
 
-extension SignalProducer where T: OptionalType {
+extension SignalProducerType where T: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -973,13 +973,11 @@ extension SignalProducerType {
 			}
 		}
 	}
-}
 
-extension SignalProducer {
 	/// `concat`s `next` onto `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func concat(next: SignalProducer) -> SignalProducer {
-		return SignalProducer<SignalProducer, E>(values: [self, next]).flatten(.Concat)
+	public func concat(next: SignalProducer<T, E>) -> SignalProducer<T, E> {
+		return SignalProducer<SignalProducer<T, E>, E>(values: [self.producer, next]).flatten(.Concat)
 	}
 }
 

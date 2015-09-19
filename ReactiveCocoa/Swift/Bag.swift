@@ -42,14 +42,14 @@ internal struct Bag<T> {
 	///
 	/// If the value has already been removed, nothing happens.
 	mutating func removeValueForToken(token: RemovalToken) {
-		guard let identifier = token.identifier else { return }
-		// Removal is more likely for recent objects than old ones.
-		for i in (elements.startIndex..<elements.endIndex).reverse() {
-			if elements[i].identifier == identifier {
-				swap(&elements[i], &elements[elements.endIndex - 1])
-				elements.removeLast()
-				token.identifier = nil
-				break
+		if let identifier = token.identifier {
+			// Removal is more likely for recent objects than old ones.
+			for i in (0..<elements.endIndex).reverse() {
+				if elements[i].identifier == identifier {
+					elements.removeAtIndex(i)
+					token.identifier = nil
+					break
+				}
 			}
 		}
 	}

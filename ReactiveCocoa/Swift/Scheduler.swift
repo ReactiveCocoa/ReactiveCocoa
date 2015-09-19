@@ -86,7 +86,6 @@ public final class UIScheduler: SchedulerType {
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerType {
-	internal let queue: dispatch_queue_t
 
 	/// A singleton QueueScheduler that always targets the main thread's GCD
 	/// queue.
@@ -95,6 +94,8 @@ public final class QueueScheduler: DateSchedulerType {
 	/// date, and will always schedule asynchronously (even if already running
 	/// on the main thread).
 	public static let mainQueueScheduler = QueueScheduler(queue: dispatch_get_main_queue(), name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.mainQueueScheduler")
+
+	internal let queue: dispatch_queue_t
 
 	public var currentDate: NSDate {
 		return NSDate()
@@ -111,7 +112,7 @@ public final class QueueScheduler: DateSchedulerType {
 
 	/// Initializes a scheduler that will target the global queue with the given
 	/// priority.
-	public convenience init(priority: CLong = DISPATCH_QUEUE_PRIORITY_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+	public convenience init(priority: Int = DISPATCH_QUEUE_PRIORITY_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
 		self.init(queue: dispatch_get_global_queue(priority, 0), name: name)
 	}
 
@@ -128,11 +129,10 @@ public final class QueueScheduler: DateSchedulerType {
 	}
 
 	private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
-		var seconds = 0.0
-		let frac = modf(date.timeIntervalSince1970, &seconds)
+		let (seconds, frac) = modf(date.timeIntervalSince1970)
 
-		let nsec: Double = frac * Double(NSEC_PER_SEC)
-		var walltime = timespec(tv_sec: CLong(seconds), tv_nsec: CLong(nsec))
+		let nsec = frac * Double(NSEC_PER_SEC)
+		var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
 
 		return dispatch_walltime(&walltime, 0)
 	}

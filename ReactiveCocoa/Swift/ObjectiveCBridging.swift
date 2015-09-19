@@ -167,7 +167,7 @@ public func toRACSignal<T: AnyObject, E: NSError>(signal: Signal<T?, E>) -> RACS
                 subscriber.sendError(error)
             case .Completed:
                 subscriber.sendCompleted()
-			case .Interrupted:
+            case .Interrupted:
                 break
             }
         }

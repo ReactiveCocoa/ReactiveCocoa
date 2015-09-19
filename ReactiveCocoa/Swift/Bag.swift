@@ -44,7 +44,7 @@ internal struct Bag<T> {
 	mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
-			for i in (0..<elements.endIndex).reverse() {
+			for i in elements.indices.reverse() {
 				if elements[i].identifier == identifier {
 					elements.removeAtIndex(i)
 					token.identifier = nil
@@ -58,7 +58,7 @@ internal struct Bag<T> {
 	/// will reset all current identifiers to reclaim a contiguous set of
 	/// available identifiers for the future.
 	private mutating func reindex() {
-		for i in elements.startIndex..<elements.endIndex {
+		for i in elements.indices {
 			currentIdentifier = UInt(i)
 
 			elements[i].identifier = currentIdentifier

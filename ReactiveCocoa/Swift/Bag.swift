@@ -24,8 +24,8 @@ internal struct Bag<T> {
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
 	mutating func insert(value: T) -> RemovalToken {
-		let nextIdentifier = currentIdentifier &+ 1
-		if nextIdentifier == 0 {
+		let (nextIdentifier, overflow) = UInt.addWithOverflow(currentIdentifier, 1)
+		if overflow {
 			reindex()
 		}
 
@@ -33,7 +33,7 @@ internal struct Bag<T> {
 		let element = BagElement(value: value, identifier: currentIdentifier, token: token)
 
 		elements.append(element)
-		currentIdentifier++
+		currentIdentifier = nextIdentifier
 
 		return token
 	}
@@ -42,14 +42,14 @@ internal struct Bag<T> {
 	///
 	/// If the value has already been removed, nothing happens.
 	mutating func removeValueForToken(token: RemovalToken) {
-		if let identifier = token.identifier {
-			// Removal is more likely for recent objects than old ones.
-			for i in (0..<elements.endIndex).reverse() {
-				if elements[i].identifier == identifier {
-					elements.removeAtIndex(i)
-					token.identifier = nil
-					break
-				}
+		guard let identifier = token.identifier else { return }
+		// Removal is more likely for recent objects than old ones.
+		for i in (elements.startIndex..<elements.endIndex).reverse() {
+			if elements[i].identifier == identifier {
+				swap(&elements[i], &elements[elements.endIndex - 1])
+				elements.removeLast()
+				token.identifier = nil
+				break
 			}
 		}
 	}
@@ -58,7 +58,7 @@ internal struct Bag<T> {
 	/// will reset all current identifiers to reclaim a contiguous set of
 	/// available identifiers for the future.
 	private mutating func reindex() {
-		for i in 0..<elements.endIndex {
+		for i in elements.startIndex..<elements.endIndex {
 			currentIdentifier = UInt(i)
 
 			elements[i].identifier = currentIdentifier
@@ -67,30 +67,15 @@ internal struct Bag<T> {
 	}
 }
 
-extension Bag: SequenceType {
-	func generate() -> AnyGenerator<T> {
-		var index = 0
-		let count = elements.count
-
-		return anyGenerator {
-			if index < count {
-				return self.elements[index++].value
-			} else {
-				return nil
-			}
-		}
-	}
-}
-
 extension Bag: CollectionType {
 	typealias Index = Array<T>.Index
 
 	var startIndex: Index {
-		return 0
+		return elements.startIndex
 	}
-	
+
 	var endIndex: Index {
-		return elements.count
+		return elements.endIndex
 	}
 
 	subscript(index: Index) -> T {

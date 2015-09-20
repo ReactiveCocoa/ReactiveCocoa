@@ -575,6 +575,12 @@ extension SignalType where T: OptionalType {
 }
 
 extension SignalType {
+	/// Turns each value into an Optional.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func optionalize() -> Signal<T?, E> {
+		return signal.map(Optional.init)
+	}
+	
 	/// Returns a signal that will yield the first `count` values from `self`
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func take(count: Int) -> Signal<T, E> {

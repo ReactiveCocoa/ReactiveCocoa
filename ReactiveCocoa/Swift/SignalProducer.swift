@@ -596,6 +596,12 @@ extension SignalProducerType {
 	public func timeoutWithError(error: E, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
 		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
 	}
+	
+	/// Turns each value into an Optional.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func optionalize() -> SignalProducer<T?, E> {
+		return lift { $0.optionalize() }
+	}
 }
 
 extension SignalProducerType where T: OptionalType {

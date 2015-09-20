@@ -71,13 +71,6 @@ extension RACSignal {
 	}
 }
 
-private extension SignalType {
-	/// Turns each value into an Optional.
-	private func optionalize() -> Signal<T?, E> {
-		return signal.map(Optional.init)
-	}
-}
-
 /// Creates a RACSignal that will start() the producer once for each
 /// subscription.
 ///

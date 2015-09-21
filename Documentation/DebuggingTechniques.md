@@ -36,4 +36,4 @@ let disposable = sideEffectProducer.startWithCompleted {
 }
 ```
 
-The code above will not compile too, but with a error `error: cannot convert value of type '(_) -> _' to expected argument type '(Int -> ())?'` on definition of `on` clojure. This gives enough of information to locate unexpected `return _` since `on` clojure should not have any return.
+The code above will not compile too, but with a error `error: cannot convert value of type '(_) -> _' to expected argument type '(Int -> ())?'` on definition of `on` clojure. This gives enough of information to locate unexpected `return _` since `on` clojure should not have any return value.

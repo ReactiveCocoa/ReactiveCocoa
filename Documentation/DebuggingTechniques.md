@@ -1,20 +1,20 @@
-= Debugging Techniques
+=Debugging Techniques
 
 This document contains list of debugging techniques and infrastructure that helpful for debugging Reactive Cocoa applications.
 
 #### Unscrambling Swift compiler errors
 
-Type iference could be a source of hard-to-debug compiler errors. There are two potential places to be wrong when type iference used:
-1. Definition of type infered variable
-2. Consumption of type infered variable
+Type inferrence could be a source of hard-to-debug compiler errors. There are two potential places to be wrong when type inferrence used:
+1. Definition of type inferred variable
+2. Consumption of type inferred variable
 
-In both cases erros are related to incorret asusmption about type. Such type of errors is common for a ReactiveCocoa applications as it is all about operations over data and related types. With a current state of a Swift compiler type related errors could be really misleading, especially when error happens in the middle of a signal chain. 
+In both cases erros are related to incorret assumptions about type. Such issues are common for a ReactiveCocoa applications as it is all about operations over data and related types. With a current state of a Swift compiler type related errors could be really misleading, especially when error happens in the middle of a signal chain. 
 
-Below is a code sample that visualize type-error scenario:
+Below is an example of type-error scenario:
 
 ```
 SignalProducer<Int, NoError>(value:42)
-    .on(next: { value in
+    .on(next: { answer in
         return _
     })
     .startWithCompleted {
@@ -27,7 +27,7 @@ print("Completed.")` To find an actual source of a error signals chain need to b
 
 ```
 let initialProducer = SignalProducer<Int, NoError>.init(value:42)
-let sideEffectProducer = initialProducer.on(next: { (value: Int) in
+let sideEffectProducer = initialProducer.on(next: { (answer: Int) in
     return _
 })
 let disposable = sideEffectProducer.startWithCompleted {

@@ -8,7 +8,7 @@
 
 import ReactiveCocoa
 
-extension Signal {
+extension SignalType {
 
     /// Bring back the `observe` overload. The `observeNext` or pattern matching
     /// on `observe(Event)` is still annoying in practice and more verbose. This is
@@ -90,7 +90,7 @@ extension Signal {
     }
 }
 
-extension Signal where T: SequenceType {
+extension SignalType where T: SequenceType {
     /// Returns a signal that flattens sequences of elements. The inverse of `collect`.
     public func uncollect() -> Signal<T.Generator.Element, E> {
         return Signal<T.Generator.Element, E> { observer in

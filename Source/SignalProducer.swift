@@ -8,7 +8,7 @@
 
 import ReactiveCocoa
 
-extension SignalProducer {
+extension SignalProducerType {
 
     /// Bring back the `start` overload. The `startNext` or pattern matching
     /// on `start(Event)` is annoying in practice and more verbose. This is also
@@ -69,31 +69,33 @@ extension SignalProducer {
         }
     }
 
-    /// Returns a signal that drops `Error` events, replacing them with `Completed`.
-    public func ignoreError(replacement: Event<T, NoError> = .Completed) -> SignalProducer<T, NoError> {
+    /// Applies `transform` to values from self with non-`nil` results unwrapped and
+    /// forwared on the returned producer.
+    public func filterMap<U>(transform: T -> U?) -> SignalProducer<U, E> {
+        return lift { $0.filterMap(transform) }
+    }
+
+    /// Returns a producer that drops `Error` sending `replacement` terminal event
+    /// instead, defaulting to `Completed`.
+    public func ignoreError(replacement replacement: Event<T, NoError> = .Completed) -> SignalProducer<T, NoError> {
+        precondition(replacement.isTerminating)
         return lift { $0.ignoreError(replacement: replacement) }
     }
 
-    /// Returns a signal that prints the signal events
-    public func print() -> SignalProducer<T, E> {
-        return on(event: { Swift.print($0) })
-    }
-
-    /// Returns a signal that prints the signal `Next` events
-    public func printNext() -> SignalProducer<T, E> {
-        return on(event: { event in
-            if case .Next(_) = event {
-                Swift.print(event)
-            }
-        })
-    }
-
-    /// Returns a signal that prints the signal `Error` events
-    public func printError() -> SignalProducer<T, E> {
-        return on(event: { event in
-            if case .Error(_) = event {
-                Swift.print(event)
-            }
-        })
+    /// Forwards events from self until `interval`. Then if producer isn't completed yet,
+    /// terminates with `event` on `scheduler`.
+    ///
+    /// If the interval is 0, the timeout will be scheduled immediately. The producer
+    /// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+    public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<T, E>, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
+        return lift { $0.timeoutAfter(interval, withEvent: event, onScheduler: scheduler) }
     }
 }
+
+extension SignalProducerType where T: SequenceType {
+    /// Returns a producer that flattens sequences of elements. The inverse of `collect`.
+    public func uncollect() -> SignalProducer<T.Generator.Element, E> {
+        return lift { $0.uncollect() }
+    }
+}
+

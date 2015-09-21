@@ -123,7 +123,7 @@ class SchedulerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					scheduler = QueueScheduler(qos: QOS_CLASS_DEFAULT)
 				} else {
-					scheduler = QueueScheduler(priority: DISPATCH_QUEUE_PRIORITY_DEFAULT)
+					scheduler = QueueScheduler(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
 				}
 				scheduler.schedule {
 					didRun = true
@@ -140,7 +140,7 @@ class SchedulerSpec: QuickSpec {
 					if #available(OSX 10.10, *) {
 						scheduler = QueueScheduler(qos: QOS_CLASS_DEFAULT)
 					} else {
-						scheduler = QueueScheduler(priority: DISPATCH_QUEUE_PRIORITY_DEFAULT)
+						scheduler = QueueScheduler(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
 					}
 					dispatch_suspend(scheduler.queue)
 				}

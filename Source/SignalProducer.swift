@@ -8,7 +8,7 @@
 
 import ReactiveCocoa
 
-extension SignalProducer {
+extension SignalProducerType {
 
     /// Bring back the `start` overload. The `startNext` or pattern matching
     /// on `start(Event)` is annoying in practice and more verbose. This is also
@@ -115,7 +115,7 @@ extension SignalProducer {
     }
 }
 
-extension SignalProducer where T: SequenceType {
+extension SignalProducerType where T: SequenceType {
     /// Returns a producer that flattens sequences of elements. The inverse of `collect`.
     public func uncollect() -> SignalProducer<T.Generator.Element, E> {
         return lift { $0.uncollect() }

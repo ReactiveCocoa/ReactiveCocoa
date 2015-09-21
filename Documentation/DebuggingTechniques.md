@@ -1,4 +1,4 @@
-=Debugging Techniques
+# Debugging Techniques
 
 This document contains list of debugging techniques and infrastructure that helpful for debugging Reactive Cocoa applications.
 

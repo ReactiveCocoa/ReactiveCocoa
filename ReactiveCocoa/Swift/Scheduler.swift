@@ -87,6 +87,22 @@ public final class UIScheduler: SchedulerType {
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerType {
 	internal let queue: dispatch_queue_t
+	
+	internal init(internalQueue: dispatch_queue_t) {
+		queue = internalQueue
+	}
+	
+	/// Initializes a scheduler that will target the given queue with its work.
+	///
+	/// Even if the queue is concurrent, all work items enqueued with the
+	/// QueueScheduler will be serial with respect to each other.
+	///
+  	/// - warning: Obsoleted in OS X 10.10
+	@available(OSX, deprecated=10.9, obsoleted=10.10, message="Use init(qos:, name:) instead")
+	public convenience init(queue: dispatch_queue_t, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+		self.init(internalQueue: dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL))
+		dispatch_set_target_queue(self.queue, queue)
+	}
 
 	/// A singleton QueueScheduler that always targets the main thread's GCD
 	/// queue.
@@ -94,25 +110,17 @@ public final class QueueScheduler: DateSchedulerType {
 	/// Unlike UIScheduler, this scheduler supports scheduling for a future
 	/// date, and will always schedule asynchronously (even if already running
 	/// on the main thread).
-	public static let mainQueueScheduler = QueueScheduler(queue: dispatch_get_main_queue(), name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.mainQueueScheduler")
-
+	public static let mainQueueScheduler = QueueScheduler(internalQueue: dispatch_get_main_queue())
+	
 	public var currentDate: NSDate {
 		return NSDate()
 	}
 
-	/// Initializes a scheduler that will target the given queue with its work.
-	///
-	/// Even if the queue is concurrent, all work items enqueued with the
-	/// QueueScheduler will be serial with respect to each other.
-	public init(queue: dispatch_queue_t, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
-		dispatch_set_target_queue(self.queue, queue)
-	}
-
 	/// Initializes a scheduler that will target the global queue with the given
-	/// priority.
-	public convenience init(priority: CLong = DISPATCH_QUEUE_PRIORITY_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.init(queue: dispatch_get_global_queue(priority, 0), name: name)
+	/// quality of service class.
+	@available(iOS 8, watchOS 2, OSX 10.10, *)
+	public convenience init(qos: dispatch_qos_class_t = QOS_CLASS_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+		self.init(internalQueue: dispatch_queue_create(name, dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, qos, 0)))
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {

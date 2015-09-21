@@ -10,7 +10,7 @@ import ReactiveCocoa
 
 extension Action {
     /// Creates an always disabled action.
-    static var rex_disabled: Action {
+    public static var rex_disabled: Action {
         return Action(enabledIf: ConstantProperty(false)) { _ in .empty }
     }
 }

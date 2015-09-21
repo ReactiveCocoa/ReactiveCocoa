@@ -52,35 +52,4 @@ final class SignalProducerTests: XCTestCase {
         XCTAssert(interrupted)
         XCTAssertFalse(completed)
     }
-
-    func testCompletionOperator() {
-        let (producer, sink) = SignalProducer<Int, NoError>.buffer()
-        var evens: [Int] = []
-        var odds: [Int] = []
-        let disposable = CompositeDisposable()
-        var interrupted = false
-        var completed = false
-
-        disposable += producer
-            .groupBy { $0 % 2 == 0 }
-            .start(next: { key, group in
-                if key {
-                    group.start(next: { evens.append($0) })
-                } else {
-                    group.start(next: { odds.append($0) })
-                }
-            },completed: {
-                completed = true
-            }, interrupted: {
-                interrupted = true
-            })
-
-        sendNext(sink, 1)
-        XCTAssert(evens == [])
-        XCTAssert(odds == [1])
-
-        sendCompleted(sink)
-        XCTAssert(completed)
-        XCTAssertFalse(interrupted)
-    }
 }

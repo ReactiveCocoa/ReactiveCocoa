@@ -90,29 +90,6 @@ extension SignalProducerType {
     public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<T, E>, onScheduler scheduler: DateSchedulerType) -> SignalProducer<T, E> {
         return lift { $0.timeoutAfter(interval, withEvent: event, onScheduler: scheduler) }
     }
-
-    /// Returns a signal that prints the signal events
-    public func print() -> SignalProducer<T, E> {
-        return on(event: { Swift.print($0) })
-    }
-
-    /// Returns a signal that prints the signal `Next` events
-    public func printNext() -> SignalProducer<T, E> {
-        return on(event: { event in
-            if case .Next(_) = event {
-                Swift.print(event)
-            }
-        })
-    }
-
-    /// Returns a signal that prints the signal `Error` events
-    public func printError() -> SignalProducer<T, E> {
-        return on(event: { event in
-            if case .Error(_) = event {
-                Swift.print(event)
-            }
-        })
-    }
 }
 
 extension SignalProducerType where T: SequenceType {

@@ -24,7 +24,7 @@ SignalProducer<Int, NoError>(value:42)
 ```
 
 The code above will not compile with a following error on a `print` call `error: ambiguous reference to member 'print'
-print("Completed.")` To find an actual source of a error signals chain need to be broken down apart with an explicit definition of clojure types on each of the steps:
+print("Completed.")` To find an actual source of a error signals chain need to be broken down apart with an explicit definition of closure types on each of the steps:
 
 ```
 let initialProducer = SignalProducer<Int, NoError>.init(value:42)

@@ -54,11 +54,11 @@ extension RACSignal {
 	/// each invocation of start().
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
-			let next = { (obj: AnyObject?) -> () in
+			let next = { obj in
 				sendNext(observer, obj)
 			}
 
-			let error = { (nsError: NSError?) -> () in
+			let error = { nsError in
 				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
@@ -74,7 +74,7 @@ extension RACSignal {
 private extension SignalType {
 	/// Turns each value into an Optional.
 	private func optionalize() -> Signal<T?, E> {
-		return signal.map { Optional($0) }
+		return signal.map(Optional.init)
 	}
 }
 
@@ -90,15 +90,39 @@ public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T, E>) -> RACS
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
+public func toRACSignal<T: AnyObject, E: NSError>(producer: SignalProducer<T, E>) -> RACSignal {
+	return toRACSignal(producer.lift { $0.optionalize() })
+}
+
+/// Creates a RACSignal that will start() the producer once for each
+/// subscription.
+///
+/// Any `Interrupted` events will be silently discarded.
 public func toRACSignal<T: AnyObject, E>(producer: SignalProducer<T?, E>) -> RACSignal {
+    return toRACSignal(producer.mapError { $0 as NSError })
+}
+
+/// Creates a RACSignal that will start() the producer once for each
+/// subscription.
+///
+/// Any `Interrupted` events will be silently discarded.
+public func toRACSignal<T: AnyObject, E: NSError>(producer: SignalProducer<T?, E>) -> RACSignal {
+    // This special casing of `E: NSError` is a workaround for rdar://22708537
+    // which causes an NSError's UserInfo dictionary to get discarded
+    // during a cast from ErrorType to NSError in a generic function
 	return RACSignal.createSignal { subscriber in
-		let selfDisposable = producer.start(next: { value in
-			subscriber.sendNext(value)
-		}, error: { error in
-			subscriber.sendError(error as NSError)
-		}, completed: {
-			subscriber.sendCompleted()
-		})
+		let selfDisposable = producer.start { event in
+			switch event {
+			case let .Next(value):
+				subscriber.sendNext(value)
+			case let .Error(error):
+				subscriber.sendError(error)
+			case .Completed:
+				subscriber.sendCompleted()
+			default:
+				break
+			}
+		}
 
 		return RACDisposable {
 			selfDisposable.dispose()
@@ -116,20 +140,42 @@ public func toRACSignal<T: AnyObject, E>(signal: Signal<T, E>) -> RACSignal {
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
-public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
-	return RACSignal.createSignal { subscriber in
-		let selfDisposable = signal.observe(next: { value in
-			subscriber.sendNext(value)
-		}, error: { error in
-			subscriber.sendError(error as NSError)
-		}, completed: {
-			subscriber.sendCompleted()
-		})
+public func toRACSignal<T: AnyObject, E: NSError>(signal: Signal<T, E>) -> RACSignal {
+	return toRACSignal(signal.optionalize())
+}
 
-		return RACDisposable {
-			selfDisposable?.dispose()
-		}
-	}
+/// Creates a RACSignal that will observe the given signal.
+///
+/// Any `Interrupted` event will be silently discarded.
+public func toRACSignal<T: AnyObject, E>(signal: Signal<T?, E>) -> RACSignal {
+    return toRACSignal(signal.mapError { $0 as NSError })
+}
+
+/// Creates a RACSignal that will observe the given signal.
+///
+/// Any `Interrupted` event will be silently discarded.
+public func toRACSignal<T: AnyObject, E: NSError>(signal: Signal<T?, E>) -> RACSignal {
+    // This special casing of `E: NSError` is a workaround for rdar://22708537
+    // which causes an NSError's UserInfo dictionary to get discarded
+    // during a cast from ErrorType to NSError in a generic function
+    return RACSignal.createSignal { subscriber in
+        let selfDisposable = signal.observe { event in
+            switch event {
+            case let .Next(value):
+                subscriber.sendNext(value)
+            case let .Error(error):
+                subscriber.sendError(error)
+            case .Completed:
+                subscriber.sendCompleted()
+            default:
+                break
+            }
+        }
+
+        return RACDisposable {
+            selfDisposable?.dispose()
+        }
+    }
 }
 
 extension RACCommand {
@@ -145,7 +191,7 @@ extension RACCommand {
 			.map { $0 as! Bool }
 			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
-		return Action(enabledIf: enabledProperty) { (input: AnyObject?) -> SignalProducer<AnyObject?, NSError> in
+		return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
 			let executionSignal = RACSignal.`defer` {
 				return self.execute(input)
 			}
@@ -168,7 +214,7 @@ extension Action {
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }
@@ -179,7 +225,7 @@ public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
 public func toRACCommand<Output: AnyObject, E>(action: Action<AnyObject?, Output?, E>) -> RACCommand {
-	return RACCommand(enabled: action.commandEnabled) { (input: AnyObject?) -> RACSignal in
+	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return toRACSignal(action.apply(input))
 	}
 }

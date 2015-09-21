@@ -47,7 +47,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { signal, _ in
 					let object = NSObject()
 					objectRetainedByObserver = object
-					signal.observe { _ in object }
+					signal.observeNext { _ in object }
 				}
 
 				expect(objectRetainedByObserver).toNot(beNil())
@@ -191,11 +191,16 @@ class SignalProducerSpec: QuickSpec {
 
 				var values: [Int] = []
 				var completed = false
-				producer.start(next: {
-					values.append($0)
-				}, completed: {
-					completed = true
-				})
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
 
 				expect(values).to(equal([1, 2, 3]))
 				expect(completed).to(beFalsy())
@@ -220,11 +225,16 @@ class SignalProducerSpec: QuickSpec {
 
 				var values: [Int] = []
 				var error: TestError?
-				producer.start(next: {
-					values.append($0)
-				}, error: {
-					error = $0
-				})
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case let .Error(err):
+						error = err
+					default:
+						break
+					}
+				}
 				
 				expect(values).to(equal([2]))
 				expect(error).to(beNil())
@@ -247,9 +257,9 @@ class SignalProducerSpec: QuickSpec {
 				
 				sendCompleted(sink)
 				
-				producer.start(completed: {
+				producer.startWithCompleted {
 					completed = true
-				})
+				}
 				
 				expect(completed).to(beTruthy())
 			}
@@ -262,11 +272,16 @@ class SignalProducerSpec: QuickSpec {
 				sendNext(sink, 123)
 				sendCompleted(sink)
 				
-				producer.start(next: {val in
-					value = val
-				}, completed: {
-					completed = true
-				})
+				producer.start { event in
+					switch event {
+					case let .Next(val):
+						value = val
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
 				
 				expect(value).to(equal(123))
 				expect(completed).to(beTruthy())
@@ -280,13 +295,13 @@ class SignalProducerSpec: QuickSpec {
 				sendNext(sink, 3)
 
 				var values: [Int] = []
-				producer.start(completed: {
+				producer.startWithCompleted {
 					values = []
 
-					producer.start(next: { value in
+					producer.startWithNext { value in
 						values.append(value)
-					})
-				})
+					}
+				}
 
 				sendCompleted(sink)
 				expect(values).to(equal([ 1, 2, 3 ]))
@@ -298,18 +313,18 @@ class SignalProducerSpec: QuickSpec {
 				var values: [Int] = []
 				var lastBufferedValues: [Int] = []
 
-				producer.start(next: { newValue in
+				producer.startWithNext { newValue in
 					values.append(newValue)
 
 					var bufferedValues: [Int] = []
 					
-					producer.start(next: { bufferedValue in
+					producer.startWithNext { bufferedValue in
 						bufferedValues.append(bufferedValue)
-					})
+					}
 
 					expect(bufferedValues).to(equal(values))
 					lastBufferedValues = bufferedValues
-				})
+				}
 
 				sendNext(sink, 1)
 				expect(values).to(equal([ 1 ]))
@@ -331,7 +346,7 @@ class SignalProducerSpec: QuickSpec {
 				let (producer, sink) = SignalProducer<Int, NoError>.buffer(1)
 				sendNext(sink, 1)
 
-				producer.start { next in
+				producer.startWithNext { next in
 					values.append(next)
 				}
 
@@ -423,9 +438,9 @@ class SignalProducerSpec: QuickSpec {
 				SignalProducer<Int, NoError>(value: 42)
 					.startOn(TestScheduler())
 					.startWithSignal { signal, innerDisposable in
-						signal.observe(interrupted: {
+						signal.observeInterrupted {
 							interrupted = true
-						})
+						}
 
 						disposable = innerDisposable
 					}
@@ -444,7 +459,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { signal, innerDisposable in
 					let object = NSObject()
 					objectRetainedByObserver = object
-					signal.observe { _ in object.description }
+					signal.observeNext { _ in object.description }
 					disposable = innerDisposable
 				}
 
@@ -482,9 +497,9 @@ class SignalProducerSpec: QuickSpec {
 					.startWithSignal { signal, disposable in
 						expect(interrupted).to(beFalsy())
 
-						signal.observe(interrupted: {
+						signal.observeInterrupted {
 							interrupted = true
-						})
+						}
 
 						disposable.dispose()
 					}
@@ -531,11 +546,16 @@ class SignalProducerSpec: QuickSpec {
 
 				var values: [Int] = []
 				var completed = false
-				producer.start(next: {
-					values.append($0)
-				}, completed: {
-					completed = true
-				})
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
 
 				expect(values).to(equal([1, 2]))
 				expect(completed).to(beTruthy())
@@ -545,9 +565,9 @@ class SignalProducerSpec: QuickSpec {
 				let producer = SignalProducer<(), NoError>.never
 
 				var interrupted = false
-				let disposable = producer.start(interrupted: {
+				let disposable = producer.startWithInterrupted {
 					interrupted = true
-				})
+				}
 
 				expect(interrupted).to(beFalsy())
 
@@ -562,7 +582,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>.never
 					let object = NSObject()
 					objectRetainedByObserver = object
-					disposable = producer.start { _ in object }
+					disposable = producer.startWithNext { _ in object }
 				}
 
 				test()
@@ -577,9 +597,9 @@ class SignalProducerSpec: QuickSpec {
 					var values = [Int]()
 					let (producer, sink) = SignalProducer<Int, NoError>.buffer()
 
-					producer.start(next: { next in
+					producer.startWithNext { next in
 						values.append(next)
-					})
+					}
 
 					sendNext(sink, 1)
 					sendNext(sink, 2)
@@ -696,7 +716,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
 
 				var dates: [NSDate] = []
-				producer.start(next: { dates.append($0) })
+				producer.startWithNext { dates.append($0) }
 
 				scheduler.advanceByInterval(0.9)
 				expect(dates).to(equal([]))
@@ -798,7 +818,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = timer(2, onScheduler: testScheduler, withLeeway: 0)
 
 				var next: NSDate?
-				producer.startOn(startScheduler).start(next: { next = $0 })
+				producer.startOn(startScheduler).startWithNext { next = $0 }
 
 				startScheduler.advanceByInterval(2)
 				expect(next).to(beNil())
@@ -830,11 +850,16 @@ class SignalProducerSpec: QuickSpec {
 						sendCompleted(innerSink)
 						return innerProducer
 					}
-					.start(next: {
-						values.append($0)
-					}, completed: {
-						completed = true
-					})
+					.start { event in
+						switch event {
+						case let .Next(value):
+							values.append(value)
+						case .Completed:
+							completed = true
+						default:
+							break
+						}
+					}
 
 				expect(values).to(equal([1, 2]))
 				expect(completed).to(beTruthy())
@@ -898,9 +923,9 @@ class SignalProducerSpec: QuickSpec {
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 					var error: TestError?
-					(outerProducer.flatten(.Concat)).start(error: { e in
+					(outerProducer.flatten(.Concat)).startWithError { e in
 						error = e
-					})
+					}
 
 					expect(error).to(equal(TestError.Default))
 				}
@@ -909,9 +934,9 @@ class SignalProducerSpec: QuickSpec {
 					let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 					var error: TestError?
-					outerProducer.flatten(.Concat).start(error: { e in
+					outerProducer.flatten(.Concat).startWithError { e in
 						error = e
-					})
+					}
 
 					sendError(outerSink, TestError.Default)
 					expect(error).to(equal(TestError.Default))
@@ -931,9 +956,9 @@ class SignalProducerSpec: QuickSpec {
 						completeInner = { sendCompleted(innerSink) }
 
 						completed = false
-						outerProducer.flatten(.Concat).start(completed: {
+						outerProducer.flatten(.Concat).startWithCompleted {
 							completed = true
-						})
+						}
 
 						sendNext(outerSink, innerProducer)
 					}
@@ -984,11 +1009,16 @@ class SignalProducerSpec: QuickSpec {
 						sendNext(outerSink, producerA)
 						sendNext(outerSink, producerB)
 
-						outerProducer.flatten(.Merge).start(next: { i in
-							recv.append(i)
-						}, error: { _ in () }, completed: {
-							outerCompleted = true
-						})
+						outerProducer.flatten(.Merge).start { event in
+							switch event {
+							case let .Next(i):
+								recv.append(i)
+							case .Completed:
+								outerCompleted = true
+							default:
+								break
+							}
+						}
 
 						sendCompleted(outerSink)
 					}
@@ -1016,9 +1046,9 @@ class SignalProducerSpec: QuickSpec {
 						let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).start(error: { e in
+						outerProducer.flatten(.Merge).startWithError { e in
 							error = e
-						})
+						}
 						expect(error).to(equal(TestError.Default))
 					}
 
@@ -1026,9 +1056,9 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerSink) = SignalProducer<SignalProducer<Int, TestError>, TestError>.buffer()
 
 						var error: TestError?
-						outerProducer.flatten(.Merge).start(error: { e in
+						outerProducer.flatten(.Merge).startWithError { e in
 							error = e
-						})
+						}
 
 						sendError(outerSink, TestError.Default)
 						expect(error).to(equal(TestError.Default))
@@ -1046,16 +1076,18 @@ class SignalProducerSpec: QuickSpec {
 					var errored = false
 					var completed = false
 
-					outer.flatten(.Latest).start(
-						next: {
-							receivedValues.append($0)
-						},
-						error: { _ in
-							errored = true
-						},
-						completed: {
+					outer.flatten(.Latest).start { event in
+						switch event {
+						case let .Next(value):
+							receivedValues.append(value)
+						case .Completed:
 							completed = true
-					})
+						case .Error(_):
+							errored = true
+						default:
+							break
+						}
+					}
 
 					sendNext(firstInnerSink, 1)
 					sendNext(secondInnerSink, 2)
@@ -1098,9 +1130,9 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: inner)
 
 					var completed = false
-					outer.flatten(.Latest).start(completed: {
+					outer.flatten(.Latest).startWithCompleted {
 						completed = true
-					})
+					}
 
 					expect(completed).to(beTruthy())
 				}
@@ -1109,9 +1141,9 @@ class SignalProducerSpec: QuickSpec {
 					let outer = SignalProducer<SignalProducer<Int, TestError>, TestError>.empty
 
 					var completed = false
-					outer.flatten(.Latest).start(completed: {
+					outer.flatten(.Latest).startWithCompleted {
 						completed = true
-					})
+					}
 
 					expect(completed).to(beTruthy())
 				}
@@ -1146,11 +1178,16 @@ class SignalProducerSpec: QuickSpec {
 
 						outerProducer
 							.flatten(strategy)
-							.start(interrupted: { _ in
-								interrupted = true
-							}, completed: { _ in
-								completed = true
-							})
+							.start { event in
+								switch event {
+								case .Interrupted:
+									interrupted = true
+								case .Completed:
+									completed = true
+								default:
+									break
+								}
+							}
 					}
 
 					sendNext(outerSink, innerProducer)
@@ -1369,9 +1406,9 @@ class SignalProducerSpec: QuickSpec {
 				let producer = original.then(subsequent)
 
 				var completed = false
-				producer.start(completed: {
+				producer.startWithCompleted {
 					completed = true
-				})
+				}
 
 				sendCompleted(originalSink)
 				expect(completed).to(beFalsy())

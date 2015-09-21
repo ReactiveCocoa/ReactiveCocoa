@@ -67,10 +67,10 @@ public final class UIScheduler: SchedulerType {
 				action()
 			}
 
-			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
+			OSAtomicDecrement32(&self.queueLength)
 		}
 
-		let queued = withUnsafeMutablePointer(&queueLength, OSAtomicIncrement32)
+		let queued = OSAtomicIncrement32(&queueLength)
 
 		// If we're already running on the main thread, and there isn't work
 		// already enqueued, we can skip scheduling and just execute directly.
@@ -186,7 +186,7 @@ public final class TestScheduler: DateSchedulerType {
 		}
 
 		func less(rhs: ScheduledAction) -> Bool {
-			return date.compare(rhs.date) == NSComparisonResult.OrderedAscending
+			return date.compare(rhs.date) == .OrderedAscending
 		}
 	}
 
@@ -288,11 +288,11 @@ public final class TestScheduler: DateSchedulerType {
 	public func advanceToDate(newDate: NSDate) {
 		lock.lock()
 
-		assert(currentDate.compare(newDate) != NSComparisonResult.OrderedDescending)
+		assert(currentDate.compare(newDate) != .OrderedDescending)
 		_currentDate = newDate
 
 		while scheduledActions.count > 0 {
-			if newDate.compare(scheduledActions[0].date) == NSComparisonResult.OrderedAscending {
+			if newDate.compare(scheduledActions[0].date) == .OrderedAscending {
 				break
 			}
 

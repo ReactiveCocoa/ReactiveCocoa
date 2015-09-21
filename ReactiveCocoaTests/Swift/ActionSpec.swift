@@ -50,8 +50,8 @@ class ActionSpec: QuickSpec {
 					}
 				}
 
-				action.values.observe(next: { values.append($0) })
-				action.errors.observe(next: { errors.append($0) })
+				action.values.observeNext { values.append($0) }
+				action.errors.observeNext { errors.append($0) }
 			}
 
 			it("should be disabled and not executing after initialization") {
@@ -61,9 +61,9 @@ class ActionSpec: QuickSpec {
 
 			it("should error if executed while disabled") {
 				var receivedError: ActionError<NSError>?
-				action.apply(0).start(error: {
+				action.apply(0).startWithError {
 					receivedError = $0
-				})
+				}
 
 				expect(receivedError).notTo(beNil())
 				if let error = receivedError {
@@ -90,9 +90,9 @@ class ActionSpec: QuickSpec {
 				it("should execute successfully") {
 					var receivedValue: String?
 
-					action.apply(0).start(next: {
+					action.apply(0).startWithNext {
 						receivedValue = $0
-					})
+					}
 
 					expect(executionCount).to(equal(1))
 					expect(action.executing.value).to(beTruthy())
@@ -113,9 +113,9 @@ class ActionSpec: QuickSpec {
 				it("should execute with an error") {
 					var receivedError: ActionError<NSError>?
 
-					action.apply(1).start(error: {
+					action.apply(1).startWithError {
 						receivedError = $0
-					})
+					}
 
 					expect(executionCount).to(equal(1))
 					expect(action.executing.value).to(beTruthy())

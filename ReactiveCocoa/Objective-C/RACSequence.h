@@ -146,9 +146,9 @@
 
 @end
 
-@interface RACSequence (Deprecated)
+@interface RACSequence (Unavailable)
 
-- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine __attribute__((deprecated("Renamed to -foldLeftWithStart:reduce:")));
-- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine __attribute__((deprecated("Renamed to -foldRightWithStart:reduce:")));
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine __attribute__((unavailable("Renamed to -foldLeftWithStart:reduce:")));
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine __attribute__((unavailable("Renamed to -foldRightWithStart:reduce:")));
 
 @end

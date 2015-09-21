@@ -29,11 +29,16 @@ class PropertySpec: QuickSpec {
 				var sentValue: String?
 				var signalCompleted = false
 
-				constantProperty.producer.start(next: { value in
-					sentValue = value
-				}, completed: {
-					signalCompleted = true
-				})
+				constantProperty.producer.start { event in
+					switch event {
+					case let .Next(value):
+						sentValue = value
+					case .Completed:
+						signalCompleted = true
+					default:
+						break
+					}
+				}
 
 				expect(sentValue).to(equal(initialPropertyValue))
 				expect(signalCompleted).to(beTruthy())
@@ -52,9 +57,9 @@ class PropertySpec: QuickSpec {
 
 				var sentValue: String?
 
-				mutableProperty.producer.start(next: { value in
+				mutableProperty.producer.startWithNext { value in
 					sentValue = value
-				})
+				}
 
 				expect(sentValue).to(equal(initialPropertyValue))
 				mutableProperty.value = subsequentPropertyValue
@@ -66,9 +71,9 @@ class PropertySpec: QuickSpec {
 
 				var signalCompleted = false
 
-				mutableProperty?.producer.start(completed: {
+				mutableProperty?.producer.startWithCompleted {
 					signalCompleted = true
-				})
+				}
 
 				mutableProperty = nil
 				expect(signalCompleted).to(beTruthy())
@@ -80,9 +85,9 @@ class PropertySpec: QuickSpec {
 				var value: Int?
 
 				property <~ producer
-				property.producer.start(next: { _ in
+				property.producer.startWithNext { _ in
 					value = property.value
-				})
+				}
 
 				sendNext(sink, 10)
 				expect(value).to(equal(10))
@@ -92,9 +97,9 @@ class PropertySpec: QuickSpec {
 				let property = MutableProperty(0)
 
 				var value: Int?
-				property.producer.start(next: { _ in
-					property.producer.start(next: { x in value = x })
-				})
+				property.producer.startWithNext { _ in
+					property.producer.startWithNext { x in value = x }
+				}
 
 				expect(value).to(equal(0))
 
@@ -112,11 +117,16 @@ class PropertySpec: QuickSpec {
 					var sentValue: String?
 					var producerCompleted = false
 
-					propertyOf.producer.start(next: { value in
-						sentValue = value
-					}, completed: {
-						producerCompleted = true
-					})
+					propertyOf.producer.start { event in
+						switch event {
+						case let .Next(value):
+							sentValue = value
+						case .Completed:
+							producerCompleted = true
+						default:
+							break
+						}
+					}
 
 					expect(sentValue).to(equal(initialPropertyValue))
 					expect(producerCompleted).to(beTruthy())
@@ -196,10 +206,10 @@ class PropertySpec: QuickSpec {
 
 			it("should observe changes to the property and underlying object") {
 				var values: [Int] = []
-				property.producer.start(next: { value in
+				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
 					values.append((value as? Int) ?? -1)
-				})
+				}
 
 				expect(values).to(equal([ 0 ]))
 
@@ -218,9 +228,9 @@ class PropertySpec: QuickSpec {
 					let object = ObservableObject()
 					let property = DynamicProperty(object: object, keyPath: "rac_value")
 
-					property.producer.start(completed: {
+					property.producer.startWithCompleted {
 						completed = true
-					})
+					}
 
 					expect(completed).to(beFalsy())
 					expect(property.value).notTo(beNil())

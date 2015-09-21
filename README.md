@@ -104,9 +104,9 @@ receive the results (which prevents doing work when the results are never used).
 That’s easy enough:
 
 ```swift
-searchResults.start(next: { results in
+searchResults.startWithNext { results in
     println("Search results: \(results)")
-})
+}
 ```
 
 Here, we watch for the `Next` [event][Events], which contains our results, and
@@ -292,10 +292,12 @@ To add RAC to your application:
     [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
     application’s repository.
  1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Drag and drop `ReactiveCocoa.xcodeproj` into your application’s Xcode
-    project or workspace.
+ 1. Drag and drop `ReactiveCocoa.xcodeproj` and `Carthage/Checkouts/Result/Result.xcodeproj`
+    into your application’s Xcode project or workspace.
  1. On the “General” tab of your application target’s settings, add
-    `ReactiveCocoa.framework` to the “Embedded Binaries” section.
+    `ReactiveCocoa.framework` and `Result.framework` to the “Embedded Binaries” section.
+ 1. If your application target does not contain Swift code at all, you should also
+    set the `EMBEDDED_CONTENT_CONTAINS_SWIFT` build setting to “Yes”.
 
 Or, if you’re using [Carthage](https://github.com/Carthage/Carthage), simply add
 ReactiveCocoa to your `Cartfile`:

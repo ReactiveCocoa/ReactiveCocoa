@@ -70,7 +70,7 @@ The signal can be controlled by sending events to the observer. This
 can be extremely useful for bridging non-RAC code into the world of signals.
 
 For example, instead of handling application logic in block callbacks, the
-blocks can simply send events to the observer instead. Meanwhile, the signal
+blocks can simply send events to the observer. Meanwhile, the signal
 can be returned, hiding the implementation detail of the callbacks.
 
 ## Signal Producers
@@ -163,7 +163,7 @@ whenever possible!
 
 ## Disposables
 
-A **disposable**, represented by the [`Disposable`][Disposable] protocol, is a a mechanism
+A **disposable**, represented by the [`Disposable`][Disposable] protocol, is a mechanism
 for memory management and cancellation.
 
 When starting a [signal producer](#signal-producers), a disposable will be returned.

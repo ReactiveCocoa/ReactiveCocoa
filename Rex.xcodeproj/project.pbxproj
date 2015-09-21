@@ -8,35 +8,27 @@
 
 /* Begin PBXBuildFile section */
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
-		7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
-		7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE995CA1B03A56800CA9420 /* Operators.swift */; };
 		8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD851B873081007C9000 /* UIControlTests.swift */; };
 		8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 		D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
 		D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
 		D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
-		D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
 		D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
 		D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
 		D834572D1AFEE45B0070616A /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
 		D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
 		D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
-		D83457311AFEE4930070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAC1AFEC68A00D7D3C5 /* Box.framework */; };
 		D83457321AFEE4930070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
 		D83457331AFEE4930070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; };
-		D83457341AFEE4B20070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D83457351AFEE4B20070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D83457361AFEE4B20070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
-		D83457381AFEE4BE0070616A /* Box.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D83457391AFEE4BE0070616A /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D834573A1AFEE4BE0070616A /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
-		D834573B1AFEE57E0070616A /* Box.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC81AFEE3ED00D7D3C5 /* Box.framework */; };
 		D834573C1AFEE57E0070616A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */; };
 		D834573D1AFEE57E0070616A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */; };
 		D83457411AFEE6050070616A /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
@@ -88,7 +80,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D8003EB31AFEC6B000D7D3C5 /* Box.framework in CopyFiles */,
 				D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */,
 				D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */,
 			);
@@ -100,7 +91,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D83457381AFEE4BE0070616A /* Box.framework in CopyFiles */,
 				D83457391AFEE4BE0070616A /* ReactiveCocoa.framework in CopyFiles */,
 				D834573A1AFEE4BE0070616A /* Result.framework in CopyFiles */,
 			);
@@ -112,21 +102,18 @@
 		4238D5951B4D5950008534C0 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSTextField.swift; path = AppKit/NSTextField.swift; sourceTree = "<group>"; };
 		5173EBC51B625A2600C9B48E /* UIBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarItem.swift; sourceTree = "<group>"; };
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
-		7DE995CA1B03A56800CA9420 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		8295FD851B873081007C9000 /* UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlTests.swift; sourceTree = "<group>"; };
 		8295FD881B873490007C9000 /* UIButtonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButtonTests.swift; sourceTree = "<group>"; };
 		8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItemTests.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D8003EAC1AFEC68A00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
 		D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003EAE1AFEC68A00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducer.swift; sourceTree = "<group>"; };
 		D8003EBC1AFED01000D7D3C5 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
 		D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerTests.swift; sourceTree = "<group>"; };
-		D8003EC81AFEE3ED00D7D3C5 /* Box.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Box.framework; sourceTree = "<group>"; };
 		D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = "<group>"; };
 		D86E77A91AFEE646004BF23D /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -152,7 +139,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83457311AFEE4930070616A /* Box.framework in Frameworks */,
 				D83457321AFEE4930070616A /* ReactiveCocoa.framework in Frameworks */,
 				D83457331AFEE4930070616A /* Result.framework in Frameworks */,
 			);
@@ -162,7 +148,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8003EC41AFED36F00D7D3C5 /* Box.framework in Frameworks */,
 				D8003EC51AFED36F00D7D3C5 /* ReactiveCocoa.framework in Frameworks */,
 				D8003EC61AFED36F00D7D3C5 /* Result.framework in Frameworks */,
 			);
@@ -172,7 +157,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83457341AFEE4B20070616A /* Box.framework in Frameworks */,
 				D83457351AFEE4B20070616A /* ReactiveCocoa.framework in Frameworks */,
 				D83457361AFEE4B20070616A /* Result.framework in Frameworks */,
 			);
@@ -182,7 +166,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D834573B1AFEE57E0070616A /* Box.framework in Frameworks */,
 				D834573C1AFEE57E0070616A /* ReactiveCocoa.framework in Frameworks */,
 				D834573D1AFEE57E0070616A /* Result.framework in Frameworks */,
 			);
@@ -212,7 +195,6 @@
 			isa = PBXGroup;
 			children = (
 				D86FFBD91B34B3F0001A89B3 /* Action.swift */,
-				7DE995CA1B03A56800CA9420 /* Operators.swift */,
 				D8F0974C1B190ECE002E15BA /* Property.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
@@ -269,7 +251,6 @@
 			children = (
 				D86E77A91AFEE646004BF23D /* Rex.framework */,
 				D86E77AA1AFEE646004BF23D /* RexTests-Mac.xctest */,
-				D8003EAC1AFEC68A00D7D3C5 /* Box.framework */,
 				D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */,
 				D8003EAE1AFEC68A00D7D3C5 /* Result.framework */,
 			);
@@ -281,7 +262,6 @@
 			children = (
 				D86E77AB1AFEE646004BF23D /* Rex.framework */,
 				D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */,
-				D8003EC81AFEE3ED00D7D3C5 /* Box.framework */,
 				D8003EC91AFEE3ED00D7D3C5 /* ReactiveCocoa.framework */,
 				D8003ECA1AFEE3ED00D7D3C5 /* Result.framework */,
 			);
@@ -432,7 +412,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Neil Pankey";
 				TargetAttributes = {
 					D8003E8D1AFEC3D400D7D3C5 = {
@@ -509,7 +489,6 @@
 				D86FFBDA1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D86FFBD11B34AD6F001A89B3 /* Association.swift in Sources */,
 				D8003EB91AFEC7A900D7D3C5 /* SignalProducer.swift in Sources */,
-				7DE995CB1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8003EBD1AFED01000D7D3C5 /* Signal.swift in Sources */,
 				D8F097441B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D8F0973B1B17F2F7002E15BA /* NSData.swift in Sources */,
@@ -541,7 +520,6 @@
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				D8E4A6211B7BBB2100EAD8A8 /* UIBarItem.swift in Sources */,
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
-				7DE995CC1B03A56800CA9420 /* Operators.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
@@ -602,6 +580,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -684,6 +663,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -709,6 +689,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -729,6 +710,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -744,6 +726,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -752,7 +735,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -770,6 +753,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -781,7 +765,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -794,6 +778,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -819,6 +804,7 @@
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 			};
@@ -836,6 +822,7 @@
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.neilpa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

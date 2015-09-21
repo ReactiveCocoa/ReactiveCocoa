@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-import Rex
+@testable import Rex
 import ReactiveCocoa
 import XCTest
 

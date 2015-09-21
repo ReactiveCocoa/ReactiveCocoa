@@ -18,8 +18,8 @@ extension NSObject {
     public func rex_producerForKeyPath<T>(keyPath: String) -> SignalProducer<T, NoError> {
         return self.rac_valuesForKeyPath(keyPath, observer: nil)
             .toSignalProducer()
-            |> map { $0 as! T }
-            |> catch { error in
+            .map { $0 as! T }
+            .flatMapError { error in
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty
@@ -33,7 +33,7 @@ extension NSObject {
     /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
     /// bindings on Cocoa objects.
     public func rex_stringProperty(keyPath: StaticString) -> MutableProperty<String> {
-        return associatedProperty(self, keyPath)
+        return associatedProperty(self, keyPath: keyPath)
     }
 
     /// Attaches a `MutableProperty` relying on KVC for the initial value and subsequent
@@ -46,7 +46,7 @@ extension NSObject {
     /// N.B. Ensure that `self` isn't strongly captured by `placeholder`, otherwise this will
     /// create a retain cycle causing `self` to never dealloc.
     public func rex_classProperty<T: AnyObject>(keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
-        return associatedProperty(self, keyPath, placeholder)
+        return associatedProperty(self, keyPath: keyPath, placeholder: placeholder)
     }
 
     /// Attaches a `MutableProperty` value under `key`. The property is initialized with
@@ -59,7 +59,7 @@ extension NSObject {
     /// N.B. Ensure that `self` isn't strongly captured by `initial` or `setter`, otherwise this
     /// will create a retain cycle causing `self` to never dealloc.
     public func rex_valueProperty<T>(key: UnsafePointer<()>, _ initial: () -> T, _ setter: T -> ()) -> MutableProperty<T> {
-        return associatedObject(self, key) {
+        return associatedObject(self, key: key) {
             let property = MutableProperty(initial())
             property.producer.start(next: setter)
             return property

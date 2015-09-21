@@ -12,14 +12,14 @@ import ReactiveCocoa
 extension NSData {
     /// Read the data at the URL.
     /// Sends the data or the error.
-    class func rex_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions.allZeros) -> SignalProducer<NSData, NSError> {
+    class func rex_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions()) -> SignalProducer<NSData, NSError> {
         return SignalProducer<NSData, NSError> { observer, disposable in
-            var error: NSError?
-            if let data = NSData(contentsOfURL: url, options: options, error: &error) {
+            do {
+                let data = try NSData(contentsOfURL: url, options: options)
                 sendNext(observer, data)
                 sendCompleted(observer)
-            } else {
-                sendError(observer, error ?? NSError())
+            } catch {
+                sendError(observer, error as NSError)
             }
         }
     }

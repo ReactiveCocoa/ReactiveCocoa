@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-import Rex
+@testable import Rex
 import ReactiveCocoa
 import XCTest
 
@@ -17,55 +17,55 @@ final class SignalTests: XCTestCase {
         var values: [String] = []
 
         signal
-            |> filterMap {
-                return $0 % 2 == 0 ? toString($0) : nil
+            .filterMap {
+                return $0 % 2 == 0 ? String($0) : nil
             }
-            |> observe(next: values.append)
+            .observe(next: { values.append($0) })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssert(values == [])
 
-        2 --> sink
+        sendNext(sink, 2)
         XCTAssert(values == ["2"])
 
-        3 --> sink
+        sendNext(sink, 3)
         XCTAssert(values == ["2"])
 
-        6 --> sink
+        sendNext(sink, 6)
         XCTAssert(values == ["2", "6"])
     }
 
     func testIgnoreErrorCompletion() {
-        let (signal, sink) = Signal<Int, NSError>.pipe()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
         var completed = false
 
         signal
-            |> ignoreError
-            |> observe(completed: {
+            .ignoreError()
+            .observe(completed: {
                 completed = true
             })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssertFalse(completed)
 
-        NSError() --> sink
+        sendError(sink, .Default)
         XCTAssertTrue(completed)
     }
 
     func testIgnoreErrorInterruption() {
-        let (signal, sink) = Signal<Int, NSError>.pipe()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
         var interrupted = false
 
         signal
-            |> ignoreError(replacement: .Interrupted)
-            |> observe(interrupted: {
+            .ignoreError(replacement: .Interrupted)
+            .observe(interrupted: {
                 interrupted = true
             })
 
-        1 --> sink
+        sendNext(sink, 1)
         XCTAssertFalse(interrupted)
 
-        NSError() --> sink
+        sendError(sink, .Default)
         XCTAssertTrue(interrupted)
     }
 
@@ -76,8 +76,8 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            |> observe(
+            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .observe(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             )
@@ -99,8 +99,8 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            |> timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            |> observe(
+            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .observe(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             )
@@ -120,18 +120,22 @@ final class SignalTests: XCTestCase {
         var values: [Int] = []
 
         signal
-            |> uncollect
-            |> observe(next: {
+            .uncollect()
+            .observe(next: {
                 values.append($0)
             })
 
-        [] --> sink
+        sendNext(sink, [])
         XCTAssert(values.isEmpty)
 
-        [1] --> sink
+        sendNext(sink, [1])
         XCTAssert(values == [1])
 
-        [2, 3] --> sink
+        sendNext(sink, [2, 3])
         XCTAssert(values == [1, 2, 3])
     }
+}
+
+enum TestError: ErrorType {
+    case Default
 }

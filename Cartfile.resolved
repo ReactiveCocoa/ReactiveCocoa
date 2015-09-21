@@ -1,3 +1,2 @@
-github "robrix/Box" "1.2.2"
-github "antitypical/Result" "0.4.4"
-github "ReactiveCocoa/ReactiveCocoa" "v3.0.0"
+github "antitypical/Result" "76f9a972ed61ff872b731460bc610c8acbfae58c"
+github "ReactiveCocoa/ReactiveCocoa" "v4.0-alpha.1"

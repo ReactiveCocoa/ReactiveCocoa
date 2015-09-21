@@ -25,7 +25,7 @@ public func associatedProperty(host: AnyObject, keyPath: StaticString) -> Mutabl
     let setter: String -> () = { [weak host] newValue in
         host?.setValue(newValue, forKeyPath: key)
     }
-    return associatedProperty(host, keyPath.utf8Start, initial, setter)
+    return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
 }
 
 /// Attaches a `MutableProperty` value to the `host` object using KVC to get the initial
@@ -47,7 +47,7 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
     let setter: T -> () = { [weak host] newValue in
         host?.setValue(newValue, forKeyPath: key)
     }
-    return associatedProperty(host, keyPath.utf8Start, initial, setter)
+    return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
 }
 
 /// Attaches a `MutableProperty` value to the `host` object under `key`. The property is
@@ -60,7 +60,7 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 /// N.B. Ensure that `host` isn't strongly captured by `initial` or `setter`, otherwise this
 /// will create a retain cycle with `host` causing it to never dealloc.
 public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
-    return associatedObject(host, key) {
+    return associatedObject(host, key: key) {
         let property = MutableProperty(initial())
         property.producer.start(next: setter)
         return property
@@ -77,7 +77,8 @@ public func associatedObject<T: AnyObject>(host: AnyObject, key: UnsafePointer<(
     var value = objc_getAssociatedObject(host, key) as? T
     if value == nil {
         value = initial()
-        objc_setAssociatedObject(host, key, value, objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN))
+        objc_setAssociatedObject(host, key, value, .OBJC_ASSOCIATION_RETAIN)
+//        objc_setAssociatedObject(host, key, value, objc_AssociationPolicy())
     }
     return value!
 }

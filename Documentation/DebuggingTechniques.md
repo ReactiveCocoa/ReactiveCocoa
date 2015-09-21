@@ -5,6 +5,7 @@ This document contains list of debugging techniques and infrastructure that help
 #### Unscrambling Swift compiler errors
 
 Type inferrence could be a source of hard-to-debug compiler errors. There are two potential places to be wrong when type inferrence used:
+
 1. Definition of type inferred variable
 2. Consumption of type inferred variable
 

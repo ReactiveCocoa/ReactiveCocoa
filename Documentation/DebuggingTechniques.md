@@ -9,7 +9,7 @@ Type inferrence could be a source of hard-to-debug compiler errors. There are tw
 1. Definition of type inferred variable
 2. Consumption of type inferred variable
 
-In both cases erros are related to incorrect assumptions about type. Such issues are common for a ReactiveCocoa applications as it is all about operations over data and related types. With a current state of a Swift compiler type related errors could be really misleading, especially when error happens in the middle of a signal chain. 
+In both cases errors are related to incorrect assumptions about type. Such issues are common for a ReactiveCocoa applications as it is all about operations over data and related types. With a current state of a Swift compiler type related errors could be really misleading, especially when error happens in the middle of a signal chain. 
 
 Below is an example of type-error scenario:
 

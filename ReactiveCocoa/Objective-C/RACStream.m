@@ -350,28 +350,3 @@
 }
 
 @end
-
-@implementation RACStream (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-- (instancetype)sequenceMany:(RACStream * (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[self flattenMap:^(id _) {
-		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
-}
-
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
-	return [self scanWithStart:startingValue reduce:block];
-}
-
-- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock {
-	return [self combinePreviousWithStart:start reduce:combineBlock];
-}
-
-#pragma clang diagnostic pop
-
-@end

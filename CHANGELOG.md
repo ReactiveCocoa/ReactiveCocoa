@@ -10,6 +10,20 @@ If you're new to the Swift API and migrating from RAC 2, start with the
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
 
+## Alpha 2
+
+#### Renamed signal generic parameters
+
+The generic paramters of `Signal`, `SignalProducer`, and other related types
+have been renamed to `Value` and `Error` from `T` and `E` respectively. This
+is in-line with changes to the standard library to give more descriptive names
+to type parameters for increased clarity. This should have limited impact,
+only affecting generic, custom signal/producer extensions.
+
+#### Renaming Event.Error to Event.Failed
+
+Maybe coming to a later alpha. See #2360.
+
 ## Alpha 1
 
 #### Signal operators are protocol extensions
@@ -80,14 +94,6 @@ hot `Signal` of values that need to be mapped to "work" -- `SignalProducer`.
 The addition of `flatten` and `flatMap` over signals-of-producers makes it
 easy to serialize (`Concat`) or parallelize (`Merge`) the work, or only run
 the most recent (`Latest`).
-
-#### Renaming T and E generic parameters
-
-Probably coming to later alpha. See #2212 and #2349.
-
-#### Renaming Event.Error to Event.Failed
-
-Maybe coming to a later alpha. See #2360.
 
 # 3.0
 

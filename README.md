@@ -128,7 +128,7 @@ quickest solution would be to log them, then ignore them:
 
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
-            .catch { error in
+            .flatMapError { error in
                 println("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
@@ -151,7 +151,7 @@ let searchResults = searchStrings
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .retry(2)
-            .catch { error in
+            .flatMapError { error in
                 println("Network error occurred: \(error)")
                 return SignalProducer.empty
             }

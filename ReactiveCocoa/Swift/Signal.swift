@@ -645,7 +645,7 @@ private final class CombineLatestState<Value> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, Error>(signal: Signal<T, Error>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
+private func observeWithStates<T, U, Error>(signal: Signal<T, Error>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onFailed: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe { event in
 		switch event {
 		case let .Next(value):
@@ -659,7 +659,7 @@ private func observeWithStates<T, U, Error>(signal: Signal<T, Error>, _ signalSt
 			lock.unlock()
 
 		case let .Failed(error):
-			onError(error)
+			onFailed(error)
 
 		case .Completed:
 			lock.lock()
@@ -697,13 +697,13 @@ extension SignalType {
 				sendNext(observer, (signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = { sendFailed(observer, $0) }
+			let onFailed = { sendFailed(observer, $0) }
 			let onBothCompleted = { sendCompleted(observer) }
 			let onInterrupted = { sendInterrupted(observer) }
 
 			let disposable = CompositeDisposable()
-			disposable += observeWithStates(self.signal, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-			disposable += observeWithStates(otherSignal, otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			disposable += observeWithStates(self.signal, signalState, otherState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
+			disposable += observeWithStates(otherSignal, otherState, signalState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
 			
 			return disposable
 		}
@@ -1126,7 +1126,7 @@ extension SignalType {
 				}
 			}
 			
-			let onError = { sendFailed(observer, $0) }
+			let onFailed = { sendFailed(observer, $0) }
 			let onInterrupted = { sendInterrupted(observer) }
 
 			disposable += self.observe { event in
@@ -1139,7 +1139,7 @@ extension SignalType {
 					
 					flush()
 				case let .Failed(error):
-					onError(error)
+					onFailed(error)
 				case .Completed:
 					states.modify { (var states) in
 						states.0.completed = true
@@ -1162,7 +1162,7 @@ extension SignalType {
 					
 					flush()
 				case let .Failed(error):
-					onError(error)
+					onFailed(error)
 				case .Completed:
 					states.modify { (var states) in
 						states.1.completed = true

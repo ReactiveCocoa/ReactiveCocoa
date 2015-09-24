@@ -123,15 +123,15 @@ To remedy this, we need to decide what to do with errors that occur. The
 quickest solution would be to log them, then ignore them:
 
 ```swift
-    .flatMap(.Latest) { query in
+    .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
-
+        
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .flatMapError { error in
                 print("Network error occurred: \(error)")
                 return SignalProducer.empty
-            }
+        }
     }
 ```
 

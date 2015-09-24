@@ -40,13 +40,14 @@ __block TestObserver *observer = nil;
 
 qck_beforeEach(^{
 	defaults = NSUserDefaults.standardUserDefaults;
-	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
-	
+
 	observer = [TestObserver new];
 });
 
 qck_afterEach(^{
+	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
+
 	observer = nil;
 });
 

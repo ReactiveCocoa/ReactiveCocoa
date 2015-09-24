@@ -77,13 +77,13 @@ With each string, we want to execute a network request. Luckily, RAC offers an
 
 ```swift
 let searchResults = searchStrings
-    .flatMap(.Latest) { query in
+    .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
         return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
     }
-    .map { data, URLResponse in
+    .map { (data, URLResponse) -> String in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
-        return parseJSONResultsFromString(string)
+        return self.parseJSONResultsFromString(string)
     }
     .observeOn(UIScheduler())
 ```

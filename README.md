@@ -105,7 +105,7 @@ That’s easy enough:
 
 ```swift
 searchResults.startWithNext { results in
-    println("Search results: \(results)")
+    print("Search results: \(results)")
 }
 ```
 
@@ -129,7 +129,7 @@ quickest solution would be to log them, then ignore them:
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .flatMapError { error in
-                println("Network error occurred: \(error)")
+                print("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
     }
@@ -152,7 +152,7 @@ let searchResults = searchStrings
             .rac_dataWithRequest(URLRequest)
             .retry(2)
             .flatMapError { error in
-                println("Network error occurred: \(error)")
+                print("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
     }

@@ -1,7 +1,7 @@
 import Result
 
 /// A SignalProducer creates Signals that can produce values of type `Value` and/or
-/// error out with errors of type `Error`. If no errors should be possible, NoError
+/// fail with errors of type `Error`. If no failure should be possible, NoError
 /// can be specified for `Error`.
 ///
 /// SignalProducers can be used to represent operations or tasks, like network
@@ -42,7 +42,8 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Creates a producer for a Signal that will immediately send an error.
+	/// Creates a producer for a Signal that will immediately fail with the
+	/// given error.
 	public init(error: Error) {
 		self.init { observer, disposable in
 			sendFailed(observer, error)
@@ -50,8 +51,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	}
 
 	/// Creates a producer for a Signal that will immediately send one value
-	/// then complete, or immediately send an error, depending on the given
-	/// Result.
+	/// then complete, or immediately fail, depending on the given Result.
 	public init(result: Result<Value, Error>) {
 		switch result {
 		case let .Success(value):
@@ -441,7 +441,7 @@ extension SignalProducerType {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// `Error` and `Interrupted` events are always scheduled immediately.
+	/// `Failed` and `Interrupted` events are always scheduled immediately.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.delay(interval, onScheduler: scheduler) }
@@ -459,7 +459,7 @@ extension SignalProducerType {
 	///
 	/// In other words, this brings Events “into the monad.”
 	///
-	/// When a Completed or Error event is received, the resulting producer will send
+	/// When a Completed or Failed event is received, the resulting producer will send
 	/// the Event itself and then complete. When an Interrupted event is received,
 	/// the resulting producer will send the Event itself and then interrupt.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -529,7 +529,7 @@ extension SignalProducerType {
 
 	/// Forwards events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a producer which passes through `Next`, `Error`, and `Interrupted`
+	/// Returns a producer which passes through `Next`, `Failed`, and `Interrupted`
 	/// events from `self` until `replacement` sends an event, at which point the
 	/// returned producer will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
@@ -561,14 +561,14 @@ extension SignalProducerType {
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned producer and `Failure`s sent as `Error` events.
+	/// forwarded on the returned producer and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func attempt(operation: Value -> Result<(), Error>) -> SignalProducer<Value, Error> {
 		return lift { $0.attempt(operation) }
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results mapped
-	/// on the returned producer and `Failure`s sent as `Error` events.
+	/// on the returned producer and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> SignalProducer<U, Error> {
 		return lift { $0.attemptMap(operation) }
@@ -918,8 +918,8 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	/// Flattens the inner producers sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
 	///
-	/// If `producer` or an active inner producer emits an error, the returned
-	/// producer will forward that error immediately.
+	/// If `producer` or an active inner producer fails, the returned
+	/// producer will forward that failure immediately.
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
@@ -937,8 +937,8 @@ extension SignalProducerType {
 	/// resulting producers (into a single producer of values), according to the
 	/// semantics of the given strategy.
 	///
-	/// If `producer` or any of the created producers emit an error, the returned
-	/// producer will forward that error immediately.
+	/// If `producer` or any of the created producers fail, the returned
+	/// producer will forward that failure immediately.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> SignalProducer<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)

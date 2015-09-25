@@ -1,8 +1,8 @@
 import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
-/// of values being sent (`Value`) and the type of error that can occur (`Error`).
-/// If no errors should be possible, NoError can be specified for `Error`.
+/// of values being sent (`Value`) and the type of failure that can occur (`Error`).
+/// If no failures should be possible, NoError can be specified for `Error`.
 ///
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the
@@ -266,8 +266,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Flattens the inner producers sent upon `signal` (into a single signal of
 	/// values), according to the semantics of the given strategy.
 	///
-	/// If `signal` or an active inner producer emits an error, the returned
-	/// signal will forward that error immediately.
+	/// If `signal` or an active inner producer fails, the returned signal will
+	/// forward that failure immediately.
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
@@ -291,8 +291,8 @@ extension SignalType {
 	/// resulting producers (into a signal of values), according to the
 	/// semantics of the given strategy.
 	///
-	/// If `signal` or any of the created producers emit an error, the returned
-	/// signal will forward that error immediately.
+	/// If `signal` or any of the created producers fail, the returned signal
+	/// will forward that failure immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> SignalProducer<U, Error>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
@@ -304,8 +304,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// `signal`, waiting until each inner producer completes before beginning to
 	/// send the values from the next inner producer.
 	///
-	/// If any of the inner producers emit an error, the returned signal will emit
-	/// that error.
+	/// If any of the inner producers fail, the returned signal will forward
+	/// that failure immediately
 	///
 	/// The returned signal completes only when `signal` and all producers
 	/// emitted from `signal` complete.
@@ -712,7 +712,7 @@ extension SignalType {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// `Error` and `Interrupted` events are always scheduled immediately.
+	/// `Failed` and `Interrupted` events are always scheduled immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -763,7 +763,7 @@ extension SignalType {
 	///
 	/// In other words, this brings Events “into the monad.”
 	///
-	/// When a Completed or Error event is received, the resulting signal will send
+	/// When a Completed or Failed event is received, the resulting signal will send
 	/// the Event itself and then complete. When an Interrupted event is received,
 	/// the resulting signal will send the Event itself and then interrupt.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -1005,7 +1005,7 @@ extension SignalType {
 
 	/// Forwards events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
+	/// Returns a signal which passes through `Next`, `Failed`, and `Interrupted`
 	/// events from `signal` until `replacement` sends an event, at which point the
 	/// returned signal will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
@@ -1180,7 +1180,7 @@ extension SignalType {
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned signal and `Failure`s sent as `Error` events.
+	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attempt(operation: Value -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
@@ -1191,7 +1191,7 @@ extension SignalType {
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results mapped
-	/// on the returned signal and `Failure`s sent as `Error` events.
+	/// on the returned signal and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in

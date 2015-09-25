@@ -9,7 +9,7 @@
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
-/// `Next* (Error | Completed | Interrupted)?`
+/// `Next* (Failed | Completed | Interrupted)?`
 public enum Event<Value, Err: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Value)
@@ -138,7 +138,7 @@ extension Event: CustomStringConvertible {
 			return "NEXT \(value)"
 
 		case let .Failed(error):
-			return "ERROR \(error)"
+			return "FAILED \(error)"
 
 		case .Completed:
 			return "COMPLETED"

@@ -791,8 +791,8 @@ extension SignalType where Value: EventType, Error == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func dematerialize() -> Signal<Value.Value, Value.Err> {
-		return Signal<Value.Value, Value.Err> { observer in
+	public func dematerialize() -> Signal<Value.Value, Value.Error> {
+		return Signal<Value.Value, Value.Error> { observer in
 			return self.observe { event in
 				switch event {
 				case let .Next(innerEvent):

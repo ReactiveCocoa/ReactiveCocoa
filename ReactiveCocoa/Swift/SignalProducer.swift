@@ -611,7 +611,7 @@ extension SignalProducerType where Value: EventType, Error == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func dematerialize() -> SignalProducer<Value.Value, Value.Err> {
+	public func dematerialize() -> SignalProducer<Value.Value, Value.Error> {
 		return lift { $0.dematerialize() }
 	}
 }
@@ -685,8 +685,8 @@ extension SignalProducerType {
 					case let .Next(value):
 						next?(value)
 
-					case let .Failed(err):
-						failed?(err)
+					case let .Failed(error):
+						failed?(error)
 
 					case .Completed:
 						completed?()

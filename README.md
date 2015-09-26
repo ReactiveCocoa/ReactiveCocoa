@@ -131,7 +131,7 @@ quickest solution would be to log them, then ignore them:
             .flatMapError { error in
                 print("Network error occurred: \(error)")
                 return SignalProducer.empty
-	        }
+            }
     }
 ```
 
@@ -154,7 +154,7 @@ let searchResults = searchStrings
             .flatMapError { error in
                 print("Network error occurred: \(error)")
                 return SignalProducer.empty
-	        }
+            }
     }
     .map { (data, URLResponse) -> String in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!

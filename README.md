@@ -125,7 +125,7 @@ quickest solution would be to log them, then ignore them:
 ```swift
     .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
-        
+
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .flatMapError { error in
@@ -147,7 +147,7 @@ Our improved `searchResults` producer might look like this:
 let searchResults = searchStrings
     .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
-        
+
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .retry(2)

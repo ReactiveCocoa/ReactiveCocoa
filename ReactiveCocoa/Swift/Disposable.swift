@@ -78,7 +78,7 @@ public final class CompositeDisposable: Disposable {
 		public func remove() {
 			if let token = bagToken.swap(nil) {
 				disposable?.disposables.modify { bag in
-					guard var bag = bag else { return nil }
+					guard let bag = bag else { return nil }
 
 					bag.removeValueForToken(token)
 					return bag
@@ -94,7 +94,7 @@ public final class CompositeDisposable: Disposable {
 	/// Initializes a CompositeDisposable containing the given sequence of
 	/// disposables.
 	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
-		var bag: Bag<Disposable> = Bag()
+		let bag: Bag<Disposable> = Bag()
 
 		for disposable in disposables {
 			bag.insert(disposable)
@@ -125,7 +125,7 @@ public final class CompositeDisposable: Disposable {
 
 		var handle: DisposableHandle? = nil
 		disposables.modify { ds in
-			guard var ds = ds else { return nil }
+			guard let ds = ds else { return nil }
 
 			let token = ds.insert(d)
 			handle = DisposableHandle(bagToken: token, disposable: self)

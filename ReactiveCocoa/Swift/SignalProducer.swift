@@ -128,7 +128,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			var token: RemovalToken?
 
 			let replay: () -> () = {
-				let originalState = state.modify { (var state) in
+				let originalState = state.modify { state in
 					token = state.observers?.insert(observer)
 					return state
 				}
@@ -156,7 +156,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 			if let token = token {
 				disposable.addDisposable {
-					state.modify { (var state) in
+					state.modify { state in
 						state.observers?.removeValueForToken(token)
 						return state
 					}

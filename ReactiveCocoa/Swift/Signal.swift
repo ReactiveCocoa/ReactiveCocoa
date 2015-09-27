@@ -119,7 +119,7 @@ public final class Signal<Value, Error: ErrorType> {
 	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
-			guard var observers = observers else { return nil }
+			guard let observers = observers else { return nil }
 
 			token = observers.insert(observer)
 			return observers
@@ -128,7 +128,7 @@ public final class Signal<Value, Error: ErrorType> {
 		if let token = token {
 			return ActionDisposable {
 				self.atomicObservers.modify { observers in
-					guard var observers = observers else { return nil }
+					guard let observers = observers else { return nil }
 
 					observers.removeValueForToken(token)
 					return observers

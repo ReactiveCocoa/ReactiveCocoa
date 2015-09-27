@@ -310,9 +310,9 @@ class SignalSpec: QuickSpec {
 
 			context("memory") {
 				it("should not crash allocating memory with a few observers") {
-					let (signal, sink) = Signal<Int, NoError>.pipe()
+					let (signal, _) = Signal<Int, NoError>.pipe()
 
-					for i in 0..<50 {
+					for _ in 0..<50 {
 						autoreleasepool {
 							let disposable = signal.observe { _ in }
 

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
+		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
+		579504341BB8A34300A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		57A4D1B11BA13D7A00F7D4B1 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		57A4D1B21BA13D7A00F7D4B1 /* RACCompoundDisposableProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D037646A19EDA41200A782A9 /* RACCompoundDisposableProvider.d */; };
 		57A4D1B31BA13D7A00F7D4B1 /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03764A319EDA41200A782A9 /* RACSignalProvider.d */; };
@@ -2414,6 +2416,7 @@
 				D03766E919EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
 				D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
 				7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
+				579504331BB8A34200A5E482 /* BagSpec.swift in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
@@ -2614,6 +2617,7 @@
 				D03766E619EDA60000A782A9 /* RACDisposableSpec.m in Sources */,
 				D03766D419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m in Sources */,
 				D03766DC19EDA60000A782A9 /* RACChannelSpec.m in Sources */,
+				579504341BB8A34300A5E482 /* BagSpec.swift in Sources */,
 				D037671A19EDA60000A782A9 /* UIActionSheetRACSupportSpec.m in Sources */,
 				D03766DA19EDA60000A782A9 /* RACChannelExamples.m in Sources */,
 				D03766F619EDA60000A782A9 /* RACSequenceExamples.m in Sources */,

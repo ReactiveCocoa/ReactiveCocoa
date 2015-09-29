@@ -106,6 +106,46 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(value).to(equal(1))
 			}
+			
+			describe("valueTransformer") {
+				context("with the default value transformer") {
+					it("should not transform the value set") {
+						let property = MutableProperty(0)
+						var sentValue: Int?
+						
+						property.producer.startWithNext { value in
+							sentValue = value
+						}
+						
+						expect(property.value).to(equal(0))
+						expect(sentValue).to(equal(0))
+						
+						property.value = 1
+						expect(sentValue).to(equal(1))
+						property.value = 2
+						expect(sentValue).to(equal(2))
+					}
+				}
+			
+				context("with a custom value transformer") {
+					it("should transform the value set") {
+						let property = MutableProperty(0) { $0 + 1 }
+						var sentValue: Int?
+						
+						property.producer.startWithNext { value in
+							sentValue = value
+						}
+						
+						expect(property.value).to(equal(1))
+						expect(sentValue).to(equal(1))
+						
+						property.value = 1
+						expect(sentValue).to(equal(2))
+						property.value = 2
+						expect(sentValue).to(equal(3))
+					}
+				}
+			}
 		}
 
 		describe("PropertyOf") {

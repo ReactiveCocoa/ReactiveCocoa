@@ -80,6 +80,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// underlying producer prevents sending recursive events.
 	private let lock = NSRecursiveLock()
 	private var _value: Value
+	
+	private let valueTransformer: (Value) -> Value
 
 	/// The current value of the property.
 	///
@@ -95,8 +97,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		set {
 			lock.lock()
-			_value = newValue
-			sendNext(observer, newValue)
+			_value = valueTransformer(newValue)
+			sendNext(observer, _value)
 			lock.unlock()
 		}
 	}
@@ -107,13 +109,14 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public let producer: SignalProducer<Value, NoError>
 
 	/// Initializes the property with the given value to start.
-	public init(_ initialValue: Value) {
+	public init(_ initialValue: Value, valueTransformer: (Value -> Value) = { $0 }) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
 		(producer, observer) = SignalProducer<Value, NoError>.buffer(1)
 
-		_value = initialValue
-		sendNext(observer, initialValue)
+		self.valueTransformer = valueTransformer
+		_value = self.valueTransformer(initialValue)
+		sendNext(observer, _value)
 	}
 
 	deinit {

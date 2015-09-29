@@ -32,7 +32,9 @@ internal struct Bag<Element> {
 		let token = RemovalToken(identifier: currentIdentifier)
 		let element = BagElement(value: value, identifier: currentIdentifier, token: token)
 
-		elements.append(element)
+		// FIXME(nacho): this is a workaround for a regression introduced in Swift 2.1
+		// http://www.openradar.me/22873620. It can be reverted as soon as it's fixed.
+		elements = elements + [element]
 		currentIdentifier++
 
 		return token

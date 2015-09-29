@@ -119,6 +119,11 @@ class PropertySpec: QuickSpec {
 						
 						expect(property.value).to(equal(0))
 						expect(sentValue).to(equal(0))
+						
+						property.value = 1
+						expect(sentValue).to(equal(1))
+						property.value = 2
+						expect(sentValue).to(equal(2))
 					}
 				}
 			
@@ -133,6 +138,11 @@ class PropertySpec: QuickSpec {
 						
 						expect(property.value).to(equal(1))
 						expect(sentValue).to(equal(1))
+						
+						property.value = 1
+						expect(sentValue).to(equal(2))
+						property.value = 2
+						expect(sentValue).to(equal(3))
 					}
 				}
 			}

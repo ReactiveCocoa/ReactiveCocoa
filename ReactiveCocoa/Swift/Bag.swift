@@ -74,12 +74,11 @@ internal class Bag<Element> {
 extension Bag: SequenceType {
 	func generate() -> AnyGenerator<Element> {
 		var index = 0
-		let elements = self.elements
 		let count = elements.count
 
 		return anyGenerator {
 			if index < count {
-				return elements[index++].value
+				return self.elements[index++].value
 			} else {
 				return nil
 			}

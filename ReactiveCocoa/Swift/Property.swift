@@ -81,7 +81,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	private let lock = NSRecursiveLock()
 	private var _value: Value
 	
-	private let willSet: (Value) -> Value
+	private let valueTransformer: (Value) -> Value
 
 	/// The current value of the property.
 	///
@@ -97,7 +97,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		set {
 			lock.lock()
-			_value = willSet(newValue)
+			_value = valueTransformer(newValue)
 			sendNext(observer, newValue)
 			lock.unlock()
 		}
@@ -109,13 +109,13 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public let producer: SignalProducer<Value, NoError>
 
 	/// Initializes the property with the given value to start.
-	public init(_ initialValue: Value, willSet: (Value -> Value) = { $0 }) {
+	public init(_ initialValue: Value, valueTransformer: (Value -> Value) = { $0 }) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
 		(producer, observer) = SignalProducer<Value, NoError>.buffer(1)
 
-		self.willSet = willSet
-		_value = self.willSet(initialValue)
+		self.valueTransformer = valueTransformer
+		_value = self.valueTransformer(initialValue)
 		sendNext(observer, _value)
 	}
 

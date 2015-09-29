@@ -107,9 +107,9 @@ class PropertySpec: QuickSpec {
 				expect(value).to(equal(1))
 			}
 			
-			describe("willSet") {
-				context("with the default property observer") {
-					it("should not affect the value set") {
+			describe("valueTransformer") {
+				context("with the default value transformer") {
+					it("should not transform the value set") {
 						let property = MutableProperty(0)
 						var sentValue: Int?
 						
@@ -122,8 +122,8 @@ class PropertySpec: QuickSpec {
 					}
 				}
 			
-				context("with a custom property observer") {
-					it("should affect the value set") {
+				context("with a custom value transformer") {
+					it("should transform the value set") {
 						let property = MutableProperty(0) { $0 + 1 }
 						var sentValue: Int?
 						

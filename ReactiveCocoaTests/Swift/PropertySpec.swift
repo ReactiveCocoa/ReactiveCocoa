@@ -106,6 +106,22 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(value).to(equal(1))
 			}
+			
+			describe("willSet") {
+				context("with the default property observer") {
+					it("should not affect the value set") {
+						let property = MutableProperty(0)
+						expect(property.value).to(equal(0))
+					}
+				}
+			
+				context("with a custom property observer") {
+					it("should affect the value set") {
+						let property = MutableProperty(0) { $0 + 1 }
+						expect(property.value).to(equal(1))
+					}
+				}
+			}
 		}
 
 		describe("PropertyOf") {

@@ -116,7 +116,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		self.willSet = willSet
 		_value = self.willSet(initialValue)
-		sendNext(observer, initialValue)
+		sendNext(observer, _value)
 	}
 
 	deinit {

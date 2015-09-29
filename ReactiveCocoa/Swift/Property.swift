@@ -109,7 +109,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public let producer: SignalProducer<Value, NoError>
 
 	/// Initializes the property with the given value to start.
-	public init(_ initialValue: Value, willSet: ((value: Value) -> Value)? = { $0 }) {
+	public init(_ initialValue: Value, willSet: ((Value -> Value)? = { $0 }) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
 		(producer, observer) = SignalProducer<Value, NoError>.buffer(1)

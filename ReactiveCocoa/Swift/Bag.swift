@@ -17,17 +17,13 @@ internal final class RemovalToken {
 }
 
 /// An unordered, non-unique collection of values of type `Element`.
-/// This is a class to improve memory pressure.
-/// Atomicity can be ensured by using `Atomic<Bag>`.
-internal class Bag<Element> {
+internal struct Bag<Element> {
 	private var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
 
-	init() { }
-
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	func insert(value: Element) -> RemovalToken {
+	mutating func insert(value: Element) -> RemovalToken {
 		let nextIdentifier = currentIdentifier &+ 1
 		if nextIdentifier == 0 {
 			reindex()
@@ -45,7 +41,7 @@ internal class Bag<Element> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	func removeValueForToken(token: RemovalToken) {
+	mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
 			for i in (0..<elements.endIndex).reverse() {
@@ -61,7 +57,7 @@ internal class Bag<Element> {
 	/// In the event of an identifier overflow (highly, highly unlikely), this
 	/// will reset all current identifiers to reclaim a contiguous set of
 	/// available identifiers for the future.
-	private func reindex() {
+	private mutating func reindex() {
 		for i in 0..<elements.endIndex {
 			currentIdentifier = UInt(i)
 

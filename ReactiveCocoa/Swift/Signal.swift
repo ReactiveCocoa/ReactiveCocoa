@@ -19,9 +19,6 @@ public final class Signal<Value, Error: ErrorType> {
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
 
-	/// Used to ensure that events are serialized during delivery to observers.
-	private let sendLock = NSLock()
-
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
@@ -29,6 +26,9 @@ public final class Signal<Value, Error: ErrorType> {
 	/// if a terminating event is sent to the observer. The Signal itself will
 	/// remain alive until the observer is released.
 	public init(_ generator: Observer -> Disposable?) {
+
+		/// Used to ensure that events are serialized during delivery to observers.
+		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
 		let generatorDisposable = SerialDisposable()
@@ -47,16 +47,16 @@ public final class Signal<Value, Error: ErrorType> {
 				// we'll wait to deliver it.
 				interrupted.value = true
 
-				if self.sendLock.tryLock() {
+				if sendLock.tryLock() {
 					self.interrupt()
-					self.sendLock.unlock()
+					sendLock.unlock()
 
 					generatorDisposable.dispose()
 				}
 
 			} else {
 				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
-					self.sendLock.lock()
+					sendLock.lock()
 
 					for sink in observers {
 						sink(event)
@@ -67,7 +67,7 @@ public final class Signal<Value, Error: ErrorType> {
 						self.interrupt()
 					}
 
-					self.sendLock.unlock()
+					sendLock.unlock()
 
 					if event.isTerminating || shouldInterrupt {
 						// Dispose only after notifying observers, so disposal logic

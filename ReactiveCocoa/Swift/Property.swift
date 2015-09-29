@@ -98,7 +98,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		set {
 			lock.lock()
 			_value = valueTransformer(newValue)
-			sendNext(observer, newValue)
+			sendNext(observer, _value)
 			lock.unlock()
 		}
 	}

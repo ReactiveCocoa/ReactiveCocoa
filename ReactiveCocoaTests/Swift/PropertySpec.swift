@@ -111,14 +111,28 @@ class PropertySpec: QuickSpec {
 				context("with the default property observer") {
 					it("should not affect the value set") {
 						let property = MutableProperty(0)
+						var sentValue: Int?
+						
+						property.producer.startWithNext { value in
+							sentValue = value
+						}
+						
 						expect(property.value).to(equal(0))
+						expect(sentValue).to(equal(0))
 					}
 				}
 			
 				context("with a custom property observer") {
 					it("should affect the value set") {
 						let property = MutableProperty(0) { $0 + 1 }
+						var sentValue: Int?
+						
+						property.producer.startWithNext { value in
+							sentValue = value
+						}
+						
 						expect(property.value).to(equal(1))
+						expect(sentValue).to(equal(1))
 					}
 				}
 			}

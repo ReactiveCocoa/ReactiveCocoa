@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import Foundation
+
 /// Represents a serial queue of work items.
 public protocol SchedulerType {
 	/// Enqueues an action on the scheduler.

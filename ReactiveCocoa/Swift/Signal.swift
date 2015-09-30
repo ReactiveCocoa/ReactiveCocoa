@@ -275,13 +275,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		switch strategy {
 		case .Merge:
-			return signal.merge()
+			return self.merge()
 
 		case .Concat:
-			return signal.concat()
+			return self.concat()
 
 		case .Latest:
-			return signal.switchToLatest()
+			return self.switchToLatest()
 		}
 	}
 }
@@ -311,11 +311,11 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// emitted from `signal` complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { [signal = self.signal] observer in
+		return Signal<Value.Value, Error> { observer in
 			let disposable = CompositeDisposable()
 			let state = ConcatState(observer: observer, disposable: disposable)
 
-			disposable += signal.observe { event in
+			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
 					state.enqueueSignalProducer(value.producer)
@@ -421,7 +421,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { [signal = self.signal] relayObserver in
+		return Signal<Value.Value, Error> { relayObserver in
 			let inFlight = Atomic(1)
 			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
@@ -431,7 +431,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			}
 
 			let disposable = CompositeDisposable()
-			signal.observe { event in
+			self.observe { event in
 				switch event {
 				case let .Next(producer):
 					producer.startWithSignal { innerSignal, innerDisposable in
@@ -479,14 +479,14 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// signal have both completed.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func switchToLatest() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { [signal = self.signal] sink in
+		return Signal<Value.Value, Error> { sink in
 			let disposable = CompositeDisposable()
 			let latestInnerDisposable = SerialDisposable()
 			disposable.addDisposable(latestInnerDisposable)
 
 			let state = Atomic(LatestState<Value, Error>())
 
-			signal.observe { event in
+			self.observe { event in
 				switch event {
 				case let .Next(innerProducer):
 					innerProducer.startWithSignal { innerSignal, innerDisposable in
@@ -622,7 +622,7 @@ extension SignalType {
 	/// Returns a signal that will yield an array of values when `self` completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect() -> Signal<[Value], Error> {
-		return signal
+		return self
 			.reduce(CollectState()) { $0.append($1) }
 			.map { $0.values }
 	}
@@ -645,7 +645,7 @@ private final class CombineLatestState<Value> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, Error>(signal: Signal<T, Error>, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
+private func observeWithStates<T, U, Error, S: SignalType where S.Value == T, S.Error == Error>(signal: S, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
 	return signal.observe { event in
 		switch event {
 		case let .Next(value):
@@ -702,7 +702,7 @@ extension SignalType {
 			let onInterrupted = { sendInterrupted(observer) }
 
 			let disposable = CompositeDisposable()
-			disposable += observeWithStates(self.signal, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			disposable += observeWithStates(self, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 			disposable += observeWithStates(otherSignal, otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 			
 			return disposable
@@ -968,7 +968,7 @@ extension SignalType {
 	/// respect to the previous value. The first value is always forwarded.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
-		return signal
+		return self
 			.map(Optional.init)
 			.combinePrevious(nil)
 			.filter { a, b in

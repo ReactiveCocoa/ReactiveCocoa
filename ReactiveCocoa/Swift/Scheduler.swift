@@ -142,7 +142,7 @@ public final class QueueScheduler: DateSchedulerType {
 		let frac = modf(date.timeIntervalSince1970, &seconds)
 
 		let nsec: Double = frac * Double(NSEC_PER_SEC)
-		var walltime = timespec(tv_sec: CLong(seconds), tv_nsec: CLong(nsec))
+		var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
 
 		return dispatch_walltime(&walltime, 0)
 	}

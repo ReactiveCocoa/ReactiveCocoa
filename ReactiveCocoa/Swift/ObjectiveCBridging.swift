@@ -119,7 +119,7 @@ public func toRACSignal<T: AnyObject, E: NSError>(producer: SignalProducer<T?, E
 				subscriber.sendError(error)
 			case .Completed:
 				subscriber.sendCompleted()
-			default:
+			case .Interrupted:
 				break
 			}
 		}
@@ -167,7 +167,7 @@ public func toRACSignal<Value: AnyObject, Error: NSError>(signal: Signal<Value?,
                 subscriber.sendError(error)
             case .Completed:
                 subscriber.sendCompleted()
-            default:
+			case .Interrupted:
                 break
             }
         }

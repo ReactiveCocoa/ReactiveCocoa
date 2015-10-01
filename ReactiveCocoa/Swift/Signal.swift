@@ -645,39 +645,39 @@ private final class CombineLatestState<Value> {
 	var completed = false
 }
 
-private func observeWithStates<T, U, Error, S: SignalType where S.Value == T, S.Error == Error>(signal: S, _ signalState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
-	return signal.observe { event in
-		switch event {
-		case let .Next(value):
-			lock.lock()
-			
-			signalState.latestValue = value
-			if otherState.latestValue != nil {
-				onBothNext()
+extension SignalType {
+	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
+		return self.observe { event in
+			switch event {
+			case let .Next(value):
+				lock.lock()
+
+				signalState.latestValue = value
+				if otherState.latestValue != nil {
+					onBothNext()
+				}
+
+				lock.unlock()
+
+			case let .Error(error):
+				onError(error)
+
+			case .Completed:
+				lock.lock()
+
+				signalState.completed = true
+				if otherState.completed {
+					onBothCompleted()
+				}
+
+				lock.unlock()
+
+			case .Interrupted:
+				onInterrupted()
 			}
-			
-			lock.unlock()
-
-		case let .Error(error):
-			onError(error)
-
-		case .Completed:
-			lock.lock()
-			
-			signalState.completed = true
-			if otherState.completed {
-				onBothCompleted()
-			}
-			
-			lock.unlock()
-
-		case .Interrupted:
-			onInterrupted()
 		}
 	}
-}
 
-extension SignalType {
 	/// Combines the latest value of the receiver with the latest value from
 	/// the given signal.
 	///
@@ -702,8 +702,8 @@ extension SignalType {
 			let onInterrupted = { sendInterrupted(observer) }
 
 			let disposable = CompositeDisposable()
-			disposable += observeWithStates(self, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-			disposable += observeWithStates(otherSignal, otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
 			
 			return disposable
 		}

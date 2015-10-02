@@ -389,6 +389,17 @@ extension SignalProducerType {
 		}
 	}
 
+	/// Lifts a binary Signal operator to operate upon a Signal and a SignalProducer instead.
+	///
+	/// In other words, this will create a new SignalProducer which will apply
+	/// the given Signal operator to _every_ Signal created from the two
+	/// producers, just as if the operator had been applied to each Signal
+	/// yielded from start().
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
+		return self.lift(transform)
+	}
+	
 	/// Maps each value in the producer to a new value.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func map<U>(transform: Value -> U) -> SignalProducer<U, Error> {
@@ -485,6 +496,13 @@ extension SignalProducerType {
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.takeUntil)(trigger)
+	}
+
+	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// event, at which point the returned producer will complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeUntil(trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.takeUntil)(trigger)
 	}
 

@@ -55,15 +55,15 @@ extension RACSignal {
 	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { obj in
-				sendNext(observer, obj)
+				observer.sendNext(obj)
 			}
 
 			let error = { nsError in
-				sendError(observer, nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
+				observer.sendError(nsError ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
-				sendCompleted(observer)
+				observer.sendCompleted()
 			}
 
 			disposable += self.subscribeNext(next, error: error, completed: completed)

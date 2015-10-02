@@ -64,12 +64,12 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					expect(lastValue).to(beNil())
 
 					for number in [1, 2, 3] {
-						sendNext(sink, number)
+						sink.sendNext(number)
 						expect(lastValue).to(equal(number))
 					}
 
 					expect(didComplete).to(beFalse())
-					sendCompleted(sink)
+					sink.sendCompleted()
 					expect(didComplete).to(beTrue())
 				}
 
@@ -85,7 +85,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 
-					sendError(sink, expectedError)
+					sink.sendError(expectedError)
 					expect(error).to(equal(expectedError as NSError))
 				}
 				
@@ -100,7 +100,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 					
-					sendError(sink, testNSError)
+					sink.sendError(testNSError)
 					
 					let userInfoValue = error?.userInfo[key] as? String
 					expect(userInfoValue).to(equal(userInfo[key]))

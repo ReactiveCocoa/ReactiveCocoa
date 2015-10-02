@@ -25,7 +25,6 @@ public enum Event<Value, Err: ErrorType> {
 	/// will be received.
 	case Interrupted
 
-	public typealias Sink = Event -> ()
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -90,26 +89,6 @@ public enum Event<Value, Err: ErrorType> {
 			return nil
 		}
 	}
-
-	/// Creates a sink that can receive events of this type, then invoke the
-	/// given handlers based on the kind of event received.
-	public static func sink(error error: (Err -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (Value -> ())? = nil) -> Sink {
-		return { event in
-			switch event {
-			case let .Next(value):
-				next?(value)
-
-			case let .Error(err):
-				error?(err)
-
-			case .Completed:
-				completed?()
-
-			case .Interrupted:
-				interrupted?()
-			}
-		}
-	}
 }
 
 public func == <Value: Equatable, Err: Equatable> (lhs: Event<Value, Err>, rhs: Event<Value, Err>) -> Bool {
@@ -163,24 +142,4 @@ extension Event: EventType {
 	public var event: Event<Value, Err> {
 		return self
 	}
-}
-
-/// Puts a `Next` event into the given sink.
-public func sendNext<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink, _ value: Value) {
-	sink(.Next(value))
-}
-
-/// Puts an `Error` event into the given sink.
-public func sendError<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink, _ error: Err) {
-	sink(.Error(error))
-}
-
-/// Puts a `Completed` event into the given sink.
-public func sendCompleted<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink) {
-	sink(.Completed)
-}
-
-/// Puts a `Interrupted` event into the given sink.
-public func sendInterrupted<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink) {
-	sink(.Interrupted)
 }

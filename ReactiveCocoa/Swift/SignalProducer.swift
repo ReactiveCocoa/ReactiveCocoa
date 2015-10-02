@@ -22,8 +22,8 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// Initializes a SignalProducer that will invoke the given closure once
 	/// for each invocation of start().
 	///
-	/// The events that the closure puts into the given sink will become the
-	/// events sent by the started Signal to its observers.
+	/// The events that the closure puts into the given observer will become
+	/// the events sent by the started Signal to its observers.
 	///
 	/// If the Disposable returned from start() is disposed or a terminating
 	/// event is sent to the observer, the given CompositeDisposable will be
@@ -37,15 +37,15 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// then complete.
 	public init(value: Value) {
 		self.init { observer, disposable in
-			sendNext(observer, value)
-			sendCompleted(observer)
+			observer.sendNext(value)
+			observer.sendCompleted()
 		}
 	}
 
 	/// Creates a producer for a Signal that will immediately send an error.
 	public init(error: Error) {
 		self.init { observer, disposable in
-			sendError(observer, error)
+			observer.sendError(error)
 		}
 	}
 
@@ -67,14 +67,14 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	public init<S: SequenceType where S.Generator.Element == Value>(values: S) {
 		self.init { observer, disposable in
 			for value in values {
-				sendNext(observer, value)
+				observer.sendNext(value)
 
 				if disposable.disposed {
 					break
 				}
 			}
 
-			sendCompleted(observer)
+			observer.sendCompleted()
 		}
 	}
 
@@ -82,7 +82,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// any values.
 	public static var empty: SignalProducer {
 		return self.init { observer, disposable in
-			sendCompleted(observer)
+			observer.sendCompleted()
 		}
 	}
 
@@ -94,7 +94,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// Creates a queue for events that replays them when new signals are
 	/// created from the returned producer.
 	///
-	/// When values are put into the returned observer (sink), they will be
+	/// When values are put into the returned observer (observer), they will be
 	/// added to an internal buffer. If the buffer is already at capacity,
 	/// the earliest (oldest) value will be dropped to make room for the new
 	/// value.
@@ -134,11 +134,11 @@ public struct SignalProducer<Value, Error: ErrorType> {
 				}
 
 				for value in originalState.values {
-					sendNext(observer, value)
+					observer.sendNext(value)
 				}
 
 				if let terminationEvent = originalState.terminationEvent {
-					observer(terminationEvent)
+					observer.action(terminationEvent)
 				}
 			}
 
@@ -164,7 +164,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			}
 		}
 
-		let bufferingObserver: Signal<Value, Error>.Observer = { event in
+		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
 			// Send serially with respect to other senders, and never while
 			// another thread is in the process of replaying.
 			dispatch_sync(queue) {
@@ -183,7 +183,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 				if let observers = originalState.observers {
 					for observer in observers {
-						observer(event)
+						observer.action(event)
 					}
 				}
 			}
@@ -201,10 +201,10 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	public static func attempt(operation: () -> Result<Value, Error>) -> SignalProducer {
 		return self.init { observer, disposable in
 			operation().analysis(ifSuccess: { value in
-				sendNext(observer, value)
-				sendCompleted(observer)
+				observer.sendNext(value)
+				observer.sendCompleted()
 				}, ifFailure: { error in
-					sendError(observer, error)
+					observer.sendError(error)
 			})
 		}
 	}
@@ -216,7 +216,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
 	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> ()) {
-		let (signal, sink) = Signal<Value, Error>.pipe()
+		let (signal, observer) = Signal<Value, Error>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
 		// upstream producers.
@@ -224,7 +224,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 		// Directly disposed of when start() or startWithSignal() is disposed.
 		let cancelDisposable = ActionDisposable {
-			sendInterrupted(sink)
+			observer.sendInterrupted()
 			producerDisposable.dispose()
 		}
 
@@ -234,8 +234,8 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			return
 		}
 
-		let wrapperObserver: Signal<Value, Error>.Observer = { event in
-			sink(event)
+		let wrapperObserver: Signal<Value, Error>.Observer = Observer { event in
+			observer.action(event)
 
 			if event.isTerminating {
 				// Dispose only after notifying the Signal, so disposal
@@ -294,20 +294,25 @@ extension SignalProducer: SignalProducerType {
 }
 
 extension SignalProducerType {
-	/// Creates a Signal from the producer, then attaches the given sink to the
-	/// Signal as an observer.
+	/// Creates a Signal from the producer, then attaches the given observer to
+	/// the Signal as an observer.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
-	public func start(sink: Event<Value, Error>.Sink = Event<Value, Error>.sink()) -> Disposable {
+	public func start(observer: Observer<Value, Error> = Observer<Value, Error>()) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
-			signal.observe(sink)
+			signal.observe(observer)
 			disposable = innerDisposable
 		}
 
 		return disposable
+	}
+
+	/// Convenience to avoid extra parentheses everywhere people call start. TODO(andy): Document me.
+	public func start(observerAction: Observer<Value, Error>.Action) -> Disposable {
+		return start(Observer(observerAction))
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -317,7 +322,7 @@ extension SignalProducerType {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	public func startWithNext(next: Value -> ()) -> Disposable {
-		return start(Event.sink(next: next))
+		return start(Observer<Value, Error>(next: next))
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -327,7 +332,7 @@ extension SignalProducerType {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
 	public func startWithCompleted(completed: () -> ()) -> Disposable {
-		return start(Event.sink(completed: completed))
+		return start(Observer(completed: completed))
 	}
 	
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -337,7 +342,7 @@ extension SignalProducerType {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
 	public func startWithError(error: Error -> ()) -> Disposable {
-		return start(Event.sink(error: error))
+		return start(Observer(error: error))
 	}
 	
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -347,7 +352,7 @@ extension SignalProducerType {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
 	public func startWithInterrupted(interrupted: () -> ()) -> Disposable {
-		return start(Event.sink(interrupted: interrupted))
+		return start(Observer(interrupted: interrupted))
 	}
 
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
@@ -662,7 +667,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 
 	return SignalProducer { observer, compositeDisposable in
 		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
-			sendNext(observer, scheduler.currentDate)
+			observer.sendNext(scheduler.currentDate)
 		}
 	}
 }
@@ -699,7 +704,7 @@ extension SignalProducerType {
 						terminated?()
 					}
 
-					observer(receivedEvent)
+					observer.action(receivedEvent)
 				}
 			}
 		}
@@ -958,16 +963,16 @@ extension SignalProducerType {
 				signal.observe { event in
 					switch event {
 					case let .Next(value):
-						sendNext(observer, value)
+						observer.sendNext(value)
 					case let .Error(error):
 						handler(error).startWithSignal { signal, signalDisposable in
 							serialDisposable.innerDisposable = signalDisposable
 							signal.observe(observer)
 						}
 					case .Completed:
-						sendCompleted(observer)
+						observer.sendCompleted()
 					case .Interrupted:
-						sendInterrupted(observer)
+						observer.sendInterrupted()
 					}
 				}
 			}
@@ -1008,10 +1013,10 @@ extension SignalProducerType {
 							if remainingTimes > 0 {
 								iterate(remainingTimes)
 							} else {
-								sendCompleted(observer)
+								observer.sendCompleted()
 							}
 						} else {
-							observer(event)
+							observer.action(event)
 						}
 					}
 				}
@@ -1048,11 +1053,11 @@ extension SignalProducerType {
 				signal.observe { event in
 					switch event {
 					case let .Error(error):
-						sendError(observer, error)
+						observer.sendError(error)
 					case .Completed:
-						sendCompleted(observer)
+						observer.sendCompleted()
 					case .Interrupted:
-						sendInterrupted(observer)
+						observer.sendInterrupted()
 					default:
 						break
 					}

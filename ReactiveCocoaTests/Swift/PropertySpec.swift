@@ -89,7 +89,7 @@ class PropertySpec: QuickSpec {
 					value = property.value
 				}
 
-				sendNext(sink, 10)
+				sink.sendNext(10)
 				expect(value).to(equal(10))
 			}
 
@@ -161,7 +161,7 @@ class PropertySpec: QuickSpec {
 					
 					expect(property.value).to(equal(initialPropertyValue))
 					
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					
 					expect(property.value).to(equal(subsequentPropertyValue))
 				}
@@ -264,7 +264,7 @@ class PropertySpec: QuickSpec {
 					// Verify that the binding hasn't changed the property value:
 					expect(mutableProperty.value).to(equal(initialPropertyValue))
 
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					expect(mutableProperty.value).to(equal(subsequentPropertyValue))
 				}
 
@@ -276,7 +276,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty <~ signal
 					bindingDisposable.dispose()
 
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					expect(mutableProperty.value).to(equal(initialPropertyValue))
 				}
 				
@@ -288,7 +288,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty <~ signal
 					
 					expect(bindingDisposable.disposed).to(beFalsy())
-					sendCompleted(observer)
+					observer.sendCompleted()
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 				
@@ -333,7 +333,7 @@ class PropertySpec: QuickSpec {
 					let mutableProperty = MutableProperty(initialPropertyValue)
 					mutableProperty <~ signalProducer
 
-					sendCompleted(observer)
+					observer.sendCompleted()
 					// TODO: Assert binding was torn down?
 				}
 

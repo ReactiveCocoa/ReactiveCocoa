@@ -39,7 +39,7 @@ class SignalSpec: QuickSpec {
 			it("should deallocate after erroring") {
 				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						observer.sendError(TestError.Default)
 					}
 					return nil
 				}
@@ -60,7 +60,7 @@ class SignalSpec: QuickSpec {
 			it("should deallocate after completing") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
 					testScheduler.schedule {
-						sendCompleted(observer)
+						observer.sendCompleted()
 					}
 					return nil
 				}
@@ -81,7 +81,7 @@ class SignalSpec: QuickSpec {
 			it("should deallocate after interrupting") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
 					testScheduler.schedule {
-						sendInterrupted(observer)
+						observer.sendInterrupted()
 					}
 
 					return nil
@@ -107,9 +107,9 @@ class SignalSpec: QuickSpec {
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in numbers {
-							sendNext(observer, number)
+							observer.sendNext(number)
 						}
-						sendCompleted(observer)
+						observer.sendCompleted()
 					}
 					return nil
 				}
@@ -142,7 +142,7 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<AnyObject, TestError> = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						observer.sendError(TestError.Default)
 					}
 					return disposable
 				}
@@ -165,7 +165,7 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<AnyObject, NoError> = Signal { observer in
 					testScheduler.schedule {
-						sendCompleted(observer)
+						observer.sendCompleted()
 					}
 					return disposable
 				}
@@ -188,7 +188,7 @@ class SignalSpec: QuickSpec {
 
 				let signal: Signal<AnyObject, NoError> = Signal { observer in
 					testScheduler.schedule {
-						sendInterrupted(observer)
+						observer.sendInterrupted()
 					}
 					return disposable
 				}
@@ -225,7 +225,7 @@ class SignalSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						observer.sendError(TestError.Default)
 					}
 				}
 				test()
@@ -246,7 +246,7 @@ class SignalSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
-						sendCompleted(observer)
+						observer.sendCompleted()
 					}
 				}
 				test()
@@ -266,7 +266,7 @@ class SignalSpec: QuickSpec {
 					weakSignal = signal
 
 					testScheduler.schedule {
-						sendInterrupted(observer)
+						observer.sendInterrupted()
 					}
 				}
 
@@ -297,14 +297,14 @@ class SignalSpec: QuickSpec {
 				expect(fromSignal).to(beEmpty())
 				expect(completed).to(beFalsy())
 				
-				sendNext(observer, 1)
+				observer.sendNext(1)
 				expect(fromSignal).to(equal([ 1 ]))
 				
-				sendNext(observer, 2)
+				observer.sendNext(2)
 				expect(fromSignal).to(equal([ 1, 2 ]))
 				
 				expect(completed).to(beFalsy())
-				sendCompleted(observer)
+				observer.sendCompleted()
 				expect(completed).to(beTruthy())
 			}
 		}
@@ -322,10 +322,10 @@ class SignalSpec: QuickSpec {
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in [ 1, 2 ] {
-							sendNext(observer, number)
+							observer.sendNext(number)
 						}
-						sendCompleted(observer)
-						sendNext(observer, 4)
+						observer.sendCompleted()
+						observer.sendNext(4)
 					}
 					return disposable
 				}
@@ -353,7 +353,7 @@ class SignalSpec: QuickSpec {
 				
 				expect(runCount).to(equal(1))
 				
-				signal.observe(Event<(), NoError>.sink())
+				signal.observe(Observer<(), NoError>())
 				expect(runCount).to(equal(1))
 			}
 
@@ -370,12 +370,12 @@ class SignalSpec: QuickSpec {
 				}
 				test()
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(testStr).to(equal("1"))
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(testStr).to(equal("12"))
 
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(testStr).to(beNil())
 			}
 
@@ -394,13 +394,13 @@ class SignalSpec: QuickSpec {
 
 				test()
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(testStr).to(equal("1"))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(testStr).to(equal("12"))
 
-				sendInterrupted(sink)
+				sink.sendInterrupted()
 				expect(testStr).to(beNil())
 			}
 		}
@@ -414,7 +414,7 @@ class SignalSpec: QuickSpec {
 					values.append(next)
 				}
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(values).to(equal([1]))
 			}
 		}
@@ -433,10 +433,10 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 0)
+				sink.sendNext(0)
 				expect(lastValue).to(equal("1"))
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal("2"))
 			}
 		}
@@ -454,7 +454,7 @@ class SignalSpec: QuickSpec {
 
 				expect(error).to(beNil())
 
-				sendError(sink, TestError.Default)
+				sink.sendError(TestError.Default)
 				expect(error).to(equal(producerError))
 			}
 		}
@@ -471,13 +471,13 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 0)
+				sink.sendNext(0)
 				expect(lastValue).to(equal(0))
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(0))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 			}
 		}
@@ -492,16 +492,16 @@ class SignalSpec: QuickSpec {
 				mappedSignal.observeNext { lastValue = $0 }
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, nil)
+				sink.sendNext(nil)
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 
-				sendNext(sink, nil)
+				sink.sendNext(nil)
 				expect(lastValue).to(equal(1))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 			}
 		}
@@ -517,10 +517,10 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, "a")
+				sink.sendNext("a")
 				expect(lastValue).to(equal("a"))
 
-				sendNext(sink, "bb")
+				sink.sendNext("bb")
 				expect(lastValue).to(equal("abb"))
 			}
 		}
@@ -546,14 +546,14 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(beNil())
 
 				expect(completed).to(beFalse())
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(completed).to(beTrue())
 
 				expect(lastValue).to(equal(4))
@@ -580,7 +580,7 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 				expect(completed).to(beFalse())
 
-				sendCompleted(sink)
+				sink.sendCompleted()
 
 				expect(lastValue).to(equal(1))
 				expect(completed).to(beTrue())
@@ -597,10 +597,10 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 			}
 
@@ -613,10 +613,10 @@ class SignalSpec: QuickSpec {
 
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 			}
 		}
@@ -631,16 +631,16 @@ class SignalSpec: QuickSpec {
 
 				expect(values).to(equal([]))
 
-				sendNext(sink, true)
+				sink.sendNext(true)
 				expect(values).to(equal([ true ]))
 
-				sendNext(sink, true)
+				sink.sendNext(true)
 				expect(values).to(equal([ true ]))
 
-				sendNext(sink, false)
+				sink.sendNext(false)
 				expect(values).to(equal([ true, false ]))
 
-				sendNext(sink, true)
+				sink.sendNext(true)
 				expect(values).to(equal([ true, false, true ]))
 			}
 
@@ -653,16 +653,16 @@ class SignalSpec: QuickSpec {
 
 				expect(values).to(equal([]))
 
-				sendNext(sink, "a")
+				sink.sendNext("a")
 				expect(values).to(equal([ "a" ]))
 
-				sendNext(sink, "b")
+				sink.sendNext("b")
 				expect(values).to(equal([ "a" ]))
 
-				sendNext(sink, "cc")
+				sink.sendNext("cc")
 				expect(values).to(equal([ "a", "cc" ]))
 
-				sendNext(sink, "d")
+				sink.sendNext("d")
 				expect(values).to(equal([ "a", "cc", "d" ]))
 			}
 		}
@@ -686,23 +686,23 @@ class SignalSpec: QuickSpec {
 			it("should skip while the predicate is true") {
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 
-				sendNext(sink, 0)
+				sink.sendNext(0)
 				expect(lastValue).to(equal(0))
 			}
 
 			it("should not skip any values when the predicate starts false") {
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 3)
+				sink.sendNext(3)
 				expect(lastValue).to(equal(3))
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 			}
 		}
@@ -728,11 +728,11 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 				expect(completed).to(beFalse())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 				expect(completed).to(beFalse())
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 				expect(completed).to(beTrue())
 			}
@@ -744,7 +744,7 @@ class SignalSpec: QuickSpec {
 				var signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in numbers {
-							sendNext(observer, number)
+							observer.sendNext(number)
 						}
 					}
 					return nil
@@ -767,7 +767,7 @@ class SignalSpec: QuickSpec {
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in numbers {
-							sendNext(observer, number)
+							observer.sendNext(number)
 						}
 					}
 					return nil
@@ -810,11 +810,11 @@ class SignalSpec: QuickSpec {
 				}
 
 				for number in expectedResult {
-					sendNext(sink, number)
+					sink.sendNext(number)
 				}
 
 				expect(result).to(beNil())
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(result).to(equal(expectedResult))
 			}
 
@@ -827,7 +827,7 @@ class SignalSpec: QuickSpec {
 				signal.observeNext { result = $0 }
 
 				expect(result).to(beNil())
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(result).to(equal([]))
 			}
 
@@ -840,7 +840,7 @@ class SignalSpec: QuickSpec {
 				signal.observeError { error = $0 }
 
 				expect(error).to(beNil())
-				sendError(sink, .Default)
+				sink.sendError(.Default)
 				expect(error).to(equal(TestError.Default))
 			}
 		}
@@ -879,14 +879,14 @@ class SignalSpec: QuickSpec {
 			it("should take values until the trigger fires") {
 				expect(lastValue).to(beNil())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 
 				expect(completed).to(beFalse())
-				sendNext(triggerSink, ())
+				triggerSink.sendNext(())
 				expect(completed).to(beTrue())
 			}
 
@@ -894,7 +894,7 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 				expect(completed).to(beFalse())
 
-				sendNext(triggerSink, ())
+				triggerSink.sendNext(())
 
 				expect(completed).to(beTrue())
 				expect(lastValue).to(beNil())
@@ -936,27 +936,27 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 				expect(completed).to(beFalse())
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(lastValue).to(equal(1))
 
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(lastValue).to(equal(2))
 
-				sendNext(replacementSink, 3)
+				replacementSink.sendNext(3)
 
 				expect(lastValue).to(equal(3))
 				expect(completed).to(beFalse())
 
-				sendNext(sink, 4)
+				sink.sendNext(4)
 
 				expect(lastValue).to(equal(3))
 				expect(completed).to(beFalse())
 
-				sendNext(replacementSink, 5)
+				replacementSink.sendNext(5)
 				expect(lastValue).to(equal(5))
 
 				expect(completed).to(beFalse())
-				sendCompleted(replacementSink)
+				replacementSink.sendCompleted()
 				expect(completed).to(beTrue())
 			}
 		}
@@ -987,12 +987,12 @@ class SignalSpec: QuickSpec {
 				}
 
 				for value in -1...4 {
-					sendNext(observer, value)
+					observer.sendNext(value)
 					expect(latestValue).to(equal(value))
 					expect(completed).to(beFalse())
 				}
 
-				sendNext(observer, 5)
+				observer.sendNext(5)
 				expect(latestValue).to(equal(4))
 				expect(completed).to(beTrue())
 			}
@@ -1012,7 +1012,7 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				sendNext(observer, 5)
+				observer.sendNext(5)
 				expect(latestValue).to(beNil())
 				expect(completed).to(beTrue())
 			}
@@ -1029,8 +1029,8 @@ class SignalSpec: QuickSpec {
 					.observeOn(testScheduler)
 					.observeNext { result.append($0) }
 				
-				sendNext(observer, 1)
-				sendNext(observer, 2)
+				observer.sendNext(1)
+				observer.sendNext(2)
 				expect(result).to(beEmpty())
 				
 				testScheduler.run()
@@ -1043,11 +1043,11 @@ class SignalSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
-						sendNext(observer, 1)
+						observer.sendNext(1)
 					}
 					testScheduler.scheduleAfter(5, action: {
-						sendNext(observer, 2)
-						sendCompleted(observer)
+						observer.sendNext(2)
+						observer.sendCompleted()
 					})
 					return nil
 				}
@@ -1084,7 +1084,7 @@ class SignalSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				let signal: Signal<Int, TestError> = Signal { observer in
 					testScheduler.schedule {
-						sendError(observer, TestError.Default)
+						observer.sendError(TestError.Default)
 					}
 					return nil
 				}
@@ -1123,14 +1123,14 @@ class SignalSpec: QuickSpec {
 
 				expect(values).to(equal([]))
 
-				sendNext(observer, 0)
+				observer.sendNext(0)
 				expect(values).to(equal([]))
 
 				scheduler.advance()
 				expect(values).to(equal([ 0 ]))
 
-				sendNext(observer, 1)
-				sendNext(observer, 2)
+				observer.sendNext(1)
+				observer.sendNext(2)
 				expect(values).to(equal([ 0 ]))
 
 				scheduler.advanceByInterval(1.5)
@@ -1139,14 +1139,14 @@ class SignalSpec: QuickSpec {
 				scheduler.advanceByInterval(3)
 				expect(values).to(equal([ 0, 2 ]))
 
-				sendNext(observer, 3)
+				observer.sendNext(3)
 				expect(values).to(equal([ 0, 2 ]))
 
 				scheduler.advance()
 				expect(values).to(equal([ 0, 2, 3 ]))
 
-				sendNext(observer, 4)
-				sendNext(observer, 5)
+				observer.sendNext(4)
+				observer.sendNext(5)
 				scheduler.advance()
 				expect(values).to(equal([ 0, 2, 3 ]))
 
@@ -1169,12 +1169,12 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				sendNext(observer, 0)
+				observer.sendNext(0)
 				scheduler.advance()
 				expect(values).to(equal([ 0 ]))
 
-				sendNext(observer, 1)
-				sendCompleted(observer)
+				observer.sendNext(1)
+				observer.sendCompleted()
 				expect(completed).to(beFalsy())
 
 				scheduler.run()
@@ -1200,9 +1200,9 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				sampledSignal.observeNext { result.append($0) }
 				
-				sendNext(observer, 1)
-				sendNext(observer, 2)
-				sendNext(samplerObserver, ())
+				observer.sendNext(1)
+				observer.sendNext(2)
+				samplerObserver.sendNext(())
 				expect(result).to(equal([ 2 ]))
 			}
 			
@@ -1210,7 +1210,7 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				sampledSignal.observeNext { result.append($0) }
 				
-				sendNext(samplerObserver, ())
+				samplerObserver.sendNext(())
 				expect(result).to(beEmpty())
 			}
 			
@@ -1218,9 +1218,9 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				sampledSignal.observeNext { result.append($0) }
 				
-				sendNext(observer, 1)
-				sendNext(samplerObserver, ())
-				sendNext(samplerObserver, ())
+				observer.sendNext(1)
+				samplerObserver.sendNext(())
+				samplerObserver.sendNext(())
 				expect(result).to(equal([ 1, 1 ]))
 			}
 
@@ -1228,10 +1228,10 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				sampledSignal.observeCompleted { completed = true }
 				
-				sendCompleted(observer)
+				observer.sendCompleted()
 				expect(completed).to(beFalsy())
 				
-				sendCompleted(samplerObserver)
+				samplerObserver.sendCompleted()
 				expect(completed).to(beTruthy())
 			}
 		}
@@ -1253,15 +1253,15 @@ class SignalSpec: QuickSpec {
 				var latest: (Int, Double)?
 				combinedSignal.observeNext { latest = $0 }
 				
-				sendNext(observer, 1)
+				observer.sendNext(1)
 				expect(latest).to(beNil())
 				
 				// is there a better way to test tuples?
-				sendNext(otherObserver, 1.5)
+				otherObserver.sendNext(1.5)
 				expect(latest?.0).to(equal(1))
 				expect(latest?.1).to(equal(1.5))
 				
-				sendNext(observer, 2)
+				observer.sendNext(2)
 				expect(latest?.0).to(equal(2))
 				expect(latest?.1).to(equal(1.5))
 			}
@@ -1270,10 +1270,10 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				combinedSignal.observeCompleted { completed = true }
 				
-				sendCompleted(observer)
+				observer.sendCompleted()
 				expect(completed).to(beFalsy())
 				
-				sendCompleted(otherObserver)
+				otherObserver.sendCompleted()
 				expect(completed).to(beTruthy())
 			}
 		}
@@ -1296,24 +1296,24 @@ class SignalSpec: QuickSpec {
 				var result: [String] = []
 				zipped.observeNext { (left, right) in result.append("\(left)\(right)") }
 
-				sendNext(leftSink, 1)
-				sendNext(leftSink, 2)
+				leftSink.sendNext(1)
+				leftSink.sendNext(2)
 				expect(result).to(equal([]))
 
-				sendNext(rightSink, "foo")
+				rightSink.sendNext("foo")
 				expect(result).to(equal([ "1foo" ]))
 
-				sendNext(leftSink, 3)
-				sendNext(rightSink, "bar")
+				leftSink.sendNext(3)
+				rightSink.sendNext("bar")
 				expect(result).to(equal([ "1foo", "2bar" ]))
 
-				sendNext(rightSink, "buzz")
+				rightSink.sendNext("buzz")
 				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
 
-				sendNext(rightSink, "fuzz")
+				rightSink.sendNext("fuzz")
 				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
 
-				sendNext(leftSink, 4)
+				leftSink.sendNext(4)
 				expect(result).to(equal([ "1foo", "2bar", "3buzz", "4fuzz" ]))
 			}
 
@@ -1334,12 +1334,12 @@ class SignalSpec: QuickSpec {
 
 				expect(completed).to(beFalsy())
 
-				sendNext(leftSink, 0)
-				sendCompleted(leftSink)
+				leftSink.sendNext(0)
+				leftSink.sendCompleted()
 				expect(completed).to(beFalsy())
 				expect(result).to(equal([]))
 
-				sendNext(rightSink, "foo")
+				rightSink.sendNext("foo")
 				expect(completed).to(beTruthy())
 				expect(result).to(equal([ "0foo" ]))
 			}
@@ -1353,7 +1353,7 @@ class SignalSpec: QuickSpec {
 					.materialize()
 					.observeNext { latestEvent = $0 }
 				
-				sendNext(observer, 2)
+				observer.sendNext(2)
 				
 				expect(latestEvent).toNot(beNil())
 				if let latestEvent = latestEvent {
@@ -1365,7 +1365,7 @@ class SignalSpec: QuickSpec {
 					}
 				}
 				
-				sendError(observer, TestError.Default)
+				observer.sendError(TestError.Default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
 					case .Error(_):
@@ -1394,10 +1394,10 @@ class SignalSpec: QuickSpec {
 				
 				expect(result).to(beEmpty())
 				
-				sendNext(sink, .Next(2))
+				sink.sendNext(.Next(2))
 				expect(result).to(equal([ 2 ]))
 				
-				sendNext(sink, .Next(4))
+				sink.sendNext(.Next(4))
 				expect(result).to(equal([ 2, 4 ]))
 			}
 
@@ -1407,7 +1407,7 @@ class SignalSpec: QuickSpec {
 				
 				expect(errored).to(beFalsy())
 				
-				sendNext(sink, .Error(TestError.Default))
+				sink.sendNext(.Error(TestError.Default))
 				expect(errored).to(beTruthy())
 			}
 
@@ -1416,7 +1416,7 @@ class SignalSpec: QuickSpec {
 				dematerialized.observeCompleted { completed = true }
 				
 				expect(completed).to(beFalsy())
-				sendNext(sink, IntEvent.Completed)
+				sink.sendNext(IntEvent.Completed)
 				expect(completed).to(beTruthy())
 			}
 		}
@@ -1435,13 +1435,13 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				lastThree.observeNext { result.append($0) }
 				
-				sendNext(sink, 1)
-				sendNext(sink, 2)
-				sendNext(sink, 3)
-				sendNext(sink, 4)
+				sink.sendNext(1)
+				sink.sendNext(2)
+				sink.sendNext(3)
+				sink.sendNext(4)
 				expect(result).to(beEmpty())
 				
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(result).to(equal([ 2, 3, 4 ]))
 			}
 
@@ -1449,9 +1449,9 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				lastThree.observeNext { result.append($0) }
 				
-				sendNext(sink, 1)
-				sendNext(sink, 2)
-				sendCompleted(sink)
+				sink.sendNext(1)
+				sink.sendNext(2)
+				sink.sendCompleted()
 				expect(result).to(equal([ 1, 2 ]))
 			}
 			
@@ -1469,12 +1469,12 @@ class SignalSpec: QuickSpec {
 					}
 				}
 				
-				sendNext(sink, 1)
-				sendNext(sink, 2)
-				sendNext(sink, 3)
+				sink.sendNext(1)
+				sink.sendNext(2)
+				sink.sendNext(3)
 				expect(errored).to(beFalsy())
 				
-				sendError(sink, TestError.Default)
+				sink.sendError(TestError.Default)
 				expect(errored).to(beTruthy())
 				expect(result).to(beEmpty())
 			}
@@ -1507,7 +1507,7 @@ class SignalSpec: QuickSpec {
 				}
 
 				testScheduler.scheduleAfter(1) {
-					sendCompleted(sink)
+					sink.sendCompleted()
 				}
 
 				expect(completed).to(beFalsy())
@@ -1533,7 +1533,7 @@ class SignalSpec: QuickSpec {
 				}
 
 				testScheduler.scheduleAfter(3) {
-					sendCompleted(sink)
+					sink.sendCompleted()
 				}
 
 				expect(completed).to(beFalsy())
@@ -1558,7 +1558,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				for value in 1...5 {
-					sendNext(sink, value)
+					sink.sendNext(value)
 					expect(current).to(equal(value))
 				}
 			}
@@ -1574,7 +1574,7 @@ class SignalSpec: QuickSpec {
 					error = err
 				}
 				
-				sendNext(sink, 42)
+				sink.sendNext(42)
 				expect(error).to(equal(TestError.Default))
 			}
 		}
@@ -1591,10 +1591,10 @@ class SignalSpec: QuickSpec {
 					even = value
 				}
 				
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(even).to(equal(false))
 				
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(even).to(equal(true))
 			}
 			
@@ -1609,7 +1609,7 @@ class SignalSpec: QuickSpec {
 					error = err
 				}
 				
-				sendNext(sink, 42)
+				sink.sendNext(42)
 				expect(error).to(equal(TestError.Default))
 			}
 		}
@@ -1630,11 +1630,11 @@ class SignalSpec: QuickSpec {
 			it("should forward the latest value with previous value") {
 				expect(latestValues).to(beNil())
 				
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(latestValues?.0).to(equal(initialValue))
 				expect(latestValues?.1).to(equal(1))
 				
-				sendNext(sink, 2)
+				sink.sendNext(2)
 				expect(latestValues?.0).to(equal(1))
 				expect(latestValues?.1).to(equal(2))
 			}
@@ -1673,36 +1673,36 @@ class SignalSpec: QuickSpec {
 				it("should forward the latest values from all inputs"){
 					expect(combinedValues).to(beNil())
 					
-					sendNext(sinkA, 0)
-					sendNext(sinkB, 1)
-					sendNext(sinkC, 2)
+					sinkA.sendNext(0)
+					sinkB.sendNext(1)
+					sinkC.sendNext(2)
 					expect(combinedValues).to(equal([0, 1, 2]))
 					
-					sendNext(sinkA, 10)
+					sinkA.sendNext(10)
 					expect(combinedValues).to(equal([10, 1, 2]))
 				}
 				
 				it("should not forward the latest values before all inputs"){
 					expect(combinedValues).to(beNil())
 					
-					sendNext(sinkA, 0)
+					sinkA.sendNext(0)
 					expect(combinedValues).to(beNil())
 					
-					sendNext(sinkB, 1)
+					sinkB.sendNext(1)
 					expect(combinedValues).to(beNil())
 					
-					sendNext(sinkC, 2)
+					sinkC.sendNext(2)
 					expect(combinedValues).to(equal([0, 1, 2]))
 				}
 				
 				it("should complete when all inputs have completed"){
 					expect(completed).to(beFalsy())
 					
-					sendCompleted(sinkA)
-					sendCompleted(sinkB)
+					sinkA.sendCompleted()
+					sinkB.sendCompleted()
 					expect(completed).to(beFalsy())
 					
-					sendCompleted(sinkC)
+					sinkC.sendCompleted()
 					expect(completed).to(beTruthy())
 				}
 			}
@@ -1777,38 +1777,38 @@ class SignalSpec: QuickSpec {
 				it("should combine all set"){
 					expect(zippedValues).to(beNil())
 					
-					sendNext(sinkA, 0)
+					sinkA.sendNext(0)
 					expect(zippedValues).to(beNil())
 					
-					sendNext(sinkB, 1)
+					sinkB.sendNext(1)
 					expect(zippedValues).to(beNil())
 					
-					sendNext(sinkC, 2)
+					sinkC.sendNext(2)
 					expect(zippedValues).to(equal([0, 1, 2]))
 					
-					sendNext(sinkA, 10)
+					sinkA.sendNext(10)
 					expect(zippedValues).to(equal([0, 1, 2]))
 					
-					sendNext(sinkA, 20)
+					sinkA.sendNext(20)
 					expect(zippedValues).to(equal([0, 1, 2]))
 					
-					sendNext(sinkB, 11)
+					sinkB.sendNext(11)
 					expect(zippedValues).to(equal([0, 1, 2]))
 					
-					sendNext(sinkC, 12)
+					sinkC.sendNext(12)
 					expect(zippedValues).to(equal([10, 11, 12]))
 				}
 				
 				it("should complete when the shorter signal has completed"){
 					expect(completed).to(beFalsy())
 					
-					sendNext(sinkB, 1)
-					sendNext(sinkC, 2)
-					sendCompleted(sinkB)
-					sendCompleted(sinkC)
+					sinkB.sendNext(1)
+					sinkC.sendNext(2)
+					sinkB.sendCompleted()
+					sinkC.sendCompleted()
 					expect(completed).to(beFalsy())
 					
-					sendNext(sinkA, 0)
+					sinkA.sendNext(0)
 					expect(completed).to(beTruthy())
 				}
 			}

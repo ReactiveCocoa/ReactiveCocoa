@@ -226,7 +226,7 @@ public final class SerialDisposable: Disposable {
 ///     disposable += producer
 ///         .filter { ... }
 ///         .map    { ... }
-///         .start(sink)
+///         .start(observer)
 ///
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)

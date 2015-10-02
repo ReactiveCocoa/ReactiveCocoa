@@ -99,7 +99,7 @@ public func toRACSignal<Value: AnyObject, Error: NSError>(producer: SignalProduc
 ///
 /// Any `Interrupted` events will be silently discarded.
 public func toRACSignal<Value: AnyObject, Error>(producer: SignalProducer<Value?, Error>) -> RACSignal {
-	return toRACSignal(producer.mapError { $0 as NSError })
+    return toRACSignal(producer.mapError { $0 as NSError })
 }
 
 /// Creates a RACSignal that will start() the producer once for each
@@ -107,9 +107,9 @@ public func toRACSignal<Value: AnyObject, Error>(producer: SignalProducer<Value?
 ///
 /// Any `Interrupted` events will be silently discarded.
 public func toRACSignal<Value: AnyObject, Error: NSError>(producer: SignalProducer<Value?, Error>) -> RACSignal {
-	// This special casing of `Error: NSError` is a workaround for rdar://22708537
-	// which causes an NSError's UserInfo dictionary to get discarded
-	// during a cast from ErrorType to NSError in a generic function
+    // This special casing of `Error: NSError` is a workaround for rdar://22708537
+    // which causes an NSError's UserInfo dictionary to get discarded
+    // during a cast from ErrorType to NSError in a generic function
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = producer.start { event in
 			switch event {
@@ -148,34 +148,34 @@ public func toRACSignal<Value: AnyObject, Error: NSError>(signal: Signal<Value, 
 ///
 /// Any `Interrupted` event will be silently discarded.
 public func toRACSignal<Value: AnyObject, Error>(signal: Signal<Value?, Error>) -> RACSignal {
-	return toRACSignal(signal.mapError { $0 as NSError })
+    return toRACSignal(signal.mapError { $0 as NSError })
 }
 
 /// Creates a RACSignal that will observe the given signal.
 ///
 /// Any `Interrupted` event will be silently discarded.
 public func toRACSignal<Value: AnyObject, Error: NSError>(signal: Signal<Value?, Error>) -> RACSignal {
-	// This special casing of `Error: NSError` is a workaround for rdar://22708537
-	// which causes an NSError's UserInfo dictionary to get discarded
-	// during a cast from ErrorType to NSError in a generic function
-	return RACSignal.createSignal { subscriber in
-		let selfDisposable = signal.observe { event in
-			switch event {
-			case let .Next(value):
-				subscriber.sendNext(value)
-			case let .Error(error):
-				subscriber.sendError(error)
-			case .Completed:
-				subscriber.sendCompleted()
-			case .Interrupted:
-				break
-			}
-		}
+    // This special casing of `Error: NSError` is a workaround for rdar://22708537
+    // which causes an NSError's UserInfo dictionary to get discarded
+    // during a cast from ErrorType to NSError in a generic function
+    return RACSignal.createSignal { subscriber in
+        let selfDisposable = signal.observe { event in
+            switch event {
+            case let .Next(value):
+                subscriber.sendNext(value)
+            case let .Error(error):
+                subscriber.sendError(error)
+            case .Completed:
+                subscriber.sendCompleted()
+            case .Interrupted:
+                break
+            }
+        }
 
-		return RACDisposable {
-			selfDisposable?.dispose()
-		}
-	}
+        return RACDisposable {
+            selfDisposable?.dispose()
+        }
+    }
 }
 
 extension RACCommand {

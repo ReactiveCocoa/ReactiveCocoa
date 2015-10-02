@@ -707,9 +707,9 @@ extension SignalType {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = { observer.sendError($0) }
-			let onBothCompleted = { observer.sendCompleted() }
-			let onInterrupted = { observer.sendInterrupted() }
+			let onError = observer.sendError($0)
+			let onBothCompleted = observer.sendCompleted()
+			let onInterrupted = observer.sendInterrupted()
 
 			let disposable = CompositeDisposable()
 			disposable += observeWithStates(self.signal, signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)

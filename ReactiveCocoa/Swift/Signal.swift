@@ -25,7 +25,7 @@ public final class Signal<Value, Error: ErrorType> {
 	/// The disposable returned from the closure will be automatically disposed
 	/// if a terminating event is sent to the observer. The Signal itself will
 	/// remain alive until the observer is released.
-	public init(_ generator: Observer -> Disposable?) {
+	public init(@noescape _ generator: Observer -> Disposable?) {
 
 		/// Used to ensure that events are serialized during delivery to observers.
 		let sendLock = NSLock()

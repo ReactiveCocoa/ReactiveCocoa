@@ -28,7 +28,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "570704961BA8A20B00099600"
+               BuildableName = "ReactiveCocoa-watchOSTests.xctest"
+               BlueprintName = "ReactiveCocoa-watchOSTests"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A9B315531B3940610001CB9C"
+            BuildableName = "ReactiveCocoa.framework"
+            BlueprintName = "ReactiveCocoa-watchOS"
+            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>

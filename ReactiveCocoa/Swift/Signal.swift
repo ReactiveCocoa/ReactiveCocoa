@@ -139,11 +139,6 @@ public final class Signal<Value, Error: ErrorType> {
 			return nil
 		}
 	}
-
-	/// Convenience to avoid lots of extra parentheses everywhere people call observe(). TODO(andy): Document me.
-	public func observe(action: Observer.Action) -> Disposable? {
-		return observe(Observer(action))
-	}
 }
 
 public protocol SignalType {

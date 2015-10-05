@@ -449,6 +449,17 @@ extension SignalProducerType {
 		return lift(Signal.combineLatestWith)(otherProducer)
 	}
 
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given signal.
+	///
+	/// The returned producer will not send a value until both inputs have sent at
+	/// least one value each. If either input is interrupted, the returned producer
+	/// will also be interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
+		return lift(Signal.combineLatestWith)(otherSignal)
+	}
+
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
@@ -489,6 +500,20 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.sampleOn)(sampler)
+	}
+
+	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input producers have
+	/// completed, or interrupt if either input producer is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleOn(sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)
 	}
 
@@ -557,6 +582,18 @@ extension SignalProducerType {
 		return lift(Signal.takeUntilReplacement)(replacement)
 	}
 
+	/// Forwards events from `self` until `replacement` begins sending events.
+	///
+	/// Returns a producer which passes through `Next`, `Error`, and `Interrupted`
+	/// events from `self` until `replacement` sends an event, at which point the
+	/// returned producer will send that event and switch to passing through events
+	/// from `replacement` instead, regardless of whether `self` has sent events
+	/// already.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeUntilReplacement(replacement: Signal<Value, Error>) -> SignalProducer<Value, Error> {
+		return lift(Signal.takeUntilReplacement)(replacement)
+	}
+
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
@@ -576,6 +613,13 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
 		return lift(Signal.zipWith)(otherProducer)
+	}
+
+	/// Zips elements of this producer and a signal into pairs. The elements of 
+	/// any Nth pair are the Nth elements of the two.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func zipWith<U>(otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
+		return lift(Signal.zipWith)(otherSignal)
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results

@@ -19,6 +19,17 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()
 
+	/// Initializes a SignalProducer that will emit the same events as the given signal.
+	///
+	/// If the Disposable returned from start() is disposed or a terminating
+	/// event is sent to the observer, the given signal will be
+	/// disposed.
+	public init<S: SignalType where S.Value == Value, S.Error == Error>(signal: S) {
+		self.init { observer, disposable in
+			disposable += signal.observe(observer)
+		}
+	}
+
 	/// Initializes a SignalProducer that will invoke the given closure once
 	/// for each invocation of start().
 	///

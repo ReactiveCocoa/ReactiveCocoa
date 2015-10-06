@@ -71,7 +71,7 @@ extension RACSignal {
 	}
 }
 
-private extension SignalType {
+extension SignalType {
 	/// Turns each value into an Optional.
 	private func optionalize() -> Signal<Value?, Error> {
 		return signal.map(Optional.init)
@@ -106,8 +106,8 @@ public func toRACSignal<Value: AnyObject, Error>(producer: SignalProducer<Value?
 /// subscription.
 ///
 /// Any `Interrupted` events will be silently discarded.
-public func toRACSignal<T: AnyObject, E: NSError>(producer: SignalProducer<T?, E>) -> RACSignal {
-    // This special casing of `E: NSError` is a workaround for rdar://22708537
+public func toRACSignal<Value: AnyObject, Error: NSError>(producer: SignalProducer<Value?, Error>) -> RACSignal {
+    // This special casing of `Error: NSError` is a workaround for rdar://22708537
     // which causes an NSError's UserInfo dictionary to get discarded
     // during a cast from ErrorType to NSError in a generic function
 	return RACSignal.createSignal { subscriber in
@@ -119,7 +119,7 @@ public func toRACSignal<T: AnyObject, E: NSError>(producer: SignalProducer<T?, E
 				subscriber.sendError(error)
 			case .Completed:
 				subscriber.sendCompleted()
-			default:
+			case .Interrupted:
 				break
 			}
 		}
@@ -155,7 +155,7 @@ public func toRACSignal<Value: AnyObject, Error>(signal: Signal<Value?, Error>) 
 ///
 /// Any `Interrupted` event will be silently discarded.
 public func toRACSignal<Value: AnyObject, Error: NSError>(signal: Signal<Value?, Error>) -> RACSignal {
-    // This special casing of `E: NSError` is a workaround for rdar://22708537
+    // This special casing of `Error: NSError` is a workaround for rdar://22708537
     // which causes an NSError's UserInfo dictionary to get discarded
     // during a cast from ErrorType to NSError in a generic function
     return RACSignal.createSignal { subscriber in
@@ -167,7 +167,7 @@ public func toRACSignal<Value: AnyObject, Error: NSError>(signal: Signal<Value?,
                 subscriber.sendError(error)
             case .Completed:
                 subscriber.sendCompleted()
-            default:
+            case .Interrupted:
                 break
             }
         }

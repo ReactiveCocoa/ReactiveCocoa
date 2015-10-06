@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import Foundation
+
 /// Represents a serial queue of work items.
 public protocol SchedulerType {
 	/// Enqueues an action on the scheduler.
@@ -136,11 +138,11 @@ public final class QueueScheduler: DateSchedulerType {
 	}
 
 	private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
-		var seconds = 0.0
-		let frac = modf(date.timeIntervalSince1970, &seconds)
+
+		let (seconds, frac) = modf(date.timeIntervalSince1970)
 
 		let nsec: Double = frac * Double(NSEC_PER_SEC)
-		var walltime = timespec(tv_sec: CLong(seconds), tv_nsec: CLong(nsec))
+		var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
 
 		return dispatch_walltime(&walltime, 0)
 	}

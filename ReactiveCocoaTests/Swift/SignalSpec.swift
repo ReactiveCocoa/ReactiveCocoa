@@ -307,6 +307,20 @@ class SignalSpec: QuickSpec {
 				sendCompleted(observer)
 				expect(completed).to(beTruthy())
 			}
+
+			context("memory") {
+				it("should not crash allocating memory with a few observers") {
+					let (signal, _) = Signal<Int, NoError>.pipe()
+
+					for _ in 0..<50 {
+						autoreleasepool {
+							let disposable = signal.observe { _ in }
+
+							disposable!.dispose()
+						}
+					}
+				}
+			}
 		}
 
 		describe("observe") {

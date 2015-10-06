@@ -1136,7 +1136,7 @@ extension SignalProducerType {
 						sendCompleted(observer)
 					case .Interrupted:
 						sendInterrupted(observer)
-					default:
+					case .Next:
 						break
 					}
 				}

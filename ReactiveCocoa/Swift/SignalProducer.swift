@@ -372,6 +372,9 @@ extension SignalProducerType {
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
 	/// yielded from start().
+	///
+	/// Note: starting the returned producer will start the receiver of the operator,
+	/// which may not be adviseable for some operators.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in

@@ -397,7 +397,15 @@ extension SignalProducerType {
 	/// yielded from start().
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
-		return self.lift(transform)
+		return { otherSignal in
+			return SignalProducer { observer, outerDisposable in
+				self.startWithSignal { signal, disposable in
+					outerDisposable.addDisposable(disposable)
+
+					outerDisposable += transform(signal)(otherSignal).observe(observer)
+				}
+			}
+		}
 	}
 	
 	/// Maps each value in the producer to a new value.

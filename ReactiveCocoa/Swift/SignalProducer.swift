@@ -518,8 +518,8 @@ extension SignalProducerType {
 	/// happens.
 	///
 	/// Returns a producer that will send values from `self`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both input producers have
-	/// completed, or interrupt if either input producer is interrupted.
+	/// multiple times) by `sampler`, then complete once both inputs have
+	/// completed, or interrupt if either input is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)

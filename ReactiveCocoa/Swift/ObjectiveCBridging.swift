@@ -15,7 +15,7 @@ extension RACScheduler: DateSchedulerType {
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return self.schedule(action)
+		return (self.schedule(action) as RACDisposable) as Disposable?
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {

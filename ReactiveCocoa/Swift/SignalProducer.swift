@@ -400,8 +400,7 @@ extension SignalProducerType {
 		return { otherSignal in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
-					outerDisposable.addDisposable(disposable)
-
+					outerDisposable += disposable
 					outerDisposable += transform(signal)(otherSignal).observe(observer)
 				}
 			}

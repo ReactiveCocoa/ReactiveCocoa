@@ -6,7 +6,8 @@
 //  Copyright © 2015 GitHub. All rights reserved.
 //
 
-/// TODO(andy): Document me.
+/// An Observer is a simple wrapper around a function which can receive Events
+/// (typically from a Signal).
 public struct Observer<Value, Err: ErrorType> {
 	public typealias Action = Event<Value, Err> -> ()
 

@@ -162,7 +162,8 @@ extension Signal: SignalType {
 }
 
 extension SignalType {
-	/// Convenience to avoid extra parentheses everywehre. TODO(andy): Document.
+	/// Convenience override for observe(_:) to allow trailing-closure style
+	/// invocations.
 	public func observe(action: Signal<Value, Error>.Observer.Action) -> Disposable? {
 		return observe(Observer(action))
 	}

@@ -310,7 +310,8 @@ extension SignalProducerType {
 		return disposable
 	}
 
-	/// Convenience to avoid extra parentheses everywhere people call start. TODO(andy): Document me.
+	/// Convenience override for start(_:) to allow trailing-closure style
+	/// invocations.
 	public func start(observerAction: Observer<Value, Error>.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}

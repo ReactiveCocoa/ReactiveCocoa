@@ -77,13 +77,13 @@ With each string, we want to execute a network request. Luckily, RAC offers an
 
 ```swift
 let searchResults = searchStrings
-    .flatMap(.Latest) { query in
+    .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
         return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
     }
-    .map { data, URLResponse in
+    .map { (data, URLResponse) -> String in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
-        return parseJSONResultsFromString(string)
+        return self.parseJSONResultsFromString(string)
     }
     .observeOn(UIScheduler())
 ```
@@ -105,7 +105,7 @@ That’s easy enough:
 
 ```swift
 searchResults.startWithNext { results in
-    println("Search results: \(results)")
+    print("Search results: \(results)")
 }
 ```
 
@@ -123,13 +123,13 @@ To remedy this, we need to decide what to do with errors that occur. The
 quickest solution would be to log them, then ignore them:
 
 ```swift
-    .flatMap(.Latest) { query in
+    .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
 
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .flatMapError { error in
-                println("Network error occurred: \(error)")
+                print("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
     }
@@ -145,20 +145,20 @@ Our improved `searchResults` producer might look like this:
 
 ```swift
 let searchResults = searchStrings
-    .flatMap(.Latest) { query in
+    .flatMap(.Latest) { (query: String) -> SignalProducer<(NSData, NSURLResponse), NSError> in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
 
         return NSURLSession.sharedSession()
             .rac_dataWithRequest(URLRequest)
             .retry(2)
             .flatMapError { error in
-                println("Network error occurred: \(error)")
+                print("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
     }
-    .map { data, URLResponse in
+    .map { (data, URLResponse) -> String in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
-        return parseJSONResultsFromString(string)
+        return self.parseJSONResultsFromString(string)
     }
     .observeOn(UIScheduler())
 ```

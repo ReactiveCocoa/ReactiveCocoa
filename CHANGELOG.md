@@ -22,7 +22,11 @@ only affecting generic, custom signal/producer extensions.
 
 #### Renaming Event.Error to Event.Failed
 
-Maybe coming to a later alpha. See #2360.
+The `Error` case of `Event` has changed to `Failed`. This aims to help clarify
+the terminating nature of failure/error events and puts them in the same tense
+as other terminating cases (`Interrupted` and `Completed`). Likewise, some
+operations and parameters have been renamed (e.g. `Signal.observeError` is now 
+`Signal.observeFailed`, `sendError` is now `sendFailed`).
 
 ## Alpha 1
 

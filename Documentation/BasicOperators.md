@@ -387,7 +387,7 @@ producer
 
 sendNext(sink, "First")     // prints "First"
 sendNext(sink, "Second")    // prints "Second"
-sendFailure(sink, error)      // prints "Default"
+sendFailure(sink, error)    // prints "Default"
 ```
 
 ### Retrying
@@ -408,7 +408,7 @@ let producer = SignalProducer<String, NSError> { (sink, _) in
 }
 
 producer
-    .on(failed: {e in println("Failed")})             // prints "Failure" twice
+    .on(failed: {e in println("Failed")})           // prints "Failure" twice
     .retry(2)
     .start(next: println,                           // prints "Success"
          failed: { _ in println("Signal Failure")})

@@ -21,9 +21,9 @@ of a long-running operation. In any case, something generates the events and sen
 terminal events:
 
  * The `Next` event provides a new value from the source.
- * The `Error` event indicates that an error occurred before the signal could
+ * The `Failed` event indicates that an error occurred before the signal could
    finish. Events are parameterized by an `ErrorType`, which determines the kind
-   of error that’s permitted to appear in the event. If an error is not
+   of failure that’s permitted to appear in the event. If a failure is not
    permitted, the event can use type `NoError` to prevent any from being
    provided.
  * The `Completed` event indicates that the signal finished successfully, and
@@ -55,7 +55,7 @@ Typical primitives to manipulate a single signal like `filter`, `map` and
 at once (`zip`). Primitives operate only on the `Next` events of a signal.
 
 The lifetime of a signal consists of any number of `Next` events, followed by
-one terminating event, which may be any one of `Error`, `Completed`, or
+one terminating event, which may be any one of `Failed`, `Completed`, or
 `Interrupted` (but not a combination).
 Terminating events are not included in the signal’s values—they must be
 handled specially.
@@ -124,8 +124,8 @@ Observers can be implicitly created by using the callback-based versions of the
 ## Actions
 
 An **action**, represented by the [`Action`][Action] type, will do some work when
-executed with an input. While executing, zero or more output values and/or an
-error may be generated.
+executed with an input. While executing, zero or more output values and/or a
+failure may be generated.
 
 Actions are useful for performing side-effecting work upon user interaction, like when a button is
 clicked. Actions can also be automatically disabled based on a [property](#properties), and this

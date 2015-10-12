@@ -703,7 +703,7 @@ extension SignalType {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = { observer.sendError($0) }
+			let onError = observer.sendError
 			let onBothCompleted = observer.sendCompleted
 			let onInterrupted = observer.sendInterrupted
 

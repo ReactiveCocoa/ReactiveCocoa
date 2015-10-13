@@ -175,6 +175,12 @@ public func sendError<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink, _ err
 	sink(.Error(error))
 }
 
+/// Puts an `Error` event into the given sink.
+public func sendError<Value>(sink: Event<Value, NoError>.Sink, _ error: NoError) {
+	assertionFailure("Don't send an Error to a Signal of type NoError NoError!")
+	sink(.Error(error))
+}
+
 /// Puts a `Completed` event into the given sink.
 public func sendCompleted<Value, Err: ErrorType>(sink: Event<Value, Err>.Sink) {
 	sink(.Completed)

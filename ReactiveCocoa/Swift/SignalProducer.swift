@@ -373,7 +373,7 @@ extension SignalProducerType {
 	/// producers, just as if the operator had been applied to each Signal
 	/// yielded from start().
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+	public func lift<PType : SignalProducerType, V, G>(transform: Signal<Value, Error> -> Signal<PType.Value, PType.Error> -> Signal<V, G>) -> PType -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
@@ -477,14 +477,14 @@ extension SignalProducerType {
 	/// multiple times) by `sampler`, then complete once both input producers have
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+	public func sampleOn<PType: SignalProducerType where PType.Error == NoError>(sampler: PType) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+	public func takeUntil<PType: SignalProducerType where PType.Error == NoError>(trigger: PType) -> SignalProducer<Value, Error> {
 		return lift(Signal.takeUntil)(trigger)
 	}
 

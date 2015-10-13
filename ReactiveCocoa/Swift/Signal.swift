@@ -829,7 +829,7 @@ extension SignalType {
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func sampleOn<S: SignalType where S.Error == NoError>(sampler: S) -> Signal<Value, Error> {
 		return Signal { observer in
 			let state = Atomic(SampleState<Value>())
 			let disposable = CompositeDisposable()
@@ -886,7 +886,7 @@ extension SignalType {
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func takeUntil<S : SignalType where S.Error == NoError>(trigger: S) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			disposable += self.observe(observer)

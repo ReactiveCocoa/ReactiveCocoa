@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0995ECFE1BCC7C4B000AE3F1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; settings = {ASSET_TAGS = (); }; };
+		0995ECFF1BCC7C4C000AE3F1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; settings = {ASSET_TAGS = (); }; };
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
 		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
@@ -2406,6 +2408,7 @@
 				D03766C919EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D03766C319EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
+				0995ECFE1BCC7C4B000AE3F1 /* AtomicSpec.swift in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CD19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				D037671519EDA60000A782A9 /* RACTupleSpec.m in Sources */,
@@ -2585,6 +2588,7 @@
 				D03766C419EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				D03766BE19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				D037672019EDA60000A782A9 /* UIButtonRACSupportSpec.m in Sources */,
+				0995ECFF1BCC7C4C000AE3F1 /* AtomicSpec.swift in Sources */,
 				D0C3132519EF2D9700984962 /* RACTestUIButton.m in Sources */,
 				D037670219EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CE19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,

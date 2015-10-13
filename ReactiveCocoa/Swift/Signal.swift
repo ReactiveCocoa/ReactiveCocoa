@@ -34,7 +34,7 @@ public final class Signal<Value, Error: ErrorType> {
 		let generatorDisposable = SerialDisposable()
 
 		/// When set to `true`, the Signal should interrupt as soon as possible.
-		let interrupted = Atomic(false)
+		let interrupted = AtomicBool(false)
 
 		let sink: Observer = { event in
 			if case .Interrupted = event {

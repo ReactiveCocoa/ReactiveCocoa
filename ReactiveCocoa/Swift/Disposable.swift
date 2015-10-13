@@ -18,7 +18,7 @@ public protocol Disposable {
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
 public final class SimpleDisposable: Disposable {
-	private let _disposed = Atomic(false)
+	private let _disposed = AtomicBool(false)
 
 	public var disposed: Bool {
 		return _disposed.value

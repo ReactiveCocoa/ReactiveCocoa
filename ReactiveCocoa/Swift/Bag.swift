@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import CoreFoundation
-
 /// A uniquely identifying token for removing a value that was inserted into a
 /// Bag.
 internal final class RemovalToken {
@@ -46,7 +44,7 @@ internal struct Bag<T> {
 	mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
-			for i in reverse(0..<elements.endIndex) {
+			for i in (0..<elements.endIndex).reverse() {
 				if elements[i].identifier == identifier {
 					elements.removeAtIndex(i)
 					token.identifier = nil
@@ -70,11 +68,11 @@ internal struct Bag<T> {
 }
 
 extension Bag: SequenceType {
-	func generate() -> GeneratorOf<T> {
+	func generate() -> AnyGenerator<T> {
 		var index = 0
 		let count = elements.count
 
-		return GeneratorOf {
+		return anyGenerator {
 			if index < count {
 				return self.elements[index++].value
 			} else {
@@ -106,7 +104,7 @@ private struct BagElement<T> {
 	let token: RemovalToken
 }
 
-extension BagElement: Printable {
+extension BagElement: CustomStringConvertible {
 	var description: String {
 		return "BagElement(\(value))"
 	}

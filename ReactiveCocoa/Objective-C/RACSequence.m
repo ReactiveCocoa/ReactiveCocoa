@@ -365,20 +365,3 @@
 }
 
 @end
-
-@implementation RACSequence (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine {
-	return [self foldLeftWithStart:start reduce:combine];
-}
-
-- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine {
-	return [self foldRightWithStart:start reduce:combine];
-}
-
-#pragma clang diagnostic pop
-
-@end

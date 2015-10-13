@@ -10,6 +10,7 @@ import Result
 import Nimble
 import Quick
 import ReactiveCocoa
+import XCTest
 
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
@@ -24,19 +25,19 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return nil
 				}
 
-				let producer = racSignal.toSignalProducer() |> map { $0 as! Int }
+				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
-				expect((producer |> single)?.value).to(equal(0))
-				expect((producer |> single)?.value).to(equal(1))
-				expect((producer |> single)?.value).to(equal(2))
+				expect((producer.single())?.value).to(equal(0))
+				expect((producer.single())?.value).to(equal(1))
+				expect((producer.single())?.value).to(equal(2))
 			}
 
 			it("should forward errors")	{
-				let error = TestError.Default.nsError
+				let error = TestError.Default as NSError
 
 				let racSignal = RACSignal.error(error)
 				let producer = racSignal.toSignalProducer()
-				let result = producer |> last
+				let result = producer.last()
 
 				expect(result?.error).to(equal(error))
 			}
@@ -82,9 +83,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					}
 
 					sendError(sink, expectedError)
-
-					expect(error?.domain).to(equal(TestError.domain))
-					expect(error?.code).to(equal(expectedError.rawValue))
+					expect(error).to(equal(expectedError as NSError))
 				}
 			}
 
@@ -92,8 +91,8 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				it("should start once per subscription") {
 					var subscriptions = 0
 
-					let producer = SignalProducer<NSNumber, NoError>.try {
-						return .success(subscriptions++)
+					let producer = SignalProducer<NSNumber, NoError>.attempt {
+						return .Success(subscriptions++)
 					}
 					let racSignal = toRACSignal(producer)
 
@@ -107,9 +106,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = toRACSignal(producer).materialize()
 
 					let event = racSignal.first() as? RACEvent
-
-					expect(event?.error.domain).to(equal(TestError.domain))
-					expect(event?.error.code).to(equal(TestError.Error1.rawValue))
+					expect(event?.error).to(equal(TestError.Error1 as NSError))
 				}
 			}
 		}
@@ -155,19 +152,19 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let producer = action.apply(0)
 				expect(results).to(equal([]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1 ]))
 
 				let otherProducer = action.apply(2)
 				expect(results).to(equal([ 1, 1 ]))
 
-				otherProducer |> start()
+				otherProducer.start()
 				expect(results).toEventually(equal([ 1, 1, 3 ]))
 
-				producer |> start()
+				producer.start()
 				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}
@@ -192,7 +189,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				expect(action.enabled.value).to(beTruthy())
 
-				action.values.observe(next: { results.append($0) })
+				action.values.observeNext { results.append($0) }
 
 				command = toRACCommand(action)
 				expect(command).notTo(beNil())
@@ -212,14 +209,18 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			it("should apply and start a signal once per execution") {
 				let signal = command.execute(0)
 
-				signal.asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1" ]))
+				do {
+					try signal.asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1" ]))
 
-				signal.asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1" ]))
+					try signal.asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1" ]))
 
-				command.execute(2).asynchronouslyWaitUntilCompleted(nil)
-				expect(results).to(equal([ "1", "3" ]))
+					try command.execute(2).asynchronouslyWaitUntilCompleted()
+					expect(results).to(equal([ "1", "3" ]))
+				} catch {
+					XCTFail("Failed to wait for completion")
+				}
 			}
 		}
 	}

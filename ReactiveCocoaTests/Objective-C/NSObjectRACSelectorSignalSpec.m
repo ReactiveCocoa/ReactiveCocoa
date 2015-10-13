@@ -330,7 +330,7 @@ qck_describe(@"a class that already overrides -forwardInvocation:", ^{
 		[object lifeIsGood:@42];
 		expect(value).to(equal(@42));
 
-		expect([NSValue valueWithPointer:object.forwardedSelector]).to(equal([NSValue valueWithPointer:NULL]));
+		expect(@((size_t)(void*)object.forwardedSelector)).to(equal(@0));
 
 		[object performSelector:@selector(allObjects)];
 
@@ -351,7 +351,7 @@ qck_describe(@"a class that already overrides -forwardInvocation:", ^{
 		[object lifeIsGood:@42];
 		expect(value).to(equal(@42));
 
-		expect([NSValue valueWithPointer:object.forwardedSelector]).to(equal([NSValue valueWithPointer:NULL]));
+		expect(@((size_t)(void*)object.forwardedSelector)).to(equal(@0));
 		[object performSelector:@selector(allObjects)];
 		expect(NSStringFromSelector(object.forwardedSelector)).to(equal(@"allObjects"));
 	});

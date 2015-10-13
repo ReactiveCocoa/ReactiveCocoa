@@ -60,8 +60,9 @@ The first step is to observe edits to the text field, using a RAC extension to
 `UITextField` specifically for this purpose:
 
 ```swift
-let searchStrings = textField.rac_textSignal().toSignalProducer()
-    |> map { text in text as! String }
+let searchStrings = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
 ```
 
 This gives us a [signal producer][Signal producers] which sends
@@ -76,15 +77,15 @@ With each string, we want to execute a network request. Luckily, RAC offers an
 
 ```swift
 let searchResults = searchStrings
-    |> flatMap(.Latest) { query in
+    .flatMap(.Latest) { query in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
         return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
     }
-    |> map { data, URLResponse in
+    .map { data, URLResponse in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
         return parseJSONResultsFromString(string)
     }
-    |> observeOn(UIScheduler())
+    .observeOn(UIScheduler())
 ```
 
 This has transformed our producer of `String`s into a producer of `Array`s
@@ -122,11 +123,12 @@ To remedy this, we need to decide what to do with errors that occur. The
 quickest solution would be to log them, then ignore them:
 
 ```swift
-    |> flatMap(.Latest) { query in
+    .flatMap(.Latest) { query in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
 
-        return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
-            |> catch { error in
+        return NSURLSession.sharedSession()
+            .rac_dataWithRequest(URLRequest)
+            .catch { error in
                 println("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
@@ -143,21 +145,22 @@ Our improved `searchResults` producer might look like this:
 
 ```swift
 let searchResults = searchStrings
-    |> flatMap(.Latest) { query in
+    .flatMap(.Latest) { query in
         let URLRequest = self.searchRequestWithEscapedQuery(query)
 
-        return NSURLSession.sharedSession().rac_dataWithRequest(URLRequest)
-            |> retry(2)
-            |> catch { error in
+        return NSURLSession.sharedSession()
+            .rac_dataWithRequest(URLRequest)
+            .retry(2)
+            .catch { error in
                 println("Network error occurred: \(error)")
                 return SignalProducer.empty
             }
     }
-    |> map { data, URLResponse in
+    .map { data, URLResponse in
         let string = String(data: data, encoding: NSUTF8StringEncoding)!
         return parseJSONResultsFromString(string)
     }
-    |> observeOn(UIScheduler())
+    .observeOn(UIScheduler())
 ```
 
 #### Throttling requests
@@ -169,9 +172,10 @@ ReactiveCocoa has a declarative `throttle` operator that we can apply to our
 search strings:
 
 ```swift
-let searchStrings = textField.rac_textSignal().toSignalProducer()
-    |> map { text in text as! String }
-    |> throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+let searchStrings = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```
 
 This prevents values from being sent less than 0.5 seconds apart, so the user
@@ -288,11 +292,10 @@ To add RAC to your application:
     [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
     application’s repository.
  1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Drag and drop `ReactiveCocoa.xcodeproj`, `Carthage/Checkouts/Box/Box.xcodeproj` and
-    `Carthage/Checkouts/Result/Result.xcodeproj` into your application’s Xcode project or workspace.
+ 1. Drag and drop `ReactiveCocoa.xcodeproj` and `Carthage/Checkouts/Result/Result.xcodeproj`
+    into your application’s Xcode project or workspace.
  1. On the “General” tab of your application target’s settings, add
-    `ReactiveCocoa.framework`, `Box.framework` and `Result.framework` to the
-    “Embedded Binaries” section.
+    `ReactiveCocoa.framework` and `Result.framework` to the “Embedded Binaries” section.
  1. If your application target does not contain Swift code at all, you should also
     set the `EMBEDDED_CONTENT_CONTAINS_SWIFT` build setting to “Yes”.
 

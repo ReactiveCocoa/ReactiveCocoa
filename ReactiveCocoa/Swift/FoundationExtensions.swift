@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Result
 
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.
@@ -26,38 +25,26 @@ extension NSNotificationCenter {
 	}
 }
 
+private let defaultSessionError = NSError(domain: "org.reactivecocoa.ReactiveCocoa.rac_dataWithRequest", code: 1, userInfo: nil)
+
 extension NSURLSession {
 	/// Returns a producer that will execute the given request once for each
 	/// invocation of start().
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {
 		return SignalProducer { observer, disposable in
-			let task = self.dataTaskWithRequest(request) { (data, response, error) in
+			let task = self.dataTaskWithRequest(request) { data, response, error in
 				if let data = data, response = response {
 					sendNext(observer, (data, response))
 					sendCompleted(observer)
 				} else {
-					sendError(observer, error)
+					sendError(observer, error ?? defaultSessionError)
 				}
 			}
 
 			disposable.addDisposable {
 				task.cancel()
 			}
-
 			task.resume()
 		}
 	}
-}
-
-/// Removes all nil values from the given sequence.
-internal func ignoreNil<T, S: SequenceType where S.Generator.Element == Optional<T>>(sequence: S) -> [T] {
-	var results: [T] = []
-
-	for value in sequence {
-		if let value = value {
-			results.append(value)
-		}
-	}
-
-	return results
 }

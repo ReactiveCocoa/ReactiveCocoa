@@ -839,7 +839,7 @@ extension SignalType where Value: EventType, Error == NoError {
 }
 
 private struct SampleState<Value> {
-	var latestValue: Value? = nil
+	var latestValues: [Value] = []
 	var signalCompleted: Bool = false
 	var samplerCompleted: Bool = false
 }
@@ -856,6 +856,20 @@ extension SignalType {
 	/// completed, or interrupt if either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+		return sampleOn(sampler)
+			.combinePrevious([])
+			.map { $1.last ?? $0.last }
+			.ignoreNil()
+	}
+	
+	/// Forwards an array of values sent from `signal` since the last time
+	/// `sampler` sent a Next event.
+	///
+	/// Returns a signal that will yield an array of values from `signal`,
+	/// sampled by `sampler`, then complete once both input signals have
+	/// completed, or interrupt if either input signal is interrupted.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = Atomic(SampleState<Value>())
 			let disposable = CompositeDisposable()
@@ -864,7 +878,7 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					state.modify { (var st) in
-						st.latestValue = value
+						st.latestValues.append(value)
 						return st
 					}
 				case let .Error(error):
@@ -886,8 +900,10 @@ extension SignalType {
 			disposable += sampler.observe { event in
 				switch event {
 				case .Next:
-					if let value = state.value.latestValue {
-						sendNext(observer, value)
+					sendNext(observer, state.value.latestValues)
+					state.modify { (var st) in
+						st.latestValues = []
+						return st
 					}
 				case .Completed:
 					let oldState = state.modify { (var st) in

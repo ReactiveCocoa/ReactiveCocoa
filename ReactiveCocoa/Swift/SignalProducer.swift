@@ -509,7 +509,7 @@ extension SignalProducerType {
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)
 	}
-	
+
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.
 	///

@@ -84,7 +84,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	}
 
 	deinit {
-		sendCompleted(eventsObserver)
+		eventsObserver.sendCompleted()
 	}
 
 	/// Creates a SignalProducer that, when started, will execute the action
@@ -106,7 +106,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			}
 
 			if !startedExecuting {
-				sendError(observer, .NotEnabled)
+				observer.sendError(.NotEnabled)
 				return
 			}
 
@@ -114,8 +114,8 @@ public final class Action<Input, Output, Error: ErrorType> {
 				disposable.addDisposable(signalDisposable)
 
 				signal.observe { event in
-					observer(event.mapError { .ProducerError($0) })
-					sendNext(self.eventsObserver, event)
+					observer.action(event.mapError { .ProducerError($0) })
+					self.eventsObserver.sendNext(event)
 				}
 			}
 

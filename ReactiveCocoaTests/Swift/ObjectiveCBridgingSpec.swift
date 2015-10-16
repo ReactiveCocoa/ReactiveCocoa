@@ -14,6 +14,45 @@ import XCTest
 
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
+		describe("RACScheduler") {
+			var originalScheduler: RACTestScheduler!
+			var scheduler: DateSchedulerType!
+
+			beforeEach {
+				originalScheduler = RACTestScheduler()
+				scheduler = originalScheduler as DateSchedulerType
+			}
+
+			it("gives current date") {
+				expect(scheduler.currentDate).to(beCloseTo(NSDate()))
+			}
+
+			it("schedules actions") {
+				var actionRan: Bool = false
+
+				scheduler.schedule {
+					actionRan = true
+				}
+
+				expect(actionRan) == false
+				originalScheduler.step()
+				expect(actionRan) == true
+			}
+
+			it("does not invoke action if disposed") {
+				var actionRan: Bool = false
+
+				let disposable: Disposable? = scheduler.schedule {
+					actionRan = true
+				}
+
+				expect(actionRan) == false
+				disposable!.dispose()
+				originalScheduler.step()
+				expect(actionRan) == false
+			}
+		}
+
 		describe("RACSignal.toSignalProducer") {
 			it("should subscribe once per start()") {
 				var subscriptions = 0

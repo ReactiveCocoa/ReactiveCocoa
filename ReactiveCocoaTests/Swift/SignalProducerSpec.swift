@@ -120,6 +120,72 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
+		describe("init(signal:)") {
+			var signal: Signal<Int, TestError>!
+			var sink: Signal<Int, TestError>.Observer!
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
+
+				signal = baseSignal
+				sink = observer
+			}
+
+			it("should emit values then complete") {
+				let producer = SignalProducer<Int, TestError>(signal: signal)
+
+				var values: [Int] = []
+				var error: TestError?
+				var completed = false
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case let .Error(err):
+						error = err
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				expect(values) == []
+				expect(error).to(beNil())
+				expect(completed) == false
+
+				sendNext(sink, 1)
+				expect(values) == [ 1 ]
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				expect(values) == [ 1, 2, 3 ]
+
+				sendCompleted(sink)
+				expect(completed) == true
+			}
+
+			it("should emit error") {
+				let producer = SignalProducer<Int, TestError>(signal: signal)
+
+				var error: TestError?
+				let sentError = TestError.Default
+
+				producer.start { event in
+					switch event {
+					case let .Error(err):
+						error = err
+					default:
+						break
+					}
+				}
+
+				expect(error).to(beNil())
+
+				sendError(sink, sentError)
+				expect(error) == sentError
+			}
+		}
+
 		describe("init(value:)") {
 			it("should immediately send the value then complete") {
 				let producerValue = "StringValue"
@@ -682,6 +748,65 @@ class SignalProducerSpec: QuickSpec {
 					let result = producer.collect().single()
 
 					expect(result?.value).to(equal([5, 7, 9]))
+				}
+			}
+
+			describe("over binary operators with signal") {
+				it("should invoke transformation once per started signal") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
+					let (otherSignal, otherSignalSink) = Signal<Int, NoError>.pipe()
+
+					var counter = 0
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+						return { otherSignal in
+							counter += 1
+							return zip(signal, otherSignal)
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherSignal)
+					expect(counter).to(equal(0))
+
+					producer.start()
+					sendNext(otherSignalSink, 1)
+					expect(counter) == 1
+
+					producer.start()
+					sendNext(otherSignalSink, 2)
+					expect(counter) == 2
+				}
+
+				it("should not miss any events") {
+					let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
+					let (otherSignal, otherSignalSink) = Signal<Int, NoError>.pipe()
+
+					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+						return { otherSignal in
+							return zip(signal, otherSignal).map(+)
+						}
+					}
+
+					let producer = baseProducer.lift(transform)(otherSignal)
+					var result: [Int] = []
+					var completed: Bool = false
+
+					producer.start { event in
+						switch event {
+						case .Next(let value): result.append(value)
+						case .Completed: completed = true
+						default: break
+						}
+					}
+
+					sendNext(otherSignalSink, 4)
+					expect(result) == [ 5 ]
+
+					sendNext(otherSignalSink, 5)
+					expect(result) == [ 5, 7 ]
+
+					sendNext(otherSignalSink, 6)
+					expect(result) == [ 5, 7, 9 ]
+					expect(completed) == true
 				}
 			}
 		}

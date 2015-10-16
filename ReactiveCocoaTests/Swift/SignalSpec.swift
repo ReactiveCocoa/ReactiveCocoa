@@ -1248,6 +1248,59 @@ class SignalSpec: QuickSpec {
 				sendCompleted(samplerObserver)
 				expect(completed).to(beTruthy())
 			}
+			
+			context("collecting values") {
+				var sampledSignal: Signal<[Int], NoError>!
+				var observer: Signal<Int, NoError>.Observer!
+				var samplerObserver: Signal<(), NoError>.Observer!
+				
+				beforeEach {
+					let (signal, sink) = Signal<Int, NoError>.pipe()
+					let (sampler, samplesSink) = Signal<(), NoError>.pipe()
+					sampledSignal = signal.sampleOn(sampler)
+					observer = sink
+					samplerObserver = samplesSink
+				}
+				
+				it("should forward the latest values when the sampler fires") {
+					var result: [Int] = []
+					sampledSignal.observeNext { result = $0 }
+					
+					sendNext(observer, 1)
+					sendNext(observer, 2)
+					sendNext(samplerObserver, ())
+					expect(result).to(equal([ 1, 2 ]))
+				}
+				
+				it("should send an empty array if the sampler fires before signal receives value") {
+					var result: [Int] = [ 1 ]
+					sampledSignal.observeNext { result = $0 }
+					
+					sendNext(samplerObserver, ())
+					expect(result).to(beEmpty())
+				}
+				
+				it("should reset the latest values when the sampler fires") {
+					var result: [Int] = []
+					sampledSignal.observeNext { result = $0 }
+					
+					sendNext(observer, 1)
+					sendNext(samplerObserver, ())
+					sendNext(samplerObserver, ())
+					expect(result).to(equal([]))
+				}
+				
+				it("should complete when both inputs have completed") {
+					var completed = false
+					sampledSignal.observeCompleted { completed = true }
+					
+					sendCompleted(observer)
+					expect(completed).to(beFalsy())
+					
+					sendCompleted(samplerObserver)
+					expect(completed).to(beTruthy())
+				}
+			}
 		}
 
 		describe("combineLatestWith") {

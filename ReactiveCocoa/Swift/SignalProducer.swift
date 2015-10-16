@@ -509,6 +509,17 @@ extension SignalProducerType {
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)
 	}
+	
+	/// Forwards an array of values sent from `signal` since the last time
+	/// `sampler` sent a Next event.
+	///
+	/// Returns a signal that will yield an array of values from `signal`,
+	/// sampled by `sampler`, then complete once both input signals have
+	/// completed, or interrupt if either input signal is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<[Value], Error> {
+		return lift(Signal.sampleOn)(sampler)
+	}
 
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.

@@ -273,16 +273,7 @@ extension SignalType where Value: SignalType, Error == Value.Error {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
-		switch strategy {
-		case .Merge:
-			return self.map(SignalProducer.init).merge()
-
-		case .Concat:
-			return self.map(SignalProducer.init).concat()
-
-		case .Latest:
-			return self.map(SignalProducer.init).switchToLatest()
-		}
+		return self.map(SignalProducer.init).flatten(strategy)
 	}
 }
 

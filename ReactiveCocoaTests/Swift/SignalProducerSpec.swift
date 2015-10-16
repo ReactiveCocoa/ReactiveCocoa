@@ -120,6 +120,72 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
+		describe("init(signal:)") {
+			var signal: Signal<Int, TestError>!
+			var sink: Signal<Int, TestError>.Observer!
+
+			beforeEach {
+				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
+
+				signal = baseSignal
+				sink = observer
+			}
+
+			it("should emit values then complete") {
+				let producer = SignalProducer<Int, TestError>(signal: signal)
+
+				var values: [Int] = []
+				var error: TestError?
+				var completed = false
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case let .Error(err):
+						error = err
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				expect(values) == []
+				expect(error).to(beNil())
+				expect(completed) == false
+
+				sendNext(sink, 1)
+				expect(values) == [ 1 ]
+				sendNext(sink, 2)
+				sendNext(sink, 3)
+				expect(values) == [ 1, 2, 3 ]
+
+				sendCompleted(sink)
+				expect(completed) == true
+			}
+
+			it("should emit error") {
+				let producer = SignalProducer<Int, TestError>(signal: signal)
+
+				var error: TestError?
+				let sentError = TestError.Default
+
+				producer.start { event in
+					switch event {
+					case let .Error(err):
+						error = err
+					default:
+						break
+					}
+				}
+
+				expect(error).to(beNil())
+
+				sendError(sink, sentError)
+				expect(error) == sentError
+			}
+		}
+
 		describe("init(value:)") {
 			it("should immediately send the value then complete") {
 				let producerValue = "StringValue"

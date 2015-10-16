@@ -19,6 +19,17 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()
 
+	/// Initializes a SignalProducer that will emit the same events as the given signal.
+	///
+	/// If the Disposable returned from start() is disposed or a terminating
+	/// event is sent to the observer, the given signal will be
+	/// disposed.
+	public init<S: SignalType where S.Value == Value, S.Error == Error>(signal: S) {
+		self.init { observer, disposable in
+			disposable += signal.observe(observer)
+		}
+	}
+
 	/// Initializes a SignalProducer that will invoke the given closure once
 	/// for each invocation of start().
 	///
@@ -372,6 +383,9 @@ extension SignalProducerType {
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
 	/// yielded from start().
+	///
+	/// Note: starting the returned producer will start the receiver of the operator,
+	/// which may not be adviseable for some operators.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
@@ -1000,6 +1014,21 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	}
 }
 
+extension SignalProducerType where Value: SignalType, Error == Value.Error {
+	/// Flattens the inner signals sent upon `producer` (into a single producer of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `producer` or an active inner signal emits an error, the returned
+	/// producer will forward that error immediately.
+	///
+	/// `Interrupted` events on inner signals will be treated like `Completed`
+	/// events on inner signals.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
+		return self.lift { $0.flatten(strategy) }
+	}
+}
+
 
 extension SignalProducerType {
 	/// Maps each event from `producer` to a new producer, then flattens the
@@ -1010,6 +1039,17 @@ extension SignalProducerType {
 	/// producer will forward that error immediately.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> SignalProducer<U, Error>) -> SignalProducer<U, Error> {
+		return map(transform).flatten(strategy)
+	}
+
+	/// Maps each event from `producer` to a new signal, then flattens the
+	/// resulting signals (into a single producer of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `producer` or any of the created signals emit an error, the returned
+	/// producer will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> Signal<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
 
@@ -1122,7 +1162,7 @@ extension SignalProducerType {
 						sendCompleted(observer)
 					case .Interrupted:
 						sendInterrupted(observer)
-					default:
+					case .Next:
 						break
 					}
 				}

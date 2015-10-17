@@ -68,18 +68,23 @@ signal.observe(Signal.Observer { event in
 Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
 ```Swift
-signal.observe(next: { next in
-    print("Next: \(next)")
-}, error: { error in
-    print("Error: \(error)")
-}, completed: {
-    print("Completed")
-}, interrupted: {
+signal.observe(
+  signal.observeNext{ next in 
+    print("Next: \(next)") 
+  }
+  signal.observeError{ error in 
+    print("Error: \(error)") 
+  }
+  signal.observeCompleted{ 
+    print("Completed") 
+  }
+  signal.observeInterrupted{ 
     print("Interrupted")
-})
+  }
+)
 ```
 
-Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
+Note that it is not necessary to observe all four types of event - all of them are optional, you only need to provide callbacks for the events you care about.
 
 ### Injecting effects
 

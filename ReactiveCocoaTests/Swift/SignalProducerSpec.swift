@@ -154,13 +154,13 @@ class SignalProducerSpec: QuickSpec {
 				expect(error).to(beNil())
 				expect(completed) == false
 
-				sendNext(sink, 1)
+				sink.sendNext(1)
 				expect(values) == [ 1 ]
-				sendNext(sink, 2)
-				sendNext(sink, 3)
+				sink.sendNext(2)
+				sink.sendNext(3)
 				expect(values) == [ 1, 2, 3 ]
 
-				sendCompleted(sink)
+				sink.sendCompleted()
 				expect(completed) == true
 			}
 
@@ -181,7 +181,7 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(error).to(beNil())
 
-				sendError(sink, sentError)
+				sink.sendError(sentError)
 				expect(error) == sentError
 			}
 		}
@@ -768,11 +768,11 @@ class SignalProducerSpec: QuickSpec {
 					expect(counter).to(equal(0))
 
 					producer.start()
-					sendNext(otherSignalSink, 1)
+					otherSignalSink.sendNext(1)
 					expect(counter) == 1
 
 					producer.start()
-					sendNext(otherSignalSink, 2)
+					otherSignalSink.sendNext(2)
 					expect(counter) == 2
 				}
 
@@ -798,13 +798,13 @@ class SignalProducerSpec: QuickSpec {
 						}
 					}
 
-					sendNext(otherSignalSink, 4)
+					otherSignalSink.sendNext(4)
 					expect(result) == [ 5 ]
 
-					sendNext(otherSignalSink, 5)
+					otherSignalSink.sendNext(5)
 					expect(result) == [ 5, 7 ]
 
-					sendNext(otherSignalSink, 6)
+					otherSignalSink.sendNext(6)
 					expect(result) == [ 5, 7, 9 ]
 					expect(completed) == true
 				}

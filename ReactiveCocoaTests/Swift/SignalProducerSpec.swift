@@ -122,13 +122,13 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("init(signal:)") {
 			var signal: Signal<Int, TestError>!
-			var sink: Signal<Int, TestError>.Observer!
+			var observer: Signal<Int, TestError>.Observer!
 
 			beforeEach {
-				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
-
-				signal = baseSignal
-				sink = observer
+				// Cannot directly assign due to compiler crash on Xcode 7.0.1
+				let (signalTemp, observerTemp) = Signal<Int, TestError>.pipe()
+				signal = signalTemp
+				observer = observerTemp
 			}
 
 			it("should emit values then complete") {
@@ -154,13 +154,13 @@ class SignalProducerSpec: QuickSpec {
 				expect(error).to(beNil())
 				expect(completed) == false
 
-				sink.sendNext(1)
+				observer.sendNext(1)
 				expect(values) == [ 1 ]
-				sink.sendNext(2)
-				sink.sendNext(3)
+				observer.sendNext(2)
+				observer.sendNext(3)
 				expect(values) == [ 1, 2, 3 ]
 
-				sink.sendCompleted()
+				observer.sendCompleted()
 				expect(completed) == true
 			}
 
@@ -181,7 +181,7 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(error).to(beNil())
 
-				sink.sendError(sentError)
+				observer.sendError(sentError)
 				expect(error) == sentError
 			}
 		}
@@ -754,7 +754,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("over binary operators with signal") {
 				it("should invoke transformation once per started signal") {
 					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2])
-					let (otherSignal, otherSignalSink) = Signal<Int, NoError>.pipe()
+					let (otherSignal, otherSignalObserver) = Signal<Int, NoError>.pipe()
 
 					var counter = 0
 					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
@@ -768,17 +768,17 @@ class SignalProducerSpec: QuickSpec {
 					expect(counter).to(equal(0))
 
 					producer.start()
-					otherSignalSink.sendNext(1)
+					otherSignalObserver.sendNext(1)
 					expect(counter) == 1
 
 					producer.start()
-					otherSignalSink.sendNext(2)
+					otherSignalObserver.sendNext(2)
 					expect(counter) == 2
 				}
 
 				it("should not miss any events") {
 					let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
-					let (otherSignal, otherSignalSink) = Signal<Int, NoError>.pipe()
+					let (otherSignal, otherSignalObserver) = Signal<Int, NoError>.pipe()
 
 					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
 						return { otherSignal in
@@ -798,13 +798,13 @@ class SignalProducerSpec: QuickSpec {
 						}
 					}
 
-					otherSignalSink.sendNext(4)
+					otherSignalObserver.sendNext(4)
 					expect(result) == [ 5 ]
 
-					otherSignalSink.sendNext(5)
+					otherSignalObserver.sendNext(5)
 					expect(result) == [ 5, 7 ]
 
-					otherSignalSink.sendNext(6)
+					otherSignalObserver.sendNext(6)
 					expect(result) == [ 5, 7, 9 ]
 					expect(completed) == true
 				}

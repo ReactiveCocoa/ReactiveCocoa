@@ -54,13 +54,13 @@ types will be referred to by name.
 signal.observe(Signal.Observer { event in
     switch event {
     case let .Next(next):
-        println("Next: \(next)")
+        print("Next: \(next)")
     case let .Error(error):
-        println("Error: \(error)")
+        print("Error: \(error)")
     case .Completed:
-        println("Completed")
+        print("Completed")
     case .Interrupted:
-        println("Interrupted")
+        print("Interrupted")
     }
 })
 ```
@@ -68,18 +68,21 @@ signal.observe(Signal.Observer { event in
 Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
 ```Swift
-signal.observe(next: { next in
-    println("Next: \(next)")
-}, error: { error in
-    println("Error: \(error)")
-}, completed: {
-    println("Completed")
-}, interrupted: {
-    println("Interrupted")
-})
+signal.observeNext{ next in 
+  print("Next: \(next)") 
+}
+signal.observeError{ error in 
+  print("Error: \(error)") 
+}
+signal.observeCompleted{ 
+  print("Completed") 
+}
+signal.observeInterrupted{ 
+  print("Interrupted")
+}
 ```
 
-Note that it is not necessary to provide all four parameters - all of them are optional, you only need to provide callbacks for the events you care about.
+Note that it is not necessary to observe all four types of event - all of them are optional, you only need to provide callbacks for the events you care about.
 
 ### Injecting effects
 
@@ -88,21 +91,21 @@ Side effects can be injected on a `SignalProducer` with the `on` operator withou
 ```Swift
 let producer = signalProducer
     .on(started: {
-        println("Started")
+        print("Started")
     }, event: { event in
-        println("Event: \(event)")
+        print("Event: \(event)")
     }, error: { error in
-        println("Error: \(error)")
+        print("Error: \(error)")
     }, completed: {
-        println("Completed")
+        print("Completed")
     }, interrupted: {
-        println("Interrupted")
+        print("Interrupted")
     }, terminated: {
-        println("Terminated")
+        print("Terminated")
     }, disposed: {
-        println("Disposed")
+        print("Disposed")
     }, next: { next in
-        println("Next: \(next)")
+        print("Next: \(next)")
     })
 ```
 
@@ -135,7 +138,7 @@ let (signal, observer) = Signal<String, NoError>.pipe()
 
 signal
     .map { string in string.uppercaseString }
-    .observe(next: println)
+    .observe(next: print)
 
 observer.sendNext("a")     // Prints A
 observer.sendNext("b")     // Prints B
@@ -154,7 +157,7 @@ let (signal, observer) = Signal<Int, NoError>.pipe()
 
 signal
     .filter { number in number % 2 == 0 }
-    .observe(next: println)
+    .observe(next: print)
 
 observer.sendNext(1)     // Not printed
 observer.sendNext(2)     // Prints 2
@@ -175,7 +178,7 @@ let (signal, observer) = Signal<Int, NoError>.pipe()
 
 signal
     .reduce(1) { $0 * $1 }
-    .observe(next: println)
+    .observe(next: print)
 
 observer.sendNext(1)     // nothing printed
 observer.sendNext(2)     // nothing printed
@@ -189,7 +192,7 @@ stream completes.
 
 ```Swift
 let (signal, observer) = Signal<Int, NoError>.pipe()
-signal.collect().observe(next: println)
+signal.collect().observe(next: print)
 
 observer.sendNext(1)     // nothing printed
 observer.sendNext(2)     // nothing printed
@@ -218,7 +221,7 @@ let (numbersSignal, numbersObserver) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersObserver) = Signal<String, NoError>.pipe()
 
 combineLatest(numbersSignal, lettersSignal)
-    .observe(next: println, completed: { println("Completed") })
+    .observe(next: print, completed: { print("Completed") })
 
 numbersObserver.sendNext(0)      // nothing printed
 numbersObserver.sendNext(1)      // nothing printed
@@ -247,7 +250,7 @@ let (numbersSignal, numbersObserver) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersObserver) = Signal<String, NoError>.pipe()
 
 zip(numbersSignal, lettersSignal)
-    .observe(next: println, completed: { println("Completed") })
+    .observe(next: print, completed: { print("Completed") })
 
 numbersObserver.sendNext(0)      // nothing printed
 numbersObserver.sendNext(1)      // nothing printed
@@ -299,7 +302,7 @@ let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Merge).start(next: println)
+signal.flatten(.Merge).start(next: print)
 
 observer.sendNext(producerA)
 observer.sendNext(producerB)
@@ -324,7 +327,7 @@ let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Concat).start(next: println)
+signal.flatten(.Concat).start(next: print)
 
 observer.sendNext(producerA)
 observer.sendNext(producerB)
@@ -352,7 +355,7 @@ let (producerB, observerB) = SignalProducer<String, NoError>.buffer(5)
 let (producerC, observerC) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Latest).start(next: println)
+signal.flatten(.Latest).start(next: print)
 
 observer.sendNext(producerA)   // nothing printed
 observerC.sendNext("X")        // nothing printed
@@ -382,7 +385,7 @@ let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
 producer
     .catch { error in SignalProducer<String, NSError>(value: "Default") }
-    .start(next: println)
+    .start(next: print)
 
 
 observer.sendNext("First")     // prints "First"
@@ -408,10 +411,10 @@ let producer = SignalProducer<String, NSError> { (observer, _) in
 }
 
 producer
-    .on(error: {e in println("Error")})             // prints "Error" twice
+    .on(error: {e in print("Error")})             // prints "Error" twice
     .retry(2)
-    .start(next: println,                           // prints "Success"
-          error: { _ in println("Signal Error")})
+    .start(next: print,                           // prints "Success"
+          error: { _ in print("Signal Error")})
 ```
 
 If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
@@ -448,7 +451,7 @@ signal
             return .Other
         }
     }
-    .observe(error: println)
+    .observe(error: print)
 
 observer.sendError(NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```

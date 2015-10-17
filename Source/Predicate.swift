@@ -49,17 +49,17 @@ public struct OrProperty: PredicateType {
 }
 
 public struct NotProperty: PredicateType {
-    private let property: PropertyOf<Bool>
+    private let source: PropertyOf<Bool>
     
     public var value: Bool {
-        return !property.value
+        return !source.value
     }
 
     public var producer: SignalProducer<Bool, NoError> {
-        return property.producer.map { !$0 }
+        return source.producer.map { !$0 }
     }
 
     public init<P: PropertyType where P.Value == Bool>(property: P) {
-        self.property = PropertyOf(property)
+        source = PropertyOf(property)
     }
 }

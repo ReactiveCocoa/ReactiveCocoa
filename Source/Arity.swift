@@ -14,34 +14,45 @@ public protocol ArityType {
     var tuple: TupleType { get }
 }
 
-public struct Nullary: ArityType {
-    public static var size: Int {
-        return 0
-    }
+public protocol NullaryType: ArityType { }
 
+extension NullaryType {
+    public static var size: Int { return 0 }
+}
+
+public struct Nullary: NullaryType {
     public let tuple: () = ()
 }
 
-public struct Unary<A>: ArityType {
-    public static var size: Int {
-        return 1
-    }
 
+public protocol UnaryType: ArityType { }
+
+extension UnaryType {
+    public static var size: Int { return 1 }
+}
+
+public struct Unary<A>: UnaryType {
     public let tuple: A
 }
 
-public struct Binary<A, B>: ArityType {
-    public static var size: Int {
-        return 2
-    }
 
+public protocol BinaryType: ArityType { }
+
+extension BinaryType {
+    public static var size: Int { return 2 }
+}
+
+public struct Binary<A, B>: BinaryType {
     public let tuple: (A, B)
 }
 
-public struct Ternary<A, B, C>: ArityType {
-    public static var size: Int {
-        return 3
-    }
-    
+
+public protocol TernaryType: ArityType { }
+
+extension TernaryType {
+    public static var size: Int { return 3 }
+}
+
+public struct Ternary<A, B, C>: TernaryType {
     public let tuple: (A, B, C)
 }

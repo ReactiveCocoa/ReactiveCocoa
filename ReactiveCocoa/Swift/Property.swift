@@ -11,7 +11,7 @@ public protocol PropertyType {
 }
 
 /// A read-only property that allows observation of its changes.
-public struct PropertyOf<Value>: PropertyType {
+public struct AnyProperty<Value>: PropertyType {
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>

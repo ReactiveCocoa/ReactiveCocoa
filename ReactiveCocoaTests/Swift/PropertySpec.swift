@@ -112,12 +112,12 @@ class PropertySpec: QuickSpec {
 			describe("from a PropertyType") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
-					let anyProperty = AnyProperty(constantProperty)
+					let property = AnyProperty(constantProperty)
 
 					var sentValue: String?
 					var producerCompleted = false
 
-					anyProperty.producer.start { event in
+					property.producer.start { event in
 						switch event {
 						case let .Next(value):
 							sentValue = value

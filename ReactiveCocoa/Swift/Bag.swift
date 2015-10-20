@@ -8,7 +8,7 @@
 
 /// A uniquely identifying token for removing a value that was inserted into a
 /// Bag.
-internal final class RemovalToken {
+public final class RemovalToken {
 	private var identifier: UInt?
 
 	private init(identifier: UInt) {
@@ -17,13 +17,16 @@ internal final class RemovalToken {
 }
 
 /// An unordered, non-unique collection of values of type `Element`.
-internal struct Bag<Element> {
+public struct Bag<Element> {
 	private var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
 
+	public init() {
+	}
+
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func insert(value: Element) -> RemovalToken {
+	public mutating func insert(value: Element) -> RemovalToken {
 		let nextIdentifier = currentIdentifier &+ 1
 		if nextIdentifier == 0 {
 			reindex()
@@ -41,7 +44,7 @@ internal struct Bag<Element> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	mutating func removeValueForToken(token: RemovalToken) {
+	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
 			for i in (0..<elements.endIndex).reverse() {
@@ -68,7 +71,7 @@ internal struct Bag<Element> {
 }
 
 extension Bag: SequenceType {
-	func generate() -> AnyGenerator<Element> {
+	public func generate() -> AnyGenerator<Element> {
 		var index = 0
 		let count = elements.count
 
@@ -83,17 +86,17 @@ extension Bag: SequenceType {
 }
 
 extension Bag: CollectionType {
-	typealias Index = Array<Element>.Index
+	public typealias Index = Array<Element>.Index
 
-	var startIndex: Index {
+	public var startIndex: Index {
 		return 0
 	}
 	
-	var endIndex: Index {
+	public var endIndex: Index {
 		return elements.count
 	}
 
-	subscript(index: Index) -> Element {
+	public subscript(index: Index) -> Element {
 		return elements[index].value
 	}
 }

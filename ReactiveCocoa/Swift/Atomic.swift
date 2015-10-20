@@ -7,7 +7,7 @@
 //
 
 /// An atomic variable.
-internal final class Atomic<Value> {
+public final class Atomic<Value> {
 	private var spinLock = OS_SPINLOCK_INIT
 	private var _value: Value
 	

@@ -21,6 +21,9 @@ public struct Bag<Element> {
 	private var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
 
+	public init() {
+	}
+
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
 	public mutating func insert(value: Element) -> RemovalToken {

@@ -12,7 +12,7 @@ public final class Atomic<Value> {
 	private var _value: Value
 	
 	/// Atomically gets or sets the value of the variable.
-	var value: Value {
+	public var value: Value {
 		get {
 			lock()
 			let v = _value
@@ -29,7 +29,7 @@ public final class Atomic<Value> {
 	}
 	
 	/// Initializes the variable with the given initial value.
-	init(_ value: Value) {
+	public init(_ value: Value) {
 		_value = value
 	}
 	
@@ -44,14 +44,14 @@ public final class Atomic<Value> {
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	func swap(newValue: Value) -> Value {
+	public func swap(newValue: Value) -> Value {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	func modify(@noescape action: Value -> Value) -> Value {
+	public func modify(@noescape action: Value -> Value) -> Value {
 		lock()
 		let oldValue = _value
 		_value = action(_value)
@@ -64,7 +64,7 @@ public final class Atomic<Value> {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	func withValue<U>(@noescape action: Value -> U) -> U {
+	public func withValue<U>(@noescape action: Value -> U) -> U {
 		lock()
 		let result = action(_value)
 		unlock()

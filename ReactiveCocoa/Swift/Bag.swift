@@ -23,7 +23,7 @@ public struct Bag<Element> {
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func insert(value: Element) -> RemovalToken {
+	public mutating func insert(value: Element) -> RemovalToken {
 		let nextIdentifier = currentIdentifier &+ 1
 		if nextIdentifier == 0 {
 			reindex()
@@ -41,7 +41,7 @@ public struct Bag<Element> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	mutating func removeValueForToken(token: RemovalToken) {
+	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
 			for i in (0..<elements.endIndex).reverse() {

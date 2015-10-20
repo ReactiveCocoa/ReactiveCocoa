@@ -68,16 +68,16 @@ signal.observe(Signal.Observer { event in
 Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
 ```Swift
-signal.observeNext{ next in 
+signal.observeNext { next in 
   print("Next: \(next)") 
 }
-signal.observeError{ error in 
+signal.observeError { error in 
   print("Error: \(error)") 
 }
-signal.observeCompleted{ 
+signal.observeCompleted { 
   print("Completed") 
 }
-signal.observeInterrupted{ 
+signal.observeInterrupted { 
   print("Interrupted")
 }
 ```
@@ -138,7 +138,7 @@ let (signal, observer) = Signal<String, NoError>.pipe()
 
 signal
     .map { string in string.uppercaseString }
-    .observe(next: print)
+    .observeNext { next in print(next) }
 
 observer.sendNext("a")     // Prints A
 observer.sendNext("b")     // Prints B
@@ -157,7 +157,7 @@ let (signal, observer) = Signal<Int, NoError>.pipe()
 
 signal
     .filter { number in number % 2 == 0 }
-    .observe(next: print)
+    .observeNext { next in print(next) }
 
 observer.sendNext(1)     // Not printed
 observer.sendNext(2)     // Prints 2
@@ -178,7 +178,7 @@ let (signal, observer) = Signal<Int, NoError>.pipe()
 
 signal
     .reduce(1) { $0 * $1 }
-    .observe(next: print)
+    .observeNext { next in print(next) }
 
 observer.sendNext(1)     // nothing printed
 observer.sendNext(2)     // nothing printed
@@ -192,7 +192,10 @@ stream completes.
 
 ```Swift
 let (signal, observer) = Signal<Int, NoError>.pipe()
-signal.collect().observe(next: print)
+
+signal
+    .collect()
+    .observeNext { next in print(next) }
 
 observer.sendNext(1)     // nothing printed
 observer.sendNext(2)     // nothing printed
@@ -220,8 +223,9 @@ a new value on the output.
 let (numbersSignal, numbersObserver) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersObserver) = Signal<String, NoError>.pipe()
 
-combineLatest(numbersSignal, lettersSignal)
-    .observe(next: print, completed: { print("Completed") })
+let signal = combineLatest(numbersSignal, lettersSignal)
+signal.observeNext { next in print("Next: \(next)") }
+signal.observeCompleted { print("Completed") }
 
 numbersObserver.sendNext(0)      // nothing printed
 numbersObserver.sendNext(1)      // nothing printed
@@ -249,8 +253,9 @@ has sent at least N values.
 let (numbersSignal, numbersObserver) = Signal<Int, NoError>.pipe()
 let (lettersSignal, lettersObserver) = Signal<String, NoError>.pipe()
 
-zip(numbersSignal, lettersSignal)
-    .observe(next: print, completed: { print("Completed") })
+let signal = zip(numbersSignal, lettersSignal)
+signal.observeNext { next in print("Next: \(next)") }
+signal.observeCompleted { print("Completed") }
 
 numbersObserver.sendNext(0)      // nothing printed
 numbersObserver.sendNext(1)      // nothing printed
@@ -302,7 +307,7 @@ let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Merge).start(next: print)
+signal.flatten(.Merge).startWithNext { next in print(next) }
 
 observer.sendNext(producerA)
 observer.sendNext(producerB)
@@ -327,7 +332,7 @@ let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (producerB, numbersObserver) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Concat).start(next: print)
+signal.flatten(.Concat).startWithNext { next in print(next) }
 
 observer.sendNext(producerA)
 observer.sendNext(producerB)
@@ -355,7 +360,7 @@ let (producerB, observerB) = SignalProducer<String, NoError>.buffer(5)
 let (producerC, observerC) = SignalProducer<String, NoError>.buffer(5)
 let (signal, observer) = SignalProducer<SignalProducer<String, NoError>, NoError>.buffer(5)
 
-signal.flatten(.Latest).start(next: print)
+signal.flatten(.Latest).startWithNext { next in print(next) }
 
 observer.sendNext(producerA)   // nothing printed
 observerC.sendNext("X")        // nothing printed
@@ -377,15 +382,15 @@ These operators are used to handle errors that might occur on an event stream.
 
 ### Catching errors
 
-The `catch` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
+The `flatMapError` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
 
 ```Swift
 let (producer, observer) = SignalProducer<String, NSError>.buffer(5)
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
 producer
-    .catch { error in SignalProducer<String, NSError>(value: "Default") }
-    .start(next: print)
+    .flatMapError { _ in SignalProducer<String, NoError>(value: "Default") }
+    .startWithNext { next in print(next) }
 
 
 observer.sendNext("First")     // prints "First"
@@ -413,8 +418,18 @@ let producer = SignalProducer<String, NSError> { (observer, _) in
 producer
     .on(error: {e in print("Error")})             // prints "Error" twice
     .retry(2)
-    .start(next: print,                           // prints "Success"
-          error: { _ in print("Signal Error")})
+    .start { event in
+        switch event {
+        case let .Next(next):
+            print(next)                     // prints "Success"
+        case let .Error(error):
+            print("Error: \(error)")
+        case .Completed:
+            print("Completed")
+        case .Interrupted:
+            print("Interrupted")
+        }
+    }
 ```
 
 If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
@@ -451,7 +466,9 @@ signal
             return .Other
         }
     }
-    .observe(error: print)
+    .observeError { error in
+        print(error)
+    }
 
 observer.sendError(NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```

@@ -38,10 +38,10 @@ types will be referred to by name.
   1. [Merging](#merging)
   1. [Switching to the latest](#switching-to-the-latest)
 
-**[Handling errors](#handling-errors)**
+**[Handling failures](#handling-failures)**
 
-  1. [Catching errors](#catch)
-  1. [Mapping errors](#mapping-error)
+  1. [Catching failures](#catch)
+  1. [Mapping errors](#mapping-errors)
   1. [Retrying](#retrying)
 
 ## Performing side effects with event streams
@@ -55,8 +55,8 @@ signal.observe(Signal.Observer { event in
     switch event {
     case let .Next(next):
         print("Next: \(next)")
-    case let .Error(error):
-        print("Error: \(error)")
+    case let .Failed(error):
+        print("Failed: \(error)")
     case .Completed:
         print("Completed")
     case .Interrupted:
@@ -65,14 +65,14 @@ signal.observe(Signal.Observer { event in
 })
 ```
 
-Alternatively, callbacks for the `Next`, `Error`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
+Alternatively, callbacks for the `Next`, `Failed`, `Completed` and `Interrupted` events can be provided which will be called when a corresponding event occurs.
 
 ```Swift
 signal.observeNext{ next in 
   print("Next: \(next)") 
 }
-signal.observeError{ error in 
-  print("Error: \(error)") 
+signal.observeFailed{ error in 
+  print("Failed: \(error)") 
 }
 signal.observeCompleted{ 
   print("Completed") 
@@ -94,8 +94,8 @@ let producer = signalProducer
         print("Started")
     }, event: { event in
         print("Event: \(event)")
-    }, error: { error in
-        print("Error: \(error)")
+    }, failed: { error in
+        print("Failed: \(error)")
     }, completed: {
         print("Completed")
     }, interrupted: {
@@ -104,8 +104,8 @@ let producer = signalProducer
         print("Terminated")
     }, disposed: {
         print("Disposed")
-    }, next: { next in
-        print("Next: \(next)")
+    }, next: { value in
+        print("Next: \(value)")
     })
 ```
 
@@ -295,7 +295,7 @@ Note, how the values interleave and which values are even included in the result
 
 ### Merging
 
-The `.Merge` strategy immediately forwards every value of the inner `SignalProducer`s to the outer `SignalProducer`. Any error sent on the outer producer or any inner producer is immediately sent on the flattened producer and terminates it.
+The `.Merge` strategy immediately forwards every value of the inner `SignalProducer`s to the outer `SignalProducer`. Any failure sent on the outer producer or any inner producer is immediately sent on the flattened producer and terminates it.
 
 ```Swift
 let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
@@ -320,7 +320,7 @@ numbersObserver.sendNext("3")    // prints "3"
 
 ### Concatenating
 
-The `.Concat` strategy is used to serialize work of the inner `SignalProducer`s. The outer producer is started immediately. Each subsequent producer is not started until the preceeding one has completed. Errors are immediately forwarded to the flattened producer.
+The `.Concat` strategy is used to serialize work of the inner `SignalProducer`s. The outer producer is started immediately. Each subsequent producer is not started until the preceeding one has completed. Failures are immediately forwarded to the flattened producer.
 
 ```Swift
 let (producerA, lettersObserver) = SignalProducer<String, NoError>.buffer(5)
@@ -371,31 +371,31 @@ observerB.sendNext("3")        // nothing printed
 observerC.sendNext("Z")        // prints "Z"
 ```
 
-## Handling errors
+## Handling failures
 
-These operators are used to handle errors that might occur on an event stream.
+These operators are used to handle failures that might occur on an event stream.
 
-### Catching errors
+### Catching failures
 
-The `catch` operator catches any error that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
+The `flatMapError` operator catches any failure that may occur on the input `SignalProducer`, then starts a new `SignalProducer` in its place.
 
 ```Swift
 let (producer, observer) = SignalProducer<String, NSError>.buffer(5)
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 
 producer
-    .catch { error in SignalProducer<String, NSError>(value: "Default") }
+    .flatMapError { error in SignalProducer<String, NSError>(value: "Default") }
     .start(next: print)
 
 
 observer.sendNext("First")     // prints "First"
 observer.sendNext("Second")    // prints "Second"
-observer.sendError(error)      // prints "Default"
+observer.sendFailed(error)      // prints "Default"
 ```
 
 ### Retrying
 
-The `retry` operator will restart the original `SignalProducer` on error up to `count` times.
+The `retry` operator will restart the original `SignalProducer` on failure up to `count` times.
 
 ```Swift
 var tries = 0
@@ -403,7 +403,7 @@ let limit = 2
 let error = NSError(domain: "domain", code: 0, userInfo: nil)
 let producer = SignalProducer<String, NSError> { (observer, _) in
     if tries++ < limit {
-        observer.sendError(error)
+        observer.sendFailed(error)
     } else {
         observer.sendNext("Success")
         observer.sendCompleted()
@@ -411,17 +411,17 @@ let producer = SignalProducer<String, NSError> { (observer, _) in
 }
 
 producer
-    .on(error: {e in print("Error")})             // prints "Error" twice
+    .on(failed: {e in print("Failure")})          // prints "Failure" twice
     .retry(2)
     .start(next: print,                           // prints "Success"
-          error: { _ in print("Signal Error")})
+         failed: { _ in print("Signal Failure")})
 ```
 
-If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Error"` will be printed instead of `"Success"`.
+If the `SignalProducer` does not succeed after `count` tries, the resulting `SignalProducer` will fail. E.g., if  `retry(1)` is used in the example above instead of `retry(2)`, `"Signal Failure"` will be printed instead of `"Success"`.
 
 ### Mapping errors
 
-The `mapError` operator transforms any error in an event stream into a new error. 
+The `mapError` operator transforms the error of any failure in an event stream into a new error.
 
 ```Swift
 enum CustomError: String, ErrorType {
@@ -451,14 +451,14 @@ signal
             return .Other
         }
     }
-    .observe(error: print)
+    .observe(failed: print)
 
-observer.sendError(NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
+observer.sendFailed(NSError(domain: "com.example.foo", code: 42, userInfo: nil))    // prints "Foo Error"
 ```
 
 ### Promote
 
-The `promoteErrors` operator promotes an event stream that does not generate errors into one that can. 
+The `promoteErrors` operator promotes an event stream that does not generate failures into one that can. 
 
 ```Swift
 let (numbersSignal, numbersObserver) = Signal<Int, NoError>.pipe()
@@ -469,7 +469,7 @@ numbersSignal
     .combineLatestWith(lettersSignal)
 ```
 
-The given stream will still not _actually_ generate errors, but this is useful
+The given stream will still not _actually_ generate failures, but this is useful
 because some operators to [combine streams](#combining-event-streams) require
 the inputs to have matching error types.
 

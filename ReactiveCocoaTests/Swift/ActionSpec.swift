@@ -44,7 +44,7 @@ class ActionSpec: QuickSpec {
 							}
 						} else {
 							scheduler.schedule {
-								observer.sendError(testError)
+								observer.sendFailed(testError)
 							}
 						}
 					}
@@ -61,7 +61,7 @@ class ActionSpec: QuickSpec {
 
 			it("should error if executed while disabled") {
 				var receivedError: ActionError<NSError>?
-				action.apply(0).startWithError {
+				action.apply(0).startWithFailed {
 					receivedError = $0
 				}
 
@@ -113,7 +113,7 @@ class ActionSpec: QuickSpec {
 				it("should execute with an error") {
 					var receivedError: ActionError<NSError>?
 
-					action.apply(1).startWithError {
+					action.apply(1).startWithFailed {
 						receivedError = $0
 					}
 

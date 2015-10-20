@@ -1,8 +1,8 @@
 import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
-/// of values being sent (`Value`) and the type of error that can occur (`Error`).
-/// If no errors should be possible, NoError can be specified for `Error`.
+/// of values being sent (`Value`) and the type of failure that can occur (`Error`).
+/// If no failures should be possible, NoError can be specified for `Error`.
 ///
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the
@@ -188,14 +188,14 @@ extension SignalType {
 		return observe(Observer(completed: completed))
 	}
 	
-	/// Observes the Signal by invoking the given callback when an `error` event is
+	/// Observes the Signal by invoking the given callback when a `failed` event is
 	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeError(error: Error -> ()) -> Disposable? {
-		return observe(Observer(error: error))
+	public func observeFailed(error: Error -> ()) -> Disposable? {
+		return observe(Observer(failed: error))
 	}
 	
 	/// Observes the Signal by invoking the given callback when an `interrupted` event is
@@ -287,8 +287,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Flattens the inner producers sent upon `signal` (into a single signal of
 	/// values), according to the semantics of the given strategy.
 	///
-	/// If `signal` or an active inner producer emits an error, the returned
-	/// signal will forward that error immediately.
+	/// If `signal` or an active inner producer fails, the returned signal will
+	/// forward that failure immediately.
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
@@ -312,8 +312,8 @@ extension SignalType {
 	/// resulting producers (into a signal of values), according to the
 	/// semantics of the given strategy.
 	///
-	/// If `signal` or any of the created producers emit an error, the returned
-	/// signal will forward that error immediately.
+	/// If `signal` or any of the created producers fail, the returned signal
+	/// will forward that failure immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> SignalProducer<U, Error>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
@@ -336,8 +336,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// `signal`, waiting until each inner producer completes before beginning to
 	/// send the values from the next inner producer.
 	///
-	/// If any of the inner producers emit an error, the returned signal will emit
-	/// that error.
+	/// If any of the inner producers fail, the returned signal will forward
+	/// that failure immediately
 	///
 	/// The returned signal completes only when `signal` and all producers
 	/// emitted from `signal` complete.
@@ -352,8 +352,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 				case let .Next(value):
 					state.enqueueSignalProducer(value.producer)
 
-				case let .Error(error):
-					observer.sendError(error)
+				case let .Failed(error):
+					observer.sendFailed(error)
 
 				case .Completed:
 					// Add one last producer to the queue, whose sole job is to
@@ -486,8 +486,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 						}
 					}
 
-				case let .Error(error):
-					relayObserver.sendError(error)
+				case let .Failed(error):
+					relayObserver.sendFailed(error)
 
 				case .Completed:
 					decrementInFlight()
@@ -569,8 +569,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 							}
 						}
 					}
-				case let .Error(error):
-					observer.sendError(error)
+				case let .Failed(error):
+					observer.sendFailed(error)
 				case .Completed:
 					let original = state.modify { (var state) in
 						state.outerSignalComplete = true
@@ -678,7 +678,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
+	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onFailed: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
@@ -691,8 +691,8 @@ extension SignalType {
 
 				lock.unlock()
 
-			case let .Error(error):
-				onError(error)
+			case let .Failed(error):
+				onFailed(error)
 
 			case .Completed:
 				lock.lock()
@@ -729,13 +729,13 @@ extension SignalType {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
 			
-			let onError = observer.sendError
+			let onFailed = observer.sendFailed
 			let onBothCompleted = observer.sendCompleted
 			let onInterrupted = observer.sendInterrupted
 
 			let disposable = CompositeDisposable()
-			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
+			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
+			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
 			
 			return disposable
 		}
@@ -744,7 +744,7 @@ extension SignalType {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// `Error` and `Interrupted` events are always scheduled immediately.
+	/// `Failed` and `Interrupted` events are always scheduled immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -752,7 +752,7 @@ extension SignalType {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
-				case .Error, .Interrupted:
+				case .Failed, .Interrupted:
 					scheduler.schedule {
 						observer.action(event)
 					}
@@ -795,7 +795,7 @@ extension SignalType {
 	///
 	/// In other words, this brings Events “into the monad.”
 	///
-	/// When a Completed or Error event is received, the resulting signal will send
+	/// When a Completed or Failed event is received, the resulting signal will send
 	/// the Event itself and then complete. When an Interrupted event is received,
 	/// the resulting signal will send the Event itself and then interrupt.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -808,7 +808,7 @@ extension SignalType {
 				case .Interrupted:
 					observer.sendInterrupted()
 
-				case .Completed, .Error:
+				case .Completed, .Failed:
 					observer.sendCompleted()
 
 				case .Next:
@@ -823,14 +823,14 @@ extension SignalType where Value: EventType, Error == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func dematerialize() -> Signal<Value.Value, Value.Err> {
-		return Signal<Value.Value, Value.Err> { observer in
+	public func dematerialize() -> Signal<Value.Value, Value.Error> {
+		return Signal<Value.Value, Value.Error> { observer in
 			return self.observe { event in
 				switch event {
 				case let .Next(innerEvent):
 					observer.action(innerEvent.event)
 
-				case .Error:
+				case .Failed:
 					fatalError("NoError is impossible to construct")
 
 				case .Completed:
@@ -873,8 +873,8 @@ extension SignalType {
 						st.latestValue = value
 						return st
 					}
-				case let .Error(error):
-					observer.sendError(error)
+				case let .Failed(error):
+					observer.sendFailed(error)
 				case .Completed:
 					let oldState = state.modify { (var st) in
 						st.signalCompleted = true
@@ -928,7 +928,7 @@ extension SignalType {
 				case .Next, .Completed:
 					observer.sendCompleted()
 
-				case .Error, .Interrupted:
+				case .Failed, .Interrupted:
 					break
 				}
 			}
@@ -1037,7 +1037,7 @@ extension SignalType {
 
 	/// Forwards events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a signal which passes through `Next`, `Error`, and `Interrupted`
+	/// Returns a signal which passes through `Next`, `Failed`, and `Interrupted`
 	/// events from `signal` until `replacement` sends an event, at which point the
 	/// returned signal will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
@@ -1052,7 +1052,7 @@ extension SignalType {
 				case .Completed:
 					break
 
-				case .Next, .Error, .Interrupted:
+				case .Next, .Failed, .Interrupted:
 					observer.action(event)
 				}
 			}
@@ -1085,8 +1085,8 @@ extension SignalType {
 					}
 					
 					buffer.append(value)
-				case let .Error(error):
-					observer.sendError(error)
+				case let .Failed(error):
+					observer.sendFailed(error)
 				case .Completed:
 					for bufferedValue in buffer {
 						observer.sendNext(bufferedValue)
@@ -1158,7 +1158,7 @@ extension SignalType {
 				}
 			}
 			
-			let onError = { observer.sendError($0) }
+			let onFailed = { observer.sendFailed($0) }
 			let onInterrupted = { observer.sendInterrupted() }
 
 			disposable += self.observe { event in
@@ -1170,8 +1170,8 @@ extension SignalType {
 					}
 					
 					flush()
-				case let .Error(error):
-					onError(error)
+				case let .Failed(error):
+					onFailed(error)
 				case .Completed:
 					states.modify { (var states) in
 						states.0.completed = true
@@ -1193,8 +1193,8 @@ extension SignalType {
 					}
 					
 					flush()
-				case let .Error(error):
-					onError(error)
+				case let .Failed(error):
+					onFailed(error)
 				case .Completed:
 					states.modify { (var states) in
 						states.1.completed = true
@@ -1212,7 +1212,7 @@ extension SignalType {
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned signal and `Failure`s sent as `Error` events.
+	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attempt(operation: Value -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
@@ -1223,7 +1223,7 @@ extension SignalType {
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results mapped
-	/// on the returned signal and `Failure`s sent as `Error` events.
+	/// on the returned signal and `Failure`s sent as `Failed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
@@ -1233,10 +1233,10 @@ extension SignalType {
 					operation(value).analysis(ifSuccess: { value in
 						observer.sendNext(value)
 						}, ifFailure: { error in
-							observer.sendError(error)
+							observer.sendFailed(error)
 					})
-				case let .Error(error):
-					observer.sendError(error)
+				case let .Failed(error):
+					observer.sendFailed(error)
 				case .Completed:
 					observer.sendCompleted()
 				case .Interrupted:
@@ -1499,7 +1499,7 @@ public func zip<S: SequenceType, Value, Error where S.Generator.Element == Signa
 
 extension SignalType {
 	/// Forwards events from `self` until `interval`. Then if signal isn't completed yet,
-	/// errors with `error` on `scheduler`.
+	/// fails with `error` on `scheduler`.
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The signal
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
@@ -1512,7 +1512,7 @@ extension SignalType {
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 
 			disposable += scheduler.scheduleAfter(date) {
-				observer.sendError(error)
+				observer.sendFailed(error)
 			}
 
 			disposable += self.observe(observer)
@@ -1522,10 +1522,10 @@ extension SignalType {
 }
 
 extension SignalType where Error == NoError {
-	/// Promotes a signal that does not generate errors into one that can.
+	/// Promotes a signal that does not generate failures into one that can.
 	///
-	/// This does not actually cause errors to be generated for the given signal,
-	/// but makes it easier to combine with other signals that may error; for
+	/// This does not actually cause failures to be generated for the given signal,
+	/// but makes it easier to combine with other signals that may fail; for
 	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func promoteErrors<F: ErrorType>(_: F.Type) -> Signal<Value, F> {
@@ -1534,7 +1534,7 @@ extension SignalType where Error == NoError {
 				switch event {
 				case let .Next(value):
 					observer.sendNext(value)
-				case .Error:
+				case .Failed:
 					fatalError("NoError is impossible to construct")
 				case .Completed:
 					observer.sendCompleted()

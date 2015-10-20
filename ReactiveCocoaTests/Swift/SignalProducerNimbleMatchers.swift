@@ -33,7 +33,7 @@ public func sendValues<T: Equatable, E: Equatable>(values: [T], sendError maybeS
 					sentValues.append(value)
 				case .Completed:
 					signalCompleted = true
-				case let .Error(error):
+				case let .Failed(error):
 					sentError = error
 				default:
 					break

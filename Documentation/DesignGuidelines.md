@@ -11,7 +11,7 @@ resource for getting up to speed on the main types and concepts provided by RAC.
 **[The `Event` contract](#the-event-contract)**
 
  1. [`Next`s provide values or indicate the occurrence of events](#nexts-provide-values-or-indicate-the-occurrence-of-events)
- 1. [Errors behave like exceptions and propagate immediately](#errors-behave-like-exceptions-and-propagate-immediately)
+ 1. [Failures behave like exceptions and propagate immediately](#failures-behave-like-exceptions-and-propagate-immediately)
  1. [Completion indicates success](#completion-indicates-success)
  1. [Interruption cancels outstanding work and usually propagates immediately](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
  1. [Events are serial](#events-are-serial)
@@ -46,7 +46,7 @@ resource for getting up to speed on the main types and concepts provided by RAC.
 
  1. [Prefer writing operators that apply to both signals and producers](#prefer-writing-operators-that-apply-to-both-signals-and-producers)
  1. [Compose existing operators when possible](#compose-existing-operators-when-possible)
- 1. [Forward error and interruption events as soon as possible](#forward-error-and-interruption-events-as-soon-as-possible)
+ 1. [Forward failure and interruption events as soon as possible](#forward-failure-and-interruption-events-as-soon-as-possible)
  1. [Switch over `Event` values](#switch-over-event-values)
  1. [Avoid introducing concurrency](#avoid-introducing-concurrency)
  1. [Avoid blocking in operators](#avoid-blocking-in-operators)
@@ -59,13 +59,13 @@ events, and may be collectively called “event streams.”
 Event streams must conform to the following grammar:
 
 ```
-Next* (Interrupted | Error | Completed)?
+Next* (Interrupted | Failed | Completed)?
 ```
 
 This states that an event stream consists of:
 
  1. Any number of `Next` events
- 1. Optionally followed by one terminating event, which is any of `Interrupted`, `Error`, or `Completed`
+ 1. Optionally followed by one terminating event, which is any of `Interrupted`, `Failed`, or `Completed`
 
 After a terminating event, no other events will be received.
 
@@ -85,24 +85,21 @@ what that something was.
 Most of the event stream [operators][] act upon `Next` events, as they represent the
 “meaningful data” of a signal or producer.
 
-#### Errors behave like exceptions and propagate immediately
+#### Failures behave like exceptions and propagate immediately
 
-`Error` events indicate that something went wrong, and contain a concrete error
-that indicates what happened. Errors are fatal, and propagate as quickly as
+`Failed` events indicate that something went wrong, and contain a concrete error
+that indicates what happened. Failures are fatal, and propagate as quickly as
 possible to the consumer for handling.
 
-Errors also behave like exceptions, in that they “skip” operators, terminating
-them along the way. In other words, most [operators][] immediately stop doing work
-when an error is received, and then propagate the error onward. This even
-applies to time-shifted operators, like [`delay`][delay]—which, despite its name, will
-forward any errors immediately.
+Failures also behave like exceptions, in that they “skip” operators, terminating
+them along the way. In other words, most [operators][] immediately stop doing 
+work when a failure is received, and then propagate the failure onward. This even applies to time-shifted operators, like [`delay`][delay]—which, despite its name, will forward any failures immediately.
 
-Consequently, errors should only be used to represent “abnormal” termination. If
-it is important to let operators (or consumers) finish their work, a `Next`
+Consequently, failures should only be used to represent “abnormal” termination. If it is important to let operators (or consumers) finish their work, a `Next`
 event describing the result might be more appropriate.
 
-If an event stream can _never_ error out, it should be parameterized with the
-special [`NoError`][NoError] type, which statically guarantees that an error
+If an event stream can _never_ fail, it should be parameterized with the 
+special [`NoError`][NoError] type, which statically guarantees that a `Failed`
 event cannot be sent upon the stream.
 
 #### Completion indicates success
@@ -123,7 +120,7 @@ outcome will usually depend on all the inputs.
 
 An `Interrupted` event is sent when an event stream should cancel processing.
 Interruption is somewhere between [success](#completion-indicates-success)
-and [failure](#errors-behave-like-exceptions-and-propagate-immediately)—the
+and [failure](#failures-behave-like-exceptions-and-propagate-immediately)—the
 operation was not successful, because it did not get to finish, but it didn’t
 necessarily “fail” either.
 
@@ -453,18 +450,18 @@ To minimize duplication and possible bugs, use the provided operators as much as
 possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
-#### Forward error and interruption events as soon as possible
+#### Forward failure and interruption events as soon as possible
 
 Unless an operator is specifically built to handle
-[errors](#errors-behave-like-exceptions-and-propagate-immediately) and
+[failures](#failures-behave-like-exceptions-and-propagate-immediately) and
 [interruption](#interruption-cancels-outstanding-work-and-usually-propagates-immedaitely)
 in a custom way, it should propagate those events to the observer as soon as
 possible, to ensure that their semantics are honored.
 
 #### Switch over `Event` values
 
-Instead of using [`start(error:completed:interrupted:next:)`][start] or
-[`observe(error:completed:interrupted:next:)`][observe], create your own
+Instead of using [`start(failed:completed:interrupted:next:)`][start] or
+[`observe(failed:completed:interrupted:next:)`][observe], create your own
 [observer][Observers] to process raw [`Event`][Events] values, and use
 a `switch` statement to determine the event type.
 
@@ -476,8 +473,8 @@ producer.start { event in
     case let .Next(value):
         println("Next event: \(value)")
 
-    case let .Error(error):
-        println("Error event: \(error)")
+    case let .Failed(error):
+        println("Failed event: \(error)")
 
     case .Completed:
         println("Completed event")

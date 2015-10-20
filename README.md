@@ -113,13 +113,13 @@ Here, we watch for the `Next` [event][Events], which contains our results, and
 just log them to the console. This could easily do something else instead, like
 update a table view or a label on screen.
 
-#### Handling errors
+#### Handling failures
 
-In this example so far, any network error will generate an `Error`
+In this example so far, any network error will generate a `Failed`
 [event][Events], which will terminate the event stream. Unfortunately, this
 means that future queries won’t even be attempted.
 
-To remedy this, we need to decide what to do with errors that occur. The
+To remedy this, we need to decide what to do with failures that occur. The
 quickest solution would be to log them, then ignore them:
 
 ```swift
@@ -135,7 +135,7 @@ quickest solution would be to log them, then ignore them:
     }
 ```
 
-By replacing errors with the `empty` event stream, we’re able to effectively
+By replacing failures with the `empty` event stream, we’re able to effectively
 ignore them.
 
 However, it’s probably more appropriate to retry at least a couple of times
@@ -258,14 +258,14 @@ easy](http://www.infoq.com/presentations/Simple-Made-Easy)**.
 
 ### Typed errors
 
-When [signals][] and [signal producers][] are allowed to [error][Events] in ReactiveCocoa,
+When [signals][] and [signal producers][] are allowed to [fail][Events] in ReactiveCocoa,
 the kind of error must be specified in the type system. For example,
-`Signal<Int, NSError>` is a signal of integer values that may send an error of
-type `NSError`.
+`Signal<Int, NSError>` is a signal of integer values that may fail with an error
+of type `NSError`.
 
 More importantly, RAC allows the special type `NoError` to be used instead,
-which _statically guarantees_ that an event stream is not allowed to send an
-error. **This eliminates many bugs caused by unexpected error events.**
+which _statically guarantees_ that an event stream is not allowed to send a
+failure. **This eliminates many bugs caused by unexpected failure events.**
 
 In Rx systems with types, event streams only specify the type of their
 values—not the type of their errors—so this sort of guarantee is impossible.

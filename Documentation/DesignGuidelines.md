@@ -468,7 +468,7 @@ a `switch` statement to determine the event type.
 For example:
 
 ```swift
-producer.start(SinkOf { event in
+producer.start { event in
     switch event {
     case let .Next(value):
         println("Next event: \(value)")
@@ -482,7 +482,7 @@ producer.start(SinkOf { event in
     case .Interrupted:
         println("Interrupted event")
     }
-})
+}
 ```
 
 Since the compiler will generate a warning if the `switch` is missing any case,

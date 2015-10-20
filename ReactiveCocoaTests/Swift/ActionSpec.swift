@@ -36,15 +36,15 @@ class ActionSpec: QuickSpec {
 						executionCount++
 
 						if number % 2 == 0 {
-							sendNext(observer, "\(number)")
-							sendNext(observer, "\(number)\(number)")
+							observer.sendNext("\(number)")
+							observer.sendNext("\(number)\(number)")
 
 							scheduler.schedule {
-								sendCompleted(observer)
+								observer.sendCompleted()
 							}
 						} else {
 							scheduler.schedule {
-								sendFailed(observer, testError)
+								observer.sendFailed(testError)
 							}
 						}
 					}
@@ -169,7 +169,7 @@ class ActionSpec: QuickSpec {
 					.rac_valuesForKeyPath("enabled", observer: nil)
 					.toSignalProducer()
 					.map { $0! as! Bool }
-					.start(Event.sink(next: { values.append($0) }))
+					.start(Observer(next: { values.append($0) }))
 
 				expect(values).to(equal([ true ]))
 
@@ -185,7 +185,7 @@ class ActionSpec: QuickSpec {
 					.rac_valuesForKeyPath("executing", observer: nil)
 					.toSignalProducer()
 					.map { $0! as! Bool }
-					.start(Event.sink(next: { values.append($0) }))
+					.start(Observer(next: { values.append($0) }))
 
 				expect(values).to(equal([ false ]))
 

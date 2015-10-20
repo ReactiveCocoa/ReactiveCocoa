@@ -88,7 +88,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			let testNSError = NSError(domain: "TestDomain", code: 1, userInfo: userInfo)
 			describe("on a Signal") {
 				it("should forward events") {
-					let (signal, sink) = Signal<NSNumber, NoError>.pipe()
+					let (signal, observer) = Signal<NSNumber, NoError>.pipe()
 					let racSignal = toRACSignal(signal)
 
 					var lastValue: NSNumber?
@@ -103,17 +103,17 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					expect(lastValue).to(beNil())
 
 					for number in [1, 2, 3] {
-						sendNext(sink, number)
+						observer.sendNext(number)
 						expect(lastValue).to(equal(number))
 					}
 
 					expect(didComplete).to(beFalse())
-					sendCompleted(sink)
+					observer.sendCompleted()
 					expect(didComplete).to(beTrue())
 				}
 
 				it("should convert errors to NSError") {
-					let (signal, sink) = Signal<AnyObject, TestError>.pipe()
+					let (signal, observer) = Signal<AnyObject, TestError>.pipe()
 					let racSignal = toRACSignal(signal)
 
 					let expectedError = TestError.Error2
@@ -124,12 +124,12 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 
-					sendFailed(sink, expectedError)
+					observer.sendFailed(expectedError)
 					expect(error).to(equal(expectedError as NSError))
 				}
 				
 				it("should maintain userInfo on NSError") {
-					let (signal, sink) = Signal<AnyObject, NSError>.pipe()
+					let (signal, observer) = Signal<AnyObject, NSError>.pipe()
 					let racSignal = toRACSignal(signal)
 					
 					var error: NSError?
@@ -139,7 +139,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 					
-					sendFailed(sink, testNSError)
+					observer.sendFailed(testNSError)
 					
 					let userInfoValue = error?.userInfo[key] as? String
 					expect(userInfoValue).to(equal(userInfo[key]))

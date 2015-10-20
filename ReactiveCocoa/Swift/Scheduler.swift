@@ -99,8 +99,8 @@ public final class QueueScheduler: DateSchedulerType {
 	/// Even if the queue is concurrent, all work items enqueued with the
 	/// QueueScheduler will be serial with respect to each other.
 	///
-  	/// - warning: Obsoleted in OS X 10.10
-	@available(OSX, deprecated=10.9, obsoleted=10.10, message="Use init(qos:, name:) instead")
+  	/// - warning: Obsoleted in OS X 10.11
+	@available(OSX, deprecated=10.10, obsoleted=10.11, message="Use init(qos:, name:) instead")
 	public convenience init(queue: dispatch_queue_t, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
 		self.init(internalQueue: dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL))
 		dispatch_set_target_queue(self.queue, queue)

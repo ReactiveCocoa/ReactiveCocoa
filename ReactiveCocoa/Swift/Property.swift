@@ -11,7 +11,7 @@ public protocol PropertyType {
 }
 
 /// A read-only property that allows observation of its changes.
-public struct PropertyOf<Value>: PropertyType {
+public struct AnyProperty<Value>: PropertyType {
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -96,7 +96,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		set {
 			lock.lock()
 			_value = newValue
-			sendNext(observer, newValue)
+			observer.sendNext(newValue)
 			lock.unlock()
 		}
 	}
@@ -113,11 +113,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		(producer, observer) = SignalProducer<Value, NoError>.buffer(1)
 
 		_value = initialValue
-		sendNext(observer, initialValue)
+		observer.sendNext(initialValue)
 	}
 
 	deinit {
-		sendCompleted(observer)
+		observer.sendCompleted()
 	}
 }
 

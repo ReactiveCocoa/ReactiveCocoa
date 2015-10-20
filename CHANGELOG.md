@@ -1,4 +1,4 @@
-# 4.0 
+# 4.0
 
 **The RAC 4 APIs are work in progress**. There may be significant breaking
 changes in later alphas so be prepared for that before taking a dependency.
@@ -27,6 +27,10 @@ the terminating nature of failure/error events and puts them in the same tense
 as other terminating cases (`Interrupted` and `Completed`). Likewise, some
 operations and parameters have been renamed (e.g. `Signal.observeError` is now 
 `Signal.observeFailed`, `sendError` is now `sendFailed`).
+
+#### Renamed PropertyOf<T> to AnyProperty<T>
+
+This is in-line with changes to the standard library in Swift 2.
 
 ## Alpha 1
 

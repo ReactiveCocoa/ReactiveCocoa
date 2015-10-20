@@ -115,8 +115,7 @@ dropped to make room for it.
 
 An **observer** is anything that is waiting or capable of waiting for [events](#events)
 from a [signal](#signals). Within RAC, an observer is represented as
-a [`SinkType`](http://swiftdoc.org/protocol/SinkType/) that accepts
-[`Event`][Event] values.
+an [`Observer`][Observer] that accepts [`Event`][Event] values.
 
 Observers can be implicitly created by using the callback-based versions of the
 `Signal.observe` or `SignalProducer.start` methods.
@@ -208,4 +207,4 @@ do not allow tasks to be reordered or depend on one another.
 [Scheduler]: ../ReactiveCocoa/Swift/Scheduler.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift
 [Event]: ../ReactiveCocoa/Swift/Event.swift
-[SinkOf]: http://swiftdoc.org/type/SinkOf/
+[Observer]: ../ReactiveCocoa/Swift/Observer.swift

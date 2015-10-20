@@ -28,21 +28,21 @@ public final class Action<Input, Output, Error: ErrorType> {
 	public let errors: Signal<Error, NoError>
 
 	/// Whether the action is currently executing.
-	public var executing: PropertyOf<Bool> {
-		return PropertyOf(_executing)
+	public var executing: AnyProperty<Bool> {
+		return AnyProperty(_executing)
 	}
 
 	private let _executing: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
-	public var enabled: PropertyOf<Bool> {
-		return PropertyOf(_enabled)
+	public var enabled: AnyProperty<Bool> {
+		return AnyProperty(_enabled)
 	}
 
 	private let _enabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
-	private let userEnabled: PropertyOf<Bool>
+	private let userEnabled: AnyProperty<Bool>
 
 	/// Lazy creation and storage of a UI bindable `CocoaAction`. The default behavior
 	/// force casts the AnyObject? input to match the action's `Input` type. This makes
@@ -65,7 +65,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output, Error>) {
 		executeClosure = execute
-		userEnabled = PropertyOf(enabledIf)
+		userEnabled = AnyProperty(enabledIf)
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
@@ -84,7 +84,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	}
 
 	deinit {
-		sendCompleted(eventsObserver)
+		eventsObserver.sendCompleted()
 	}
 
 	/// Creates a SignalProducer that, when started, will execute the action
@@ -106,7 +106,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 			}
 
 			if !startedExecuting {
-				sendFailed(observer, .NotEnabled)
+				observer.sendFailed(.NotEnabled)
 				return
 			}
 
@@ -114,8 +114,8 @@ public final class Action<Input, Output, Error: ErrorType> {
 				disposable.addDisposable(signalDisposable)
 
 				signal.observe { event in
-					observer(event.mapError { .ProducerError($0) })
-					sendNext(self.eventsObserver, event)
+					observer.action(event.mapError { .ProducerError($0) })
+					self.eventsObserver.sendNext(event)
 				}
 			}
 

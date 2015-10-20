@@ -108,16 +108,16 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
-		describe("PropertyOf") {
+		describe("AnyProperty") {
 			describe("from a PropertyType") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
-					let propertyOf = PropertyOf(constantProperty)
+					let property = AnyProperty(constantProperty)
 
 					var sentValue: String?
 					var producerCompleted = false
 
-					propertyOf.producer.start { event in
+					property.producer.start { event in
 						switch event {
 						case let .Next(value):
 							sentValue = value
@@ -135,7 +135,7 @@ class PropertySpec: QuickSpec {
 			
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						producer: SignalProducer.never)
 					
@@ -143,7 +143,7 @@ class PropertySpec: QuickSpec {
 				}
 				
 				it("should take on each value sent on the producer") {
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						producer: SignalProducer(value: subsequentPropertyValue))
 					
@@ -155,7 +155,7 @@ class PropertySpec: QuickSpec {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						signal: signal)
 					

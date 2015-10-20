@@ -1,4 +1,4 @@
-# 4.0 
+# 4.0
 
 **The RAC 4 APIs are work in progress**. There may be significant breaking
 changes in later alphas so be prepared for that before taking a dependency.
@@ -23,6 +23,10 @@ only affecting generic, custom signal/producer extensions.
 #### Renaming Event.Error to Event.Failed
 
 Maybe coming to a later alpha. See #2360.
+
+#### Renamed PropertyOf<T> to AnyProperty<T>
+
+This is in-line with changes to the standard library in Swift 2.
 
 ## Alpha 1
 

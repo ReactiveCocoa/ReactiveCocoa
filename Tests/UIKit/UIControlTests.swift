@@ -26,4 +26,20 @@ class UIControlTests: XCTestCase {
         control.rex_enabled <~ SignalProducer(value: false)
         XCTAssert(_control?.enabled == false)
     }
+    
+    func testSelectedPropertyDoesntCreateRetainCycle() {
+        let control = UIControl(frame: CGRectZero)
+        _control = control
+        
+        control.rex_selected <~ SignalProducer(value: true)
+        XCTAssert(_control?.selected == true)
+    }
+    
+    func testHighlightedPropertyDoesntCreateRetainCycle() {
+        let control = UIControl(frame: CGRectZero)
+        _control = control
+        
+        control.rex_highlighted <~ SignalProducer(value: true)
+        XCTAssert(_control?.highlighted == true)
+    }
 }

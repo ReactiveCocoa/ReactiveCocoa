@@ -8,11 +8,21 @@
 
 import ReactiveCocoa
 
-public protocol PredicateType: PropertyType {
-    typealias Value = Bool
+extension PropertyType where Value == Bool {
+    public func and(other: Self) -> AndProperty {
+        return AndProperty(lhs: self, rhs: other)
+    }
+
+    public func or(other: Self) -> OrProperty {
+        return OrProperty(lhs: self, rhs: other)
+    }
+
+    public func not() -> NotProperty {
+        return NotProperty(property: self)
+    }
 }
 
-public struct AndProperty: PredicateType {
+public struct AndProperty: PropertyType {
     private let left: PropertyOf<Bool>
     private let right: PropertyOf<Bool>
     
@@ -30,7 +40,7 @@ public struct AndProperty: PredicateType {
     }
 }
 
-public struct OrProperty: PredicateType {
+public struct OrProperty: PropertyType {
     private let left: PropertyOf<Bool>
     private let right: PropertyOf<Bool>
     
@@ -48,7 +58,7 @@ public struct OrProperty: PredicateType {
     }
 }
 
-public struct NotProperty: PredicateType {
+public struct NotProperty: PropertyType {
     private let source: PropertyOf<Bool>
     
     public var value: Bool {

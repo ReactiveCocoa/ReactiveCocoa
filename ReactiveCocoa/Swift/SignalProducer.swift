@@ -1226,3 +1226,39 @@ extension SignalProducerType {
 		return then(SignalProducer<(), Error>(value: ())).last() ?? .Success(())
 	}
 }
+
+extension SignalProducerType where Value == Bool {
+	/// Inverts each `next` boolean to `not` of that value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func not() -> SignalProducer<Value, Error> {
+		return map { !$0 }
+	}
+}
+
+extension SignalProducerType where Value == (Bool, Bool) {
+	/// Maps each `next` 2-tuple (Bool, Bool) as a boolean `and` returning a single boolean value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func and() -> SignalProducer<Bool, Error> {
+		return map { $0 && $1 }
+	}
+
+	/// Maps each `next` 2-tuple (Bool, Bool) as a boolean `or` returning a single boolean value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func or() -> SignalProducer<Bool, Error> {
+		return map { $0 || $1 }
+	}
+}
+
+extension SignalProducerType where Value == (Bool, Bool, Bool) {
+	/// Maps each `next` 3-tuple (Bool, Bool, Bool) as a boolean `and` returning a single boolean value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func and() -> SignalProducer<Bool, Error> {
+		return map { $0 && $1 && $2 }
+	}
+	
+	/// Maps each `next` 3-tuple (Bool, Bool, Bool) as a boolean `or` returning a single boolean value.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func or() -> SignalProducer<Bool, Error> {
+		return map { $0 || $1 || $2 }
+	}
+}

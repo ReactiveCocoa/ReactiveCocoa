@@ -10,6 +10,8 @@
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
 		8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */; settings = {ASSET_TAGS = (); }; };
 		8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; settings = {ASSET_TAGS = (); }; };
+		8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; settings = {ASSET_TAGS = (); }; };
+		8289A2E81BD7F7900097FB60 /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E61BD7F7730097FB60 /* UIViewTests.swift */; settings = {ASSET_TAGS = (); }; };
 		8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD851B873081007C9000 /* UIControlTests.swift */; };
 		8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
@@ -102,6 +104,8 @@
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageViewTests.swift; sourceTree = "<group>"; };
 		8289A2E21BD7EF740097FB60 /* UIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageView.swift; sourceTree = "<group>"; };
+		8289A2E41BD7F6DD0097FB60 /* UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
+		8289A2E61BD7F7730097FB60 /* UIViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewTests.swift; sourceTree = "<group>"; };
 		8295FD851B873081007C9000 /* UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlTests.swift; sourceTree = "<group>"; };
 		8295FD881B873490007C9000 /* UIButtonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButtonTests.swift; sourceTree = "<group>"; };
 		8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItemTests.swift; sourceTree = "<group>"; };
@@ -273,6 +277,7 @@
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
+				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -285,6 +290,7 @@
 				8295FD851B873081007C9000 /* UIControlTests.swift */,
 				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
 				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
+				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -518,6 +524,7 @@
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
+				8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */,
 				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
 				D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */,
@@ -530,6 +537,7 @@
 			files = (
 				8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */,
 				D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */,
+				8289A2E81BD7F7900097FB60 /* UIViewTests.swift in Sources */,
 				D8F073161B863CE70047D546 /* UILabelTests.swift in Sources */,
 				8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,

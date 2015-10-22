@@ -77,8 +77,10 @@ public final class CompositeDisposable: Disposable {
 		/// that are no longer needed.
 		public func remove() {
 			if let token = bagToken.swap(nil) {
-				disposable?.disposables.modify { (var bag) in
-					bag?.removeValueForToken(token)
+				disposable?.disposables.modify { bag in
+					guard var bag = bag else { return nil }
+
+					bag.removeValueForToken(token)
 					return bag
 				}
 			}
@@ -108,7 +110,7 @@ public final class CompositeDisposable: Disposable {
 
 	public func dispose() {
 		if let ds = disposables.swap(nil) {
-			for d in reverse(ds) {
+			for d in ds.reverse() {
 				d.dispose()
 			}
 		}
@@ -117,25 +119,25 @@ public final class CompositeDisposable: Disposable {
 	/// Adds the given disposable to the list, then returns a handle which can
 	/// be used to opaquely remove the disposable later (if desired).
 	public func addDisposable(d: Disposable?) -> DisposableHandle {
-		if let d = d {
-		    var handle: DisposableHandle? = nil
-		    disposables.modify { (var ds) in
-		    	if let token = ds?.insert(d) {
-		    		handle = DisposableHandle(bagToken: token, disposable: self)
-		    	}
+		guard let d = d else {
+			return DisposableHandle.empty
+		}
 
-		    	return ds
-		    }
+		var handle: DisposableHandle? = nil
+		disposables.modify { ds in
+			guard var ds = ds else { return nil }
 
-		    if let handle = handle {
-		    	return handle
-		    } else {
-		    	d.dispose()
-		    	return DisposableHandle.empty
-		    }
-			
+			let token = ds.insert(d)
+			handle = DisposableHandle(bagToken: token, disposable: self)
+
+			return ds
+		}
+
+		if let handle = handle {
+			return handle
 		} else {
-		    return DisposableHandle.empty
+			d.dispose()
+			return DisposableHandle.empty
 		}
 	}
 
@@ -222,9 +224,9 @@ public final class SerialDisposable: Disposable {
 /// `CompositeDisposable`.
 ///
 ///     disposable += producer
-///         |> filter { ... }
-///         |> map    { ... }
-///         |> start(sink)
+///         .filter { ... }
+///         .map    { ... }
+///         .start(observer)
 ///
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)

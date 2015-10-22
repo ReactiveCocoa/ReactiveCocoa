@@ -6,11 +6,9 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import CoreFoundation
-
 /// A uniquely identifying token for removing a value that was inserted into a
 /// Bag.
-internal final class RemovalToken {
+public final class RemovalToken {
 	private var identifier: UInt?
 
 	private init(identifier: UInt) {
@@ -18,14 +16,17 @@ internal final class RemovalToken {
 	}
 }
 
-/// An unordered, non-unique collection of values of type T.
-internal struct Bag<T> {
-	private var elements: [BagElement<T>] = []
+/// An unordered, non-unique collection of values of type `Element`.
+public struct Bag<Element> {
+	private var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
+
+	public init() {
+	}
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func insert(value: T) -> RemovalToken {
+	public mutating func insert(value: Element) -> RemovalToken {
 		let nextIdentifier = currentIdentifier &+ 1
 		if nextIdentifier == 0 {
 			reindex()
@@ -43,10 +44,10 @@ internal struct Bag<T> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	mutating func removeValueForToken(token: RemovalToken) {
+	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
-			for i in reverse(0..<elements.endIndex) {
+			for i in (0..<elements.endIndex).reverse() {
 				if elements[i].identifier == identifier {
 					elements.removeAtIndex(i)
 					token.identifier = nil
@@ -70,11 +71,11 @@ internal struct Bag<T> {
 }
 
 extension Bag: SequenceType {
-	func generate() -> GeneratorOf<T> {
+	public func generate() -> AnyGenerator<Element> {
 		var index = 0
 		let count = elements.count
 
-		return GeneratorOf {
+		return anyGenerator {
 			if index < count {
 				return self.elements[index++].value
 			} else {
@@ -85,28 +86,28 @@ extension Bag: SequenceType {
 }
 
 extension Bag: CollectionType {
-	typealias Index = Array<T>.Index
+	public typealias Index = Array<Element>.Index
 
-	var startIndex: Index {
+	public var startIndex: Index {
 		return 0
 	}
 	
-	var endIndex: Index {
+	public var endIndex: Index {
 		return elements.count
 	}
 
-	subscript(index: Index) -> T {
+	public subscript(index: Index) -> Element {
 		return elements[index].value
 	}
 }
 
-private struct BagElement<T> {
-	let value: T
+private struct BagElement<Value> {
+	let value: Value
 	var identifier: UInt
 	let token: RemovalToken
 }
 
-extension BagElement: Printable {
+extension BagElement: CustomStringConvertible {
 	var description: String {
 		return "BagElement(\(value))"
 	}

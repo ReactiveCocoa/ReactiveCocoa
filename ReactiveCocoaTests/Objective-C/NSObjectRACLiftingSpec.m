@@ -151,7 +151,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setCharPointerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect([NSValue valueWithPointer:object.charPointerValue]).to(equal([NSValue valueWithPointer:NULL]));
+		expect(@((size_t)object.charPointerValue)).to(equal(@0));
 
 		NSString *string = @"blah blah blah";
 		[subject sendNext:string];
@@ -162,7 +162,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setConstCharPointerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect([NSValue valueWithPointer:object.constCharPointerValue]).to(equal([NSValue valueWithPointer:NULL]));
+		expect(@((size_t)object.constCharPointerValue)).to(equal(@0));
 
 		NSString *string = @"blah blah blah";
 		[subject sendNext:string];

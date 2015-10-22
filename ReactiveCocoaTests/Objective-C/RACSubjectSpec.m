@@ -197,7 +197,7 @@ qck_describe(@"RACReplaySubject", ^{
 				completed = YES;
 			}];
 
-			expect(@(valuesReceived.count)).to(equal(@2));
+			expect(valuesReceived).to(haveCount(@2));
 			NSArray *expected = [NSArray arrayWithObjects:firstValue, secondValue, nil];
 			expect(valuesReceived).to(equal(expected));
 			expect(@(completed)).to(beTruthy());
@@ -232,10 +232,10 @@ qck_describe(@"RACReplaySubject", ^{
 			OSMemoryBarrier();
 
 			NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
-			expect(@(liveValues.count)).to(equal(@(count)));
+			expect(liveValues).to(haveCount(@(count)));
 
 			NSArray *replayedValues = subject.toArray;
-			expect(@(replayedValues.count)).to(equal(@(count)));
+			expect(replayedValues).to(haveCount(@(count)));
 
 			// It should return the same ordering for multiple invocations too.
 			expect(replayedValues).to(equal(subject.toArray));

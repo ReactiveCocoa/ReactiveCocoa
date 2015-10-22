@@ -29,11 +29,16 @@ class PropertySpec: QuickSpec {
 				var sentValue: String?
 				var signalCompleted = false
 
-				constantProperty.producer.start(next: { value in
-					sentValue = value
-				}, completed: {
-					signalCompleted = true
-				})
+				constantProperty.producer.start { event in
+					switch event {
+					case let .Next(value):
+						sentValue = value
+					case .Completed:
+						signalCompleted = true
+					default:
+						break
+					}
+				}
 
 				expect(sentValue).to(equal(initialPropertyValue))
 				expect(signalCompleted).to(beTruthy())
@@ -52,9 +57,9 @@ class PropertySpec: QuickSpec {
 
 				var sentValue: String?
 
-				mutableProperty.producer.start(next: { value in
+				mutableProperty.producer.startWithNext { value in
 					sentValue = value
-				})
+				}
 
 				expect(sentValue).to(equal(initialPropertyValue))
 				mutableProperty.value = subsequentPropertyValue
@@ -66,25 +71,25 @@ class PropertySpec: QuickSpec {
 
 				var signalCompleted = false
 
-				mutableProperty?.producer.start(completed: {
+				mutableProperty?.producer.startWithCompleted {
 					signalCompleted = true
-				})
+				}
 
 				mutableProperty = nil
 				expect(signalCompleted).to(beTruthy())
 			}
 
 			it("should not deadlock on recursive value access") {
-				let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
 				let property = MutableProperty(0)
 				var value: Int?
 
 				property <~ producer
-				property.producer.start(next: { _ in
+				property.producer.startWithNext { _ in
 					value = property.value
-				})
+				}
 
-				sendNext(sink, 10)
+				observer.sendNext(10)
 				expect(value).to(equal(10))
 			}
 
@@ -92,9 +97,9 @@ class PropertySpec: QuickSpec {
 				let property = MutableProperty(0)
 
 				var value: Int?
-				property.producer.start(next: { _ in
-					property.producer.start(next: { x in value = x })
-				})
+				property.producer.startWithNext { _ in
+					property.producer.startWithNext { x in value = x }
+				}
 
 				expect(value).to(equal(0))
 
@@ -103,20 +108,25 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
-		describe("PropertyOf") {
+		describe("AnyProperty") {
 			describe("from a PropertyType") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
-					let propertyOf = PropertyOf(constantProperty)
+					let property = AnyProperty(constantProperty)
 
 					var sentValue: String?
 					var producerCompleted = false
 
-					propertyOf.producer.start(next: { value in
-						sentValue = value
-					}, completed: {
-						producerCompleted = true
-					})
+					property.producer.start { event in
+						switch event {
+						case let .Next(value):
+							sentValue = value
+						case .Completed:
+							producerCompleted = true
+						default:
+							break
+						}
+					}
 
 					expect(sentValue).to(equal(initialPropertyValue))
 					expect(producerCompleted).to(beTruthy())
@@ -125,7 +135,7 @@ class PropertySpec: QuickSpec {
 			
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						producer: SignalProducer.never)
 					
@@ -133,7 +143,7 @@ class PropertySpec: QuickSpec {
 				}
 				
 				it("should take on each value sent on the producer") {
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						producer: SignalProducer(value: subsequentPropertyValue))
 					
@@ -145,13 +155,13 @@ class PropertySpec: QuickSpec {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = PropertyOf(
+					let property = AnyProperty(
 						initialValue: initialPropertyValue,
 						signal: signal)
 					
 					expect(property.value).to(equal(initialPropertyValue))
 					
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					
 					expect(property.value).to(equal(subsequentPropertyValue))
 				}
@@ -196,10 +206,10 @@ class PropertySpec: QuickSpec {
 
 			it("should observe changes to the property and underlying object") {
 				var values: [Int] = []
-				property.producer.start(next: { value in
+				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
 					values.append((value as? Int) ?? -1)
-				})
+				}
 
 				expect(values).to(equal([ 0 ]))
 
@@ -218,9 +228,9 @@ class PropertySpec: QuickSpec {
 					let object = ObservableObject()
 					let property = DynamicProperty(object: object, keyPath: "rac_value")
 
-					property.producer.start(completed: {
+					property.producer.startWithCompleted {
 						completed = true
-					})
+					}
 
 					expect(completed).to(beFalsy())
 					expect(property.value).notTo(beNil())
@@ -254,7 +264,7 @@ class PropertySpec: QuickSpec {
 					// Verify that the binding hasn't changed the property value:
 					expect(mutableProperty.value).to(equal(initialPropertyValue))
 
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					expect(mutableProperty.value).to(equal(subsequentPropertyValue))
 				}
 
@@ -266,7 +276,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty <~ signal
 					bindingDisposable.dispose()
 
-					sendNext(observer, subsequentPropertyValue)
+					observer.sendNext(subsequentPropertyValue)
 					expect(mutableProperty.value).to(equal(initialPropertyValue))
 				}
 				
@@ -278,12 +288,12 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty <~ signal
 					
 					expect(bindingDisposable.disposed).to(beFalsy())
-					sendCompleted(observer)
+					observer.sendCompleted()
 					expect(bindingDisposable.disposed).to(beTruthy())
 				}
 				
 				it("should tear down the binding when the property deallocates") {
-					let (signal, observer) = Signal<String, NoError>.pipe()
+					let (signal, _) = Signal<String, NoError>.pipe()
 
 					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
 
@@ -318,13 +328,12 @@ class PropertySpec: QuickSpec {
 				}
 
 				it("should tear down the binding when bound signal is completed") {
-					let signalValues = [initialPropertyValue, subsequentPropertyValue]
 					let (signalProducer, observer) = SignalProducer<String, NoError>.buffer(1)
 					
 					let mutableProperty = MutableProperty(initialPropertyValue)
 					mutableProperty <~ signalProducer
 
-					sendCompleted(observer)
+					observer.sendCompleted()
 					// TODO: Assert binding was torn down?
 				}
 

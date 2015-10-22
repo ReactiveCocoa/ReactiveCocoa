@@ -19,15 +19,15 @@ class BagSpec: QuickSpec {
 		}
 
 		it("should insert values") {
-			let a = bag.insert("foo")
-			let b = bag.insert("bar")
-			let c = bag.insert("buzz")
+			bag.insert("foo")
+			bag.insert("bar")
+			bag.insert("buzz")
 
-			expect(contains(bag, "foo")).to(beTruthy())
-			expect(contains(bag, "bar")).to(beTruthy())
-			expect(contains(bag, "buzz")).to(beTruthy())
-			expect(contains(bag, "fuzz")).to(beFalsy())
-			expect(contains(bag, "foobar")).to(beFalsy())
+			expect(bag).to(contain("foo"))
+			expect(bag).to(contain("bar"))
+			expect(bag).to(contain("buzz"))
+			expect(bag).toNot(contain("fuzz"))
+			expect(bag).toNot(contain("foobar"))
 		}
 
 		it("should remove values given the token from insertion") {
@@ -36,19 +36,19 @@ class BagSpec: QuickSpec {
 			let c = bag.insert("buzz")
 
 			bag.removeValueForToken(b)
-			expect(contains(bag, "foo")).to(beTruthy())
-			expect(contains(bag, "bar")).to(beFalsy())
-			expect(contains(bag, "buzz")).to(beTruthy())
+			expect(bag).to(contain("foo"))
+			expect(bag).toNot(contain("bar"))
+			expect(bag).to(contain("buzz"))
 
 			bag.removeValueForToken(a)
-			expect(contains(bag, "foo")).to(beFalsy())
-			expect(contains(bag, "bar")).to(beFalsy())
-			expect(contains(bag, "buzz")).to(beTruthy())
+			expect(bag).toNot(contain("foo"))
+			expect(bag).toNot(contain("bar"))
+			expect(bag).to(contain("buzz"))
 
 			bag.removeValueForToken(c)
-			expect(contains(bag, "foo")).to(beFalsy())
-			expect(contains(bag, "bar")).to(beFalsy())
-			expect(contains(bag, "buzz")).to(beFalsy())
+			expect(bag).toNot(contain("foo"))
+			expect(bag).toNot(contain("bar"))
+			expect(bag).toNot(contain("buzz"))
 		}
 	}
 }

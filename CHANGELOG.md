@@ -12,6 +12,20 @@ improvements from Swift 1.2 to provide a simpler API.
 
 ## Alpha 2
 
+#### Simplified Observer API
+
+There were two related sticking points that seemed like incidental complexity:
+the conflation of “sink” and “observer”, and the fact that `sendNext` and
+friends were free functions (didn’t autocomplete, looked weird, etc)
+
+* `Event` no longer knows about sinks or observers.
+* `Observer` is now its own thing akin to `SinkOf` but specific to `Event`s.
+There is no such thing as a sink anymore.
+* `Event.sink()` becomes a convenience initializer for `Observer`.
+* `send*` become methods on Observer
+* Convenience overloads where raw observer/sink functions were arguments so
+that they can continue to be used that way for less line noise.
+
 #### Renamed signal generic parameters
 
 The generic paramters of `Signal`, `SignalProducer`, and other related types

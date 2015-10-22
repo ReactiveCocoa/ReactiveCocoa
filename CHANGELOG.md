@@ -34,6 +34,24 @@ is in-line with changes to the standard library to give more descriptive names
 to type parameters for increased clarity. This should have limited impact,
 only affecting generic, custom signal/producer extensions.
 
+#### Added flatten to all signal and producer combos
+
+Before this change, `flatten` and `flatMap` were only defined for
+signals-of-producers and producers-of-producers. After much discussion it
+was determined these should be safe for the remaining combinations of signals
+and producers. See #2449
+
+#### Added missing SignalProducer operators
+
+There were some `Signal` operators that were missing `SignalProducer`
+equivalents:
+
+* `takeUntil`
+* `combineLatestWith`
+* `sampleOn`
+* `takeUntilReplacement`
+* `zipWith`
+
 #### Renamed PropertyOf<T> to AnyProperty<T>
 
 This is in-line with changes to the standard library in Swift 2.

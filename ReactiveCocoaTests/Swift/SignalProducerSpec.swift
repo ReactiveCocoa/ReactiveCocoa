@@ -11,7 +11,7 @@ import Foundation
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+@testable import ReactiveCocoa
 
 class SignalProducerSpec: QuickSpec {
 	override func spec() {
@@ -1690,6 +1690,132 @@ class SignalProducerSpec: QuickSpec {
 				
 				downstreamDisposable.dispose()
 				expect(upstreamDisposable.disposed).to(beTruthy())
+			}
+		}
+		
+		describe("not") {
+			it("should invert each next value") {
+				let (producer, observer) = SignalProducer<Bool, NoError>.buffer()
+				
+				var lastValue: Bool?
+				
+				producer.not().startWithNext { value in
+					lastValue = value
+				}
+				
+				expect(lastValue).to(beNil())
+				observer.sendNext(false)
+				expect(lastValue) == true
+				observer.sendNext(true)
+				expect(lastValue) == false
+			}
+		}
+		
+		describe("and") {
+			it("should and a 2-tuple") {
+				typealias TwoTuple = (Bool, Bool)
+				let (producer, observer) = SignalProducer<TwoTuple, NoError>.buffer()
+				
+				var lastValue: Bool?
+				
+				producer.and().startWithNext { value in
+					lastValue = value
+				}
+
+				expect(lastValue).to(beNil())
+
+				observer.sendNext((false, false))
+				expect(lastValue) == false
+				observer.sendNext((false, true))
+				expect(lastValue) == false
+				observer.sendNext((true, false))
+				expect(lastValue) == false
+				observer.sendNext((true, true))
+				expect(lastValue) == true
+			}
+			
+			it("should and a 3-tuple") {
+				typealias ThreeTuple = (Bool, Bool, Bool)
+				let (producer, observer) = SignalProducer<ThreeTuple, NoError>.buffer()
+				
+				var lastValue: Bool?
+				
+				producer.and().startWithNext { value in
+					lastValue = value
+				}
+				
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext((false, false, false))
+				expect(lastValue) == false
+				observer.sendNext((true, false, false))
+				expect(lastValue) == false
+				observer.sendNext((false, true, false))
+				expect(lastValue) == false
+				observer.sendNext((false, false, true))
+				expect(lastValue) == false
+				observer.sendNext((true, true, false))
+				expect(lastValue) == false
+				observer.sendNext((true, false, true))
+				expect(lastValue) == false
+				observer.sendNext((false, true, true))
+				expect(lastValue) == false
+				observer.sendNext((true, true, true))
+				expect(lastValue) == true
+			}
+		}
+		
+		describe("or") {
+			it("should or a 2-tuple") {
+				typealias TwoTuple = (Bool, Bool)
+				let (producer, observer) = SignalProducer<TwoTuple, NoError>.buffer()
+				
+				var lastValue: Bool?
+				
+				producer.or().startWithNext { value in
+					lastValue = value
+				}
+				
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext((false, false))
+				expect(lastValue) == false
+				observer.sendNext((false, true))
+				expect(lastValue) == true
+				observer.sendNext((true, false))
+				expect(lastValue) == true
+				observer.sendNext((true, true))
+				expect(lastValue) == true
+			}
+			
+			it("should or a 3-tuple") {
+				typealias ThreeTuple = (Bool, Bool, Bool)
+				let (producer, observer) = SignalProducer<ThreeTuple, NoError>.buffer()
+				
+				var lastValue: Bool?
+				
+				producer.or().startWithNext { value in
+					lastValue = value
+				}
+				
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext((false, false, false))
+				expect(lastValue) == false
+				observer.sendNext((true, false, false))
+				expect(lastValue) == true
+				observer.sendNext((false, true, false))
+				expect(lastValue) == true
+				observer.sendNext((false, false, true))
+				expect(lastValue) == true
+				observer.sendNext((true, true, false))
+				expect(lastValue) == true
+				observer.sendNext((true, false, true))
+				expect(lastValue) == true
+				observer.sendNext((false, true, true))
+				expect(lastValue) == true
+				observer.sendNext((true, true, true))
+				expect(lastValue) == true
 			}
 		}
 	}

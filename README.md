@@ -22,6 +22,12 @@ Overflow](http://stackoverflow.com/questions/tagged/reactive-cocoa) have already
 answered it. If not, please feel free to [file your
 own](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new)!
 
+#### Compatibility
+
+This documents the RAC 4 (currently alpha) which targets Swift 2.x. For
+Swift 1.2 support see the [RAC
+3](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v3.0.0).
+
 _Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
 
 ## Introduction

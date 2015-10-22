@@ -310,7 +310,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
-	public func start(observer: Observer<Value, Error> = Observer<Value, Error>()) -> Disposable {
+	public func start(observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
@@ -323,7 +323,7 @@ extension SignalProducerType {
 
 	/// Convenience override for start(_:) to allow trailing-closure style
 	/// invocations.
-	public func start(observerAction: Observer<Value, Error>.Action) -> Disposable {
+	public func start(observerAction: Signal<Value, Error>.Observer.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
 
@@ -334,7 +334,7 @@ extension SignalProducerType {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	public func startWithNext(next: Value -> ()) -> Disposable {
-		return start(Observer<Value, Error>(next: next))
+		return start(Observer(next: next))
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to

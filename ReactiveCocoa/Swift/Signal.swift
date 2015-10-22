@@ -128,7 +128,7 @@ public final class Signal<T, E: ErrorType> {
 
 		if let token = token {
 			return ActionDisposable {
-				atomicObservers.modify { (var observers) in
+				self.atomicObservers.modify { (var observers) in
 					observers?.removeValueForToken(token)
 					return observers
 				}

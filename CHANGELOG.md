@@ -20,13 +20,18 @@ is in-line with changes to the standard library to give more descriptive names
 to type parameters for increased clarity. This should have limited impact,
 only affecting generic, custom signal/producer extensions.
 
-#### Renaming Event.Error to Event.Failed
-
-Maybe coming to a later alpha. See #2360.
-
 #### Renamed PropertyOf<T> to AnyProperty<T>
 
 This is in-line with changes to the standard library in Swift 2.
+
+#### Publicized Bag and Atomic
+
+`Bag` and `Atomic` are now public. These are useful when creating custom
+operators for RAC types.
+
+#### Renaming Event.Error to Event.Failed
+
+Maybe coming to a later alpha. See #2360.
 
 ## Alpha 1
 

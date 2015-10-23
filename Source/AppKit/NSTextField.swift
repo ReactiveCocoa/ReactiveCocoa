@@ -11,7 +11,7 @@ import ReactiveCocoa
 import AppKit
 
 extension NSTextField {
-    /// only changes from UI will be produced here
+    /// Sends the field's string value whenever it changes.
     public var rex_textSignal: SignalProducer<String, NoError> {
         return NSNotificationCenter.defaultCenter()
             .rac_notifications(NSControlTextDidChangeNotification, object: self)

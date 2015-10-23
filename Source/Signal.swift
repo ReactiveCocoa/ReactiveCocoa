@@ -10,29 +10,11 @@ import ReactiveCocoa
 
 extension SignalType {
 
-    /// Bring back the `observe` overload. The `observeNext` or pattern matching
-    /// on `observe(Event)` is still annoying in practice and more verbose. This is
-    /// also likely to change in a later RAC 4 alpha.
-    internal func observe(next next: (Value -> ())? = nil, error: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
-        return self.observe { (event: Event<Value, Error>) in
-            switch event {
-            case let .Next(value):
-                next?(value)
-            case let .Error(err):
-                error?(err)
-            case .Completed:
-                completed?()
-            case .Interrupted:
-                interrupted?()
-            }
-        }
-    }
-
     /// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
     /// forwared on the returned signal.
     public func filterMap<U>(transform: Value -> U?) -> Signal<U, Error> {
         return Signal<U, Error> { observer in
-            return self.observe(next: { value in
+            return self.observe(Observer(next: { value in
                 if let val = transform(value) {
                     observer.sendNext(val)
                 }
@@ -42,7 +24,7 @@ extension SignalType {
                 observer.sendCompleted()
             }, interrupted: {
                 observer.sendInterrupted()
-            })
+            }))
         }
     }
 

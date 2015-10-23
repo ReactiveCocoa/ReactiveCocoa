@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-@testable import Rex
+import Rex
 import ReactiveCocoa
 import XCTest
 
@@ -20,7 +20,7 @@ final class SignalTests: XCTestCase {
             .filterMap {
                 return $0 % 2 == 0 ? String($0) : nil
             }
-            .observe(next: { values.append($0) })
+            .observe(Observer(next: { values.append($0) }))
 
         sink.sendNext(1)
         XCTAssert(values == [])
@@ -41,9 +41,9 @@ final class SignalTests: XCTestCase {
 
         signal
             .ignoreError()
-            .observe(completed: {
+            .observe(Observer(completed: {
                 completed = true
-            })
+            }))
 
         sink.sendNext(1)
         XCTAssertFalse(completed)
@@ -58,9 +58,9 @@ final class SignalTests: XCTestCase {
 
         signal
             .ignoreError(replacement: .Interrupted)
-            .observe(interrupted: {
+            .observe(Observer(interrupted: {
                 interrupted = true
-            })
+            }))
 
         sink.sendNext(1)
         XCTAssertFalse(interrupted)
@@ -77,10 +77,10 @@ final class SignalTests: XCTestCase {
 
         signal
             .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            .observe(
+            .observe(Observer(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
-            )
+            ))
 
         scheduler.scheduleAfter(1) { sink.sendCompleted() }
 
@@ -100,10 +100,10 @@ final class SignalTests: XCTestCase {
 
         signal
             .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
-            .observe(
+            .observe(Observer(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
-            )
+            ))
 
         scheduler.scheduleAfter(3) { sink.sendCompleted() }
 
@@ -121,9 +121,9 @@ final class SignalTests: XCTestCase {
 
         signal
             .uncollect()
-            .observe(next: {
+            .observe(Observer(next: {
                 values.append($0)
-            })
+            }))
 
         sink.sendNext([])
         XCTAssert(values.isEmpty)

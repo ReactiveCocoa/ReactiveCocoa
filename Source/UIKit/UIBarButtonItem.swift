@@ -19,10 +19,10 @@ extension UIBarButtonItem {
             let initial = CocoaAction.rex_disabled
             let property = MutableProperty(initial)
             
-            property.producer.start(next: { next in
+            property.producer.start(Observer(next: { next in
                 self?.target = next
                 self?.action = CocoaAction.selector
-            })
+            }))
 
             if let strongSelf = self {
                 strongSelf.rex_enabled <~ property.producer.flatMap(.Latest) { $0.rex_enabledProducer }

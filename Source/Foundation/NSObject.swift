@@ -61,7 +61,7 @@ extension NSObject {
     public func rex_valueProperty<T>(key: UnsafePointer<()>, _ initial: () -> T, _ setter: T -> ()) -> MutableProperty<T> {
         return associatedObject(self, key: key) {
             let property = MutableProperty(initial())
-            property.producer.start(next: setter)
+            property.producer.start(Observer(next: setter))
             return property
         }
     }

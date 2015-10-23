@@ -10,24 +10,6 @@ import ReactiveCocoa
 
 extension SignalProducerType {
 
-    /// Bring back the `start` overload. The `startNext` or pattern matching
-    /// on `start(Event)` is annoying in practice and more verbose. This is also
-    /// likely to change in a later RAC 4 alpha.
-    internal func start(next next: (Value -> ())? = nil, error: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil) -> Disposable? {
-        return self.start { (event: Event<Value, Error>) in
-            switch event {
-            case let .Next(value):
-                next?(value)
-            case let .Error(err):
-                error?(err)
-            case .Completed:
-                completed?()
-            case .Interrupted:
-                interrupted?()
-            }
-        }
-    }
-
     /// Buckets each received value into a group based on the key returned
     /// from `grouping`. Termination events on the original signal are
     /// also forwarded to each producer group.
@@ -38,7 +20,7 @@ extension SignalProducerType {
             let lock = NSRecursiveLock()
             lock.name = "me.neilpa.rex.groupBy"
 
-            self.start(next: { value in
+            self.start(Observer(next: { value in
                 let key = grouping(value)
 
                 lock.lock()
@@ -65,7 +47,7 @@ extension SignalProducerType {
             }, interrupted: { _ in
                 observer.sendInterrupted()
                 groups.values.forEach { $0.sendInterrupted() }
-            })
+            }))
         }
     }
 

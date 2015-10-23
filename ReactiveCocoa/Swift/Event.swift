@@ -9,14 +9,14 @@
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
-/// `Next* (Error | Completed | Interrupted)?`
-public enum Event<Value, Err: ErrorType> {
+/// `Next* (Failed | Completed | Interrupted)?`
+public enum Event<Value, Error: ErrorType> {
 	/// A value provided by the signal.
 	case Next(Value)
 
 	/// The signal terminated because of an error. No further events will be
 	/// received.
-	case Error(Err)
+	case Failed(Error)
 
 	/// The signal successfully terminated. No further events will be received.
 	case Completed
@@ -33,19 +33,19 @@ public enum Event<Value, Err: ErrorType> {
 		case .Next:
 			return false
 
-		case .Error, .Completed, .Interrupted:
+		case .Failed, .Completed, .Interrupted:
 			return true
 		}
 	}
 
 	/// Lifts the given function over the event's value.
-	public func map<U>(f: Value -> U) -> Event<U, Err> {
+	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
 			return .Next(f(value))
 
-		case let .Error(error):
-			return .Error(error)
+		case let .Failed(error):
+			return .Failed(error)
 
 		case .Completed:
 			return .Completed
@@ -56,13 +56,13 @@ public enum Event<Value, Err: ErrorType> {
 	}
 
 	/// Lifts the given function over the event's error.
-	public func mapError<F>(f: Err -> F) -> Event<Value, F> {
+	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):
 			return .Next(value)
 
-		case let .Error(error):
-			return .Error(f(error))
+		case let .Failed(error):
+			return .Failed(f(error))
 
 		case .Completed:
 			return .Completed
@@ -82,8 +82,8 @@ public enum Event<Value, Err: ErrorType> {
 	}
 
 	/// Unwraps the contained `Error` value.
-	public var error: Err? {
-		if case let .Error(error) = self {
+	public var error: Error? {
+		if case let .Failed(error) = self {
 			return error
 		} else {
 			return nil
@@ -91,12 +91,12 @@ public enum Event<Value, Err: ErrorType> {
 	}
 }
 
-public func == <Value: Equatable, Err: Equatable> (lhs: Event<Value, Err>, rhs: Event<Value, Err>) -> Bool {
+public func == <Value: Equatable, Error: Equatable> (lhs: Event<Value, Error>, rhs: Event<Value, Error>) -> Bool {
 	switch (lhs, rhs) {
 	case let (.Next(left), .Next(right)):
 		return left == right
 
-	case let (.Error(left), .Error(right)):
+	case let (.Failed(left), .Failed(right)):
 		return left == right
 
 	case (.Completed, .Completed):
@@ -116,8 +116,8 @@ extension Event: CustomStringConvertible {
 		case let .Next(value):
 			return "NEXT \(value)"
 
-		case let .Error(error):
-			return "ERROR \(error)"
+		case let .Failed(error):
+			return "FAILED \(error)"
 
 		case .Completed:
 			return "COMPLETED"
@@ -133,13 +133,13 @@ public protocol EventType {
 	// The value type of an event.
 	typealias Value
 	/// The error type of an event. If errors aren't possible then `NoError` can be used.
-	typealias Err: ErrorType
+	typealias Error: ErrorType
 	/// Extracts the event from the receiver.
-	var event: Event<Value, Err> { get }
+	var event: Event<Value, Error> { get }
 }
 
 extension Event: EventType {
-	public var event: Event<Value, Err> {
+	public var event: Event<Value, Error> {
 		return self
 	}
 }

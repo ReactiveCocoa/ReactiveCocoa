@@ -124,7 +124,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 
-					observer.sendError(expectedError)
+					observer.sendFailed(expectedError)
 					expect(error).to(equal(expectedError as NSError))
 				}
 				
@@ -139,7 +139,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						return
 					}
 					
-					observer.sendError(testNSError)
+					observer.sendFailed(testNSError)
 					
 					let userInfoValue = error?.userInfo[key] as? String
 					expect(userInfoValue).to(equal(userInfo[key]))

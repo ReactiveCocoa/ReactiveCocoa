@@ -8,8 +8,8 @@
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public struct Observer<Value, Err: ErrorType> {
-	public typealias Action = Event<Value, Err> -> ()
+public struct Observer<Value, Error: ErrorType> {
+	public typealias Action = Event<Value, Error> -> ()
 
 	public let action: Action
 
@@ -17,14 +17,14 @@ public struct Observer<Value, Err: ErrorType> {
 		self.action = action
 	}
 
-	public init(error: (Err -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (Value -> ())? = nil) {
+	public init(failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, next: (Value -> ())? = nil) {
 		self.init { event in
 			switch event {
 			case let .Next(value):
 				next?(value)
 
-			case let .Error(err):
-				error?(err)
+			case let .Failed(error):
+				failed?(error)
 
 			case .Completed:
 				completed?()
@@ -40,9 +40,9 @@ public struct Observer<Value, Err: ErrorType> {
 		action(.Next(value))
 	}
 
-	/// Puts an `Error` event into the given observer.
-	public func sendError(error: Err) {
-		action(.Error(error))
+	/// Puts an `Failed` event into the given observer.
+	public func sendFailed(error: Error) {
+		action(.Failed(error))
 	}
 
 	/// Puts a `Completed` event into the given observer.

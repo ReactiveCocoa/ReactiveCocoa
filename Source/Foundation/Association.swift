@@ -58,7 +58,7 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
     return associatedObject(host, key: key) {
         let property = MutableProperty(initial())
-        property.producer.start(next: setter)
+        property.producer.start(Observer(next: setter))
         return property
     }
 }

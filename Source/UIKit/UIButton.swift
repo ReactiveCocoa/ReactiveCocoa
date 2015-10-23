@@ -21,10 +21,10 @@ extension UIButton {
 
             property.producer
                 .combinePrevious(initial)
-                .start(next: { previous, next in
+                .start(Observer(next: { previous, next in
                     self?.removeTarget(previous, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
                     self?.addTarget(next, action: CocoaAction.selector, forControlEvents: .TouchUpInside)
-                })
+                }))
 
             if let strongSelf = self {
                 strongSelf.rex_enabled <~ property.producer.flatMap(.Latest) { $0.rex_enabledProducer }

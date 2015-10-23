@@ -40,7 +40,7 @@ public struct Observer<Value, Error: ErrorType> {
 		action(.Next(value))
 	}
 
-	/// Puts a `Failed` event into the given observer.
+	/// Puts an `Failed` event into the given observer.
 	public func sendFailed(error: Error) {
 		action(.Failed(error))
 	}

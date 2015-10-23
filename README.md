@@ -2,7 +2,7 @@
 
 ReactiveCocoa (RAC) is a Cocoa framework inspired by
 [Functional Reactive
-Programming](http://en.wikipedia.org/wiki/Functional_reactive_programming). It
+Programming](https://en.wikipedia.org/wiki/Functional_reactive_programming). It
 provides APIs for composing and transforming **streams of values over time**.
 
  1. [Introduction](#introduction)
@@ -211,7 +211,7 @@ this API, please consult our [legacy documentation][].
 
 ReactiveCocoa was originally inspired, and therefore heavily influenced, by
 Microsoft’s [Reactive
-Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library. There are many ports of Rx, including [RxSwift](https://github.com/kzaher/RxSwift), but ReactiveCocoa is _intentionally_ not a direct port.
+Extensions](https://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx) library. There are many ports of Rx, including [RxSwift](https://github.com/ReactiveX/RxSwift), but ReactiveCocoa is _intentionally_ not a direct port.
 
 **Where RAC differs from Rx**, it is usually to:
 
@@ -281,7 +281,7 @@ values—not the type of their errors—so this sort of guarantee is impossible.
 Rx is basically agnostic as to how it’s used. Although UI programming with Rx is
 very common, it has few features tailored to that particular case.
 
-RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net),
+RAC takes a lot of inspiration from [ReactiveUI](http://reactiveui.net/),
 including the basis for [Actions][].
 
 Unlike ReactiveUI, which unfortunately cannot directly change Rx to make it more

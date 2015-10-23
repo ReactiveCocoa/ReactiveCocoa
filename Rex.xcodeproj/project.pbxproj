@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
-		8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */; settings = {ASSET_TAGS = (); }; };
-		8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; settings = {ASSET_TAGS = (); }; };
-		8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; settings = {ASSET_TAGS = (); }; };
-		8289A2E81BD7F7900097FB60 /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E61BD7F7730097FB60 /* UIViewTests.swift */; settings = {ASSET_TAGS = (); }; };
+		8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */; };
+		8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; };
+		8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; };
+		8289A2E81BD7F7900097FB60 /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E61BD7F7730097FB60 /* UIViewTests.swift */; };
 		8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD851B873081007C9000 /* UIControlTests.swift */; };
 		8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };

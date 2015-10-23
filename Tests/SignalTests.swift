@@ -22,16 +22,16 @@ final class SignalTests: XCTestCase {
             }
             .observe(next: { values.append($0) })
 
-        sendNext(sink, 1)
+        sink.sendNext(1)
         XCTAssert(values == [])
 
-        sendNext(sink, 2)
+        sink.sendNext(2)
         XCTAssert(values == ["2"])
 
-        sendNext(sink, 3)
+        sink.sendNext(3)
         XCTAssert(values == ["2"])
 
-        sendNext(sink, 6)
+        sink.sendNext(6)
         XCTAssert(values == ["2", "6"])
     }
 
@@ -45,10 +45,10 @@ final class SignalTests: XCTestCase {
                 completed = true
             })
 
-        sendNext(sink, 1)
+        sink.sendNext(1)
         XCTAssertFalse(completed)
 
-        sendError(sink, .Default)
+        sink.sendError(.Default)
         XCTAssertTrue(completed)
     }
 
@@ -62,10 +62,10 @@ final class SignalTests: XCTestCase {
                 interrupted = true
             })
 
-        sendNext(sink, 1)
+        sink.sendNext(1)
         XCTAssertFalse(interrupted)
 
-        sendError(sink, .Default)
+        sink.sendError(.Default)
         XCTAssertTrue(interrupted)
     }
 
@@ -82,7 +82,7 @@ final class SignalTests: XCTestCase {
                 interrupted: { interrupted = true }
             )
 
-        scheduler.scheduleAfter(1) { sendCompleted(sink) }
+        scheduler.scheduleAfter(1) { sink.sendCompleted() }
 
         XCTAssertFalse(interrupted)
         XCTAssertFalse(completed)
@@ -105,7 +105,7 @@ final class SignalTests: XCTestCase {
                 interrupted: { interrupted = true }
             )
 
-        scheduler.scheduleAfter(3) { sendCompleted(sink) }
+        scheduler.scheduleAfter(3) { sink.sendCompleted() }
 
         XCTAssertFalse(interrupted)
         XCTAssertFalse(completed)
@@ -125,13 +125,13 @@ final class SignalTests: XCTestCase {
                 values.append($0)
             })
 
-        sendNext(sink, [])
+        sink.sendNext([])
         XCTAssert(values.isEmpty)
 
-        sendNext(sink, [1])
+        sink.sendNext([1])
         XCTAssert(values == [1])
 
-        sendNext(sink, [2, 3])
+        sink.sendNext([2, 3])
         XCTAssert(values == [1, 2, 3])
     }
 }

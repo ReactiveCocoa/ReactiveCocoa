@@ -34,21 +34,21 @@ final class SignalProducerTests: XCTestCase {
                 interrupted = true
             })
 
-        sendNext(sink, 1)
+        sink.sendNext(1)
         XCTAssert(evens == [])
         XCTAssert(odds == [1])
 
-        sendNext(sink, 2)
+        sink.sendNext(2)
         XCTAssert(evens == [2])
         XCTAssert(odds == [1])
 
-        sendNext(sink, 3)
+        sink.sendNext(3)
         XCTAssert(evens == [2])
         XCTAssert(odds == [1, 3])
 
         disposable.dispose()
 
-        sendNext(sink, 1)
+        sink.sendNext(1)
         XCTAssert(interrupted)
         XCTAssertFalse(completed)
     }

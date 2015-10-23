@@ -10,6 +10,16 @@ If you're new to the Swift API and migrating from RAC 2, start with the
 ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
 improvements from Swift 1.2 to provide a simpler API.
 
+## Alpha 3
+
+#### Renamed Event.Error to Event.Failed
+
+The `Error` case of `Event` has changed to `Failed`. This aims to help clarify
+the terminating nature of failure/error events and puts them in the same tense
+as other terminating cases (`Interrupted` and `Completed`). Likewise, some
+operations and parameters have been renamed (e.g. `Signal.observeError` is now
+`Signal.observeFailed`, `Observer.sendError` is now `Observer.sendFailed`).
+
 ## Alpha 2
 
 #### Simplified Observer API
@@ -60,10 +70,6 @@ This is in-line with changes to the standard library in Swift 2.
 
 `Bag` and `Atomic` are now public. These are useful when creating custom
 operators for RAC types.
-
-#### Renaming Event.Error to Event.Failed
-
-Maybe coming to a later alpha. See #2360.
 
 ## Alpha 1
 

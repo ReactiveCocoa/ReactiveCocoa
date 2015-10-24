@@ -721,10 +721,10 @@
 		D8170FC21B100EBC004192AD /* FoundationExtensionsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */; };
 		D871D69F1B3B29A40070F16C /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		D8E84A671B3B32FB00C3E831 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
-		EBCC7DBC1BBF010C00A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; settings = {ASSET_TAGS = (); }; };
-		EBCC7DBD1BBF01E100A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; settings = {ASSET_TAGS = (); }; };
-		EBCC7DBE1BBF01E200A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; settings = {ASSET_TAGS = (); }; };
-		EBCC7DBF1BBF01E200A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; settings = {ASSET_TAGS = (); }; };
+		EBCC7DBC1BBF010C00A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
+		EBCC7DBD1BBF01E100A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
+		EBCC7DBE1BBF01E200A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
+		EBCC7DBF1BBF01E200A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2783,6 +2783,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2801,6 +2802,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2839,6 +2841,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
@@ -2852,6 +2855,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
@@ -2923,6 +2927,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2947,6 +2952,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
@@ -2992,6 +2998,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3016,6 +3023,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",

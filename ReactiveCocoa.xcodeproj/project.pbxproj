@@ -1034,10 +1034,10 @@
 		D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04725EE19E49ED7006002AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D04725EF19E49ED7006002AA /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
-		D04725F519E49ED7006002AA /* ReactiveCocoa-MacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoa-MacTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D04725F519E49ED7006002AA /* ReactiveCocoa.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoa.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04725FB19E49ED7006002AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D047260C19E49F82006002AA /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D047261619E49F82006002AA /* ReactiveCocoa-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoa-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D047261619E49F82006002AA /* ReactiveCocoa.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoa.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047262719E49FE8006002AA /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D047262919E49FE8006002AA /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D047262A19E49FE8006002AA /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
@@ -1493,9 +1493,9 @@
 			isa = PBXGroup;
 			children = (
 				D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */,
-				D04725F519E49ED7006002AA /* ReactiveCocoa-MacTests.xctest */,
+				D04725F519E49ED7006002AA /* ReactiveCocoa.xctest */,
 				D047260C19E49F82006002AA /* ReactiveCocoa.framework */,
-				D047261619E49F82006002AA /* ReactiveCocoa-iOSTests.xctest */,
+				D047261619E49F82006002AA /* ReactiveCocoa.xctest */,
 				A9B315541B3940610001CB9C /* ReactiveCocoa.framework */,
 				57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */,
 			);
@@ -1971,7 +1971,7 @@
 			);
 			name = "ReactiveCocoa-MacTests";
 			productName = ReactiveCocoaTests;
-			productReference = D04725F519E49ED7006002AA /* ReactiveCocoa-MacTests.xctest */;
+			productReference = D04725F519E49ED7006002AA /* ReactiveCocoa.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D047260B19E49F82006002AA /* ReactiveCocoa-iOS */ = {
@@ -2008,7 +2008,7 @@
 			);
 			name = "ReactiveCocoa-iOSTests";
 			productName = ReactiveCocoaTests;
-			productReference = D047261619E49F82006002AA /* ReactiveCocoa-iOSTests.xctest */;
+			productReference = D047261619E49F82006002AA /* ReactiveCocoa.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -2783,6 +2783,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2801,6 +2802,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2992,6 +2994,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

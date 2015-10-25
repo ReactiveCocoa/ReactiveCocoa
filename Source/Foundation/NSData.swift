@@ -19,7 +19,7 @@ extension NSData {
                 observer.sendNext(data)
                 observer.sendCompleted()
             } catch {
-                observer.sendError(error as NSError)
+                observer.sendFailed(error as NSError)
             }
         }
     }

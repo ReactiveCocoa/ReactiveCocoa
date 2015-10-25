@@ -36,9 +36,9 @@ extension SignalProducerType {
 
                 group!.sendNext(value)
 
-            }, error: { error in
-                observer.sendError(error)
-                groups.values.forEach { $0.sendError(error) }
+            }, failed: { error in
+                observer.sendFailed(error)
+                groups.values.forEach { $0.sendFailed(error) }
 
             }, completed: { _ in
                 observer.sendCompleted()

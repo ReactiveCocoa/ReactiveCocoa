@@ -48,7 +48,7 @@ final class SignalTests: XCTestCase {
         sink.sendNext(1)
         XCTAssertFalse(completed)
 
-        sink.sendError(.Default)
+        sink.sendFailed(.Default)
         XCTAssertTrue(completed)
     }
 
@@ -65,7 +65,7 @@ final class SignalTests: XCTestCase {
         sink.sendNext(1)
         XCTAssertFalse(interrupted)
 
-        sink.sendError(.Default)
+        sink.sendFailed(.Default)
         XCTAssertTrue(interrupted)
     }
 

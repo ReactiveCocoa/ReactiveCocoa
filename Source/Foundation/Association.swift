@@ -74,7 +74,6 @@ public func associatedObject<T: AnyObject>(host: AnyObject, key: UnsafePointer<(
     if value == nil {
         value = initial()
         objc_setAssociatedObject(host, key, value, .OBJC_ASSOCIATION_RETAIN)
-//        objc_setAssociatedObject(host, key, value, objc_AssociationPolicy())
     }
     return value!
 }

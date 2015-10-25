@@ -18,8 +18,8 @@ extension SignalType {
                 if let val = transform(value) {
                     observer.sendNext(val)
                 }
-            }, error: { error in
-                observer.sendError(error)
+            }, failed: { error in
+                observer.sendFailed(error)
             }, completed: {
                 observer.sendCompleted()
             }, interrupted: {
@@ -38,7 +38,7 @@ extension SignalType {
                 switch event {
                 case let .Next(value):
                     observer.sendNext(value)
-                case .Error:
+                case .Failed:
                     observer.action(replacement)
                 case .Completed:
                     observer.sendCompleted()
@@ -80,8 +80,8 @@ extension SignalType where Value: SequenceType {
                 switch event {
                 case let .Next(sequence):
                     sequence.forEach { observer.sendNext($0) }
-                case let .Error(error):
-                    observer.sendError(error)
+                case let .Failed(error):
+                    observer.sendFailed(error)
                 case .Completed:
                     observer.sendCompleted()
                 case .Interrupted:

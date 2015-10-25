@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D04725F419E49ED7006002AA"
-               BuildableName = "ReactiveCocoa.xctest"
+               BuildableName = "ReactiveCocoaTests.xctest"
                BlueprintName = "ReactiveCocoa-MacTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
@@ -48,7 +48,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D04725F419E49ED7006002AA"
-               BuildableName = "ReactiveCocoa.xctest"
+               BuildableName = "ReactiveCocoaTests.xctest"
                BlueprintName = "ReactiveCocoa-MacTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>

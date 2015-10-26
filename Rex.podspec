@@ -17,8 +17,8 @@ Pod::Spec.new do |s|
 
   s.name         = "Rex"
   s.module_name  = "Rex"
-  s.version      = "0.4.0-swift2"
-  s.summary      = "Additional ReactiveCocoa operators"
+  s.version      = "0.9.0-alpha.3"
+  s.summary      = "ReactiveCocoa Extensions"
 
   s.description  = <<-DESC
                    Extensions for ReactiveCocoa that may not fit in the core framework.
@@ -75,7 +75,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/neilpa/Rex.git", :branch => "swift2", :HEAD }
+  s.source       = { :git => "https://github.com/neilpa/Rex.git", :tag => "0.9.0-alpha.3" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -128,7 +128,7 @@ Pod::Spec.new do |s|
   #  you can include multiple dependencies to ensure it works.
 
   # s.requires_arc = true
-  s.dependency 'ReactiveCocoa', '4.0.2-alpha-1'
+  s.dependency 'ReactiveCocoa', '4.0.0-alpha-3'
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # s.dependency "JSONKit", "~> 1.4"

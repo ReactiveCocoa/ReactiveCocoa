@@ -672,44 +672,7 @@ extension SignalType {
 	}
 }
 
-private final class CombineLatestState<Value> {
-	var latestValue: Value?
-	var completed = false
-}
-
 extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onError: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
-		return self.observe { event in
-			switch event {
-			case let .Next(value):
-				lock.lock()
-
-				signalState.latestValue = value
-				if otherState.latestValue != nil {
-					onBothNext()
-				}
-
-				lock.unlock()
-
-			case let .Error(error):
-				onError(error)
-
-			case .Completed:
-				lock.lock()
-
-				signalState.completed = true
-				if otherState.completed {
-					onBothCompleted()
-				}
-
-				lock.unlock()
-
-			case .Interrupted:
-				onInterrupted()
-			}
-		}
-	}
-
 	/// Combines the latest value of the receiver with the latest value from
 	/// the given signal.
 	///
@@ -717,28 +680,8 @@ extension SignalType {
 	/// at least one value each. If either signal is interrupted, the returned signal
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
-		return Signal { observer in
-			let lock = NSLock()
-			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
-
-			let signalState = CombineLatestState<Value>()
-			let otherState = CombineLatestState<U>()
-			
-			let onBothNext = { () -> () in
-				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
-			}
-			
-			let onError = observer.sendError
-			let onBothCompleted = observer.sendCompleted
-			let onInterrupted = observer.sendInterrupted
-
-			let disposable = CompositeDisposable()
-			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted, onInterrupted)
-			
-			return disposable
-		}
+	public func combineLatestWith<O : SignalType where Error == O.Error>(otherSignal: O) -> Signal<(Value, O.Value), Error> {
+		return combineLatest(self, otherSignal)
 	}
 
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -1309,98 +1252,243 @@ private struct ThrottleState<Value> {
 	var pendingValue: Value? = nil
 }
 
+
+extension SignalType {
+	private final func mapToAny() -> Signal<Any,Error> {
+		return self.map { $0 }
+	}
+}
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Error>(a: A, _ b: B) -> Signal<(A.Value, B.Value), A.Error> {
+	let anySignals: [Signal<Any,A.Error>] = [a.mapToAny(),b.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
+}
+
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
-	return a.combineLatestWith(b)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
+
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny(),
+		h.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny(),
+		h.mapToAny(),
+		i.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
+	
+	let anySignals: [Signal<Any,Error>] =
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny(),
+		 f.mapToAny(),
+		 g.mapToAny(),
+		 h.mapToAny(),
+		 i.mapToAny(),
+		 j.mapToAny()]
+	return combineLatest(anySignals).map { $0.toTuple() }
 }
+
+
+private final class CombineLatestStates<Value> {
+	var latestValues: [Value?]
+	var completions: [Bool]
+	var count: Int
+	
+	var signalsStarted = 0
+	var signalsStopped = 0
+	
+	init(count:Int) {
+		self.count = count
+		self.latestValues = [Value?](count: count,repeatedValue: nil)
+		self.completions = [Bool](count: count,repeatedValue: false)
+	}
+	
+	/// sets the latest value on signal index, and returns a new array of latests values (if there is a value for each signal)
+	func setValueOnSignal(index:Int,v:Value) -> [Value]? {
+		let currentValue = latestValues[index]
+		if (currentValue == nil) {
+			signalsStarted++
+		}
+		latestValues[index] = v
+		
+		if (signalsStarted == count) {
+			return latestValues.map { $0! }
+		}
+		return nil
+	}
+	
+	/// completes a signal and returns true if all the signals have completed.
+	func completeSignal(index:Int) -> Bool {
+		self.completions[index] = true
+		
+		return !self.completions.contains { !$0 }
+		
+	}
+
+}
+
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<S: SequenceType, Value, Error where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<[Value], Error> {
-	var generator = signals.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { signal, next in
-			signal.combineLatestWith(next).map { $0.0 + [$0.1] }
+public func combineLatest<S: SequenceType where S.Generator.Element : SignalType>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
+	return Signal { observer in
+		
+		// some SequenceTypes are destructive when you generate, so we will make sure to do it once.
+		// We also need an count, so convert the sequence to an Array.
+		let arrayOfSignals : [S.Generator.Element] = signals.map { $0 }
+		
+		let states = Atomic(CombineLatestStates<S.Generator.Element.Value>(count: arrayOfSignals.count))
+		
+		let disposable = CompositeDisposable()
+		
+		// since some generators are destructive and we need to get a final count, we need to pass first and build signalStates
+		let count = arrayOfSignals.count
+
+		for (index,signal) in arrayOfSignals.enumerate() {
+			
+			disposable += signal.observe { event in
+				switch event {
+				case let .Next(value):
+					states.withValue {
+						if let latestValues = $0.setValueOnSignal(index, v: value) {
+							observer.sendNext(latestValues)
+						}
+					}
+					
+				case .Completed:
+					let complete = states.withValue { $0.completeSignal(index) }
+					if complete {
+						observer.sendCompleted()
+					}
+					
+				case let .Error(error):
+					observer.sendError(error)
+					
+				case .Interrupted:
+					observer.sendInterrupted()
+				}
+			}
+			
 		}
+		
+		if (count == 0) {
+			observer.sendCompleted()
+		}
+		return disposable
 	}
-	
-	return .never
 }
 
 /// Zips the values of all the given signals, in the manner described by

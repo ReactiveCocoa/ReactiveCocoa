@@ -126,21 +126,38 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		// to run on the queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
 
+		func dispatchPendingEvents() {
+			while true {
+				var toDispatch: (Signal<Value, Error>.Observer, Event<Value, Error>)? = nil
+				state.modify { (var state) in
+					if !state.pendingEvents.isEmpty {
+						toDispatch = state.pendingEvents.removeAtIndex(0)
+					}
+					return state
+				}
+				if let (observer, event) = toDispatch {
+					observer.action(event)
+				} else {
+					return
+				}
+			}
+		}
+
 		let producer = self.init { observer, disposable in
 			var token: RemovalToken?
 
-			let originalState = state.modify { (var state) in
+			state.modify { (var state) in
 				token = state.observers?.insert(observer)
+				for value in state.values {
+					state.addPendingEvent(observer, Event.Next(value))
+				}
+				if let terminationEvent = state.terminationEvent {
+					state.addPendingEvent(observer, terminationEvent)
+				}
 				return state
 			}
 
-			for value in originalState.values {
-				observer.sendNext(value)
-			}
-
-			if let terminationEvent = originalState.terminationEvent {
-				observer.action(terminationEvent)
-			}
+			dispatchPendingEvents()
 
 			if let token = token {
 				disposable.addDisposable {
@@ -153,7 +170,12 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
-			let originalState = state.modify { (var state) in
+			state.modify { (var state) in
+				if let observers = state.observers {
+					for observer in observers {
+						state.addPendingEvent(observer, event)
+					}
+				}
 				if let value = event.value {
 					state.addValue(value, upToCapacity: capacity)
 				} else {
@@ -162,15 +184,10 @@ public struct SignalProducer<Value, Error: ErrorType> {
 					state.terminationEvent = event
 					state.observers = nil
 				}
-
 				return state
 			}
 
-			if let observers = originalState.observers {
-				for observer in observers {
-					observer.action(event)
-				}
-			}
+			dispatchPendingEvents()
 		}
 
 		return (producer, bufferingObserver)
@@ -245,6 +262,8 @@ private struct BufferState<Value, Error: ErrorType> {
 	// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
+	var pendingEvents: [(Signal<Value, Error>.Observer, Event<Value, Error>)] = []
+
 	// Appends a new value to the buffer, trimming it down to the given capacity
 	// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
@@ -254,6 +273,11 @@ private struct BufferState<Value, Error: ErrorType> {
 			values.removeAtIndex(0)
 		}
 	}
+
+	mutating func addPendingEvent(observer: Signal<Value, Error>.Observer, _ event: Event<Value, Error>) {
+		pendingEvents.append((observer, event))
+	}
+
 }
 
 public protocol SignalProducerType {

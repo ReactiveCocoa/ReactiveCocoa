@@ -1425,25 +1425,21 @@ private final class CombineLatestStates<Value> {
 
 }
 
-
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<S: SequenceType where S.Generator.Element : SignalType>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
+public func combineLatest<S: CollectionType where S.Generator.Element : SignalType,
+						  S.Index.Distance == Int>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
 	return Signal { observer in
 		
-		// some SequenceTypes are destructive when you generate, so we will make sure to do it once.
-		// We also need an count, so convert the sequence to an Array.
-		let arrayOfSignals : [S.Generator.Element] = signals.map { $0 }
-		
-		let states = Atomic(CombineLatestStates<S.Generator.Element.Value>(count: arrayOfSignals.count))
+		let states = Atomic(CombineLatestStates<S.Generator.Element.Value>(count: signals.count))
 		
 		let disposable = CompositeDisposable()
 		
 		// since some generators are destructive and we need to get a final count, we need to pass first and build signalStates
-		let count = arrayOfSignals.count
-
-		for (index,signal) in arrayOfSignals.enumerate() {
+		let count = signals.count
+		
+		for (index,signal) in signals.enumerate() {
 			
 			disposable += signal.observe { event in
 				switch event {
@@ -1475,6 +1471,17 @@ public func combineLatest<S: SequenceType where S.Generator.Element : SignalType
 		}
 		return disposable
 	}
+}
+/// Combines the values of all the given signals, in the manner described by
+/// `combineLatestWith`. No events will be sent if the sequence is empty.
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+public func combineLatest<S: SequenceType where S.Generator.Element : SignalType>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
+
+	// some SequenceTypes are destructive when you generate, so we will make sure to do it once.
+	// We also need an count, so convert the sequence to an Array and call the function above
+	let arrayOfSignals : [S.Generator.Element] = signals.map { $0 }
+	
+	return combineLatest(arrayOfSignals)
 }
 
 /// Zips the values of all the given signals, in the manner described by

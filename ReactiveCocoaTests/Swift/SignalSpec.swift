@@ -1291,6 +1291,52 @@ class SignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 		}
+		
+		describe("combineLatest with big stuff") {
+			
+			var signals: [Signal<Int, NoError>]!
+			var observers: [Observer<Int, NoError>]!
+			var scheduler : QueueScheduler!
+			var expectedResult: [Int]!
+			var numberOfSignals : Int!
+
+			var combinedSignal: Signal<[Int], NoError>!
+			var observer: Signal<[Int], NoError>.Observer!
+			
+			beforeEach {
+				numberOfSignals = 1000
+				scheduler = QueueScheduler(queue: dispatch_queue_create("big-time-signal-contention", DISPATCH_QUEUE_SERIAL))
+				
+				signals = []
+				observers = []
+				for _ in 0..<numberOfSignals {
+					let p = Signal<Int, NoError>.pipe()
+					signals.append(p.0)
+					observers.append(p.1)
+				}
+				combinedSignal = combineLatest(signals)
+
+			}
+			
+			it("should get all the data") {
+				var latest: [Int]?
+				combinedSignal.observeNext { latest = $0 }
+				
+				for i in 0..<(numberOfSignals-1) {
+					observers[i].sendNext(i+1)
+				}
+				expect(latest).to(beNil())
+				
+				observers[(numberOfSignals-1)].sendNext(numberOfSignals)
+				
+				// is there a better way to test tuples?
+				expect(latest?.last).to(equal(numberOfSignals))
+
+				observers[0].sendNext(-1)
+				expect(latest?.first).to(equal(-1))
+			}
+			
+		}
 
 		describe("zipWith") {
 			var leftObserver: Signal<Int, NoError>.Observer!

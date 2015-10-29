@@ -838,14 +838,19 @@ class SignalProducerSpec: QuickSpec {
 			
 			var producerArray: [SignalProducer<Int, NoError>]!
 			var scheduler : QueueScheduler!
+			var expectedResult: [Int]!
 
 			beforeEach {
 				scheduler = QueueScheduler(queue: dispatch_queue_create("big-time-contention", DISPATCH_QUEUE_SERIAL))
 
 				producerArray = []
 				for i in 0..<100 {
-					let p = SignalProducer<Int, NoError>(values: [ i, 100+i ]).startOn(scheduler)
+					let p = SignalProducer<Int, NoError>(values: [ i, i, i, 100+i ]).startOn(scheduler)
 					producerArray.append(p)
+				}
+				expectedResult = []
+				for i in 100..<200 {
+					expectedResult.append(i)
 				}
 			}
 			
@@ -853,10 +858,8 @@ class SignalProducerSpec: QuickSpec {
 				let producer = combineLatest(producerArray)
 				let result = producer.collect().single()
 				
-				NSLog("\(result)")
 				
-				
-				// it's almost impossible to verify this data, but we shouldn't crash!
+				expect(result?.value?.last).to(equal(expectedResult))
 			}
 		}
 

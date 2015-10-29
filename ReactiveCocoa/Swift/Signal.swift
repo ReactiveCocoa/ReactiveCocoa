@@ -1258,11 +1258,6 @@ extension SignalType {
 		return self.map { $0 }
 	}
 }
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Error>(a: A, _ b: B) -> Signal<(A.Value, B.Value), A.Error> {
-	let anySignals: [Signal<Any,A.Error>] = [a.mapToAny(),b.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
-}
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
@@ -1270,8 +1265,8 @@ public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Erro
 public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1281,9 +1276,9 @@ public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error
 public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1293,10 +1288,10 @@ public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Er
 public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny()]
+		[a.mapToAny(),
+	 	 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1307,11 +1302,11 @@ public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B,
 public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1321,12 +1316,12 @@ public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal
 public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny(),
+		 f.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1336,13 +1331,13 @@ public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Sig
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny(),
+		 f.mapToAny(),
+		 g.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1352,14 +1347,14 @@ public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: 
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny(),
-		h.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny(),
+		 f.mapToAny(),
+		 g.mapToAny(),
+		 h.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1369,15 +1364,15 @@ public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ 
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
 	
 	let anySignals: [Signal<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny(),
-		h.mapToAny(),
-		i.mapToAny()]
+		[a.mapToAny(),
+		 b.mapToAny(),
+		 c.mapToAny(),
+		 d.mapToAny(),
+		 e.mapToAny(),
+		 f.mapToAny(),
+		 g.mapToAny(),
+		 h.mapToAny(),
+		 i.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 

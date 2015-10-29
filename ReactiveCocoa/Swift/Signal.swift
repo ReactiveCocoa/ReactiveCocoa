@@ -1258,15 +1258,9 @@ extension SignalType {
 		return self.map { $0 }
 	}
 }
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
-	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny()]
+public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Error>(a: A, _ b: B) -> Signal<(A.Value, B.Value), A.Error> {
+	let anySignals: [Signal<Any,A.Error>] = [a.mapToAny(),b.mapToAny()]
 	return combineLatest(anySignals).map { $0.toTuple() }
 }
 
@@ -1399,13 +1393,9 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Erro
 private final class CombineLatestStates<Value> {
 	var latestValues: [Value?]
 	var completions: [Bool]
-	var count: Int
-	
 	var signalsStarted = 0
-	var signalsStopped = 0
 	
 	init(count:Int) {
-		self.count = count
 		self.latestValues = [Value?](count: count,repeatedValue: nil)
 		self.completions = [Bool](count: count,repeatedValue: false)
 	}
@@ -1418,7 +1408,7 @@ private final class CombineLatestStates<Value> {
 		}
 		latestValues[index] = v
 		
-		if (signalsStarted == count) {
+		if (signalsStarted == latestValues.count) {
 			return latestValues.map { $0! }
 		}
 		return nil
@@ -1428,6 +1418,7 @@ private final class CombineLatestStates<Value> {
 	func completeSignal(index:Int) -> Bool {
 		self.completions[index] = true
 		
+		// we could count completions like we do starts, but it's a little safer to verify the whole list before we complete.
 		return !self.completions.contains { !$0 }
 		
 	}

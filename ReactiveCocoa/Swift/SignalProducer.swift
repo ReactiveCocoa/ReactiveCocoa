@@ -812,100 +812,171 @@ extension SignalProducerType {
 			}
 		}
 	}
+	
+	private func mapToAny() -> SignalProducer<Any,Error> {
+		return self.map	{ $0 }
+	}
+
 }
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	return a.combineLatestWith(b)
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	   [a.mapToAny(),
+		b.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+
+// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
-
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny(),
+		h.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny(),
+		h.mapToAny(),
+		i.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
 
-/// Combines the values of all the given producers, in the manner described by
+/// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
+@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
+	
+	let anySignalProducers: [SignalProducer<Any,Error>] =
+	[a.mapToAny(),
+		b.mapToAny(),
+		c.mapToAny(),
+		d.mapToAny(),
+		e.mapToAny(),
+		f.mapToAny(),
+		g.mapToAny(),
+		h.mapToAny(),
+		i.mapToAny(),
+		j.mapToAny()]
+	return combineLatest(anySignalProducers).map { $0.toTuple() }
 }
-
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func combineLatest<S: SequenceType, Value, Error where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
-	var generator = producers.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { producer, next in
-			producer.combineLatestWith(next).map { $0.0 + [$0.1] }
+	
+	return SignalProducer { observer, outerDisposable in
+		
+		// let's make a set of proxy Signals that will actually be combined.
+		// Since producers can return a completed signal instantly, we need to call combineLatest on a set of proxy signals
+		// create an array of Tuples that map a producer to a new Signal/Observer pair.
+		let psoTuples = producers.map { producer -> (SignalProducer<Value,Error>,Signal<Value,Error>,Observer<Value,Error>)in
+			let (signal,observer) = Signal<Value,Error>.pipe()
+			return (producer,signal,observer)
+		}
+		let signals = psoTuples.map { $0.1 }  // extract all the Signals and combineThen!
+		outerDisposable += combineLatest(signals).observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why are we calling reverse()?  cause the old logic would actually execute the producer startWithSignal() in reverse array order.
+		// This keeps expected behavior the same as earlier logic, but the side effects are minor if we remove reverse()
+		for (producer,_,observer) in psoTuples.reverse() {
+			producer.startWithSignal { producersignal, innerDisposable in
+				producersignal.observe(observer)
+				outerDisposable += innerDisposable
+			}
 		}
 	}
-	
-	return .empty
 }
 
 /// Zips the values of all the given producers, in the manner described by

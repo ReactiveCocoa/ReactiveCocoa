@@ -834,6 +834,32 @@ class SignalProducerSpec: QuickSpec {
 				expect(result?.value).to(equal([[1, 3], [2, 4]]))
 			}
 		}
+		describe("combineLatest of a 100 producers on a background thread") {
+			
+			var producerArray: [SignalProducer<Int, NoError>]!
+			var scheduler : QueueScheduler!
+
+			beforeEach {
+				scheduler = QueueScheduler(queue: dispatch_queue_create("big-time-contention", DISPATCH_QUEUE_SERIAL))
+
+				producerArray = []
+				for i in 0..<100 {
+					let p = SignalProducer<Int, NoError>(values: [ i, 100+i ]).startOn(scheduler)
+					producerArray.append(p)
+				}
+			}
+			
+			it("should not crash and burn") {
+				let producer = combineLatest(producerArray)
+				let result = producer.collect().single()
+				
+				NSLog("\(result)")
+				
+				
+				// it's almost impossible to verify this data, but we shouldn't crash!
+			}
+		}
+
 
 		describe("timer") {
 			it("should send the current date at the given interval") {

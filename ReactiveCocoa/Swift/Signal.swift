@@ -1550,9 +1550,7 @@ public func combineLatest<S: CollectionType where S.Generator.Element : SignalTy
 						  S.Index.Distance == Int>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
 	return Signal { observer in
 		
-		typealias Value = S.Generator.Element.Value
-		typealias Error = S.Generator.Element.Error
-		let collector = ArrayCollector<Value>(count: signals.count)
+		let collector = ArrayCollector<S.Generator.Element.Value>(count: signals.count)
 		let states = Atomic(CombineLatestStates(collector))
 		let disposable = CompositeDisposable()
 		

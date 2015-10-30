@@ -46,6 +46,21 @@ Partitions values from `producer` into new producer groups based on the key retu
 func groupBy<K: Hashable>(grouping: T -> K) -> SignalProducer<(K, SignalProducer<T, E>), E>
 ```
 
+## UIKit Extensions
+
+##### `UIButton.rex_pressed`
+
+Flexible way to bind `CocoaAction` to the press of button. In addition the button will be disabled during the `Action` executing. Such behavior is convenient for tasks that require some time, like a download process in the example below.
+
+```swift
+let downloadAction = Action<UIButton, NSData, NSError> { _ in
+    let url = NSURL(string: "https://github.com/neilpa/Rex/archive/master.zip")
+    let request = NSURLRequest(URL: url!)
+    return NSURLSession.sharedSession().rac_dataWithRequest(request).map { $0.0 }
+}
+
+downloadButton.rex_pressed.value = downloadAction.unsafeCocoaAction
+```
 
 ## License
 Rex is released under the [MIT license](LICENSE)

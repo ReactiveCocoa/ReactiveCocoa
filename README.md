@@ -70,23 +70,16 @@ func propertySink<S: SinkType>(sink: S)(producer: SignalProducer<S.Element, NoEr
 
 ##### `UIButton.rex_pressed`
 
-Flexible way to bind CocoaAction to the press of button. 
+Flexible way to bind `CocoaAction` to the press of button. In addition the button will be disabled during the `Action` executing. Such behavior is convenient for tasks that require some time, like a download process in the example below.
 
 ```swift
-let downloadAction: Action<Void, NSData, NoError> = Action { _ in
-            return SignalProducer { observer, disposable in
-                if let zipURL = NSURL(string: "https://github.com/neilpa/Rex/archive/master.zip") {
-                    if let zipData = NSData(contentsOfURL: zipURL) {
-                        observer.sendNext(zipData)
-                        observer.sendCompleted()
-                    }
-                }
-            }
-        }
-        
-let downloadCocoaAction = CocoaAction(downloadAction, input: ())
-let cocoaActionProducer: SignalProducer<CocoaAction, NoError> = SignalProducer<CocoaAction, NoError>(value: downloadCocoaAction)
-startDownloadButton.rex_pressed <~ cocoaActionProducer
+let downloadAction = Action<UIButton, NSData, NSError> { _ in
+    let url = NSURL(string: "https://github.com/neilpa/Rex/archive/master.zip")
+    let request = NSURLRequest(URL: url!)
+    return NSURLSession.sharedSession().rac_dataWithRequest(request).map { $0.0 }
+}
+
+downloadButton.rex_pressed.value = downloadAction.unsafeCocoaAction
 ```
 
 ## License

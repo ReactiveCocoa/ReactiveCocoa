@@ -1540,9 +1540,6 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Erro
 	}
 }
 
-
-
-
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -1563,6 +1560,7 @@ public func combineLatest<S: CollectionType where S.Generator.Element : SignalTy
 		return disposable
 	}
 }
+
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")

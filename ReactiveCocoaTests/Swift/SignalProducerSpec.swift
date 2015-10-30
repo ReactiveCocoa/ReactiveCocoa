@@ -858,7 +858,6 @@ class SignalProducerSpec: QuickSpec {
 				let producer = combineLatest(producerArray)
 				let result = producer.collect().single()
 				
-				
 				expect(result?.value?.last).to(equal(expectedResult))
 			}
 		}

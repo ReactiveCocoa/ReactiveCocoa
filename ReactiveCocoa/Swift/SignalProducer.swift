@@ -823,10 +823,19 @@ extension SignalProducerType {
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	   [a.mapToAny(),
-		b.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 
@@ -834,11 +843,21 @@ public func combineLatest<A, B, Error>(a: SignalProducer<A, Error>, _ b: SignalP
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -846,12 +865,23 @@ public func combineLatest<A, B, C, Error>(a: SignalProducer<A, Error>, _ b: Sign
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -859,13 +889,25 @@ public func combineLatest<A, B, C, D, Error>(a: SignalProducer<A, Error>, _ b: S
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -873,29 +915,56 @@ public func combineLatest<A, B, C, D, E, Error>(a: SignalProducer<A, Error>, _ b
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		let (signal_f,observer_f) = Signal<F,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e,signal_f)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += f.start(observer_f)
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		let (signal_f,observer_f) = Signal<F,Error>.pipe()
+		let (signal_g,observer_g) = Signal<G,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e,signal_f,signal_g)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += g.start(observer_g)
+		disposable += f.start(observer_f)
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -903,16 +972,31 @@ public func combineLatest<A, B, C, D, E, F, G, Error>(a: SignalProducer<A, Error
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny(),
-		h.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		let (signal_f,observer_f) = Signal<F,Error>.pipe()
+		let (signal_g,observer_g) = Signal<G,Error>.pipe()
+		let (signal_h,observer_h) = Signal<H,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e,signal_f,signal_g,signal_h)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += h.start(observer_h)
+		disposable += g.start(observer_g)
+		disposable += f.start(observer_f)
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -920,17 +1004,33 @@ public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: SignalProducer<A, Er
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny(),
-		h.mapToAny(),
-		i.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+		
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		let (signal_f,observer_f) = Signal<F,Error>.pipe()
+		let (signal_g,observer_g) = Signal<G,Error>.pipe()
+		let (signal_h,observer_h) = Signal<H,Error>.pipe()
+		let (signal_i,observer_i) = Signal<I,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e,signal_f,signal_g,signal_h,signal_i)
+		
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += i.start(observer_i)
+		disposable += h.start(observer_h)
+		disposable += g.start(observer_g)
+		disposable += f.start(observer_f)
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -938,25 +1038,43 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: SignalProducer<A,
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
 	
-	let anySignalProducers: [SignalProducer<Any,Error>] =
-	[a.mapToAny(),
-		b.mapToAny(),
-		c.mapToAny(),
-		d.mapToAny(),
-		e.mapToAny(),
-		f.mapToAny(),
-		g.mapToAny(),
-		h.mapToAny(),
-		i.mapToAny(),
-		j.mapToAny()]
-	return combineLatest(anySignalProducers).map { $0.toTuple() }
+	return SignalProducer { observer, disposable in
+
+		let (signal_a,observer_a) = Signal<A,Error>.pipe()
+		let (signal_b,observer_b) = Signal<B,Error>.pipe()
+		let (signal_c,observer_c) = Signal<C,Error>.pipe()
+		let (signal_d,observer_d) = Signal<D,Error>.pipe()
+		let (signal_e,observer_e) = Signal<E,Error>.pipe()
+		let (signal_f,observer_f) = Signal<F,Error>.pipe()
+		let (signal_g,observer_g) = Signal<G,Error>.pipe()
+		let (signal_h,observer_h) = Signal<H,Error>.pipe()
+		let (signal_i,observer_i) = Signal<I,Error>.pipe()
+		let (signal_j,observer_j) = Signal<J,Error>.pipe()
+		
+		let combined = combineLatest(signal_a,signal_b,signal_c,signal_d,signal_e,signal_f,signal_g,signal_h,signal_i,signal_j)
+
+		disposable += combined.observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+
+		
+		// why start backwards?  cause the old logic started them in this order.
+		disposable += j.start(observer_j)
+		disposable += i.start(observer_i)
+		disposable += h.start(observer_h)
+		disposable += g.start(observer_g)
+		disposable += f.start(observer_f)
+		disposable += e.start(observer_e)
+		disposable += d.start(observer_d)
+		disposable += c.start(observer_c)
+		disposable += b.start(observer_b)
+		disposable += a.start(observer_a)
+	}
 }
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func combineLatest<S: SequenceType, Value, Error where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
 	
-	return SignalProducer { observer, outerDisposable in
+	return SignalProducer { observer, disposable in
 		
 		// let's make a set of proxy Signals that will actually be combined.
 		// Since producers can return a completed signal instantly, we need to call combineLatest on a set of proxy signals
@@ -966,15 +1084,12 @@ public func combineLatest<S: SequenceType, Value, Error where S.Generator.Elemen
 			return (producer,signal,observer)
 		}
 		let signals = psoTuples.map { $0.1 }  // extract all the Signals and combineThen!
-		outerDisposable += combineLatest(signals).observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
+		disposable += combineLatest(signals).observe(observer) // we must bind the proxy signals first, cause some producer signals will complete instantly on start.
 		
 		// why are we calling reverse()?  cause the old logic would actually execute the producer startWithSignal() in reverse array order.
 		// This keeps expected behavior the same as earlier logic, but the side effects are minor if we remove reverse()
-		for (producer,_,observer) in psoTuples.reverse() {
-			producer.startWithSignal { producersignal, innerDisposable in
-				producersignal.observe(observer)
-				outerDisposable += innerDisposable
-			}
+		for (producer,_,innerobserver) in psoTuples.reverse() {
+			disposable += producer.start(innerobserver)
 		}
 	}
 }

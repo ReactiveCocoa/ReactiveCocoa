@@ -1292,20 +1292,16 @@ class SignalSpec: QuickSpec {
 			}
 		}
 		
-		describe("combineLatest with big stuff") {
+		describe("combineLatest with 100 Signals") {
 			
 			var signals: [Signal<Int, NoError>]!
 			var observers: [Observer<Int, NoError>]!
-			var scheduler : QueueScheduler!
-			var expectedResult: [Int]!
 			var numberOfSignals : Int!
 
 			var combinedSignal: Signal<[Int], NoError>!
-			var observer: Signal<[Int], NoError>.Observer!
 			
 			beforeEach {
-				numberOfSignals = 1000
-				scheduler = QueueScheduler(queue: dispatch_queue_create("big-time-signal-contention", DISPATCH_QUEUE_SERIAL))
+				numberOfSignals = 100
 				
 				signals = []
 				observers = []

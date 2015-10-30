@@ -680,7 +680,7 @@ extension SignalType {
 	/// at least one value each. If either signal is interrupted, the returned signal
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func combineLatestWith<O : SignalType where Error == O.Error>(otherSignal: O) -> Signal<(Value, O.Value), Error> {
+	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return combineLatest(self, otherSignal)
 	}
 
@@ -1252,16 +1252,103 @@ private struct ThrottleState<Value> {
 	var pendingValue: Value? = nil
 }
 
-
 extension SignalType {
-	private final func mapToAny() -> Signal<Any,Error> {
-		return self.map { $0 }
+	
+	/// observer this signal and forward any change to an Atomically wrapped CombineLatestStates object.
+	/// CombineLatestStates.observerForIndex will create a type safe version dependeing on the Value type of this SignalType
+	/// this signal will update a specific index Collector using a Type specific set operation
+	private func observeForCombineLatest<Collector:IndexedCollectorType>(values:Atomic<CombineLatestStates<Collector>>, index:Int,observer:Signal<Collector.Value, Error>.Observer) -> Disposable? {
+		
+		// let's make a SignalType specific observer that will forward to a combineLatest observer when needed
+		// this oberver will be based on Value, and the Collector's setValueAtIndex will be generated in a type safe manner
+		let innerObserver: Observer<Value,Error> = values.value.observerForIndex(index, observer: observer)
+		
+		return self.observe { e in
+			values.withValue { _ in  // let's observer the event with the type safe lock on.
+				innerObserver.action(e)
+			}
+		}
 	}
+	
 }
+
+// manage a CombineLatestStatesProtocol for Tuples, using the TupleValueType protocol
+private final class CombineLatestStates<Collector:IndexedCollectorType>  {
+	
+	typealias Value = Collector.Value
+	
+	var collector: Collector
+	
+	var completions: [Bool]
+	var signalsStarted = 0
+	
+	init(_ collector: Collector) {
+		self.collector = collector
+		self.completions = [Bool](count: self.collector.count,repeatedValue: false)
+	}
+	
+	// this is generic so it will become type-specific any given value T.
+	// it will call the type specific-generic function setValueAtIndex
+	final func onNext<T,Error>(index:Int,value:T,observer:Signal<Value, Error>.Observer) {
+		
+		let isAStart = collector.setValueAtIndex(index,value: value)
+		if (isAStart) {
+			signalsStarted++
+		}
+		if (signalsStarted == collector.count) {
+			observer.sendNext(collector.toValue())
+		}
+	}
+	
+	final func onComplete<Error>(index:Int,observer:Signal<Value,Error>.Observer) {
+		completions[index] = true
+		
+		// we could count completions like we do starts, but it's a little safer to verify the whole list before we complete.
+		let sendComplete = !completions.contains { !$0 }
+		
+		if (sendComplete) {
+			observer.sendCompleted()
+		}
+	}
+	
+	// this is generic so it will become type-specific any given value T.
+	// it will call the type specific-generic function setValueAtIndex on the supplied collector
+	final func observerForIndex<T,Error>(index:Int,observer:Signal<Value, Error>.Observer) -> Observer<T,Error> {
+		
+		return Observer<T,Error> { event in
+			switch event {
+			case let .Next(value):
+				self.onNext(index,value: value,observer: observer)
+				
+			case .Completed:
+				self.onComplete(index, observer: observer)
+				
+			case let .Error(err):
+				observer.sendError(err)
+				
+			case .Interrupted:
+				observer.sendInterrupted()
+			}
+		}
+	}
+	
+	
+}
+
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Error>(a: A, _ b: B) -> Signal<(A.Value, B.Value), A.Error> {
-	let anySignals: [Signal<Any,A.Error>] = [a.mapToAny(),b.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	
+	let collector = TupleCollector2<A.Value,B.Value>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1269,11 +1356,19 @@ public func combineLatest<A : SignalType, B : SignalType where A.Error == B.Erro
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector3<A,B,C>()
+	let states = Atomic(CombineLatestStates(collector))
+
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+	
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1281,27 +1376,42 @@ public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Er
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-	 	 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
-}
+	let collector = TupleCollector4<A,B,C,D>()
+	let states = Atomic(CombineLatestStates(collector))
 
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		
+		return disposable
+	}
+}
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector5<A,B,C,D,E>()
+	let states = Atomic(CombineLatestStates(collector))
+
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1309,14 +1419,22 @@ public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny(),
-		 f.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector6<A,B,C,D,E,F>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		disposable += f.observeForCombineLatest(states, index: 5, observer: observer)
+		
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1324,15 +1442,23 @@ public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Sig
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny(),
-		 f.mapToAny(),
-		 g.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector7<A,B,C,D,E,F,G>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		disposable += f.observeForCombineLatest(states, index: 5, observer: observer)
+		disposable += g.observeForCombineLatest(states, index: 6, observer: observer)
+
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1340,34 +1466,51 @@ public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: 
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny(),
-		 f.mapToAny(),
-		 g.mapToAny(),
-		 h.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector8<A,B,C,D,E,F,G,H>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		disposable += f.observeForCombineLatest(states, index: 5, observer: observer)
+		disposable += g.observeForCombineLatest(states, index: 6, observer: observer)
+		disposable += h.observeForCombineLatest(states, index: 7, observer: observer)
+		
+		return disposable
+	}
 }
+
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny(),
-		 f.mapToAny(),
-		 g.mapToAny(),
-		 h.mapToAny(),
-		 i.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector9<A,B,C,D,E,F,G,H,I>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		disposable += f.observeForCombineLatest(states, index: 5, observer: observer)
+		disposable += g.observeForCombineLatest(states, index: 6, observer: observer)
+		disposable += h.observeForCombineLatest(states, index: 7, observer: observer)
+		disposable += i.observeForCombineLatest(states, index: 8, observer: observer)
+		
+		return disposable
+	}
 }
 
 /// Combines the values of all the given signals, in the manner described by
@@ -1375,55 +1518,30 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>,
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
 	
-	let anySignals: [Signal<Any,Error>] =
-		[a.mapToAny(),
-		 b.mapToAny(),
-		 c.mapToAny(),
-		 d.mapToAny(),
-		 e.mapToAny(),
-		 f.mapToAny(),
-		 g.mapToAny(),
-		 h.mapToAny(),
-		 i.mapToAny(),
-		 j.mapToAny()]
-	return combineLatest(anySignals).map { $0.toTuple() }
+	let collector = TupleCollector10<A,B,C,D,E,F,G,H,I,J>()
+	let states = Atomic(CombineLatestStates(collector))
+	
+	return Signal{ observer in
+		
+		let disposable = CompositeDisposable()
+		
+		disposable += a.observeForCombineLatest(states, index: 0, observer: observer)
+		disposable += b.observeForCombineLatest(states, index: 1, observer: observer)
+		disposable += c.observeForCombineLatest(states, index: 2, observer: observer)
+		disposable += d.observeForCombineLatest(states, index: 3, observer: observer)
+		disposable += e.observeForCombineLatest(states, index: 4, observer: observer)
+		disposable += f.observeForCombineLatest(states, index: 5, observer: observer)
+		disposable += g.observeForCombineLatest(states, index: 6, observer: observer)
+		disposable += h.observeForCombineLatest(states, index: 7, observer: observer)
+		disposable += i.observeForCombineLatest(states, index: 8, observer: observer)
+		disposable += j.observeForCombineLatest(states, index: 9, observer: observer)
+		
+		return disposable
+	}
 }
 
 
-private final class CombineLatestStates<Value> {
-	var latestValues: [Value?]
-	var completions: [Bool]
-	var signalsStarted = 0
-	
-	init(count:Int) {
-		self.latestValues = [Value?](count: count,repeatedValue: nil)
-		self.completions = [Bool](count: count,repeatedValue: false)
-	}
-	
-	/// sets the latest value on signal index, and returns a new array of latests values (if there is a value for each signal)
-	func setValueOnSignal(index:Int,v:Value) -> [Value]? {
-		let currentValue = latestValues[index]
-		if (currentValue == nil) {
-			signalsStarted++
-		}
-		latestValues[index] = v
-		
-		if (signalsStarted == latestValues.count) {
-			return latestValues.map { $0! }
-		}
-		return nil
-	}
-	
-	/// completes a signal and returns true if all the signals have completed.
-	func completeSignal(index:Int) -> Bool {
-		self.completions[index] = true
-		
-		// we could count completions like we do starts, but it's a little safer to verify the whole list before we complete.
-		return !self.completions.contains { !$0 }
-		
-	}
 
-}
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
@@ -1432,41 +1550,16 @@ public func combineLatest<S: CollectionType where S.Generator.Element : SignalTy
 						  S.Index.Distance == Int>(signals: S) -> Signal<[S.Generator.Element.Value], S.Generator.Element.Error> {
 	return Signal { observer in
 		
-		let states = Atomic(CombineLatestStates<S.Generator.Element.Value>(count: signals.count))
-		
+		typealias Value = S.Generator.Element.Value
+		typealias Error = S.Generator.Element.Error
+		let collector = ArrayCollector<Value>(count: signals.count)
+		let states = Atomic(CombineLatestStates(collector))
 		let disposable = CompositeDisposable()
 		
-		// since some generators are destructive and we need to get a final count, we need to pass first and build signalStates
-		let count = signals.count
-		
 		for (index,signal) in signals.enumerate() {
-			
-			disposable += signal.observe { event in
-				switch event {
-				case let .Next(value):
-					states.withValue {
-						if let latestValues = $0.setValueOnSignal(index, v: value) {
-							observer.sendNext(latestValues)
-						}
-					}
-					
-				case .Completed:
-					let complete = states.withValue { $0.completeSignal(index) }
-					if complete {
-						observer.sendCompleted()
-					}
-					
-				case let .Error(error):
-					observer.sendError(error)
-					
-				case .Interrupted:
-					observer.sendInterrupted()
-				}
-			}
-			
+			disposable += signal.observeForCombineLatest(states,index: index,observer: observer)
 		}
-		
-		if (count == 0) {
+		if (signals.count == 0) {
 			observer.sendCompleted()
 		}
 		return disposable

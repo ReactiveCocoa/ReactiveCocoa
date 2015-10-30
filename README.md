@@ -66,6 +66,28 @@ func propertySink<S: SinkType>(sink: S)(signal: Signal<S.Element, NoError>) -> P
 func propertySink<S: SinkType>(sink: S)(producer: SignalProducer<S.Element, NoError>) -> PropertyOf<S>
 ```
 
+## UIKit Extensions
+
+##### `UIButton.rex_pressed`
+
+Flexible way to bind CocoaAction to the press of button. 
+
+```swift
+let downloadAction: Action<Void, NSData, NoError> = Action { _ in
+            return SignalProducer { observer, disposable in
+                if let zipURL = NSURL(string: "https://github.com/neilpa/Rex/archive/master.zip") {
+                    if let zipData = NSData(contentsOfURL: zipURL) {
+                        observer.sendNext(zipData)
+                        observer.sendCompleted()
+                    }
+                }
+            }
+        }
+        
+let downloadCocoaAction = CocoaAction(downloadAction, input: ())
+let cocoaActionProducer: SignalProducer<CocoaAction, NoError> = SignalProducer<CocoaAction, NoError>(value: downloadCocoaAction)
+startDownloadButton.rex_pressed <~ cocoaActionProducer
+```
 
 ## License
 Rex is released under the [MIT license](LICENSE)

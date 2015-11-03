@@ -1063,30 +1063,7 @@ extension SignalProducerType {
 	/// that starts in its place.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMapError<F>(handler: Error -> SignalProducer<Value, F>) -> SignalProducer<Value, F> {
-		return SignalProducer { observer, disposable in
-			let serialDisposable = SerialDisposable()
-			disposable.addDisposable(serialDisposable)
-
-			self.startWithSignal { signal, signalDisposable in
-				serialDisposable.innerDisposable = signalDisposable
-
-				signal.observe { event in
-					switch event {
-					case let .Next(value):
-						observer.sendNext(value)
-					case let .Failed(error):
-						handler(error).startWithSignal { signal, signalDisposable in
-							serialDisposable.innerDisposable = signalDisposable
-							signal.observe(observer)
-						}
-					case .Completed:
-						observer.sendCompleted()
-					case .Interrupted:
-						observer.sendInterrupted()
-					}
-				}
-			}
-		}
+		return self.lift { $0.flatMapError(handler) }
 	}
 
 	/// `concat`s `next` onto `self`.

@@ -229,6 +229,33 @@ extension SignalType {
 		}
 	}
 
+	/// Catches any failure that may occur on the input signal, mapping to a new producer
+	/// that starts in its place.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMapError<F>(handler: Error -> SignalProducer<Value, F>) -> Signal<Value, F> {
+		return Signal { observer in
+			let serialDisposable = SerialDisposable()
+
+			serialDisposable.innerDisposable = self.observe { event in
+				switch event {
+				case let .Next(value):
+					observer.sendNext(value)
+				case let .Failed(error):
+					handler(error).startWithSignal { signal, signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+						signal.observe(observer)
+					}
+				case .Completed:
+					observer.sendCompleted()
+				case .Interrupted:
+					observer.sendInterrupted()
+				}
+			}
+
+			return serialDisposable
+		}
+	}
+
 	/// Preserves only the values of the signal that pass the given predicate.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {

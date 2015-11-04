@@ -26,4 +26,20 @@ class UILabelTests: XCTestCase {
         label.rex_text <~ SignalProducer(value: "Test")
         XCTAssert(_label?.text == "Test")
     }
+    
+    func testTextProperty() {
+        let firstChange = "first"
+        let secondChange = "second"
+        
+        let label = UILabel(frame: CGRectZero)
+        label.text = ""
+        
+        let (pipeSignal, observer) = Signal<String, NoError>.pipe()
+        label.rex_text <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(firstChange)
+        XCTAssert(label.text == firstChange, "UILabel.rex_text change #1 failed")
+        observer.sendNext(secondChange)
+        XCTAssert(label.text == secondChange, "UILabel.rex_text change #2 failed")
+    }
 }

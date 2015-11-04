@@ -28,5 +28,17 @@ class UIBarButtonItemTests: XCTestCase {
         }
         barButtonItem.rex_action <~ SignalProducer(value: CocoaAction(action, input: ()))
      }
+    
+    func testEnabledProperty() {
+        let barButtonItem = UIBarButtonItem()
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
+        barButtonItem.enabled = true
+        
+        observer.sendNext(false)
+        XCTAssert(barButtonItem.enabled == false, "#1 change of the enabled state failed [UIBarButtonItem]")
+        observer.sendNext(true)
+        XCTAssert(barButtonItem.enabled == true, "#2 change of the enabled state failed [UIBarButtonItem]")
+    }
 
 }

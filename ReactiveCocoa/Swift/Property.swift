@@ -156,7 +156,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
 				// Errors aren't possible, but the compiler doesn't know that.
 				.flatMapError { error in
-					assert(false, "Received unexpected error from KVO signal: \(error)")
+					fatalError("Received unexpected error from KVO signal: \(error)")
 					return .empty
 				}
 		} else {

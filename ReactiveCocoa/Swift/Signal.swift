@@ -388,6 +388,30 @@ extension SignalType {
 	}
 }
 
+extension SignalType where Error == NoError {
+	/// Maps each event from `signal` to a new producer, then flattens the
+	/// resulting producers (into a signal of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `signal` or any of the created producers fail, the returned signal
+	/// will forward that failure immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMap<NewValue, NewError>(strategy: FlattenStrategy, transform: Value -> SignalProducer<NewValue, NewError>) -> Signal<NewValue, NewError> {
+		return map(transform).flatten(strategy)
+	}
+
+	/// Maps each event from `signal` to a new signal, then flattens the
+	/// resulting signals (into a signal of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `signal` or any of the created signals emit an error, the returned
+	/// signal will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMap<NewValue, NewError>(strategy: FlattenStrategy, transform: Value -> Signal<NewValue, NewError>) -> Signal<NewValue, NewError> {
+		return map(transform).flatten(strategy)
+	}
+}
+
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Returns a signal which sends all the values from producer signal emitted from
 	/// `signal`, waiting until each inner producer completes before beginning to

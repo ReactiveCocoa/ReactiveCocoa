@@ -1106,6 +1106,30 @@ extension SignalProducerType {
 	}
 }
 
+extension SignalProducerType where Error == NoError {
+	/// Maps each event from `producer` to a new producer, then flattens the
+	/// resulting producers (into a single producer of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `producer` or any of the created producers fail, the returned
+	/// producer will forward that failure immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMap<NewValue, NewError>(strategy: FlattenStrategy, transform: Value -> SignalProducer<NewValue, NewError>) -> SignalProducer<NewValue, NewError> {
+		return map(transform).flatten(strategy)
+	}
+
+	/// Maps each event from `producer` to a new signal, then flattens the
+	/// resulting signals (into a single producer of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `producer` or any of the created signals emit an error, the returned
+	/// producer will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatMap<NewValue, NewError>(strategy: FlattenStrategy, transform: Value -> Signal<NewValue, NewError>) -> SignalProducer<NewValue, NewError> {
+		return map(transform).flatten(strategy)
+	}
+}
+
 extension SignalProducerType {
 	/// Repeats `self` a total of `count` times. Repeating `1` times results in
 	/// an equivalent signal producer.

@@ -1020,6 +1020,23 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	}
 }
 
+extension SignalProducerType where Value: SignalProducerType, Error == NoError {
+	/// Flattens the inner producers sent upon `producer` (into a single producer of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `producer` or an active inner producer fails, the returned
+	/// producer will forward that failure immediately.
+	///
+	/// `Interrupted` events on inner producers will be treated like `Completed`
+	/// events on inner producers.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
+		return self.lift { (signal: Signal<Value, Error>) -> Signal<Value.Value, Value.Error> in
+			return signal.flatten(strategy)
+		}
+	}
+}
+
 extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	/// Flattens the inner signals sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
@@ -1035,6 +1052,22 @@ extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	}
 }
 
+extension SignalProducerType where Value: SignalType, Error == NoError {
+	/// Flattens the inner signals sent upon `producer` (into a single producer of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `producer` or an active inner signal emits an error, the returned
+	/// producer will forward that error immediately.
+	///
+	/// `Interrupted` events on inner signals will be treated like `Completed`
+	/// events on inner signals.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
+		return self.lift { (signal: Signal<Value, Error>) -> Signal<Value.Value, Value.Error> in
+			return signal.flatten(strategy)
+		}
+	}
+}
 
 extension SignalProducerType {
 	/// Maps each event from `producer` to a new producer, then flattens the

@@ -89,7 +89,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			describe("on a Signal") {
 				it("should forward events") {
 					let (signal, observer) = Signal<NSNumber, NoError>.pipe()
-					let racSignal = toRACSignal(signal)
+					let racSignal = signal.toRACSignal()
 
 					var lastValue: NSNumber?
 					var didComplete = false
@@ -114,7 +114,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				it("should convert errors to NSError") {
 					let (signal, observer) = Signal<AnyObject, TestError>.pipe()
-					let racSignal = toRACSignal(signal)
+					let racSignal = signal.toRACSignal()
 
 					let expectedError = TestError.Error2
 					var error: NSError?
@@ -130,7 +130,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				
 				it("should maintain userInfo on NSError") {
 					let (signal, observer) = Signal<AnyObject, NSError>.pipe()
-					let racSignal = toRACSignal(signal)
+					let racSignal = signal.toRACSignal()
 					
 					var error: NSError?
 					
@@ -153,7 +153,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let producer = SignalProducer<NSNumber, NoError>.attempt {
 						return .Success(subscriptions++)
 					}
-					let racSignal = toRACSignal(producer)
+					let racSignal = producer.toRACSignal()
 
 					expect(racSignal.first() as? NSNumber).to(equal(0))
 					expect(racSignal.first() as? NSNumber).to(equal(1))
@@ -162,7 +162,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				it("should convert errors to NSError") {
 					let producer = SignalProducer<AnyObject, TestError>(error: .Error1)
-					let racSignal = toRACSignal(producer).materialize()
+					let racSignal = producer.toRACSignal().materialize()
 
 					let event = racSignal.first() as? RACEvent
 					expect(event?.error).to(equal(TestError.Error1 as NSError))
@@ -170,7 +170,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				
 				it("should maintain userInfo on NSError") {
 					let producer = SignalProducer<AnyObject, NSError>(error: testNSError)
-					let racSignal = toRACSignal(producer).materialize()
+					let racSignal = producer.toRACSignal().materialize()
 					
 					let event = racSignal.first() as? RACEvent
 					let userInfoValue = event?.error.userInfo[key] as? String

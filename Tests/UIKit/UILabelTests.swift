@@ -38,8 +38,8 @@ class UILabelTests: XCTestCase {
         label.rex_text <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
-        XCTAssert(label.text == firstChange, "UILabel.rex_text change #1 failed")
+        XCTAssertEqual(label.text, firstChange)
         observer.sendNext(secondChange)
-        XCTAssert(label.text == secondChange, "UILabel.rex_text change #2 failed")
+        XCTAssertEqual(label.text, secondChange)
     }
 }

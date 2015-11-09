@@ -10,13 +10,13 @@ import ReactiveCocoa
 import UIKit
 import XCTest
 
-public extension UIButton {
+extension UIButton {
     static func button() -> UIButton {
         let button = UIButton(type: UIButtonType.Custom)
         return button;
     }
     
-    override func sendAction(action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
+    override public func sendAction(action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
         target?.performSelector(action)
     }
 }
@@ -66,14 +66,14 @@ class UIButtonTests: XCTestCase {
         button.setTitle("", forState: .Highlighted)
         
         observer.sendNext(firstTitle)
-        XCTAssert(button.titleForState(.Normal) == firstTitle, "#1 change of the title for .Normal state failed [UIButton]")
-        XCTAssert(button.titleForState(.Highlighted) == "", "#1 .Highlighted state shouldn't change [UIButton]")
-        XCTAssert(button.titleForState(.Selected) == "", "#1 .Selected state shouldn't change [UIButton]")
+        XCTAssertEqual(button.titleForState(.Normal), firstTitle)
+        XCTAssertEqual(button.titleForState(.Highlighted), "")
+        XCTAssertEqual(button.titleForState(.Selected), "")
         
         observer.sendNext(secondTitle)
-        XCTAssert(button.titleForState(.Normal) == secondTitle, "#2 change of the title for .Normal state failed [UIButton]")
-        XCTAssert(button.titleForState(.Highlighted) == "", "#2 .Highlighted state shouldn't change [UIButton]")
-        XCTAssert(button.titleForState(.Selected) == "", "#2 .Selected state shouldn't change [UIButton]")
+        XCTAssertEqual(button.titleForState(.Normal), secondTitle)
+        XCTAssertEqual(button.titleForState(.Highlighted), "")
+        XCTAssertEqual(button.titleForState(.Selected), "")
     }
     
     func testPressedProperty() {
@@ -91,7 +91,7 @@ class UIButtonTests: XCTestCase {
         
         button.sendActionsForControlEvents(.TouchUpInside)
         
-        XCTAssert(passed.value == true, "Press doesn't perform cocoa action")
+        XCTAssertTrue(passed.value)
     }
     
     

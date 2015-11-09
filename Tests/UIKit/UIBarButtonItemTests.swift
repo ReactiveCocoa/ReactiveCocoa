@@ -31,14 +31,16 @@ class UIBarButtonItemTests: XCTestCase {
     
     func testEnabledProperty() {
         let barButtonItem = UIBarButtonItem()
-        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
         barButtonItem.enabled = true
         
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
+        
+        
         observer.sendNext(false)
-        XCTAssert(barButtonItem.enabled == false, "#1 change of the enabled state failed [UIBarButtonItem]")
+        XCTAssertFalse(barButtonItem.enabled)
         observer.sendNext(true)
-        XCTAssert(barButtonItem.enabled == true, "#2 change of the enabled state failed [UIBarButtonItem]")
+        XCTAssertTrue(barButtonItem.enabled)
     }
 
 }

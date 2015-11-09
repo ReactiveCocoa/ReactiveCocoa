@@ -39,16 +39,13 @@ class UIViewTests: XCTestCase {
         let view = UIView(frame: CGRectZero)
         view.hidden = true
         
-        let firstChange = false
-        let secondChange = true
-        
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         view.rex_hidden <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
-        XCTAssert(view.hidden == firstChange, "UIView.rex_hidden change #1 failed")
-        observer.sendNext(secondChange)
-        XCTAssert(view.hidden == secondChange, "UIView.rex_hidden change #2 failed")
+        observer.sendNext(true)
+        XCTAssertTrue(view.hidden)
+        observer.sendNext(false)
+        XCTAssertFalse(view.hidden)
     }
     
     func testAlphaProperty() {
@@ -62,8 +59,8 @@ class UIViewTests: XCTestCase {
         view.rex_alpha <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
-        XCTAssert(view.alpha == firstChange, "UIView.rex_alpha change #1 failed")
+        XCTAssertEqual(view.alpha, firstChange)
         observer.sendNext(secondChange)
-        XCTAssert(view.alpha == secondChange, "UIView.rex_alpha change #2 failed")
+        XCTAssertEqual(view.alpha, secondChange)
     }
 }

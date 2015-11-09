@@ -49,9 +49,9 @@ class UIImageViewTests: XCTestCase {
         imageView.rex_image <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
-        XCTAssert(imageView.image === firstChange, "UIImageView.rex_image change #1 failed")
+        XCTAssertEqual(imageView.image, firstChange)
         observer.sendNext(secondChange)
-        XCTAssert(imageView.image === secondChange, "UIImageView.rex_image change #2 failed")
+        XCTAssertEqual(imageView.image, secondChange)
     }
     
     func testHighlightedImageProperty() {
@@ -64,8 +64,8 @@ class UIImageViewTests: XCTestCase {
         imageView.rex_highlightedImage <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
-        XCTAssert(imageView.highlightedImage === firstChange, "UIImageView.rex_highlightedImage change #1 failed")
+        XCTAssertEqual(imageView.highlightedImage, firstChange)
         observer.sendNext(secondChange)
-        XCTAssert(imageView.highlightedImage === secondChange, "UIImageView.rex_highlightedImage change #2 failed")
+        XCTAssertEqual(imageView.highlightedImage, secondChange)
     }
 }

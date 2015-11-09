@@ -51,9 +51,9 @@ class UIControlTests: XCTestCase {
         control.rex_enabled <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssert(control.enabled == true, "UIControl.rex_enabled change #1 failed")
+        XCTAssertTrue(control.enabled)
         observer.sendNext(false)
-        XCTAssert(control.enabled == false, "UIControl.rex_enabled change #2 failed")
+        XCTAssertFalse(control.enabled)
     }
     
     func testSelectedProperty() {
@@ -64,9 +64,9 @@ class UIControlTests: XCTestCase {
         control.rex_selected <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssert(control.selected == true, "UIControl.rex_selected change #1 failed")
+        XCTAssertTrue(control.selected)
         observer.sendNext(false)
-        XCTAssert(control.selected == false, "UIControl.rex_selected change #2 failed")
+        XCTAssertFalse(control.selected)
     }
     
     func testHighlightedProperty() {
@@ -77,8 +77,8 @@ class UIControlTests: XCTestCase {
         control.rex_highlighted <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssert(control.highlighted == true, "UIControl.rex_highlighted change #1 failed")
+        XCTAssertTrue(control.highlighted)
         observer.sendNext(false)
-        XCTAssert(control.highlighted == false, "UIControl.rex_highlighted change #2 failed")
+        XCTAssertFalse(control.highlighted)
     }
 }

@@ -34,4 +34,33 @@ class UIViewTests: XCTestCase {
         view.rex_hidden <~ SignalProducer(value: true)
         XCTAssert(_view?.hidden == true)
     }
+    
+    func testHiddenProperty() {
+        let view = UIView(frame: CGRectZero)
+        view.hidden = true
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        view.rex_hidden <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(true)
+        XCTAssertTrue(view.hidden)
+        observer.sendNext(false)
+        XCTAssertFalse(view.hidden)
+    }
+    
+    func testAlphaProperty() {
+        let view = UIView(frame: CGRectZero)
+        view.alpha = 0.0
+        
+        let firstChange = CGFloat(0.5)
+        let secondChange = CGFloat(0.7)
+        
+        let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+        view.rex_alpha <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(firstChange)
+        XCTAssertEqual(view.alpha, firstChange)
+        observer.sendNext(secondChange)
+        XCTAssertEqual(view.alpha, secondChange)
+    }
 }

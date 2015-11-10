@@ -495,12 +495,12 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("mergeSignals") {
+		describe("Signal.merge") {
 			it("should emit values from all signals") {
 				let (signal1, observer1) = Signal<Int, NoError>.pipe()
 				let (signal2, observer2) = Signal<Int, NoError>.pipe()
 
-				let mergedSignals = Signal.mergeSignals([signal1, signal2])
+				let mergedSignals = Signal.merge([signal1, signal2])
 
 				var lastValue: Int?
 				mergedSignals.observeNext { lastValue = $0 }
@@ -521,7 +521,7 @@ class SignalSpec: QuickSpec {
 				let (signal1, observer1) = Signal<Int, NoError>.pipe()
 				let (signal2, observer2) = Signal<Int, NoError>.pipe()
 
-				let mergedSignals = Signal.mergeSignals([signal1, signal2])
+				let mergedSignals = Signal.merge([signal1, signal2])
 
 				var lastValue: Int?
 				mergedSignals.observeNext { lastValue = $0 }
@@ -542,7 +542,7 @@ class SignalSpec: QuickSpec {
 				let (signal1, observer1) = Signal<Int, NoError>.pipe()
 				let (signal2, observer2) = Signal<Int, NoError>.pipe()
 
-				let mergedSignals = Signal.mergeSignals([signal1, signal2])
+				let mergedSignals = Signal.merge([signal1, signal2])
 
 				var completed = false
 				mergedSignals.observeCompleted { completed = true }

@@ -361,7 +361,7 @@ extension SignalType {
 extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	public static func mergeSignals(signals: [Signal<Value, Error>]) -> Signal<Value, Error> {
+	public static func merge(signals: [Signal<Value, Error>]) -> Signal<Value, Error> {
 		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
 		var result: Signal<Value, Error>!
 

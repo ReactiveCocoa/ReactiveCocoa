@@ -4,7 +4,7 @@ before_install: true
 install: true
 git:
   submodules: false
-script: script/cibuild
+script: script/cibuild ReactiveCocoa-Mac ReactiveCocoa-iOS
 notifications:
   email: false
   slack:

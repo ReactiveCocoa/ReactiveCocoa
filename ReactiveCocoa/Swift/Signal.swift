@@ -82,7 +82,7 @@ public final class Signal<Value, Error: ErrorType> {
 	}
 
 	/// A Signal that never sends any events to its observers.
-	public class var never: Signal {
+	public static var never: Signal {
 		return self.init { _ in nil }
 	}
 
@@ -91,7 +91,7 @@ public final class Signal<Value, Error: ErrorType> {
 	///
 	/// The Signal will remain alive until a terminating event is sent to the
 	/// observer.
-	public class func pipe() -> (Signal, Observer) {
+	public static func pipe() -> (Signal, Observer) {
 		var observer: Observer!
 		let signal = self.init { innerObserver in
 			observer = innerObserver

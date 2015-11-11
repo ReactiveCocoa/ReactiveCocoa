@@ -658,6 +658,48 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([ true, false, true ]))
 			}
 
+			it("should skip duplicate optional values") {
+				let (baseSignal, observer) = Signal<Bool?, NoError>.pipe()
+				let signal = baseSignal.skipRepeats()
+
+				var values: [Bool?] = []
+				signal.observeNext { values.append($0) }
+
+				expect(values.count).to(equal(0))
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(1))
+				expect(values[0]).to(equal(true))
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(1))
+				expect(values[0]).to(equal(true))
+
+				observer.sendNext(false)
+				expect(values.count).to(equal(2))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+
+				observer.sendNext(nil)
+				expect(values.count).to(equal(3))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+
+				observer.sendNext(nil)
+				expect(values.count).to(equal(3))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(4))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+				expect(values[3]).to(equal(true))
+			}
+
 			it("should skip values according to a predicate") {
 				let (baseSignal, observer) = Signal<String, NoError>.pipe()
 				let signal = baseSignal.skipRepeats { $0.characters.count == $1.characters.count }

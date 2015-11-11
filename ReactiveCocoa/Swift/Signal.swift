@@ -1022,6 +1022,15 @@ extension SignalType where Value: Equatable {
 	}
 }
 
+extension SignalType where Value: OptionalType, Value.Wrapped: Equatable {
+	/// Forwards only those values from `self` which are not duplicates of the
+	/// immedately preceding value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func skipRepeats() -> Signal<Value, Error> {
+		return skipRepeats{ $0.optional == $1.optional }
+	}
+}
+
 extension SignalType {
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.

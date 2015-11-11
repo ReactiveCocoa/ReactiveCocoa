@@ -121,6 +121,13 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	}
 }
 
+extension MutablePropertyType {
+	/// Returns a "view" of this property that can only be observed, but not modified.
+	public var immutableView: AnyProperty<Value> {
+		return AnyProperty(self)
+	}
+}
+
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
 /// Coding and Key-Value Observing.
 ///

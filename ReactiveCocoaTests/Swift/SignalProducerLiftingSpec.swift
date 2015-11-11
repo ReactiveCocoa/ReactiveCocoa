@@ -236,6 +236,48 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(values).to(equal([ true, false, true ]))
 			}
 
+			it("should skip duplicate optional values") {
+				let (baseProducer, observer) = SignalProducer<Bool?, NoError>.buffer()
+				let producer = baseProducer.skipRepeats()
+
+				var values: [Bool?] = []
+				producer.startWithNext { values.append($0) }
+
+				expect(values.count).to(equal(0))
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(1))
+				expect(values[0]).to(equal(true))
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(1))
+				expect(values[0]).to(equal(true))
+
+				observer.sendNext(false)
+				expect(values.count).to(equal(2))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+
+				observer.sendNext(nil)
+				expect(values.count).to(equal(3))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+
+				observer.sendNext(nil)
+				expect(values.count).to(equal(3))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+
+				observer.sendNext(true)
+				expect(values.count).to(equal(4))
+				expect(values[0]).to(equal(true))
+				expect(values[1]).to(equal(false))
+				expect(values[2]).to(beNil())
+				expect(values[3]).to(equal(true))
+			}
+
 			it("should skip values according to a predicate") {
 				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer()
 				let producer = baseProducer.skipRepeats { $0.characters.count == $1.characters.count }

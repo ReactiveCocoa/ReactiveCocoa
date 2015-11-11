@@ -1834,6 +1834,34 @@ class SignalProducerSpec: QuickSpec {
 				expect(upstreamDisposable.disposed).to(beTruthy())
 			}
 		}
+
+		describe("take") {
+			it("Should not start concat'ed producer if the first one sends a value when using take(1)") {
+				let producer1 = SignalProducer<(), NoError>() { handler, _ in
+					handler.sendNext(())
+					handler.sendCompleted()
+				}.startOn(QueueScheduler()) // Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
+
+				let producer2 = SignalProducer<(), NoError>() { handler, _ in
+					XCTFail("producer2 shouldn't be started because producer1 sends enough values for the subscriber")
+
+					handler.sendNext(())
+					handler.sendCompleted()
+				}
+
+				let resultProducer = producer1.concat(producer2).take(1)
+
+				guard let result = resultProducer.collect().first() else {
+					XCTFail("Result shouldn't be nil")
+					return
+				}
+
+				switch result {
+					case .Success(let values): XCTAssertEqual(values.count, 1, "result producer should only send one value")
+					case .Failure(let error): XCTFail("Error shouldn't occur: \(error)")
+				}
+			}
+		}
 	}
 }
 

@@ -726,6 +726,15 @@ extension SignalProducerType where Value: Equatable {
 	}
 }
 
+extension SignalProducerType where Value: OptionalType, Value.Wrapped: Equatable {
+	/// Forwards only those values from `self` which are not duplicates of the
+	/// immedately preceding value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipRepeats() -> SignalProducer<Value, Error> {
+		return lift { $0.skipRepeats() }
+	}
+}
+
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.

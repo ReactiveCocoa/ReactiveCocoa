@@ -1,0 +1,11 @@
+language: objective-c
+osx_image: xcode7.1
+before_install: true
+install: true
+git:
+  submodules: false
+script: script/cibuild ReactiveCocoa-Mac ReactiveCocoa-iOS
+notifications:
+  email: false
+  slack:
+    secure: C9QTry5wUG9CfeH3rm3Z19R5rDWqDO7EhHAqHDXBxT6CpGRkTPFliJexpjBYB4sroJ8CiY5ZgTI2sjRBiAdGoE5ZQkfnwSoKQhWXkwo19TnbSnufr3cKO2SZkUhBqOlZcA+mgfjZ7rm2wm7RhpCR/4z8oBXDN4/xv0U5R2fLCLE=

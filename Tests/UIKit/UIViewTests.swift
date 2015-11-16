@@ -24,7 +24,7 @@ class UIViewTests: XCTestCase {
         _view = view
         
         view.rex_alpha <~ SignalProducer(value: 0.5)
-        XCTAssert(_view?.alpha == 0.5)
+        XCTAssertEqualWithAccuracy(_view!.alpha, 0.5, accuracy: 0.01)
     }
     
     func testHiddenPropertyDoesntCreateRetainCycle() {
@@ -59,8 +59,8 @@ class UIViewTests: XCTestCase {
         view.rex_alpha <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
-        XCTAssertEqual(view.alpha, firstChange)
+        XCTAssertEqualWithAccuracy(view.alpha, firstChange, accuracy: 0.01)
         observer.sendNext(secondChange)
-        XCTAssertEqual(view.alpha, secondChange)
+        XCTAssertEqualWithAccuracy(view.alpha, secondChange, accuracy: 0.01)
     }
 }

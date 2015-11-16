@@ -17,7 +17,7 @@ extension UIButton {
     }
     
     override public func sendAction(action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
-        target?.performSelector(action)
+        target?.performSelector(action, withObject: nil)
     }
 }
 
@@ -87,9 +87,10 @@ class UIButtonTests: XCTestCase {
         }
         
         passed <~ SignalProducer(signal: action.values)
-        button.rex_pressed.value = CocoaAction(action, input: ())
+        button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
         
         button.sendActionsForControlEvents(.TouchUpInside)
+        
         
         XCTAssertTrue(passed.value)
     }

@@ -81,4 +81,26 @@ class UIControlTests: XCTestCase {
         observer.sendNext(false)
         XCTAssertFalse(control.highlighted)
     }
+    
+    func testEnabledAndSelectedProperty() {
+        let control = UIControl(frame: CGRectZero)
+        control.selected = false
+        control.enabled = false
+        
+        let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
+        let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
+        control.rex_selected <~ SignalProducer(signal: pipeSignalSelected)
+        control.rex_enabled <~ SignalProducer(signal: pipeSignalEnabled)
+        
+        observerSelected.sendNext(true)
+        observerEnabled.sendNext(true)
+        XCTAssertTrue(control.enabled)
+        XCTAssertTrue(control.selected)
+        observerSelected.sendNext(false)
+        XCTAssertTrue(control.enabled)
+        XCTAssertFalse(control.selected)
+        observerEnabled.sendNext(false)
+        XCTAssertFalse(control.enabled)
+        XCTAssertFalse(control.selected)
+    }
 }

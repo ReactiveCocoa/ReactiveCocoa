@@ -358,6 +358,21 @@ extension SignalType {
 	}
 }
 
+extension SignalType {
+	/// Merges the given signals into a single `Signal` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	public static func merge<S: SequenceType where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<Value, Error> {
+		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
+		var result: Signal<Value, Error>!
+
+		producer.startWithSignal { (signal, _) in
+			result = signal.flatten(.Merge)
+		}
+
+		return result
+	}
+}
+
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Returns a signal which sends all the values from producer signal emitted from
 	/// `signal`, waiting until each inner producer completes before beginning to

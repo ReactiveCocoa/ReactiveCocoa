@@ -1,6 +1,0 @@
-[submodule "Carthage/Checkouts/ReactiveCocoa"]
-	path = Carthage/Checkouts/ReactiveCocoa
-	url = https://github.com/ReactiveCocoa/ReactiveCocoa.git
-[submodule "Carthage/Checkouts/Result"]
-	path = Carthage/Checkouts/Result
-	url = https://github.com/antitypical/Result.git

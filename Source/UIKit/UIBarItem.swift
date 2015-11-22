@@ -12,8 +12,8 @@ import UIKit
 extension UIBarItem {
     /// Wraps a UIBarItem's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return associatedProperty(self, key: &enabled, initial: { [weak self] in self?.enabled ?? true }, setter: { [weak self] in self?.enabled = $0 })
+        return associatedProperty(self, key: &enabledKey, initial: { [weak self] in self?.enabled ?? true }, setter: { [weak self] in self?.enabled = $0 })
     }
 }
 
-private var enabled: UInt8 = 0
+private var enabledKey: UInt8 = 0

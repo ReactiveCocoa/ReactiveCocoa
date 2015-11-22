@@ -15,7 +15,7 @@ extension UIBarButtonItem {
     /// overwritten. This also binds the enabled state of the action to the `rex_enabled`
     /// property on the button.
     public var rex_action: MutableProperty<CocoaAction> {
-        return associatedObject(self, key: &action) { [weak self] _ in
+        return associatedObject(self, key: &actionKey) { [weak self] _ in
             let initial = CocoaAction.rex_disabled
             let property = MutableProperty(initial)
             
@@ -33,4 +33,4 @@ extension UIBarButtonItem {
     }
 }
 
-private var action: UInt8 = 0
+private var actionKey: UInt8 = 0

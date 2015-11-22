@@ -3,9 +3,6 @@ matrix:
   include:
     - osx_image: xcode7.1
 
-xcode_workspace: Rex.xcworkspace
-xcode_scheme: Rex-Mac
-
 env:
   global:
     - LC_CTYPE=en_US.UTF-8
@@ -18,8 +15,10 @@ before_install:
   - sudo installer -pkg "Carthage.pkg" -target /
   - rm "Carthage.pkg"
 
-before_script:
+script:
+  - set -o pipefail
   - carthage bootstrap --platform Mac
+  - xcodebuild test -scheme Rex-Mac | xcpretty -c
 
 notifications:
   email: false

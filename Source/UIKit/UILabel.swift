@@ -16,6 +16,6 @@ extension UILabel {
     }
     
     public var rex_textColor: MutableProperty<UIColor> {
-        return rex_valueProperty(&textColor, { [weak self] in (self?.textColor)! }, { [weak self] in self?.textColor = $0 })
+        return rex_valueProperty(&textColor, { [weak self] in self?.textColor ?? UILabel().textColor }, { [weak self] in self?.textColor = $0 })
     }
 }

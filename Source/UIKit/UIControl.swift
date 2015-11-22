@@ -20,20 +20,20 @@ extension UIControl {
 
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return rex_valueProperty(&enabled, { [weak self] in self?.enabled ?? true }, { [weak self] in self?.enabled = $0 })
+        return rex_valueProperty(&enabledKey, { [weak self] in self?.enabled ?? true }, { [weak self] in self?.enabled = $0 })
     }
     
     /// Wraps a control's `selected` state in a bindable property.
     public var rex_selected: MutableProperty<Bool> {
-        return rex_valueProperty(&selected, { [weak self] in self?.selected ?? false }, { [weak self] in self?.selected = $0 })
+        return rex_valueProperty(&selectedKey, { [weak self] in self?.selected ?? false }, { [weak self] in self?.selected = $0 })
     }
     
     /// Wraps a control's `highlighted` state in a bindable property.
     public var rex_highlighted: MutableProperty<Bool> {
-        return rex_valueProperty(&highlighted, { [weak self] in self?.highlighted ?? false }, { [weak self] in self?.highlighted = $0 })
+        return rex_valueProperty(&highlightedKey, { [weak self] in self?.highlighted ?? false }, { [weak self] in self?.highlighted = $0 })
     }
 }
 
-private var enabled: UInt8 = 0
-private var selected: UInt8 = 0
-private var highlighted: UInt8 = 0
+private var enabledKey: UInt8 = 0
+private var selectedKey: UInt8 = 0
+private var highlightedKey: UInt8 = 0

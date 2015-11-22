@@ -15,7 +15,7 @@ extension UIButton {
     /// previous action is removed as a target. This also binds the enabled state of the
     /// action to the `rex_enabled` property on the button.
     public var rex_pressed: MutableProperty<CocoaAction> {
-        return associatedObject(self, key: &pressed, initial: { [weak self] _ in
+        return associatedObject(self, key: &pressedKey, initial: { [weak self] _ in
             let initial = CocoaAction.rex_disabled
             let property = MutableProperty(initial)
 
@@ -36,9 +36,9 @@ extension UIButton {
     /// Wraps a button's `title` text in a bindable property. Note that this only applies
     /// to `UIControlState.Normal`.
     public var rex_title: MutableProperty<String> {
-        return rex_valueProperty(&title, { [weak self] in self?.titleForState(.Normal) ?? "" }, { [weak self] in self?.setTitle($0, forState: .Normal) })
+        return rex_valueProperty(&titleKey, { [weak self] in self?.titleForState(.Normal) ?? "" }, { [weak self] in self?.setTitle($0, forState: .Normal) })
     }
 }
 
-private var pressed: UInt8 = 0
-private var title: UInt8 = 0
+private var pressedKey: UInt8 = 0
+private var titleKey: UInt8 = 0

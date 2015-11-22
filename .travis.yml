@@ -17,7 +17,7 @@ before_install:
 
 script:
   - set -o pipefail
-  - carthage bootstrap --platform Mac,iOS
+  - carthage bootstrap --platform mac,iphonesimulator
   - xcodebuild test -scheme Rex-Mac
   - xcodebuild test -scheme Rex-iOS -sdk iphonesimulator
 

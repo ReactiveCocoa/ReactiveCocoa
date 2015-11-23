@@ -58,7 +58,7 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
     return associatedObject(host, key: key) {
         let property = MutableProperty(initial())
-        property.producer.start(next: setter)
+        property.producer.start(Observer(next: setter))
         return property
     }
 }
@@ -74,7 +74,6 @@ public func associatedObject<T: AnyObject>(host: AnyObject, key: UnsafePointer<(
     if value == nil {
         value = initial()
         objc_setAssociatedObject(host, key, value, .OBJC_ASSOCIATION_RETAIN)
-//        objc_setAssociatedObject(host, key, value, objc_AssociationPolicy())
     }
     return value!
 }

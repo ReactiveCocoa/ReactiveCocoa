@@ -28,5 +28,19 @@ class UIBarButtonItemTests: XCTestCase {
         }
         barButtonItem.rex_action <~ SignalProducer(value: CocoaAction(action, input: ()))
      }
+    
+    func testEnabledProperty() {
+        let barButtonItem = UIBarButtonItem()
+        barButtonItem.enabled = true
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
+        
+        
+        observer.sendNext(false)
+        XCTAssertFalse(barButtonItem.enabled)
+        observer.sendNext(true)
+        XCTAssertTrue(barButtonItem.enabled)
+    }
 
 }

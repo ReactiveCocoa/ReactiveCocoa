@@ -16,10 +16,10 @@ extension NSData {
         return SignalProducer<NSData, NSError> { observer, disposable in
             do {
                 let data = try NSData(contentsOfURL: url, options: options)
-                sendNext(observer, data)
-                sendCompleted(observer)
+                observer.sendNext(data)
+                observer.sendCompleted()
             } catch {
-                sendError(observer, error as NSError)
+                observer.sendFailed(error as NSError)
             }
         }
     }

@@ -5,4 +5,4 @@ xcuserdata
 *.mode*
 *.pbxuser
 
-Carthage/Build
+/Carthage

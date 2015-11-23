@@ -26,4 +26,81 @@ class UIControlTests: XCTestCase {
         control.rex_enabled <~ SignalProducer(value: false)
         XCTAssert(_control?.enabled == false)
     }
+    
+    func testSelectedPropertyDoesntCreateRetainCycle() {
+        let control = UIControl(frame: CGRectZero)
+        _control = control
+        
+        control.rex_selected <~ SignalProducer(value: true)
+        XCTAssert(_control?.selected == true)
+    }
+    
+    func testHighlightedPropertyDoesntCreateRetainCycle() {
+        let control = UIControl(frame: CGRectZero)
+        _control = control
+        
+        control.rex_highlighted <~ SignalProducer(value: true)
+        XCTAssert(_control?.highlighted == true)
+    }
+    
+    func testEnabledProperty () {
+        let control = UIControl(frame: CGRectZero)
+        control.enabled = false
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        control.rex_enabled <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(true)
+        XCTAssertTrue(control.enabled)
+        observer.sendNext(false)
+        XCTAssertFalse(control.enabled)
+    }
+    
+    func testSelectedProperty() {
+        let control = UIControl(frame: CGRectZero)
+        control.selected = false
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        control.rex_selected <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(true)
+        XCTAssertTrue(control.selected)
+        observer.sendNext(false)
+        XCTAssertFalse(control.selected)
+    }
+    
+    func testHighlightedProperty() {
+        let control = UIControl(frame: CGRectZero)
+        control.highlighted = false
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        control.rex_highlighted <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(true)
+        XCTAssertTrue(control.highlighted)
+        observer.sendNext(false)
+        XCTAssertFalse(control.highlighted)
+    }
+    
+    func testEnabledAndSelectedProperty() {
+        let control = UIControl(frame: CGRectZero)
+        control.selected = false
+        control.enabled = false
+        
+        let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
+        let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
+        control.rex_selected <~ SignalProducer(signal: pipeSignalSelected)
+        control.rex_enabled <~ SignalProducer(signal: pipeSignalEnabled)
+        
+        observerSelected.sendNext(true)
+        observerEnabled.sendNext(true)
+        XCTAssertTrue(control.enabled)
+        XCTAssertTrue(control.selected)
+        observerSelected.sendNext(false)
+        XCTAssertTrue(control.enabled)
+        XCTAssertFalse(control.selected)
+        observerEnabled.sendNext(false)
+        XCTAssertFalse(control.enabled)
+        XCTAssertFalse(control.selected)
+    }
 }

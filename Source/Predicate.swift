@@ -23,8 +23,8 @@ extension PropertyType where Value == Bool {
 }
 
 public struct AndProperty: PropertyType {
-    private let left: PropertyOf<Bool>
-    private let right: PropertyOf<Bool>
+    private let left: AnyProperty<Bool>
+    private let right: AnyProperty<Bool>
     
     public var value: Bool {
         return left.value && right.value
@@ -35,14 +35,14 @@ public struct AndProperty: PropertyType {
     }
     
     public init<L: PropertyType, R: PropertyType where L.Value == Bool, R.Value == Bool>(lhs: L, rhs: R) {
-        left = PropertyOf(lhs)
-        right = PropertyOf(rhs)
+        left = AnyProperty(lhs)
+        right = AnyProperty(rhs)
     }
 }
 
 public struct OrProperty: PropertyType {
-    private let left: PropertyOf<Bool>
-    private let right: PropertyOf<Bool>
+    private let left: AnyProperty<Bool>
+    private let right: AnyProperty<Bool>
     
     public var value: Bool {
         return left.value || right.value
@@ -53,13 +53,13 @@ public struct OrProperty: PropertyType {
     }
 
     public init<L: PropertyType, R: PropertyType where L.Value == Bool, R.Value == Bool>(lhs: L, rhs: R) {
-        left = PropertyOf(lhs)
-        right = PropertyOf(rhs)
+        left = AnyProperty(lhs)
+        right = AnyProperty(rhs)
     }
 }
 
 public struct NotProperty: PropertyType {
-    private let source: PropertyOf<Bool>
+    private let source: AnyProperty<Bool>
     
     public var value: Bool {
         return !source.value
@@ -70,6 +70,6 @@ public struct NotProperty: PropertyType {
     }
 
     public init<P: PropertyType where P.Value == Bool>(property: P) {
-        source = PropertyOf(property)
+        source = AnyProperty(property)
     }
 }

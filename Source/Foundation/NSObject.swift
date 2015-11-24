@@ -59,10 +59,6 @@ extension NSObject {
     /// N.B. Ensure that `self` isn't strongly captured by `initial` or `setter`, otherwise this
     /// will create a retain cycle causing `self` to never dealloc.
     public func rex_valueProperty<T>(key: UnsafePointer<()>, _ initial: () -> T, _ setter: T -> ()) -> MutableProperty<T> {
-        return associatedObject(self, key: key) {
-            let property = MutableProperty(initial())
-            property.producer.start(Observer(next: setter))
-            return property
-        }
+        return associatedProperty(self, key: key, initial: initial, setter: setter)
     }
 }

@@ -234,7 +234,7 @@ extension RACCommand {
 	}
 }
 
-extension Action {
+extension ActionType {
 	private var commandEnabled: RACSignal {
 		return self.enabled.producer
 			.map { $0 as NSNumber }

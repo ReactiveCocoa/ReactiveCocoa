@@ -12,7 +12,7 @@ import UIKit
 extension UILabel {
     /// Wraps a label's `text` value in a bindable property.
     public var rex_text: MutableProperty<String> {
-        return rex_stringProperty("text")
+        return associatedProperty(self, keyPath: "text")
     }
     
     public var rex_textColor: MutableProperty<UIColor> {

@@ -25,14 +25,4 @@ extension NSObject {
                 return .empty
             }
     }
-
-    /// Attaches a `MutableProperty` relying on KVC for the initial value and subsequent
-    /// updates. Note that `keyPath` is a `StaticString` because it's pointer value is used
-    /// as key value when associating the property.
-    ///
-    /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
-    /// bindings on Cocoa objects.
-    public func rex_stringProperty(keyPath: StaticString) -> MutableProperty<String> {
-        return associatedProperty(self, keyPath: keyPath)
-    }
 }

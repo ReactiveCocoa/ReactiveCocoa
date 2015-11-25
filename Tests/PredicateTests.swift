@@ -14,7 +14,7 @@ final class PredicateTests: XCTestCase {
 
     func testAndProperty() {
         let lhs = MutableProperty(false), rhs = MutableProperty(false)
-        let and = AndProperty(lhs: lhs, rhs: rhs)
+        let and = lhs.and(rhs)
 
         var current: Bool!
         and.producer.startWithNext { current = $0 }
@@ -33,7 +33,7 @@ final class PredicateTests: XCTestCase {
 
     func testOrProperty() {
         let lhs = MutableProperty(true), rhs = MutableProperty(true)
-        let or = OrProperty(lhs: lhs, rhs: rhs)
+        let or = lhs.or(rhs)
 
         var current: Bool!
         or.producer.startWithNext { current = $0 }
@@ -52,7 +52,7 @@ final class PredicateTests: XCTestCase {
 
     func testNotProperty() {
         let source = MutableProperty(false)
-        let not = NotProperty(property: source)
+        let not = source.not()
 
         var current: Bool!
         not.producer.startWithNext { current = $0 }

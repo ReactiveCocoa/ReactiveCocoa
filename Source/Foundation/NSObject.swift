@@ -9,12 +9,6 @@
 import Foundation
 import ReactiveCocoa
 
-public protocol NSObjectType {
-    typealias InstanceType = Self
-}
-
-extension NSObject: NSObjectType {}
-
 extension NSObject {
     /// Creates a strongly-typed producer to monitor `keyPath` via KVO. The caller
     /// is responsible for ensuring that the associated value is castable to `T`.
@@ -53,20 +47,5 @@ extension NSObject {
     /// create a retain cycle causing `self` to never dealloc.
     public func rex_classProperty<T: AnyObject>(keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
         return associatedProperty(self, keyPath: keyPath, placeholder: placeholder)
-    }
-}
-
-extension NSObjectType where Self: NSObject, InstanceType == Self {
-    /// Attaches a `MutableProperty` value under `key`. The property is initialized with
-    /// the result of `initial`. Changes on the property's producer are monitored and
-    /// written to `setter`.
-    ///
-    /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
-    /// bindings on Cocoa objects.
-    ///
-    /// N.B. Ensure that `self` isn't strongly captured by `initial` or `setter`, otherwise this
-    /// will create a retain cycle causing `self` to never dealloc.
-    public func rex_valueProperty<T>(key: UnsafePointer<()>, _ initial: InstanceType -> T, _ setter: (InstanceType, T) -> ()) -> MutableProperty<T> {
-        return associatedProperty(self, key: key, initial: initial, setter: setter)
     }
 }

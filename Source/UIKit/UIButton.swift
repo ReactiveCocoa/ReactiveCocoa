@@ -10,8 +10,6 @@ import ReactiveCocoa
 import UIKit
 
 extension UIButton {
-    public typealias InstanceType = UIButton
-
     /// Exposes a property that binds an action to button presses. The action is set as
     /// a target of the button for `TouchUpInside` events. When property changes occur the
     /// previous action is removed as a target. This also binds the enabled state of the
@@ -38,7 +36,7 @@ extension UIButton {
     /// Wraps a button's `title` text in a bindable property. Note that this only applies
     /// to `UIControlState.Normal`.
     public var rex_title: MutableProperty<String> {
-        return rex_valueProperty(&titleKey, { $0.titleForState(.Normal) ?? "" }, { $0.setTitle($1, forState: .Normal) })
+        return associatedProperty(self, key: &titleKey, initial: { $0.titleForState(.Normal) ?? "" }, setter: { $0.setTitle($1, forState: .Normal) })
     }
 }
 

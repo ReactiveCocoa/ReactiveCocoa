@@ -10,14 +10,12 @@ import ReactiveCocoa
 import UIKit
 
 extension UILabel {
-    public typealias InstanceType = UILabel
-
     /// Wraps a label's `text` value in a bindable property.
     public var rex_text: MutableProperty<String> {
         return rex_stringProperty("text")
     }
     
     public var rex_textColor: MutableProperty<UIColor> {
-        return rex_valueProperty(&textColor, { $0.textColor }, { $0.textColor = $1 })
+        return associatedProperty(self, key: &textColor, initial: { $0.textColor }, setter: { $0.textColor = $1 })
     }
 }

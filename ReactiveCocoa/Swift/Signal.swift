@@ -886,6 +886,44 @@ extension SignalType where Value: EventType, Error == NoError {
 	}
 }
 
+extension SignalType {
+	/// Injects side effects to be performed upon the specified signal events.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func on(event event: (Event<Value, Error> -> ())? = nil, failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (Value -> ())? = nil) -> Signal<Value, Error> {
+		return Signal { observer in
+			let disposable = CompositeDisposable()
+
+			_ = disposed.map(disposable.addDisposable)
+
+			disposable += signal.observe { receivedEvent in
+				event?(receivedEvent)
+
+				switch receivedEvent {
+				case let .Next(value):
+					next?(value)
+
+				case let .Failed(error):
+					failed?(error)
+
+				case .Completed:
+					completed?()
+
+				case .Interrupted:
+					interrupted?()
+				}
+
+				if receivedEvent.isTerminating {
+					terminated?()
+				}
+
+				observer.action(receivedEvent)
+			}
+
+			return disposable
+		}
+	}
+}
+
 private struct SampleState<Value> {
 	var latestValue: Value? = nil
 	var signalCompleted: Bool = false

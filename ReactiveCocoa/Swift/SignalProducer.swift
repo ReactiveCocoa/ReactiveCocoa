@@ -393,7 +393,7 @@ extension SignalProducerType {
 	/// Note: starting the returned producer will start the receiver of the operator,
 	/// which may not be adviseable for some operators.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+	public func liftRight<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
@@ -401,6 +401,32 @@ extension SignalProducerType {
 
 					otherProducer.startWithSignal { otherSignal, otherDisposable in
 						outerDisposable.addDisposable(otherDisposable)
+
+						transform(signal)(otherSignal).observe(observer)
+					}
+				}
+			}
+		}
+	}
+
+	/// Lifts a binary Signal operator to operate upon SignalProducers instead.
+	///
+	/// In other words, this will create a new SignalProducer which will apply
+	/// the given Signal operator to _every_ Signal created from the two
+	/// producers, just as if the operator had been applied to each Signal
+	/// yielded from start().
+	///
+	/// Note: starting the returned producer will start the receiver of the operator,
+	/// which may not be adviseable for some operators.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func liftLeft<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+		return { otherProducer in
+			return SignalProducer { observer, outerDisposable in
+				otherProducer.startWithSignal { otherSignal, otherDisposable in
+					outerDisposable.addDisposable(otherDisposable)
+					
+					self.startWithSignal { signal, disposable in
+						outerDisposable.addDisposable(disposable)
 
 						transform(signal)(otherSignal).observe(observer)
 					}
@@ -473,7 +499,7 @@ extension SignalProducerType {
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return lift(Signal.combineLatestWith)(otherProducer)
+		return liftRight(Signal.combineLatestWith)(otherProducer)
 	}
 
 	/// Combines the latest value of the receiver with the latest value from
@@ -527,7 +553,7 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.sampleOn)(sampler)
+		return liftLeft(Signal.sampleOn)(sampler)
 	}
 
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
@@ -548,7 +574,7 @@ extension SignalProducerType {
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.takeUntil)(trigger)
+		return liftRight(Signal.takeUntil)(trigger)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
@@ -606,7 +632,7 @@ extension SignalProducerType {
 	/// already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntilReplacement(replacement: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
-		return lift(Signal.takeUntilReplacement)(replacement)
+		return liftRight(Signal.takeUntilReplacement)(replacement)
 	}
 
 	/// Forwards events from `self` until `replacement` begins sending events.
@@ -639,7 +665,7 @@ extension SignalProducerType {
 	/// are the Nth elements of the two input producers.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return lift(Signal.zipWith)(otherProducer)
+		return liftRight(Signal.zipWith)(otherProducer)
 	}
 
 	/// Zips elements of this producer and a signal into pairs. The elements of 

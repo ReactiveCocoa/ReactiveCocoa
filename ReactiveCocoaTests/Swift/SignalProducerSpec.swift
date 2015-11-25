@@ -724,7 +724,7 @@ class SignalProducerSpec: QuickSpec {
 						}
 					}
 
-					let producer = baseProducer.lift(transform)(otherProducer)
+					let producer = baseProducer.liftRight(transform)(otherProducer)
 					expect(counter).to(equal(0))
 
 					producer.start()
@@ -744,7 +744,7 @@ class SignalProducerSpec: QuickSpec {
 						}
 					}
 
-					let producer = baseProducer.lift(transform)(otherProducer)
+					let producer = baseProducer.liftRight(transform)(otherProducer)
 					let result = producer.collect().single()
 
 					expect(result?.value).to(equal([5, 7, 9]))

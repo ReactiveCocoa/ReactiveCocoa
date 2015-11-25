@@ -22,39 +22,45 @@ extension PropertyType where Value == Bool {
     }
 }
 
-public struct AndProperty: PropertyType {
-    private let left: AnyProperty<Bool>
-    private let right: AnyProperty<Bool>
-    
+public protocol CompoundPropertyType: PropertyType {
+    var terms: [AnyProperty<Value>] { get }
+}
+
+public struct AndProperty: CompoundPropertyType {
+    public let terms: [AnyProperty<Bool>]
+
     public var value: Bool {
-        return left.value && right.value
+        return terms.reduce(true) { $0 && $1.value }
     }
 
     public var producer: SignalProducer<Bool, NoError> {
-        return combineLatest(left.producer, right.producer).map { $0 && $1 }
+        let producers = terms.map { $0.producer }
+        return combineLatest(producers).map { values in
+            return values.reduce(true) { $0 && $1 }
+        }
     }
-    
+
     public init<L: PropertyType, R: PropertyType where L.Value == Bool, R.Value == Bool>(lhs: L, rhs: R) {
-        left = AnyProperty(lhs)
-        right = AnyProperty(rhs)
+        terms = [AnyProperty(lhs), AnyProperty(rhs)]
     }
 }
 
-public struct OrProperty: PropertyType {
-    private let left: AnyProperty<Bool>
-    private let right: AnyProperty<Bool>
+public struct OrProperty: CompoundPropertyType {
+    public let terms: [AnyProperty<Bool>]
     
     public var value: Bool {
-        return left.value || right.value
+        return terms.reduce(false) { $0 || $1.value }
     }
     
     public var producer: SignalProducer<Bool, NoError> {
-        return combineLatest(left.producer, right.producer).map { $0 || $1 }
+        let producers = terms.map { $0.producer }
+        return combineLatest(producers).map { values in
+            return values.reduce(false) { $0 || $1 }
+        }
     }
-
+    
     public init<L: PropertyType, R: PropertyType where L.Value == Bool, R.Value == Bool>(lhs: L, rhs: R) {
-        left = AnyProperty(lhs)
-        right = AnyProperty(rhs)
+        terms = [AnyProperty(lhs), AnyProperty(rhs)]
     }
 }
 

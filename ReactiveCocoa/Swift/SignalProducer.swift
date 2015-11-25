@@ -393,7 +393,16 @@ extension SignalProducerType {
 	/// Note: starting the returned producer will start the receiver of the operator,
 	/// which may not be adviseable for some operators.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func liftRight<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+		return liftRight(transform)
+	}
+
+	/// Right-associative lifting of a binary signal operator over producers. That
+	/// is, the argument producer will be started before the receiver. When both
+	/// producers are synchronous this order can be important depending on the operator
+	/// to generate correct results.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	private func liftRight<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
@@ -409,17 +418,12 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Lifts a binary Signal operator to operate upon SignalProducers instead.
-	///
-	/// In other words, this will create a new SignalProducer which will apply
-	/// the given Signal operator to _every_ Signal created from the two
-	/// producers, just as if the operator had been applied to each Signal
-	/// yielded from start().
-	///
-	/// Note: starting the returned producer will start the receiver of the operator,
-	/// which may not be adviseable for some operators.
+	/// Left-associative lifting of a binary signal operator over producers. That
+	/// is, the receiver will be started before the argument producer. When both
+	/// producers are synchronous this order can be important depending on the operator
+	/// to generate correct results.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func liftLeft<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
+	private func liftLeft<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				otherProducer.startWithSignal { otherSignal, otherDisposable in

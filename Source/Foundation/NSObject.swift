@@ -35,17 +35,4 @@ extension NSObject {
     public func rex_stringProperty(keyPath: StaticString) -> MutableProperty<String> {
         return associatedProperty(self, keyPath: keyPath)
     }
-
-    /// Attaches a `MutableProperty` relying on KVC for the initial value and subsequent
-    /// updates. Note that `keyPath` is a `StaticString` because it's pointer value is used
-    /// as key value when associating the property.
-    ///
-    /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
-    /// bindings on Cocoa objects.
-    ///
-    /// N.B. Ensure that `self` isn't strongly captured by `placeholder`, otherwise this will
-    /// create a retain cycle causing `self` to never dealloc.
-    public func rex_classProperty<T: AnyObject>(keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
-        return associatedProperty(self, keyPath: keyPath, placeholder: placeholder)
-    }
 }

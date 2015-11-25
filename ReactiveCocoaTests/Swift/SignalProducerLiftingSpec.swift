@@ -831,6 +831,18 @@ class SignalProducerLiftingSpec: QuickSpec {
 				samplerObserver.sendCompleted()
 				expect(completed).to(beTruthy())
 			}
+
+			it("should emit an initial value if the sampler is a synchronous SignalProducer") {
+				let producer = SignalProducer<Int, NoError>(values: [1])
+				let sampler = SignalProducer<(), NoError>(value: ())
+				
+				let result = producer.sampleOn(sampler)
+				
+				var valueReceived: Int?
+				result.startWithNext { valueReceived = $0 }
+				
+				expect(valueReceived) == 1
+			}
 		}
 
 		describe("combineLatestWith") {

@@ -918,6 +918,21 @@ class SignalProducerSpec: QuickSpec {
 				expect(completed).to(equal(2))
 				expect(terminated).to(equal(2))
 			}
+
+			it("should attach event handlers for disposal") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.buffer()
+
+				var disposed: Bool = false
+
+				let producer = baseProducer
+					.on(disposed: { disposed = true })
+
+				let disposable = producer.start()
+
+				expect(disposed) == false
+				disposable.dispose()
+				expect(disposed) == true
+			}
 		}
 
 		describe("startOn") {

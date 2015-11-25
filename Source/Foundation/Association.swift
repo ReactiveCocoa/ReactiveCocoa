@@ -17,11 +17,11 @@ import ReactiveCocoa
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
 public func associatedProperty(host: AnyObject, keyPath: StaticString) -> MutableProperty<String> {
-    let initial: () -> String  = { [weak host] _ in
-        host?.valueForKeyPath(keyPath.stringValue) as? String ?? ""
+    let initial: AnyObject -> String  = { host in
+        host.valueForKeyPath(keyPath.stringValue) as? String ?? ""
     }
-    let setter: String -> () = { [weak host] newValue in
-        host?.setValue(newValue, forKeyPath: keyPath.stringValue)
+    let setter: (AnyObject, String) -> () = { host, newValue in
+        host.setValue(newValue, forKeyPath: keyPath.stringValue)
     }
     return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
 }
@@ -37,11 +37,11 @@ public func associatedProperty(host: AnyObject, keyPath: StaticString) -> Mutabl
 /// N.B. Ensure that `host` isn't strongly captured by `placeholder`, otherwise this will
 /// create a retain cycle with `host` causing it to never dealloc.
 public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
-    let initial: () -> T  = { [weak host] _ in
-        host?.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()
+    let initial: AnyObject -> T  = { host in
+        host.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()
     }
-    let setter: T -> () = { [weak host] newValue in
-        host?.setValue(newValue, forKeyPath: keyPath.stringValue)
+    let setter: (AnyObject, T) -> () = { host, newValue in
+        host.setValue(newValue, forKeyPath: keyPath.stringValue)
     }
     return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
 }
@@ -55,10 +55,16 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 ///
 /// N.B. Ensure that `host` isn't strongly captured by `initial` or `setter`, otherwise this
 /// will create a retain cycle with `host` causing it to never dealloc.
-public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T, setter: T -> ()) -> MutableProperty<T> {
-    return associatedObject(host, key: key) {
-        let property = MutableProperty(initial())
-        property.producer.start(Observer(next: setter))
+public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointer<()>, initial: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+    return associatedObject(host, key: key) { host in
+        let property = MutableProperty(initial(host))
+
+        property.producer.startWithNext { [weak host] next in
+            if let host = host {
+                setter(host, next)
+            }
+        }
+
         return property
     }
 }
@@ -69,10 +75,10 @@ public func associatedProperty<T>(host: AnyObject, key: UnsafePointer<()>, initi
 ///
 /// N.B. Ensure that `host` isn't strongly captured by `initial`, otherwise this will
 /// create a retain cycle with `host` causing it to never dealloc.
-public func associatedObject<T: AnyObject>(host: AnyObject, key: UnsafePointer<()>, initial: () -> T) -> T {
+public func associatedObject<Host: AnyObject, T: AnyObject>(host: Host, key: UnsafePointer<()>, initial: Host -> T) -> T {
     var value = objc_getAssociatedObject(host, key) as? T
     if value == nil {
-        value = initial()
+        value = initial(host)
         objc_setAssociatedObject(host, key, value, .OBJC_ASSOCIATION_RETAIN)
     }
     return value!

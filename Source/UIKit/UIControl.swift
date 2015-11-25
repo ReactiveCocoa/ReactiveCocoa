@@ -10,6 +10,8 @@ import ReactiveCocoa
 import UIKit
 
 extension UIControl {
+    public typealias InstanceType = UIControl
+
     /// Creates a producer for the sender whenever a specified control event is triggered.
     public func rex_controlEvents(events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
         return rac_signalForControlEvents(events)
@@ -20,17 +22,17 @@ extension UIControl {
 
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return rex_valueProperty(&enabledKey, { [weak self] in self?.enabled ?? true }, { [weak self] in self?.enabled = $0 })
+        return rex_valueProperty(&enabledKey, { $0.enabled }, { $0.enabled = $1 })
     }
     
     /// Wraps a control's `selected` state in a bindable property.
     public var rex_selected: MutableProperty<Bool> {
-        return rex_valueProperty(&selectedKey, { [weak self] in self?.selected ?? false }, { [weak self] in self?.selected = $0 })
+        return rex_valueProperty(&selectedKey, { $0.selected }, { $0.selected = $1 })
     }
     
     /// Wraps a control's `highlighted` state in a bindable property.
     public var rex_highlighted: MutableProperty<Bool> {
-        return rex_valueProperty(&highlightedKey, { [weak self] in self?.highlighted ?? false }, { [weak self] in self?.highlighted = $0 })
+        return rex_valueProperty(&highlightedKey, { $0.highlighted }, { $0.highlighted = $1 })
     }
 }
 

@@ -10,14 +10,16 @@ import ReactiveCocoa
 import UIKit
 
 extension UIView {
+    public typealias InstanceType = UIView
+
     /// Wraps a view's `alpha` value in a bindable property.
     public var rex_alpha: MutableProperty<CGFloat> {
-        return rex_valueProperty(&alphaKey, { [weak self] in self?.alpha ?? 1.0 }, { [weak self] in self?.alpha = $0 })
+        return rex_valueProperty(&alphaKey, { $0.alpha }, { $0.alpha = $1 })
     }
     
     /// Wraps a view's `hidden` state in a bindable property.
     public var rex_hidden: MutableProperty<Bool> {
-        return rex_valueProperty(&hiddenKey, { [weak self] in self?.hidden ?? false }, { [weak self] in self?.hidden = $0 })
+        return rex_valueProperty(&hiddenKey, { $0.hidden }, { $0.hidden = $1 })
     }
 }
 

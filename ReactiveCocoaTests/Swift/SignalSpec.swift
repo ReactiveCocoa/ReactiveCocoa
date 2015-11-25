@@ -784,6 +784,48 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(equal(1))
 			}
 		}
+		
+		describe("skipUntil") {
+			var signal: Signal<Int, NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var triggerObserver: Signal<(), NoError>.Observer!
+			
+			var lastValue: Int? = nil
+			
+			beforeEach {
+				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
+				let (triggerSignal, incomingTriggerObserver) = Signal<(), NoError>.pipe()
+				
+				signal = baseSignal.skipUntil(triggerSignal)
+				observer = incomingObserver
+				triggerObserver = incomingTriggerObserver
+				
+				lastValue = nil
+				
+				signal.observe { event in
+					switch event {
+					case let .Next(value):
+						lastValue = value
+					default:
+						break
+					}
+				}
+			}
+			
+			it("should skip values until the trigger fires") {
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext(1)
+				expect(lastValue).to(beNil())
+
+				observer.sendNext(2)
+				expect(lastValue).to(beNil())
+
+				triggerObserver.sendNext(())
+				observer.sendNext(0)
+				expect(lastValue).to(equal(0))
+			}
+		}		
 
 		describe("take") {
 			it("should take initial values") {

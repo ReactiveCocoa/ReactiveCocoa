@@ -978,6 +978,27 @@ extension SignalType {
 			return disposable
 		}
 	}
+	
+	/// Does not forward any values from `self` until `trigger` sends a Next or
+	/// Completed, at which point the returned signal behaves exactly like `signal`.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func skipUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+		return Signal { observer in
+			let disposable = SerialDisposable()
+			
+			disposable.innerDisposable = trigger.observe { event in
+				switch event {
+				case .Next, .Completed:
+					disposable.innerDisposable = self.observe(observer)
+					
+				case .Failed, .Interrupted:
+					break
+				}
+			}
+			
+			return disposable
+		}
+	}
 
 	/// Forwards events from `self` with history: values of the returned signal
 	/// are a tuple whose first member is the previous value and whose second member

@@ -44,16 +44,16 @@ public struct AndProperty: PropertyType {
         }
     }
 
-    public init(terms: [AnyProperty<Bool>]) {
-        self.terms = terms
-    }
-
     public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: terms + [AnyProperty(other)])
     }
 
     public func and(other: AnyProperty<Bool>) -> AndProperty {
         return AndProperty(terms: terms + [other])
+    }
+
+    private init(terms: [AnyProperty<Bool>]) {
+        self.terms = terms
     }
 }
 
@@ -71,16 +71,16 @@ public struct OrProperty: PropertyType {
         }
     }
 
-    public init(terms: [AnyProperty<Bool>]) {
-        self.terms = terms
-    }
-
     public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: terms + [AnyProperty(other)])
     }
 
     public func or(other: AnyProperty<Bool>) -> OrProperty {
         return OrProperty(terms: terms + [other])
+    }
+
+    private init(terms: [AnyProperty<Bool>]) {
+        self.terms = terms
     }
 }
 
@@ -95,7 +95,7 @@ public struct NotProperty: PropertyType {
         return source.producer.map { !$0 }
     }
 
-    public init<P: PropertyType where P.Value == Bool>(property: P) {
+    private init<P: PropertyType where P.Value == Bool>(property: P) {
         source = AnyProperty(property)
     }
 }

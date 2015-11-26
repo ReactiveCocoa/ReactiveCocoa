@@ -9,11 +9,11 @@
 import ReactiveCocoa
 
 extension PropertyType where Value == Bool {
-    public func and(other: Self) -> AndProperty {
+    public func and<P: PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: [AnyProperty(self), AnyProperty(other)])
     }
 
-    public func or(other: Self) -> OrProperty {
+    public func or<P: PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: [AnyProperty(self), AnyProperty(other)])
     }
 
@@ -43,6 +43,10 @@ public struct AndProperty: CompoundPropertyType {
     public init(terms: [AnyProperty<Bool>]) {
         self.terms = terms
     }
+
+    public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
+        return AndProperty(terms: terms + [AnyProperty(other)])
+    }
 }
 
 public struct OrProperty: CompoundPropertyType {
@@ -61,6 +65,10 @@ public struct OrProperty: CompoundPropertyType {
 
     public init(terms: [AnyProperty<Bool>]) {
         self.terms = terms
+    }
+
+    public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
+        return OrProperty(terms: terms + [AnyProperty(other)])
     }
 }
 

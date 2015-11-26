@@ -29,6 +29,17 @@ final class PredicateTests: XCTestCase {
         rhs.value = true
         XCTAssertTrue(and.value)
         XCTAssertTrue(current!)
+
+        let (signal, pipe) = Signal<Bool, NoError>.pipe()
+        let and2 = and.and(AnyProperty(initialValue: false, signal: signal))
+        and2.producer.startWithNext { current = $0 }
+
+        XCTAssertFalse(and2.value)
+        XCTAssertFalse(current!)
+
+        pipe.sendNext(true)
+        XCTAssertTrue(and2.value)
+        XCTAssertTrue(current!)
     }
 
     func testOrProperty() {
@@ -47,6 +58,17 @@ final class PredicateTests: XCTestCase {
 
         rhs.value = false
         XCTAssertFalse(or.value)
+        XCTAssertFalse(current!)
+
+        let (signal, pipe) = Signal<Bool, NoError>.pipe()
+        let or2 = or.or(AnyProperty(initialValue: true, signal: signal))
+        or2.producer.startWithNext { current = $0 }
+
+        XCTAssertTrue(or2.value)
+        XCTAssertTrue(current!)
+
+        pipe.sendNext(false)
+        XCTAssertFalse(or2.value)
         XCTAssertFalse(current!)
     }
 

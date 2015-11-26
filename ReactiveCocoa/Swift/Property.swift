@@ -254,6 +254,11 @@ public func <~ <Value: _ObjectiveCBridgeable>(property: DynamicProperty, produce
 	return property <~ producer.map { $0._bridgeToObjectiveC() }
 }
 
+/// Binds `destinationProperty` to the latest values of `sourceProperty`, automatically bridging values to Objective-C.
+public func <~ <Value: _ObjectiveCBridgeable, Source: PropertyType where Source.Value == Value>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
+	return destinationProperty <~ sourceProperty.producer
+}
+
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///

@@ -700,6 +700,12 @@ class PropertySpec: QuickSpec {
 					property <~ producer
 					expect(object.rac_value) == 1
 				}
+
+				it("should bridge values from a source property to Objective-C") {
+					let source = MutableProperty(1)
+					property <~ source
+					expect(object.rac_value) == 1
+				}
 			}
 		}
 	}

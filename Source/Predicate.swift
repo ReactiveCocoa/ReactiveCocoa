@@ -30,11 +30,7 @@ extension PropertyType where Value == Bool {
     }
 }
 
-public protocol CompoundPropertyType: PropertyType {
-    var terms: [AnyProperty<Value>] { get }
-}
-
-public struct AndProperty: CompoundPropertyType {
+public struct AndProperty: PropertyType {
     public let terms: [AnyProperty<Bool>]
 
     public var value: Bool {
@@ -61,7 +57,7 @@ public struct AndProperty: CompoundPropertyType {
     }
 }
 
-public struct OrProperty: CompoundPropertyType {
+public struct OrProperty: PropertyType {
     public let terms: [AnyProperty<Bool>]
     
     public var value: Bool {

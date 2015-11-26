@@ -36,7 +36,7 @@ extension UIButton {
     /// Wraps a button's `title` text in a bindable property. Note that this only applies
     /// to `UIControlState.Normal`.
     public var rex_title: MutableProperty<String> {
-        return rex_valueProperty(&titleKey, { [weak self] in self?.titleForState(.Normal) ?? "" }, { [weak self] in self?.setTitle($0, forState: .Normal) })
+        return associatedProperty(self, key: &titleKey, initial: { $0.titleForState(.Normal) ?? "" }, setter: { $0.setTitle($1, forState: .Normal) })
     }
 }
 

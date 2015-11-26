@@ -12,12 +12,12 @@ import UIKit
 extension UIImageView {
     /// Wraps a imageView's `image` value in a bindable property.
     public var rex_image: MutableProperty<UIImage?> {
-        return rex_valueProperty(&imageKey, { [weak self] in self?.image }, { [weak self] in self?.image = $0 })
+        return associatedProperty(self, key: &imageKey, initial: { $0.image }, setter: { $0.image = $1 })
     }
     
     /// Wraps a imageView's `highlightedImage` value in a bindable property.
     public var rex_highlightedImage: MutableProperty<UIImage?> {
-        return rex_valueProperty(&highlightedImageKey, { [weak self] in self?.highlightedImage }, { [weak self] in self?.highlightedImage = $0 })
+        return associatedProperty(self, key: &highlightedImageKey, initial: { $0.highlightedImage }, setter: { $0.highlightedImage = $1 })
     }
 }
 

@@ -13,8 +13,16 @@ extension PropertyType where Value == Bool {
         return AndProperty(terms: [AnyProperty(self), AnyProperty(other)])
     }
 
+    public func and(other: AnyProperty<Bool>) -> AndProperty {
+        return AndProperty(terms: [AnyProperty(self), other])
+    }
+
     public func or<P: PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: [AnyProperty(self), AnyProperty(other)])
+    }
+
+    public func or(other: AnyProperty<Bool>) -> OrProperty {
+        return OrProperty(terms: [AnyProperty(self), other])
     }
 
     public func not() -> NotProperty {
@@ -47,6 +55,10 @@ public struct AndProperty: CompoundPropertyType {
     public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: terms + [AnyProperty(other)])
     }
+
+    public func and(other: AnyProperty<Bool>) -> AndProperty {
+        return AndProperty(terms: terms + [other])
+    }
 }
 
 public struct OrProperty: CompoundPropertyType {
@@ -69,6 +81,10 @@ public struct OrProperty: CompoundPropertyType {
 
     public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: terms + [AnyProperty(other)])
+    }
+
+    public func or(other: AnyProperty<Bool>) -> OrProperty {
+        return OrProperty(terms: terms + [other])
     }
 }
 

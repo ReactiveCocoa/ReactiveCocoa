@@ -26,7 +26,7 @@ extension PropertyType where Value == Bool {
     }
 
     public func not() -> NotProperty {
-        return NotProperty(property: self)
+        return NotProperty(source: AnyProperty(self), invert: true)
     }
 }
 
@@ -86,16 +86,22 @@ public struct OrProperty: PropertyType {
 
 public struct NotProperty: PropertyType {
     private let source: AnyProperty<Bool>
+    private let invert: Bool
     
     public var value: Bool {
-        return !source.value
+        return source.value != invert
     }
 
     public var producer: SignalProducer<Bool, NoError> {
-        return source.producer.map { !$0 }
+        return source.producer.map { $0 != self.invert }
     }
 
-    private init<P: PropertyType where P.Value == Bool>(property: P) {
-        source = AnyProperty(property)
+    public func not() -> NotProperty {
+        return NotProperty(source: source, invert: !invert)
+    }
+
+    private init(source: AnyProperty<Bool>, invert: Bool) {
+        self.source = source
+        self.invert = invert
     }
 }

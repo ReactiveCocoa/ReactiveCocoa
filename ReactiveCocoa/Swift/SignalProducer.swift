@@ -792,34 +792,19 @@ extension SignalProducerType {
 	public func on(started started: (() -> ())? = nil, event: (Event<Value, Error> -> ())? = nil, failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (Value -> ())? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
-			_ = disposed.map(compositeDisposable.addDisposable)
-
 			self.startWithSignal { signal, disposable in
-				compositeDisposable.addDisposable(disposable)
-
-				signal.observe { receivedEvent in
-					event?(receivedEvent)
-
-					switch receivedEvent {
-					case let .Next(value):
-						next?(value)
-
-					case let .Failed(error):
-						failed?(error)
-
-					case .Completed:
-						completed?()
-
-					case .Interrupted:
-						interrupted?()
-					}
-
-					if receivedEvent.isTerminating {
-						terminated?()
-					}
-
-					observer.action(receivedEvent)
-				}
+				compositeDisposable += disposable
+				compositeDisposable += signal
+					.on(
+						event: event,
+						failed: failed,
+						completed: completed,
+						interrupted: interrupted,
+						terminated: terminated,
+						disposed: disposed,
+						next: next
+					)
+					.observe(observer)
 			}
 		}
 	}

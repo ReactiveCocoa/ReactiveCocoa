@@ -33,17 +33,13 @@ public func associatedProperty(host: AnyObject, keyPath: StaticString) -> Mutabl
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-///
-/// N.B. Ensure that `host` isn't strongly captured by `placeholder`, otherwise this will
-/// create a retain cycle with `host` causing it to never dealloc.
-public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
-    let initial: AnyObject -> T  = { host in
-        host.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()
-    }
+public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticString, @noescape placeholder: () -> T) -> MutableProperty<T> {
     let setter: (AnyObject, T) -> () = { host, newValue in
         host.setValue(newValue, forKeyPath: keyPath.stringValue)
     }
-    return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
+    return associatedProperty(host, key: keyPath.utf8Start, initial: { host in
+        host.valueForKeyPath(keyPath.stringValue) as? T ?? placeholder()
+    }, setter: setter)
 }
 
 /// Attaches a `MutableProperty` value to the `host` object under `key`. The property is
@@ -52,7 +48,7 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointer<()>, initial: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointer<()>, @noescape initial: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
     return associatedObject(host, key: key) { host in
         let property = MutableProperty(initial(host))
 
@@ -69,7 +65,7 @@ public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointe
 /// On first use attaches the object returned from `initial` to the `host` object using
 /// `key` via `objc_setAssociatedObject`. On subsequent usage, returns said object via
 /// `objc_getAssociatedObject`.
-public func associatedObject<Host: AnyObject, T: AnyObject>(host: Host, key: UnsafePointer<()>, initial: Host -> T) -> T {
+public func associatedObject<Host: AnyObject, T: AnyObject>(host: Host, key: UnsafePointer<()>, @noescape initial: Host -> T) -> T {
     var value = objc_getAssociatedObject(host, key) as? T
     if value == nil {
         value = initial(host)

@@ -1018,7 +1018,8 @@ extension SignalType {
 	}
 	
 	/// Does not forward any values from `self` until `trigger` sends a Next or
-	/// Completed, at which point the returned signal behaves exactly like `signal`.
+	/// Completed event, at which point the returned signal behaves exactly like
+	/// `signal`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in

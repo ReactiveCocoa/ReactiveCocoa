@@ -27,8 +27,8 @@ public struct Bag<Element> {
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
 	public mutating func insert(value: Element) -> RemovalToken {
-		let nextIdentifier = currentIdentifier &+ 1
-		if nextIdentifier == 0 {
+		let (nextIdentifier, overflow) = UInt.addWithOverflow(currentIdentifier, 1)
+		if overflow {
 			reindex()
 		}
 
@@ -36,7 +36,7 @@ public struct Bag<Element> {
 		let element = BagElement(value: value, identifier: currentIdentifier, token: token)
 
 		elements.append(element)
-		currentIdentifier++
+		currentIdentifier = nextIdentifier
 
 		return token
 	}

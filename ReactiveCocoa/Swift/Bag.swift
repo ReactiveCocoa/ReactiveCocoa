@@ -70,21 +70,6 @@ public struct Bag<Element> {
 	}
 }
 
-extension Bag: SequenceType {
-	public func generate() -> AnyGenerator<Element> {
-		var index = 0
-		let count = elements.count
-
-		return anyGenerator {
-			if index < count {
-				return self.elements[index++].value
-			} else {
-				return nil
-			}
-		}
-	}
-}
-
 extension Bag: CollectionType {
 	public typealias Index = Array<Element>.Index
 

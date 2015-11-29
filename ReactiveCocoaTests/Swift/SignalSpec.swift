@@ -825,7 +825,21 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(0)
 				expect(lastValue).to(equal(0))
 			}
-		}		
+			
+			it("should skip values until the trigger completes") {
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext(1)
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext(2)
+				expect(lastValue).to(beNil())
+				
+				triggerObserver.sendCompleted()
+				observer.sendNext(0)
+				expect(lastValue).to(equal(0))
+			}
+		}
 
 		describe("take") {
 			it("should take initial values") {
@@ -1007,6 +1021,20 @@ class SignalSpec: QuickSpec {
 
 				expect(completed).to(beFalse())
 				triggerObserver.sendNext(())
+				expect(completed).to(beTrue())
+			}
+			
+			it("should take values until the trigger completes") {
+				expect(lastValue).to(beNil())
+				
+				observer.sendNext(1)
+				expect(lastValue).to(equal(1))
+				
+				observer.sendNext(2)
+				expect(lastValue).to(equal(2))
+				
+				expect(completed).to(beFalse())
+				triggerObserver.sendCompleted()
 				expect(completed).to(beTrue())
 			}
 

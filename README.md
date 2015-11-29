@@ -1,9 +1,8 @@
-# ReactiveCocoa [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+![](Logo/header.png)
 
-ReactiveCocoa (RAC) is a Cocoa framework inspired by
-[Functional Reactive
-Programming](https://en.wikipedia.org/wiki/Functional_reactive_programming). It
-provides APIs for composing and transforming **streams of values over time**.
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
+
+ReactiveCocoa (RAC) is a Cocoa framework inspired by [Functional Reactive Programming](https://en.wikipedia.org/wiki/Functional_reactive_programming). It provides APIs for composing and transforming **streams of values over time**.
 
  1. [Introduction](#introduction)
  1. [Example: online search](#example-online-search)

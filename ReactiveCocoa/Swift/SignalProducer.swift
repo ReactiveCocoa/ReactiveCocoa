@@ -277,8 +277,9 @@ private struct BufferState<Value, Error: ErrorType> {
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		values.append(value)
 
-		while values.count > capacity {
-			values.removeAtIndex(0)
+		let overflow = values.count - capacity
+		if overflow > 0 {
+			values.removeRange(0..<overflow)
 		}
 	}
 }

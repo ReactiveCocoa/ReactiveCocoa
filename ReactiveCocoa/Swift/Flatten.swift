@@ -261,40 +261,38 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { relayObserver in
-			let inFlight = Atomic(1)
-			let decrementInFlight: () -> () = {
-				let orig = inFlight.modify { $0 - 1 }
-				if orig == 1 {
-					relayObserver.sendCompleted()
-				}
-			}
+			self.observeMerge(MergeState(observer: relayObserver, disposable: nil))
+		}
+	}
 
-			self.observe { event in
-				switch event {
-				case let .Next(producer):
-					producer.startWithSignal { innerSignal, _ in
-						inFlight.modify { $0 + 1 }
+	private func observeMerge(state: MergeState<Value.Value, Error>) {
+		self.observe { event in
+			switch event {
+			case let .Next(producer):
+				producer.startWithSignal { innerSignal, innerDisposable in
+					state.inFlight.modify { $0 + 1 }
+					let handle = state.disposable?.addDisposable(innerDisposable) ?? nil
 
-						innerSignal.observe { event in
-							switch event {
-							case .Completed, .Interrupted:
-								decrementInFlight()
+					innerSignal.observe { event in
+						switch event {
+						case .Completed, .Interrupted:
+							handle?.remove()
+							state.decrementInFlight()
 
-							default:
-								relayObserver.action(event)
-							}
+						default:
+							state.observer.action(event)
 						}
 					}
-
-				case let .Failed(error):
-					relayObserver.sendFailed(error)
-
-				case .Completed:
-					decrementInFlight()
-
-				case .Interrupted:
-					relayObserver.sendInterrupted()
 				}
+
+			case let .Failed(error):
+				state.observer.sendFailed(error)
+
+			case .Completed:
+				state.decrementInFlight()
+
+			case .Interrupted:
+				state.observer.sendInterrupted()
 			}
 		}
 	}
@@ -306,48 +304,12 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { relayObserver, disposable in
-			let inFlight = Atomic(1)
-			let decrementInFlight: () -> () = {
-				let orig = inFlight.modify { $0 - 1 }
-				if orig == 1 {
-					relayObserver.sendCompleted()
-				}
-			}
+			let state = MergeState(observer: relayObserver, disposable: disposable)
 
 			self.startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observe { event in
-					switch event {
-					case let .Next(producer):
-						producer.startWithSignal { innerSignal, innerDisposable in
-							inFlight.modify { $0 + 1 }
-
-							let handle = disposable.addDisposable(innerDisposable)
-
-							innerSignal.observe { event in
-								switch event {
-								case .Completed, .Interrupted:
-									handle.remove()
-									decrementInFlight()
-
-								default:
-									relayObserver.action(event)
-								}
-							}
-						}
-
-					case let .Failed(error):
-						relayObserver.sendFailed(error)
-
-					case .Completed:
-						decrementInFlight()
-
-					case .Interrupted:
-						relayObserver.sendInterrupted()
-					}
-				}
-
+				signal.observeMerge(state)
 			}
 
 		}
@@ -366,6 +328,29 @@ extension SignalType {
 		}
 
 		return result
+	}
+}
+
+public final class MergeState<Value, Error: ErrorType> {
+	/// The observer of a started `concat` producer.
+	let observer: Observer<Value, Error>
+
+	/// The top level disposable of a started `concat` producer.
+	let disposable: CompositeDisposable?
+
+	/// The number of outstanding merged signals
+	let inFlight = Atomic(1)
+
+	init(observer: Observer<Value, Error>, disposable: CompositeDisposable?) {
+		self.observer = observer
+		self.disposable = disposable
+	}
+
+	func decrementInFlight() {
+		let orig = inFlight.modify { $0 - 1 }
+		if orig == 1 {
+			observer.sendCompleted()
+		}
 	}
 }
 

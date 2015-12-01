@@ -399,74 +399,75 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func switchToLatest() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			let latestInnerDisposable = SerialDisposable()
-			let state = Atomic(LatestState<Value, Error>())
+			self.observeSwitchToLatest(observer, Atomic(LatestState<Value, Error>()), SerialDisposable())
+		}
+	}
 
-			self.observe { event in
-				switch event {
-				case let .Next(innerProducer):
-					innerProducer.startWithSignal { innerSignal, innerDisposable in
-						state.modify { (var state) in
-							// When we replace the disposable below, this prevents the
-							// generated Interrupted event from doing any work.
-							state.replacingInnerSignal = true
-							return state
-						}
-
-						latestInnerDisposable.innerDisposable = innerDisposable
-
-						state.modify { (var state) in
-							state.replacingInnerSignal = false
-							state.innerSignalComplete = false
-							return state
-						}
-
-						innerSignal.observe { event in
-							switch event {
-							case .Interrupted:
-								// If interruption occurred as a result of a new producer
-								// arriving, we don't want to notify our observer.
-								let original = state.modify { (var state) in
-									if !state.replacingInnerSignal {
-										state.innerSignalComplete = true
-									}
-
-									return state
-								}
-
-								if !original.replacingInnerSignal && original.outerSignalComplete {
-									observer.sendCompleted()
-								}
-
-							case .Completed:
-								let original = state.modify { (var state) in
-									state.innerSignalComplete = true
-									return state
-								}
-
-								if original.outerSignalComplete {
-									observer.sendCompleted()
-								}
-
-							default:
-								observer.action(event)
-							}
-						}
-					}
-				case let .Failed(error):
-					observer.sendFailed(error)
-				case .Completed:
-					let original = state.modify { (var state) in
-						state.outerSignalComplete = true
+	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ state: Atomic<LatestState<Value, Error>>, _ latestInnerDisposable: SerialDisposable) {
+		self.observe { event in
+			switch event {
+			case let .Next(innerProducer):
+				innerProducer.startWithSignal { innerSignal, innerDisposable in
+					state.modify { (var state) in
+						// When we replace the disposable below, this prevents the
+						// generated Interrupted event from doing any work.
+						state.replacingInnerSignal = true
 						return state
 					}
 
-					if original.innerSignalComplete {
-						observer.sendCompleted()
+					latestInnerDisposable.innerDisposable = innerDisposable
+
+					state.modify { (var state) in
+						state.replacingInnerSignal = false
+						state.innerSignalComplete = false
+						return state
 					}
-				case .Interrupted:
-					observer.sendInterrupted()
+
+					innerSignal.observe { event in
+						switch event {
+						case .Interrupted:
+							// If interruption occurred as a result of a new producer
+							// arriving, we don't want to notify our observer.
+							let original = state.modify { (var state) in
+								if !state.replacingInnerSignal {
+									state.innerSignalComplete = true
+								}
+
+								return state
+							}
+
+							if !original.replacingInnerSignal && original.outerSignalComplete {
+								observer.sendCompleted()
+							}
+
+						case .Completed:
+							let original = state.modify { (var state) in
+								state.innerSignalComplete = true
+								return state
+							}
+
+							if original.outerSignalComplete {
+								observer.sendCompleted()
+							}
+
+						default:
+							observer.action(event)
+						}
+					}
 				}
+			case let .Failed(error):
+				observer.sendFailed(error)
+			case .Completed:
+				let original = state.modify { (var state) in
+					state.outerSignalComplete = true
+					return state
+				}
+
+				if original.innerSignalComplete {
+					observer.sendCompleted()
+				}
+			case .Interrupted:
+				observer.sendInterrupted()
 			}
 		}
 	}
@@ -490,72 +491,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 			let state = Atomic(LatestState<Value, Error>())
 
 			self.startWithSignal { signal, signalDisposable in
-				signal.observe { event in
-					switch event {
-					case let .Next(innerProducer):
-						innerProducer.startWithSignal { innerSignal, innerDisposable in
-							state.modify { (var state) in
-								// When we replace the disposable below, this prevents the
-								// generated Interrupted event from doing any work.
-								state.replacingInnerSignal = true
-								return state
-							}
-
-							latestInnerDisposable.innerDisposable = innerDisposable
-
-							state.modify { (var state) in
-								state.replacingInnerSignal = false
-								state.innerSignalComplete = false
-								return state
-							}
-
-							innerSignal.observe { event in
-								switch event {
-								case .Interrupted:
-									// If interruption occurred as a result of a new producer
-									// arriving, we don't want to notify our observer.
-									let original = state.modify { (var state) in
-										if !state.replacingInnerSignal {
-											state.innerSignalComplete = true
-										}
-
-										return state
-									}
-
-									if !original.replacingInnerSignal && original.outerSignalComplete {
-										observer.sendCompleted()
-									}
-
-								case .Completed:
-									let original = state.modify { (var state) in
-										state.innerSignalComplete = true
-										return state
-									}
-
-									if original.outerSignalComplete {
-										observer.sendCompleted()
-									}
-
-								default:
-									observer.action(event)
-								}
-							}
-						}
-					case let .Failed(error):
-						observer.sendFailed(error)
-					case .Completed:
-						let original = state.modify { (var state) in
-							state.outerSignalComplete = true
-							return state
-						}
-
-						if original.innerSignalComplete {
-							observer.sendCompleted()
-						}
-					case .Interrupted:
-						observer.sendInterrupted()
-					}
-				}
+				signal.observeSwitchToLatest(observer, state, latestInnerDisposable)
 			}
 		}
 	}

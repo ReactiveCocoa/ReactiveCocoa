@@ -1411,6 +1411,97 @@ class SignalProducerSpec: QuickSpec {
 					}
 				}
 			}
+
+			describe("disposal") {
+				var completeOuter: (Void -> Void)!
+				var disposeOuter: (Void -> Void)!
+				var execute: (FlattenStrategy -> Void)!
+
+				var innerDisposable = SimpleDisposable()
+				var interrupted = false
+
+				beforeEach {
+					execute = { strategy in
+						let (outerProducer, outerObserver) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+
+						innerDisposable = SimpleDisposable()
+						let innerProducer = SignalProducer<Int, NoError> { $1.addDisposable(innerDisposable) }
+						
+						interrupted = false
+						let outerDisposable = outerProducer.flatten(strategy).startWithInterrupted {
+							interrupted = true
+						}
+
+						completeOuter = outerObserver.sendCompleted
+						disposeOuter = outerDisposable.dispose
+
+						outerObserver.sendNext(innerProducer)
+					}
+				}
+				
+				describe("Concat") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Concat)
+
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Concat)
+
+						completeOuter()
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Latest") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Latest)
+
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Latest)
+
+						completeOuter()
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Merge") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Merge)
+
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Merge)
+
+						completeOuter()
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+			}
 		}
 
 		describe("times") {

@@ -24,7 +24,6 @@ class SignalSpec: QuickSpec {
 				var didRunGenerator = false
 				Signal<AnyObject, NoError> { observer in
 					didRunGenerator = true
-					return nil
 				}
 				
 				expect(didRunGenerator).to(beTruthy())
@@ -41,7 +40,6 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendFailed(TestError.Default)
 					}
-					return nil
 				}
 				
 				var errored = false
@@ -62,7 +60,6 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendCompleted()
 					}
-					return nil
 				}
 				
 				var completed = false
@@ -83,8 +80,6 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendInterrupted()
 					}
-
-					return nil
 				}
 
 				var interrupted = false
@@ -111,7 +106,6 @@ class SignalSpec: QuickSpec {
 						}
 						observer.sendCompleted()
 					}
-					return nil
 				}
 				
 				var fromSignal: [Int] = []
@@ -135,76 +129,6 @@ class SignalSpec: QuickSpec {
 				
 				expect(completed).to(beTruthy())
 				expect(fromSignal).to(equal(numbers))
-			}
-
-			it("should dispose of returned disposable upon error") {
-				let disposable = SimpleDisposable()
-				
-				let signal: Signal<AnyObject, TestError> = Signal { observer in
-					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
-					}
-					return disposable
-				}
-				
-				var errored = false
-				
-				signal.observeFailed { _ in errored = true }
-				
-				expect(errored).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
-				
-				testScheduler.run()
-				
-				expect(errored).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
-			}
-
-			it("should dispose of returned disposable upon completion") {
-				let disposable = SimpleDisposable()
-				
-				let signal: Signal<AnyObject, NoError> = Signal { observer in
-					testScheduler.schedule {
-						observer.sendCompleted()
-					}
-					return disposable
-				}
-				
-				var completed = false
-				
-				signal.observeCompleted { completed = true }
-				
-				expect(completed).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
-				
-				testScheduler.run()
-				
-				expect(completed).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
-			}
-
-			it("should dispose of returned disposable upon interrupted") {
-				let disposable = SimpleDisposable()
-
-				let signal: Signal<AnyObject, NoError> = Signal { observer in
-					testScheduler.schedule {
-						observer.sendInterrupted()
-					}
-					return disposable
-				}
-
-				var interrupted = false
-				signal.observeInterrupted {
-					interrupted = true
-				}
-
-				expect(interrupted).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
-
-				testScheduler.run()
-
-				expect(interrupted).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
 			}
 		}
 
@@ -330,9 +254,7 @@ class SignalSpec: QuickSpec {
 				testScheduler = TestScheduler()
 			}
 			
-			it("should stop forwarding events when disposed") {
-				let disposable = SimpleDisposable()
-				
+			it("should stop forwarding events when completed") {
 				let signal: Signal<Int, NoError> = Signal { observer in
 					testScheduler.schedule {
 						for number in [ 1, 2 ] {
@@ -341,7 +263,6 @@ class SignalSpec: QuickSpec {
 						observer.sendCompleted()
 						observer.sendNext(4)
 					}
-					return disposable
 				}
 				
 				var fromSignal: [Int] = []
@@ -349,12 +270,10 @@ class SignalSpec: QuickSpec {
 					fromSignal.append(number)
 				}
 				
-				expect(disposable.disposed).to(beFalsy())
 				expect(fromSignal).to(beEmpty())
 				
 				testScheduler.run()
-				
-				expect(disposable.disposed).to(beTruthy())
+
 				expect(fromSignal).to(equal([ 1, 2 ]))
 			}
 
@@ -362,7 +281,6 @@ class SignalSpec: QuickSpec {
 				var runCount = 0
 				let signal: Signal<(), NoError> = Signal { observer in
 					runCount += 1
-					return nil
 				}
 				
 				expect(runCount).to(equal(1))
@@ -881,7 +799,6 @@ class SignalSpec: QuickSpec {
 							observer.sendNext(number)
 						}
 					}
-					return nil
 				}
 				
 				var completed = false
@@ -904,7 +821,6 @@ class SignalSpec: QuickSpec {
 							observer.sendNext(number)
 						}
 					}
-					return nil
 				}
 
 				var result: [Int] = []
@@ -1197,7 +1113,6 @@ class SignalSpec: QuickSpec {
 						observer.sendNext(2)
 						observer.sendCompleted()
 					})
-					return nil
 				}
 				
 				var result: [Int] = []
@@ -1234,7 +1149,6 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendFailed(TestError.Default)
 					}
-					return nil
 				}
 				
 				var errored = false

@@ -1004,6 +1004,27 @@ class SignalProducerSpec: QuickSpec {
 				expect(values).to(equal([1, 2]))
 				expect(completed).to(beTruthy())
 			}
+
+			it("should interrupt the replaced producer on disposal") {
+				let (baseProducer, baseObserver) = SignalProducer<Int, TestError>.buffer()
+
+				var (disposed, interrupted) = (false, false)
+				let disposable = baseProducer
+					.flatMapError { (error: TestError) -> SignalProducer<Int, TestError> in
+						return SignalProducer<Int, TestError> { _, disposable in
+							disposable += ActionDisposable { disposed = true }
+						}
+					}
+					.start(Observer(interrupted: { _ in
+						interrupted = true
+					}))
+
+				baseObserver.sendFailed(.Default)
+				disposable.dispose()
+
+				expect(interrupted).to(beTruthy())
+				expect(disposed).to(beTruthy())
+			}
 		}
 
 		describe("flatten") {

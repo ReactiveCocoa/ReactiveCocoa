@@ -121,26 +121,28 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			let state = ConcatState(observer: observer, disposable: nil)
+			self.observeConcat(ConcatState(observer: observer, disposable: nil))
+		}
+	}
 
-			self.observe { event in
-				switch event {
-				case let .Next(value):
-					state.enqueueSignalProducer(value.producer)
+	private func observeConcat(state: ConcatState<Value.Value, Error>) {
+		self.observe { event in
+			switch event {
+			case let .Next(value):
+				state.enqueueSignalProducer(value.producer)
 
-				case let .Failed(error):
-					observer.sendFailed(error)
+			case let .Failed(error):
+				state.observer.sendFailed(error)
 
-				case .Completed:
-					// Add one last producer to the queue, whose sole job is to
-					// "turn out the lights" by completing `observer`.
-					state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
-						observer.sendCompleted()
-					}))
+			case .Completed:
+				// Add one last producer to the queue, whose sole job is to
+				// "turn out the lights" by completing `observer`.
+				state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
+					state.observer.sendCompleted()
+				}))
 
-				case .Interrupted:
-					observer.sendInterrupted()
-				}
+			case .Interrupted:
+				state.observer.sendInterrupted()
 			}
 		}
 	}
@@ -163,26 +165,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 
 			self.startWithSignal { signal, signalDisposable in
 				disposable += signalDisposable
-
-				signal.observe { event in
-					switch event {
-					case let .Next(value):
-						state.enqueueSignalProducer(value.producer)
-
-					case let .Failed(error):
-						observer.sendFailed(error)
-
-					case .Completed:
-						// Add one last producer to the queue, whose sole job is to
-						// "turn out the lights" by completing `observer`.
-						state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
-							observer.sendCompleted()
-						}))
-
-					case .Interrupted:
-						observer.sendInterrupted()
-					}
-				}
+				signal.observeConcat(state)
 			}
 		}
 	}
@@ -198,7 +181,7 @@ extension SignalProducerType {
 
 private final class ConcatState<Value, Error: ErrorType> {
 	/// The observer of a started `concat` producer.
-	let observer: Signal<Value, Error>.Observer
+	let observer: Observer<Value, Error>
 
 	/// The top level disposable of a started `concat` producer.
 	let disposable: CompositeDisposable?
@@ -386,7 +369,6 @@ extension SignalType {
 	}
 }
 
-
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Returns a signal that forwards values from the latest signal sent on
 	/// `signal`, ignoring values sent on previous inner signal.
@@ -496,7 +478,6 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 		}
 	}
 }
-
 
 private struct LatestState<Value, Error: ErrorType> {
 	var outerSignalComplete: Bool = false

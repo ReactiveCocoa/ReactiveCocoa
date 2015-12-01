@@ -625,19 +625,24 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatMapError<F>(handler: Error -> SignalProducer<Value, F>) -> Signal<Value, F> {
 		return Signal { observer in
-			self.observe { event in
-				switch event {
-				case let .Next(value):
-					observer.sendNext(value)
-				case let .Failed(error):
-					handler(error).startWithSignal { signal, _ in
-						signal.observe(observer)
-					}
-				case .Completed:
-					observer.sendCompleted()
-				case .Interrupted:
-					observer.sendInterrupted()
+			self.observeFlatMapError(handler, observer) { _ in }
+		}
+	}
+
+	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, onErrorStart: Disposable -> ()) {
+		self.observe { event in
+			switch event {
+			case let .Next(value):
+				observer.sendNext(value)
+			case let .Failed(error):
+				handler(error).startWithSignal { signal, disposable in
+					onErrorStart(disposable)
+					signal.observe(observer)
 				}
+			case .Completed:
+				observer.sendCompleted()
+			case .Interrupted:
+				observer.sendInterrupted()
 			}
 		}
 	}
@@ -655,20 +660,8 @@ extension SignalProducerType {
 			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
-				signal.observe { event in
-					switch event {
-					case let .Next(value):
-						observer.sendNext(value)
-					case let .Failed(error):
-						handler(error).startWithSignal { signal, signalDisposable in
-							serialDisposable.innerDisposable = signalDisposable
-							signal.observe(observer)
-						}
-					case .Completed:
-						observer.sendCompleted()
-					case .Interrupted:
-						observer.sendInterrupted()
-					}
+				signal.observeFlatMapError(handler, observer) {
+					serialDisposable.innerDisposable = $0
 				}
 			}
 		}

@@ -19,7 +19,7 @@ public final class Signal<Value, Error: ErrorType> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
-	private var generatorDisposable: SerialDisposable
+	private let generatorDisposable: SerialDisposable
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -132,7 +132,7 @@ public final class Signal<Value, Error: ErrorType> {
 					guard var observers = observers else { return nil }
 
 					observers.removeValueForToken(token)
-					if observers.count == 0 && self == nil {
+					if self == nil && observers.count == 0 {
 						generatorDisposable.dispose()
 					}
 					return observers
@@ -145,7 +145,7 @@ public final class Signal<Value, Error: ErrorType> {
 	}
 	
 	deinit {
-		if atomicObservers.value == nil || atomicObservers.value!.count == 0 {
+		if atomicObservers.value?.count ?? 0 == 0 {
 			generatorDisposable.dispose()
 		}
 	}

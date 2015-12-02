@@ -808,8 +808,6 @@ extension SignalProducerType {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			self.startWithSignal { signal, disposable in
-				_ = disposed.map(compositeDisposable.addDisposable)
-
 				compositeDisposable += disposable
 				compositeDisposable += signal
 					.on(
@@ -818,6 +816,7 @@ extension SignalProducerType {
 						completed: completed,
 						interrupted: interrupted,
 						terminated: terminated,
+						disposed: disposed,
 						next: next
 					)
 					.observe(observer)

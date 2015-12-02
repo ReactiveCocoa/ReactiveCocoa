@@ -125,8 +125,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 		}
 	}
 
-	private func observeConcat(state: ConcatState<Value.Value, Error>) {
-		self.observe { event in
+	private func observeConcat(state: ConcatState<Value.Value, Error>) -> Disposable? {
+		return self.observe { event in
 			switch event {
 			case let .Next(value):
 				state.enqueueSignalProducer(value.producer)
@@ -265,8 +265,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 		}
 	}
 
-	private func observeMerge(state: MergeState<Value.Value, Error>) {
-		self.observe { event in
+	private func observeMerge(state: MergeState<Value.Value, Error>) -> Disposable? {
+		return self.observe { event in
 			switch event {
 			case let .Next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
@@ -370,8 +370,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 		}
 	}
 
-	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ state: Atomic<LatestState<Value, Error>>, _ latestInnerDisposable: SerialDisposable) {
-		self.observe { event in
+	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ state: Atomic<LatestState<Value, Error>>, _ latestInnerDisposable: SerialDisposable) -> Disposable? {
+		return self.observe { event in
 			switch event {
 			case let .Next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
@@ -531,8 +531,8 @@ extension SignalType {
 		}
 	}
 
-	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, onErrorStart: Disposable -> ()) {
-		self.observe { event in
+	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, onErrorStart: Disposable -> ()) -> Disposable? {
+		return self.observe { event in
 			switch event {
 			case let .Next(value):
 				observer.sendNext(value)

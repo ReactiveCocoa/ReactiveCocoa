@@ -19,7 +19,7 @@ public final class Signal<Value, Error: ErrorType> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
-	private var generatorDisposable: SerialDisposable!
+	private var generatorDisposable: SerialDisposable
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -41,13 +41,12 @@ public final class Signal<Value, Error: ErrorType> {
 		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
-		let generatorDisposable = SerialDisposable()
-		self.generatorDisposable = generatorDisposable
+		generatorDisposable = SerialDisposable()
 
 		/// When set to `true`, the Signal should interrupt as soon as possible.
 		let interrupted = Atomic(false)
 
-		let observer = Observer { [atomicObservers = self.atomicObservers] event in
+		let observer = Observer { [atomicObservers = self.atomicObservers, generatorDisposable = self.generatorDisposable] event in
 			if case .Interrupted = event {
 				// Normally we disallow recursive events, but
 				// Interrupted is kind of a special snowflake, since it
@@ -146,8 +145,8 @@ public final class Signal<Value, Error: ErrorType> {
 	}
 	
 	deinit {
-		if atomicObservers.value == nil {
-			generatorDisposable?.dispose()
+		if atomicObservers.value == nil || atomicObservers.value!.count == 0 {
+			generatorDisposable.dispose()
 		}
 	}
 }

@@ -405,7 +405,47 @@ class SignalSpec: QuickSpec {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
 
 				expect(signal).to(beNil())
-			}
+      }
+
+      it("should not keep resulting signal alive indefinitely") {
+        var counter = 0
+        var lastValue: String?
+
+        let (signal, observer) = Signal<Int, NoError>.pipe()
+        
+        let foo = {
+          let mappedSignal = signal.map { integer -> String in
+            counter++
+            return String(integer + 1)
+          }
+
+          let disposable = mappedSignal.observeNext {
+            lastValue = $0
+          }
+
+          expect(lastValue).to(beNil())
+
+          observer.sendNext(0)
+          expect(lastValue).to(equal("1"))
+          expect(counter).to(equal(1))
+
+          observer.sendNext(1)
+          expect(lastValue).to(equal("2"))
+          expect(counter).to(equal(2))
+
+          disposable?.dispose()
+        }
+        
+        foo()
+
+        observer.sendNext(2)
+        expect(lastValue).to(equal("2"))
+        expect(counter).to(equal(2))
+
+        observer.sendNext(3)
+        expect(lastValue).to(equal("2"))
+        expect(counter).to(equal(2))
+      }
 		}
 
 		describe("mapError") {

@@ -36,71 +36,6 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
-			it("should deallocate after erroring") {
-				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
-					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
-					}
-					return nil
-				}
-				
-				var errored = false
-				
-				signal?.observeFailed { _ in errored = true }
-				
-				expect(errored).to(beFalsy())
-				expect(signal).toNot(beNil())
-				
-				testScheduler.run()
-				
-				expect(errored).to(beTruthy())
-				expect(signal).to(beNil())
-			}
-
-			it("should deallocate after completing") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
-					testScheduler.schedule {
-						observer.sendCompleted()
-					}
-					return nil
-				}
-				
-				var completed = false
-				
-				signal?.observeCompleted { completed = true }
-				
-				expect(completed).to(beFalsy())
-				expect(signal).toNot(beNil())
-				
-				testScheduler.run()
-				
-				expect(completed).to(beTruthy())
-				expect(signal).to(beNil())
-			}
-
-			it("should deallocate after interrupting") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal { observer in
-					testScheduler.schedule {
-						observer.sendInterrupted()
-					}
-
-					return nil
-				}
-
-				var interrupted = false
-				signal?.observeInterrupted {
-					interrupted = true
-				}
-
-				expect(interrupted).to(beFalsy())
-				expect(signal).toNot(beNil())
-
-				testScheduler.run()
-
-				expect(interrupted).to(beTruthy())
-				expect(signal).to(beNil())
-			}
-
 			it("should forward events to observers") {
 				let numbers = [ 1, 2, 5 ]
 				
@@ -218,48 +153,57 @@ class SignalSpec: QuickSpec {
 			it("should deallocate after erroring") {
 				let testScheduler = TestScheduler()
 				weak var weakSignal: Signal<(), TestError>?
+				var error: Bool = false
 				
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
 				let test: () -> () = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
+
 					testScheduler.schedule {
 						observer.sendFailed(TestError.Default)
 					}
+
+					signal.observeFailed { _ in error = true }
 				}
 				test()
-				
-				expect(weakSignal).toNot(beNil())
-				
-				testScheduler.run()
+
+				expect(error).to(beFalsy())
 				expect(weakSignal).to(beNil())
+				testScheduler.run()
+				expect(error).to(beTruthy())
 			}
 
 			it("should deallocate after completing") {
 				let testScheduler = TestScheduler()
 				weak var weakSignal: Signal<(), TestError>?
+				var completed: Bool = false
 				
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
 				let test: () -> () = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
+
 					testScheduler.schedule {
 						observer.sendCompleted()
 					}
+
+					signal.observeCompleted { completed = true }
 				}
 				test()
 				
-				expect(weakSignal).toNot(beNil())
-
-				testScheduler.run()
+				expect(completed).to(beFalsy())
 				expect(weakSignal).to(beNil())
+				testScheduler.run()
+				expect(completed).to(beTruthy())
 			}
 
 			it("should deallocate after interrupting") {
 				let testScheduler = TestScheduler()
 				weak var weakSignal: Signal<(), NoError>?
+				var interrupted: Bool = false
 
 				let test: () -> () = {
 					let (signal, observer) = Signal<(), NoError>.pipe()
@@ -268,13 +212,16 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendInterrupted()
 					}
+
+					signal.observeInterrupted { interrupted = true }
 				}
 
 				test()
-				expect(weakSignal).toNot(beNil())
 
-				testScheduler.run()
+				expect(interrupted).to(beFalsy())
 				expect(weakSignal).to(beNil())
+				testScheduler.run()
+				expect(interrupted).to(beTruthy())
 			}
 
 			it("should forward events to observers") {

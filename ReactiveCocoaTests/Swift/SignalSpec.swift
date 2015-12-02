@@ -453,6 +453,12 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(1)
 				expect(lastValue).to(equal("2"))
 			}
+
+			it("should not keep resulting signal alive indefinitely") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
+
+				expect(signal).to(beNil())
+			}
 		}
 		
 		

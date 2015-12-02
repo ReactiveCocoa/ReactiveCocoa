@@ -1,5 +1,5 @@
 //
-//  Predicate.swift
+//  Property.swift
 //  Rex
 //
 //  Created by Neil Pankey on 10/17/15.

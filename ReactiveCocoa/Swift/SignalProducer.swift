@@ -277,8 +277,9 @@ private struct BufferState<Value, Error: ErrorType> {
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		values.append(value)
 
-		while values.count > capacity {
-			values.removeAtIndex(0)
+		let overflow = values.count - capacity
+		if overflow > 0 {
+			values.removeRange(0..<overflow)
 		}
 	}
 }
@@ -588,6 +589,20 @@ extension SignalProducerType {
 		return lift(Signal.takeUntil)(trigger)
 	}
 
+	/// Does not forward any values from `self` until `trigger` sends a Next or
+	/// Completed, at which point the returned signal behaves exactly like `signal`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+		return liftRight(Signal.skipUntil)(trigger)
+	}
+	
+	/// Does not forward any values from `self` until `trigger` sends a Next or
+	/// Completed, at which point the returned signal behaves exactly like `signal`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func skipUntil(trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.skipUntil)(trigger)
+	}
+	
 	/// Forwards events from `self` with history: values of the returned producer
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`

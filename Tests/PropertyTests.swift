@@ -10,7 +10,7 @@
 import ReactiveCocoa
 import XCTest
 
-final class PredicateTests: XCTestCase {
+final class PropertyTests: XCTestCase {
 
     func testAndProperty() {
         let lhs = MutableProperty(false), rhs = MutableProperty(false)
@@ -18,14 +18,14 @@ final class PredicateTests: XCTestCase {
 
         var current: Bool!
         and.producer.startWithNext { current = $0 }
-        
+
         XCTAssertFalse(and.value)
         XCTAssertFalse(current!)
 
         lhs.value = true
         XCTAssertFalse(and.value)
         XCTAssertFalse(current!)
-        
+
         rhs.value = true
         XCTAssertTrue(and.value)
         XCTAssertTrue(current!)
@@ -48,7 +48,7 @@ final class PredicateTests: XCTestCase {
 
         var current: Bool!
         or.producer.startWithNext { current = $0 }
-        
+
         XCTAssertTrue(or.value)
         XCTAssertTrue(current!)
 
@@ -81,7 +81,7 @@ final class PredicateTests: XCTestCase {
 
         XCTAssertTrue(not.value)
         XCTAssertTrue(current!)
-        
+
         source.value = true
         XCTAssertFalse(not.value)
         XCTAssertFalse(current!)

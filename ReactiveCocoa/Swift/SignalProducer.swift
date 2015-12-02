@@ -123,14 +123,6 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
-		// This is effectively used as a synchronous mutex, but permitting
-		// limited recursive locking (see below).
-		//
-		// The queue is a "variable" just so we can use its address as the key
-		// and the value for dispatch_queue_set_specific().
-		var queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer", DISPATCH_QUEUE_SERIAL)
-		dispatch_queue_set_specific(queue, &queue, &queue, nil)
-
 		// Used as an atomic variable so we can remove observers without needing
 		// to run on the queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
@@ -139,31 +131,27 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
 
-			let replay = {
-				let originalState = state.modify { state in
-					var state = state
-					token = state.observers?.insert(observer)
-					return state
-				}
-
-				originalState.values.forEach(observer.sendNext)
-
-				if let terminationEvent = originalState.terminationEvent {
-					observer.action(terminationEvent)
-				}
+			// This lock is used to ensure that each observer receives events
+			// in the same order as they were buffered.
+			// This is required because another thread may push an event while
+			// the buffer is being replayed to the observer.
+			// In that case the lock prevents the observer from receiving that event
+			// before it receives all of the buffered events.
+			let replayLock = NSLock()
+			replayLock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer.replay"
+			replayLock.lock()
+			let originalState = state.modify { state in
+				var state = state
+				token = state.observers?.insert((observer, replayLock))
+				return state
 			}
 
-			// Prevent other threads from sending events while we're replaying,
-			// but don't deadlock if we're replaying in response to a buffer
-			// event observed elsewhere.
-			//
-			// In other words, this permits limited signal recursion for the
-			// specific case of replaying past events.
-			if dispatch_get_specific(&queue) != nil {
-				replay()
-			} else {
-				dispatch_sync(queue, replay)
+			originalState.values.forEach(observer.sendNext)
+
+			if let terminationEvent = originalState.terminationEvent {
+				observer.action(terminationEvent)
 			}
+			replayLock.unlock()
 
 			if let token = token {
 				disposable.addDisposable {
@@ -176,31 +164,36 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			}
 		}
 
+		let pushLock = NSLock()
+		pushLock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer.push"
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
-			// Send serially with respect to other senders, and never while
-			// another thread is in the process of replaying.
-			dispatch_sync(queue) {
-				let originalState = state.modify { state in
-					var mutableState = state
-
-					if let value = event.value {
-						mutableState.addValue(value, upToCapacity: capacity)
-					} else {
-						// Disconnect all observers and prevent future
-						// attachments.
-						mutableState.terminationEvent = event
-						mutableState.observers = nil
-					}
-
-					return mutableState
+			// Serialize pushing the events with a lock to prevent
+			// different observers from receiving the events in different order
+			// in case multiple threads push events at the same time.
+			pushLock.lock()
+			let originalState = state.modify { state in
+				var mutableState = state
+				if let value = event.value {
+					mutableState.addValue(value, upToCapacity: capacity)
+				} else {
+					// Disconnect all observers and prevent future
+					// attachments.
+					mutableState.terminationEvent = event
+					mutableState.observers = nil
 				}
+				return mutableState
+			}
 
-				if let observers = originalState.observers {
-					for observer in observers {
-						observer.action(event)
-					}
+			if let observers = originalState.observers {
+				for (observer, replayLock) in observers {
+					// Obtain the observer's lock to ensure that it receives
+					// all buffered events before the new event is sent to it
+					replayLock.lock()
+					observer.action(event)
+					replayLock.unlock()
 				}
 			}
+			pushLock.unlock()
 		}
 
 		return (producer, bufferingObserver)
@@ -273,7 +266,7 @@ private struct BufferState<Value, Error: ErrorType> {
 
 	// The observers currently attached to the buffered producer, or nil if the
 	// producer was terminated.
-	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
+	var observers: Bag<(Signal<Value, Error>.Observer, NSLock)>? = Bag()
 
 	// Appends a new value to the buffer, trimming it down to the given capacity
 	// if necessary.

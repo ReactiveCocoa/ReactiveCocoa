@@ -1015,7 +1015,7 @@ class SignalProducerSpec: QuickSpec {
 							disposable += ActionDisposable { disposed = true }
 						}
 					}
-					.start(Observer(interrupted: { _ in
+					.start(Observer(interrupted: {
 						interrupted = true
 					}))
 
@@ -1443,6 +1443,8 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Concat)
 
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())
@@ -1453,6 +1455,9 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Concat)
 
 						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())
@@ -1464,6 +1469,8 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Latest)
 
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())
@@ -1474,6 +1481,9 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Latest)
 
 						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())
@@ -1485,6 +1495,8 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Merge)
 
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())
@@ -1495,6 +1507,9 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Merge)
 
 						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
 						disposeOuter()
 
 						expect(innerDisposable.disposed).to(beTruthy())

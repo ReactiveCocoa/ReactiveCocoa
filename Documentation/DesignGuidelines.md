@@ -21,7 +21,7 @@ resource for getting up to speed on the main types and concepts provided by RAC.
 **[The `Signal` contract](#the-signal-contract)**
 
  1. [Signals start work when instantiated](#signals-start-work-when-instantiated)
- 1. [The event stream of the signal is alive regardless of the status of the respective `Signal` instance](#the-event-stream-of-the-signal-is-alive-regardless-of-the-status-of-the-respective-signal-instance)
+ 1. [The event stream of the signal is alive generally until a terminating event hits](#the-event-stream-of-the-signal-is-alive-generally-until-a-terminating-event-hits)
  1. [Unretained signals with no observer attached would be terminated without any terminating event](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event)
  1. [Observing a signal does not have side effects unless the signal is unretained](#observing-a-signal-does-not-have-side-effects-unless-the-signal-is-unretained)
  1. [All observers of a signal see the same events in the same order](#all-observers-of-a-signal-see-the-same-events-in-the-same-order)
@@ -192,7 +192,7 @@ It is also possible to send [events][Events] before the initializer returns. How
 since it is impossible for any [observers][Observers] to be attached at this point, any
 events sent this way cannot be received.
 
-#### The event stream of the signal is alive regardless of the status of the respective `Signal` instance
+#### The event stream of the signal is alive generally until a terminating event hits
 
 A `Signal` instance is just a proxy for attaching observers to the underlying event stream. Therefore, even if the caller does not maintain a reference to the `Signal`, generally speaking:
 
@@ -217,7 +217,7 @@ added or removed if the `Signal` is reachable, so the [`observe`][observe] metho
 has side effects.
 
 A signal’s side effects can only be stopped through [a terminating
-event](#the-event-stream-of-the-signal-is-alive-regardless-of-the-status-of-the-respective-signal-instance), or by becoming an [unretained signal](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event) with all observers detached.
+event](#the-event-stream-of-the-signal-is-alive-generally-until-a-terminating-event-hits), or by becoming an [unretained signal](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event) with all observers detached.
 
 #### All observers of a signal see the same events in the same order
 

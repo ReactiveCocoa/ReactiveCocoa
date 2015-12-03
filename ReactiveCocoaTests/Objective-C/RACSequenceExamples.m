@@ -56,7 +56,8 @@ QuickConfigurationBegin(RACSequenceExampleGroups)
 			});
 
 			qck_it(@"should only evaluate one value per scheduling", ^{
-				RACSignal *signal = [sequence signalWithScheduler:RACScheduler.mainThreadScheduler];
+				RACScheduler* scheduler = [RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh];
+				RACSignal *signal = [sequence signalWithScheduler:scheduler];
 
 				__block BOOL flag = YES;
 				__block BOOL completed = NO;
@@ -64,7 +65,7 @@ QuickConfigurationBegin(RACSequenceExampleGroups)
 					expect(@(flag)).to(beTruthy());
 					flag = NO;
 
-					[RACScheduler.mainThreadScheduler schedule:^{
+					[scheduler schedule:^{
 						// This should get executed before the next value (which
 						// verifies that it's YES).
 						flag = YES;

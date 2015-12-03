@@ -121,28 +121,30 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			self.observeConcat(ConcatState(observer: observer, disposable: nil))
+			self.observeConcat(observer)
 		}
 	}
 
-	private func observeConcat(state: ConcatState<Value.Value, Error>) -> Disposable? {
+	private func observeConcat(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable? = nil) -> Disposable? {
+		let state = ConcatState(observer: observer, disposable: disposable)
+
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
 				state.enqueueSignalProducer(value.producer)
 
 			case let .Failed(error):
-				state.observer.sendFailed(error)
+				observer.sendFailed(error)
 
 			case .Completed:
 				// Add one last producer to the queue, whose sole job is to
 				// "turn out the lights" by completing `observer`.
 				state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
-					state.observer.sendCompleted()
+					observer.sendCompleted()
 				}))
 
 			case .Interrupted:
-				state.observer.sendInterrupted()
+				observer.sendInterrupted()
 			}
 		}
 	}
@@ -161,11 +163,9 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { observer, disposable in
-			let state = ConcatState(observer: observer, disposable: disposable)
-
 			self.startWithSignal { signal, signalDisposable in
 				disposable += signalDisposable
-				signal.observeConcat(state)
+				signal.observeConcat(observer, disposable)
 			}
 		}
 	}
@@ -349,11 +349,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func switchToLatest() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			self.observeSwitchToLatest(observer, Atomic(LatestState<Value, Error>()), SerialDisposable())
+			self.observeSwitchToLatest(observer, SerialDisposable())
 		}
 	}
 
-	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ state: Atomic<LatestState<Value, Error>>, _ latestInnerDisposable: SerialDisposable) -> Disposable? {
+	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ latestInnerDisposable: SerialDisposable) -> Disposable? {
+		let state = Atomic(LatestState<Value, Error>())
+
 		return self.observe { event in
 			switch event {
 			case let .Next(innerProducer):
@@ -438,10 +440,8 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 			let latestInnerDisposable = SerialDisposable()
 			disposable.addDisposable(latestInnerDisposable)
 
-			let state = Atomic(LatestState<Value, Error>())
-
 			self.startWithSignal { signal, signalDisposable in
-				signal.observeSwitchToLatest(observer, state, latestInnerDisposable)
+				signal.observeSwitchToLatest(observer, latestInnerDisposable)
 			}
 		}
 	}
@@ -510,18 +510,18 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatMapError<F>(handler: Error -> SignalProducer<Value, F>) -> Signal<Value, F> {
 		return Signal { observer in
-			self.observeFlatMapError(handler, observer) { _ in }
+			self.observeFlatMapError(handler, observer, SerialDisposable())
 		}
 	}
 
-	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, onErrorStart: Disposable -> ()) -> Disposable? {
+	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ serialDisposable: SerialDisposable) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
 				observer.sendNext(value)
 			case let .Failed(error):
 				handler(error).startWithSignal { signal, disposable in
-					onErrorStart(disposable)
+					serialDisposable.innerDisposable = disposable
 					signal.observe(observer)
 				}
 			case .Completed:
@@ -545,9 +545,7 @@ extension SignalProducerType {
 			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
-				signal.observeFlatMapError(handler, observer) {
-					serialDisposable.innerDisposable = $0
-				}
+				signal.observeFlatMapError(handler, observer, serialDisposable)
 			}
 		}
 	}

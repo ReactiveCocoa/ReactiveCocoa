@@ -9,17 +9,17 @@
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+@testable import ReactiveCocoa
 
 class SignalSpec: QuickSpec {
 	override func spec() {
 		describe("init") {
 			var testScheduler: TestScheduler!
-			
+
 			beforeEach {
 				testScheduler = TestScheduler()
 			}
-			
+
 			it("should run the generator immediately") {
 				var didRunGenerator = false
 				Signal<AnyObject, NoError> { observer in
@@ -34,6 +34,105 @@ class SignalSpec: QuickSpec {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never
 				
 				expect(signal).to(beNil())
+			}
+
+			it("should release the internals of the signal after erroring") {
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+				
+				func createSignal() -> Signal<(), TestError> {
+					let signal = Signal<(), TestError> { observer in
+						testScheduler.schedule {
+							observer.sendFailed(TestError.Default)
+						}
+						return nil
+					}
+
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
+					return signal
+				}
+				
+				var errored = false
+				
+				createSignal().observeFailed { _ in errored = true }
+				
+				expect(errored) == false
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+				
+				testScheduler.run()
+
+				expect(errored) == true
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
+			}
+
+			it("should release the internals of the signal after completing") {
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+				
+				func createSignal() -> Signal<(), TestError> {
+					let signal = Signal<(), TestError> { observer in
+						testScheduler.schedule {
+							observer.sendCompleted()
+						}
+						return nil
+					}
+					
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
+					return signal
+				}
+				
+				var completed = false
+				
+				createSignal().observeCompleted { completed = true }
+				
+				expect(completed) == false
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+				
+				testScheduler.run()
+				
+				expect(completed) == true
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
+			}
+
+			it("should release the internals of the signal after interrupting") {
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+				
+				func createSignal() -> Signal<(), TestError> {
+					let signal = Signal<(), TestError> { observer in
+						testScheduler.schedule {
+							observer.sendInterrupted()
+						}
+						return nil
+					}
+					
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
+					return signal
+				}
+				
+				var interrupted = false
+				
+				createSignal().observeInterrupted { interrupted = true }
+				
+				expect(interrupted) == false
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+
+				testScheduler.run()
+
+				expect(interrupted) == true
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
 			}
 
 			it("should forward events to observers") {
@@ -150,78 +249,106 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
-			it("should deallocate after erroring") {
+			it("should release the internals of the signal after erroring") {
 				let testScheduler = TestScheduler()
-				weak var weakSignal: Signal<(), TestError>?
-				var error: Bool = false
-				
-				// Use an inner closure to help ARC deallocate things as we
+
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+
+				// Use an nested function to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				func createSignal() -> Signal<(), TestError> {
 					let (signal, observer) = Signal<(), TestError>.pipe()
-					weakSignal = signal
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
 
 					testScheduler.schedule {
 						observer.sendFailed(TestError.Default)
 					}
-
-					signal.observeFailed { _ in error = true }
+					
+					return signal
 				}
-				test()
+
+				var error: Bool = false
+				createSignal().observeFailed { _ in error = true }
 
 				expect(error).to(beFalsy())
-				expect(weakSignal).to(beNil())
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+
 				testScheduler.run()
+
 				expect(error).to(beTruthy())
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
 			}
 
-			it("should deallocate after completing") {
+			it("should release the internals of the signal after completing") {
 				let testScheduler = TestScheduler()
-				weak var weakSignal: Signal<(), TestError>?
-				var completed: Bool = false
 				
-				// Use an inner closure to help ARC deallocate things as we
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+				
+				// Use an nested function to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				func createSignal() -> Signal<(), TestError> {
 					let (signal, observer) = Signal<(), TestError>.pipe()
-					weakSignal = signal
-
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
 					testScheduler.schedule {
 						observer.sendCompleted()
 					}
-
-					signal.observeCompleted { completed = true }
+					
+					return signal
 				}
-				test()
+				
+				var completed: Bool = false
+				createSignal().observeCompleted { completed = true }
 				
 				expect(completed).to(beFalsy())
-				expect(weakSignal).to(beNil())
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+				
 				testScheduler.run()
+				
 				expect(completed).to(beTruthy())
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
 			}
 
-			it("should deallocate after interrupting") {
+			it("should release the internals of the signal after interrupting") {
 				let testScheduler = TestScheduler()
-				weak var weakSignal: Signal<(), NoError>?
-				var interrupted: Bool = false
-
-				let test: () -> () = {
-					let (signal, observer) = Signal<(), NoError>.pipe()
-					weakSignal = signal
-
+				
+				weak var atomicObservers: Atomic<Bag<Signal<(), TestError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+				
+				// Use an nested function to help ARC deallocate things as we
+				// expect.
+				func createSignal() -> Signal<(), TestError> {
+					let (signal, observer) = Signal<(), TestError>.pipe()
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
 					testScheduler.schedule {
 						observer.sendInterrupted()
 					}
-
-					signal.observeInterrupted { interrupted = true }
+					
+					return signal
 				}
-
-				test()
-
+				
+				var interrupted: Bool = false
+				createSignal().observeInterrupted { interrupted = true }
+				
 				expect(interrupted).to(beFalsy())
-				expect(weakSignal).to(beNil())
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+				
 				testScheduler.run()
+				
 				expect(interrupted).to(beTruthy())
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
 			}
 
 			it("should forward events to observers") {
@@ -401,23 +528,26 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(equal("2"))
 			}
 
-			it("should not keep resulting signal alive indefinitely") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
+			it("should not keep the resulting signal alive indefinitely") {
+				weak var signal: Signal<AnyObject, NoError>?
+
+				func foo() {
+					signal = Signal.never.map { $0 }
+				}
+				
+				foo()
 
 				expect(signal).to(beNil())
       }
 
-      it("should not keep resulting signal alive indefinitely") {
+      it("should never be called after the resulting signal is released, and there is no remaining observer to the resulting signal.") {
         var counter = 0
-        var lastValue: String?
+        var lastValue: Int?
 
         let (signal, observer) = Signal<Int, NoError>.pipe()
         
-        let foo = {
-          let mappedSignal = signal.map { integer -> String in
-            counter++
-            return String(integer + 1)
-          }
+        func foo() {
+					let mappedSignal = signal.map { _ in ++counter }
 
           let disposable = mappedSignal.observeNext {
             lastValue = $0
@@ -426,24 +556,28 @@ class SignalSpec: QuickSpec {
           expect(lastValue).to(beNil())
 
           observer.sendNext(0)
-          expect(lastValue).to(equal("1"))
+          expect(lastValue).to(equal(1))
           expect(counter).to(equal(1))
 
           observer.sendNext(1)
-          expect(lastValue).to(equal("2"))
+          expect(lastValue).to(equal(2))
           expect(counter).to(equal(2))
 
           disposable?.dispose()
+					
+					// At this point, mappedSignal should have no observer.
+					// Consequently, at the time of the deallocation of mappedSignal
+					// when exiting the scope, the internal disposable should be triggered.
         }
         
         foo()
 
         observer.sendNext(2)
-        expect(lastValue).to(equal("2"))
+        expect(lastValue).to(equal(2))
         expect(counter).to(equal(2))
 
         observer.sendNext(3)
-        expect(lastValue).to(equal("2"))
+        expect(lastValue).to(equal(2))
         expect(counter).to(equal(2))
       }
 		}
@@ -462,6 +596,18 @@ class SignalSpec: QuickSpec {
 
 				observer.sendFailed(TestError.Default)
 				expect(error).to(equal(producerError))
+			}
+
+			it("should not keep the resulting signal alive indefinitely") {
+				weak var signal: Signal<(), TestError>?
+
+				func foo() {
+					signal = Signal<(), TestError>.never.mapError { _ in TestError.Error1 }
+				}
+
+				foo()
+
+				expect(signal).to(beNil())
 			}
 		}
 

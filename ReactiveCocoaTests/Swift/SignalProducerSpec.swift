@@ -11,7 +11,7 @@ import Foundation
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+@testable import ReactiveCocoa
 
 class SignalProducerSpec: QuickSpec {
 	override func spec() {
@@ -859,6 +859,31 @@ class SignalProducerSpec: QuickSpec {
 
 				scheduler.advanceByInterval(1)
 				expect(dates).to(equal([firstTick, secondTick, scheduler.currentDate]))
+			}
+
+			it("should release the internals of the started signal when disposed") {
+				weak var atomicObservers: Atomic<Bag<Signal<NSDate, NoError>.Observer>?>!
+				weak var generatorDisposable: SerialDisposable!
+
+				let scheduler = TestScheduler()
+				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
+
+				producer.startWithSignal { signal, disposable in
+					atomicObservers = signal.atomicObservers
+					generatorDisposable = signal.generatorDisposable
+					
+					scheduler.schedule {
+						disposable.dispose()
+					}
+				}
+
+				expect(atomicObservers).toNot(beNil())
+				expect(generatorDisposable).toNot(beNil())
+
+				scheduler.run()
+
+				expect(atomicObservers).to(beNil())
+				expect(generatorDisposable).to(beNil())
 			}
 		}
 

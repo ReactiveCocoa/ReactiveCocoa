@@ -13,11 +13,13 @@ import Result
 /// must first be _started_, see the SignalProducer type.
 ///
 /// Signals do not need to be retained. A Signal will be automatically kept
-/// alive until the event stream has terminated.
+/// alive until the event stream has terminated. But the Signal instance might
+/// be deallocated ahead of the termination of the event stream.
 public final class Signal<Value, Error: ErrorType> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
-	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+	internal let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+	internal let generatorDisposable: SerialDisposable
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -26,17 +28,25 @@ public final class Signal<Value, Error: ErrorType> {
 	/// if a terminating event is sent to the observer. The Signal itself will
 	/// remain alive until the observer is released.
 	public init(@noescape _ generator: Observer -> Disposable?) {
+		/// Interrupts all observers and terminates the stream.
+		func interrupt(atomicObservers: Atomic<Bag<Observer>?>) {
+			if let observers = atomicObservers.swap(nil) {
+				for observer in observers {
+					observer.sendInterrupted()
+				}
+			}
+		}
 
 		/// Used to ensure that events are serialized during delivery to observers.
 		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
-		let generatorDisposable = SerialDisposable()
+		generatorDisposable = SerialDisposable()
 
 		/// When set to `true`, the Signal should interrupt as soon as possible.
 		let interrupted = Atomic(false)
 
-		let observer = Observer { event in
+		let observer = Observer { [atomicObservers = self.atomicObservers, generatorDisposable = self.generatorDisposable] event in
 			if case .Interrupted = event {
 				// Normally we disallow recursive events, but
 				// Interrupted is kind of a special snowflake, since it
@@ -48,14 +58,14 @@ public final class Signal<Value, Error: ErrorType> {
 				interrupted.value = true
 
 				if sendLock.tryLock() {
-					self.interrupt()
+					interrupt(atomicObservers)
 					sendLock.unlock()
 
 					generatorDisposable.dispose()
 				}
 
 			} else {
-				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
+				if let observers = (event.isTerminating ? atomicObservers.swap(nil) : atomicObservers.value) {
 					sendLock.lock()
 
 					for observer in observers {
@@ -64,7 +74,7 @@ public final class Signal<Value, Error: ErrorType> {
 
 					let shouldInterrupt = !event.isTerminating && interrupted.value
 					if shouldInterrupt {
-						self.interrupt()
+						interrupt(atomicObservers)
 					}
 
 					sendLock.unlock()
@@ -101,15 +111,6 @@ public final class Signal<Value, Error: ErrorType> {
 		return (signal, observer)
 	}
 
-	/// Interrupts all observers and terminates the stream.
-	private func interrupt() {
-		if let observers = self.atomicObservers.swap(nil) {
-			for observer in observers {
-				observer.sendInterrupted()
-			}
-		}
-	}
-
 	/// Observes the Signal by sending any future events to the given observer. If
 	/// the Signal has already terminated, the observer will immediately receive an
 	/// `Interrupted` event.
@@ -126,17 +127,26 @@ public final class Signal<Value, Error: ErrorType> {
 		}
 
 		if let token = token {
-			return ActionDisposable {
-				self.atomicObservers.modify { observers in
+			return ActionDisposable { [weak self, generatorDisposable = self.generatorDisposable, atomicObservers = self.atomicObservers] in
+				atomicObservers.modify { observers in
 					guard var observers = observers else { return nil }
 
 					observers.removeValueForToken(token)
+					if self == nil && observers.count == 0 {
+						generatorDisposable.dispose()
+					}
 					return observers
 				}
 			}
 		} else {
 			observer.sendInterrupted()
 			return nil
+		}
+	}
+	
+	deinit {
+		if atomicObservers.value?.count ?? 0 == 0 {
+			generatorDisposable.dispose()
 		}
 	}
 }

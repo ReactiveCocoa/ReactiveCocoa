@@ -21,9 +21,10 @@ resource for getting up to speed on the main types and concepts provided by RAC.
 **[The `Signal` contract](#the-signal-contract)**
 
  1. [Signals start work when instantiated](#signals-start-work-when-instantiated)
- 1. [Observing a signal does not have side effects](#observing-a-signal-does-not-have-side-effects)
+ 1. [The event stream of the signal is alive generally until a terminating event hits](#the-event-stream-of-the-signal-is-alive-generally-until-a-terminating-event-hits)
+ 1. [Unretained signals with no observer attached would be terminated without any terminating event](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event)
+ 1. [Observing a signal does not have side effects unless the signal is unretained](#observing-a-signal-does-not-have-side-effects-unless-the-signal-is-unretained)
  1. [All observers of a signal see the same events in the same order](#all-observers-of-a-signal-see-the-same-events-in-the-same-order)
- 1. [A signal is retained until the underlying observer is released](#a-signal-is-retained-until-the-underlying-observer-is-released)
  1. [Terminating events dispose of signal resources](#terminating-events-dispose-of-signal-resources)
 
 **[The `SignalProducer` contract](#the-signalproducer-contract)**
@@ -187,24 +188,42 @@ a signal cannot be restarted.
 [`Signal.init`][Signal.init] immediately executes the generator closure that is passed to it.
 This means that side effects may occur even before the initializer returns.
 
-It is also possible to send [events][] before the initializer returns. However,
-since it is impossible for any [observers][] to be attached at this point, any
+It is also possible to send [events][Events] before the initializer returns. However,
+since it is impossible for any [observers][Observers] to be attached at this point, any
 events sent this way cannot be received.
 
-#### Observing a signal does not have side effects
+#### The event stream of the signal is alive generally until a terminating event hits
 
-The work associated with a `Signal` does not start or stop when [observers][] are
-added or removed, so the [`observe`][observe] method (or the cancellation thereof) never
+A `Signal` instance is just a proxy for attaching observers to the underlying event stream. Therefore, even if the caller does not maintain a reference to the `Signal`, generally speaking:
+
+ - The event stream created with [`Signal.init`][Signal.init] is kept alive until the [observer][Observers] argument passed into the generator closure is released.
+ - The event stream created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer is released.
+ - Either way, the event stream is kept alive also until a terminating event is posted to it, or until the signal becomes [unretained](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event) and has all observers detached.
+
+This ensures that signals associated with long-running work do not deallocate prematurely.
+
+#### Unretained signals with no observer attached would be terminated without any terminating event
+
+A `Signal` instance is not retained internally, but only the necessary data structures for the underlying event stream. Therefore, it is possible of the `Signal` to be deallocated ahead of the termination of the underlying event stream.
+
+A signal is defined as an **unretained** signal if the respective `Signal` instance is deallocated. An unretained signal is guaranteed to have no future [observer][Observers] being attached to, but it can still have existing [observers][Observers] and side effect on-going.
+
+If an unretained signal has no remaining observer, the event stream and the associated side effect should be terminated immediately without an terminating [event][Events], and dispose all the resources being used.
+
+#### Observing a signal does not have side effects unless the signal is unretained
+
+The work associated with a `Signal` does not start or stop when [observers][Observers] are
+added or removed if the `Signal` is reachable, so the [`observe`][observe] method never
 has side effects.
 
 A signal’s side effects can only be stopped through [a terminating
-event](#signals-are-retained-until-a-terminating-event-occurs).
+event](#the-event-stream-of-the-signal-is-alive-generally-until-a-terminating-event-hits), or by becoming an [unretained signal](#unretained-signals-with-no-observer-attached-would-be-terminated-without-any-terminating-event) with all observers detached.
 
 #### All observers of a signal see the same events in the same order
 
 Because [observation does not have side
-effects](#observing-a-signal-does-not-have-side-effects), a `Signal` never
-customizes events for different [observers][]. When an event is sent upon a signal,
+effects](#observing-a-signal-does-not-have-side-effects-unless-the-signal-is-unretained), a `Signal` never
+customizes events for different [observers][Observers]. When an event is sent upon a signal,
 it will be [synchronously](#events-are-sent-synchronously-by-default)
 distributed to all observers that are attached at that time, much like
 how `NSNotificationCenter` sends notifications.
@@ -217,25 +236,9 @@ has already terminated will result in exactly one
 [`Interrupted`](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
 event sent to that specific observer.
 
-#### A signal is retained until the underlying observer is released
-
-Even if the caller does not maintain a reference to the `Signal`:
-
- - A signal created with [`Signal.init`][Signal.init] is kept alive until the generator closure
-   releases the [observer][Observers] argument.
- - A signal created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer
-   is released.
-
-This ensures that signals associated with long-running work do not deallocate
-prematurely.
-
-Note that it is possible to release a signal before a terminating [event][Events] has been
-sent upon it. This should usually be avoided, as it can result in resource
-leaks, but is sometimes useful to disable termination.
-
 #### Terminating events dispose of signal resources
 
-When a terminating [event][Events] is sent along a `Signal`, all [observers][] will be
+When a terminating [event][Events] is sent along a `Signal`, all [observers][Observers] will be
 released, and any resources being used to generate events should be disposed of.
 
 The easiest way to ensure proper resource cleanup is to return a [disposable][Disposables]

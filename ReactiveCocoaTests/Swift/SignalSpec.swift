@@ -538,48 +538,48 @@ class SignalSpec: QuickSpec {
 				foo()
 
 				expect(signal).to(beNil())
-      }
+			}
 
-      it("should never be called after the resulting signal is released, and there is no remaining observer to the resulting signal.") {
-        var counter = 0
-        var lastValue: Int?
+			it("should never be called after the resulting signal is released, and there is no remaining observer to the resulting signal.") {
+				var counter = 0
+				var lastValue: Int?
 
-        let (signal, observer) = Signal<Int, NoError>.pipe()
-        
-        func foo() {
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+
+				func foo() {
 					let mappedSignal = signal.map { _ in ++counter }
 
-          let disposable = mappedSignal.observeNext {
-            lastValue = $0
-          }
+					let disposable = mappedSignal.observeNext {
+						lastValue = $0
+					}
 
-          expect(lastValue).to(beNil())
+					expect(lastValue).to(beNil())
 
-          observer.sendNext(0)
-          expect(lastValue).to(equal(1))
-          expect(counter).to(equal(1))
+					observer.sendNext(0)
+					expect(lastValue).to(equal(1))
+					expect(counter).to(equal(1))
 
-          observer.sendNext(1)
-          expect(lastValue).to(equal(2))
-          expect(counter).to(equal(2))
+					observer.sendNext(1)
+					expect(lastValue).to(equal(2))
+					expect(counter).to(equal(2))
 
-          disposable?.dispose()
-					
+					disposable?.dispose()
+
 					// At this point, mappedSignal should have no observer.
 					// Consequently, at the time of the deallocation of mappedSignal
 					// when exiting the scope, the internal disposable should be triggered.
-        }
-        
-        foo()
+				}
 
-        observer.sendNext(2)
-        expect(lastValue).to(equal(2))
-        expect(counter).to(equal(2))
+				foo()
 
-        observer.sendNext(3)
-        expect(lastValue).to(equal(2))
-        expect(counter).to(equal(2))
-      }
+				observer.sendNext(2)
+				expect(lastValue).to(equal(2))
+				expect(counter).to(equal(2))
+
+				observer.sendNext(3)
+				expect(lastValue).to(equal(2))
+				expect(counter).to(equal(2))
+			}
 		}
 
 		describe("mapError") {

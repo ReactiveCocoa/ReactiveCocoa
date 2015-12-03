@@ -1837,29 +1837,30 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("take") {
 			it("Should not start concat'ed producer if the first one sends a value when using take(1)") {
-				let producer1 = SignalProducer<(), NoError>() { handler, _ in
-					handler.sendNext(())
+				let scheduler: QueueScheduler
+				if #available(OSX 10.10, *) {
+					scheduler = QueueScheduler()
+				} else {
+					scheduler = QueueScheduler(queue: dispatch_get_main_queue())
+				}
+
+				// Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
+				let producer1 = SignalProducer<Int, NoError>() { handler, _ in
+					handler.sendNext(1)
 					handler.sendCompleted()
-				}.startOn(QueueScheduler()) // Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
+				}.startOn(scheduler)
 
-				let producer2 = SignalProducer<(), NoError>() { handler, _ in
-					XCTFail("producer2 shouldn't be started because producer1 sends enough values for the subscriber")
-
-					handler.sendNext(())
+				var started = false
+				let producer2 = SignalProducer<Int, NoError>() { handler, _ in
+					started = true
+					handler.sendNext(2)
 					handler.sendCompleted()
 				}
 
-				let resultProducer = producer1.concat(producer2).take(1)
+				let result = producer1.concat(producer2).take(1).collect().first()
 
-				guard let result = resultProducer.collect().first() else {
-					XCTFail("Result shouldn't be nil")
-					return
-				}
-
-				switch result {
-					case .Success(let values): XCTAssertEqual(values.count, 1, "result producer should only send one value")
-					case .Failure(let error): XCTFail("Error shouldn't occur: \(error)")
-				}
+				expect(result?.value).to(equal([1]))
+				expect(started).to(beFalsy())
 			}
 		}
 	}

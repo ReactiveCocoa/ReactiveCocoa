@@ -18,8 +18,8 @@ import Result
 public final class Signal<Value, Error: ErrorType> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
-	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
-	private let generatorDisposable: SerialDisposable
+	internal let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+	internal let generatorDisposable: SerialDisposable
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.

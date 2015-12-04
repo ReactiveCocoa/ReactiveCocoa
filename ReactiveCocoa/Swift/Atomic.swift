@@ -51,12 +51,12 @@ public final class Atomic<Value> {
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(@noescape action: Value -> Value) -> Value {
+	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
 		lock()
+		defer { unlock() }
+
 		let oldValue = _value
-		_value = action(_value)
-		unlock()
-		
+		_value = try action(_value)
 		return oldValue
 	}
 	
@@ -64,11 +64,10 @@ public final class Atomic<Value> {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	public func withValue<U>(@noescape action: Value -> U) -> U {
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
 		lock()
-		let result = action(_value)
-		unlock()
-		
-		return result
+		defer { unlock() }
+
+		return try action(_value)
 	}
 }

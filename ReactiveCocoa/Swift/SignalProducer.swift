@@ -1,3 +1,4 @@
+import Foundation
 import Result
 
 /// A SignalProducer creates Signals that can produce values of type `Value` and/or

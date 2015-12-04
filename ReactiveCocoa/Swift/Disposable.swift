@@ -198,9 +198,10 @@ public final class SerialDisposable: Disposable {
 		}
 
 		set(d) {
-			let oldState = state.modify { (var state) in
-				state.innerDisposable = d
-				return state
+			let oldState = state.modify { state in
+				var mutableState = state
+				mutableState.innerDisposable = d
+				return mutableState
 			}
 
 			oldState.innerDisposable?.dispose()

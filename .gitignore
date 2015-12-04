@@ -15,3 +15,5 @@ profile
 *.moved-aside
 
 Carthage/Build
+.build
+Packages

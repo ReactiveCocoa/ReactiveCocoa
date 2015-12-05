@@ -36,6 +36,26 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
+			it("should not keep signal alive indefinitely even if it has an observer") {
+				weak var signal: Signal<AnyObject, NoError>? = {
+					let signal: Signal<AnyObject, NoError> = Signal.never
+					return signal
+				}()
+				expect(signal).to(beNil())
+			}
+
+			it("should not keep signal alive indefinitely even if it has an observer with retained disposable") {
+				var disposable: Disposable? = nil
+				weak var signal: Signal<AnyObject, NoError>? = {
+					let signal: Signal<AnyObject, NoError> = Signal.never
+					disposable = signal.observe(Observer())
+					return signal
+				}()
+				expect(signal).to(beNil())
+				disposable?.dispose()
+				expect(signal).to(beNil())
+			}
+
 			it("should deallocate after erroring") {
 				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
 					testScheduler.schedule {
@@ -460,14 +480,23 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
-			it("should not keep resulting signal alive indefinitely after observing and disposing") {
+			it("should not keep resulting signal alive indefinitely even if it has an observer") {
+				weak var signal: Signal<AnyObject, NoError>? = {
+					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
+					signal.observe(Observer())
+					return signal
+				}()
+				expect(signal).to(beNil())
+			}
+
+			it("should not keep resulting signal alive indefinitely even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
 					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
 					disposable = signal.observe(Observer())
 					return signal
 				}()
-				expect(signal).toNot(beNil())
+				expect(signal).to(beNil())
 				disposable?.dispose()
 				expect(signal).to(beNil())
 			}

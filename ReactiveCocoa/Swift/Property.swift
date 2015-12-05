@@ -1,3 +1,5 @@
+import Foundation
+
 /// Represents a property that allows observation of its changes.
 public protocol PropertyType {
 	typealias Value

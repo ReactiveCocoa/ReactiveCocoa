@@ -128,8 +128,8 @@ public final class Signal<Value, Error: ErrorType> {
 		}
 
 		if let token = token {
-			return ActionDisposable {
-				self.atomicObservers.modify { observers in
+			return ActionDisposable { [weak self] in
+				self?.atomicObservers.modify { observers in
 					guard let immutableObservers = observers else { return nil }
 					var mutableObservers = immutableObservers
 

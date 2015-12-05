@@ -453,6 +453,24 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(1)
 				expect(lastValue).to(equal("2"))
 			}
+
+			it("should not keep resulting signal alive indefinitely") {
+				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
+
+				expect(signal).to(beNil())
+			}
+
+			it("should not keep resulting signal alive indefinitely after observing and disposing") {
+				var disposable: Disposable? = nil
+				weak var signal: Signal<AnyObject, NoError>? = {
+					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
+					disposable = signal.observe(Observer())
+					return signal
+				}()
+				expect(signal).toNot(beNil())
+				disposable?.dispose()
+				expect(signal).to(beNil())
+			}
 		}
 		
 		

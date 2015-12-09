@@ -2793,6 +2793,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2812,6 +2813,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2944,6 +2946,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -3019,6 +3022,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};

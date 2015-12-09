@@ -13,6 +13,8 @@
 		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
 		7A7065851A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
+		BEBDD6E91CDD7E67009A75A9 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		BEBDD6EA1CDD7E6A009A75A9 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D01B7B6419EDD94B00D26E01 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1220,6 +1222,7 @@
 				D037658A19EDA41200A782A9 /* RACEvent.h in Headers */,
 				D037667119EDA57100A782A9 /* EXTScope.h in Headers */,
 				D037653819EDA41200A782A9 /* NSString+RACSequenceAdditions.h in Headers */,
+				BEBDD6E91CDD7E67009A75A9 /* EXTRuntimeExtensions.h in Headers */,
 				D03764F819EDA41200A782A9 /* NSDictionary+RACSequenceAdditions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1249,6 +1252,7 @@
 				D037652D19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D03764F919EDA41200A782A9 /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				D037667219EDA57100A782A9 /* EXTScope.h in Headers */,
+				BEBDD6EA1CDD7E6A009A75A9 /* EXTRuntimeExtensions.h in Headers */,
 				D037663519EDA41200A782A9 /* UIDatePicker+RACSignalSupport.h in Headers */,
 				D037667419EDA57100A782A9 /* metamacros.h in Headers */,
 				D03764FD19EDA41200A782A9 /* NSEnumerator+RACSequenceAdditions.h in Headers */,

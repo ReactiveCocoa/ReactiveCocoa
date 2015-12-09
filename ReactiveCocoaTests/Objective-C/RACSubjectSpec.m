@@ -12,7 +12,7 @@
 #import "RACSubscriberExamples.h"
 
 #import <libkern/OSAtomic.h>
-#import "EXTScope.h"
+#import <ReactiveCocoa/EXTScope.h>
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"

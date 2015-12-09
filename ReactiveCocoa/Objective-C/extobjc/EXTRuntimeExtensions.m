@@ -7,7 +7,7 @@
 //  Released under the MIT license.
 //
 
-#import "EXTRuntimeExtensions.h"
+#import <ReactiveCocoa/EXTRuntimeExtensions.h>
 
 #import <ctype.h>
 #import <Foundation/Foundation.h>

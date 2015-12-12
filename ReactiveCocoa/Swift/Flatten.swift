@@ -201,9 +201,10 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var shouldStart = true
 
-		queuedSignalProducers.modify { (var queue) in
+		queuedSignalProducers.modify {
 			// An empty queue means the concat is idle, ready & waiting to start
 			// the next producer.
+			var queue = $0
 			shouldStart = queue.isEmpty
 			queue.append(producer)
 			return queue
@@ -221,10 +222,11 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var nextSignalProducer: SignalProducer<Value, Error>?
 
-		queuedSignalProducers.modify { (var queue) in
+		queuedSignalProducers.modify {
 			// Active producers remain in the queue until completed. Since
 			// dequeueing happens at completion of the active producer, the
 			// first producer in the queue can be removed.
+			var queue = $0
 			if !queue.isEmpty { queue.removeAtIndex(0) }
 			nextSignalProducer = queue.first
 			return queue
@@ -360,16 +362,18 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			switch event {
 			case let .Next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
-					state.modify { (var state) in
+					state.modify {
 						// When we replace the disposable below, this prevents the
 						// generated Interrupted event from doing any work.
+						var state = $0
 						state.replacingInnerSignal = true
 						return state
 					}
 
 					latestInnerDisposable.innerDisposable = innerDisposable
 
-					state.modify { (var state) in
+					state.modify {
+						var state = $0
 						state.replacingInnerSignal = false
 						state.innerSignalComplete = false
 						return state
@@ -380,7 +384,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 						case .Interrupted:
 							// If interruption occurred as a result of a new producer
 							// arriving, we don't want to notify our observer.
-							let original = state.modify { (var state) in
+							let original = state.modify {
+								var state = $0
 								if !state.replacingInnerSignal {
 									state.innerSignalComplete = true
 								}
@@ -393,7 +398,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 							}
 
 						case .Completed:
-							let original = state.modify { (var state) in
+							let original = state.modify {
+								var state = $0
 								state.innerSignalComplete = true
 								return state
 							}
@@ -410,7 +416,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			case let .Failed(error):
 				observer.sendFailed(error)
 			case .Completed:
-				let original = state.modify { (var state) in
+				let original = state.modify {
+					var state = $0
 					state.outerSignalComplete = true
 					return state
 				}

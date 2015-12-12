@@ -149,6 +149,10 @@
 		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
 		7A7065851A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
+		A1046B7A1BFF5661004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A1046B7B1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A1046B7C1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A1046B7D1BFF5664004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A9B3155E1B3940750001CB9C /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D037666819EDA57100A782A9 /* EXTRuntimeExtensions.m */; };
 		A9B315601B3940750001CB9C /* NSArray+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D037642B19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m */; };
 		A9B315631B3940750001CB9C /* NSData+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D037643119EDA41200A782A9 /* NSData+RACSupport.m */; };
@@ -1666,6 +1670,7 @@
 			files = (
 				57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */,
 				57A4D20B1BA13D7A00F7D4B1 /* EXTKeyPathCoding.h in Headers */,
+				A1046B7D1BFF5664004D8045 /* EXTRuntimeExtensions.h in Headers */,
 				57A4D20C1BA13D7A00F7D4B1 /* EXTScope.h in Headers */,
 				57A4D20D1BA13D7A00F7D4B1 /* metamacros.h in Headers */,
 				57A4D20E1BA13D7A00F7D4B1 /* NSArray+RACSequenceAdditions.h in Headers */,
@@ -1721,6 +1726,7 @@
 			files = (
 				A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */,
 				A9B315CB1B3940AB0001CB9C /* EXTKeyPathCoding.h in Headers */,
+				A1046B7C1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */,
 				A9B315CD1B3940AB0001CB9C /* EXTScope.h in Headers */,
 				A9B315CE1B3940AB0001CB9C /* metamacros.h in Headers */,
 				A9B315D01B3940AB0001CB9C /* NSArray+RACSequenceAdditions.h in Headers */,
@@ -1819,6 +1825,7 @@
 				D037652C19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D03764F019EDA41200A782A9 /* NSControl+RACTextSignalSupport.h in Headers */,
 				D03765EA19EDA41200A782A9 /* RACSubject.h in Headers */,
+				A1046B7A1BFF5661004D8045 /* EXTRuntimeExtensions.h in Headers */,
 				D037652819EDA41200A782A9 /* NSObject+RACSelectorSignal.h in Headers */,
 				D037654419EDA41200A782A9 /* NSURLConnection+RACSupport.h in Headers */,
 				D03764E819EDA41200A782A9 /* NSArray+RACSequenceAdditions.h in Headers */,
@@ -1894,6 +1901,7 @@
 				D03765D319EDA41200A782A9 /* RACSignal.h in Headers */,
 				D03765F519EDA41200A782A9 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D03765C719EDA41200A782A9 /* RACScopedDisposable.h in Headers */,
+				A1046B7B1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */,
 				D037661119EDA41200A782A9 /* RACUnit.h in Headers */,
 				D03765FD19EDA41200A782A9 /* RACTargetQueueScheduler.h in Headers */,
 				D037661919EDA41200A782A9 /* UIActionSheet+RACSignalSupport.h in Headers */,
@@ -2803,8 +2811,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -2822,8 +2832,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
@@ -2954,8 +2966,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Profile;
 		};
@@ -3029,8 +3043,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Test;
 		};

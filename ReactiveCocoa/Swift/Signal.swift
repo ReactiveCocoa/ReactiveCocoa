@@ -1,3 +1,4 @@
+import Foundation
 import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
@@ -119,19 +120,21 @@ public final class Signal<Value, Error: ErrorType> {
 	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
-			guard var observers = observers else { return nil }
-
-			token = observers.insert(observer)
-			return observers
+			guard let immutableObservers = observers else { return nil }
+			var mutableObservers = immutableObservers
+			
+			token = mutableObservers.insert(observer)
+			return mutableObservers
 		}
 
 		if let token = token {
 			return ActionDisposable {
 				self.atomicObservers.modify { observers in
-					guard var observers = observers else { return nil }
+					guard let immutableObservers = observers else { return nil }
+					var mutableObservers = immutableObservers
 
-					observers.removeValueForToken(token)
-					return observers
+					mutableObservers.removeValueForToken(token)
+					return mutableObservers
 				}
 			}
 		} else {
@@ -556,16 +559,18 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					state.modify { (var st) in
-						st.latestValue = value
-						return st
+					state.modify { st in
+						var mutableSt = st
+						mutableSt.latestValue = value
+						return mutableSt
 					}
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Completed:
-					let oldState = state.modify { (var st) in
-						st.signalCompleted = true
-						return st
+					let oldState = state.modify { st in
+						var mutableSt = st
+						mutableSt.signalCompleted = true
+						return mutableSt
 					}
 					
 					if oldState.samplerCompleted {
@@ -583,9 +588,10 @@ extension SignalType {
 						observer.sendNext(value)
 					}
 				case .Completed:
-					let oldState = state.modify { (var st) in
-						st.samplerCompleted = true
-						return st
+					let oldState = state.modify { st in
+						var mutableSt = st
+						mutableSt.samplerCompleted = true
+						return mutableSt
 					}
 					
 					if oldState.signalCompleted {
@@ -873,18 +879,20 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { (var states) in
-						states.0.values.append(value)
-						return states
+					states.modify { states in
+						var mutableStates = states
+						mutableStates.0.values.append(value)
+						return mutableStates
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { (var states) in
-						states.0.completed = true
-						return states
+					states.modify { states in
+						var mutableStates = states
+						mutableStates.0.completed = true
+						return mutableStates
 					}
 					
 					flush()
@@ -896,18 +904,20 @@ extension SignalType {
 			disposable += otherSignal.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { (var states) in
-						states.1.values.append(value)
-						return states
+					states.modify { states in
+						var mutableStates = states
+						mutableStates.1.values.append(value)
+						return mutableStates
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { (var states) in
-						states.1.completed = true
-						return states
+					states.modify { states in
+						var mutableStates = states
+						mutableStates.1.completed = true
+						return mutableStates
 					}
 					
 					flush()
@@ -977,23 +987,26 @@ extension SignalType {
 			disposable += self.observe { event in
 				if case let .Next(value) = event {
 					var scheduleDate: NSDate!
-					state.modify { (var state) in
-						state.pendingValue = value
+					state.modify { state in
+						var mutableState = state
+						mutableState.pendingValue = value
 
-						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let proposedScheduleDate = mutableState.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
 
-						return state
+						return mutableState
 					}
 
 					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-						let previousState = state.modify { (var state) in
-							if state.pendingValue != nil {
-								state.pendingValue = nil
-								state.previousDate = scheduleDate
+						let previousState = state.modify { state in
+							var mutableState = state
+
+							if mutableState.pendingValue != nil {
+								mutableState.pendingValue = nil
+								mutableState.previousDate = scheduleDate
 							}
 
-							return state
+							return mutableState
 						}
 						
 						if let pendingValue = previousState.pendingValue {

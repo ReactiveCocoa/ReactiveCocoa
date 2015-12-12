@@ -1,3 +1,4 @@
+import Foundation
 import Result
 
 /// A SignalProducer creates Signals that can produce values of type `Value` and/or
@@ -139,9 +140,10 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			var token: RemovalToken?
 
 			let replay: () -> () = {
-				let originalState = state.modify { (var state) in
-					token = state.observers?.insert(observer)
-					return state
+				let originalState = state.modify { state in
+					var mutableState = state
+					token = mutableState.observers?.insert(observer)
+					return mutableState
 				}
 
 				for value in originalState.values {
@@ -167,9 +169,10 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 			if let token = token {
 				disposable.addDisposable {
-					state.modify { (var state) in
-						state.observers?.removeValueForToken(token)
-						return state
+					state.modify { state in
+						var mutableState = state
+						mutableState.observers?.removeValueForToken(token)
+						return mutableState
 					}
 				}
 			}
@@ -179,17 +182,19 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			// Send serially with respect to other senders, and never while
 			// another thread is in the process of replaying.
 			dispatch_sync(queue) {
-				let originalState = state.modify { (var state) in
+				let originalState = state.modify { state in
+					var mutableState = state
+
 					if let value = event.value {
-						state.addValue(value, upToCapacity: capacity)
+						mutableState.addValue(value, upToCapacity: capacity)
 					} else {
 						// Disconnect all observers and prevent future
 						// attachments.
-						state.terminationEvent = event
-						state.observers = nil
+						mutableState.terminationEvent = event
+						mutableState.observers = nil
 					}
 
-					return state
+					return mutableState
 				}
 
 				if let observers = originalState.observers {

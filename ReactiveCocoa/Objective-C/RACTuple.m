@@ -7,7 +7,7 @@
 //
 
 #import "RACTuple.h"
-#import "EXTKeyPathCoding.h"
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import "RACTupleSequence.h"
 
 @implementation RACTupleNil

@@ -1,3 +1,5 @@
+import Foundation
+
 /// Represents an action that will do some work when executed with a value of
 /// type `Input`, then return zero or more values of type `Output` and/or fail
 /// with an error of type `Error`. If no failure should be possible, NoError can

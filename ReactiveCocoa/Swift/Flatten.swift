@@ -54,10 +54,10 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 }
 
 extension SignalProducerType where Value: SignalProducerType, Error == Value.Error {
-	/// Flattens the inner producers sent upon `signal` (into a single signal of
+	/// Flattens the inner producers sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
 	///
-	/// If `signal` or an active inner producer fails, the returned signal will
+	/// If `producer` or an active inner producer fails, the returned producer will
 	/// forward that failure immediately.
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
@@ -93,11 +93,11 @@ extension SignalType where Value: SignalType, Error == Value.Error {
 }
 
 extension SignalProducerType where Value: SignalType, Error == Value.Error {
-	/// Flattens the inner signals sent upon `signal` (into a single signal of
+	/// Flattens the inner signals sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
 	///
-	/// If `signal` or an active inner signal emits an error, the returned
-	/// signal will forward that error immediately.
+	/// If `producer` or an active inner signal emits an error, the returned
+	/// producer will forward that error immediately.
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
@@ -458,7 +458,7 @@ private struct LatestState<Value, Error: ErrorType> {
 
 
 extension SignalType {
-	/// Maps each event from `signal` to a new producer, then flattens the
+	/// Maps each event from `signal` to a new signal, then flattens the
 	/// resulting producers (into a signal of values), according to the
 	/// semantics of the given strategy.
 	///
@@ -494,7 +494,7 @@ extension SignalProducerType {
 	}
 
 	/// Maps each event from `self` to a new producer, then flattens the
-	/// resulting producers (into a producer of values), according to the
+	/// resulting signals (into a producer of values), according to the
 	/// semantics of the given strategy.
 	///
 	/// If `self` or any of the created signals emit an error, the returned

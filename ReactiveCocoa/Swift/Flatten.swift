@@ -62,7 +62,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		switch strategy {
 		case .Merge:
@@ -101,7 +101,7 @@ extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		return self.map(SignalProducer.init).flatten(strategy)
 	}
@@ -118,7 +118,6 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	///
 	/// The returned signal completes only when `signal` and all producers
 	/// emitted from `signal` complete.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
 			self.observeConcat(observer)
@@ -160,7 +159,6 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	///
 	/// The returned producer completes only when `producer` and all producers
 	/// emitted from `producer` complete.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func concat() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { observer, disposable in
 			self.startWithSignal { signal, signalDisposable in
@@ -260,7 +258,6 @@ private final class ConcatState<Value, Error: ErrorType> {
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producer
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { relayObserver in
 			self.observeMerge(relayObserver)
@@ -311,7 +308,6 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 extension SignalProducerType where Value: SignalProducerType, Error == Value.Error {
 	/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producer
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	private func merge() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { relayObserver, disposable in
 			self.startWithSignal { signal, signalDisposable in
@@ -327,6 +323,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public static func merge<S: SequenceType where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<Value, Error> {
 		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
 		var result: Signal<Value, Error>!
@@ -348,7 +345,6 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	///
 	/// The returned signal completes when `signal` and the latest inner
 	/// signal have both completed.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func switchToLatest() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
 			self.observeSwitchToLatest(observer, SerialDisposable())
@@ -441,7 +437,6 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	///
 	/// The returned signal completes when `signal` and the latest inner
 	/// signal have both completed.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	private func switchToLatest() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { observer, disposable in
 			let latestInnerDisposable = SerialDisposable()
@@ -493,7 +488,7 @@ extension SignalProducerType {
 	///
 	/// If `self` or any of the created producers fail, the returned producer
 	/// will forward that failure immediately.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> SignalProducer<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -504,7 +499,7 @@ extension SignalProducerType {
 	///
 	/// If `self` or any of the created signals emit an error, the returned
 	/// producer will forward that error immediately.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> Signal<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}

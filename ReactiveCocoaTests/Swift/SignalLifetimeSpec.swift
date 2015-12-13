@@ -182,16 +182,16 @@ class SignalLifetimeSpec: QuickSpec {
 			}
 		}
 
-		describe("map") {
+		describe("testTransform") {
 			it("should deallocate") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }.map { $0 }
+				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }.testTransform()
 
 				expect(signal).to(beNil())
 			}
 
 			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.map { $0 }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.testTransform()
 					signal.observe(Observer())
 					return signal
 				}()
@@ -201,7 +201,7 @@ class SignalLifetimeSpec: QuickSpec {
 			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.map { $0 }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.testTransform()
 					disposable = signal.observe(Observer())
 					return signal
 				}()
@@ -211,4 +211,14 @@ class SignalLifetimeSpec: QuickSpec {
 			}
 		}
 	}
+}
+
+private extension SignalType {
+
+	func testTransform() -> Signal<Value, Error> {
+		return Signal { observer in
+			self.observe(observer.action)
+		}
+	}
+
 }

@@ -31,14 +31,14 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal.never
+				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }
 				
 				expect(signal).to(beNil())
 			}
 
 			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal.never
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }
 					return signal
 				}()
 				expect(signal).to(beNil())
@@ -47,7 +47,7 @@ class SignalSpec: QuickSpec {
 			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal.never
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }
 					disposable = signal.observe(Observer())
 					return signal
 				}()
@@ -475,14 +475,14 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should deallocate") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
+				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }.map { $0 }
 
 				expect(signal).to(beNil())
 			}
 
 			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.map { $0 }
 					signal.observe(Observer())
 					return signal
 				}()
@@ -492,7 +492,7 @@ class SignalSpec: QuickSpec {
 			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.map { $0 }
 					disposable = signal.observe(Observer())
 					return signal
 				}()

@@ -30,13 +30,13 @@ class SignalSpec: QuickSpec {
 				expect(didRunGenerator).to(beTruthy())
 			}
 
-			it("should not keep signal alive indefinitely") {
+			it("should deallocate") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never
 				
 				expect(signal).to(beNil())
 			}
 
-			it("should not keep signal alive indefinitely even if it has an observer") {
+			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
 					let signal: Signal<AnyObject, NoError> = Signal.never
 					return signal
@@ -44,7 +44,7 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
-			it("should not keep signal alive indefinitely even if it has an observer with retained disposable") {
+			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
 					let signal: Signal<AnyObject, NoError> = Signal.never
@@ -474,13 +474,13 @@ class SignalSpec: QuickSpec {
 				expect(lastValue).to(equal("2"))
 			}
 
-			it("should not keep resulting signal alive indefinitely") {
+			it("should deallocate") {
 				weak var signal: Signal<AnyObject, NoError>? = Signal.never.map { $0 }
 
 				expect(signal).to(beNil())
 			}
 
-			it("should not keep resulting signal alive indefinitely even if it has an observer") {
+			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
 					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }
 					signal.observe(Observer())
@@ -489,7 +489,7 @@ class SignalSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
-			it("should not keep resulting signal alive indefinitely even if it has an observer with retained disposable") {
+			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
 					let signal: Signal<AnyObject, NoError> = Signal.never.map { $0 }

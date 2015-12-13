@@ -1015,9 +1015,7 @@ class SignalProducerSpec: QuickSpec {
 							disposable += ActionDisposable { disposed = true }
 						}
 					}
-					.start(Observer(interrupted: {
-						interrupted = true
-					}))
+					.startWithInterrupted { interrupted = true }
 
 				baseObserver.sendFailed(.Default)
 				disposable.dispose()

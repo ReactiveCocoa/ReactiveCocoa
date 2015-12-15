@@ -725,6 +725,10 @@
 		D8024DB31B2E1BB0005E6B9A /* SignalProducerLiftingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8024DB11B2E1BB0005E6B9A /* SignalProducerLiftingSpec.swift */; };
 		D8170FC11B100EBC004192AD /* FoundationExtensionsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */; };
 		D8170FC21B100EBC004192AD /* FoundationExtensionsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */; };
+		D85C652A1C0D84C7005A77AD /* Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C65291C0D84C7005A77AD /* Flatten.swift */; };
+		D85C652B1C0E70E3005A77AD /* Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C65291C0D84C7005A77AD /* Flatten.swift */; };
+		D85C652C1C0E70E4005A77AD /* Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C65291C0D84C7005A77AD /* Flatten.swift */; };
+		D85C652D1C0E70E5005A77AD /* Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C65291C0D84C7005A77AD /* Flatten.swift */; };
 		D871D69F1B3B29A40070F16C /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		D8E84A671B3B32FB00C3E831 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		EBCC7DBC1BBF010C00A2AE92 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
@@ -1094,6 +1098,7 @@
 		D43F279F1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDynamicPropertySuperclass.m; sourceTree = "<group>"; };
 		D8024DB11B2E1BB0005E6B9A /* SignalProducerLiftingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SignalProducerLiftingSpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoundationExtensionsSpec.swift; sourceTree = "<group>"; };
+		D85C65291C0D84C7005A77AD /* Flatten.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flatten.swift; sourceTree = "<group>"; };
 		D871D69E1B3B29A40070F16C /* Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Optional.swift; sourceTree = "<group>"; };
 		EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Observer.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
@@ -1462,6 +1467,7 @@
 			isa = PBXGroup;
 			children = (
 				D08C54AF1A69A2AC00AD8286 /* Action.swift */,
+				D85C65291C0D84C7005A77AD /* Flatten.swift */,
 				D08C54B01A69A2AC00AD8286 /* Property.swift */,
 				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
 				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
@@ -2145,6 +2151,7 @@
 				57A4D1C31BA13D7A00F7D4B1 /* NSData+RACSupport.m in Sources */,
 				57A4D1C41BA13D7A00F7D4B1 /* NSDictionary+RACSequenceAdditions.m in Sources */,
 				57A4D1C51BA13D7A00F7D4B1 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
+				D85C652D1C0E70E5005A77AD /* Flatten.swift in Sources */,
 				57A4D1C61BA13D7A00F7D4B1 /* NSFileHandle+RACSupport.m in Sources */,
 				57A4D1C71BA13D7A00F7D4B1 /* NSIndexSet+RACSequenceAdditions.m in Sources */,
 				57A4D1C81BA13D7A00F7D4B1 /* NSInvocation+RACTypeParsing.m in Sources */,
@@ -2238,6 +2245,7 @@
 				A9B315631B3940750001CB9C /* NSData+RACSupport.m in Sources */,
 				A9B315641B3940750001CB9C /* NSDictionary+RACSequenceAdditions.m in Sources */,
 				A9B315651B3940750001CB9C /* NSEnumerator+RACSequenceAdditions.m in Sources */,
+				D85C652C1C0E70E4005A77AD /* Flatten.swift in Sources */,
 				A9B315661B3940750001CB9C /* NSFileHandle+RACSupport.m in Sources */,
 				A9B315671B3940750001CB9C /* NSIndexSet+RACSequenceAdditions.m in Sources */,
 				A9B315681B3940750001CB9C /* NSInvocation+RACTypeParsing.m in Sources */,
@@ -2352,6 +2360,7 @@
 				D037650619EDA41200A782A9 /* NSIndexSet+RACSequenceAdditions.m in Sources */,
 				D037650E19EDA41200A782A9 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D03765FA19EDA41200A782A9 /* RACSubscriptionScheduler.m in Sources */,
+				D85C652A1C0D84C7005A77AD /* Flatten.swift in Sources */,
 				D0C312CF19EF2A5800984962 /* Bag.swift in Sources */,
 				D037658019EDA41200A782A9 /* RACEmptySequence.m in Sources */,
 				D03765AA19EDA41200A782A9 /* RACObjCRuntime.m in Sources */,
@@ -2513,6 +2522,7 @@
 				D037664319EDA41200A782A9 /* UIRefreshControl+RACCommandSupport.m in Sources */,
 				D037651B19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */,
 				D03765A519EDA41200A782A9 /* RACMulticastConnection.m in Sources */,
+				D85C652B1C0E70E3005A77AD /* Flatten.swift in Sources */,
 				D037654F19EDA41200A782A9 /* RACArraySequence.m in Sources */,
 				D037652319EDA41200A782A9 /* NSObject+RACLifting.m in Sources */,
 				D037650719EDA41200A782A9 /* NSIndexSet+RACSequenceAdditions.m in Sources */,

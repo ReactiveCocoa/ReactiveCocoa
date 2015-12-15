@@ -1004,6 +1004,25 @@ class SignalProducerSpec: QuickSpec {
 				expect(values).to(equal([1, 2]))
 				expect(completed).to(beTruthy())
 			}
+
+			it("should interrupt the replaced producer on disposal") {
+				let (baseProducer, baseObserver) = SignalProducer<Int, TestError>.buffer()
+
+				var (disposed, interrupted) = (false, false)
+				let disposable = baseProducer
+					.flatMapError { (error: TestError) -> SignalProducer<Int, TestError> in
+						return SignalProducer<Int, TestError> { _, disposable in
+							disposable += ActionDisposable { disposed = true }
+						}
+					}
+					.startWithInterrupted { interrupted = true }
+
+				baseObserver.sendFailed(.Default)
+				disposable.dispose()
+
+				expect(interrupted).to(beTruthy())
+				expect(disposed).to(beTruthy())
+			}
 		}
 
 		describe("flatten") {
@@ -1390,6 +1409,112 @@ class SignalProducerSpec: QuickSpec {
 					}
 				}
 			}
+
+			describe("disposal") {
+				var completeOuter: (Void -> Void)!
+				var disposeOuter: (Void -> Void)!
+				var execute: (FlattenStrategy -> Void)!
+
+				var innerDisposable = SimpleDisposable()
+				var interrupted = false
+
+				beforeEach {
+					execute = { strategy in
+						let (outerProducer, outerObserver) = SignalProducer<SignalProducer<Int, NoError>, NoError>.buffer()
+
+						innerDisposable = SimpleDisposable()
+						let innerProducer = SignalProducer<Int, NoError> { $1.addDisposable(innerDisposable) }
+						
+						interrupted = false
+						let outerDisposable = outerProducer.flatten(strategy).startWithInterrupted {
+							interrupted = true
+						}
+
+						completeOuter = outerObserver.sendCompleted
+						disposeOuter = outerDisposable.dispose
+
+						outerObserver.sendNext(innerProducer)
+					}
+				}
+				
+				describe("Concat") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Concat)
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Concat)
+
+						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Latest") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Latest)
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Latest)
+
+						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+
+				describe("Merge") {
+					it("should cancel inner work when disposed before the outer producer completes") {
+						execute(.Merge)
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+
+					it("should cancel inner work when disposed after the outer producer completes") {
+						execute(.Merge)
+
+						completeOuter()
+
+						expect(innerDisposable.disposed).to(beFalsy())
+						expect(interrupted).to(beFalsy())
+						disposeOuter()
+
+						expect(innerDisposable.disposed).to(beTruthy())
+						expect(interrupted).to(beTruthy())
+					}
+				}
+			}
 		}
 
 		describe("times") {
@@ -1705,6 +1830,35 @@ class SignalProducerSpec: QuickSpec {
 				
 				downstreamDisposable.dispose()
 				expect(upstreamDisposable.disposed).to(beTruthy())
+			}
+		}
+
+		describe("take") {
+			it("Should not start concat'ed producer if the first one sends a value when using take(1)") {
+				let scheduler: QueueScheduler
+				if #available(OSX 10.10, *) {
+					scheduler = QueueScheduler()
+				} else {
+					scheduler = QueueScheduler(queue: dispatch_get_main_queue())
+				}
+
+				// Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
+				let producer1 = SignalProducer<Int, NoError>() { handler, _ in
+					handler.sendNext(1)
+					handler.sendCompleted()
+				}.startOn(scheduler)
+
+				var started = false
+				let producer2 = SignalProducer<Int, NoError>() { handler, _ in
+					started = true
+					handler.sendNext(2)
+					handler.sendCompleted()
+				}
+
+				let result = producer1.concat(producer2).take(1).collect().first()
+
+				expect(result?.value).to(equal([1]))
+				expect(started).to(beFalsy())
 			}
 		}
 	}

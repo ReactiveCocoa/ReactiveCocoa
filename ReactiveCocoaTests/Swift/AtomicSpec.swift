@@ -19,33 +19,33 @@ class AtomicSpec: QuickSpec {
 		}
 
 		it("should read and write the value directly") {
-			expect(atomic.value).to(equal(1))
+			expect(atomic.value) == 1
 
 			atomic.value = 2
-			expect(atomic.value).to(equal(2))
+			expect(atomic.value) == 2
 		}
 
 		it("should swap the value atomically") {
-			expect(atomic.swap(2)).to(equal(1))
-			expect(atomic.value).to(equal(2))
+			expect(atomic.swap(2)) == 1
+			expect(atomic.value) == 2
 		}
 
 		it("should modify the value atomically") {
-			expect(atomic.modify({ $0 + 1 })).to(equal(1))
-			expect(atomic.value).to(equal(2))
+			expect(atomic.modify({ $0 + 1 })) == 1
+			expect(atomic.value) == 2
 		}
 
 		it("should modify the value and return some data") {
 			let (orig, data) = atomic.modify { ($0 + 1, "foobar") }
-			expect(orig).to(equal(1))
-			expect(data).to(equal("foobar"))
-			expect(atomic.value).to(equal(2))
+			expect(orig) == 1
+			expect(data) == "foobar"
+			expect(atomic.value) == 2
 		}
 
 		it("should perform an action with the value") {
 			let result: Bool = atomic.withValue { $0 == 1 }
 			expect(result) == true
-			expect(atomic.value).to(equal(1))
+			expect(atomic.value) == 1
 		}
 	}
 }

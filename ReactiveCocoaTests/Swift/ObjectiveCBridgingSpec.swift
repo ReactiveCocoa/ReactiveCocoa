@@ -66,9 +66,9 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
-				expect((producer.single())?.value).to(equal(0))
-				expect((producer.single())?.value).to(equal(1))
-				expect((producer.single())?.value).to(equal(2))
+				expect((producer.single())?.value) == 0
+				expect((producer.single())?.value) == 1
+				expect((producer.single())?.value) == 2
 			}
 
 			it("should forward errors")	{
@@ -78,7 +78,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let producer = racSignal.toSignalProducer()
 				let result = producer.last()
 
-				expect(result?.error).to(equal(error))
+				expect(result?.error) == error
 			}
 		}
 
@@ -104,7 +104,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 					for number in [1, 2, 3] {
 						observer.sendNext(number)
-						expect(lastValue).to(equal(number))
+						expect(lastValue) == number
 					}
 
 					expect(didComplete) == false
@@ -125,7 +125,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					}
 
 					observer.sendFailed(expectedError)
-					expect(error).to(equal(expectedError as NSError))
+					expect(error) == expectedError as NSError
 				}
 				
 				it("should maintain userInfo on NSError") {
@@ -142,7 +142,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					observer.sendFailed(testNSError)
 					
 					let userInfoValue = error?.userInfo[key] as? String
-					expect(userInfoValue).to(equal(userInfo[key]))
+					expect(userInfoValue) == userInfo[key]
 				}
 			}
 
@@ -155,9 +155,9 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					}
 					let racSignal = producer.toRACSignal()
 
-					expect(racSignal.first() as? NSNumber).to(equal(0))
-					expect(racSignal.first() as? NSNumber).to(equal(1))
-					expect(racSignal.first() as? NSNumber).to(equal(2))
+					expect(racSignal.first() as? NSNumber) == 0
+					expect(racSignal.first() as? NSNumber) == 1
+					expect(racSignal.first() as? NSNumber) == 2
 				}
 
 				it("should convert errors to NSError") {
@@ -165,7 +165,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = producer.toRACSignal().materialize()
 
 					let event = racSignal.first() as? RACEvent
-					expect(event?.error).to(equal(TestError.Error1 as NSError))
+					expect(event?.error) == TestError.Error1 as NSError
 				}
 				
 				it("should maintain userInfo on NSError") {
@@ -174,7 +174,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					
 					let event = racSignal.first() as? RACEvent
 					let userInfoValue = event?.error.userInfo[key] as? String
-					expect(userInfoValue).to(equal(userInfo[key]))
+					expect(userInfoValue) == userInfo[key]
 				}
 			}
 		}
@@ -203,7 +203,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(enabled) == true
 
 				command.executionSignals.flatten().subscribeNext { results.append($0 as! Int) }
-				expect(results).to(equal([]))
+				expect(results) == []
 
 				action = command.toAction()
 			}
@@ -218,7 +218,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 			it("should execute the command once per start()") {
 				let producer = action.apply(0)
-				expect(results).to(equal([]))
+				expect(results) == []
 
 				producer.start()
 				expect(results).toEventually(equal([ 1 ]))
@@ -227,7 +227,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(results).toEventually(equal([ 1, 1 ]))
 
 				let otherProducer = action.apply(2)
-				expect(results).to(equal([ 1, 1 ]))
+				expect(results) == [ 1, 1 ]
 
 				otherProducer.start()
 				expect(results).toEventually(equal([ 1, 1, 3 ]))
@@ -279,13 +279,13 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				do {
 					try signal.asynchronouslyWaitUntilCompleted()
-					expect(results).to(equal([ "1" ]))
+					expect(results) == [ "1" ]
 
 					try signal.asynchronouslyWaitUntilCompleted()
-					expect(results).to(equal([ "1" ]))
+					expect(results) == [ "1" ]
 
 					try command.execute(2).asynchronouslyWaitUntilCompleted()
-					expect(results).to(equal([ "1", "3" ]))
+					expect(results) == [ "1", "3" ]
 				} catch {
 					XCTFail("Failed to wait for completion")
 				}

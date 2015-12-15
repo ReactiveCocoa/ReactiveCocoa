@@ -94,20 +94,20 @@ class ActionSpec: QuickSpec {
 						receivedValue = $0
 					}
 
-					expect(executionCount).to(equal(1))
+					expect(executionCount) == 1
 					expect(action.executing.value) == true
 					expect(action.enabled.value) == false
 
-					expect(receivedValue).to(equal("00"))
-					expect(values).to(equal([ "0", "00" ]))
-					expect(errors).to(equal([]))
+					expect(receivedValue) == "00"
+					expect(values) == [ "0", "00" ]
+					expect(errors) == []
 
 					scheduler.run()
 					expect(action.executing.value) == false
 					expect(action.enabled.value) == true
 
-					expect(values).to(equal([ "0", "00" ]))
-					expect(errors).to(equal([]))
+					expect(values) == [ "0", "00" ]
+					expect(errors) == []
 				}
 
 				it("should execute with an error") {
@@ -117,7 +117,7 @@ class ActionSpec: QuickSpec {
 						receivedError = $0
 					}
 
-					expect(executionCount).to(equal(1))
+					expect(executionCount) == 1
 					expect(action.executing.value) == true
 					expect(action.enabled.value) == false
 
@@ -131,8 +131,8 @@ class ActionSpec: QuickSpec {
 						expect(error == expectedError) == true
 					}
 
-					expect(values).to(equal([]))
-					expect(errors).to(equal([ testError ]))
+					expect(values) == []
+					expect(errors) == [ testError ]
 				}
 			}
 		}
@@ -171,10 +171,10 @@ class ActionSpec: QuickSpec {
 					.map { $0! as! Bool }
 					.start(Observer(next: { values.append($0) }))
 
-				expect(values).to(equal([ true ]))
+				expect(values) == [ true ]
 
 				let result = action.apply(0).first()
-				expect(result?.value).to(equal(1))
+				expect(result?.value) == 1
 				expect(values).toEventually(equal([ true, false, true ]))
 			}
 
@@ -187,10 +187,10 @@ class ActionSpec: QuickSpec {
 					.map { $0! as! Bool }
 					.start(Observer(next: { values.append($0) }))
 
-				expect(values).to(equal([ false ]))
+				expect(values) == [ false ]
 
 				let result = action.apply(0).first()
-				expect(result?.value).to(equal(1))
+				expect(result?.value) == 1
 				expect(values).toEventually(equal([ false, true, false ]))
 			}
 		}

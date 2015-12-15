@@ -41,7 +41,7 @@ class SchedulerSpec: QuickSpec {
 					values.append(0)
 				}
 
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 
 				scheduler.schedule {
 					values.append(1)
@@ -51,7 +51,7 @@ class SchedulerSpec: QuickSpec {
 					values.append(2)
 				}
 
-				expect(values).to(equal([ 0, 1, 2 ]))
+				expect(values) == [ 0, 1, 2 ]
 			}
 
 			it("should enqueue actions scheduled from the background") {
@@ -67,7 +67,7 @@ class SchedulerSpec: QuickSpec {
 					return
 				}
 
-				expect(values).to(equal([]))
+				expect(values) == []
 				expect(values).toEventually(equal([ 0 ]))
 
 				dispatchSyncInBackground {
@@ -84,7 +84,7 @@ class SchedulerSpec: QuickSpec {
 					return
 				}
 
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 				expect(values).toEventually(equal([ 0, 1, 2 ]))
 			}
 
@@ -111,7 +111,7 @@ class SchedulerSpec: QuickSpec {
 					values.append(2)
 				}
 
-				expect(values).to(equal([]))
+				expect(values) == []
 				expect(values).toEventually(equal([ 0, 1, 2 ]))
 			}
 		}
@@ -155,7 +155,7 @@ class SchedulerSpec: QuickSpec {
 						}
 					}
 
-					expect(value).to(equal(0))
+					expect(value) == 0
 
 					dispatch_resume(scheduler.queue)
 					expect{value}.toEventually(equal(5))
@@ -188,7 +188,7 @@ class SchedulerSpec: QuickSpec {
 						}
 					}
 
-					expect(count).to(equal(0))
+					expect(count) == 0
 
 					dispatch_resume(scheduler.queue)
 					expect{count}.toEventually(equal(timesToRun))
@@ -207,7 +207,7 @@ class SchedulerSpec: QuickSpec {
 				startDate = NSDate()
 
 				scheduler = TestScheduler(startDate: startDate)
-				expect(scheduler.currentDate).to(equal(startDate))
+				expect(scheduler.currentDate) == startDate
 			}
 
 			it("should run immediately enqueued actions upon advancement") {
@@ -223,12 +223,12 @@ class SchedulerSpec: QuickSpec {
 					expect(NSThread.isMainThread()) == true
 				}
 
-				expect(string).to(equal(""))
+				expect(string) == ""
 
 				scheduler.advance()
 				expect(scheduler.currentDate).to(beCloseTo(startDate))
 
-				expect(string).to(equal("foobar"))
+				expect(string) == "foobar"
 			}
 
 			it("should run actions when advanced past the target date") {
@@ -244,15 +244,15 @@ class SchedulerSpec: QuickSpec {
 					expect(NSThread.isMainThread()) == true
 				}
 
-				expect(string).to(equal(""))
+				expect(string) == ""
 
 				scheduler.advanceByInterval(10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(10), within: dateComparisonDelta))
-				expect(string).to(equal("foo"))
+				expect(string) == "foo"
 
 				scheduler.advanceByInterval(10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(20), within: dateComparisonDelta))
-				expect(string).to(equal("foobar"))
+				expect(string) == "foobar"
 			}
 
 			it("should run all remaining actions in order") {
@@ -273,11 +273,11 @@ class SchedulerSpec: QuickSpec {
 					expect(NSThread.isMainThread()) == true
 				}
 
-				expect(string).to(equal(""))
+				expect(string) == ""
 
 				scheduler.run()
-				expect(scheduler.currentDate).to(equal(NSDate.distantFuture()))
-				expect(string).to(equal("fuzzbuzzfoobar"))
+				expect(scheduler.currentDate) == NSDate.distantFuture()
+				expect(string) == "fuzzbuzzfoobar"
 			}
 		}
 	}

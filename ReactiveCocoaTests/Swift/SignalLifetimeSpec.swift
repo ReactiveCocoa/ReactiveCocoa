@@ -58,12 +58,12 @@ class SignalLifetimeSpec: QuickSpec {
 
 				signal?.observeFailed { _ in errored = true }
 
-				expect(errored).to(beFalsy())
+				expect(errored) == false
 				expect(signal).toNot(beNil())
 
 				testScheduler.run()
 
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 				expect(signal).to(beNil())
 			}
 
@@ -79,12 +79,12 @@ class SignalLifetimeSpec: QuickSpec {
 
 				signal?.observeCompleted { completed = true }
 
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				expect(signal).toNot(beNil())
 
 				testScheduler.run()
 
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 				expect(signal).to(beNil())
 			}
 
@@ -102,12 +102,12 @@ class SignalLifetimeSpec: QuickSpec {
 					interrupted = true
 				}
 
-				expect(interrupted).to(beFalsy())
+				expect(interrupted) == false
 				expect(signal).toNot(beNil())
 
 				testScheduler.run()
 
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 				expect(signal).to(beNil())
 			}
 		}

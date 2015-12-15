@@ -200,7 +200,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as! Bool }
-				expect(enabled).to(beTruthy())
+				expect(enabled) == true
 
 				command.executionSignals.flatten().subscribeNext { results.append($0 as! Int) }
 				expect(results).to(equal([]))
@@ -209,11 +209,11 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("should reflect the enabledness of the command") {
-				expect(action.enabled.value).to(beTruthy())
+				expect(action.enabled.value) == true
 
 				enabledSubject.sendNext(false)
 				expect(enabled).toEventually(beFalsy())
-				expect(action.enabled.value).to(beFalsy())
+				expect(action.enabled.value) == false
 			}
 
 			it("should execute the command once per start()") {
@@ -255,7 +255,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					return SignalProducer(value: "\(inputNumber + 1)")
 				}
 
-				expect(action.enabled.value).to(beTruthy())
+				expect(action.enabled.value) == true
 
 				action.values.observeNext { results.append($0) }
 
@@ -263,7 +263,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as! Bool }
-				expect(enabled).to(beTruthy())
+				expect(enabled) == true
 			}
 
 			it("should reflect the enabledness of the action") {

@@ -44,7 +44,7 @@ class AtomicSpec: QuickSpec {
 
 		it("should perform an action with the value") {
 			let result: Bool = atomic.withValue { $0 == 1 }
-			expect(result).to(beTruthy())
+			expect(result) == true
 			expect(atomic.value).to(equal(1))
 		}
 	}

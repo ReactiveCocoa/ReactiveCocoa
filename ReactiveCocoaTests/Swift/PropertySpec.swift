@@ -41,7 +41,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				expect(sentValue).to(equal(initialPropertyValue))
-				expect(signalCompleted).to(beTruthy())
+				expect(signalCompleted) == true
 			}
 		}
 
@@ -76,7 +76,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				mutableProperty = nil
-				expect(signalCompleted).to(beTruthy())
+				expect(signalCompleted) == true
 			}
 
 			it("should not deadlock on recursive value access") {
@@ -129,7 +129,7 @@ class PropertySpec: QuickSpec {
 					}
 
 					expect(sentValue).to(equal(initialPropertyValue))
-					expect(producerCompleted).to(beTruthy())
+					expect(producerCompleted) == true
 				}
 			}
 			
@@ -232,7 +232,7 @@ class PropertySpec: QuickSpec {
 						completed = true
 					}
 
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					expect(property.value).notTo(beNil())
 					return property
 				}()
@@ -287,9 +287,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed).to(beFalsy())
+					expect(bindingDisposable.disposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -300,7 +300,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 			}
 
@@ -345,7 +345,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed).to(beTruthy())
+					expect(disposable.disposed) == true
 				}
 			}
 
@@ -401,7 +401,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 			}
 		}

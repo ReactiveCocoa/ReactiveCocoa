@@ -66,10 +66,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.start()
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				observer.sendCompleted()
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 
 			it("should dispose of added disposables upon error") {
@@ -82,10 +82,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.start()
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				observer.sendFailed(.Default)
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 
 			it("should dispose of added disposables upon interruption") {
@@ -98,10 +98,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.start()
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				observer.sendInterrupted()
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 
 			it("should dispose of added disposables upon start() disposal") {
@@ -113,10 +113,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				let startDisposable = producer.start()
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				startDisposable.dispose()
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 		}
 
@@ -269,18 +269,18 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				expect(values).to(equal([1, 2, 3]))
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				observer.sendNext(4)
 				observer.sendNext(5)
 
 				expect(values).to(equal([1, 2, 3, 4, 5]))
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				observer.sendCompleted()
 
 				expect(values).to(equal([1, 2, 3, 4, 5]))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should drop earliest events to maintain the capacity") {
@@ -327,7 +327,7 @@ class SignalProducerSpec: QuickSpec {
 					completed = true
 				}
 				
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 			
 			it("should replay values after being terminated") {
@@ -350,7 +350,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 				
 				expect(value).to(equal(123))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should not deadlock when started while sending") {
@@ -470,11 +470,11 @@ class SignalProducerSpec: QuickSpec {
 						value = $0
 					})
 					.startWithSignal { _ in
-						expect(started).to(beFalsy())
+						expect(started) == false
 						expect(value).to(beNil())
 					}
 
-				expect(started).to(beTruthy())
+				expect(started) == true
 				expect(value).to(equal(42))
 			}
 
@@ -491,10 +491,10 @@ class SignalProducerSpec: QuickSpec {
 					disposable = innerDisposable
 				}
 
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				disposable.dispose()
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 
 			it("should send interrupted if disposed") {
@@ -511,10 +511,10 @@ class SignalProducerSpec: QuickSpec {
 						disposable = innerDisposable
 					}
 
-				expect(interrupted).to(beFalsy())
+				expect(interrupted) == false
 
 				disposable.dispose()
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 			}
 
 			it("should release signal observers if disposed") {
@@ -546,13 +546,13 @@ class SignalProducerSpec: QuickSpec {
 						value = $0
 					})
 					.startWithSignal { _, disposable in
-						expect(started).to(beFalsy())
+						expect(started) == false
 						expect(value).to(beNil())
 
 						disposable.dispose()
 					}
 
-				expect(started).to(beFalsy())
+				expect(started) == false
 				expect(value).to(beNil())
 			}
 
@@ -561,7 +561,7 @@ class SignalProducerSpec: QuickSpec {
 
 				SignalProducer<Int, NoError>(value: 42)
 					.startWithSignal { signal, disposable in
-						expect(interrupted).to(beFalsy())
+						expect(interrupted) == false
 
 						signal.observeInterrupted {
 							interrupted = true
@@ -570,7 +570,7 @@ class SignalProducerSpec: QuickSpec {
 						disposable.dispose()
 					}
 
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 			}
 
 			it("should dispose of added disposables upon completion") {
@@ -583,10 +583,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.startWithSignal { _ in }
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				observer.sendCompleted()
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 
 			it("should dispose of added disposables upon error") {
@@ -599,10 +599,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.startWithSignal { _ in }
-				expect(addedDisposable.disposed).to(beFalsy())
+				expect(addedDisposable.disposed) == false
 
 				observer.sendFailed(.Default)
-				expect(addedDisposable.disposed).to(beTruthy())
+				expect(addedDisposable.disposed) == true
 			}
 		}
 
@@ -624,7 +624,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				expect(values).to(equal([1, 2]))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should send interrupted if disposed") {
@@ -635,10 +635,10 @@ class SignalProducerSpec: QuickSpec {
 					interrupted = true
 				}
 
-				expect(interrupted).to(beFalsy())
+				expect(interrupted) == false
 
 				disposable.dispose()
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 			}
 
 			it("should release observer when disposed") {
@@ -945,10 +945,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				producer.startOn(scheduler).start()
-				expect(invoked).to(beFalsy())
+				expect(invoked) == false
 
 				scheduler.advance()
-				expect(invoked).to(beTruthy())
+				expect(invoked) == true
 			}
 
 			it("should forward events on their original scheduler") {
@@ -1002,7 +1002,7 @@ class SignalProducerSpec: QuickSpec {
 					}
 
 				expect(values).to(equal([1, 2]))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should interrupt the replaced producer on disposal") {
@@ -1020,8 +1020,8 @@ class SignalProducerSpec: QuickSpec {
 				baseObserver.sendFailed(.Default)
 				disposable.dispose()
 
-				expect(interrupted).to(beTruthy())
-				expect(disposed).to(beTruthy())
+				expect(interrupted) == true
+				expect(disposed) == true
 			}
 		}
 
@@ -1054,25 +1054,25 @@ class SignalProducerSpec: QuickSpec {
 					it("should immediately start subsequent inner producer if previous inner producer has already completed") {
 						completePrevious()
 						sendSubsequent()
-						expect(subsequentStarted).to(beTruthy())
+						expect(subsequentStarted) == true
 					}
 
 					context("with queued producers") {
 						beforeEach {
 							// Place the subsequent producer into `concat`'s queue.
 							sendSubsequent()
-							expect(subsequentStarted).to(beFalsy())
+							expect(subsequentStarted) == false
 						}
 
 						it("should start subsequent inner producer upon completion of previous inner producer") {
 							completePrevious()
-							expect(subsequentStarted).to(beTruthy())
+							expect(subsequentStarted) == true
 						}
 
 						it("should start subsequent inner producer upon completion of previous inner producer and completion of outer producer") {
 							completeOuter()
 							completePrevious()
-							expect(subsequentStarted).to(beTruthy())
+							expect(subsequentStarted) == true
 						}
 					}
 				}
@@ -1124,18 +1124,18 @@ class SignalProducerSpec: QuickSpec {
 
 					it("should complete when inner producers complete, then outer producer completes") {
 						completeInner()
-						expect(completed).to(beFalsy())
+						expect(completed) == false
 
 						completeOuter()
-						expect(completed).to(beTruthy())
+						expect(completed) == true
 					}
 
 					it("should complete when outer producers completes, then inner producers complete") {
 						completeOuter()
-						expect(completed).to(beFalsy())
+						expect(completed) == false
 
 						completeInner()
-						expect(completed).to(beTruthy())
+						expect(completed) == true
 					}
 				}
 			}
@@ -1193,9 +1193,9 @@ class SignalProducerSpec: QuickSpec {
 
 					it("should complete when all signals have completed") {
 						completeA()
-						expect(outerCompleted).to(beFalsy())
+						expect(outerCompleted) == false
 						completeB()
-						expect(outerCompleted).to(beTruthy())
+						expect(outerCompleted) == true
 					}
 				}
 
@@ -1256,8 +1256,8 @@ class SignalProducerSpec: QuickSpec {
 					outerObserver.sendCompleted()
 
 					expect(receivedValues).to(equal([ 0, 1, 2 ]))
-					expect(errored).to(beFalsy())
-					expect(completed).to(beFalsy())
+					expect(errored) == false
+					expect(completed) == false
 
 					firstInnerObserver.sendNext(3)
 					firstInnerObserver.sendCompleted()
@@ -1265,8 +1265,8 @@ class SignalProducerSpec: QuickSpec {
 					secondInnerObserver.sendCompleted()
 
 					expect(receivedValues).to(equal([ 0, 1, 2, 4 ]))
-					expect(errored).to(beFalsy())
-					expect(completed).to(beTruthy())
+					expect(errored) == false
+					expect(completed) == true
 				}
 
 				it("should forward an error from an inner signal") {
@@ -1293,7 +1293,7 @@ class SignalProducerSpec: QuickSpec {
 						completed = true
 					}
 
-					expect(completed).to(beTruthy())
+					expect(completed) == true
 				}
 
 				it("should complete when the outer signal completes before sending any signals") {
@@ -1304,7 +1304,7 @@ class SignalProducerSpec: QuickSpec {
 						completed = true
 					}
 
-					expect(completed).to(beTruthy())
+					expect(completed) == true
 				}
 
 				it("should not deadlock") {
@@ -1357,17 +1357,17 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Concat)
 
 						innerObserver.sendInterrupted()
-						expect(interrupted).to(beFalsy())
-						expect(completed).to(beFalsy())
+						expect(interrupted) == false
+						expect(completed) == false
 
 						outerObserver.sendCompleted()
-						expect(completed).to(beTruthy())
+						expect(completed) == true
 					}
 
 					it("should forward interrupted from the outer producer") {
 						execute(.Concat)
 						outerObserver.sendInterrupted()
-						expect(interrupted).to(beTruthy())
+						expect(interrupted) == true
 					}
 				}
 
@@ -1376,17 +1376,17 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Latest)
 
 						innerObserver.sendInterrupted()
-						expect(interrupted).to(beFalsy())
-						expect(completed).to(beFalsy())
+						expect(interrupted) == false
+						expect(completed) == false
 
 						outerObserver.sendCompleted()
-						expect(completed).to(beTruthy())
+						expect(completed) == true
 					}
 
 					it("should forward interrupted from the outer producer") {
 						execute(.Latest)
 						outerObserver.sendInterrupted()
-						expect(interrupted).to(beTruthy())
+						expect(interrupted) == true
 					}
 				}
 
@@ -1395,17 +1395,17 @@ class SignalProducerSpec: QuickSpec {
 						execute(.Merge)
 
 						innerObserver.sendInterrupted()
-						expect(interrupted).to(beFalsy())
-						expect(completed).to(beFalsy())
+						expect(interrupted) == false
+						expect(completed) == false
 
 						outerObserver.sendCompleted()
-						expect(completed).to(beTruthy())
+						expect(completed) == true
 					}
 
 					it("should forward interrupted from the outer producer") {
 						execute(.Merge)
 						outerObserver.sendInterrupted()
-						expect(interrupted).to(beTruthy())
+						expect(interrupted) == true
 					}
 				}
 			}
@@ -1441,12 +1441,12 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Concat)
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 
 					it("should cancel inner work when disposed after the outer producer completes") {
@@ -1454,12 +1454,12 @@ class SignalProducerSpec: QuickSpec {
 
 						completeOuter()
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 				}
 
@@ -1467,12 +1467,12 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Latest)
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 
 					it("should cancel inner work when disposed after the outer producer completes") {
@@ -1480,12 +1480,12 @@ class SignalProducerSpec: QuickSpec {
 
 						completeOuter()
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 				}
 
@@ -1493,12 +1493,12 @@ class SignalProducerSpec: QuickSpec {
 					it("should cancel inner work when disposed before the outer producer completes") {
 						execute(.Merge)
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 
 					it("should cancel inner work when disposed after the outer producer completes") {
@@ -1506,12 +1506,12 @@ class SignalProducerSpec: QuickSpec {
 
 						completeOuter()
 
-						expect(innerDisposable.disposed).to(beFalsy())
-						expect(interrupted).to(beFalsy())
+						expect(innerDisposable.disposed) == false
+						expect(interrupted) == false
 						disposeOuter()
 
-						expect(innerDisposable.disposed).to(beTruthy())
-						expect(interrupted).to(beTruthy())
+						expect(innerDisposable.disposed) == true
+						expect(interrupted) == true
 					}
 				}
 			}
@@ -1570,9 +1570,9 @@ class SignalProducerSpec: QuickSpec {
 				} else {
 					// Can't test for equality because Array<T> is not Equatable,
 					// and neither is Event<Value, Error>.
-					expect(result![0] == expectedEvents[0]).to(beTruthy())
-					expect(result![1] == expectedEvents[1]).to(beTruthy())
-					expect(result![2] == expectedEvents[2]).to(beTruthy())
+					expect(result![0] == expectedEvents[0]) == true
+					expect(result![1] == expectedEvents[1]) == true
+					expect(result![2] == expectedEvents[2]) == true
 				}
 			}
 
@@ -1642,10 +1642,10 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = original.then(subsequent)
 				producer.start()
-				expect(subsequentStarted).to(beFalsy())
+				expect(subsequentStarted) == false
 
 				observer.sendCompleted()
-				expect(subsequentStarted).to(beTruthy())
+				expect(subsequentStarted) == true
 			}
 
 			it("should forward errors from the original producer") {
@@ -1676,10 +1676,10 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				originalObserver.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				subsequentObserver.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1826,10 +1826,10 @@ class SignalProducerSpec: QuickSpec {
 						downstreamDisposable = innerDisposable
 					}
 				
-				expect(upstreamDisposable.disposed).to(beFalsy())
+				expect(upstreamDisposable.disposed) == false
 				
 				downstreamDisposable.dispose()
-				expect(upstreamDisposable.disposed).to(beTruthy())
+				expect(upstreamDisposable.disposed) == true
 			}
 		}
 
@@ -1858,7 +1858,7 @@ class SignalProducerSpec: QuickSpec {
 				let result = producer1.concat(producer2).take(1).collect().first()
 
 				expect(result?.value).to(equal([1]))
-				expect(started).to(beFalsy())
+				expect(started) == false
 			}
 		}
 	}

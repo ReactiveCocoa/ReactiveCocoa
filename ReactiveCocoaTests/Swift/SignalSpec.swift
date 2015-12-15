@@ -27,7 +27,7 @@ class SignalSpec: QuickSpec {
 					return nil
 				}
 				
-				expect(didRunGenerator).to(beTruthy())
+				expect(didRunGenerator) == true
 			}
 
 			it("should forward events to observers") {
@@ -57,12 +57,12 @@ class SignalSpec: QuickSpec {
 					}
 				}
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				expect(fromSignal).to(beEmpty())
 				
 				testScheduler.run()
 				
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 				expect(fromSignal).to(equal(numbers))
 			}
 
@@ -80,13 +80,13 @@ class SignalSpec: QuickSpec {
 				
 				signal.observeFailed { _ in errored = true }
 				
-				expect(errored).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
+				expect(errored) == false
+				expect(disposable.disposed) == false
 				
 				testScheduler.run()
 				
-				expect(errored).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
+				expect(errored) == true
+				expect(disposable.disposed) == true
 			}
 
 			it("should dispose of returned disposable upon completion") {
@@ -103,13 +103,13 @@ class SignalSpec: QuickSpec {
 				
 				signal.observeCompleted { completed = true }
 				
-				expect(completed).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
+				expect(completed) == false
+				expect(disposable.disposed) == false
 				
 				testScheduler.run()
 				
-				expect(completed).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
+				expect(completed) == true
+				expect(disposable.disposed) == true
 			}
 
 			it("should dispose of returned disposable upon interrupted") {
@@ -127,13 +127,13 @@ class SignalSpec: QuickSpec {
 					interrupted = true
 				}
 
-				expect(interrupted).to(beFalsy())
-				expect(disposable.disposed).to(beFalsy())
+				expect(interrupted) == false
+				expect(disposable.disposed) == false
 
 				testScheduler.run()
 
-				expect(interrupted).to(beTruthy())
-				expect(disposable.disposed).to(beTruthy())
+				expect(interrupted) == true
+				expect(disposable.disposed) == true
 			}
 		}
 
@@ -156,7 +156,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				expect(fromSignal).to(beEmpty())
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				observer.sendNext(1)
 				expect(fromSignal).to(equal([ 1 ]))
@@ -164,9 +164,9 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(fromSignal).to(equal([ 1, 2 ]))
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				observer.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			context("memory") {
@@ -210,12 +210,12 @@ class SignalSpec: QuickSpec {
 					fromSignal.append(number)
 				}
 				
-				expect(disposable.disposed).to(beFalsy())
+				expect(disposable.disposed) == false
 				expect(fromSignal).to(beEmpty())
 				
 				testScheduler.run()
 				
-				expect(disposable.disposed).to(beTruthy())
+				expect(disposable.disposed) == true
 				expect(fromSignal).to(equal([ 1, 2 ]))
 			}
 
@@ -750,9 +750,9 @@ class SignalSpec: QuickSpec {
 				signal = signal.take(numbers.count)
 				signal.observeCompleted { completed = true }
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				testScheduler.run()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should interrupt when 0") {
@@ -784,7 +784,7 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 
 				testScheduler.run()
 				expect(result).to(beEmpty())
@@ -1082,11 +1082,11 @@ class SignalSpec: QuickSpec {
 				
 				testScheduler.advanceByInterval(10) // send second value and receive first
 				expect(result).to(equal([ 1 ]))
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				testScheduler.advanceByInterval(10) // send second value and receive first
 				expect(result).to(equal([ 1, 2 ]))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should schedule errors immediately") {
@@ -1105,7 +1105,7 @@ class SignalSpec: QuickSpec {
 					.observeFailed { _ in errored = true }
 				
 				testScheduler.advance()
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 			}
 		}
 
@@ -1184,11 +1184,11 @@ class SignalSpec: QuickSpec {
 
 				observer.sendNext(1)
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				scheduler.run()
 				expect(values).to(equal([ 0 ]))
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1238,10 +1238,10 @@ class SignalSpec: QuickSpec {
 				sampledSignal.observeCompleted { completed = true }
 				
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				samplerObserver.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1280,10 +1280,10 @@ class SignalSpec: QuickSpec {
 				combinedSignal.observeCompleted { completed = true }
 				
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				otherObserver.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1341,15 +1341,15 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				leftObserver.sendNext(0)
 				leftObserver.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				expect(result).to(equal([]))
 
 				rightObserver.sendNext("foo")
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 				expect(result).to(equal([ "0foo" ]))
 			}
 		}
@@ -1414,19 +1414,19 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				dematerialized.observeFailed { _ in errored = true }
 				
-				expect(errored).to(beFalsy())
+				expect(errored) == false
 				
 				observer.sendNext(.Failed(TestError.Default))
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 			}
 
 			it("should complete early for Completed events") {
 				var completed = false
 				dematerialized.observeCompleted { completed = true }
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				observer.sendNext(IntEvent.Completed)
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1481,10 +1481,10 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(1)
 				observer.sendNext(2)
 				observer.sendNext(3)
-				expect(errored).to(beFalsy())
+				expect(errored) == false
 				
 				observer.sendFailed(TestError.Default)
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 				expect(result).to(beEmpty())
 			}
 		}
@@ -1519,12 +1519,12 @@ class SignalSpec: QuickSpec {
 					observer.sendCompleted()
 				}
 
-				expect(completed).to(beFalsy())
-				expect(errored).to(beFalsy())
+				expect(completed) == false
+				expect(errored) == false
 
 				testScheduler.run()
-				expect(completed).to(beTruthy())
-				expect(errored).to(beFalsy())
+				expect(completed) == true
+				expect(errored) == false
 			}
 
 			it("should error if not completed before the interval has elapsed") {
@@ -1545,12 +1545,12 @@ class SignalSpec: QuickSpec {
 					observer.sendCompleted()
 				}
 
-				expect(completed).to(beFalsy())
-				expect(errored).to(beFalsy())
+				expect(completed) == false
+				expect(errored) == false
 
 				testScheduler.run()
-				expect(completed).to(beFalsy())
-				expect(errored).to(beTruthy())
+				expect(completed) == false
+				expect(errored) == true
 			}
 		}
 
@@ -1705,14 +1705,14 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should complete when all inputs have completed"){
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					
 					observerA.sendCompleted()
 					observerB.sendCompleted()
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					
 					observerC.sendCompleted()
-					expect(completed).to(beTruthy())
+					expect(completed) == true
 				}
 			}
 			
@@ -1809,16 +1809,16 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should complete when the shorter signal has completed"){
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					
 					observerB.sendNext(1)
 					observerC.sendNext(2)
 					observerB.sendCompleted()
 					observerC.sendCompleted()
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					
 					observerA.sendNext(0)
-					expect(completed).to(beTruthy())
+					expect(completed) == true
 				}
 			}
 			

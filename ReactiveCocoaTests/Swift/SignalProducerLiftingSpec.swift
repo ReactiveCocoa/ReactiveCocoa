@@ -144,9 +144,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(lastValue).to(beNil())
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				observer.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 
 				expect(lastValue).to(equal(4))
 			}
@@ -170,12 +170,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendCompleted()
 
 				expect(lastValue).to(equal(1))
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 		}
 
@@ -374,15 +374,15 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(1)
 				expect(lastValue).to(equal(1))
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(2)
 				expect(lastValue).to(equal(2))
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 			
 			it("should complete immediately after taking given number of values") {
@@ -538,9 +538,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(lastValue).to(equal(2))
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				triggerObserver.sendNext(())
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 
 			it("should take values until the trigger completes") {
@@ -552,18 +552,18 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(lastValue).to(equal(2))
 				
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				triggerObserver.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 
 			it("should complete if the trigger fires immediately") {
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				triggerObserver.sendNext(())
 
-				expect(completed).to(beTrue())
+				expect(completed) == true
 				expect(lastValue).to(beNil())
 			}
 		}
@@ -601,7 +601,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should take values from the original then the replacement") {
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(1)
 				expect(lastValue).to(equal(1))
@@ -612,19 +612,19 @@ class SignalProducerLiftingSpec: QuickSpec {
 				replacementObserver.sendNext(3)
 
 				expect(lastValue).to(equal(3))
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(4)
 
 				expect(lastValue).to(equal(3))
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				replacementObserver.sendNext(5)
 				expect(lastValue).to(equal(5))
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				replacementObserver.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 		}
 
@@ -656,12 +656,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				for value in -1...4 {
 					observer.sendNext(value)
 					expect(latestValue).to(equal(value))
-					expect(completed).to(beFalse())
+					expect(completed) == false
 				}
 
 				observer.sendNext(5)
 				expect(latestValue).to(equal(4))
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 
 			it("should complete if the predicate starts false") {
@@ -681,7 +681,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				observer.sendNext(5)
 				expect(latestValue).to(beNil())
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 		}
 

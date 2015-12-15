@@ -107,9 +107,9 @@ class ObjectiveCBridgingSpec: QuickSpec {
 						expect(lastValue).to(equal(number))
 					}
 
-					expect(didComplete).to(beFalse())
+					expect(didComplete) == false
 					observer.sendCompleted()
-					expect(didComplete).to(beTrue())
+					expect(didComplete) == true
 				}
 
 				it("should convert errors to NSError") {

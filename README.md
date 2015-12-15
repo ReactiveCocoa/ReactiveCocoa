@@ -289,7 +289,7 @@ specifically for this purpose**—even when it means diverging further from Rx.
 
 ## Getting started
 
-ReactiveCocoa supports OS X 10.9+ and iOS 8.0+.
+ReactiveCocoa supports `OS X 10.9+`, `iOS 8.0+`, `watchOS 2.0`, and `tvOS 9.0`.
 
 To add RAC to your application:
 

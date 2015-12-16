@@ -73,6 +73,20 @@
 		D8715DCA1C211553005F4191 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD71B34B242001A89B3 /* UILabel.swift */; };
 		D8715DCB1C211553005F4191 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; };
 		D8715DCC1C211553005F4191 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; };
+		D8715DDC1C211637005F4191 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454081BD2772700C9E790 /* PropertyTests.swift */; };
+		D8715DDD1C211637005F4191 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */; };
+		D8715DDE1C211637005F4191 /* SignalProducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */; };
+		D8715DDF1C21163B005F4191 /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
+		D8715DE01C211643005F4191 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
+		D8715DE11C211643005F4191 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
+		D8715DE21C211643005F4191 /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD851B873081007C9000 /* UIControlTests.swift */; };
+		D8715DE31C211643005F4191 /* UILabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F073141B861B3A0047D546 /* UILabelTests.swift */; };
+		D8715DE41C211643005F4191 /* UIImageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */; };
+		D8715DE51C211643005F4191 /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E61BD7F7730097FB60 /* UIViewTests.swift */; };
+		D8715DE61C21170C005F4191 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DC21C211310005F4191 /* ReactiveCocoa.framework */; };
+		D8715DE71C21170C005F4191 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DC31C211310005F4191 /* Result.framework */; };
+		D8715DE91C211739005F4191 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8715DC21C211310005F4191 /* ReactiveCocoa.framework */; };
+		D8715DEA1C211739005F4191 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8715DC31C211310005F4191 /* Result.framework */; };
 		D8A454061BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454071BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454091BD2772700C9E790 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454081BD2772700C9E790 /* PropertyTests.swift */; };
@@ -105,6 +119,13 @@
 			remoteGlobalIDString = D83457131AFEE44E0070616A;
 			remoteInfo = "Rex-iOS";
 		};
+		D8715DD71C21160A005F4191 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D8003E851AFEC3D400D7D3C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8715DAF1C21123E005F4191;
+			remoteInfo = "Rex-tvOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -127,6 +148,17 @@
 			files = (
 				D83457391AFEE4BE0070616A /* ReactiveCocoa.framework in CopyFiles */,
 				D834573A1AFEE4BE0070616A /* Result.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715DE81C21172A005F4191 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				D8715DE91C211739005F4191 /* ReactiveCocoa.framework in CopyFiles */,
+				D8715DEA1C211739005F4191 /* Result.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,6 +201,7 @@
 		D8715DB01C21123E005F4191 /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8715DC21C211310005F4191 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveCocoa.framework; path = tvOS/ReactiveCocoa.framework; sourceTree = "<group>"; };
 		D8715DC31C211310005F4191 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = tvOS/Result.framework; sourceTree = "<group>"; };
+		D8715DD11C21160A005F4191 /* RexTests-tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RexTests-tvOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8A454051BD26A1A00C9E790 /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		D8A454081BD2772700C9E790 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		D8F073141B861B3A0047D546 /* UILabelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabelTests.swift; sourceTree = "<group>"; };
@@ -230,6 +263,15 @@
 			files = (
 				D8715DC41C211310005F4191 /* ReactiveCocoa.framework in Frameworks */,
 				D8715DC51C211310005F4191 /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715DCE1C21160A005F4191 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8715DE61C21170C005F4191 /* ReactiveCocoa.framework in Frameworks */,
+				D8715DE71C21170C005F4191 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +402,7 @@
 			isa = PBXGroup;
 			children = (
 				D8715DB01C21123E005F4191 /* Rex.framework */,
+				D8715DD11C21160A005F4191 /* RexTests-tvOS.xctest */,
 				D8715DC21C211310005F4191 /* ReactiveCocoa.framework */,
 				D8715DC31C211310005F4191 /* Result.framework */,
 			);
@@ -546,13 +589,32 @@
 			productReference = D8715DB01C21123E005F4191 /* Rex.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		D8715DD01C21160A005F4191 /* RexTests-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8715DD91C21160A005F4191 /* Build configuration list for PBXNativeTarget "RexTests-tvOS" */;
+			buildPhases = (
+				D8715DCD1C21160A005F4191 /* Sources */,
+				D8715DCE1C21160A005F4191 /* Frameworks */,
+				D8715DCF1C21160A005F4191 /* Resources */,
+				D8715DE81C21172A005F4191 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D8715DD81C21160A005F4191 /* PBXTargetDependency */,
+			);
+			name = "RexTests-tvOS";
+			productName = RexTests;
+			productReference = D8715DD11C21160A005F4191 /* RexTests-tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		D8003E851AFEC3D400D7D3C5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0700;
+				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Neil Pankey";
 				TargetAttributes = {
@@ -574,6 +636,9 @@
 					D8715DAF1C21123E005F4191 = {
 						CreatedOnToolsVersion = 7.2;
 					};
+					D8715DD01C21160A005F4191 = {
+						CreatedOnToolsVersion = 7.2;
+					};
 				};
 			};
 			buildConfigurationList = D8003E881AFEC3D400D7D3C5 /* Build configuration list for PBXProject "Rex" */;
@@ -593,6 +658,7 @@
 				D83457131AFEE44E0070616A /* Rex-iOS */,
 				D834571D1AFEE44E0070616A /* RexTests-iOS */,
 				D8715DAF1C21123E005F4191 /* Rex-tvOS */,
+				D8715DD01C21160A005F4191 /* RexTests-tvOS */,
 				D8715D931C210F97005F4191 /* Rex-watchOS */,
 			);
 		};
@@ -635,6 +701,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D8715DAE1C21123E005F4191 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715DCF1C21160A005F4191 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -747,6 +820,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8715DCD1C21160A005F4191 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8715DE51C211643005F4191 /* UIViewTests.swift in Sources */,
+				D8715DDE1C211637005F4191 /* SignalProducerTests.swift in Sources */,
+				D8715DE11C211643005F4191 /* UIButtonTests.swift in Sources */,
+				D8715DE21C211643005F4191 /* UIControlTests.swift in Sources */,
+				D8715DDF1C21163B005F4191 /* NSObjectTests.swift in Sources */,
+				D8715DDC1C211637005F4191 /* PropertyTests.swift in Sources */,
+				D8715DDD1C211637005F4191 /* SignalTests.swift in Sources */,
+				D8715DE41C211643005F4191 /* UIImageViewTests.swift in Sources */,
+				D8715DE31C211643005F4191 /* UILabelTests.swift in Sources */,
+				D8715DE01C211643005F4191 /* UIBarButtonItemTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -759,6 +849,11 @@
 			isa = PBXTargetDependency;
 			target = D83457131AFEE44E0070616A /* Rex-iOS */;
 			targetProxy = D83457201AFEE44E0070616A /* PBXContainerItemProxy */;
+		};
+		D8715DD81C21160A005F4191 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8715DAF1C21123E005F4191 /* Rex-tvOS */;
+			targetProxy = D8715DD71C21160A005F4191 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1135,6 +1230,39 @@
 			};
 			name = Release;
 		};
+		D8715DDA1C21160A005F4191 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = me.neilpa.RexTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		D8715DDB1C21160A005F4191 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = me.neilpa.RexTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1196,6 +1324,14 @@
 			buildConfigurations = (
 				D8715DB61C21123E005F4191 /* Debug */,
 				D8715DB71C21123E005F4191 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		D8715DD91C21160A005F4191 /* Build configuration list for PBXNativeTarget "RexTests-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8715DDA1C21160A005F4191 /* Debug */,
+				D8715DDB1C21160A005F4191 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};

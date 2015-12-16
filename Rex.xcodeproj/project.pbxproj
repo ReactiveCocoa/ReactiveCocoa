@@ -43,6 +43,18 @@
 		D86FFBDA1B34B3F0001A89B3 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD91B34B3F0001A89B3 /* Action.swift */; };
 		D86FFBDB1B34B3F0001A89B3 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD91B34B3F0001A89B3 /* Action.swift */; };
 		D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBDC1B34B691001A89B3 /* UIButton.swift */; };
+		D8715D9D1C210FF9005F4191 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD91B34B3F0001A89B3 /* Action.swift */; };
+		D8715D9E1C210FF9005F4191 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
+		D8715D9F1C210FF9005F4191 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EBC1AFED01000D7D3C5 /* Signal.swift */; };
+		D8715DA01C210FF9005F4191 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */; };
+		D8715DA11C211011005F4191 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D8715DA21C211014005F4191 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D8715DA31C21107F005F4191 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD01B34AD6F001A89B3 /* Association.swift */; };
+		D8715DA41C21107F005F4191 /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973A1B17F2F7002E15BA /* NSData.swift */; };
+		D8715DA51C21107F005F4191 /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
+		D8715DA61C21107F005F4191 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
+		D8715DA91C2110DA005F4191 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DA71C2110DA005F4191 /* ReactiveCocoa.framework */; };
+		D8715DAA1C2110DA005F4191 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DA81C2110DA005F4191 /* Result.framework */; };
 		D8A454061BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454071BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454091BD2772700C9E790 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454081BD2772700C9E790 /* PropertyTests.swift */; };
@@ -133,6 +145,9 @@
 		D86FFBD71B34B242001A89B3 /* UILabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		D86FFBD91B34B3F0001A89B3 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D86FFBDC1B34B691001A89B3 /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
+		D8715D941C210F97005F4191 /* Rex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Rex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8715DA71C2110DA005F4191 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveCocoa.framework; path = watchOS/ReactiveCocoa.framework; sourceTree = "<group>"; };
+		D8715DA81C2110DA005F4191 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = watchOS/Result.framework; sourceTree = "<group>"; };
 		D8A454051BD26A1A00C9E790 /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		D8A454081BD2772700C9E790 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		D8F073141B861B3A0047D546 /* UILabelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabelTests.swift; sourceTree = "<group>"; };
@@ -176,6 +191,15 @@
 			files = (
 				D834573C1AFEE57E0070616A /* ReactiveCocoa.framework in Frameworks */,
 				D834573D1AFEE57E0070616A /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715D901C210F97005F4191 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8715DA91C2110DA005F4191 /* ReactiveCocoa.framework in Frameworks */,
+				D8715DAA1C2110DA005F4191 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +273,7 @@
 			children = (
 				D8003EC71AFEE39000D7D3C5 /* iOS */,
 				D8003EAB1AFEC67700D7D3C5 /* Mac */,
+				D8715D9C1C210FA1005F4191 /* watchOS */,
 			);
 			name = Binaries;
 			path = Carthage/Build;
@@ -288,6 +313,16 @@
 				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
 			);
 			path = UIKit;
+			sourceTree = "<group>";
+		};
+		D8715D9C1C210FA1005F4191 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				D8715D941C210F97005F4191 /* Rex.framework */,
+				D8715DA71C2110DA005F4191 /* ReactiveCocoa.framework */,
+				D8715DA81C2110DA005F4191 /* Result.framework */,
+			);
+			name = watchOS;
 			sourceTree = "<group>";
 		};
 		D8F073131B861B110047D546 /* UIKit */ = {
@@ -337,6 +372,15 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8715DA11C211011005F4191 /* Rex.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715D911C210F97005F4191 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8715DA21C211014005F4191 /* Rex.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +461,24 @@
 			productReference = D86E77AC1AFEE646004BF23D /* RexTests-iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D8715D931C210F97005F4191 /* Rex-watchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8715D9B1C210F97005F4191 /* Build configuration list for PBXNativeTarget "Rex-watchOS" */;
+			buildPhases = (
+				D8715D8F1C210F97005F4191 /* Sources */,
+				D8715D901C210F97005F4191 /* Frameworks */,
+				D8715D911C210F97005F4191 /* Headers */,
+				D8715D921C210F97005F4191 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Rex-watchOS";
+			productName = Rex;
+			productReference = D8715D941C210F97005F4191 /* Rex.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -439,6 +501,9 @@
 					D834571D1AFEE44E0070616A = {
 						CreatedOnToolsVersion = 6.3;
 					};
+					D8715D931C210F97005F4191 = {
+						CreatedOnToolsVersion = 7.2;
+					};
 				};
 			};
 			buildConfigurationList = D8003E881AFEC3D400D7D3C5 /* Build configuration list for PBXProject "Rex" */;
@@ -457,6 +522,7 @@
 				D8003E981AFEC3D400D7D3C5 /* RexTests-Mac */,
 				D83457131AFEE44E0070616A /* Rex-iOS */,
 				D834571D1AFEE44E0070616A /* RexTests-iOS */,
+				D8715D931C210F97005F4191 /* Rex-watchOS */,
 			);
 		};
 /* End PBXProject section */
@@ -484,6 +550,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D834571C1AFEE44E0070616A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715D921C210F97005F4191 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -556,6 +629,21 @@
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 				8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */,
 				8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8715D8F1C210F97005F4191 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8715D9E1C210FF9005F4191 /* Property.swift in Sources */,
+				D8715DA01C210FF9005F4191 /* SignalProducer.swift in Sources */,
+				D8715DA31C21107F005F4191 /* Association.swift in Sources */,
+				D8715DA51C21107F005F4191 /* NSObject.swift in Sources */,
+				D8715D9F1C210FF9005F4191 /* Signal.swift in Sources */,
+				D8715DA41C21107F005F4191 /* NSData.swift in Sources */,
+				D8715D9D1C210FF9005F4191 /* Action.swift in Sources */,
+				D8715DA61C21107F005F4191 /* NSUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -849,6 +937,55 @@
 			};
 			name = Release;
 		};
+		D8715D991C210F97005F4191 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/watchOS",
+				);
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = me.neilpa.Rex;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		D8715D9A1C210F97005F4191 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/watchOS",
+				);
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = me.neilpa.Rex;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -896,6 +1033,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		D8715D9B1C210F97005F4191 /* Build configuration list for PBXNativeTarget "Rex-watchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8715D991C210F97005F4191 /* Debug */,
+				D8715D9A1C210F97005F4191 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

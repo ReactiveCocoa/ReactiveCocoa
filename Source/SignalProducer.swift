@@ -72,6 +72,14 @@ extension SignalProducerType {
     public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<Value, Error>, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
         return lift { $0.timeoutAfter(interval, withEvent: event, onScheduler: scheduler) }
     }
+
+    /// Delays the start of the producer by `interval` on the provided scheduler.
+    public func delayedStart(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return timer(interval, onScheduler: scheduler)
+            .take(1)
+            .promoteErrors(Error)
+            .then(self.producer)
+    }
 }
 
 extension SignalProducerType where Value: SequenceType {

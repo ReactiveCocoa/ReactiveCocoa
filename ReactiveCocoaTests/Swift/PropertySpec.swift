@@ -20,7 +20,7 @@ class PropertySpec: QuickSpec {
 			it("should have the value given at initialization") {
 				let constantProperty = ConstantProperty(initialPropertyValue)
 
-				expect(constantProperty.value).to(equal(initialPropertyValue))
+				expect(constantProperty.value) == initialPropertyValue
 			}
 
 			it("should yield a producer that sends the current value then completes") {
@@ -40,8 +40,8 @@ class PropertySpec: QuickSpec {
 					}
 				}
 
-				expect(sentValue).to(equal(initialPropertyValue))
-				expect(signalCompleted).to(beTruthy())
+				expect(sentValue) == initialPropertyValue
+				expect(signalCompleted) == true
 			}
 		}
 
@@ -49,7 +49,7 @@ class PropertySpec: QuickSpec {
 			it("should have the value given at initialization") {
 				let mutableProperty = MutableProperty(initialPropertyValue)
 
-				expect(mutableProperty.value).to(equal(initialPropertyValue))
+				expect(mutableProperty.value) == initialPropertyValue
 			}
 
 			it("should yield a producer that sends the current value then all changes") {
@@ -61,9 +61,9 @@ class PropertySpec: QuickSpec {
 					sentValue = value
 				}
 
-				expect(sentValue).to(equal(initialPropertyValue))
+				expect(sentValue) == initialPropertyValue
 				mutableProperty.value = subsequentPropertyValue
-				expect(sentValue).to(equal(subsequentPropertyValue))
+				expect(sentValue) == subsequentPropertyValue
 			}
 
 			it("should complete its producer when deallocated") {
@@ -76,7 +76,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				mutableProperty = nil
-				expect(signalCompleted).to(beTruthy())
+				expect(signalCompleted) == true
 			}
 
 			it("should not deadlock on recursive value access") {
@@ -90,7 +90,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				observer.sendNext(10)
-				expect(value).to(equal(10))
+				expect(value) == 10
 			}
 
 			it("should not deadlock on recursive observation") {
@@ -101,10 +101,10 @@ class PropertySpec: QuickSpec {
 					property.producer.startWithNext { x in value = x }
 				}
 
-				expect(value).to(equal(0))
+				expect(value) == 0
 
 				property.value = 1
-				expect(value).to(equal(1))
+				expect(value) == 1
 			}
 		}
 
@@ -128,8 +128,8 @@ class PropertySpec: QuickSpec {
 						}
 					}
 
-					expect(sentValue).to(equal(initialPropertyValue))
-					expect(producerCompleted).to(beTruthy())
+					expect(sentValue) == initialPropertyValue
+					expect(producerCompleted) == true
 				}
 			}
 			
@@ -139,7 +139,7 @@ class PropertySpec: QuickSpec {
 						initialValue: initialPropertyValue,
 						producer: SignalProducer.never)
 					
-					expect(property.value).to(equal(initialPropertyValue))
+					expect(property.value) == initialPropertyValue
 				}
 				
 				it("should take on each value sent on the producer") {
@@ -147,7 +147,7 @@ class PropertySpec: QuickSpec {
 						initialValue: initialPropertyValue,
 						producer: SignalProducer(value: subsequentPropertyValue))
 					
-					expect(property.value).to(equal(subsequentPropertyValue))
+					expect(property.value) == subsequentPropertyValue
 				}
 			}
 			
@@ -159,11 +159,11 @@ class PropertySpec: QuickSpec {
 						initialValue: initialPropertyValue,
 						signal: signal)
 					
-					expect(property.value).to(equal(initialPropertyValue))
+					expect(property.value) == initialPropertyValue
 					
 					observer.sendNext(subsequentPropertyValue)
 					
-					expect(property.value).to(equal(subsequentPropertyValue))
+					expect(property.value) == subsequentPropertyValue
 				}
 			}
 		}
@@ -182,7 +182,7 @@ class PropertySpec: QuickSpec {
 
 			beforeEach {
 				object = ObservableObject()
-				expect(object.rac_value).to(equal(0))
+				expect(object.rac_value) == 0
 
 				property = DynamicProperty(object: object, keyPath: "rac_value")
 			}
@@ -192,16 +192,16 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should read the underlying object") {
-				expect(propertyValue()).to(equal(0))
+				expect(propertyValue()) == 0
 
 				object.rac_value = 1
-				expect(propertyValue()).to(equal(1))
+				expect(propertyValue()) == 1
 			}
 
 			it("should write the underlying object") {
 				property.value = 1
-				expect(object.rac_value).to(equal(1))
-				expect(propertyValue()).to(equal(1))
+				expect(object.rac_value) == 1
+				expect(propertyValue()) == 1
 			}
 
 			it("should observe changes to the property and underlying object") {
@@ -211,13 +211,13 @@ class PropertySpec: QuickSpec {
 					values.append((value as? Int) ?? -1)
 				}
 
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 
 				property.value = 1
-				expect(values).to(equal([ 0, 1 ]))
+				expect(values) == [ 0, 1 ]
 
 				object.rac_value = 2
-				expect(values).to(equal([ 0, 1, 2 ]))
+				expect(values) == [ 0, 1, 2 ]
 			}
 
 			it("should complete when the underlying object deallocates") {
@@ -232,7 +232,7 @@ class PropertySpec: QuickSpec {
 						completed = true
 					}
 
-					expect(completed).to(beFalsy())
+					expect(completed) == false
 					expect(property.value).notTo(beNil())
 					return property
 				}()
@@ -262,10 +262,10 @@ class PropertySpec: QuickSpec {
 					mutableProperty <~ signal
 
 					// Verify that the binding hasn't changed the property value:
-					expect(mutableProperty.value).to(equal(initialPropertyValue))
+					expect(mutableProperty.value) == initialPropertyValue
 
 					observer.sendNext(subsequentPropertyValue)
-					expect(mutableProperty.value).to(equal(subsequentPropertyValue))
+					expect(mutableProperty.value) == subsequentPropertyValue
 				}
 
 				it("should tear down the binding when disposed") {
@@ -277,7 +277,7 @@ class PropertySpec: QuickSpec {
 					bindingDisposable.dispose()
 
 					observer.sendNext(subsequentPropertyValue)
-					expect(mutableProperty.value).to(equal(initialPropertyValue))
+					expect(mutableProperty.value) == initialPropertyValue
 				}
 				
 				it("should tear down the binding when bound signal is completed") {
@@ -287,9 +287,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed).to(beFalsy())
+					expect(bindingDisposable.disposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -300,7 +300,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 			}
 
@@ -313,7 +313,7 @@ class PropertySpec: QuickSpec {
 
 					mutableProperty <~ signalProducer
 
-					expect(mutableProperty.value).to(equal(signalValues.last!))
+					expect(mutableProperty.value) == signalValues.last!
 				}
 
 				it("should tear down the binding when disposed") {
@@ -345,7 +345,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed).to(beTruthy())
+					expect(disposable.disposed) == true
 				}
 			}
 
@@ -357,7 +357,7 @@ class PropertySpec: QuickSpec {
 
 					destinationProperty <~ sourceProperty.producer
 
-					expect(destinationProperty.value).to(equal(initialPropertyValue))
+					expect(destinationProperty.value) == initialPropertyValue
 				}
 
 				it("should update with changes to the source property's value") {
@@ -368,7 +368,7 @@ class PropertySpec: QuickSpec {
 					destinationProperty <~ sourceProperty.producer
 
 					sourceProperty.value = subsequentPropertyValue
-					expect(destinationProperty.value).to(equal(subsequentPropertyValue))
+					expect(destinationProperty.value) == subsequentPropertyValue
 				}
 
 				it("should tear down the binding when disposed") {
@@ -381,7 +381,7 @@ class PropertySpec: QuickSpec {
 
 					sourceProperty.value = subsequentPropertyValue
 
-					expect(destinationProperty.value).to(equal(initialPropertyValue))
+					expect(destinationProperty.value) == initialPropertyValue
 				}
 
 				it("should tear down the binding when the source property deallocates") {
@@ -401,7 +401,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed).to(beTruthy())
+					expect(bindingDisposable.disposed) == true
 				}
 			}
 		}

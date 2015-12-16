@@ -28,10 +28,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(0)
-				expect(lastValue).to(equal("1"))
+				expect(lastValue) == "1"
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal("2"))
+				expect(lastValue) == "2"
 			}
 		}
 		
@@ -48,7 +48,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(error).to(beNil())
 
 				observer.sendFailed(TestError.Default)
-				expect(error).to(equal(producerError))
+				expect(error) == producerError
 			}
 		}
 
@@ -64,13 +64,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(0)
-				expect(lastValue).to(equal(0))
+				expect(lastValue) == 0
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(0))
+				expect(lastValue) == 0
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 			}
 		}
 
@@ -88,13 +88,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 
 				observer.sendNext(nil)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 			}
 		}
 
@@ -110,10 +110,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext("a")
-				expect(lastValue).to(equal("a"))
+				expect(lastValue) == "a"
 
 				observer.sendNext("bb")
-				expect(lastValue).to(equal("abb"))
+				expect(lastValue) == "abb"
 			}
 		}
 
@@ -144,11 +144,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(lastValue).to(beNil())
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				observer.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 
-				expect(lastValue).to(equal(4))
+				expect(lastValue) == 4
 			}
 
 			it("should send the initial value if none are received") {
@@ -170,12 +170,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendCompleted()
 
-				expect(lastValue).to(equal(1))
-				expect(completed).to(beTrue())
+				expect(lastValue) == 1
+				expect(completed) == true
 			}
 		}
 
@@ -193,7 +193,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 			}
 
 			it("should not skip any values when 0") {
@@ -206,10 +206,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 			}
 		}
 
@@ -221,19 +221,19 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var values: [Bool] = []
 				producer.startWithNext { values.append($0) }
 
-				expect(values).to(equal([]))
+				expect(values) == []
 
 				observer.sendNext(true)
-				expect(values).to(equal([ true ]))
+				expect(values) == [ true ]
 
 				observer.sendNext(true)
-				expect(values).to(equal([ true ]))
+				expect(values) == [ true ]
 
 				observer.sendNext(false)
-				expect(values).to(equal([ true, false ]))
+				expect(values) == [ true, false ]
 
 				observer.sendNext(true)
-				expect(values).to(equal([ true, false, true ]))
+				expect(values) == [ true, false, true ]
 			}
 
 			it("should skip values according to a predicate") {
@@ -243,19 +243,19 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var values: [String] = []
 				producer.startWithNext { values.append($0) }
 
-				expect(values).to(equal([]))
+				expect(values) == []
 
 				observer.sendNext("a")
-				expect(values).to(equal([ "a" ]))
+				expect(values) == [ "a" ]
 
 				observer.sendNext("b")
-				expect(values).to(equal([ "a" ]))
+				expect(values) == [ "a" ]
 
 				observer.sendNext("cc")
-				expect(values).to(equal([ "a", "cc" ]))
+				expect(values) == [ "a", "cc" ]
 
 				observer.sendNext("d")
-				expect(values).to(equal([ "a", "cc", "d" ]))
+				expect(values) == [ "a", "cc", "d" ]
 			}
 		}
 
@@ -282,20 +282,20 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 
 				observer.sendNext(0)
-				expect(lastValue).to(equal(0))
+				expect(lastValue) == 0
 			}
 
 			it("should not skip any values when the predicate starts false") {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(3)
-				expect(lastValue).to(equal(3))
+				expect(lastValue) == 3
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 			}
 		}
 		
@@ -337,7 +337,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				triggerObserver.sendNext(())
 				observer.sendNext(0)
-				expect(lastValue).to(equal(0))
+				expect(lastValue) == 0
 			}
 			
 			it("should skip values until the trigger completes") {
@@ -351,7 +351,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				triggerObserver.sendCompleted()
 				observer.sendNext(0)
-				expect(lastValue).to(equal(0))
+				expect(lastValue) == 0
 			}
 		}
 
@@ -374,15 +374,15 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
-				expect(completed).to(beFalse())
+				expect(lastValue) == 1
+				expect(completed) == false
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
-				expect(completed).to(beTrue())
+				expect(lastValue) == 2
+				expect(completed) == true
 			}
 			
 			it("should complete immediately after taking given number of values") {
@@ -406,9 +406,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 					.take(numbers.count)
 					.startWithCompleted { completed = true }
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				testScheduler.run()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should interrupt when 0") {
@@ -442,7 +442,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				expect(interrupted).to(beTruthy())
+				expect(interrupted) == true
 
 				testScheduler.run()
 				expect(result).to(beEmpty())
@@ -468,7 +468,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				expect(result).to(beNil())
 				observer.sendCompleted()
-				expect(result).to(equal(expectedResult))
+				expect(result) == expectedResult
 			}
 
 			it("should complete with an empty array if there are no values") {
@@ -481,7 +481,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				expect(result).to(beNil())
 				observer.sendCompleted()
-				expect(result).to(equal([]))
+				expect(result) == []
 			}
 
 			it("should forward errors") {
@@ -494,7 +494,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				expect(error).to(beNil())
 				observer.sendFailed(.Default)
-				expect(error).to(equal(TestError.Default))
+				expect(error) == TestError.Default
 			}
 		}
 
@@ -533,37 +533,37 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue).to(beNil())
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				triggerObserver.sendNext(())
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 
 			it("should take values until the trigger completes") {
 				expect(lastValue).to(beNil())
 				
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 				
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 				
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				triggerObserver.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 
 			it("should complete if the trigger fires immediately") {
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				triggerObserver.sendNext(())
 
-				expect(completed).to(beTrue())
+				expect(completed) == true
 				expect(lastValue).to(beNil())
 			}
 		}
@@ -601,30 +601,30 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should take values from the original then the replacement") {
 				expect(lastValue).to(beNil())
-				expect(completed).to(beFalse())
+				expect(completed) == false
 
 				observer.sendNext(1)
-				expect(lastValue).to(equal(1))
+				expect(lastValue) == 1
 
 				observer.sendNext(2)
-				expect(lastValue).to(equal(2))
+				expect(lastValue) == 2
 
 				replacementObserver.sendNext(3)
 
-				expect(lastValue).to(equal(3))
-				expect(completed).to(beFalse())
+				expect(lastValue) == 3
+				expect(completed) == false
 
 				observer.sendNext(4)
 
-				expect(lastValue).to(equal(3))
-				expect(completed).to(beFalse())
+				expect(lastValue) == 3
+				expect(completed) == false
 
 				replacementObserver.sendNext(5)
-				expect(lastValue).to(equal(5))
+				expect(lastValue) == 5
 
-				expect(completed).to(beFalse())
+				expect(completed) == false
 				replacementObserver.sendCompleted()
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 		}
 
@@ -655,13 +655,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				for value in -1...4 {
 					observer.sendNext(value)
-					expect(latestValue).to(equal(value))
-					expect(completed).to(beFalse())
+					expect(latestValue) == value
+					expect(completed) == false
 				}
 
 				observer.sendNext(5)
-				expect(latestValue).to(equal(4))
-				expect(completed).to(beTrue())
+				expect(latestValue) == 4
+				expect(completed) == true
 			}
 
 			it("should complete if the predicate starts false") {
@@ -681,7 +681,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				observer.sendNext(5)
 				expect(latestValue).to(beNil())
-				expect(completed).to(beTrue())
+				expect(completed) == true
 			}
 		}
 
@@ -701,7 +701,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(result).to(beEmpty())
 				
 				testScheduler.run()
-				expect(result).to(equal([ 1, 2 ]))
+				expect(result) == [ 1, 2 ]
 			}
 		}
 
@@ -738,12 +738,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(result).to(beEmpty())
 				
 				testScheduler.advanceByInterval(10) // send second value and receive first
-				expect(result).to(equal([ 1 ]))
-				expect(completed).to(beFalsy())
+				expect(result) == [ 1 ]
+				expect(completed) == false
 				
 				testScheduler.advanceByInterval(10) // send second value and receive first
-				expect(result).to(equal([ 1, 2 ]))
-				expect(completed).to(beTruthy())
+				expect(result) == [ 1, 2 ]
+				expect(completed) == true
 			}
 
 			it("should schedule errors immediately") {
@@ -764,7 +764,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					.startWithFailed { _ in errored = true }
 				
 				testScheduler.advance()
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 			}
 		}
 
@@ -788,37 +788,37 @@ class SignalProducerLiftingSpec: QuickSpec {
 					values.append(value)
 				}
 
-				expect(values).to(equal([]))
+				expect(values) == []
 
 				observer.sendNext(0)
-				expect(values).to(equal([]))
+				expect(values) == []
 
 				scheduler.advance()
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 
 				observer.sendNext(1)
 				observer.sendNext(2)
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 
 				scheduler.advanceByInterval(1.5)
-				expect(values).to(equal([ 0, 2 ]))
+				expect(values) == [ 0, 2 ]
 
 				scheduler.advanceByInterval(3)
-				expect(values).to(equal([ 0, 2 ]))
+				expect(values) == [ 0, 2 ]
 
 				observer.sendNext(3)
-				expect(values).to(equal([ 0, 2 ]))
+				expect(values) == [ 0, 2 ]
 
 				scheduler.advance()
-				expect(values).to(equal([ 0, 2, 3 ]))
+				expect(values) == [ 0, 2, 3 ]
 
 				observer.sendNext(4)
 				observer.sendNext(5)
 				scheduler.advance()
-				expect(values).to(equal([ 0, 2, 3 ]))
+				expect(values) == [ 0, 2, 3 ]
 
 				scheduler.run()
-				expect(values).to(equal([ 0, 2, 3, 5 ]))
+				expect(values) == [ 0, 2, 3, 5 ]
 			}
 
 			it("should schedule completion immediately") {
@@ -838,15 +838,15 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				observer.sendNext(0)
 				scheduler.advance()
-				expect(values).to(equal([ 0 ]))
+				expect(values) == [ 0 ]
 
 				observer.sendNext(1)
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				scheduler.run()
-				expect(values).to(equal([ 0 ]))
-				expect(completed).to(beTruthy())
+				expect(values) == [ 0 ]
+				expect(completed) == true
 			}
 		}
 
@@ -870,7 +870,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(1)
 				observer.sendNext(2)
 				samplerObserver.sendNext(())
-				expect(result).to(equal([ 2 ]))
+				expect(result) == [ 2 ]
 			}
 			
 			it("should do nothing if sampler fires before signal receives value") {
@@ -888,7 +888,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(1)
 				samplerObserver.sendNext(())
 				samplerObserver.sendNext(())
-				expect(result).to(equal([ 1, 1 ]))
+				expect(result) == [ 1, 1 ]
 			}
 
 			it("should complete when both inputs have completed") {
@@ -896,10 +896,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				sampledProducer.startWithCompleted { completed = true }
 				
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				samplerObserver.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 
 			it("should emit an initial value if the sampler is a synchronous SignalProducer") {
@@ -937,12 +937,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				// is there a better way to test tuples?
 				otherObserver.sendNext(1.5)
-				expect(latest?.0).to(equal(1))
-				expect(latest?.1).to(equal(1.5))
+				expect(latest?.0) == 1
+				expect(latest?.1) == 1.5
 				
 				observer.sendNext(2)
-				expect(latest?.0).to(equal(2))
-				expect(latest?.1).to(equal(1.5))
+				expect(latest?.0) == 2
+				expect(latest?.1) == 1.5
 			}
 
 			it("should complete when both inputs have completed") {
@@ -950,10 +950,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				combinedProducer.startWithCompleted { completed = true }
 				
 				observer.sendCompleted()
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				
 				otherObserver.sendCompleted()
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -977,23 +977,23 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				leftObserver.sendNext(1)
 				leftObserver.sendNext(2)
-				expect(result).to(equal([]))
+				expect(result) == []
 
 				rightObserver.sendNext("foo")
-				expect(result).to(equal([ "1foo" ]))
+				expect(result) == [ "1foo" ]
 
 				leftObserver.sendNext(3)
 				rightObserver.sendNext("bar")
-				expect(result).to(equal([ "1foo", "2bar" ]))
+				expect(result) == [ "1foo", "2bar" ]
 
 				rightObserver.sendNext("buzz")
-				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
+				expect(result) == [ "1foo", "2bar", "3buzz" ]
 
 				rightObserver.sendNext("fuzz")
-				expect(result).to(equal([ "1foo", "2bar", "3buzz" ]))
+				expect(result) == [ "1foo", "2bar", "3buzz" ]
 
 				leftObserver.sendNext(4)
-				expect(result).to(equal([ "1foo", "2bar", "3buzz", "4fuzz" ]))
+				expect(result) == [ "1foo", "2bar", "3buzz", "4fuzz" ]
 			}
 
 			it("should complete when the shorter signal has completed") {
@@ -1011,16 +1011,16 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 
 				leftObserver.sendNext(0)
 				leftObserver.sendCompleted()
-				expect(completed).to(beFalsy())
-				expect(result).to(equal([]))
+				expect(completed) == false
+				expect(result) == []
 
 				rightObserver.sendNext("foo")
-				expect(completed).to(beTruthy())
-				expect(result).to(equal([ "0foo" ]))
+				expect(completed) == true
+				expect(result) == [ "0foo" ]
 			}
 		}
 
@@ -1038,7 +1038,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				if let latestEvent = latestEvent {
 					switch latestEvent {
 					case let .Next(value):
-						expect(value).to(equal(2))
+						expect(value) == 2
 					default:
 						fail()
 					}
@@ -1074,29 +1074,29 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(result).to(beEmpty())
 				
 				observer.sendNext(.Next(2))
-				expect(result).to(equal([ 2 ]))
+				expect(result) == [ 2 ]
 				
 				observer.sendNext(.Next(4))
-				expect(result).to(equal([ 2, 4 ]))
+				expect(result) == [ 2, 4 ]
 			}
 
 			it("should error out for Error events") {
 				var errored = false
 				dematerialized.startWithFailed { _ in errored = true }
 				
-				expect(errored).to(beFalsy())
+				expect(errored) == false
 				
 				observer.sendNext(.Failed(TestError.Default))
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 			}
 
 			it("should complete early for Completed events") {
 				var completed = false
 				dematerialized.startWithCompleted { completed = true }
 				
-				expect(completed).to(beFalsy())
+				expect(completed) == false
 				observer.sendNext(IntEvent.Completed)
-				expect(completed).to(beTruthy())
+				expect(completed) == true
 			}
 		}
 
@@ -1121,7 +1121,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(result).to(beEmpty())
 				
 				observer.sendCompleted()
-				expect(result).to(equal([ 2, 3, 4 ]))
+				expect(result) == [ 2, 3, 4 ]
 			}
 
 			it("should send less than N values if not enough were received") {
@@ -1131,7 +1131,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(1)
 				observer.sendNext(2)
 				observer.sendCompleted()
-				expect(result).to(equal([ 1, 2 ]))
+				expect(result) == [ 1, 2 ]
 			}
 			
 			it("should send nothing when errors") {
@@ -1151,10 +1151,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(1)
 				observer.sendNext(2)
 				observer.sendNext(3)
-				expect(errored).to(beFalsy())
+				expect(errored) == false
 				
 				observer.sendFailed(TestError.Default)
-				expect(errored).to(beTruthy())
+				expect(errored) == true
 				expect(result).to(beEmpty())
 			}
 		}
@@ -1189,12 +1189,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 					observer.sendCompleted()
 				}
 
-				expect(completed).to(beFalsy())
-				expect(errored).to(beFalsy())
+				expect(completed) == false
+				expect(errored) == false
 
 				testScheduler.run()
-				expect(completed).to(beTruthy())
-				expect(errored).to(beFalsy())
+				expect(completed) == true
+				expect(errored) == false
 			}
 
 			it("should error if not completed before the interval has elapsed") {
@@ -1215,12 +1215,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 					observer.sendCompleted()
 				}
 
-				expect(completed).to(beFalsy())
-				expect(errored).to(beFalsy())
+				expect(completed) == false
+				expect(errored) == false
 
 				testScheduler.run()
-				expect(completed).to(beFalsy())
-				expect(errored).to(beTruthy())
+				expect(completed) == false
+				expect(errored) == true
 			}
 		}
 
@@ -1238,7 +1238,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				for value in 1...5 {
 					observer.sendNext(value)
-					expect(current).to(equal(value))
+					expect(current) == value
 				}
 			}
 			
@@ -1254,7 +1254,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error).to(equal(TestError.Default))
+				expect(error) == TestError.Default
 			}
 		}
 		
@@ -1271,10 +1271,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				observer.sendNext(1)
-				expect(even).to(equal(false))
+				expect(even) == false
 				
 				observer.sendNext(2)
-				expect(even).to(equal(true))
+				expect(even) == true
 			}
 			
 			it("should error if a mapping fails") {
@@ -1289,7 +1289,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error).to(equal(TestError.Default))
+				expect(error) == TestError.Default
 			}
 		}
 		
@@ -1310,12 +1310,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(latestValues).to(beNil())
 				
 				observer.sendNext(1)
-				expect(latestValues?.0).to(equal(initialValue))
-				expect(latestValues?.1).to(equal(1))
+				expect(latestValues?.0) == initialValue
+				expect(latestValues?.1) == 1
 				
 				observer.sendNext(2)
-				expect(latestValues?.0).to(equal(1))
-				expect(latestValues?.1).to(equal(2))
+				expect(latestValues?.0) == 1
+				expect(latestValues?.1) == 2
 			}
 		}
 	}

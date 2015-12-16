@@ -26,7 +26,7 @@ class FoundationExtensionsSpec: QuickSpec {
 				expect(notif).to(beNil())
 
 				center.postNotificationName("rac_notifications_test", object: nil)
-				expect(notif?.name).to(equal("rac_notifications_test"))
+				expect(notif?.name) == "rac_notifications_test"
 
 				notif = nil
 				disposable.dispose()

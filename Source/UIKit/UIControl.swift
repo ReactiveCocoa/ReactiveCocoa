@@ -10,6 +10,7 @@ import ReactiveCocoa
 import UIKit
 
 extension UIControl {
+#if os(iOS)
     /// Creates a producer for the sender whenever a specified control event is triggered.
     public func rex_controlEvents(events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
         return rac_signalForControlEvents(events)
@@ -17,6 +18,7 @@ extension UIControl {
             .map { $0 as? UIControl }
             .flatMapError { _ in SignalProducer(value: nil) }
     }
+#endif
 
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {

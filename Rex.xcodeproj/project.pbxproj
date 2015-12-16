@@ -66,6 +66,13 @@
 		D8715DC11C2112D6005F4191 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */; };
 		D8715DC41C211310005F4191 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DC21C211310005F4191 /* ReactiveCocoa.framework */; };
 		D8715DC51C211310005F4191 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8715DC31C211310005F4191 /* Result.framework */; };
+		D8715DC61C211553005F4191 /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */; };
+		D8715DC71C211553005F4191 /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173EBC51B625A2600C9B48E /* UIBarItem.swift */; };
+		D8715DC81C211553005F4191 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBDC1B34B691001A89B3 /* UIButton.swift */; };
+		D8715DC91C211553005F4191 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD41B34B0FE001A89B3 /* UIControl.swift */; };
+		D8715DCA1C211553005F4191 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86FFBD71B34B242001A89B3 /* UILabel.swift */; };
+		D8715DCB1C211553005F4191 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; };
+		D8715DCC1C211553005F4191 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; };
 		D8A454061BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454071BD26A1A00C9E790 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454051BD26A1A00C9E790 /* Property.swift */; };
 		D8A454091BD2772700C9E790 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A454081BD2772700C9E790 /* PropertyTests.swift */; };
@@ -723,12 +730,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8715DBB1C2112D1005F4191 /* Property.swift in Sources */,
+				D8715DCA1C211553005F4191 /* UILabel.swift in Sources */,
+				D8715DCB1C211553005F4191 /* UIImageView.swift in Sources */,
+				D8715DC61C211553005F4191 /* UIBarButtonItem.swift in Sources */,
 				D8715DBD1C2112D1005F4191 /* SignalProducer.swift in Sources */,
 				D8715DBE1C2112D6005F4191 /* Association.swift in Sources */,
 				D8715DC01C2112D6005F4191 /* NSObject.swift in Sources */,
+				D8715DC91C211553005F4191 /* UIControl.swift in Sources */,
 				D8715DBC1C2112D1005F4191 /* Signal.swift in Sources */,
 				D8715DBF1C2112D6005F4191 /* NSData.swift in Sources */,
+				D8715DCC1C211553005F4191 /* UIView.swift in Sources */,
 				D8715DBA1C2112D1005F4191 /* Action.swift in Sources */,
+				D8715DC81C211553005F4191 /* UIButton.swift in Sources */,
+				D8715DC71C211553005F4191 /* UIBarItem.swift in Sources */,
 				D8715DC11C2112D6005F4191 /* NSUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

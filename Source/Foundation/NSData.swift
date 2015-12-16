@@ -10,8 +10,7 @@ import Foundation
 import ReactiveCocoa
 
 extension NSData {
-    /// Read the data at the URL.
-    /// Sends the data or the error.
+    /// Read the data at the URL, sending the result or an error.
     public class func rex_dataWithContentsOfURL(url: NSURL, options: NSDataReadingOptions = NSDataReadingOptions()) -> SignalProducer<NSData, NSError> {
         return SignalProducer<NSData, NSError> { observer, disposable in
             do {

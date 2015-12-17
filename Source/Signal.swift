@@ -84,6 +84,28 @@ extension SignalType {
             SignalProducer(value: $0).delay(interval, onScheduler: scheduler)
         }
     }
+
+    /// Forwards a value and then mutes the signal by dropping all subsequent values
+    /// for `interval` seconds. Once time elapses the next new value will be forwarded
+    /// and repeat the muting process. Error events are immediately forwarded even while
+    /// the signal is muted.
+    ///
+    /// This operator could be used to coalesce multiple notifications in a short time
+    /// frame by only showing the first one.
+    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+        precondition(interval > 0)
+
+        var expires = scheduler.currentDate
+        return filter { _ in
+            let now = scheduler.currentDate
+
+            if expires.compare(now) != .OrderedDescending {
+                expires = now.dateByAddingTimeInterval(interval)
+                return true
+            }
+            return false
+        }
+    }
 }
 
 extension SignalType where Value: SequenceType {

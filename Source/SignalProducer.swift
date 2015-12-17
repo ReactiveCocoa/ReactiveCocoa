@@ -83,6 +83,17 @@ extension SignalProducerType {
         return lift { $0.debounce(interval, onScheduler: scheduler) }
     }
 
+    /// Forwards a value and then mutes the producer by dropping all subsequent values
+    /// for `interval` seconds. Once time elapses the next new value will be forwarded
+    /// and repeat the muting process. Error events are immediately forwarded even while
+    /// the producer is muted.
+    ///
+    /// This operator could be used to coalesce multiple notifications in a short time
+    /// frame by only showing the first one.
+    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return lift { $0.muteFor(interval, withScheduler: scheduler) }
+    }
+
     /// Delays the start of the producer by `interval` on the provided scheduler.
     public func delayedStart(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
         return timer(interval, onScheduler: scheduler)

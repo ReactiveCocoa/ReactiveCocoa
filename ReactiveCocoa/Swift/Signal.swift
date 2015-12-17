@@ -803,9 +803,7 @@ extension SignalType {
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Completed:
-					for bufferedValue in buffer {
-						observer.sendNext(bufferedValue)
-					}
+					buffer.forEach(observer.sendNext)
 					
 					observer.sendCompleted()
 				case .Interrupted:

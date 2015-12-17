@@ -310,8 +310,7 @@ public final class TestScheduler: DateSchedulerType {
 				break
 			}
 
-			let scheduledAction = scheduledActions[0]
-			scheduledActions.removeAtIndex(0)
+			let scheduledAction = scheduledActions.removeAtIndex(0)
 			scheduledAction.action()
 		}
 

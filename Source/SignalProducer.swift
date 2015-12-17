@@ -101,6 +101,22 @@ extension SignalProducerType {
             .promoteErrors(Error)
             .then(self.producer)
     }
+
+    /// Delays retrying on failure by `interval`. The last error received is forwarded
+    /// if all `attempts` are exhausted.
+    public func delayedRetry(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, attempts: Int = .max) -> SignalProducer<Value, Error> {
+        precondition(attempts > 0)
+
+        if attempts == 1 {
+            return producer
+        } else {
+            return flatMapError { _ in
+                self.producer
+                    .delayedStart(interval, onScheduler: scheduler)
+                    .delayedRetry(interval, onScheduler: scheduler, attempts: attempts - 1)
+            }
+        }
+    }
 }
 
 extension SignalProducerType where Value: SequenceType {

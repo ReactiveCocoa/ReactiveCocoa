@@ -134,6 +134,61 @@ final class SignalTests: XCTestCase {
         sink.sendNext([2, 3])
         XCTAssert(values == [1, 2, 3])
     }
+
+    func testDebounceValues() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, NoError>.pipe()
+        var value = -1
+
+        signal
+            .debounce(1, onScheduler: scheduler)
+            .observeNext {
+                value = $0
+                print("seeing \($0)")
+            }
+
+        scheduler.schedule { sink.sendNext(1) }
+        scheduler.advance()
+        XCTAssertEqual(value, -1)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(2) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(3) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(value, 3)
+    }
+
+    func testDebounceError() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
+        var value = -1
+        var failed = false
+
+        signal
+            .debounce(10, onScheduler: scheduler)
+            .observe(Observer(next: {
+                value = $0
+            }, failed: { _ in
+                failed = true
+            }))
+
+        scheduler.schedule { sink.sendNext(1) }
+        scheduler.advance()
+        XCTAssertEqual(value, -1)
+
+        scheduler.schedule { sink.sendFailed(.Default) }
+        scheduler.advance()
+        XCTAssertTrue(failed)
+        XCTAssertEqual(value, -1)
+    }
 }
 
 enum TestError: ErrorType {

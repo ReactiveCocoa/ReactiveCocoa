@@ -142,10 +142,7 @@ final class SignalTests: XCTestCase {
 
         signal
             .debounce(1, onScheduler: scheduler)
-            .observeNext {
-                value = $0
-                print("seeing \($0)")
-            }
+            .observeNext { value = $0 }
 
         scheduler.schedule { sink.sendNext(1) }
         scheduler.advance()
@@ -166,14 +163,14 @@ final class SignalTests: XCTestCase {
         XCTAssertEqual(value, 3)
     }
 
-    func testDebounceError() {
+    func testDebounceFailure() {
         let scheduler = TestScheduler()
         let (signal, sink) = Signal<Int, TestError>.pipe()
         var value = -1
         var failed = false
 
         signal
-            .debounce(10, onScheduler: scheduler)
+            .debounce(1, onScheduler: scheduler)
             .observe(Observer(next: {
                 value = $0
             }, failed: { _ in
@@ -188,6 +185,62 @@ final class SignalTests: XCTestCase {
         scheduler.advance()
         XCTAssertTrue(failed)
         XCTAssertEqual(value, -1)
+    }
+
+    func testMuteForValues() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, NoError>.pipe()
+        var value = -1
+
+        signal
+            .muteFor(1, withScheduler: scheduler)
+            .observeNext { value = $0 }
+
+        scheduler.schedule { sink.sendNext(1) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(2) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(3) }
+        scheduler.schedule { sink.sendNext(4) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(5) }
+        scheduler.schedule { sink.sendNext(6) }
+        scheduler.advance()
+        XCTAssertEqual(value, 5)
+    }
+
+    func testMuteForFailure() {
+        let scheduler = TestScheduler()
+        let (signal, sink) = Signal<Int, TestError>.pipe()
+        var value = -1
+        var failed = false
+
+        signal
+            .muteFor(1, withScheduler: scheduler)
+            .observe(Observer(next: {
+                value = $0
+                }, failed: { _ in
+                    failed = true
+            }))
+
+        scheduler.schedule { sink.sendNext(1) }
+        scheduler.advance()
+        XCTAssertEqual(value, 1)
+
+        scheduler.schedule { sink.sendNext(2) }
+        scheduler.schedule { sink.sendFailed(.Default) }
+        scheduler.advance()
+        XCTAssertTrue(failed)
+        XCTAssertEqual(value, 1)
     }
 }
 

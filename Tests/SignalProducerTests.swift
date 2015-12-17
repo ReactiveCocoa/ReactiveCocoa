@@ -52,4 +52,31 @@ final class SignalProducerTests: XCTestCase {
         XCTAssert(interrupted)
         XCTAssertFalse(completed)
     }
+
+    func testDelayedStart() {
+        let scheduler = TestScheduler()
+
+        var delayed = false
+        let producer = SignalProducer<(), NoError> { _ in
+            delayed = true
+        }
+
+        var started = false
+        producer
+            .delayedStart(1, onScheduler: scheduler)
+            .on(started: { started = true })
+            .start()
+
+        XCTAssertTrue(started)
+        XCTAssertFalse(delayed)
+
+        scheduler.advance()
+        XCTAssertFalse(delayed)
+
+        scheduler.advanceByInterval(0.9)
+        XCTAssertFalse(delayed)
+
+        scheduler.advanceByInterval(0.2)
+        XCTAssertTrue(delayed)
+    }
 }

@@ -146,9 +146,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 					return mutableState
 				}
 
-				for value in originalState.values {
-					observer.sendNext(value)
-				}
+				originalState.values.forEach(observer.sendNext)
 
 				if let terminationEvent = originalState.terminationEvent {
 					observer.action(terminationEvent)

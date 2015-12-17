@@ -871,8 +871,8 @@ extension SignalType {
 				}
 			}
 			
-			let onFailed = { observer.sendFailed($0) }
-			let onInterrupted = { observer.sendInterrupted() }
+			let onFailed = observer.sendFailed
+			let onInterrupted = observer.sendInterrupted
 
 			disposable += self.observe { event in
 				switch event {
@@ -947,11 +947,10 @@ extension SignalType {
 			self.observe { event in
 				switch event {
 				case let .Next(value):
-					operation(value).analysis(ifSuccess: { value in
-						observer.sendNext(value)
-						}, ifFailure: { error in
-							observer.sendFailed(error)
-					})
+					operation(value).analysis(
+						ifSuccess: observer.sendNext,
+						ifFailure: observer.sendFailed
+					)
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Completed:

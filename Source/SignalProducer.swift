@@ -73,6 +73,16 @@ extension SignalProducerType {
         return lift { $0.timeoutAfter(interval, withEvent: event, onScheduler: scheduler) }
     }
 
+    /// Enforces that at least `interval` time passes before forwarding a value. If a
+    /// new value arrives, the previous one is dropped and the `interval` delay starts
+    /// again. Error events are immediately forwarded, even if there's a queued value.
+    ///
+    /// This operator is useful for scenarios like type-to-search where you want to
+    /// wait for a "lull" in typing before kicking off a search request.
+    public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return lift { $0.debounce(interval, onScheduler: scheduler) }
+    }
+
     /// Delays the start of the producer by `interval` on the provided scheduler.
     public func delayedStart(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
         return timer(interval, onScheduler: scheduler)

@@ -96,10 +96,9 @@ extension SignalProducerType {
 
     /// Delays the start of the producer by `interval` on the provided scheduler.
     public func delayedStart(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
-        return timer(interval, onScheduler: scheduler)
-            .take(1)
-            .promoteErrors(Error)
-            .then(self.producer)
+        return SignalProducer.empty
+            .delay(interval, onScheduler: scheduler)
+            .concat(self.producer)
     }
 
     /// Delays retrying on failure by `interval`. The last error received is forwarded
@@ -107,15 +106,11 @@ extension SignalProducerType {
     public func delayedRetry(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, attempts: Int = .max) -> SignalProducer<Value, Error> {
         precondition(attempts > 0)
 
-        if attempts == 1 {
-            return producer
-        } else {
-            return flatMapError { _ in
-                self.producer
-                    .delayedStart(interval, onScheduler: scheduler)
-                    .delayedRetry(interval, onScheduler: scheduler, attempts: attempts - 1)
+        return flatMapError {
+                // TODO This delays the final error if all attempts are exhausted
+                SignalProducer(error: $0).delayedStart(interval, onScheduler: scheduler)
             }
-        }
+            .retry(attempts - 1)
     }
 }
 

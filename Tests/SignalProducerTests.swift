@@ -57,9 +57,7 @@ final class SignalProducerTests: XCTestCase {
         let scheduler = TestScheduler()
 
         var delayed = false
-        let producer = SignalProducer<(), NoError> { _ in
-            delayed = true
-        }
+        let producer = SignalProducer<(), NoError> { _ in delayed = true }
 
         var started = false
         producer
@@ -78,5 +76,88 @@ final class SignalProducerTests: XCTestCase {
 
         scheduler.advanceByInterval(0.2)
         XCTAssertTrue(delayed)
+    }
+
+    func testDelayedRetry() {
+        let scheduler = TestScheduler()
+
+        var count = 0
+        let producer = SignalProducer<Int, TestError> { observer, _ in
+            if count < 2 {
+                scheduler.schedule { observer.sendNext(count) }
+                scheduler.schedule { observer.sendFailed(.Default) }
+            } else {
+                scheduler.schedule { observer.sendCompleted() }
+            }
+            count += 1
+        }
+
+        var value = -1
+        var completed = false
+        producer
+            .delayedRetry(1, onScheduler: scheduler)
+            .start(Observer(
+                next: { value = $0 },
+                completed: { completed = true }
+            ))
+
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(value, -1)
+
+        scheduler.advance()
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(value, 1)
+        XCTAssertFalse(completed)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(count, 2)
+        XCTAssertEqual(value, 2)
+        XCTAssertFalse(completed)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(count, 3)
+        XCTAssertEqual(value, 2)
+        XCTAssertTrue(completed)
+    }
+
+    func testDelayedRetryFailure() {
+        let scheduler = TestScheduler()
+
+        var count = 0
+        let producer = SignalProducer<Int, TestError> { observer, _ in
+            observer.sendNext(count)
+            observer.sendFailed(.Default)
+            count += 1
+        }
+
+        var value = -1
+        var failed = false
+        producer
+            .delayedRetry(1, onScheduler: scheduler, attempts: 3)
+            .start(Observer(
+                next: { value = $0 },
+                failed: { _ in failed = true }
+            ))
+
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(value, 0)
+
+        scheduler.advance()
+        XCTAssertEqual(count, 1)
+        XCTAssertEqual(value, 0)
+        XCTAssertFalse(failed)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(count, 2)
+        XCTAssertEqual(value, 1)
+        XCTAssertFalse(failed)
+
+        scheduler.advanceByInterval(1)
+        XCTAssertEqual(count, 3)
+        XCTAssertEqual(value, 2)
+
+        // TODO The final failure if attempts are exhausted
+        scheduler.advanceByInterval(1)
+        XCTAssertTrue(failed)
     }
 }

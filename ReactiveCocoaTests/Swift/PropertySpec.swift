@@ -13,6 +13,7 @@ import ReactiveCocoa
 
 private let initialPropertyValue = "InitialValue"
 private let subsequentPropertyValue = "SubsequentValue"
+private let finalPropertyValue = "FinalValue"
 
 class PropertySpec: QuickSpec {
 	override func spec() {
@@ -21,6 +22,33 @@ class PropertySpec: QuickSpec {
 				let constantProperty = ConstantProperty(initialPropertyValue)
 
 				expect(constantProperty.value) == initialPropertyValue
+			}
+
+			it("should yield a signal that interrupts observers without emitting any value.") {
+				let constantProperty = ConstantProperty(initialPropertyValue)
+
+				var sentValue: String?
+				var signalFailed = false
+				var signalInterrupted = false
+				var signalCompleted = false
+
+				constantProperty.signal.observe { event in
+					switch event {
+					case let .Next(value):
+						sentValue = value
+					case .Failed(_):
+						signalFailed = true
+					case .Interrupted:
+						signalInterrupted = true
+					case .Completed:
+						signalCompleted = true
+					}
+				}
+
+				expect(sentValue).to(beNil())
+				expect(signalInterrupted) == true
+				expect(signalCompleted) == false
+				expect(signalFailed) == false
 			}
 
 			it("should yield a producer that sends the current value then completes") {
@@ -54,26 +82,79 @@ class PropertySpec: QuickSpec {
 
 			it("should yield a producer that sends the current value then all changes") {
 				let mutableProperty = MutableProperty(initialPropertyValue)
-
 				var sentValue: String?
 
-				mutableProperty.producer.startWithNext { value in
-					sentValue = value
-				}
+				mutableProperty.producer.startWithNext { sentValue = $0 }
 
 				expect(sentValue) == initialPropertyValue
+
 				mutableProperty.value = subsequentPropertyValue
 				expect(sentValue) == subsequentPropertyValue
+
+				mutableProperty.value = finalPropertyValue
+				expect(sentValue) == finalPropertyValue
+			}
+
+			it("should yield a producer that sends the current value then all changes, even if the value actually remains unchanged") {
+				let mutableProperty = MutableProperty(initialPropertyValue)
+				var count = 0
+
+				mutableProperty.producer.startWithNext { _ in count = count + 1 }
+
+				expect(count) == 1
+
+				mutableProperty.value = initialPropertyValue
+				expect(count) == 2
+
+				mutableProperty.value = initialPropertyValue
+				expect(count) == 3
+			}
+
+			it("should yield a signal that emits subsequent changes to the value") {
+				let mutableProperty = MutableProperty(initialPropertyValue)
+				var sentValue: String?
+
+				mutableProperty.signal.observeNext { sentValue = $0 }
+
+				expect(sentValue).to(beNil())
+
+				mutableProperty.value = subsequentPropertyValue
+				expect(sentValue) == subsequentPropertyValue
+
+				mutableProperty.value = finalPropertyValue
+				expect(sentValue) == finalPropertyValue
+			}
+
+			it("should yield a signal that emits subsequent changes to the value, even if the value actually remains unchanged") {
+				let mutableProperty = MutableProperty(initialPropertyValue)
+				var count = 0
+
+				mutableProperty.signal.observeNext { _ in count = count + 1 }
+
+				expect(count) == 0
+
+				mutableProperty.value = initialPropertyValue
+				expect(count) == 1
+
+				mutableProperty.value = initialPropertyValue
+				expect(count) == 2
 			}
 
 			it("should complete its producer when deallocated") {
 				var mutableProperty: MutableProperty? = MutableProperty(initialPropertyValue)
+				var producerCompleted = false
 
+				mutableProperty!.producer.startWithCompleted { producerCompleted = true }
+
+				mutableProperty = nil
+				expect(producerCompleted) == true
+			}
+
+			it("should complete its signal when deallocated") {
+				var mutableProperty: MutableProperty? = MutableProperty(initialPropertyValue)
 				var signalCompleted = false
 
-				mutableProperty?.producer.startWithCompleted {
-					signalCompleted = true
-				}
+				mutableProperty!.signal.observeCompleted { signalCompleted = true }
 
 				mutableProperty = nil
 				expect(signalCompleted) == true
@@ -182,7 +263,9 @@ class PropertySpec: QuickSpec {
 					let property = AnyProperty(constantProperty)
 
 					var sentValue: String?
+					var signalSentValue: String?
 					var producerCompleted = false
+					var signalInterrupted = false
 
 					property.producer.start { event in
 						switch event {
@@ -195,8 +278,21 @@ class PropertySpec: QuickSpec {
 						}
 					}
 
+					property.signal.observe { event in
+						switch event {
+						case let .Next(value):
+							signalSentValue = value
+						case .Interrupted:
+							signalInterrupted = true
+						default:
+							break
+						}
+					}
+
 					expect(sentValue) == initialPropertyValue
+					expect(signalSentValue).to(beNil())
 					expect(producerCompleted) == true
+					expect(signalInterrupted) == true
 				}
 			}
 			
@@ -271,11 +367,11 @@ class PropertySpec: QuickSpec {
 				expect(propertyValue()) == 1
 			}
 
-			it("should observe changes to the property and underlying object") {
+			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append((value as? Int) ?? -1)
+					values.append(value as! Int)
 				}
 
 				expect(values) == [ 0 ]
@@ -287,7 +383,55 @@ class PropertySpec: QuickSpec {
 				expect(values) == [ 0, 1, 2 ]
 			}
 
-			it("should complete when the underlying object deallocates") {
+			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object, even if the value actually remains unchanged") {
+				var values: [Int] = []
+				property.producer.startWithNext { value in
+					expect(value).notTo(beNil())
+					values.append(value as! Int)
+				}
+
+				expect(values) == [ 0 ]
+
+				property.value = 0
+				expect(values) == [ 0, 0 ]
+
+				object.rac_value = 0
+				expect(values) == [ 0, 0, 0 ]
+			}
+
+			it("should yield a signal that emits subsequent values for the key path of the underlying object") {
+				var values: [Int] = []
+				property.signal.observeNext { value in
+					expect(value).notTo(beNil())
+					values.append(value as! Int)
+				}
+
+				expect(values) == []
+
+				property.value = 1
+				expect(values) == [ 1 ]
+
+				object.rac_value = 2
+				expect(values) == [ 1, 2 ]
+			}
+
+			it("should yield a signal that emits subsequent values for the key path of the underlying object, even if the value actually remains unchanged") {
+				var values: [Int] = []
+				property.signal.observeNext { value in
+					expect(value).notTo(beNil())
+					values.append(value as! Int)
+				}
+
+				expect(values) == []
+
+				property.value = 0
+				expect(values) == [ 0 ]
+
+				object.rac_value = 0
+				expect(values) == [ 0, 0 ]
+			}
+
+			it("should have a completed producer when the underlying object deallocates") {
 				var completed = false
 
 				property = {
@@ -307,8 +451,29 @@ class PropertySpec: QuickSpec {
 				expect(completed).toEventually(beTruthy())
 				expect(property.value).to(beNil())
 			}
-			
-			it("should retain property while DynamicProperty's object is retained"){
+
+			it("should have a completed signal when the underlying object deallocates") {
+				var completed = false
+
+				property = {
+					// Use a closure so this object has a shorter lifetime.
+					let object = ObservableObject()
+					let property = DynamicProperty(object: object, keyPath: "rac_value")
+
+					property.signal.observeCompleted {
+						completed = true
+					}
+
+					expect(completed) == false
+					expect(property.value).notTo(beNil())
+					return property
+					}()
+
+				expect(completed).toEventually(beTruthy())
+				expect(property.value).to(beNil())
+			}
+
+			it("should retain property while DynamicProperty's underlying object is retained"){
 				weak var dynamicProperty: DynamicProperty? = property
 				
 				property = nil

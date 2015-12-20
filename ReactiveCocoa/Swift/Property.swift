@@ -89,10 +89,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// created from the `values` producer.
 	public var value: Value {
 		get {
-			lock.lock()
-			defer { lock.unlock() }
-
-			return _value
+			return withValue { $0 }
 		}
 
 		set {

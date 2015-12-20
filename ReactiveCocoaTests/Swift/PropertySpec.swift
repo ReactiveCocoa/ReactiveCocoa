@@ -467,7 +467,7 @@ class PropertySpec: QuickSpec {
 					expect(completed) == false
 					expect(property.value).notTo(beNil())
 					return property
-					}()
+				}()
 
 				expect(completed).toEventually(beTruthy())
 				expect(property.value).to(beNil())

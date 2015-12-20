@@ -89,17 +89,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// created from the `values` producer.
 	public var value: Value {
 		get {
-			lock.lock()
-			let value = _value
-			lock.unlock()
-			return value
+			return withValue { $0 }
 		}
 
 		set {
-			lock.lock()
-			_value = newValue
-			observer.sendNext(newValue)
-			lock.unlock()
+			modify { _ in newValue }
 		}
 	}
 
@@ -116,6 +110,37 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		_value = initialValue
 		observer.sendNext(initialValue)
+	}
+
+	/// Atomically replaces the contents of the variable.
+	///
+	/// Returns the old value.
+	public func swap(newValue: Value) -> Value {
+		return modify { _ in newValue }
+	}
+
+	/// Atomically modifies the variable.
+	///
+	/// Returns the old value.
+	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+		lock.lock()
+		defer { lock.unlock() }
+
+		let oldValue = _value
+		_value = try action(_value)
+		observer.sendNext(_value)
+		return oldValue
+	}
+
+	/// Atomically performs an arbitrary action using the current value of the
+	/// variable.
+	///
+	/// Returns the result of the action.
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		lock.lock()
+		defer { lock.unlock() }
+
+		return try action(_value)
 	}
 
 	deinit {

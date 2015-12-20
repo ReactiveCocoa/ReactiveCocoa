@@ -79,6 +79,59 @@ class PropertySpec: QuickSpec {
 				expect(signalCompleted) == true
 			}
 
+			it("should modify the value atomically") {
+				let property = MutableProperty(initialPropertyValue)
+
+				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+				expect(property.value) == subsequentPropertyValue
+			}
+
+			it("should modify the value atomically and subsquently send out a Next event with the new value") {
+				let property = MutableProperty(initialPropertyValue)
+				var value: String?
+
+				property.producer.startWithNext {
+					value = $0
+				}
+
+				expect(value) == initialPropertyValue
+				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+
+				expect(property.value) == subsequentPropertyValue
+				expect(value) == subsequentPropertyValue
+			}
+
+			it("should swap the value atomically") {
+				let property = MutableProperty(initialPropertyValue)
+
+				expect(property.swap(subsequentPropertyValue)) == initialPropertyValue
+				expect(property.value) == subsequentPropertyValue
+			}
+
+			it("should swap the value atomically and subsquently send out a Next event with the new value") {
+				let property = MutableProperty(initialPropertyValue)
+				var value: String?
+
+				property.producer.startWithNext {
+					value = $0
+				}
+
+				expect(value) == initialPropertyValue
+				expect(property.swap(subsequentPropertyValue)) == initialPropertyValue
+
+				expect(property.value) == subsequentPropertyValue
+				expect(value) == subsequentPropertyValue
+			}
+
+			it("should perform an action with the value") {
+				let property = MutableProperty(initialPropertyValue)
+
+				let result: Bool = property.withValue { $0.isEmpty }
+
+				expect(result) == false
+				expect(property.value) == initialPropertyValue
+			}
+
 			it("should not deadlock on recursive value access") {
 				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
 				let property = MutableProperty(0)
@@ -91,6 +144,20 @@ class PropertySpec: QuickSpec {
 
 				observer.sendNext(10)
 				expect(value) == 10
+			}
+
+			it("should not deadlock on recursive value access with a closure") {
+				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
+				let property = MutableProperty(0)
+				var value: Int?
+
+				property <~ producer
+				property.producer.startWithNext { _ in
+					value = property.withValue { $0 + 1 }
+				}
+
+				observer.sendNext(10)
+				expect(value) == 11
 			}
 
 			it("should not deadlock on recursive observation") {

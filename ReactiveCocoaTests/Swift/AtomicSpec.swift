@@ -35,13 +35,6 @@ class AtomicSpec: QuickSpec {
 			expect(atomic.value) == 2
 		}
 
-		it("should modify the value and return some data") {
-			let (orig, data) = atomic.modify { ($0 + 1, "foobar") }
-			expect(orig) == 1
-			expect(data) == "foobar"
-			expect(atomic.value) == 2
-		}
-
 		it("should perform an action with the value") {
 			let result: Bool = atomic.withValue { $0 == 1 }
 			expect(result) == true

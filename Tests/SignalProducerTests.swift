@@ -53,32 +53,32 @@ final class SignalProducerTests: XCTestCase {
         XCTAssertFalse(completed)
     }
 
-    func testDelayedStart() {
+    func testDeferred() {
         let scheduler = TestScheduler()
 
-        var delayed = false
-        let producer = SignalProducer<(), NoError> { _ in delayed = true }
+        var deferred = false
+        let producer = SignalProducer<(), NoError> { _ in deferred = true }
 
         var started = false
         producer
-            .delayedStart(1, onScheduler: scheduler)
+            .deferred(1, onScheduler: scheduler)
             .on(started: { started = true })
             .start()
 
         XCTAssertTrue(started)
-        XCTAssertFalse(delayed)
+        XCTAssertFalse(deferred)
 
         scheduler.advance()
-        XCTAssertFalse(delayed)
+        XCTAssertFalse(deferred)
 
         scheduler.advanceByInterval(0.9)
-        XCTAssertFalse(delayed)
+        XCTAssertFalse(deferred)
 
         scheduler.advanceByInterval(0.2)
-        XCTAssertTrue(delayed)
+        XCTAssertTrue(deferred)
     }
 
-    func testDelayedRetry() {
+    func testDeferredRetry() {
         let scheduler = TestScheduler()
 
         var count = 0
@@ -95,7 +95,7 @@ final class SignalProducerTests: XCTestCase {
         var value = -1
         var completed = false
         producer
-            .delayedRetry(1, onScheduler: scheduler)
+            .deferredRetry(1, onScheduler: scheduler)
             .start(Observer(
                 next: { value = $0 },
                 completed: { completed = true }
@@ -120,7 +120,7 @@ final class SignalProducerTests: XCTestCase {
         XCTAssertTrue(completed)
     }
 
-    func testDelayedRetryFailure() {
+    func testDeferredRetryFailure() {
         let scheduler = TestScheduler()
 
         var count = 0
@@ -133,7 +133,7 @@ final class SignalProducerTests: XCTestCase {
         var value = -1
         var failed = false
         producer
-            .delayedRetry(1, onScheduler: scheduler, attempts: 3)
+            .deferredRetry(1, onScheduler: scheduler, attempts: 3)
             .start(Observer(
                 next: { value = $0 },
                 failed: { _ in failed = true }

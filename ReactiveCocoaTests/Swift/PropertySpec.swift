@@ -27,28 +27,20 @@ class PropertySpec: QuickSpec {
 			it("should yield a signal that interrupts observers without emitting any value.") {
 				let constantProperty = ConstantProperty(initialPropertyValue)
 
-				var sentValue: String?
-				var signalFailed = false
 				var signalInterrupted = false
-				var signalCompleted = false
+				var hasUnexpectedEventsEmitted = false
 
 				constantProperty.signal.observe { event in
 					switch event {
-					case let .Next(value):
-						sentValue = value
-					case .Failed(_):
-						signalFailed = true
 					case .Interrupted:
 						signalInterrupted = true
-					case .Completed:
-						signalCompleted = true
+					case .Next(_), .Failed(_), .Completed:
+						hasUnexpectedEventsEmitted = true
 					}
 				}
 
-				expect(sentValue).to(beNil())
 				expect(signalInterrupted) == true
-				expect(signalCompleted) == false
-				expect(signalFailed) == false
+				expect(hasUnexpectedEventsEmitted) == false
 			}
 
 			it("should yield a producer that sends the current value then completes") {

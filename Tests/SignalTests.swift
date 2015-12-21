@@ -186,7 +186,7 @@ final class SignalTests: XCTestCase {
         var value = -1
 
         signal
-            .muteFor(1, withScheduler: scheduler)
+            .muteFor(1, clock: scheduler)
             .observeNext { value = $0 }
 
         scheduler.schedule { sink.sendNext(1) }
@@ -218,7 +218,7 @@ final class SignalTests: XCTestCase {
         var failed = false
 
         signal
-            .muteFor(1, withScheduler: scheduler)
+            .muteFor(1, clock: scheduler)
             .observe(Observer(
                 next: { value = $0 },
                 failed: { _ in failed = true }

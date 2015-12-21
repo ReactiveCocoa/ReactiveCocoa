@@ -90,8 +90,8 @@ extension SignalProducerType {
     ///
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
-    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
-        return lift { $0.muteFor(interval, withScheduler: scheduler) }
+    public func muteFor(interval: NSTimeInterval, clock: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return lift { $0.muteFor(interval, clock: clock) }
     }
 
     /// Delays the start of the producer by `interval` on the provided scheduler.

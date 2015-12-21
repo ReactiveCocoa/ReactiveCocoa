@@ -34,7 +34,7 @@ class PropertySpec: QuickSpec {
 					switch event {
 					case .Interrupted:
 						signalInterrupted = true
-					case .Next(_), .Failed(_), .Completed:
+					case .Next, .Failed, .Completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}

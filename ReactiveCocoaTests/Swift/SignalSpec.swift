@@ -146,7 +146,7 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next(_), .Failed(_), .Completed:
+					case .Next, .Failed, .Completed:
 						hasUnexpectedEventsEmitted = false
 					case .Interrupted:
 						signalInterrupted = true
@@ -1398,7 +1398,7 @@ class SignalSpec: QuickSpec {
 				observer.sendFailed(TestError.Default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Failed(_):
+					case .Failed:
 						()
 					default:
 						fail()
@@ -1492,7 +1492,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						result.append(value)
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break
@@ -1529,7 +1529,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break
@@ -1555,7 +1555,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break

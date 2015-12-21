@@ -133,7 +133,7 @@ final class SignalProducerTests: XCTestCase {
         var value = -1
         var failed = false
         producer
-            .deferredRetry(1, onScheduler: scheduler, attempts: 3)
+            .deferredRetry(1, onScheduler: scheduler, count: 2)
             .start(Observer(
                 next: { value = $0 },
                 failed: { _ in failed = true }
@@ -155,9 +155,6 @@ final class SignalProducerTests: XCTestCase {
         scheduler.advanceByInterval(1)
         XCTAssertEqual(count, 3)
         XCTAssertEqual(value, 2)
-
-        // TODO The final failure if attempts are exhausted
-        scheduler.advanceByInterval(1)
         XCTAssertTrue(failed)
     }
 }

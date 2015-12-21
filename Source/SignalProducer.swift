@@ -101,16 +101,26 @@ extension SignalProducerType {
             .concat(self.producer)
     }
 
-    /// Delays retrying on failure by `interval`. The last error received is forwarded
-    /// if all `attempts` are exhausted.
-    public func deferredRetry(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, attempts: Int = .max) -> SignalProducer<Value, Error> {
-        precondition(attempts > 0)
+    /// Delays retrying on failure by `interval` up to `count` attempts.
+    public func deferredRetry(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, count: Int = .max) -> SignalProducer<Value, Error> {
+        precondition(count >= 0)
 
-        return flatMapError {
-                // TODO This delays the final error if all attempts are exhausted
-                SignalProducer(error: $0).deferred(interval, onScheduler: scheduler)
+        if count == 0 {
+            return producer
+        }
+
+        var retries = count
+        return flatMapError { error in
+                // The final attempt shouldn't defer the error if it fails
+                var producer = SignalProducer<Value, Error>(error: error)
+                if retries > 0 {
+                    producer = producer.deferred(interval, onScheduler: scheduler)
+                }
+
+                retries -= 1
+                return producer
             }
-            .retry(attempts - 1)
+            .retry(count)
     }
 }
 

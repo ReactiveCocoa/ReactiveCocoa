@@ -72,6 +72,56 @@ extension SignalProducerType {
     public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<Value, Error>, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
         return lift { $0.timeoutAfter(interval, withEvent: event, onScheduler: scheduler) }
     }
+
+    /// Enforces that at least `interval` time passes before forwarding a value. If a
+    /// new value arrives, the previous one is dropped and the `interval` delay starts
+    /// again. Error events are immediately forwarded, even if there's a queued value.
+    ///
+    /// This operator is useful for scenarios like type-to-search where you want to
+    /// wait for a "lull" in typing before kicking off a search request.
+    public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return lift { $0.debounce(interval, onScheduler: scheduler) }
+    }
+
+    /// Forwards a value and then mutes the producer by dropping all subsequent values
+    /// for `interval` seconds. Once time elapses the next new value will be forwarded
+    /// and repeat the muting process. Error events are immediately forwarded even while
+    /// the producer is muted.
+    ///
+    /// This operator could be used to coalesce multiple notifications in a short time
+    /// frame by only showing the first one.
+    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return lift { $0.muteFor(interval, withScheduler: scheduler) }
+    }
+
+    /// Delays the start of the producer by `interval` on the provided scheduler.
+    public func deferred(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+        return SignalProducer.empty
+            .delay(interval, onScheduler: scheduler)
+            .concat(self.producer)
+    }
+
+    /// Delays retrying on failure by `interval` up to `count` attempts.
+    public func deferredRetry(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, count: Int = .max) -> SignalProducer<Value, Error> {
+        precondition(count >= 0)
+
+        if count == 0 {
+            return producer
+        }
+
+        var retries = count
+        return flatMapError { error in
+                // The final attempt shouldn't defer the error if it fails
+                var producer = SignalProducer<Value, Error>(error: error)
+                if retries > 0 {
+                    producer = producer.deferred(interval, onScheduler: scheduler)
+                }
+
+                retries -= 1
+                return producer
+            }
+            .retry(count)
+    }
 }
 
 extension SignalProducerType where Value: SequenceType {

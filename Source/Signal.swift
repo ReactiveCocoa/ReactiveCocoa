@@ -70,6 +70,42 @@ extension SignalType {
             return disposable
         }
     }
+
+    /// Enforces that at least `interval` time passes before forwarding a value. If a
+    /// new value arrives, the previous one is dropped and the `interval` delay starts
+    /// again. Error events are immediately forwarded, even if there's a queued value.
+    ///
+    /// This operator is useful for scenarios like type-to-search where you want to
+    /// wait for a "lull" in typing before kicking off a search request.
+    public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+        precondition(interval >= 0)
+
+        return flatMap(.Latest) {
+            SignalProducer(value: $0).delay(interval, onScheduler: scheduler)
+        }
+    }
+
+    /// Forwards a value and then mutes the signal by dropping all subsequent values
+    /// for `interval` seconds. Once time elapses the next new value will be forwarded
+    /// and repeat the muting process. Error events are immediately forwarded even while
+    /// the signal is muted.
+    ///
+    /// This operator could be used to coalesce multiple notifications in a short time
+    /// frame by only showing the first one.
+    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+        precondition(interval > 0)
+
+        var expires = scheduler.currentDate
+        return filter { _ in
+            let now = scheduler.currentDate
+
+            if expires.compare(now) != .OrderedDescending {
+                expires = now.dateByAddingTimeInterval(interval)
+                return true
+            }
+            return false
+        }
+    }
 }
 
 extension SignalType where Value: SequenceType {

@@ -297,6 +297,8 @@
 		CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E331AE7AC6D00965373 /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CDCD247A1C277EEC00710AEE /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; };
+		CDCD247B1C277EED00710AEE /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; };
 		D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D000040A1A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -2443,6 +2445,7 @@
 				D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
 				D03766F319EDA60000A782A9 /* RACSequenceAdditionsSpec.m in Sources */,
 				D03766ED19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
+				CDCD247A1C277EEC00710AEE /* AtomicSpec.swift in Sources */,
 				D03766E919EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
 				D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
 				7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
@@ -2602,6 +2605,7 @@
 				D0A2260F1A72F16D00D33B74 /* PropertySpec.swift in Sources */,
 				D03766FA19EDA60000A782A9 /* RACSerialDisposableSpec.m in Sources */,
 				D0A226091A72E0E900D33B74 /* SignalSpec.swift in Sources */,
+				CDCD247B1C277EED00710AEE /* AtomicSpec.swift in Sources */,
 				D037670C19EDA60000A782A9 /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D03766DE19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
 				D037670A19EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,

@@ -16,17 +16,11 @@ public final class Atomic<Value> {
 	/// Atomically gets or sets the value of the variable.
 	public var value: Value {
 		get {
-			lock()
-			let v = _value
-			unlock()
-
-			return v
+			return withValue { $0 }
 		}
 	
 		set(newValue) {
-			lock()
-			_value = newValue
-			unlock()
+			modify { _ in newValue }
 		}
 	}
 	

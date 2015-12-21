@@ -92,12 +92,12 @@ extension SignalType {
     ///
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
-    public func muteFor(interval: NSTimeInterval, withScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+    public func muteFor(interval: NSTimeInterval, clock: DateSchedulerType) -> Signal<Value, Error> {
         precondition(interval > 0)
 
-        var expires = scheduler.currentDate
+        var expires = clock.currentDate
         return filter { _ in
-            let now = scheduler.currentDate
+            let now = clock.currentDate
 
             if expires.compare(now) != .OrderedDescending {
                 expires = now.dateByAddingTimeInterval(interval)

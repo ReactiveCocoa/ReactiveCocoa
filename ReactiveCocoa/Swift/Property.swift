@@ -112,11 +112,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
 	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
-		var extractedSignal: Signal<Value, NoError>?
+		var extractedSignal: Signal<Value, NoError>!
 		self.producer.startWithSignal { signal, _ in
 			extractedSignal = signal
 		}
-		return extractedSignal!
+		return extractedSignal
 	}()
 
 	/// A producer for Signals that will send the property's current value,
@@ -183,7 +183,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private var _property: MutableProperty<AnyObject?>?
+	private var property: MutableProperty<AnyObject?>?
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
@@ -204,11 +204,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
-		return _property?.producer ?? .empty
+		return property?.producer ?? .empty
 	}
 
 	public var signal: Signal<AnyObject?, NoError> {
-		return _property?.signal ?? .empty
+		return property?.signal ?? .empty
 	}
 
 	/// Initializes a property that will observe and set the given key path of
@@ -216,7 +216,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-		self._property = MutableProperty(nil)
+		self.property = MutableProperty(nil)
 
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
@@ -224,14 +224,14 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
 			.toSignalProducer()
-			.start {
-				switch $0 {
+			.start { event in
+				switch event {
 				case let .Next(newValue):
-					self._property?.value = newValue
+					self.property?.value = newValue
 				case let .Failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
 				case .Interrupted, .Completed:
-					self._property = nil
+					self.property = nil
 				}
 			}
 	}

@@ -137,6 +137,27 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("Signal.empty") {
+			it("should interrupt its observers without emitting any value") {
+				let signal = Signal<(), NoError>.empty
+
+				var hasUnexpectedEventsEmitted = false
+				var signalInterrupted = false
+
+				signal.observe { event in
+					switch event {
+					case .Next(_), .Failed(_), .Completed:
+						hasUnexpectedEventsEmitted = false
+					case .Interrupted:
+						signalInterrupted = true
+					}
+				}
+
+				expect(hasUnexpectedEventsEmitted) == false
+				expect(signalInterrupted) == true
+			}
+		}
+
 		describe("Signal.pipe") {
 			it("should forward events to observers") {
 				let (signal, observer) = Signal<Int, NoError>.pipe()

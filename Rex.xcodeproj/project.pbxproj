@@ -1095,7 +1095,6 @@
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
@@ -1118,7 +1117,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
@@ -1318,6 +1316,7 @@
 				D8715D9A1C210F97005F4191 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8715DB51C21123E005F4191 /* Build configuration list for PBXNativeTarget "Rex-tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1326,6 +1325,7 @@
 				D8715DB71C21123E005F4191 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8715DD91C21160A005F4191 /* Build configuration list for PBXNativeTarget "RexTests-tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1334,6 +1334,7 @@
 				D8715DDB1C21160A005F4191 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

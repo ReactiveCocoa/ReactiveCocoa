@@ -1647,6 +1647,30 @@ class SignalSpec: QuickSpec {
 				expect(latestValues?.0) == 1
 				expect(latestValues?.1) == 2
 			}
+
+			describe("with no intitial value") {
+				var latestValues: (Int?, Int)?
+
+				beforeEach {
+					latestValues = nil
+
+					let (signal, baseObserver) = Signal<Int, NoError>.pipe()
+					observer = baseObserver
+					signal.combinePrevious().observeNext { latestValues = $0 }
+				}
+
+				it("should forward a nil previous value first time") {
+					expect(latestValues).to(beNil())
+
+					observer.sendNext(1)
+					expect(latestValues?.0).to(beNil())
+					expect(latestValues?.1).to(equal(1))
+
+					observer.sendNext(2)
+					expect(latestValues?.0).to(equal(1))
+					expect(latestValues?.1).to(equal(2))
+				}
+			}
 		}
 
 		describe("combineLatest") {

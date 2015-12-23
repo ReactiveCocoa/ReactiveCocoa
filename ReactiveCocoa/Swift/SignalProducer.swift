@@ -597,6 +597,15 @@ extension SignalProducerType {
 		return lift { $0.combinePrevious(initial) }
 	}
 
+	/// Forwards events from `self` with history, if available: values of the
+	/// returned signal are a tuple whose second value is the current value, and
+	/// whose first member is optionally the previous value. The first time `self`
+	/// sends a value, the previous value will be `nil`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func combinePrevious() -> SignalProducer<(Value?, Value), Error> {
+		return lift { $0.combinePrevious() }
+	}
+
 	/// Like `scan`, but sends only the final value and then immediately completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> SignalProducer<U, Error> {

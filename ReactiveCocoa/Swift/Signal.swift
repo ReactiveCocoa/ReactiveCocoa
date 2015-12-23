@@ -990,6 +990,20 @@ extension SignalType {
 		}
 	}
 
+	/// Forwards events from `self` with history, if available: values of the
+	/// returned signal are a tuple whose second value is the current value, and
+	/// whose first member is optionally the previous value. The first time `self`
+	/// sends a value, the previous value will be `nil`.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func combinePrevious() -> Signal<(Value?, Value), Error> {
+		var previous: Value?
+		return map { next in
+			let combined = (previous, next)
+			previous = next
+			return combined
+		}
+	}
+
 	/// Like `scan`, but sends only the final value and then immediately completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {

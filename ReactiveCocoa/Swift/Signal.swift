@@ -155,7 +155,7 @@ public protocol SignalType {
 	var signal: Signal<Value, Error> { get }
 
 	/// Observes the Signal by sending any future events to the given observer.
-	func observe(observer: Signal<Value, Error>.Observer) -> Disposable?
+	func observe(observer: Observer<Value, Error>) -> Disposable?
 }
 
 extension Signal: SignalType {
@@ -167,7 +167,7 @@ extension Signal: SignalType {
 extension SignalType {
 	/// Convenience override for observe(_:) to allow trailing-closure style
 	/// invocations.
-	public func observe(action: Signal<Value, Error>.Observer.Action) -> Disposable? {
+	public func observe(action: Observer<Value, Error>.Action) -> Disposable? {
 		return observe(Observer(action))
 	}
 

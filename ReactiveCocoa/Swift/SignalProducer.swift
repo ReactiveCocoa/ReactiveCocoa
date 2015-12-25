@@ -18,7 +18,7 @@ import Result
 public struct SignalProducer<Value, Error: ErrorType> {
 	public typealias ProducedSignal = Signal<Value, Error>
 
-	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()
+	private let startHandler: (Observer<Value, Error>, CompositeDisposable) -> ()
 
 	/// Initializes a SignalProducer that will emit the same events as the given signal.
 	///
@@ -41,7 +41,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// event is sent to the observer, the given CompositeDisposable will be
 	/// disposed, at which point work should be interrupted and any temporary
 	/// resources cleaned up.
-	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()) {
+	public init(_ startHandler: (Observer<Value, Error>, CompositeDisposable) -> ()) {
 		self.startHandler = startHandler
 	}
 
@@ -120,7 +120,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// After a terminating event has been added to the queue, the observer
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
-	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<Value, Error>.Observer) {
+	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Observer<Value, Error>) {
 		precondition(capacity >= 0)
 
 		// This is effectively used as a synchronous mutex, but permitting
@@ -176,7 +176,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			}
 		}
 
-		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
+		let bufferingObserver: Observer<Value, Error> = Observer { event in
 			// Send serially with respect to other senders, and never while
 			// another thread is in the process of replaying.
 			dispatch_sync(queue) {
@@ -248,7 +248,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			return
 		}
 
-		let wrapperObserver: Signal<Value, Error>.Observer = Observer { event in
+		let wrapperObserver: Observer<Value, Error> = Observer { event in
 			observer.action(event)
 
 			if event.isTerminating {
@@ -273,7 +273,7 @@ private struct BufferState<Value, Error: ErrorType> {
 
 	// The observers currently attached to the buffered producer, or nil if the
 	// producer was terminated.
-	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
+	var observers: Bag<Observer<Value, Error>>? = Bag()
 
 	// Appends a new value to the buffer, trimming it down to the given capacity
 	// if necessary.
@@ -314,7 +314,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
-	public func start(observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Disposable {
+	public func start(observer: Observer<Value, Error> = Observer<Value, Error>()) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
@@ -327,7 +327,7 @@ extension SignalProducerType {
 
 	/// Convenience override for start(_:) to allow trailing-closure style
 	/// invocations.
-	public func start(observerAction: Signal<Value, Error>.Observer.Action) -> Disposable {
+	public func start(observerAction: Observer<Value, Error>.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
 

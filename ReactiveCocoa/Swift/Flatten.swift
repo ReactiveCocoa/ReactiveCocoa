@@ -187,7 +187,7 @@ private final class ConcatState<Value, Error: ErrorType> {
 	/// The active producer, if any, and the producers waiting to be started.
 	let queuedSignalProducers: Atomic<[SignalProducer<Value, Error>]> = Atomic([])
 
-	init(observer: Signal<Value, Error>.Observer, disposable: CompositeDisposable?) {
+	init(observer: Observer<Value, Error>, disposable: CompositeDisposable?) {
 		self.observer = observer
 		self.disposable = disposable
 	}

@@ -9,7 +9,7 @@ import Foundation
 /// times concurrently will return an error.
 public final class Action<Input, Output, Error: ErrorType> {
 	private let executeClosure: Input -> SignalProducer<Output, Error>
-	private let eventsObserver: Signal<Event<Output, Error>, NoError>.Observer
+	private let eventsObserver: Observer<Event<Output, Error>, NoError>
 
 	/// A signal of all events generated from applications of the Action.
 	///

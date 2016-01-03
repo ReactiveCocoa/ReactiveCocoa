@@ -87,6 +87,14 @@ public final class Signal<Value, Error: ErrorType> {
 		return self.init { _ in nil }
 	}
 
+	/// A Signal that completes immediately without emitting any value.
+	public static var empty: Signal {
+		return self.init { observer in
+			observer.sendCompleted()
+			return nil
+		}
+	}
+
 	/// Creates a Signal that will be controlled by sending events to the given
 	/// observer.
 	///

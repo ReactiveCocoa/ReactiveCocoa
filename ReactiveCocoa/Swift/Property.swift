@@ -10,6 +10,9 @@ public protocol PropertyType {
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time.
 	var producer: SignalProducer<Value, NoError> { get }
+
+	/// A signal that will send the property's changes over time.
+	var signal: Signal<Value, NoError> { get }
 }
 
 /// A read-only property that allows observation of its changes.
@@ -17,6 +20,8 @@ public struct AnyProperty<Value>: PropertyType {
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
+	private let _signal: () -> Signal<Value, NoError>
+
 
 	public var value: Value {
 		return _value()
@@ -25,11 +30,16 @@ public struct AnyProperty<Value>: PropertyType {
 	public var producer: SignalProducer<Value, NoError> {
 		return _producer()
 	}
+
+	public var signal: Signal<Value, NoError> {
+		return _signal()
+	}
 	
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
+		_signal = { property.signal }
 	}
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -54,11 +64,13 @@ public struct ConstantProperty<Value>: PropertyType {
 
 	public let value: Value
 	public let producer: SignalProducer<Value, NoError>
+	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
 	public init(_ value: Value) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
+		self.signal = .empty
 	}
 }
 
@@ -80,7 +92,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
-	private let lock = NSRecursiveLock()
+	private let lock: NSRecursiveLock
 	private var _value: Value
 
 	/// The current value of the property.
@@ -97,6 +109,16 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 	}
 
+	/// A signal that will send the property's changes over time,
+	/// then complete when the property has deinitialized.
+	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
+		var extractedSignal: Signal<Value, NoError>!
+		self.producer.startWithSignal { signal, _ in
+			extractedSignal = signal
+		}
+		return extractedSignal
+	}()
+
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
@@ -104,11 +126,12 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
+		_value = initialValue
+
+		lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		(producer, observer) = SignalProducer<Value, NoError>.buffer(1)
-
-		_value = initialValue
+		(producer, observer) = SignalProducer.buffer(1)
 		observer.sendNext(initialValue)
 	}
 
@@ -160,6 +183,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	private weak var object: NSObject?
 	private let keyPath: String
 
+	private var property: MutableProperty<AnyObject?>?
+
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: AnyObject? {
@@ -179,16 +204,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
-		if let object = object {
-			return object.rac_valuesForKeyPath(keyPath, observer: nil).toSignalProducer()
-				// Errors aren't possible, but the compiler doesn't know that.
-				.flatMapError { error in
-					0 // suppresses implicit return error on fatalError
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				}
-		} else {
-			return .empty
-		}
+		return property?.producer ?? .empty
+	}
+
+	public var signal: Signal<AnyObject?, NoError> {
+		return property?.signal ?? .empty
 	}
 
 	/// Initializes a property that will observe and set the given key path of
@@ -196,11 +216,24 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-		
+		self.property = MutableProperty(nil)
+
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
 		super.init()
-		object?.rac_willDeallocSignal()?.toSignalProducer().startWithCompleted { self }
+
+		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
+			.toSignalProducer()
+			.start { event in
+				switch event {
+				case let .Next(newValue):
+					self.property?.value = newValue
+				case let .Failed(error):
+					fatalError("Received unexpected error from KVO signal: \(error)")
+				case .Interrupted, .Completed:
+					self.property = nil
+				}
+			}
 	}
 }
 

@@ -137,6 +137,27 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
+		describe("Signal.empty") {
+			it("should interrupt its observers without emitting any value") {
+				let signal = Signal<(), NoError>.empty
+
+				var hasUnexpectedEventsEmitted = false
+				var signalInterrupted = false
+
+				signal.observe { event in
+					switch event {
+					case .Next, .Failed, .Completed:
+						hasUnexpectedEventsEmitted = false
+					case .Interrupted:
+						signalInterrupted = true
+					}
+				}
+
+				expect(hasUnexpectedEventsEmitted) == false
+				expect(signalInterrupted) == true
+			}
+		}
+
 		describe("Signal.pipe") {
 			it("should forward events to observers") {
 				let (signal, observer) = Signal<Int, NoError>.pipe()
@@ -1377,7 +1398,7 @@ class SignalSpec: QuickSpec {
 				observer.sendFailed(TestError.Default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Failed(_):
+					case .Failed:
 						()
 					default:
 						fail()
@@ -1471,7 +1492,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						result.append(value)
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break
@@ -1508,7 +1529,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break
@@ -1534,7 +1555,7 @@ class SignalSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
 					default:
 						break

@@ -8,7 +8,7 @@
 
 /// Represents something that can be “disposed,” usually associated with freeing
 /// resources or canceling work.
-public protocol Disposable {
+public protocol Disposable: class {
 	/// Whether this disposable has been disposed already.
 	var disposed: Bool { get }
 

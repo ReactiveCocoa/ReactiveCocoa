@@ -399,3 +399,19 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 		.combineLatestWith(j)
 		.map(repack)
 }
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`. Will return a property with a value of `[]` if the
+/// sequence is empty.
+@warn_unused_result
+public func combineLatest<S: SequenceType, Value where S.Generator.Element == AnyProperty<Value>>(properties: S) -> AnyProperty<[Value]> {
+	var generator = properties.generate()
+	if let first = generator.next() {
+		let initial = first.map { [$0] }
+		return GeneratorSequence(generator).reduce(initial) { property, next in
+			property.combineLatestWith(next).map { $0.0 + [$0.1] }
+		}
+	}
+
+	return AnyProperty(initialValue: [], producer: SignalProducer.empty)
+}

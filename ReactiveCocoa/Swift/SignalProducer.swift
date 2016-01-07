@@ -377,7 +377,7 @@ extension SignalProducerType {
 	/// removing the earliest value. If intermediateResults is false then the new producer will begin emitting
 	/// only when it has reached capacity.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func latestValues(capacity:Int, intermediateResults: Bool = true) -> SignalProducer<[Value], Error> {
+	public func latestValues(capacity:Int, intermediateResults: Bool = false) -> SignalProducer<[Value], Error> {
 		var array: [Value] = []
 		return self.map {
 			value in

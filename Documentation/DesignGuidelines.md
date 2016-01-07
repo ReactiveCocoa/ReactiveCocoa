@@ -290,7 +290,7 @@ automatically promote any [operators][] over one or more `Signal`s to apply to
 the same number of `SignalProducer`s instead, using the [`lift`][lift] method.
 
 `lift` will apply the behavior of the specified operator to each `Signal` that
-is [created when the signal produced is started](#signal-producers-start-work-on-demand-by-creating-signals).
+is [created when the signal producer is started](#signal-producers-start-work-on-demand-by-creating-signals).
 
 #### Disposing of a produced signal will interrupt it
 

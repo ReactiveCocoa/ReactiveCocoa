@@ -370,6 +370,30 @@ extension SignalProducerType {
 	public func startWithInterrupted(interrupted: () -> ()) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
+	
+	/// Creates a new producer that emits an array that contains the latest N values that were emitted 
+	/// by the original producer as specified in 'capacity'. If intermediateResults is true the
+	/// the new producer will emit an array with each new value until it reaches capacity and begins 
+	/// removing the earliest value. If intermediateResults is false then the new producer will begin emitting
+	/// only when it has reached capacity.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func latestValues(capacity:Int, intermediateResults: Bool = false) -> SignalProducer<[Value], Error> {
+		var array: [Value] = []
+		return self.map {
+			value in
+
+			array.append(value)
+
+			if array.count >= capacity {
+				array.removeFirst(array.count - capacity)
+			}
+
+			return array
+		}
+			.filter {
+				(intermediateResults) ? true : $0.count == capacity
+		}
+	}
 
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
 	///

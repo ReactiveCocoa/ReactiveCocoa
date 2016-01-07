@@ -24,6 +24,16 @@ extension PropertyType {
 			signal: signal.map(transform)
 		)
 	}
+
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given property.
+	@warn_unused_result
+	public func combineLatestWith<Other: PropertyType>(otherProperty: Other) -> AnyProperty<(Value, Other.Value)> {
+		return AnyProperty(
+			initialValue: (value, otherProperty.value),
+			producer: producer.combineLatestWith(otherProperty.producer).skip(1)
+		)
+	}
 }
 
 /// A read-only property that allows observation of its changes.

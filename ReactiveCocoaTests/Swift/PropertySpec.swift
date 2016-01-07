@@ -640,6 +640,24 @@ class PropertySpec: QuickSpec {
 				expect(mapped.value) == 2
 			}
 		}
+
+		describe("combineLatestWith") {
+			it("should forward the latest values from both inputs") {
+				let properties = (MutableProperty(0), MutableProperty(0))
+				let combined = properties.0.combineLatestWith(properties.1)
+
+				expect(combined.value.0) == 0
+				expect(combined.value.1) == 0
+
+				properties.0.value = 1
+				expect(combined.value.0) == 1
+				expect(combined.value.1) == 0
+
+				properties.1.value = 1
+				expect(combined.value.0) == 1
+				expect(combined.value.1) == 1
+			}
+		}
 	}
 }
 

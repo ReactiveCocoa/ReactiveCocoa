@@ -15,6 +15,17 @@ public protocol PropertyType {
 	var signal: Signal<Value, NoError> { get }
 }
 
+extension PropertyType {
+	/// Maps each value in the property to a new value.
+	@warn_unused_result
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		return AnyProperty(
+			initialValue: transform(value),
+			signal: signal.map(transform)
+		)
+	}
+}
+
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
 

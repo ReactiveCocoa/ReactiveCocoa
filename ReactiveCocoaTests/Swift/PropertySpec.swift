@@ -629,6 +629,17 @@ class PropertySpec: QuickSpec {
 				}
 			}
 		}
+
+		describe("map") {
+			it("should transform the values of the property") {
+				let property = MutableProperty(0)
+				let mapped = property.map({ $0 + 1 })
+
+				expect(mapped.value) == 1
+				property.value = 1
+				expect(mapped.value) == 2
+			}
+		}
 	}
 }
 

@@ -34,6 +34,16 @@ extension PropertyType {
 			producer: producer.combineLatestWith(otherProperty.producer).skip(1)
 		)
 	}
+
+	/// Zips elements of two properties into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input properties.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func zipWith<Other: PropertyType>(otherProperty: Other) -> AnyProperty<(Value, Other.Value)> {
+		return AnyProperty(
+			initialValue: (value, otherProperty.value),
+			signal: signal.zipWith(otherProperty.signal)
+		)
+	}
 }
 
 /// A read-only property that allows observation of its changes.

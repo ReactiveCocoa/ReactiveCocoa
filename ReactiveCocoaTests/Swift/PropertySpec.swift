@@ -658,6 +658,43 @@ class PropertySpec: QuickSpec {
 				expect(combined.value.1) == 1
 			}
 		}
+
+		describe("zipWith") {
+			it("should combine pairs") {
+				let properties = (MutableProperty(0), MutableProperty(0))
+				let zipped = properties.0.zipWith(properties.1)
+
+				expect(zipped.value.0) == 0
+				expect(zipped.value.1) == 0
+
+				properties.0.value = 1
+				properties.0.value = 2
+
+				expect(zipped.value.0) == 0
+				expect(zipped.value.1) == 0
+
+				properties.1.value = 1
+				expect(zipped.value.0) == 1
+				expect(zipped.value.1) == 1
+
+				properties.0.value = 3
+				properties.1.value = 2
+				expect(zipped.value.0) == 2
+				expect(zipped.value.1) == 2
+
+				properties.1.value = 3
+				expect(zipped.value.0) == 3
+				expect(zipped.value.1) == 3
+
+				properties.1.value = 4
+				expect(zipped.value.0) == 3
+				expect(zipped.value.1) == 3
+
+				properties.0.value = 4
+				expect(zipped.value.0) == 4
+				expect(zipped.value.1) == 4
+			}
+		}
 	}
 }
 

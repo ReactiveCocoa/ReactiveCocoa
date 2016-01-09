@@ -3,7 +3,7 @@
 This document explains some of the most common operators used in ReactiveCocoa,
 and includes examples demonstrating their use.
 
-Note that “operators,” in this context, refers to functions that transform
+Note that “operators”, in this context, refers to functions that transform
 [signals][] and [signal producers][], _not_ custom Swift operators. In other
 words, these are composable primitives provided by ReactiveCocoa for working
 with event streams.

@@ -1,7 +1,7 @@
 language: objective-c
 matrix:
   include:
-    - osx_image: xcode7.1
+    - osx_image: xcode7.2
 
 env:
   global:
@@ -10,18 +10,17 @@ env:
 git:
   submodules: false
 before_install:
-  - curl -OlL "https://github.com/Carthage/Carthage/releases/download/0.10/Carthage.pkg"
+  - curl -OlL "https://github.com/Carthage/Carthage/releases/download/0.11/Carthage.pkg"
   - sudo installer -pkg "Carthage.pkg" -target /
   - rm "Carthage.pkg"
-  - curl -OlL "https://github.com/ReactiveCocoa/ReactiveCocoa/releases/download/v4.0.0-alpha.3/ReactiveCocoa.framework.zip"
-  - unzip "ReactiveCocoa.framework.zip"
-  - rm "ReactiveCocoa.framework.zip"
 
 script:
   - set -o pipefail
-  - carthage bootstrap --platform mac,iphonesimulator
+  - carthage bootstrap
   - xcodebuild test -scheme Rex-Mac | xcpretty -c
-  - xcodebuild test -scheme Rex-iOS -sdk iphonesimulator | xcpretty -c
+  - xcodebuild test -scheme Rex-iOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
+  - xcodebuild test -scheme Rex-tvOS -sdk appletvsimulator -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c
+  - xcodebuild build -scheme Rex-watchOS -sdk watchsimulator -destination "platform=watchOS Simulator,name=Apple Watch - 38mm" | xcpretty -c
 
 notifications:
   email: false

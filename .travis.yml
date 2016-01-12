@@ -16,9 +16,11 @@ before_install:
 
 script:
   - set -o pipefail
-  - carthage bootstrap --platform mac,iphonesimulator
+  - carthage bootstrap
   - xcodebuild test -scheme Rex-Mac | xcpretty -c
   - xcodebuild test -scheme Rex-iOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
+  - xcodebuild test -scheme Rex-tvOS -sdk appletvsimulator -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c
+  - xcodebuild build -scheme Rex-watchOS -sdk watchsimulator | xcpretty -c
 
 notifications:
   email: false

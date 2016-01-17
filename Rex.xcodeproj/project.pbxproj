@@ -16,6 +16,7 @@
 		8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
 		C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
+		C7932E841C4B41E100086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -809,6 +810,7 @@
 				D8715DBB1C2112D1005F4191 /* Property.swift in Sources */,
 				D8715DCA1C211553005F4191 /* UILabel.swift in Sources */,
 				D8715DCB1C211553005F4191 /* UIImageView.swift in Sources */,
+				C7932E841C4B41E100086F3C /* UITextField.swift in Sources */,
 				D8715DC61C211553005F4191 /* UIBarButtonItem.swift in Sources */,
 				D8715DBD1C2112D1005F4191 /* SignalProducer.swift in Sources */,
 				D8715DBE1C2112D6005F4191 /* Association.swift in Sources */,

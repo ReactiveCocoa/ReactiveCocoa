@@ -323,7 +323,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public static func merge<S: SequenceType where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<Value, Error> {
 		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
 		var result: Signal<Value, Error>!

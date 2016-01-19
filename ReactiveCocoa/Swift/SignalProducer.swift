@@ -1187,8 +1187,9 @@ extension SignalProducerType {
 		let lock = NSLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.replayLazily"
 
-		// This will go "out of scope" when the return `SignalProducer` is deallocated.
+		// This will go "out of scope" when the returned `SignalProducer` goes out of scope.
 		// This lets us know when we're supposed to dispose the underlying producer.
+		// This is necessary because `struct`s don't have `deinit`.
 		let token = NSObject()
 
 		return SignalProducer { observer, disposable in

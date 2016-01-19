@@ -1230,6 +1230,6 @@ private extension NSObject {
 			.mapError { error in
 				fatalError("Unexpected error: \(error)")
 				()
-		}
+			}
 	}
 }

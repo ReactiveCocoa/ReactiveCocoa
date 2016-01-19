@@ -14,14 +14,11 @@
 	// _mutex is held.
 	RACDisposable * _disposable;
 
-	// YES if the receiver has been disposed. This variable must only be modified
+	// YES if the receiver has been disposed. This variable must only be accessed
 	// while _mutex is held.
 	BOOL _disposed;
 
 	// A mutex to protect access to _disposable and _disposed.
-	//
-	// It must be used when _disposable is mutated or retained and when _disposed
-	// is mutated.
 	pthread_mutex_t _mutex;
 }
 
@@ -32,7 +29,11 @@
 #pragma mark Properties
 
 - (BOOL)isDisposed {
-	return _disposed;
+	pthread_mutex_lock(&_mutex);
+	BOOL disposed = _disposed;
+	pthread_mutex_unlock(&_mutex);
+
+	return disposed;
 }
 
 - (RACDisposable *)disposable {

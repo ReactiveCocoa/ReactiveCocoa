@@ -78,7 +78,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 	return [[self alloc] initWithDisposables:disposables];
 }
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if (self == nil) return nil;
 
@@ -88,7 +88,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 	return self;
 }
 
-- (id)initWithDisposables:(NSArray *)otherDisposables {
+- (instancetype)initWithDisposables:(NSArray *)otherDisposables {
 	self = [self init];
 	if (self == nil) return nil;
 
@@ -112,7 +112,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 	return self;
 }
 
-- (id)initWithBlock:(void (^)(void))block {
+- (instancetype)initWithBlock:(void (^)(void))block {
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:block];
 	return [self initWithDisposables:@[ disposable ]];
 }

@@ -58,7 +58,7 @@
 	return serialDisposable;
 }
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if (self == nil) return nil;
 
@@ -68,7 +68,7 @@
 	return self;
 }
 
-- (id)initWithBlock:(void (^)(void))block {
+- (instancetype)initWithBlock:(void (^)(void))block {
 	self = [self init];
 	if (self == nil) return nil;
 

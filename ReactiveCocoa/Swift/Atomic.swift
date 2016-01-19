@@ -28,22 +28,22 @@ public final class Atomic<Value> {
 	public init(_ value: Value) {
 		_value = value
 		let result = pthread_mutex_init(&mutex, nil)
-		assert(0 == result, "Failed to initialize mutex with error \(result).")
+		assert(result == 0, "Failed to initialize mutex with error \(result).")
 	}
 
 	deinit {
 		let result = pthread_mutex_destroy(&mutex)
-		assert(0 == result, "Failed to destroy mutex with error \(result).")
+		assert(result == 0, "Failed to destroy mutex with error \(result).")
 	}
 
 	private func lock() {
 		let result = pthread_mutex_lock(&mutex)
-		assert(0 == result, "Failed to lock \(self) with error \(result).")
+		assert(result == 0, "Failed to lock \(self) with error \(result).")
 	}
 	
 	private func unlock() {
 		let result = pthread_mutex_unlock(&mutex)
-		assert(0 == result, "Failed to unlock \(self) with error \(result).")
+		assert(result == 0, "Failed to unlock \(self) with error \(result).")
 	}
 	
 	/// Atomically replaces the contents of the variable.

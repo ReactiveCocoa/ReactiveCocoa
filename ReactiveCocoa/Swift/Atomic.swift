@@ -10,7 +10,7 @@ import Foundation
 
 /// An atomic variable.
 public final class Atomic<Value> {
-	private var spinLock = OS_SPINLOCK_INIT
+	private let semaphore = dispatch_semaphore_create(1)
 	private var _value: Value
 	
 	/// Atomically gets or sets the value of the variable.
@@ -30,11 +30,11 @@ public final class Atomic<Value> {
 	}
 	
 	private func lock() {
-		OSSpinLockLock(&spinLock)
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	}
 	
 	private func unlock() {
-		OSSpinLockUnlock(&spinLock)
+		dispatch_semaphore_signal(semaphore)
 	}
 	
 	/// Atomically replaces the contents of the variable.

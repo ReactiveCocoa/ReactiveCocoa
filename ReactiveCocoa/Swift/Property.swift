@@ -87,7 +87,7 @@ public protocol MutablePropertyType: class, PropertyType {
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyType {
 
-	private let observer: Signal<Value, NoError>.Observer
+	private let observer: Observer<Value, NoError>
 
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the

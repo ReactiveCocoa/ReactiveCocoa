@@ -58,7 +58,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon completion") {
 				let addedDisposable = SimpleDisposable()
-				var observer: Signal<(), NoError>.Observer!
+				var observer: Observer<(), NoError>!
 
 				let producer = SignalProducer<(), NoError>() { incomingObserver, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -74,7 +74,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon error") {
 				let addedDisposable = SimpleDisposable()
-				var observer: Signal<(), TestError>.Observer!
+				var observer: Observer<(), TestError>!
 
 				let producer = SignalProducer<(), TestError>() { incomingObserver, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -90,7 +90,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon interruption") {
 				let addedDisposable = SimpleDisposable()
-				var observer: Signal<(), NoError>.Observer!
+				var observer: Observer<(), NoError>!
 
 				let producer = SignalProducer<(), NoError>() { incomingObserver, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -122,7 +122,7 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("init(signal:)") {
 			var signal: Signal<Int, TestError>!
-			var observer: Signal<Int, TestError>.Observer!
+			var observer: Observer<Int, TestError>!
 
 			beforeEach {
 				// Cannot directly assign due to compiler crash on Xcode 7.0.1
@@ -575,7 +575,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon completion") {
 				let addedDisposable = SimpleDisposable()
-				var observer: Signal<Int, TestError>.Observer!
+				var observer: Observer<Int, TestError>!
 
 				let producer = SignalProducer<Int, TestError>() { incomingObserver, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -591,7 +591,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables upon error") {
 				let addedDisposable = SimpleDisposable()
-				var observer: Signal<Int, TestError>.Observer!
+				var observer: Observer<Int, TestError>!
 
 				let producer = SignalProducer<Int, TestError>() { incomingObserver, disposable in
 					disposable.addDisposable(addedDisposable)
@@ -1317,8 +1317,8 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			describe("interruption") {
-				var innerObserver: Signal<(), NoError>.Observer!
-				var outerObserver: Signal<SignalProducer<(), NoError>, NoError>.Observer!
+				var innerObserver: Observer<(), NoError>!
+				var outerObserver: Observer<SignalProducer<(), NoError>, NoError>!
 				var execute: (FlattenStrategy -> Void)!
 
 				var interrupted = false

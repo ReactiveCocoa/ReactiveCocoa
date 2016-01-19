@@ -261,7 +261,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("skipWhile") {
 			var producer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
 
 			var lastValue: Int?
 
@@ -301,8 +301,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 		
 		describe("skipUntil") {
 			var producer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
-			var triggerObserver: Signal<(), NoError>.Observer!
+			var observer: Observer<Int, NoError>!
+			var triggerObserver: Observer<(), NoError>!
 			
 			var lastValue: Int? = nil
 			
@@ -500,8 +500,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("takeUntil") {
 			var producer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
-			var triggerObserver: Signal<(), NoError>.Observer!
+			var observer: Observer<Int, NoError>!
+			var triggerObserver: Observer<(), NoError>!
 
 			var lastValue: Int? = nil
 			var completed: Bool = false
@@ -570,8 +570,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("takeUntilReplacement") {
 			var producer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
-			var replacementObserver: Signal<Int, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
+			var replacementObserver: Observer<Int, NoError>!
 
 			var lastValue: Int? = nil
 			var completed: Bool = false
@@ -630,7 +630,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("takeWhile") {
 			var producer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
 
 			beforeEach {
 				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
@@ -770,7 +770,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("throttle") {
 			var scheduler: TestScheduler!
-			var observer: Signal<Int, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
 			var producer: SignalProducer<Int, NoError>!
 
 			beforeEach {
@@ -852,8 +852,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("sampleOn") {
 			var sampledProducer: SignalProducer<Int, NoError>!
-			var observer: Signal<Int, NoError>.Observer!
-			var samplerObserver: Signal<(), NoError>.Observer!
+			var observer: Observer<Int, NoError>!
+			var samplerObserver: Observer<(), NoError>!
 			
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
@@ -917,8 +917,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("combineLatestWith") {
 			var combinedProducer: SignalProducer<(Int, Double), NoError>!
-			var observer: Signal<Int, NoError>.Observer!
-			var otherObserver: Signal<Double, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
+			var otherObserver: Observer<Double, NoError>!
 			
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
@@ -958,8 +958,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 		}
 
 		describe("zipWith") {
-			var leftObserver: Signal<Int, NoError>.Observer!
-			var rightObserver: Signal<String, NoError>.Observer!
+			var leftObserver: Observer<Int, NoError>!
+			var rightObserver: Observer<String, NoError>!
 			var zipped: SignalProducer<(Int, String), NoError>!
 
 			beforeEach {
@@ -1058,7 +1058,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("dematerialize") {
 			typealias IntEvent = Event<Int, TestError>
-			var observer: Signal<IntEvent, NoError>.Observer!
+			var observer: Observer<IntEvent, NoError>!
 			var dematerialized: SignalProducer<Int, TestError>!
 			
 			beforeEach {
@@ -1101,7 +1101,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		}
 
 		describe("takeLast") {
-			var observer: Signal<Int, TestError>.Observer!
+			var observer: Observer<Int, TestError>!
 			var lastThree: SignalProducer<Int, TestError>!
 				
 			beforeEach {
@@ -1162,7 +1162,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("timeoutWithError") {
 			var testScheduler: TestScheduler!
 			var producer: SignalProducer<Int, TestError>!
-			var observer: Signal<Int, TestError>.Observer!
+			var observer: Observer<Int, TestError>!
 
 			beforeEach {
 				testScheduler = TestScheduler()
@@ -1294,7 +1294,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		}
 		
 		describe("combinePrevious") {
-			var observer: Signal<Int, NoError>.Observer!
+			var observer: Observer<Int, NoError>!
 			let initialValue: Int = 0
 			var latestValues: (Int, Int)?
 			

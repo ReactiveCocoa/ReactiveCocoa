@@ -1167,6 +1167,8 @@ extension SignalProducerType {
 
 	/// Creates a new `SignalProducer` that will multicast values emitted by
 	/// the underlying producer, up to `capacity`.
+	/// This means that all clients of this `SignalProducer` will see the same version
+	/// of the emitted values/errors.
 	///
 	/// The underlying `SignalProducer` will not be started until `self` is started
 	/// for the first time. When subscribing to this producer, all previous values
@@ -1175,6 +1177,13 @@ extension SignalProducerType {
 	/// If you find yourself needing *the current value* (the last buffered value)
 	/// you should consider using `PropertyType` instead, which, unlike this operator,
 	/// will guarantee at compile time that there's always a buffered value.
+	/// This operator is not recommended in most cases, as it will introduce an implicit
+	/// relationship between the original client and the rest, so consider alternatives
+	/// like `PropertyType`, `SignalProducer.buffer`, or representing your stream using 
+	/// a `Signal` instead.
+	///
+	/// This operator is only recommended when you absolutely need to introduce
+	/// a layer of caching in front of another `SignalProducer`.
 	///
 	/// This operator has the same semantics as `SignalProducer.buffer`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")

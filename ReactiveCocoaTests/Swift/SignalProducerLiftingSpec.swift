@@ -15,7 +15,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 	override func spec() {
 		describe("map") {
 			it("should transform the values of the signal") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let mappedProducer = producer.map { String($0 + 1) }
 
 				var lastValue: String?
@@ -37,7 +37,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		
 		describe("mapError") {
 			it("should transform the errors of the signal") {
-				let (producer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (producer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producerError = NSError(domain: "com.reactivecocoa.errordomain", code: 100, userInfo: nil)
 				var error: NSError?
 
@@ -54,7 +54,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("filter") {
 			it("should omit values from the producer") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let mappedProducer = producer.filter { $0 % 2 == 0 }
 
 				var lastValue: Int?
@@ -76,7 +76,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("ignoreNil") {
 			it("should forward only non-nil values") {
-				let (producer, observer) = SignalProducer<Int?, NoError>.buffer()
+				let (producer, observer) = SignalProducer<Int?, NoError>.buffer(1)
 				let mappedProducer = producer.ignoreNil()
 
 				var lastValue: Int?
@@ -100,7 +100,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("scan") {
 			it("should incrementally accumulate a value") {
-				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer(1)
 				let producer = baseProducer.scan("", +)
 
 				var lastValue: String?
@@ -119,7 +119,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("reduce") {
 			it("should accumulate one value") {
-				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = baseProducer.reduce(1, +)
 
 				var lastValue: Int?
@@ -152,7 +152,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should send the initial value if none are received") {
-				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = baseProducer.reduce(1, +)
 
 				var lastValue: Int?
@@ -181,7 +181,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("skip") {
 			it("should skip initial values") {
-				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = baseProducer.skip(1)
 
 				var lastValue: Int?
@@ -197,7 +197,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should not skip any values when 0") {
-				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = baseProducer.skip(0)
 
 				var lastValue: Int?
@@ -215,7 +215,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("skipRepeats") {
 			it("should skip duplicate Equatable values") {
-				let (baseProducer, observer) = SignalProducer<Bool, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Bool, NoError>.buffer(1)
 				let producer = baseProducer.skipRepeats()
 
 				var values: [Bool] = []
@@ -237,7 +237,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should skip values according to a predicate") {
-				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer(1)
 				let producer = baseProducer.skipRepeats { $0.characters.count == $1.characters.count }
 
 				var values: [String] = []
@@ -266,7 +266,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var lastValue: Int?
 
 			beforeEach {
-				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
 
 				producer = baseProducer.skipWhile { $0 < 2 }
 				observer = incomingObserver
@@ -307,8 +307,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var lastValue: Int? = nil
 			
 			beforeEach {
-				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.buffer()
-				let (triggerSignal, incomingTriggerObserver) = SignalProducer<(), NoError>.buffer()
+				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (triggerSignal, incomingTriggerObserver) = SignalProducer<(), NoError>.buffer(1)
 				
 				producer = baseProducer.skipUntil(triggerSignal)
 				observer = baseIncomingObserver
@@ -357,7 +357,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("take") {
 			it("should take initial values") {
-				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = baseProducer.take(2)
 
 				var lastValue: Int?
@@ -451,7 +451,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("collect") {
 			it("should collect all values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer()
+				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = original.collect()
 				let expectedResult = [ 1, 2, 3 ]
 
@@ -472,7 +472,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should complete with an empty array if there are no values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer()
+				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
 				let producer = original.collect()
 
 				var result: [Int]?
@@ -485,7 +485,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should forward errors") {
-				let (original, observer) = SignalProducer<Int, TestError>.buffer()
+				let (original, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producer = original.collect()
 
 				var error: TestError?
@@ -507,8 +507,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var completed: Bool = false
 
 			beforeEach {
-				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.buffer()
-				let (triggerSignal, incomingTriggerObserver) = SignalProducer<(), NoError>.buffer()
+				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (triggerSignal, incomingTriggerObserver) = SignalProducer<(), NoError>.buffer(1)
 
 				producer = baseProducer.takeUntil(triggerSignal)
 				observer = baseIncomingObserver
@@ -577,8 +577,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var completed: Bool = false
 
 			beforeEach {
-				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
-				let (replacementSignal, incomingReplacementObserver) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (replacementSignal, incomingReplacementObserver) = SignalProducer<Int, NoError>.buffer(1)
 
 				producer = baseProducer.takeUntilReplacement(replacementSignal)
 				observer = incomingObserver
@@ -633,7 +633,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var observer: Signal<Int, NoError>.Observer!
 
 			beforeEach {
-				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
 				producer = baseProducer.takeWhile { $0 <= 4 }
 				observer = incomingObserver
 			}
@@ -688,7 +688,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("observeOn") {
 			it("should send events on the given scheduler") {
 				let testScheduler = TestScheduler()
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer()
+				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 
 				var result: [Int] = []
 
@@ -776,7 +776,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				scheduler = TestScheduler()
 
-				let (baseProducer, baseObserver) = SignalProducer<Int, NoError>.buffer()
+				let (baseProducer, baseObserver) = SignalProducer<Int, NoError>.buffer(1)
 				observer = baseObserver
 
 				producer = baseProducer.throttle(1, onScheduler: scheduler)
@@ -856,8 +856,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var samplerObserver: Signal<(), NoError>.Observer!
 			
 			beforeEach {
-				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
-				let (sampler, incomingSamplerObserver) = SignalProducer<(), NoError>.buffer()
+				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (sampler, incomingSamplerObserver) = SignalProducer<(), NoError>.buffer(1)
 				sampledProducer = producer.sampleOn(sampler)
 				observer = incomingObserver
 				samplerObserver = incomingSamplerObserver
@@ -921,8 +921,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var otherObserver: Signal<Double, NoError>.Observer!
 			
 			beforeEach {
-				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer()
-				let (otherSignal, incomingOtherObserver) = SignalProducer<Double, NoError>.buffer()
+				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (otherSignal, incomingOtherObserver) = SignalProducer<Double, NoError>.buffer(1)
 				combinedProducer = producer.combineLatestWith(otherSignal)
 				observer = incomingObserver
 				otherObserver = incomingOtherObserver
@@ -963,8 +963,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var zipped: SignalProducer<(Int, String), NoError>!
 
 			beforeEach {
-				let (leftProducer, incomingLeftObserver) = SignalProducer<Int, NoError>.buffer()
-				let (rightProducer, incomingRightObserver) = SignalProducer<String, NoError>.buffer()
+				let (leftProducer, incomingLeftObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (rightProducer, incomingRightObserver) = SignalProducer<String, NoError>.buffer(1)
 
 				leftObserver = incomingLeftObserver
 				rightObserver = incomingRightObserver
@@ -1026,7 +1026,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("materialize") {
 			it("should reify events from the signal") {
-				let (producer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (producer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				var latestEvent: Event<Int, TestError>?
 				producer
 					.materialize()
@@ -1062,7 +1062,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var dematerialized: SignalProducer<Int, TestError>!
 			
 			beforeEach {
-				let (producer, incomingObserver) = SignalProducer<IntEvent, NoError>.buffer()
+				let (producer, incomingObserver) = SignalProducer<IntEvent, NoError>.buffer(1)
 				observer = incomingObserver
 				dematerialized = producer.dematerialize()
 			}
@@ -1105,7 +1105,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			var lastThree: SignalProducer<Int, TestError>!
 				
 			beforeEach {
-				let (producer, incomingObserver) = SignalProducer<Int, TestError>.buffer()
+				let (producer, incomingObserver) = SignalProducer<Int, TestError>.buffer(1)
 				observer = incomingObserver
 				lastThree = producer.takeLast(3)
 			}
@@ -1166,7 +1166,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			beforeEach {
 				testScheduler = TestScheduler()
-				let (baseProducer, incomingObserver) = SignalProducer<Int, TestError>.buffer()
+				let (baseProducer, incomingObserver) = SignalProducer<Int, TestError>.buffer(1)
 				producer = baseProducer.timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
 				observer = incomingObserver
 			}
@@ -1226,7 +1226,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 		describe("attempt") {
 			it("should forward original values upon success") {
-				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producer = baseProducer.attempt { _ in
 					return .Success()
 				}
@@ -1243,7 +1243,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 			
 			it("should error if an attempt fails") {
-				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producer = baseProducer.attempt { _ in
 					return .Failure(.Default)
 				}
@@ -1260,7 +1260,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		
 		describe("attemptMap") {
 			it("should forward mapped values upon success") {
-				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producer = baseProducer.attemptMap { num -> Result<Bool, TestError> in
 					return .Success(num % 2 == 0)
 				}
@@ -1278,7 +1278,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 			
 			it("should error if a mapping fails") {
-				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer()
+				let (baseProducer, observer) = SignalProducer<Int, TestError>.buffer(1)
 				let producer = baseProducer.attemptMap { _ -> Result<Bool, TestError> in
 					return .Failure(.Default)
 				}
@@ -1301,7 +1301,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				latestValues = nil
 				
-				let (signal, baseObserver) = SignalProducer<Int, NoError>.buffer()
+				let (signal, baseObserver) = SignalProducer<Int, NoError>.buffer(1)
 				observer = baseObserver
 				signal.combinePrevious(initialValue).startWithNext { latestValues = $0 }
 			}

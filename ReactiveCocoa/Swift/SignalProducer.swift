@@ -121,7 +121,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
 	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<Value, Error>.Observer) {
-		precondition(capacity >= 0)
+		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// This is effectively used as a synchronous mutex, but permitting
 		// limited recursive locking (see below).
@@ -1035,7 +1035,6 @@ public func zip<S: SequenceType, Value, Error where S.Generator.Element == Signa
 	return .empty
 }
 
-
 extension SignalProducerType {
 	/// Repeats `self` a total of `count` times. Repeating `1` times results in
 	/// an equivalent signal producer.
@@ -1164,5 +1163,83 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func wait() -> Result<(), Error> {
 		return then(SignalProducer<(), Error>(value: ())).last() ?? .Success(())
+	}
+
+	/// Creates a new `SignalProducer` that will multicast values emitted by
+	/// the underlying producer, up to `capacity`.
+	/// This means that all clients of this `SignalProducer` will see the same version
+	/// of the emitted values/errors.
+	///
+	/// The underlying `SignalProducer` will not be started until `self` is started
+	/// for the first time. When subscribing to this producer, all previous values
+	/// (up to `capacity`) will be emitted, followed by any new values.
+	///
+	/// If you find yourself needing *the current value* (the last buffered value)
+	/// you should consider using `PropertyType` instead, which, unlike this operator,
+	/// will guarantee at compile time that there's always a buffered value.
+	/// This operator is not recommended in most cases, as it will introduce an implicit
+	/// relationship between the original client and the rest, so consider alternatives
+	/// like `PropertyType`, `SignalProducer.buffer`, or representing your stream using 
+	/// a `Signal` instead.
+	///
+	/// This operator is only recommended when you absolutely need to introduce
+	/// a layer of caching in front of another `SignalProducer`.
+	///
+	/// This operator has the same semantics as `SignalProducer.buffer`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func replayLazily(capacity: Int = Int.max) -> SignalProducer<Value, Error> {
+		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
+
+		var producer: SignalProducer<Value, Error>?
+		var producerObserver: SignalProducer<Value, Error>.ProducedSignal.Observer?
+
+		let lock = NSLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.replayLazily"
+
+		// This will go "out of scope" when the returned `SignalProducer` goes out of scope.
+		// This lets us know when we're supposed to dispose the underlying producer.
+		// This is necessary because `struct`s don't have `deinit`.
+		let token = NSObject()
+
+		return SignalProducer { observer, disposable in
+			let initializedProducer: SignalProducer<Value, Error>
+			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
+			let shouldStartUnderlyingProducer: Bool
+
+			lock.lock()
+			if let producer = producer, producerObserver = producerObserver {
+				(initializedProducer, initializedObserver) = (producer, producerObserver)
+				shouldStartUnderlyingProducer = false
+			} else {
+				let (producerTemp, observerTemp) = SignalProducer<Value, Error>.buffer(capacity)
+
+				(producer, producerObserver) = (producerTemp, observerTemp)
+				(initializedProducer, initializedObserver) = (producerTemp, observerTemp)
+				shouldStartUnderlyingProducer = true
+			}
+			lock.unlock()
+
+			// subscribe `observer` before starting the underlying producer.
+			disposable += initializedProducer.start(observer)
+
+			if shouldStartUnderlyingProducer {
+				self.producer
+					.takeUntil(token.willDeallocSignal)
+					.start(initializedObserver)
+			}
+		}
+	}
+}
+
+private extension NSObject {
+	var willDeallocSignal: SignalProducer<(), NoError> {
+		return self
+			.rac_willDeallocSignal()
+			.toSignalProducer()
+			.map { _ in () }
+			.mapError { error in
+				fatalError("Unexpected error: \(error)")
+				()
+			}
 	}
 }

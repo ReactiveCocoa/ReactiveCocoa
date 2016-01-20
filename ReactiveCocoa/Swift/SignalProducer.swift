@@ -120,7 +120,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// After a terminating event has been added to the queue, the observer
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
-	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<Value, Error>.Observer) {
+	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// This is effectively used as a synchronous mutex, but permitting

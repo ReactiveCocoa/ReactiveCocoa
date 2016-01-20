@@ -1187,7 +1187,7 @@ extension SignalProducerType {
 	///
 	/// This operator has the same semantics as `SignalProducer.buffer`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func replayLazily(capacity: Int = Int.max) -> SignalProducer<Value, Error> {
+	public func replayLazily(capacity: Int) -> SignalProducer<Value, Error> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		var producer: SignalProducer<Value, Error>?

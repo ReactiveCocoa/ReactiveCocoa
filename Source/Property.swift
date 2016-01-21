@@ -50,6 +50,13 @@ public struct AndProperty: PropertyType {
         }
     }
 
+    public var signal: Signal<Bool, NoError> {
+        let signals = terms.map { $0.signal }
+        return combineLatest(signals).map { values in
+            return values.reduce(true) { $0 && $1 }
+        }
+    }
+
     /// Creates a new property with an additional conjunctive term.
     public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: terms + [AnyProperty(other)])
@@ -80,6 +87,13 @@ public struct OrProperty: PropertyType {
         }
     }
 
+    public var signal: Signal<Bool, NoError> {
+        let signals = terms.map { $0.signal }
+        return combineLatest(signals).map { values in
+            return values.reduce(false) { $0 || $1 }
+        }
+    }
+
     /// Creates a new property with an additional disjunctive term.
     public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: terms + [AnyProperty(other)])
@@ -106,6 +120,10 @@ public struct NotProperty: PropertyType {
 
     public var producer: SignalProducer<Bool, NoError> {
         return source.producer.map { $0 != self.invert }
+    }
+
+    public var signal: Signal<Bool, NoError> {
+        return source.signal.map { $0 != self.invert }
     }
 
     /// A negated property of `self`.

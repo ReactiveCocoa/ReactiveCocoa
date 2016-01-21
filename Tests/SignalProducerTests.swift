@@ -13,7 +13,7 @@ import XCTest
 final class SignalProducerTests: XCTestCase {
 
     func testGroupBy() {
-        let (producer, sink) = SignalProducer<Int, NoError>.buffer()
+        let (producer, sink) = SignalProducer<Int, NoError>.buffer(Int.max)
         var evens: [Int] = []
         var odds: [Int] = []
         let disposable = CompositeDisposable()

@@ -26,7 +26,7 @@ extension SignalProducerType {
                 lock.lock()
                 var group = groups[key]
                 if group == nil {
-                    let (producer, sink) = SignalProducer<Value, Error>.buffer()
+                    let (producer, sink) = SignalProducer<Value, Error>.buffer(Int.max)
                     observer.sendNext(key, producer)
 
                     groups[key] = sink

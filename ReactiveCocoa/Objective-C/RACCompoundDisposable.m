@@ -82,7 +82,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 	self = [super init];
 	if (self == nil) return nil;
 
-	int result = pthread_mutex_init(&_mutex, NULL);
+	const int result = pthread_mutex_init(&_mutex, NULL);
 	NSCAssert(0 == result, @"Failed to initialize mutex with error %d.", result);
 
 	return self;
@@ -129,7 +129,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 		_disposables = NULL;
 	}
 
-	int result = pthread_mutex_destroy(&_mutex);
+	const int result = pthread_mutex_destroy(&_mutex);
 	NSCAssert(0 == result, @"Failed to destroy mutex with error %d.", result);
 }
 

@@ -30,17 +30,15 @@
 
 - (BOOL)isDisposed {
 	pthread_mutex_lock(&_mutex);
-	BOOL disposed = _disposed;
+	const BOOL disposed = _disposed;
 	pthread_mutex_unlock(&_mutex);
 
 	return disposed;
 }
 
 - (RACDisposable *)disposable {
-	RACDisposable *result;
-
 	pthread_mutex_lock(&_mutex);
-	result = _disposable;
+	RACDisposable * const result = _disposable;
 	pthread_mutex_unlock(&_mutex);
 
 	return result;
@@ -62,7 +60,7 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	int result = pthread_mutex_init(&_mutex, NULL);
+	const int result = pthread_mutex_init(&_mutex, NULL);
 	NSCAssert(0 == result, @"Failed to initialize mutex with error %d", result);
 
 	return self;
@@ -78,7 +76,7 @@
 }
 
 - (void)dealloc {
-	int result = pthread_mutex_destroy(&_mutex);
+	const int result = pthread_mutex_destroy(&_mutex);
 	NSCAssert(0 == result, @"Failed to destroy mutex with error %d", result);
 }
 

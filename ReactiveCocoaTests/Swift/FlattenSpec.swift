@@ -106,6 +106,49 @@ class FlattenSpec: QuickSpec {
 			}
 		}
 
+		describe("Signal.concat") {
+
+			var pipe: Pipe!
+			var disposable: Disposable?
+
+			beforeEach {
+				pipe = Signal.pipe()
+				disposable = pipe.0.flatten(.Concat).observe { _ in }
+			}
+
+			afterEach {
+				disposable?.dispose()
+			}
+
+			context("disposing") {
+				var disposed = false
+
+				beforeEach {
+					disposed = false
+					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
+						disposable += ActionDisposable {
+							disposed = true
+						}
+					})
+				}
+
+				it("should dispose inner signals when outer signal interrupted") {
+					pipe.1.sendInterrupted()
+					expect(disposed).to(beTrue())
+				}
+
+				it("should dispose inner signals when outer signal failed") {
+					pipe.1.sendFailed(TestError.Default)
+					expect(disposed).to(beTrue())
+				}
+
+				it("should not dispose inner signals when outer signal completed") {
+					pipe.1.sendCompleted()
+					expect(disposed).to(beFalse())
+				}
+			}
+		}
+
 		describe("SignalProducer.switchToLatest") {
 			it("disposes original signal when result signal interrupted") {
 				

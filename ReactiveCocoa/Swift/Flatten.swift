@@ -347,7 +347,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// signal have both completed.
 	private func switchToLatest() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			self.observeSwitchToLatest(observer, SerialDisposable())
+			let composite = CompositeDisposable()
+			let serial = SerialDisposable()
+
+			composite += serial
+			composite += self.observeSwitchToLatest(observer, serial)
+
+			return composite
 		}
 	}
 
@@ -443,7 +449,8 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 			disposable.addDisposable(latestInnerDisposable)
 
 			self.startWithSignal { signal, signalDisposable in
-				signal.observeSwitchToLatest(observer, latestInnerDisposable)
+				disposable += signalDisposable
+				disposable += signal.observeSwitchToLatest(observer, latestInnerDisposable)
 			}
 		}
 	}

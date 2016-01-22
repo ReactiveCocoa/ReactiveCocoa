@@ -48,5 +48,40 @@ class FlattenSpec: QuickSpec {
 				expect(disposed).to(beTrue())
 			}
 		}
+
+		describe("Signal.merge") {
+			it("disposes inner signals when outer signal interrupted") {
+
+				var disposed = false
+
+				let pipe = Signal<SignalProducer<Void, NoError>, NoError>.pipe()
+				let _ = pipe.0.flatten(.Merge)
+
+				pipe.1.sendNext(SignalProducer<Void, NoError> { _, disposable in
+					disposable += ActionDisposable {
+						disposed = true
+					}
+				})
+
+				pipe.1.sendInterrupted()
+				expect(disposed).to(beTrue())
+			}
+		}
+
+		describe("SignalProducer.merge") {
+			it("disposes original signal when result signal interrupted") {
+
+				var disposed = false
+
+				let disposable = SignalProducer<SignalProducer<Void, NoError>, NoError> { observer, disposable in
+					disposable += ActionDisposable {
+						disposed = true
+					}
+				}.flatten(.Merge).start()
+
+				disposable.dispose()
+				expect(disposed).to(beTrue())
+			}
+		}
 	}
 }

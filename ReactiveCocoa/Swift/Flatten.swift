@@ -260,7 +260,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 	private func merge() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { relayObserver in
-			self.observeMerge(relayObserver)
+			let disposable = CompositeDisposable()
+			let relayDisposable = CompositeDisposable()
+
+			disposable += relayDisposable
+			disposable += self.observeMerge(relayObserver, relayDisposable)
+
+			return disposable
 		}
 	}
 

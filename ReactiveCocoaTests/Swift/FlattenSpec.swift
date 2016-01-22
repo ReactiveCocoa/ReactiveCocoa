@@ -11,25 +11,98 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
+private extension SignalType {
+	typealias Pipe = (Signal<Value, Error>, Observer<Value, Error>)
+}
+
+private typealias Pipe = Signal<SignalProducer<Int, TestError>, TestError>.Pipe
+
 class FlattenSpec: QuickSpec {
 	override func spec() {
 
 		describe("Signal.switchToLatest") {
-			it("disposes inner signals when outer signal interrupted") {
 
+			var pipe: Pipe!
+			var disposable: Disposable?
+
+			beforeEach {
+				pipe = Signal.pipe()
+				disposable = pipe.0.flatten(.Latest).observe { _ in }
+			}
+
+			afterEach {
+				disposable?.dispose()
+			}
+
+			context("disposing") {
 				var disposed = false
 
-				let pipe = Signal<SignalProducer<Void, NoError>, NoError>.pipe()
-				let _ = pipe.0.flatten(.Latest)
+				beforeEach {
+					disposed = false
+					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
+						disposable += ActionDisposable {
+							disposed = true
+						}
+					})
+				}
 
-				pipe.1.sendNext(SignalProducer<Void, NoError> { _, disposable in
-					disposable += ActionDisposable {
-						disposed = true
-					}
-				})
+				it("should dispose inner signals when outer signal interrupted") {
+					pipe.1.sendInterrupted()
+					expect(disposed).to(beTrue())
+				}
 
-				pipe.1.sendInterrupted()
-				expect(disposed).to(beTrue())
+				it("should dispose inner signals when outer signal failed") {
+					pipe.1.sendFailed(TestError.Default)
+					expect(disposed).to(beTrue())
+				}
+
+				it("should not dispose inner signals when outer signal completed") {
+					pipe.1.sendCompleted()
+					expect(disposed).to(beFalse())
+				}
+			}
+		}
+
+		describe("Signal.merge") {
+
+			var pipe: Pipe!
+			var disposable: Disposable?
+
+			beforeEach {
+				pipe = Signal.pipe()
+				disposable = pipe.0.flatten(.Merge).observe { _ in }
+			}
+
+			afterEach {
+				disposable?.dispose()
+			}
+
+			context("disposing") {
+				var disposed = false
+
+				beforeEach {
+					disposed = false
+					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
+						disposable += ActionDisposable {
+							disposed = true
+						}
+					})
+				}
+
+				it("should dispose inner signals when outer signal interrupted") {
+					pipe.1.sendInterrupted()
+					expect(disposed).to(beTrue())
+				}
+
+				it("should dispose inner signals when outer signal failed") {
+					pipe.1.sendFailed(TestError.Default)
+					expect(disposed).to(beTrue())
+				}
+
+				it("should not dispose inner signals when outer signal completed") {
+					pipe.1.sendCompleted()
+					expect(disposed).to(beFalse())
+				}
 			}
 		}
 
@@ -45,25 +118,6 @@ class FlattenSpec: QuickSpec {
 				}.flatten(.Latest).start()
 
 				disposable.dispose()
-				expect(disposed).to(beTrue())
-			}
-		}
-
-		describe("Signal.merge") {
-			it("disposes inner signals when outer signal interrupted") {
-
-				var disposed = false
-
-				let pipe = Signal<SignalProducer<Void, NoError>, NoError>.pipe()
-				let _ = pipe.0.flatten(.Merge)
-
-				pipe.1.sendNext(SignalProducer<Void, NoError> { _, disposable in
-					disposable += ActionDisposable {
-						disposed = true
-					}
-				})
-
-				pipe.1.sendInterrupted()
 				expect(disposed).to(beTrue())
 			}
 		}

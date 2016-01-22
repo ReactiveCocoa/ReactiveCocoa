@@ -180,5 +180,21 @@ class FlattenSpec: QuickSpec {
 				expect(disposed).to(beTrue())
 			}
 		}
+
+		describe("SignalProducer.concat") {
+			it("disposes original signal when result signal interrupted") {
+
+				var disposed = false
+
+				let disposable = SignalProducer<SignalProducer<Void, NoError>, NoError> { observer, disposable in
+					disposable += ActionDisposable {
+						disposed = true
+					}
+				}.flatten(.Concat).start()
+
+				disposable.dispose()
+				expect(disposed).to(beTrue())
+			}
+		}
 	}
 }

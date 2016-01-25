@@ -66,9 +66,9 @@ class FlattenSpec: QuickSpec {
 		}
 
 		context("Signal") {
-			describeSignalFlattenDisposal(.Latest, name: "Signal.switchToLatest")
-			describeSignalFlattenDisposal(.Merge, name: "Signal.merge")
-			describeSignalFlattenDisposal(.Concat, name: "Signal.concat")
+			describeSignalFlattenDisposal(.Latest, name: "switchToLatest")
+			describeSignalFlattenDisposal(.Merge, name: "merge")
+			describeSignalFlattenDisposal(.Concat, name: "concat")
 		}
 
 		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
@@ -76,7 +76,7 @@ class FlattenSpec: QuickSpec {
 				it("disposes original signal when result signal interrupted") {
 					var disposed = false
 
-					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { observer, disposable in
+					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { _, disposable in
 						disposable += ActionDisposable {
 							disposed = true
 						}
@@ -91,9 +91,9 @@ class FlattenSpec: QuickSpec {
 		}
 
 		context("SignalProducer") {
-			describeSignalProducerFlattenDisposal(.Latest, name: "SignalProducer.switchToLatest")
-			describeSignalProducerFlattenDisposal(.Merge, name: "SignalProducer.merge")
-			describeSignalProducerFlattenDisposal(.Concat, name: "SignalProducer.concat")
+			describeSignalProducerFlattenDisposal(.Latest, name: "switchToLatest")
+			describeSignalProducerFlattenDisposal(.Merge, name: "merge")
+			describeSignalProducerFlattenDisposal(.Concat, name: "concat")
 		}
 	}
 }

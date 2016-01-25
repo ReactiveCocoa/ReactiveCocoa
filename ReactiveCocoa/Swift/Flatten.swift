@@ -119,8 +119,14 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// The returned signal completes only when `signal` and all producers
 	/// emitted from `signal` complete.
 	private func concat() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { observer in
-			self.observeConcat(observer)
+		return Signal<Value.Value, Error> { relayObserver in
+			let disposable = CompositeDisposable()
+			let relayDisposable = CompositeDisposable()
+
+			disposable += relayDisposable
+			disposable += self.observeConcat(relayObserver, relayDisposable)
+
+			return disposable
 		}
 	}
 
@@ -260,11 +266,17 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 	private func merge() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { relayObserver in
-			self.observeMerge(relayObserver)
+			let disposable = CompositeDisposable()
+			let relayDisposable = CompositeDisposable()
+
+			disposable += relayDisposable
+			disposable += self.observeMerge(relayObserver, relayDisposable)
+
+			return disposable
 		}
 	}
 
-	private func observeMerge(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable? = nil) -> Disposable? {
+	private func observeMerge(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
 		let decrementInFlight: () -> () = {
 			let orig = inFlight.modify { $0 - 1 }
@@ -278,12 +290,12 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			case let .Next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
 					inFlight.modify { $0 + 1 }
-					let handle = disposable?.addDisposable(innerDisposable) ?? nil
+					let handle = disposable.addDisposable(innerDisposable)
 
 					innerSignal.observe { event in
 						switch event {
 						case .Completed, .Interrupted:
-							handle?.remove()
+							handle.remove()
 							decrementInFlight()
 
 						default:
@@ -347,7 +359,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// signal have both completed.
 	private func switchToLatest() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { observer in
-			self.observeSwitchToLatest(observer, SerialDisposable())
+			let composite = CompositeDisposable()
+			let serial = SerialDisposable()
+
+			composite += serial
+			composite += self.observeSwitchToLatest(observer, serial)
+
+			return composite
 		}
 	}
 
@@ -443,7 +461,8 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 			disposable.addDisposable(latestInnerDisposable)
 
 			self.startWithSignal { signal, signalDisposable in
-				signal.observeSwitchToLatest(observer, latestInnerDisposable)
+				disposable += signalDisposable
+				disposable += signal.observeSwitchToLatest(observer, latestInnerDisposable)
 			}
 		}
 	}

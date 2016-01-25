@@ -12,189 +12,88 @@ import Quick
 import ReactiveCocoa
 
 private extension SignalType {
-	typealias Pipe = (Signal<Value, Error>, Observer<Value, Error>)
+	typealias Pipe = (signal: Signal<Value, Error>, observer: Observer<Value, Error>)
 }
 
 private typealias Pipe = Signal<SignalProducer<Int, TestError>, TestError>.Pipe
 
 class FlattenSpec: QuickSpec {
 	override func spec() {
-
-		describe("Signal.switchToLatest") {
-
-			var pipe: Pipe!
-			var disposable: Disposable?
-
-			beforeEach {
-				pipe = Signal.pipe()
-				disposable = pipe.0.flatten(.Latest).observe { _ in }
-			}
-
-			afterEach {
-				disposable?.dispose()
-			}
-
-			context("disposing") {
-				var disposed = false
+		func describeSignalFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+			describe(name) {
+				var pipe: Pipe!
+				var disposable: Disposable?
 
 				beforeEach {
-					disposed = false
-					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
+					pipe = Signal.pipe()
+					disposable = pipe.signal
+						.flatten(flattenStrategy)
+						.observe { _ in }
+				}
+
+				afterEach {
+					disposable?.dispose()
+				}
+
+				context("disposal") {
+					var disposed = false
+
+					beforeEach {
+						disposed = false
+						pipe.observer.sendNext(SignalProducer<Int, TestError> { _, disposable in
+							disposable += ActionDisposable {
+								disposed = true
+							}
+						})
+					}
+
+					it("should dispose inner signals when outer signal interrupted") {
+						pipe.observer.sendInterrupted()
+						expect(disposed) == true
+					}
+
+					it("should dispose inner signals when outer signal failed") {
+						pipe.observer.sendFailed(.Default)
+						expect(disposed) == true
+					}
+
+					it("should not dispose inner signals when outer signal completed") {
+						pipe.observer.sendCompleted()
+						expect(disposed) == false
+					}
+				}
+			}
+		}
+
+		context("Signal") {
+			describeSignalFlattenDisposal(.Latest, name: "Signal.switchToLatest")
+			describeSignalFlattenDisposal(.Merge, name: "Signal.merge")
+			describeSignalFlattenDisposal(.Concat, name: "Signal.concat")
+		}
+
+		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+			describe(name) {
+				it("disposes original signal when result signal interrupted") {
+					var disposed = false
+
+					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { observer, disposable in
 						disposable += ActionDisposable {
 							disposed = true
 						}
-					})
-				}
-
-				it("should dispose inner signals when outer signal interrupted") {
-					pipe.1.sendInterrupted()
-					expect(disposed).to(beTrue())
-				}
-
-				it("should dispose inner signals when outer signal failed") {
-					pipe.1.sendFailed(TestError.Default)
-					expect(disposed).to(beTrue())
-				}
-
-				it("should not dispose inner signals when outer signal completed") {
-					pipe.1.sendCompleted()
-					expect(disposed).to(beFalse())
-				}
-			}
-		}
-
-		describe("Signal.merge") {
-
-			var pipe: Pipe!
-			var disposable: Disposable?
-
-			beforeEach {
-				pipe = Signal.pipe()
-				disposable = pipe.0.flatten(.Merge).observe { _ in }
-			}
-
-			afterEach {
-				disposable?.dispose()
-			}
-
-			context("disposing") {
-				var disposed = false
-
-				beforeEach {
-					disposed = false
-					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
-						disposable += ActionDisposable {
-							disposed = true
-						}
-					})
-				}
-
-				it("should dispose inner signals when outer signal interrupted") {
-					pipe.1.sendInterrupted()
-					expect(disposed).to(beTrue())
-				}
-
-				it("should dispose inner signals when outer signal failed") {
-					pipe.1.sendFailed(TestError.Default)
-					expect(disposed).to(beTrue())
-				}
-
-				it("should not dispose inner signals when outer signal completed") {
-					pipe.1.sendCompleted()
-					expect(disposed).to(beFalse())
-				}
-			}
-		}
-
-		describe("Signal.concat") {
-
-			var pipe: Pipe!
-			var disposable: Disposable?
-
-			beforeEach {
-				pipe = Signal.pipe()
-				disposable = pipe.0.flatten(.Concat).observe { _ in }
-			}
-
-			afterEach {
-				disposable?.dispose()
-			}
-
-			context("disposing") {
-				var disposed = false
-
-				beforeEach {
-					disposed = false
-					pipe.1.sendNext(SignalProducer<Int, TestError> { _, disposable in
-						disposable += ActionDisposable {
-							disposed = true
-						}
-					})
-				}
-
-				it("should dispose inner signals when outer signal interrupted") {
-					pipe.1.sendInterrupted()
-					expect(disposed).to(beTrue())
-				}
-
-				it("should dispose inner signals when outer signal failed") {
-					pipe.1.sendFailed(TestError.Default)
-					expect(disposed).to(beTrue())
-				}
-
-				it("should not dispose inner signals when outer signal completed") {
-					pipe.1.sendCompleted()
-					expect(disposed).to(beFalse())
-				}
-			}
-		}
-
-		describe("SignalProducer.switchToLatest") {
-			it("disposes original signal when result signal interrupted") {
-				
-				var disposed = false
-
-				let disposable = SignalProducer<SignalProducer<Void, NoError>, NoError> { observer, disposable in
-					disposable += ActionDisposable {
-						disposed = true
 					}
-				}.flatten(.Latest).start()
+						.flatten(flattenStrategy)
+						.start()
 
-				disposable.dispose()
-				expect(disposed).to(beTrue())
+					disposable.dispose()
+					expect(disposed) == true
+				}
 			}
 		}
 
-		describe("SignalProducer.merge") {
-			it("disposes original signal when result signal interrupted") {
-
-				var disposed = false
-
-				let disposable = SignalProducer<SignalProducer<Void, NoError>, NoError> { observer, disposable in
-					disposable += ActionDisposable {
-						disposed = true
-					}
-				}.flatten(.Merge).start()
-
-				disposable.dispose()
-				expect(disposed).to(beTrue())
-			}
-		}
-
-		describe("SignalProducer.concat") {
-			it("disposes original signal when result signal interrupted") {
-
-				var disposed = false
-
-				let disposable = SignalProducer<SignalProducer<Void, NoError>, NoError> { observer, disposable in
-					disposable += ActionDisposable {
-						disposed = true
-					}
-				}.flatten(.Concat).start()
-
-				disposable.dispose()
-				expect(disposed).to(beTrue())
-			}
+		context("SignalProducer") {
+			describeSignalProducerFlattenDisposal(.Latest, name: "SignalProducer.switchToLatest")
+			describeSignalProducerFlattenDisposal(.Merge, name: "SignalProducer.merge")
+			describeSignalProducerFlattenDisposal(.Concat, name: "SignalProducer.concat")
 		}
 	}
 }

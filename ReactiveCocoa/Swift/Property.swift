@@ -15,6 +15,37 @@ public protocol PropertyType {
 	var signal: Signal<Value, NoError> { get }
 }
 
+extension PropertyType {
+	/// Maps each value in the property to a new value.
+	@warn_unused_result
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		return AnyProperty(
+			initialValue: transform(value),
+			signal: signal.map(transform)
+		)
+	}
+
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given property.
+	@warn_unused_result
+	public func combineLatestWith<Other: PropertyType>(otherProperty: Other) -> AnyProperty<(Value, Other.Value)> {
+		return AnyProperty(
+			initialValue: (value, otherProperty.value),
+			producer: producer.combineLatestWith(otherProperty.producer).skip(1)
+		)
+	}
+
+	/// Zips elements of two properties into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input properties.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func zipWith<Other: PropertyType>(otherProperty: Other) -> AnyProperty<(Value, Other.Value)> {
+		return AnyProperty(
+			initialValue: (value, otherProperty.value),
+			signal: signal.zipWith(otherProperty.signal)
+		)
+	}
+}
+
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
 
@@ -298,4 +329,194 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+	return a.combineLatestWith(b)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	return combineLatest(a, b)
+		.combineLatestWith(c)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	return combineLatest(a, b, c)
+		.combineLatestWith(d)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	return combineLatest(a, b, c, d)
+		.combineLatestWith(e)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	return combineLatest(a, b, c, d, e)
+		.combineLatestWith(f)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	return combineLatest(a, b, c, d, e, f)
+		.combineLatestWith(g)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	return combineLatest(a, b, c, d, e, f, g)
+		.combineLatestWith(h)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	return combineLatest(a, b, c, d, e, f, g, h)
+		.combineLatestWith(i)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`.
+@warn_unused_result
+public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	return combineLatest(a, b, c, d, e, f, g, h, i)
+		.combineLatestWith(j)
+		.map(repack)
+}
+
+/// Combines the values of all the given properties, in the manner described by
+/// `combineLatestWith`. Will return a property with a value of `[]` if the
+/// sequence is empty.
+@warn_unused_result
+public func combineLatest<S: SequenceType, Value where S.Generator.Element == AnyProperty<Value>>(properties: S) -> AnyProperty<[Value]> {
+	var generator = properties.generate()
+	if let first = generator.next() {
+		let initial = first.map { [$0] }
+		return GeneratorSequence(generator).reduce(initial) { property, next in
+			property.combineLatestWith(next).map { $0.0 + [$0.1] }
+		}
+	}
+
+	return AnyProperty(initialValue: [], producer: SignalProducer.empty)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+	return a.zipWith(b)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	return zip(a, b)
+		.zipWith(c)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	return zip(a, b, c)
+		.zipWith(d)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	return zip(a, b, c, d)
+		.zipWith(e)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	return zip(a, b, c, d, e)
+		.zipWith(f)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	return zip(a, b, c, d, e, f)
+		.zipWith(g)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	return zip(a, b, c, d, e, f, g)
+		.zipWith(h)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	return zip(a, b, c, d, e, f, g, h)
+		.zipWith(i)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`.
+@warn_unused_result
+public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	return zip(a, b, c, d, e, f, g, h, i)
+		.zipWith(j)
+		.map(repack)
+}
+
+/// Zips the values of all the given properties, in the manner described by
+/// `zipWith`. Will return a property with a value of `[]` if the
+/// sequence is empty.
+@warn_unused_result
+public func zip<S: SequenceType, Value where S.Generator.Element == AnyProperty<Value>>(properties: S) -> AnyProperty<[Value]> {
+	var generator = properties.generate()
+	if let first = generator.next() {
+		let initial = first.map { [$0] }
+		return GeneratorSequence(generator).reduce(initial) { property, next in
+			property.zipWith(next).map { $0.0 + [$0.1] }
+		}
+	}
+
+	return AnyProperty(initialValue: [], producer: SignalProducer.empty)
 }

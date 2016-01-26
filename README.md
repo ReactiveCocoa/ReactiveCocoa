@@ -310,7 +310,7 @@ ReactiveCocoa to your `Cartfile`:
 ```
 github "ReactiveCocoa/ReactiveCocoa"
 ```
-Remeber to add both ReactiveCocoa.framework and Result.framework to "Linked Frameworks and Libraries" and "copy-frameworks" Build Phases. Otherwise, it won't work.
+Make sure to add both `ReactiveCocoa.framework` and `Result.framework` to "Linked Frameworks and Libraries" and "copy-frameworks" Build Phases.
 
 If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
 [unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa)

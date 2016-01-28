@@ -62,28 +62,30 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/RACUnit.h>
 
 #if TARGET_OS_WATCH
-#elif TARGET_OS_TV
-#elif TARGET_OS_IPHONE
-	#import <ReactiveCocoa/MKAnnotationView+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIActionSheet+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIAlertView+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
+#elif TARGET_OS_IOS || TARGET_OS_TV
 	#import <ReactiveCocoa/UIButton+RACCommandSupport.h>
 	#import <ReactiveCocoa/UICollectionReusableView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIControl+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIDatePicker+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIGestureRecognizer+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIImagePickerController+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIRefreshControl+RACCommandSupport.h>
 	#import <ReactiveCocoa/UISegmentedControl+RACSignalSupport.h>
-	#import <ReactiveCocoa/UISlider+RACSignalSupport.h>
-	#import <ReactiveCocoa/UIStepper+RACSignalSupport.h>
-	#import <ReactiveCocoa/UISwitch+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITableViewCell+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITableViewHeaderFooterView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
-	#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
+
+	#if TARGET_OS_IOS
+		#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
+		#import <ReactiveCocoa/UIStepper+RACSignalSupport.h>
+		#import <ReactiveCocoa/UIDatePicker+RACSignalSupport.h>
+		#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
+		#import <ReactiveCocoa/UIAlertView+RACSignalSupport.h>
+		#import <ReactiveCocoa/UIActionSheet+RACSignalSupport.h>
+		#import <ReactiveCocoa/MKAnnotationView+RACSignalSupport.h>
+		#import <ReactiveCocoa/UIImagePickerController+RACSignalSupport.h>
+		#import <ReactiveCocoa/UIRefreshControl+RACCommandSupport.h>
+		#import <ReactiveCocoa/UISlider+RACSignalSupport.h>
+		#import <ReactiveCocoa/UISwitch+RACSignalSupport.h>
+	#endif
 #elif TARGET_OS_MAC
 	#import <ReactiveCocoa/NSControl+RACCommandSupport.h>
 	#import <ReactiveCocoa/NSControl+RACTextSignalSupport.h>

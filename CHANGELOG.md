@@ -43,7 +43,7 @@ The improvements to associated enum values in `Swift 2` mean that `Event` case n
 #### Replacements for the `start` and `observer` overloads
 
 The `observe` and `start` overloads taking `next`, `error`, etc. optional function parameters have been removed. They’ve been replaced with methods taking a single function with
-the target `Event` case — `observeNext`, `startWithNext`, and the same for `failed` and `completed`. See #2311 and #2318 for more details.
+the target `Event` case — `observeNext`, `startWithNext`, and the same for `failed` and `completed`. See [#2311](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2311) and [#2318](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2318) for more details.
 
 #### Renamed `try` and `catch` operators
 
@@ -82,7 +82,7 @@ There were some `Signal` operators that were missing `SignalProducer` equivalent
 * `Signal.merge(signals:)`.
 * `Signal.empty`.
 * `skipUntil`.
-* `replayLazily` (#2639).
+* `replayLazily` ([#2639](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2639)).
 
 
 #### Renamed `PropertyOf<T>` to `AnyProperty<T>`
@@ -106,7 +106,7 @@ In order to force users to think about the desired capacity, this no longer defa
 
 It’s still recommended to use `SignalProducer.buffer` or `PropertyType` when buffering behavior is desired. However, when you need to compose an existing `SignalProducer` to avoid duplicate side effects, this operator is now available.
 
-The full semantics of the operator are documented in the code, and you can see #2639 for full details.
+The full semantics of the operator are documented in the code, and you can see [#2639](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2639) for full details.
 
 
 # 3.0

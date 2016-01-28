@@ -98,7 +98,7 @@ Additionally, all `PropertyType`s now have a `signal: Signal<T>` in addition to 
 
 `Bag` and `Atomic` are now public. These are useful when creating custom operators for RAC types.
 
-#### `SignalProducer.buffer` no longer has a default value
+#### `SignalProducer.buffer` no longer has a default capacity
 
 In order to force users to think about the desired capacity, this no longer defaults to `Int.max`. Prior to this change one could have inadvertently cached every value emitted by the `SignalProducer`. This needs to be specified manually now.
 

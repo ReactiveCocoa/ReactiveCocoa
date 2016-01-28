@@ -1,60 +1,74 @@
 # 4.0
 
-**The RAC 4 APIs are work in progress**. There may be significant breaking
-changes in later alphas so be prepared for that before taking a dependency.
+If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`. 
 
-If you're new to the Swift API and migrating from RAC 2, start with the
-[3.0 changes](#30). This section only covers the differences between 3.0 and
-4.0.
+Just like in `RAC 3`, because Objective-C is still in widespread use, 99% of `RAC 2.x` code will continue to work under `RAC 4.0` without any changes. That is, `RAC 2.x` primitives are still available in `RAC 4.0`.
 
-ReactiveCocoa 4.0 targets Swift 2 and the current focus is on leveraging the
-improvements from Swift 1.2 to provide a simpler API.
+`ReactiveCocoa 4.0` targets **Xcode 7.2.x** and **Swift 2.1.x**, and it supports `iOS 8.0`, `watchOS 2.0`, `tvOS 9.0` and `OS X 10.9`.
 
-## Alpha 3
 
-#### Renamed Event.Error to Event.Failed
+#### Signal operators are protocol extensions
 
-The `Error` case of `Event` has changed to `Failed`. This aims to help clarify
-the terminating nature of failure/error events and puts them in the same tense
-as other terminating cases (`Interrupted` and `Completed`). Likewise, some
-operations and parameters have been renamed (e.g. `Signal.observeError` is now
-`Signal.observeFailed`, `Observer.sendError` is now `Observer.sendFailed`).
+The biggest change from `RAC 3` to `RAC 4` is that `Signal` and `SignalProducer` operators are implemented as **protocol extensions** instead of global functions. This is similar to many of the collection protocol changes in the `Swift 2` standard
+library.
 
-## Alpha 2
+This enables chaining signal operators with normal dot-method calling syntax, which makes autocompleting operators a lot easier.
+Previously the custom `|>` was required to enable chaining global functions without a mess of nested calls and parenthesis.
 
-#### Simplified Observer API
+```swift
+/// RAC 3
+signal 
+  |> filter { $0 % 2 == 0 } 
+  |> map { $0 * $0 } 
+  |> observe { print($0) }
 
-There were two related sticking points that seemed like incidental complexity:
-the conflation of “sink” and “observer”, and the fact that `sendNext` and
-friends were free functions (didn’t autocomplete, looked weird, etc)
+/// RAC 4
+signal
+  .filter { $0 % 2 == 0 }
+  .map { $0 * $0 }
+  .observeNext { print($0) }
+```
 
-* `Event` no longer knows about sinks or observers.
-* `Observer` is now its own thing akin to `SinkOf` but specific to `Event`s.
-There is no such thing as a sink anymore.
-* `Event.sink()` becomes a convenience initializer for `Observer`.
-* `send*` become methods on Observer
-* Convenience overloads where raw observer/sink functions were arguments so
-that they can continue to be used that way for less line noise.
+Additionally, this means that `SignalProducer` operators are less “magic”. In RAC 3 the `Signal` operators were implicitly lifted to work on `SignalProducer` via `|>`. This was a point of confusion for some, especially when browsing the
+source looking for these operators. Now as protocol extensions, the `SignalProducer` operators are explicitly implemented in terms of their `Signal` counterpart when available.
+
+#### Removal of `|>` custom operator
+
+As already alluded to above, the custom `|>` operator for chaining signals has been removed. Instead standard method calling syntax is used for chaining operators.
+
+#### Event cases are no longer boxed
+
+The improvements to associated enum values in `Swift 2` mean that `Event` case no longer need to be `Box`ed. In fact, the `Box` dependency has been removed completely from `RAC 4`.
+
+#### Replacements for the `start` and `observer` overloads
+
+The `observe` and `start` overloads taking `next`, `error`, etc. optional function parameters have been removed. They’ve been replaced with methods taking a single function with
+the target `Event` case — `observeNext`, `startWithNext`, and the same for `failed` and `completed`. See [#2311](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2311) and [#2318](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2318) for more details.
+
+#### Renamed `try` and `catch` operators
+
+The `try` and `catch` operators were renamed because of the addition of the error handling keywords with the same name. They are now `attempt` and `flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for consistency.
+
+#### `flatten` and `flatMap` are now possible for all 4 combinations of `Signal`+`SignalProducer`
+
+This fills a gap that was missing in `RAC 3`. It’s a common pattern to have signals-of-signals or signals-of-producers.
+The addition of `flatten` and `flatMap` over these makes it now possible to work with any combination of `Signal`s and `SignalProducer`s.
+
+#### Renamed `Event.Error` to `Event.Failed`
+
+The `Error` case of `Event` has changed to `Failed`. This aims to help clarify the terminating nature of failure/error events and puts them in the same tense as other terminating cases (`Interrupted` and `Completed`). Likewise, some operations and parameters have been renamed (e.g. `Signal.observeError` is now `Signal.observeFailed`, `Observer.sendError` is now `Observer.sendFailed`).
 
 #### Renamed signal generic parameters
 
-The generic paramters of `Signal`, `SignalProducer`, and other related types
+The generic parameters of `Signal`, `SignalProducer`, and other related types
 have been renamed to `Value` and `Error` from `T` and `E` respectively. This
 is in-line with changes to the standard library to give more descriptive names
 to type parameters for increased clarity. This should have limited impact,
 only affecting generic, custom signal/producer extensions.
 
-#### Added flatten to all signal and producer combos
+#### Added missing `SignalProducer` operators
 
-Before this change, `flatten` and `flatMap` were only defined for
-signals-of-producers and producers-of-producers. After much discussion it
-was determined these should be safe for the remaining combinations of signals
-and producers. See #2449
-
-#### Added missing SignalProducer operators
-
-There were some `Signal` operators that were missing `SignalProducer`
-equivalents:
+There were some `Signal` operators that were missing `SignalProducer` equivalents:
 
 * `takeUntil`
 * `combineLatestWith`
@@ -62,85 +76,38 @@ equivalents:
 * `takeUntilReplacement`
 * `zipWith`
 
-#### Renamed PropertyOf<T> to AnyProperty<T>
+#### Added new operators:
 
-This is in-line with changes to the standard library in Swift 2.
+* `Signal.on`.
+* `Signal.merge(signals:)`.
+* `Signal.empty`.
+* `skipUntil`.
+* `replayLazily` ([#2639](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2639)).
 
-#### Publicized Bag and Atomic
 
-`Bag` and `Atomic` are now public. These are useful when creating custom
-operators for RAC types.
+#### Renamed `PropertyOf<T>` to `AnyProperty<T>`
 
-## Alpha 1
+This is in-line with changes to the standard library in `Swift 2`.
 
-#### Signal operators are protocol extensions
+#### Enhancements to `PropertyType`
 
-The biggest change from RAC 3 to RAC 4 is that signal and producer operators
-are implemented as protocol extensions instead of global functions. This is
-similar to many of the collection protocol changes in the Swift 2 standard
-library.
+`MutableProperty` received 3 new methods, similar to those in `Atomic`: `modify`, `swap`, and `withValue`.
+Additionally, all `PropertyType`s now have a `signal: Signal<T>` in addition to their existing `producer: SignalProducer<T>` property.
 
-This enables chaining signal operators with normal dot-method calling syntax.
-Previously the custom `|>` was required to enable chaining global functions
-without a mess of nested calls and parenthesis.
+#### Publicized `Bag` and `Atomic`
 
-```swift
-/// RAC 3
-signal |> filter { $0 % 2 == 0 } |> map { $0 * $0 } |> observe { print($0) }
+`Bag` and `Atomic` are now public. These are useful when creating custom operators for RAC types.
 
-/// RAC 4
-signal.filter { $0 % 2 == 0 } .map { $0 * $0 } .observe { print($0) }
-```
+#### `SignalProducer.buffer` no longer has a default capacity
 
-Additionally, this means that `SignalProducer` operators are less "magic". In
-RAC 3 the `Signal` operators were implicitly lifted to work on `SignalProducer`
-via `|>`. This was a point of confusion for some, especially when browsing the
-source looking for these operators. Now as protocol extensions, the
-`SignalProducer` operators are explicitly implementated in terms of their
-`Signal` counterpart when available.
+In order to force users to think about the desired capacity, this no longer defaults to `Int.max`. Prior to this change one could have inadvertently cached every value emitted by the `SignalProducer`. This needs to be specified manually now.
 
-#### Removal of |> custom operator
+#### Added `SignalProducer.replayLazily` for multicasting
 
-As already alluded to above, the custom `|>` operator for chaining signals has
-been removed. Instead standard method calling syntax is used for chaining
-operators.
+It’s still recommended to use `SignalProducer.buffer` or `PropertyType` when buffering behavior is desired. However, when you need to compose an existing `SignalProducer` to avoid duplicate side effects, this operator is now available.
 
-#### Event.Sink is now a function
+The full semantics of the operator are documented in the code, and you can see [#2639](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2639) for full details.
 
-With the removal of `SinkType` in Swift 2, the `Event.Sink` type is now just a
-function `Event -> ()`.
-
-#### Event cases are no longer boxed
-
-The improvements to associated enum values in Swift 2 mean that `Event` cases
-no longer need to be `Box`ed. In fact, the `Box` dependency has been removed
-completely from RAC 4.
-
-#### Replacements for the start and observer overloads
-
-_These are likely to see further changes in a later alpha_
-
-The `observe` and `start` overloads taking `next`, `error`, etc. optional
-function parameters have been removed. This was necessitated by the change to
-`Event.Sink` becoming a function type which introduced an unresolvable
-ambiguity. They've been replaced with methods taking a single function with
-the target `Event` case -- `observeNext`, `startWithNext`, and the same for
-error and completed. See #2311 and #2318 for more details.
-
-#### Renamed try and catch operators
-
-The `try` and `catch` operators were renamed because of the addition of the
-error handling keywords with the same name. They are now `attempt` and
-`flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for
-consistency.
-
-#### Added flatten and flatMap for signal-of-producers
-
-This fills a gap that was missing in RAC 3. It's a common pattern to have a
-hot `Signal` of values that need to be mapped to "work" -- `SignalProducer`.
-The addition of `flatten` and `flatMap` over signals-of-producers makes it
-easy to serialize (`Concat`) or parallelize (`Merge`) the work, or only run
-the most recent (`Latest`).
 
 # 3.0
 

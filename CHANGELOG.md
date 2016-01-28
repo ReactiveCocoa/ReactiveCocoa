@@ -4,15 +4,15 @@ If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 c
 
 Just like in `RAC 3`, because Objective-C is still in widespread use, 99% of `RAC 2.x` code will continue to work under `RAC 4.0` without any changes. That is, `RAC 2.x` primitives are still available in `RAC 4.0`.
 
-`ReactiveCocoa 4.0` targets **Xcode 7.2.x** and **Swift 2.1.x**, and it supports `iOS 8.0`, `watch OS 2.0`, `tvOS 9.0` and `OS X 10.9`.
+`ReactiveCocoa 4.0` targets **Xcode 7.2.x** and **Swift 2.1.x**, and it supports `iOS 8.0`, `watchOS 2.0`, `tvOS 9.0` and `OS X 10.9`.
 
 
 #### Signal operators are protocol extensions
 
-The biggest change from `RAC 3` to `RAC 4` is that `Signal` and `SignalProducer` operators are implemented as **protocol extensions** instead of global functions. This is similar to many of the collection protocol changes in the Swift 2 standard
+The biggest change from `RAC 3` to `RAC 4` is that `Signal` and `SignalProducer` operators are implemented as **protocol extensions** instead of global functions. This is similar to many of the collection protocol changes in the `Swift 2` standard
 library.
 
-This enables chaining signal operators with normal dot-method calling syntax.
+This enables chaining signal operators with normal dot-method calling syntax, which makes autocompleting operators a lot easier.
 Previously the custom `|>` was required to enable chaining global functions without a mess of nested calls and parenthesis.
 
 ```swift
@@ -49,12 +49,12 @@ the target `Event` case — `observeNext`, `startWithNext`, and the same for `fa
 
 The `try` and `catch` operators were renamed because of the addition of the error handling keywords with the same name. They are now `attempt` and `flatMapError` respectively. Also, `tryMap` was renamed to `attemptMap` for consistency.
 
-#### `flatten` and `flatMap` are now possible for all 4 combinations of Signal+SignalProducer
+#### `flatten` and `flatMap` are now possible for all 4 combinations of `Signal`+`SignalProducer`
 
 This fills a gap that was missing in `RAC 3`. It’s a common pattern to have a hot `Signal` of values that need to be mapped to “work” — `SignalProducer`, or a `Signal` of `Signal`s.
 The addition of `flatten` and `flatMap` over signals-of-producers and signals-of-signals makes it easy to serialize (`Concat`) or parallelize (`Merge`) the work, or only run the most recent (`Latest`).
 
-#### Renamed Event.Error to Event.Failed
+#### Renamed `Event.Error` to `Event.Failed`
 
 The `Error` case of `Event` has changed to `Failed`. This aims to help clarify the terminating nature of failure/error events and puts them in the same tense as other terminating cases (`Interrupted` and `Completed`). Likewise, some operations and parameters have been renamed (e.g. `Signal.observeError` is now `Signal.observeFailed`, `Observer.sendError` is now `Observer.sendFailed`).
 
@@ -92,7 +92,7 @@ This is in-line with changes to the standard library in `Swift 2`.
 #### Enhancements to `PropertyType`
 
 `MutableProperty` received 3 new methods, similar to those in `Atomic`: `modify`, `swap`, and `withValue`.
-Additionally, all `PropertyType`s now have a `signal: Signal<T>` in addition to their previous `producer: SignalProducer<T>` property.
+Additionally, all `PropertyType`s now have a `signal: Signal<T>` in addition to their existing `producer: SignalProducer<T>` property.
 
 #### Publicized `Bag` and `Atomic`
 

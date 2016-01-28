@@ -51,8 +51,8 @@ The `try` and `catch` operators were renamed because of the addition of the erro
 
 #### `flatten` and `flatMap` are now possible for all 4 combinations of `Signal`+`SignalProducer`
 
-This fills a gap that was missing in `RAC 3`. It’s a common pattern to have a hot `Signal` of values that need to be mapped to “work” — `SignalProducer`, or a `Signal` of `Signal`s.
-The addition of `flatten` and `flatMap` over signals-of-producers and signals-of-signals makes it easy to serialize (`Concat`) or parallelize (`Merge`) the work, or only run the most recent (`Latest`).
+This fills a gap that was missing in `RAC 3`. It’s a common pattern to have signals-of-signals or signals-of-producers.
+The addition of `flatten` and `flatMap` over these makes it now possible to work with any combination of `Signal`s and `SignalProducer`s.
 
 #### Renamed `Event.Error` to `Event.Failed`
 

@@ -63,6 +63,15 @@ class PropertySpec: QuickSpec {
 				expect(sentValue) == initialPropertyValue
 				expect(signalCompleted) == true
 			}
+
+			it("should perform an action with the value") {
+				let property = ConstantProperty(initialPropertyValue)
+
+				let result: Bool = property.withValue { $0.isEmpty }
+
+				expect(result) == false
+				expect(property.value) == initialPropertyValue
+			}
 		}
 
 		describe("MutableProperty") {
@@ -281,6 +290,10 @@ class PropertySpec: QuickSpec {
 						}
 					}
 
+					let isEmpty = property.withValue { $0.isEmpty }
+
+					expect(property.value) == initialPropertyValue
+					expect(isEmpty) == false
 					expect(sentValue) == initialPropertyValue
 					expect(signalSentValue).to(beNil())
 					expect(producerCompleted) == true
@@ -357,6 +370,51 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(object.rac_value) == 1
 				expect(propertyValue()) == 1
+			}
+
+			it("should modify the value") {
+				expect(property.modify({ _ in 1 }) as? Int) == 0
+				expect(propertyValue()) == 1
+			}
+
+			it("should modify the value and subsquently send out a Next event with the new value") {
+				var value: Int!
+
+				property.producer.startWithNext {
+					value = $0 as! Int
+				}
+
+				expect(value) == 0
+				expect(property.modify({ _ in 1 }) as? Int) == 0
+
+				expect(propertyValue()) == 1
+				expect(value) == 1
+			}
+
+			it("should swap the value") {
+				expect(property.swap(1) as? Int) == 0
+				expect(propertyValue()) == 1
+			}
+
+			it("should swap the value and subsquently send out a Next event with the new value") {
+				var value: Int!
+
+				property.producer.startWithNext {
+					value = $0 as! Int
+				}
+
+				expect(value) == 0
+				expect(property.swap(1) as? Int) == 0
+
+				expect(propertyValue()) == 1
+				expect(value) == 1
+			}
+
+			it("should perform an action with the value") {
+				let isZero: Bool = property.withValue { $0 as! Int == 0 }
+
+				expect(isZero) == true
+				expect(propertyValue()) == 0
 			}
 
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {

@@ -4,42 +4,44 @@ import Foundation
 public protocol PropertyType {
 	typealias Value
 
-	/// The current value of the property.
-	var value: Value { get }
-
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time.
 	var producer: SignalProducer<Value, NoError> { get }
 
+	/// Synchronously execute the action with the current value of the property.
+	///
+	/// - Note: Implementations are encouraged to enforce atomicity.
+	func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result
+}
+
+/// Default implementations of PropertyType.
+extension PropertyType {
+	/// The current value of the property.
+	public var value: Value {
+		return withValue { $0 }
+	}
+
 	/// A signal that will send the property's changes over time.
-	var signal: Signal<Value, NoError> { get }
+	public var signal: Signal<Value, NoError> {
+		var extractedSignal: Signal<Value, NoError>!
+		producer.startWithSignal { signal, _ in
+			extractedSignal = signal
+		}
+		return extractedSignal
+	}
 }
 
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
-
-	private let _value: () -> Value
-	private let _producer: () -> SignalProducer<Value, NoError>
-	private let _signal: () -> Signal<Value, NoError>
-
-
-	public var value: Value {
-		return _value()
-	}
+	private let box: _AnyPropertyBoxBase<Value>
 
 	public var producer: SignalProducer<Value, NoError> {
-		return _producer()
+		return box.producer
 	}
 
-	public var signal: Signal<Value, NoError> {
-		return _signal()
-	}
-	
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		_value = { property.value }
-		_producer = { property.producer }
-		_signal = { property.signal }
+		box = _AnyPropertyBox(property)
 	}
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -57,20 +59,25 @@ public struct AnyProperty<Value>: PropertyType {
 		mutableProperty <~ signal
 		self.init(mutableProperty)
 	}
+
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		return try box.withValue(action)
+	}
 }
 
 /// A property that never changes.
 public struct ConstantProperty<Value>: PropertyType {
-
 	public let value: Value
 	public let producer: SignalProducer<Value, NoError>
-	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
 	public init(_ value: Value) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
-		self.signal = .empty
+	}
+
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		return try action(value)
 	}
 }
 
@@ -79,45 +86,46 @@ public struct ConstantProperty<Value>: PropertyType {
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
 public protocol MutablePropertyType: class, PropertyType {
-	var value: Value { get set }
+	/// Modifies the variable.
+	///
+	/// Returns the old value.
+	/// - Note: Implementations are encouraged to enforce atomicity.
+	func modify(@noescape action: (Value) throws -> Value) rethrows -> Value
+}
+
+/// Default implementations of MutablePropertyType.
+extension MutablePropertyType {
+	/// The current value of the property.
+	public var value: Value {
+		get {
+			return withValue { $0 }
+		}
+		set {
+			modify { _ in newValue }
+		}
+	}
+
+	/// Replaces the contents of the variable.
+	///
+	/// Returns the old value.
+	/// - Note: Atomicity depends on the implementation.
+	public func swap(newValue: Value) -> Value {
+		return modify { _ in newValue }
+	}
 }
 
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyType {
-
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
+
 	private var _value: Value
-
-	/// The current value of the property.
-	///
-	/// Setting this to a new value will notify all observers of any Signals
-	/// created from the `values` producer.
-	public var value: Value {
-		get {
-			return withValue { $0 }
-		}
-
-		set {
-			modify { _ in newValue }
-		}
-	}
-
-	/// A signal that will send the property's changes over time,
-	/// then complete when the property has deinitialized.
-	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
-		var extractedSignal: Signal<Value, NoError>!
-		self.producer.startWithSignal { signal, _ in
-			extractedSignal = signal
-		}
-		return extractedSignal
-	}()
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
@@ -133,13 +141,6 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		(producer, observer) = SignalProducer.buffer(1)
 		observer.sendNext(initialValue)
-	}
-
-	/// Atomically replaces the contents of the variable.
-	///
-	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
-		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
@@ -235,6 +236,19 @@ public final class MutableProperty<Value>: MutablePropertyType {
 				}
 			}
 	}
+
+	/// Atomically modifies the variable.
+	///
+	/// Returns the old value.
+	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+		let oldValue = value
+		value = try action(oldValue)
+		return oldValue
+	}
+
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		return try action(value)
+	}
 }
 
 infix operator <~ {
@@ -298,4 +312,34 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
+}
+
+
+/// Type erased wrapper for composable PropertyType.
+private class _AnyPropertyBoxBase<Value>: PropertyType {
+	var producer: SignalProducer<Value, NoError> {
+		fatalError()
+	}
+
+	func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		fatalError()
+	}
+}
+
+
+/// Concrete implementation of the type erased wrapper for composable PropertyType.
+final private class _AnyPropertyBox<P: PropertyType>: _AnyPropertyBoxBase<P.Value> {
+	let property: P
+
+	init(_ property: P) {
+		self.property = property
+	}
+
+	override var producer: SignalProducer<P.Value, NoError> {
+		return property.producer
+	}
+
+	override func withValue<Result>(@noescape action: (P.Value) throws -> Result) rethrows -> Result {
+		return try property.withValue(action)
+	}
 }

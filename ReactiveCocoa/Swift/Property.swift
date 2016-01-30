@@ -1,4 +1,5 @@
 import Foundation
+import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
 public protocol PropertyType {

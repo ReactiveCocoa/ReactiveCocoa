@@ -1,4 +1,5 @@
 import Foundation
+import enum Result.NoError
 
 /// Represents an action that will do some work when executed with a value of
 /// type `Input`, then return zero or more values of type `Output` and/or fail

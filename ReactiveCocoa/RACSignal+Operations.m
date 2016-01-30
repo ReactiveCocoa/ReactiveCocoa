@@ -521,10 +521,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		// This array should only be used while synchronized on `subscriber`.
 		NSMutableArray *queuedSignals = [NSMutableArray array];
 
+		// Whether the next signal is about to be subscribed to (prevent race condition
+		// with a new signal being added to the queue at the same time as the
+		// current signal completes)
+		//
+		// This should only be used while synchronized on `subscriber`.
+		__block BOOL pendingSubscription = NO;
+
 		recur = subscribeToSignal = ^(RACSignal *signal) {
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
 			@synchronized (subscriber) {
+				pendingSubscription = NO;
 				[compoundDisposable addDisposable:serialDisposable];
 				[activeDisposables addObject:serialDisposable];
 			}
@@ -543,11 +551,13 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 					if (queuedSignals.count == 0) {
 						completeIfAllowed();
+						pendingSubscription = NO;
 						return;
 					}
 
 					nextSignal = queuedSignals[0];
 					[queuedSignals removeObjectAtIndex:0];
+					pendingSubscription = YES;
 				}
 
 				subscribeToSignal(nextSignal);
@@ -560,7 +570,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			NSCAssert([signal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", signal);
 
 			@synchronized (subscriber) {
-				if (maxConcurrent > 0 && activeDisposables.count >= maxConcurrent) {
+				if (maxConcurrent > 0 && (activeDisposables.count >= maxConcurrent || pendingSubscription)) {
 					[queuedSignals addObject:signal];
 
 					// If we need to wait, skip subscribing to this

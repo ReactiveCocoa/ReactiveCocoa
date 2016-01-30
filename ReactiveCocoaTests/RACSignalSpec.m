@@ -1907,6 +1907,61 @@ qck_describe(@"-flatten:", ^{
 			expect(@(flattenDisposable.disposed)).toEventually(beTruthy());
 		}
 	});
+
+	qck_it(@"only subscribes to one signal at a time - even when adding new signals at the same time as one completes", ^{
+		for (int i = 0; i < 100; i++) {
+			dispatch_semaphore_t ready1 = dispatch_semaphore_create(0);
+			dispatch_semaphore_t ready2 = dispatch_semaphore_create(0);
+			dispatch_semaphore_t barrier1 = dispatch_semaphore_create(0);
+			dispatch_semaphore_t barrier2 = dispatch_semaphore_create(0);
+			subscribedTo1 = NO;
+			subscribedTo2 = NO;
+			subscribedTo3 = NO;
+
+			RACDisposable *flattenDisposable = [[signalsSubject flatten:1] subscribeNext:^(id x) {
+			}];
+
+			[signalsSubject sendNext:sub1];
+			[signalsSubject sendNext:sub2];
+
+			expect(@(subscribedTo1)).to(beTruthy());
+			expect(@(subscribedTo2)).to(beFalsy());
+			expect(@(subscribedTo3)).to(beFalsy());
+
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+				dispatch_semaphore_signal(ready1);
+				dispatch_semaphore_wait(barrier1, DISPATCH_TIME_FOREVER);
+				[subject1 sendCompleted];
+			});
+
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+				dispatch_semaphore_signal(ready2);
+				dispatch_semaphore_wait(barrier2, DISPATCH_TIME_FOREVER);
+				[signalsSubject sendNext:sub3];
+			});
+
+			dispatch_semaphore_wait(ready1, DISPATCH_TIME_FOREVER);
+			dispatch_semaphore_wait(ready2, DISPATCH_TIME_FOREVER);
+
+			// Try to complete one signal and add a new signal
+			// very, very shortly after
+			dispatch_semaphore_signal(barrier1);
+			dispatch_semaphore_signal(barrier2);
+
+			// The race condition allows the just added signal to
+			// immediately get subscribed to - see that the third signal
+			// doesn't get that subscription yet.
+			expect(@(subscribedTo2)).toEventually(beTruthy());
+			expect(@(subscribedTo3)).to(beFalsy());
+
+			[subject2 sendCompleted];
+			expect(@(subscribedTo3)).toEventually(beTruthy());
+
+			[subject3 sendCompleted];
+
+			[flattenDisposable dispose];
+		}
+	});
 });
 
 qck_describe(@"-switchToLatest", ^{

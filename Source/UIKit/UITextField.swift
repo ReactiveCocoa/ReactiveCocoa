@@ -9,6 +9,7 @@
 import Foundation
 import ReactiveCocoa
 import UIKit
+import enum Result.NoError
 
 extension UITextField {
     

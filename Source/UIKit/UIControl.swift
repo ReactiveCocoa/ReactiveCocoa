@@ -8,6 +8,7 @@
 
 import ReactiveCocoa
 import UIKit
+import enum Result.NoError
 
 extension UIControl {
 #if os(iOS)

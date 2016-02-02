@@ -7,6 +7,7 @@
 //
 
 import ReactiveCocoa
+import enum Result.NoError
 
 extension SignalType {
 

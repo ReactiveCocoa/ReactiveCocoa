@@ -9,6 +9,7 @@
 import ReactiveCocoa
 import UIKit
 import XCTest
+import enum Result.NoError
 
 class UIImageViewTests: XCTestCase {
     

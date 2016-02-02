@@ -9,6 +9,7 @@
 @testable import Rex
 import ReactiveCocoa
 import XCTest
+import enum Result.NoError
 
 final class PropertyTests: XCTestCase {
 

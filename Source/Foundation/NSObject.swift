@@ -8,6 +8,7 @@
 
 import Foundation
 import ReactiveCocoa
+import enum Result.NoError
 
 extension NSObject {
     /// Creates a strongly-typed producer to monitor `keyPath` via KVO. The caller

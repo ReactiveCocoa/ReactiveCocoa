@@ -7,6 +7,7 @@
 //
 
 import ReactiveCocoa
+import enum Result.NoError
 
 extension PropertyType where Value == Bool {
     /// The conjunction of `self` and `other`.

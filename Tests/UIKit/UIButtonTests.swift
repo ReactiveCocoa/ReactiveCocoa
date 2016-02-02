@@ -9,6 +9,7 @@
 import ReactiveCocoa
 import UIKit
 import XCTest
+import enum Result.NoError
 
 extension UIButton {
     static func button() -> UIButton {

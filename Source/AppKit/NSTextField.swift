@@ -9,6 +9,7 @@
 import Foundation
 import ReactiveCocoa
 import AppKit
+import enum Result.NoError
 
 extension NSTextField {
     /// Sends the field's string value whenever it changes.

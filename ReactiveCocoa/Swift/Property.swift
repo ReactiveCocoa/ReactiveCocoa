@@ -1,6 +1,10 @@
 import Foundation
 import enum Result.NoError
 
+/// Users of ReactiveCocoa will frequently use NoError in their APIs
+/// Exporting this type as part of ReactiveCocoa to remove the need for `import Result`
+public typealias NoError = Result.NoError
+
 /// Represents a property that allows observation of its changes.
 public protocol PropertyType {
 	typealias Value

@@ -516,6 +516,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}
 		};
 
+		[compoundDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			// A strong reference is held to `subscribeToSignal` until we're
+			// done, preventing it from deallocating early.
+			subscribeToSignal = nil;
+		}]];
+
 		// The signals waiting to be started.
 		//
 		// This array should only be used while synchronized on `subscriber`.
@@ -560,7 +566,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					pendingSubscription = YES;
 				}
 
-				subscribeToSignal(nextSignal);
+				if (subscribeToSignal) {
+					subscribeToSignal(nextSignal);
+				}
 			}];
 		};
 
@@ -579,7 +587,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				}
 			}
 
-			subscribeToSignal(signal);
+			if (subscribeToSignal) {
+				subscribeToSignal(signal);
+			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{

@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '9.0'
 
   s.source       = { :git => 'https://github.com/neilpa/Rex.git', :tag => '0.9.0' }
-  s.dependency 'ReactiveCocoa', '~> 4.0'
+  s.dependency 'ReactiveCocoa', '~> 4.0.1'
   s.ios.framework  = 'UIKit'
   s.osx.framework  = 'AppKit'
 

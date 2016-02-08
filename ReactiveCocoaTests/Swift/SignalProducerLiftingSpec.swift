@@ -258,6 +258,31 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(values) == [ "a", "cc", "d" ]
 			}
 		}
+		
+		describe("uniqueValues", {
+			it("should skip values that have been already seen"){
+				let (baseProducer, observer) = SignalProducer<String, NoError>.buffer(1)
+				let producer = baseProducer.uniqueValues()
+				
+				var values: [String] = []
+				producer.startWithNext { values.append($0) }
+				
+				observer.sendNext("a")
+				expect(values) == [ "a" ]
+				
+				observer.sendNext("b")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("a")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("b")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("c")
+				expect(values) == [ "a", "b", "c" ]
+			}
+		})
 
 		describe("skipWhile") {
 			var producer: SignalProducer<Int, NoError>!

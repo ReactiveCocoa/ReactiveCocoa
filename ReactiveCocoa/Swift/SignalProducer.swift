@@ -774,6 +774,22 @@ extension SignalProducerType where Value: Equatable {
 	}
 }
 
+extension SignalProducer where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func uniqueValues() -> SignalProducer<Value, Error> {
+		var set = Set<Value>()
+		
+		return self
+			.filter { value in
+				return !set.contains(value)
+			}
+			.on( next: { value in
+				set.insert(value)
+			})
+	}
+}
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.

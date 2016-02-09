@@ -779,15 +779,20 @@ extension SignalProducer where Value: Hashable {
 	/// all values that have been seen
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func uniqueValues() -> SignalProducer<Value, Error> {
-		var set = Set<Value>()
+		let producer = SignalProducer.init { observer, disposable in
+			var set = Set<Value>()
+			
+			self
+				.filter { value in
+					return !set.contains(value)
+				}
+				.on( next: { value in
+					set.insert(value)
+				})
+				.start(observer)
+		}
 		
-		return self
-			.filter { value in
-				return !set.contains(value)
-			}
-			.on( next: { value in
-				set.insert(value)
-			})
+		return producer
 	}
 }
 

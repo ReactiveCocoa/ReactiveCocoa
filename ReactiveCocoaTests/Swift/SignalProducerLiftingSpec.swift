@@ -258,7 +258,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(values) == [ "a", "cc", "d" ]
 			}
 		}
-		
+
 		describe("skipWhile") {
 			var producer: SignalProducer<Int, NoError>!
 			var observer: Signal<Int, NoError>.Observer!

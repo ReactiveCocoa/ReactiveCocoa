@@ -774,34 +774,14 @@ extension SignalProducerType where Value: Equatable {
 	}
 }
 
-extension SignalProducer where Value: Hashable {
+extension SignalProducerType where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen
 	/// Note: This causes values that are forwarded to be retained to check for
 	/// uniquness
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func uniqueValues() -> SignalProducer<Value, Error> {
-		let producer = SignalProducer.init { observer, disposable in
-			var set = Set<Value>()
-			let lock = NSLock()
-			lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.uniqueValues"
-			
-			self
-				.filter { value in
-					lock.lock()
-					let containsValue = !set.contains(value)
-					lock.unlock()
-					return containsValue
-				}
-				.on( next: { value in
-					lock.lock()
-					set.insert(value)
-					lock.unlock()
-				})
-				.start(observer)
-		}
-		
-		return producer
+		return lift { $0.uniqueValues() }
 	}
 }
 

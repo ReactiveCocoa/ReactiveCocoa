@@ -1031,6 +1031,40 @@ extension SignalType {
 	}
 }
 
+extension SignalType where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen
+	/// Note: This causes values that are forwarded to be retained to check for
+	/// uniquness
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func uniqueValues() -> Signal<Value, Error> {
+		return Signal { observer in
+			var set = Set<Value>()
+			let lock = NSLock()
+			lock.name = "org.reactivecocoa.ReactiveCocoa.Signal.uniqueValues"
+			
+			return self
+				.filter { value in
+					lock.lock()
+					let containsValue = !set.contains(value)
+					lock.unlock()
+					return containsValue
+				}
+				.observe { event in
+					switch event {
+					case let .Next(value):
+						lock.lock()
+						set.insert(value)
+						lock.unlock()
+						fallthrough
+					default:
+						observer.action(event)
+					}
+			}
+		}
+	}
+}
+
 private struct ThrottleState<Value> {
 	var previousDate: NSDate? = nil
 	var pendingValue: Value? = nil

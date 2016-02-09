@@ -626,7 +626,34 @@ class SignalSpec: QuickSpec {
 				expect(values) == [ "a", "cc", "d" ]
 			}
 		}
+		
+		describe("uniqueValues", {
+			it("should skip values that have been already seen"){
+				let (baseSignal, observer) = Signal<String, NoError>.pipe()
+				let signal = baseSignal.uniqueValues()
+				
+				var values: [String] = []
+				signal.observeNext { values.append($0) }
+				
+				expect(values) == []
 
+				observer.sendNext("a")
+				expect(values) == [ "a" ]
+				
+				observer.sendNext("b")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("a")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("b")
+				expect(values) == [ "a", "b" ]
+				
+				observer.sendNext("c")
+				expect(values) == [ "a", "b", "c"]
+			}
+		})
+		
 		describe("skipWhile") {
 			var signal: Signal<Int, NoError>!
 			var observer: Signal<Int, NoError>.Observer!

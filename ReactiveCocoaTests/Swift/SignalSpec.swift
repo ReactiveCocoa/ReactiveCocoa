@@ -625,6 +625,40 @@ class SignalSpec: QuickSpec {
 				observer.sendNext("d")
 				expect(values) == [ "a", "cc", "d" ]
 			}
+
+			it("should not store strong reference to previously passed items") {
+				var disposedItems: [Bool] = []
+
+				struct Item {
+					let payload: Bool
+					let disposable: ScopedDisposable
+				}
+
+				func item(payload: Bool) -> Item {
+					return Item(
+						payload: payload,
+						disposable: ScopedDisposable(ActionDisposable { disposedItems.append(payload) })
+					)
+				}
+
+				let (baseSignal, observer) = Signal<Item, NoError>.pipe()
+				baseSignal.skipRepeats { $0.payload == $1.payload }.observeNext { _ in }
+
+				observer.sendNext(item(true))
+				expect(disposedItems) == []
+
+				observer.sendNext(item(false))
+				expect(disposedItems) == [ true ]
+
+				observer.sendNext(item(false))
+				expect(disposedItems) == [ true, false ]
+
+				observer.sendNext(item(true))
+				expect(disposedItems) == [ true, false, false ]
+
+				observer.sendCompleted()
+				expect(disposedItems) == [ true, false, false, true ]
+			}
 		}
 
 		describe("skipWhile") {

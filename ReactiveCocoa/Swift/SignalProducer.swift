@@ -804,6 +804,59 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	}
 }
 
+/// Creates a repeating timer of the variable interval starting with `nextInterval(0)`,
+/// with a reasonable default leeway, sending updates on the given scheduler.
+///
+/// This timer will complete when `nextInterval` returns nil.
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func variableTimer(onScheduler scheduler: DateSchedulerType, nextInterval: NSTimeInterval -> NSTimeInterval?) -> SignalProducer<NSDate, NoError> {
+	guard let interval = nextInterval(0) else {
+		return .empty
+	}
+
+	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+	// at least 10% of the timer interval.
+	return variableTimer(onScheduler: scheduler, withLeeway: interval * 0.1, nextInterval: nextInterval)
+}
+
+/// Creates a repeating timer of the variable interval starting with `nextInterval(0)`,
+/// sending updates on the given scheduler.
+///
+/// This timer will complete when `nextInterval` returns nil.
+@warn_unused_result(message="Did you forget to call `start` on the producer?")
+public func variableTimer(onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval, nextInterval: NSTimeInterval -> NSTimeInterval?) -> SignalProducer<NSDate, NoError> {
+
+	func startTimer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval, nextInterval: NSTimeInterval -> NSTimeInterval?, startDate: NSDate, observer: Observer<NSDate, NoError>, serialDisposable: SerialDisposable) -> Disposable {
+		return timer(interval, onScheduler: scheduler, withLeeway: leeway)
+			.startWithNext { [unowned serialDisposable] date in
+				observer.sendNext(date)
+
+				let elapsedTime = date.timeIntervalSinceDate(startDate)
+				if let preferredInterval = nextInterval(elapsedTime) {
+					if preferredInterval != interval {
+						serialDisposable.innerDisposable = startTimer(preferredInterval, onScheduler: scheduler, withLeeway: leeway, nextInterval: nextInterval, startDate: startDate, observer: observer, serialDisposable: serialDisposable)
+					}
+				} else {
+					observer.sendCompleted()
+				}
+			}
+	}
+
+	return SignalProducer { observer, disposable in
+		guard let interval = nextInterval(0) else {
+			observer.sendCompleted()
+			return
+		}
+
+		let startDate = scheduler.currentDate
+		let serialDisposable = SerialDisposable()
+
+		serialDisposable.innerDisposable = startTimer(interval, onScheduler: scheduler, withLeeway: leeway, nextInterval: nextInterval, startDate: startDate, observer: observer, serialDisposable: serialDisposable)
+
+		disposable.addDisposable(serialDisposable)
+	}
+}
+
 extension SignalProducerType {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")

@@ -724,15 +724,18 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
 		return self
-			.scan((nil, false)) { (accumulated: (Value?, Bool), next: Value) -> (Value?, Bool) in
+			.scan((nil, false)) { (accumulated: (Value?, Bool), next: Value) -> (value: Value?, repeated: Bool) in
 				switch accumulated.0 {
 				case .None:
 					return (next, false)
-				case let .Some(prev):
-					return isRepeat(prev, next) ? (prev, true) : (Optional.Some(next), false)
+				case let .Some(prev) where isRepeat(prev, next):
+					return (prev, true)
+				case .Some:
+					return (Optional.Some(next), false)
 				}
-			}.filter { $0.1 == false }
-			.map { $0.0 }
+			}
+			.filter { !$0.repeated }
+			.map { $0.value }
 			.ignoreNil()
 	}
 

@@ -650,7 +650,7 @@ class SignalSpec: QuickSpec {
 				expect(values) == [ "a", "b" ]
 				
 				observer.sendNext("c")
-				expect(values) == [ "a", "b", "c"]
+				expect(values) == [ "a", "b", "c" ]
 			}
 		})
 		

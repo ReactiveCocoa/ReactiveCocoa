@@ -283,7 +283,7 @@ extension SignalType {
 			return self.observe { event in
 				if case let .Next(value) = event {
 					if taken < count {
-						taken++
+						taken += 1
 						observer.sendNext(value)
 					}
 
@@ -442,7 +442,7 @@ extension SignalType {
 
 			return self.observe { event in
 				if case .Next = event where skipped < count {
-					skipped++
+					skipped += 1
 				} else {
 					observer.action(event)
 				}

@@ -1039,23 +1039,22 @@ extension SignalType where Value: Hashable {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues() -> Signal<Value, Error> {
 		return Signal { observer in
-			var set = Set<Value>()
-			let lock = NSLock()
-			lock.name = "org.reactivecocoa.ReactiveCocoa.Signal.uniqueValues"
+			let seenValues = Atomic<Set<Value>>(Set<Value>())
 			
 			return self
 				.filter { value in
-					lock.lock()
-					let containsValue = !set.contains(value)
-					lock.unlock()
-					return containsValue
+					return seenValues.withValue { set in
+						!set.contains(value)
+					}
 				}
 				.observe { event in
 					switch event {
 					case let .Next(value):
-						lock.lock()
-						set.insert(value)
-						lock.unlock()
+						seenValues.modify { set in
+							var mutableSet = set
+							mutableSet.insert(value)
+							return mutableSet
+						}
 						fallthrough
 					default:
 						observer.action(event)

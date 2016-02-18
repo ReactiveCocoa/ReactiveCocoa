@@ -210,6 +210,67 @@ class SignalLifetimeSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 		}
+
+		describe("observe") {
+			var signal: Signal<Int, TestError>!
+			var observer: Signal<Int, TestError>.Observer!
+
+			var token: NSObject? = nil
+			weak var weakToken: NSObject?
+
+			func expectTokenNotDeallocated() {
+				expect(weakToken).toNot(beNil())
+			}
+
+			func expectTokenDeallocated() {
+				expect(weakToken).to(beNil())
+			}
+
+			beforeEach {
+				let (signalTemp, observerTemp) = Signal<Int, TestError>.pipe()
+				signal = signalTemp
+				observer = observerTemp
+
+				token = NSObject()
+				weakToken = token
+
+				signal.observe { [token = token] _ in
+					_ = token!.description
+				}
+			}
+
+			it("should deallocate observe handler when signal completes") {
+				expectTokenNotDeallocated()
+
+				observer.sendNext(1)
+				expectTokenNotDeallocated()
+
+				token = nil
+				expectTokenNotDeallocated()
+
+				observer.sendNext(2)
+				expectTokenNotDeallocated()
+
+				observer.sendCompleted()
+				expectTokenDeallocated()
+			}
+
+			it("should deallocate observe handler when signal fails") {
+				expectTokenNotDeallocated()
+
+				observer.sendNext(1)
+				expectTokenNotDeallocated()
+
+				token = nil
+				expectTokenNotDeallocated()
+
+				observer.sendNext(2)
+				expectTokenNotDeallocated()
+
+				observer.sendFailed(.Default)
+				expectTokenDeallocated()
+			}
+		}
 	}
 }
 

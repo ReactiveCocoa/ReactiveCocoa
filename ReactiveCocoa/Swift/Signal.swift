@@ -1039,7 +1039,7 @@ extension SignalType where Value: Hashable {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues() -> Signal<Value, Error> {
 		return Signal { observer in
-			let seenValues = Atomic<Set<Value>>(Set<Value>())
+			let seenValues: Atomic<Set<Value>> = Atomic([])
 			
 			return self
 				.filter { value in return seenValues.withValue { !$0.contains(value) } }

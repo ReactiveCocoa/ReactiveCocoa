@@ -1042,11 +1042,7 @@ extension SignalType where Value: Hashable {
 			let seenValues = Atomic<Set<Value>>(Set<Value>())
 			
 			return self
-				.filter { value in
-					return seenValues.withValue { set in
-						!set.contains(value)
-					}
-				}
+				.filter { value in return seenValues.withValue { !$0.contains(value) } }
 				.observe { event in
 					switch event {
 					case let .Next(value):

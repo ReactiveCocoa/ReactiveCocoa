@@ -879,6 +879,97 @@ class SignalProducerSpec: QuickSpec {
 				expect(weakSignal).to(beNil())
 			}
 		}
+		
+		describe("variableTimer") {
+			it("should send the current date at the variable interval") {
+				let scheduler = TestScheduler()
+				let producer = variableTimer(onScheduler: scheduler, withLeeway: 0) { interval in
+					if interval >= 10 {
+						return nil
+					} else if interval >= 5 {
+						return 4
+					} else if interval >= 2 {
+						return 2
+					} else {
+						return 1
+					}
+				}
+
+				var dates: [NSDate] = []
+				var completed = false
+				producer.start { event in
+					switch event {
+					case let .Next(date):
+						dates.append(date)
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				scheduler.advanceByInterval(1)
+				let tick1 = scheduler.currentDate
+				expect(dates) == [tick1]
+
+				scheduler.advanceByInterval(1)
+				let tick2 = scheduler.currentDate
+				expect(dates) == [tick1, tick2]
+
+				scheduler.advanceByInterval(1)
+				expect(dates) == [tick1, tick2]
+
+				scheduler.advanceByInterval(2)
+				let tick3 = scheduler.currentDate
+				expect(dates) == [tick1, tick2, tick3]
+
+				scheduler.advanceByInterval(2)
+				expect(dates) == [tick1, tick2, tick3]
+
+				scheduler.advanceByInterval(2)
+				let tick4 = scheduler.currentDate
+				expect(dates) == [tick1, tick2, tick3, tick4]
+
+				expect(completed) == false
+
+				scheduler.advanceByInterval(3)
+				expect(dates) == [tick1, tick2, tick3, tick4]
+				expect(completed) == false
+
+				scheduler.advanceByInterval(1)
+				let tick5 = scheduler.currentDate
+				expect(dates) == [tick1, tick2, tick3, tick4, tick5]
+				expect(completed) == true
+			}
+
+			it("should release the signal when disposed") {
+				let scheduler = TestScheduler()
+				let producer = variableTimer(onScheduler: scheduler, withLeeway: 0) { interval in
+					if interval >= 10 {
+						return nil
+					} else if interval >= 5 {
+						return 4
+					} else if interval >= 2 {
+						return 2
+					} else {
+						return 1
+					}
+				}
+
+				weak var weakSignal: Signal<NSDate, NoError>?
+				producer.startWithSignal { signal, disposable in
+					weakSignal = signal
+					scheduler.schedule {
+						disposable.dispose()
+					}
+				}
+
+				expect(weakSignal).toNot(beNil())
+
+				scheduler.run()
+				expect(weakSignal).to(beNil())
+			}
+		}
 
 		describe("on") {
 			it("should attach event handlers to each started signal") {

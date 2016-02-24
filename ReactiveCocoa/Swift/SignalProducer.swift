@@ -679,8 +679,8 @@ extension SignalProducerType {
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeWhile(predicate: Value -> Bool) -> SignalProducer<Value, Error> {
-		return lift { $0.takeWhile(predicate) }
+	public func takeWhile(inclusive: Bool = false, _ predicate: Value -> Bool) -> SignalProducer<Value, Error> {
+		return lift { $0.takeWhile(inclusive, predicate) }
 	}
 
 	/// Zips elements of two producers into pairs. The elements of any Nth pair

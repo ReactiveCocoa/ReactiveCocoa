@@ -827,10 +827,13 @@ extension SignalType {
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned signal will complete.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
+	public func takeWhile(inclusive: Bool = false, _ predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				if case let .Next(value) = event where !predicate(value) {
+					if inclusive {
+						observer.action(event)
+					}
 					observer.sendCompleted()
 				} else {
 					observer.action(event)

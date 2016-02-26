@@ -17,7 +17,7 @@ of information received from an API, the occurrence of an error, or the completi
 of a long-running operation. In any case, something generates the events and sends them over a
 [signal](#signals) to any number of [observers](#observers).
 
-`Event` is an enumerated type representing either a value or one of three
+`Event` is an enumerated type representing either a value or one of four
 terminal events:
 
  * The `Next` event provides a new value from the source.

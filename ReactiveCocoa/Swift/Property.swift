@@ -112,18 +112,24 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
-	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
-		var extractedSignal: Signal<Value, NoError>!
-		self.producer.startWithSignal { signal, _ in
-			extractedSignal = signal
-		}
-		return extractedSignal
-	}()
+	public let signal: Signal<Value, NoError>
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public let producer: SignalProducer<Value, NoError>
+	public lazy var producer: SignalProducer<Value, NoError> = { [weak self] in
+		return SignalProducer { observer, disposable in
+			guard let property = self else {
+				observer.sendCompleted()
+				return
+			}
+		
+			disposable += property.withValue { value in
+				observer.sendNext(value)
+				return property.signal.observe(observer)
+			}
+		}
+	}()
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
@@ -132,8 +138,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		(producer, observer) = SignalProducer.buffer(1)
-		observer.sendNext(initialValue)
+		(signal, observer) = Signal.pipe()
 	}
 
 	/// Atomically replaces the contents of the variable.

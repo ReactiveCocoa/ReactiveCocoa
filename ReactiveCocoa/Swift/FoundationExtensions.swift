@@ -14,13 +14,19 @@ extension NSNotificationCenter {
 	/// This producer will not terminate naturally, so it must be explicitly
 	/// disposed to avoid leaks.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
-		return SignalProducer { observer, disposable in
-			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
-				observer.sendNext(notification)
-			}
+		// We're weakly capturing an optional reference here, which makes destructuring awkward.
+		let objectWasNil = (object == nil)
+		return SignalProducer { [weak object] observer, disposable in
+			if object != nil || objectWasNil {
+				let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
+					observer.sendNext(notification)
+				}
 
-			disposable.addDisposable {
-				self.removeObserver(notificationObserver)
+				disposable.addDisposable {
+					self.removeObserver(notificationObserver)
+				}
+			} else {
+				observer.sendInterrupted()
 			}
 		}
 	}

@@ -14,9 +14,9 @@ import ReactiveCocoa
 class FoundationExtensionsSpec: QuickSpec {
 	override func spec() {
 		describe("NSNotificationCenter.rac_notifications") {
+			let center = NSNotificationCenter.defaultCenter()
 
 			it("should send notifications on the producer") {
-				let center = NSNotificationCenter.defaultCenter()
 				let producer = center.rac_notifications("rac_notifications_test")
 
 				var notif: NSNotification? = nil
@@ -34,6 +34,21 @@ class FoundationExtensionsSpec: QuickSpec {
 				center.postNotificationName("rac_notifications_test", object: nil)
 				expect(notif).to(beNil())
 			}
+
+			it("should send Interrupted when the observed object is freed") {
+				var observedObject: AnyObject? = NSObject()
+				let producer = center.rac_notifications(object: observedObject)
+				observedObject = nil
+
+				var interrupted = false
+				let disposable = producer.startWithInterrupted {
+					interrupted = true
+				}
+				expect(interrupted).to(beTrue())
+
+				disposable.dispose()
+			}
+
 		}
 	}
 }

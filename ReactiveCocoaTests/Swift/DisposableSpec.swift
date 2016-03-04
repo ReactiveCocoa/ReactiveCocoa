@@ -100,6 +100,38 @@ class DisposableSpec: QuickSpec {
 			}
 		}
 
+		describe("ScopedCompositeDisposable") {
+			it("should dispose of the added disposables upon deinitialization") {
+				let simpleDisposable1 = SimpleDisposable()
+				let simpleDisposable2 = SimpleDisposable()
+				var actionDisposableCalled = false
+				
+				func runScoped() {
+					let scopedCompositeDisposable = ScopedCompositeDisposable()
+					// add via += operator
+					scopedCompositeDisposable += simpleDisposable1
+					// add via addDisposable
+					scopedCompositeDisposable.addDisposable(simpleDisposable2)
+					// add disposable action
+					scopedCompositeDisposable.addDisposable {
+						actionDisposableCalled = true
+					}
+					expect(simpleDisposable1.disposed) == false
+					expect(simpleDisposable2.disposed) == false
+					expect(actionDisposableCalled) == false
+					expect(scopedCompositeDisposable.disposed) == false
+				}
+				
+				expect(simpleDisposable1.disposed) == false
+				expect(simpleDisposable2.disposed) == false
+				expect(actionDisposableCalled) == false
+				runScoped()
+				expect(simpleDisposable1.disposed) == true
+				expect(simpleDisposable2.disposed) == true
+				expect(actionDisposableCalled) == true
+			}
+		}
+
 		describe("SerialDisposable") {
 			var disposable: SerialDisposable!
 

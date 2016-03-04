@@ -175,6 +175,36 @@ public final class ScopedDisposable: Disposable {
 	}
 }
 
+/// A disposable that, upon deinitialization, will automatically dispose of
+/// any number of other disposables.
+public final class ScopedCompositeDisposable: Disposable {
+    private let scoppedDisposable = ScopedDisposable(CompositeDisposable())
+	private var compositeDisposable: CompositeDisposable {
+		return scoppedDisposable.innerDisposable as! CompositeDisposable
+	}
+
+	public init() {}
+    
+    public var disposed: Bool {
+        return scoppedDisposable.disposed
+    }
+	
+    public func dispose() {
+        scoppedDisposable.dispose()
+    }
+	
+	/// Adds the given disposable to the list, then returns a handle which can
+	/// be used to opaquely remove the disposable later (if desired).
+	public func addDisposable(d: Disposable?) -> CompositeDisposable.DisposableHandle {
+		return compositeDisposable.addDisposable(d)
+	}
+
+	/// Adds an ActionDisposable to the list.
+	public func addDisposable(action: () -> ()) -> CompositeDisposable.DisposableHandle {
+		return addDisposable(ActionDisposable(action: action))
+	}
+}
+
 /// A disposable that will optionally dispose of another disposable.
 public final class SerialDisposable: Disposable {
 	private struct State {
@@ -233,4 +263,17 @@ public final class SerialDisposable: Disposable {
 ///
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)
+}
+
+/// Adds the right-hand-side disposable to the left-hand-side
+/// `ScopedCompositeDisposable`.
+///
+///     disposable += producer
+///         .filter { ... }
+///         .map    { ... }
+///         .start(observer)
+///
+public func +=(lhs: ScopedCompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	let compositeDisposable = lhs.scoppedDisposable.innerDisposable as! CompositeDisposable
+	return compositeDisposable.addDisposable(rhs)
 }

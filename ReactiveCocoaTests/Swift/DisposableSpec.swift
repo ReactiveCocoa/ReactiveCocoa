@@ -99,21 +99,20 @@ class DisposableSpec: QuickSpec {
 				expect(simpleDisposable.disposed) == true
 			}
 		}
-
-		describe("ScopedCompositeDisposable") {
-			it("should dispose of the added disposables upon deinitialization") {
+			
+		describe("GenericScopedDisposable") {
+			it("should dispose of the added disposables upon deinitialization with CompositeDisposable") {
 				let simpleDisposable1 = SimpleDisposable()
 				let simpleDisposable2 = SimpleDisposable()
 				var actionDisposableCalled = false
 				
 				func runScoped() {
-					let scopedCompositeDisposable = ScopedCompositeDisposable()
+					let scopedCompositeDisposable = GenericScopedDisposable(CompositeDisposable())
 					// add via += operator
 					scopedCompositeDisposable += simpleDisposable1
-					// add via addDisposable
-					scopedCompositeDisposable.addDisposable(simpleDisposable2)
+					scopedCompositeDisposable += simpleDisposable2
 					// add disposable action
-					scopedCompositeDisposable.addDisposable {
+					scopedCompositeDisposable += ActionDisposable {
 						actionDisposableCalled = true
 					}
 					expect(simpleDisposable1.disposed) == false

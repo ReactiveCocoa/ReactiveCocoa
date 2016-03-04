@@ -175,33 +175,30 @@ public final class ScopedDisposable: Disposable {
 	}
 }
 
+
 /// A disposable that, upon deinitialization, will automatically dispose of
-/// any number of other disposables.
-public final class ScopedCompositeDisposable: Disposable {
-    private let scoppedDisposable = ScopedDisposable(CompositeDisposable())
-	private var compositeDisposable: CompositeDisposable {
-		return scoppedDisposable.innerDisposable as! CompositeDisposable
-	}
-
-	public init() {}
-    
-    public var disposed: Bool {
-        return scoppedDisposable.disposed
-    }
+/// another disposable.
+public final class GenericScopedDisposable<DisposableType: Disposable>: Disposable {
+	/// The disposable which will be disposed when the ScopedDisposable
+	/// deinitializes.
+	public let innerDisposable: DisposableType
 	
-    public func dispose() {
-        scoppedDisposable.dispose()
-    }
-	
-	/// Adds the given disposable to the list, then returns a handle which can
-	/// be used to opaquely remove the disposable later (if desired).
-	public func addDisposable(d: Disposable?) -> CompositeDisposable.DisposableHandle {
-		return compositeDisposable.addDisposable(d)
+	public var disposed: Bool {
+		return innerDisposable.disposed
 	}
-
-	/// Adds an ActionDisposable to the list.
-	public func addDisposable(action: () -> ()) -> CompositeDisposable.DisposableHandle {
-		return addDisposable(ActionDisposable(action: action))
+	
+	/// Initializes the receiver to dispose of the argument upon
+	/// deinitialization.
+	public init(_ disposable: DisposableType) {
+		innerDisposable = disposable
+	}
+	
+	deinit {
+		dispose()
+	}
+	
+	public func dispose() {
+		innerDisposable.dispose()
 	}
 }
 
@@ -266,14 +263,13 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 }
 
 /// Adds the right-hand-side disposable to the left-hand-side
-/// `ScopedCompositeDisposable`.
+/// `ScopedDisposable<CompositeDisposable>`.
 ///
 ///     disposable += producer
 ///         .filter { ... }
 ///         .map    { ... }
 ///         .start(observer)
 ///
-public func +=(lhs: ScopedCompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
-	let compositeDisposable = lhs.scoppedDisposable.innerDisposable as! CompositeDisposable
-	return compositeDisposable.addDisposable(rhs)
+public func +=<T: CompositeDisposable>(lhs: GenericScopedDisposable<T>, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	return lhs.innerDisposable += rhs
 }

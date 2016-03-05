@@ -781,10 +781,10 @@ extension SignalProducerType where Value: Equatable {
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<NSDate, NoError> {
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withCurrent: Bool = false) -> SignalProducer<NSDate, NoError> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 	// at least 10% of the timer interval.
-	return timer(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
+	return timer(interval, onScheduler: scheduler, withLeeway: interval * 0.1, withCurrent: withCurrent)
 }
 
 /// Creates a repeating timer of the given interval, sending updates on the
@@ -793,12 +793,13 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate, NoError> {
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval, withCurrent: Bool = false) -> SignalProducer<NSDate, NoError> {
 	precondition(interval >= 0)
 	precondition(leeway >= 0)
 
 	return SignalProducer { observer, compositeDisposable in
-		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
+		let startTime = withCurrent ? scheduler.currentDate : scheduler.currentDate.dateByAddingTimeInterval(interval)
+		compositeDisposable += scheduler.scheduleAfter(startTime, repeatingEvery: interval, withLeeway: leeway) {
 			observer.sendNext(scheduler.currentDate)
 		}
 	}

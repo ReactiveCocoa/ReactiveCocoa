@@ -593,7 +593,7 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.sampleOn)(sampler)
+		return liftLeft(Signal.sampleOn)(SignalProducer(signal: sampler))
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed

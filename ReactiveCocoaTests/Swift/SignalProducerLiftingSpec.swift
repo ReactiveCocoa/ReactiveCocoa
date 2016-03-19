@@ -913,6 +913,44 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				expect(valueReceived) == 1
 			}
+
+			describe("memory") {
+				class Payload {
+					init(onDeinit action: () -> ()) {
+						self.action = action
+					}
+
+					deinit {
+						action?()
+					}
+
+					var action: (() -> ())?
+				}
+
+				var sampledProducer: SignalProducer<Payload, NoError>!
+				var observer: Signal<Payload, NoError>.Observer!
+
+				beforeEach {
+					let (producer, incomingObserver) = SignalProducer<Payload, NoError>.buffer(0)
+					let (sampler, incomingSamplerObserver) = Signal<(), NoError>.pipe()
+					sampledProducer = producer.sampleOn(sampler)
+					observer = incomingObserver
+				}
+
+				it("should free payload when interrupted after complete of incoming producer") {
+					var payloadFreed = false
+
+					let disposable = sampledProducer.start()
+
+					observer.sendNext(Payload { payloadFreed = true; })
+					observer.sendCompleted()
+
+					expect(payloadFreed).to(beFalse())
+
+					disposable.dispose()
+					expect(payloadFreed).to(beTrue())
+				}
+			}
 		}
 
 		describe("combineLatestWith") {

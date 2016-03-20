@@ -40,14 +40,19 @@ static NSMutableSet *swizzledClasses() {
 @implementation NSObject (RACSelectorSignal)
 
 static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
-	SEL aliasSelector = RACAliasForSelector(invocation.selector);
+    SEL originalSelector = invocation.selector;
+	SEL aliasSelector = RACAliasForSelector(originalSelector);
 	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
 
 	Class class = object_getClass(invocation.target);
 	BOOL respondsToAlias = [class instancesRespondToSelector:aliasSelector];
 	if (respondsToAlias) {
-		invocation.selector = aliasSelector;
-		[invocation invoke];
+        @synchronized(self) {
+            IMP implementation = method_getImplementation(class_getInstanceMethod(class, aliasSelector));
+            method_setImplementation(class_getInstanceMethod(class, originalSelector), implementation);
+            [invocation invoke];
+            method_setImplementation(class_getInstanceMethod(class, originalSelector), _objc_msgForward);
+        }
 	}
 
 	if (subject == nil) return respondsToAlias;

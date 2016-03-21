@@ -507,7 +507,25 @@ extension SignalProducerType {
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return liftRight(Signal.combineLatestWith)(otherProducer)
+		// This should be the implementation of this method:
+		// return liftRight(Signal.combineLatestWith)(otherProducer)
+		//
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
+		//
+		// This can be reverted once tests with -O don't crash. 
+
+		return SignalProducer { observer, outerDisposable in
+			self.startWithSignal { signal, disposable in
+				outerDisposable.addDisposable(disposable)
+
+				otherProducer.startWithSignal { otherSignal, otherDisposable in
+					outerDisposable.addDisposable(otherDisposable)
+
+					signal.combineLatestWith(otherSignal).observe(observer)
+				}
+			}
+		}
 	}
 
 	/// Combines the latest value of the receiver with the latest value from

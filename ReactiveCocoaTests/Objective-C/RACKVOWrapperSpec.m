@@ -565,7 +565,7 @@ qck_describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(disposable).notTo(beNil());
 	});
 
-	qck_it(@"automatically stops KVO on subclasses when the target deallocates", ^{
+	qck_context(@"automatically stops KVO on subclasses when the target deallocates", ^{
 		void (^testKVOOnSubclass)(Class targetClass, id observer) = ^(Class targetClass, id observer) {
 			__weak id weakTarget = nil;
 			__weak id identifier = nil;

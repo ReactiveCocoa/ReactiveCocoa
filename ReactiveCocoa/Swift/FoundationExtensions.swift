@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import enum Result.NoError
 
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.

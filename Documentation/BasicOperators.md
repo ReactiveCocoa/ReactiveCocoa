@@ -3,7 +3,7 @@
 This document explains some of the most common operators used in ReactiveCocoa,
 and includes examples demonstrating their use.
 
-Note that “operators,” in this context, refers to functions that transform
+Note that “operators”, in this context, refers to functions that transform
 [signals][] and [signal producers][], _not_ custom Swift operators. In other
 words, these are composable primitives provided by ReactiveCocoa for working
 with event streams.
@@ -273,9 +273,9 @@ The `zipWith` operator works in the same way, but as an operator.
 
 ## Flattening producers
 
-The `flatten` operator transforms a `SignalProducer`-of-`SignalProducer`s into a single `SignalProducer` whose values are forwarded from the inner producer in accordance with the provided `FlattenStrategy`.
+The `flatten` operator transforms a stream-of-streams into a single stream - where values are forwarded from the inner stream in accordance with the provided `FlattenStrategy`. The flattened result becomes that of the outer stream type - i.e. a `SignalProducer`-of-`SignalProducer`s or `SignalProducer`-of-`Signal`s gets flattened to a `SignalProducer`, and likewise a `Signal`-of-`SignalProducer`s or `Signal`-of-`Signal`s gets flattened to a `Signal`.   
 
-To understand, why there are different strategies and how they compare to each other, take a look at this example and imagine the column offsets as time:
+To understand why there are different strategies and how they compare to each other, take a look at this example and imagine the column offsets as time:
 
 ```Swift
 let values = [

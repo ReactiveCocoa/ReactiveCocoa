@@ -55,8 +55,8 @@ class ActionSpec: QuickSpec {
 			}
 
 			it("should be disabled and not executing after initialization") {
-				expect(action.enabled.value).to(beFalsy())
-				expect(action.executing.value).to(beFalsy())
+				expect(action.enabled.value) == false
+				expect(action.executing.value) == false
 			}
 
 			it("should error if executed while disabled") {
@@ -68,18 +68,18 @@ class ActionSpec: QuickSpec {
 				expect(receivedError).notTo(beNil())
 				if let error = receivedError {
 					let expectedError = ActionError<NSError>.NotEnabled
-					expect(error == expectedError).to(beTruthy())
+					expect(error == expectedError) == true
 				}
 			}
 
 			it("should enable and disable based on the given property") {
 				enabled.value = true
-				expect(action.enabled.value).to(beTruthy())
-				expect(action.executing.value).to(beFalsy())
+				expect(action.enabled.value) == true
+				expect(action.executing.value) == false
 
 				enabled.value = false
-				expect(action.enabled.value).to(beFalsy())
-				expect(action.executing.value).to(beFalsy())
+				expect(action.enabled.value) == false
+				expect(action.executing.value) == false
 			}
 
 			describe("execution") {
@@ -94,20 +94,20 @@ class ActionSpec: QuickSpec {
 						receivedValue = $0
 					}
 
-					expect(executionCount).to(equal(1))
-					expect(action.executing.value).to(beTruthy())
-					expect(action.enabled.value).to(beFalsy())
+					expect(executionCount) == 1
+					expect(action.executing.value) == true
+					expect(action.enabled.value) == false
 
-					expect(receivedValue).to(equal("00"))
-					expect(values).to(equal([ "0", "00" ]))
-					expect(errors).to(equal([]))
+					expect(receivedValue) == "00"
+					expect(values) == [ "0", "00" ]
+					expect(errors) == []
 
 					scheduler.run()
-					expect(action.executing.value).to(beFalsy())
-					expect(action.enabled.value).to(beTruthy())
+					expect(action.executing.value) == false
+					expect(action.enabled.value) == true
 
-					expect(values).to(equal([ "0", "00" ]))
-					expect(errors).to(equal([]))
+					expect(values) == [ "0", "00" ]
+					expect(errors) == []
 				}
 
 				it("should execute with an error") {
@@ -117,22 +117,22 @@ class ActionSpec: QuickSpec {
 						receivedError = $0
 					}
 
-					expect(executionCount).to(equal(1))
-					expect(action.executing.value).to(beTruthy())
-					expect(action.enabled.value).to(beFalsy())
+					expect(executionCount) == 1
+					expect(action.executing.value) == true
+					expect(action.enabled.value) == false
 
 					scheduler.run()
-					expect(action.executing.value).to(beFalsy())
-					expect(action.enabled.value).to(beTruthy())
+					expect(action.executing.value) == false
+					expect(action.enabled.value) == true
 
 					expect(receivedError).notTo(beNil())
 					if let error = receivedError {
 						let expectedError = ActionError<NSError>.ProducerError(testError)
-						expect(error == expectedError).to(beTruthy())
+						expect(error == expectedError) == true
 					}
 
-					expect(values).to(equal([]))
-					expect(errors).to(equal([ testError ]))
+					expect(values) == []
+					expect(errors) == [ testError ]
 				}
 			}
 		}
@@ -142,7 +142,7 @@ class ActionSpec: QuickSpec {
 
 			beforeEach {
 				action = Action { value in SignalProducer(value: value + 1) }
-				expect(action.enabled.value).to(beTruthy())
+				expect(action.enabled.value) == true
 
 				expect(action.unsafeCocoaAction.enabled).toEventually(beTruthy())
 			}
@@ -171,10 +171,10 @@ class ActionSpec: QuickSpec {
 					.map { $0! as! Bool }
 					.start(Observer(next: { values.append($0) }))
 
-				expect(values).to(equal([ true ]))
+				expect(values) == [ true ]
 
 				let result = action.apply(0).first()
-				expect(result?.value).to(equal(1))
+				expect(result?.value) == 1
 				expect(values).toEventually(equal([ true, false, true ]))
 			}
 
@@ -187,10 +187,10 @@ class ActionSpec: QuickSpec {
 					.map { $0! as! Bool }
 					.start(Observer(next: { values.append($0) }))
 
-				expect(values).to(equal([ false ]))
+				expect(values) == [ false ]
 
 				let result = action.apply(0).first()
-				expect(result?.value).to(equal(1))
+				expect(result?.value) == 1
 				expect(values).toEventually(equal([ false, true, false ]))
 			}
 		}

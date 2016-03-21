@@ -118,8 +118,8 @@ public final class QueueScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	/// Initializes a scheduler that will target the global queue with the given
-	/// quality of service class.
+	/// Initializes a scheduler that will target a new serial
+	/// queue with the given quality of service class.
 	@available(iOS 8, watchOS 2, OSX 10.10, *)
 	public convenience init(qos: dispatch_qos_class_t = QOS_CLASS_DEFAULT, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
 		self.init(internalQueue: dispatch_queue_create(name, dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, qos, 0)))
@@ -310,8 +310,7 @@ public final class TestScheduler: DateSchedulerType {
 				break
 			}
 
-			let scheduledAction = scheduledActions[0]
-			scheduledActions.removeAtIndex(0)
+			let scheduledAction = scheduledActions.removeAtIndex(0)
 			scheduledAction.action()
 		}
 

@@ -7,8 +7,8 @@
 //
 
 #import "NSObject+RACAppKitBindings.h"
-#import "EXTKeyPathCoding.h"
-#import "EXTScope.h"
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
+#import <ReactiveCocoa/EXTScope.h>
 #import "NSObject+RACDeallocating.h"
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"

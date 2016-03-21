@@ -1,6 +1,6 @@
 ![](Logo/header.png)
 
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 2.1.1](https://img.shields.io/badge/Swift-2.1.1-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
 ReactiveCocoa (RAC) is a Cocoa framework inspired by [Functional Reactive Programming](https://en.wikipedia.org/wiki/Functional_reactive_programming). It provides APIs for composing and transforming **streams of values over time**.
 
@@ -23,8 +23,7 @@ own](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new)!
 
 #### Compatibility
 
-This documents the RAC 4 (currently alpha) which targets Swift 2.x. For
-Swift 1.2 support see the [RAC
+This documents the RAC 4 which targets `Swift 2.1.x`. For `Swift 1.2` support see [RAC
 3](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v3.0.0).
 
 _Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
@@ -225,7 +224,7 @@ The following are some of the concrete differences, along with their rationales.
 In most versions of Rx, Streams over time are known as `Observable`s, which
 parallels the `Enumerable` type in .NET. Additionally, most operations in Rx.NET
 borrow names from [LINQ](https://msdn.microsoft.com/en-us/library/bb397926.aspx),
-which uses terms reminiscient of relational databases, like `Select` and `Where`.
+which uses terms reminiscent of relational databases, like `Select` and `Where`.
 
 **RAC is focused on matching Swift naming first and foremost**, with terms like
 `map` and `filter` instead. Other naming differences are typically inspired by
@@ -289,7 +288,7 @@ specifically for this purpose**—even when it means diverging further from Rx.
 
 ## Getting started
 
-ReactiveCocoa supports OS X 10.9+ and iOS 8.0+.
+ReactiveCocoa supports `OS X 10.9+`, `iOS 8.0+`, `watchOS 2.0`, and `tvOS 9.0`.
 
 To add RAC to your application:
 
@@ -310,6 +309,7 @@ ReactiveCocoa to your `Cartfile`:
 ```
 github "ReactiveCocoa/ReactiveCocoa"
 ```
+Make sure to add both `ReactiveCocoa.framework` and `Result.framework` to "Linked Frameworks and Libraries" and "copy-frameworks" Build Phases.
 
 If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
 [unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa)

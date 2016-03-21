@@ -33,7 +33,7 @@ class ActionSpec: QuickSpec {
 				scheduler = TestScheduler()
 				action = Action(enabledIf: enabled) { number in
 					return SignalProducer { observer, disposable in
-						executionCount++
+						executionCount += 1
 
 						if number % 2 == 0 {
 							observer.sendNext("\(number)")

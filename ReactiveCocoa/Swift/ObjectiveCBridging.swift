@@ -53,7 +53,7 @@ private func defaultNSError(message: String, file: String, line: Int) -> NSError
 extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
-	public func toSignalProducer(file: String = __FILE__, line: Int = __LINE__) -> SignalProducer<AnyObject?, NSError> {
+	public func toSignalProducer(file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { obj in
 				observer.sendNext(obj)
@@ -217,7 +217,7 @@ extension RACCommand {
 	/// Note that the returned Action will not necessarily be marked as
 	/// executing when the command is. However, the reverse is always true:
 	/// the RACCommand will always be marked as executing when the action is.
-	public func toAction(file: String = __FILE__, line: Int = __LINE__) -> Action<AnyObject?, AnyObject?, NSError> {
+	public func toAction(file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
 		enabledProperty <~ self.enabled.toSignalProducer()

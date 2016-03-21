@@ -22,7 +22,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should run the generator immediately") {
 				var didRunGenerator = false
-				Signal<AnyObject, NoError> { observer in
+				_ = Signal<AnyObject, NoError> { observer in
 					didRunGenerator = true
 					return nil
 				}

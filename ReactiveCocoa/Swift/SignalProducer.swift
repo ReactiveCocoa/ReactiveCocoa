@@ -289,10 +289,10 @@ private struct BufferState<Value, Error: ErrorType> {
 
 public protocol SignalProducerType {
 	/// The type of values being sent on the producer
-	typealias Value
+	associatedtype Value
 	/// The type of error that can occur on the producer. If errors aren't possible
 	/// then `NoError` can be used.
-	typealias Error: ErrorType
+	associatedtype Error: ErrorType
 
 	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<Value, Error> { get }

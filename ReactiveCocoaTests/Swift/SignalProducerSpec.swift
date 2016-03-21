@@ -19,7 +19,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should run the handler once per start()") {
 				var handlerCalledTimes = 0
 				let signalProducer = SignalProducer<String, NSError>() { observer, disposable in
-					handlerCalledTimes++
+					handlerCalledTimes += 1
 
 					return
 				}
@@ -424,7 +424,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should run the operation once per start()") {
 				var operationRunTimes = 0
 				let operation: () -> Result<String, NSError> = {
-					operationRunTimes++
+					operationRunTimes += 1
 
 					return .Success("OperationValue")
 				}
@@ -1160,10 +1160,10 @@ class SignalProducerSpec: QuickSpec {
 						completeB = { observerB.sendCompleted() }
 
 						var a = 0
-						sendA = { observerA.sendNext(a++) }
+						sendA = { observerA.sendNext(a); a += 1 }
 
 						var b = 100
-						sendB = { observerB.sendNext(b++) }
+						sendB = { observerB.sendNext(b); b += 1 }
 
 						outerObserver.sendNext(producerA)
 						outerObserver.sendNext(producerB)
@@ -1978,7 +1978,7 @@ class SignalProducerSpec: QuickSpec {
 					var startedTimes = 0
 
 					let producer = SignalProducer<Int, NoError>.never
-						.on(started: { startedTimes++ })
+						.on(started: { startedTimes += 1 })
 					expect(startedTimes) == 0
 
 					let replayedProducer = producer
@@ -1996,7 +1996,7 @@ class SignalProducerSpec: QuickSpec {
 					var startedTimes = 0
 
 					let producer = SignalProducer<Int, NoError>(value: 0)
-						.on(started: { startedTimes++ })
+						.on(started: { startedTimes += 1 })
 
 					let replayedProducer = producer
 						.replayLazily(1)
@@ -2012,7 +2012,7 @@ class SignalProducerSpec: QuickSpec {
 					var startedTimes = 0
 
 					let producer = SignalProducer<Int, NoError>.empty
-						.on(started: { startedTimes++ })
+						.on(started: { startedTimes += 1 })
 					expect(startedTimes) == 0
 
 					let replayedProducer = producer
@@ -2079,7 +2079,9 @@ class SignalProducerSpec: QuickSpec {
 
 					var deinitValues = 0
 
-					var producer: SignalProducer<Value, NoError>! = SignalProducer(value: Value { deinitValues++ })
+					var producer: SignalProducer<Value, NoError>! = SignalProducer(value: Value {
+						deinitValues += 1
+					})
 					expect(deinitValues) == 0
 
 					var replayedProducer: SignalProducer<Value, NoError>! = producer
@@ -2113,7 +2115,11 @@ extension SignalProducer {
 
 		let operation: () -> Result<Value, Error> = {
 			if operationIndex < resultCount {
-				return results[results.startIndex.advancedBy(operationIndex++)]
+				defer {
+					operationIndex += 1
+				}
+
+				return results[results.startIndex.advancedBy(operationIndex)]
 			} else {
 				fail("Operation started too many times")
 

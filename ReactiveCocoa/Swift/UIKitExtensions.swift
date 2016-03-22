@@ -45,3 +45,24 @@ extension SignalForControlEventsProvidingType {
 			.ignoreNil()
 	}
 }
+
+// MARK: - textProducer
+public protocol TextSignalProvidingType {
+	func rac_textSignal() -> RACSignal!
+}
+
+extension UITextField: TextSignalProvidingType {}
+extension UITextView: TextSignalProvidingType {}
+
+extension TextSignalProvidingType {
+	/// Creates and returns a signal producer for the text of the receiver,
+	/// starting with the current text.
+	///
+	/// For underlying behavior and potential side-effects, see the
+	/// documentation for the receiver's implementation of `rac_textSignal`.
+	var textProducer: SignalProducer<String?, NoError> {
+		return rac_textSignal().toSignalProducer()
+			.demoteErrors()
+			.map { $0 as? String }
+	}
+}

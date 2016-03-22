@@ -27,3 +27,21 @@ extension PrepareForReuseSignalProvidingType {
 			.map { _ in () }
 	}
 }
+
+// MARK: - producerForControlEvents
+public protocol SignalForControlEventsProvidingType {
+	func rac_signalForControlEvents(controlEvents: UIControlEvents) -> RACSignal!
+}
+
+extension UIControl: SignalForControlEventsProvidingType {}
+
+extension SignalForControlEventsProvidingType {
+	/// Creates a signal producer that sends the sender of the control event
+	/// whenever one of the control events is triggered.
+	public func producerForControlEvents(controlEvents: UIControlEvents) -> SignalProducer<Self, NoError> {
+		return rac_signalForControlEvents(controlEvents).toSignalProducer()
+			.demoteErrors()
+			.map { $0 as? Self }
+			.ignoreNil()
+	}
+}

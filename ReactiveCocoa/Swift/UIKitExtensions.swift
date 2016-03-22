@@ -66,3 +66,20 @@ extension TextSignalProvidingType {
 			.map { $0 as? String }
 	}
 }
+
+// MARK: - gestureProducer
+public protocol GestureSignalProvidingType {
+	func rac_gestureSignal() -> RACSignal!
+}
+
+extension UIGestureRecognizer: GestureSignalProvidingType {}
+
+extension GestureSignalProvidingType {
+	/// Returns a signal producer that sends the receiver when its gesture occurs.
+	public var gestureProducer: SignalProducer<Self, NoError> {
+		return rac_gestureSignal().toSignalProducer()
+			.demoteErrors()
+			.map { $0 as? Self }
+			.ignoreNil()
+	}
+}

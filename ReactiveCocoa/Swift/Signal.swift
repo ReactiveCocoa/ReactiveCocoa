@@ -154,10 +154,10 @@ public final class Signal<Value, Error: ErrorType> {
 
 public protocol SignalType {
 	/// The type of values being sent on the signal.
-	typealias Value
+	associatedtype Value
 	/// The type of error that can occur on the signal. If errors aren't possible
 	/// then `NoError` can be used.
-	typealias Error: ErrorType
+	associatedtype Error: ErrorType
 
 	/// Extracts a signal from the receiver.
 	var signal: Signal<Value, Error> { get }

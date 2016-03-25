@@ -83,15 +83,6 @@ public protocol MutablePropertyType: class, PropertyType {
 	var value: Value { get set }
 }
 
-/// The state of a `MutableProperty`.
-private final class MutablePropertyState<Value> {
-	var value: Value
-
-	init(_ value: Value) {
-		self.value = value
-	}
-}
-
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
@@ -104,9 +95,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
 
-	/// The underlying storage of the property. It could outlive the
-  /// property if the producer is being retained.
-	private let state: MutablePropertyState<Value>
+	/// The getter and setter of the underlying storage. It could outlive
+	/// the property if any of the returned producer is retained.
+	private let getter: () -> Value
+	private let setter: Value -> Void
 
 	/// The current value of the property.
 	///
@@ -130,11 +122,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [state, lock, weak self] producerObserver, producerDisposable in
+		return SignalProducer { [getter, setter, lock, weak self] producerObserver, producerDisposable in
 			lock.lock()
 			defer { lock.unlock() }
 
-			producerObserver.sendNext(state.value)
+			producerObserver.sendNext(getter())
 
 			if let strongSelf = self {
 				producerDisposable += strongSelf.signal.observe(producerObserver)
@@ -146,8 +138,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
+		var value = initialValue
+
 		lock = NSRecursiveLock()
-		state = MutablePropertyState(initialValue)
+		getter = { value }
+		setter = { newValue in value = newValue }
 
 		(signal, observer) = Signal.pipe()
 		observer.sendNext(initialValue)
@@ -167,9 +162,9 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		let oldValue = state.value
-		state.value = try action(oldValue)
-		self.observer.sendNext(state.value)
+		let oldValue = getter()
+		setter(try action(oldValue))
+		self.observer.sendNext(getter())
 
 		return oldValue
 	}
@@ -182,7 +177,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		return try action(state.value)
+		return try action(getter())
 	}
 
 	deinit {

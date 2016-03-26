@@ -15,6 +15,8 @@
 		8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD851B873081007C9000 /* UIControlTests.swift */; };
 		8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD881B873490007C9000 /* UIButtonTests.swift */; };
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
+		9DA915A41CA6301C003723B9 /* UIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA915A31CA6301C003723B9 /* UIDatePicker.swift */; };
+		9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */; };
 		C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E841C4B41E100086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E851C4B420A00086F3C /* UITextFieldTests.swift */; };
@@ -178,6 +180,8 @@
 		8295FD851B873081007C9000 /* UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlTests.swift; sourceTree = "<group>"; };
 		8295FD881B873490007C9000 /* UIButtonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButtonTests.swift; sourceTree = "<group>"; };
 		8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItemTests.swift; sourceTree = "<group>"; };
+		9DA915A31CA6301C003723B9 /* UIDatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePicker.swift; sourceTree = "<group>"; };
+		9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePickerTests.swift; sourceTree = "<group>"; };
 		C7932E811C4B3EDB00086F3C /* UITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		C7932E851C4B420A00086F3C /* UITextFieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldTests.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -390,6 +394,7 @@
 				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
 				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
 				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
+				9DA915A31CA6301C003723B9 /* UIDatePicker.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -425,6 +430,7 @@
 				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
 				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
+				9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -755,6 +761,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DA915A41CA6301C003723B9 /* UIDatePicker.swift in Sources */,
 				D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */,
 				D86FFBDB1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */,
@@ -785,6 +792,7 @@
 				C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */,
 				8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */,
 				D8A4540A1BD2772700C9E790 /* PropertyTests.swift in Sources */,
+				9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 				8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */,

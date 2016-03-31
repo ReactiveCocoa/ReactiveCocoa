@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		02D2602A1C1D6DAF003ACC61 /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
 		02D2602B1C1D6DB8003ACC61 /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
+		18227D141CAD6F140080ADB3 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646B19EDA41200A782A9 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
 		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
@@ -1871,6 +1872,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18227D141CAD6F140080ADB3 /* RACDelegateProxy.h in Headers */,
 				D037664519EDA41200A782A9 /* UISegmentedControl+RACSignalSupport.h in Headers */,
 				D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */,
 				D037652519EDA41200A782A9 /* NSObject+RACPropertySubscribing.h in Headers */,
@@ -2062,7 +2064,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0710;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = GitHub;
 				TargetAttributes = {
 					A9B315531B3940610001CB9C = {
@@ -2076,6 +2078,7 @@
 					};
 					D047260B19E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 2858H6SY93;
 					};
 					D047261519E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
@@ -2715,6 +2718,7 @@
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2731,6 +2735,7 @@
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2747,6 +2752,7 @@
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2763,6 +2769,7 @@
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2779,6 +2786,7 @@
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2795,6 +2803,7 @@
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2811,6 +2820,7 @@
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2827,6 +2837,7 @@
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2885,6 +2896,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -2899,6 +2911,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -2913,6 +2926,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -2928,6 +2942,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -2943,12 +2958,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: hellokitty18808@icloud.com (MT4Z6GU6P6)";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
@@ -2957,12 +2976,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: hellokitty18808@icloud.com (MT4Z6GU6P6)";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
@@ -2971,6 +2994,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -2985,6 +3009,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3019,6 +3044,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -3033,6 +3059,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3048,12 +3075,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: hellokitty18808@icloud.com (MT4Z6GU6P6)";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator9.3]" = "iPhone Developer: hellokitty18808@icloud.com (MT4Z6GU6P6)";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
@@ -3062,6 +3093,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3096,6 +3128,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -3110,6 +3143,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3125,12 +3159,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: hellokitty18808@icloud.com (MT4Z6GU6P6)";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;
@@ -3139,6 +3177,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

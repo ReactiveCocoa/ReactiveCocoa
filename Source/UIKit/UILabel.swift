@@ -14,6 +14,11 @@ extension UILabel {
     public var rex_text: MutableProperty<String> {
         return associatedProperty(self, keyPath: "text")
     }
+    
+    /// Wraps a label's `attributedText` value in a bindable property.
+    public var rex_attributedText: MutableProperty<NSAttributedString?> {
+        return associatedProperty(self, key: &attributedText, initial: { $0.attributedText }, setter: { $0.attributedText = $1 })
+    }
 
     /// Wraps a label's `textColor` value in a bindable property.
     public var rex_textColor: MutableProperty<UIColor> {

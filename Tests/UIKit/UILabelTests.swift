@@ -44,6 +44,30 @@ class UILabelTests: XCTestCase {
         XCTAssertEqual(label.text, secondChange)
     }
     
+    func testAttributedTextPropertyDoesntCreateRetainCycle() {
+        let label = UILabel(frame: CGRectZero)
+        _label = label
+        
+        label.rex_attributedText <~ SignalProducer(value: NSAttributedString(string: "Test"))
+        XCTAssert(_label?.attributedText?.string == "Test")
+    }
+    
+    func testAttributedTextProperty() {
+        let firstChange = NSAttributedString(string: "first")
+        let secondChange = NSAttributedString(string: "second")
+        
+        let label = UILabel(frame: CGRectZero)
+        label.attributedText = NSAttributedString(string: "")
+        
+        let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+        label.rex_attributedText <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(firstChange)
+        XCTAssertEqual(label.attributedText, firstChange)
+        observer.sendNext(secondChange)
+        XCTAssertEqual(label.attributedText, secondChange)
+    }
+    
     func testTextColorProperty() {
         let firstChange = UIColor.redColor()
         let secondChange = UIColor.blackColor()

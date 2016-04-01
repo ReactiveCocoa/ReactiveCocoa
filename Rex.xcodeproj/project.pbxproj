@@ -390,11 +390,11 @@
 				5173EBC51B625A2600C9B48E /* UIBarItem.swift */,
 				D86FFBDC1B34B691001A89B3 /* UIButton.swift */,
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
-				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
-				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
-				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
-				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
 				9DA915A31CA6301C003723B9 /* UIDatePicker.swift */,
+				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
+				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
+				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
+				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -426,11 +426,11 @@
 				8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */,
 				8295FD881B873490007C9000 /* UIButtonTests.swift */,
 				8295FD851B873081007C9000 /* UIControlTests.swift */,
-				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
-				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
-				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
-				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
 				9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */,
+				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
+				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
+				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
+				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";

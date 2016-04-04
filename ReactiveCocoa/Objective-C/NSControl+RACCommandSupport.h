@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "RACCommand.h"
+@class RACCommand<__contravariant InputType>;
 
 @interface NSControl (RACCommandSupport)
 

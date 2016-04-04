@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "RACCommand.h"
+@class RACCommand<__contravariant InputType>;
 
 @interface UIButton (RACCommandSupport)
 

@@ -1,6 +1,8 @@
 language: objective-c
 osx_image: xcode7.3
-before_install: true
+before_install:
+  - brew update
+  - brew uninstall xctool && brew install --HEAD xctool
 install: true
 git:
   submodules: false

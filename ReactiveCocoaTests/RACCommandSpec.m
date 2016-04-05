@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <Quick/Quick.h>
-#import <Nimble/Nimble.h>
+@import Quick;
+@import Nimble;
 
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
@@ -214,7 +214,7 @@ qck_it(@"should send on executionSignals in order of execution", ^{
 	expect(@([[command execute:first] asynchronouslyWaitUntilCompleted:NULL])).to(beTruthy());
 
 	RACSequence *second = @[ @"buzz", @"baz" ].rac_sequence;
-	expect(@([[command execute:second] asynchronouslyWaitUntilCompleted:NULL])).toEventually(beTruthy());
+	expect(@([[command execute:second] asynchronouslyWaitUntilCompleted:NULL])).to(beTruthy());
 
 	NSArray *expectedValues = @[ @"foo", @"bar", @"buzz", @"baz" ];
 	expect(valuesReceived).to(equal(expectedValues));

@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-#import <Quick/Quick.h>
-#import <Nimble/Nimble.h>
+@import Quick;
+@import Nimble;
 
 #import "UIImagePickerController+RACSignalSupport.h"
 #import "RACSignal.h"

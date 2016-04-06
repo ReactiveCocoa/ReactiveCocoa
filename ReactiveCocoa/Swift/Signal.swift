@@ -547,6 +547,12 @@ extension SignalType {
 	func doNext(sideEffect: SideEffect) -> Signal<Self.Value, Self.Error> {
 		return self.on(event: nil, failed: nil, completed: nil, interrupted: nil, terminated: nil, disposed: nil, next: sideEffect)
 	}
+	
+	@warn_unused_result(message="Did you forget to call `start` on the signal?")
+	typealias SideEffectFailed = (Self.Error) -> ()
+	func doFailed(sideEffect: SideEffectFailed) -> Signal<Self.Value, Self.Error> {
+		return self.on(event: nil, failed: sideEffect, completed: nil, interrupted: nil, terminated: nil, disposed: nil, next: nil)
+	}
 }
 
 private struct SampleState<Value> {

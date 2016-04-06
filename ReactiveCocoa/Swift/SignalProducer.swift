@@ -846,10 +846,17 @@ extension SignalProducerType {
 	}
 	
 	/// Injects side effects to be performed upon the specified signal events.
-	typealias SideEffect = (Value) -> ()
+	typealias SideEffect = (Self.Value) -> ()
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	func doNext(sideEffect: SideEffect) -> SignalProducer<Self.Value, Self.Error> {
 		return self.on(started: nil, event: nil, failed: nil, completed: nil, interrupted: nil, terminated: nil, disposed: nil, next: sideEffect)
+	}
+	
+	/// Injects side effects to be performed upon the specified signal events.
+	typealias SideEffectFailed = (Self.Error) -> ()
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	func doFailed(sideEffect: SideEffectFailed) -> SignalProducer<Self.Value, Self.Error> {
+		return self.on(started: nil, event: nil, failed: sideEffect, completed: nil, interrupted: nil, terminated: nil, disposed: nil, next: nil)
 	}
 
 	/// Starts the returned signal on the given Scheduler.

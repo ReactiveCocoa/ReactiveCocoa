@@ -540,6 +540,13 @@ extension SignalType {
 			return disposable
 		}
 	}
+	
+	/// Injects side effects to be performed upon the specified signal events.
+	typealias SideEffect = (Self.Value) -> ()
+	@warn_unused_result(message="Did you forget to call `start` on the signal?")
+	func doNext(sideEffect: SideEffect) -> Signal<Self.Value, Self.Error> {
+		return self.on(event: nil, failed: nil, completed: nil, interrupted: nil, terminated: nil, disposed: nil, next: sideEffect)
+	}
 }
 
 private struct SampleState<Value> {

@@ -16,9 +16,6 @@ extension UITextView {
     public var rex_textSignal: SignalProducer<String, NoError> {
         return NSNotificationCenter.defaultCenter()
             .rac_notifications(UITextViewTextDidChangeNotification, object: self)
-            .filterMap { notification in
-                guard let textView = notification.object as? UITextView else { return nil}
-                return textView.text
-        }
+            .filterMap  { ($0.object as? UITextView)?.text }
     }
 }

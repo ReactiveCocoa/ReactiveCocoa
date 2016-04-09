@@ -60,6 +60,17 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 }
 
+extension PropertyType {
+	/// Maps the current value and all subsequent values to a new value.
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
+			disposable += ActionDisposable { self }
+			disposable += self.producer.map(transform).start(observer)
+		}
+		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+	}
+}
+
 /// A property that never changes.
 public struct ConstantProperty<Value>: PropertyType {
 

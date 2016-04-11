@@ -12,7 +12,7 @@ extension UIDatePicker {
     
     public var rex_date: MutableProperty<NSDate> {
         let initial = { (picker: UIDatePicker) -> NSDate in
-            picker.addTarget(self, action: "rex_changedDate", forControlEvents: .ValueChanged)
+            picker.addTarget(self, action: #selector(UIDatePicker.rex_changedDate), forControlEvents: .ValueChanged)
             return picker.date
         }
         return associatedProperty(self, key: &dateKey, initial: initial) { $0.date = $1 }

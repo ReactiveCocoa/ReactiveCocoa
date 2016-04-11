@@ -17,8 +17,7 @@ extension UISwitch {
         let property = associatedProperty(self, key: &onKey, initial: { $0.on }, setter: { $0.on = $1 })
 
         property <~ rex_controlEvents(.ValueChanged)
-            .filterMap { $0 as? UISwitch }
-            .map { $0.on }
+            .filterMap { ($0 as? UISwitch)?.on }
 
         return property
     }

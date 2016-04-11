@@ -22,6 +22,8 @@
 		C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E841C4B41E100086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E851C4B420A00086F3C /* UITextFieldTests.swift */; };
+		C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B21CB3C872001217D8 /* UITextView.swift */; };
+		C7DCE2B71CB3C9D6001217D8 /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -188,6 +190,8 @@
 		9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePickerTests.swift; sourceTree = "<group>"; };
 		C7932E811C4B3EDB00086F3C /* UITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		C7932E851C4B420A00086F3C /* UITextFieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldTests.swift; sourceTree = "<group>"; };
+		C7DCE2B21CB3C872001217D8 /* UITextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
+		C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextViewTests.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -399,6 +403,7 @@
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 				7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */,
 				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
+				C7DCE2B21CB3C872001217D8 /* UITextView.swift */,
 				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
 			);
 			path = UIKit;
@@ -436,6 +441,7 @@
 				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
 				7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */,
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
+				C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */,
 				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 			);
 			path = UIKit;
@@ -781,6 +787,7 @@
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
+				C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */,
 				8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */,
 				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
@@ -805,6 +812,7 @@
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 				8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */,
 				8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */,
+				C7DCE2B71CB3C9D6001217D8 /* UITextViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

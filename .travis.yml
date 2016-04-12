@@ -1,10 +1,21 @@
 language: objective-c
-osx_image: xcode611
+osx_image: xcode7.3
 before_install: true
 install: true
 git:
   submodules: false
-script: script/cibuild
+before_script:
+  - git submodule update --init --recursive
+script:
+  - set -o pipefail
+  - xcodebuild test -workspace "$TRAVIS_XCODE_WORKSPACE" -scheme "$TRAVIS_XCODE_SCHEME" -sdk "$XCODE_SDK" | xcpretty
+xcode_workspace: ReactiveCocoa.xcworkspace
+matrix:
+  include:
+    - xcode_scheme: ReactiveCocoa-Mac
+      env: XCODE_SDK=macosx
+    - xcode_scheme: ReactiveCocoa-iOS
+      env: XCODE_SDK=iphonesimulator
 notifications:
   email: false
   slack:

@@ -551,17 +551,9 @@ private struct SampleState<Value> {
 }
 
 extension SignalType {
-	/// Forwards the latest value from `signal` whenever `sampler` sends a Next
-	/// event.
-	///
-	/// If `sampler` fires before a value has been observed on `signal`, nothing
-	/// happens.
-	///
-	/// Returns a signal that will send values from `signal`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both input signals have
-	/// completed, or interrupt if either input signal is interrupted.
+	// TODO: fix the doc here
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func sampleWith<T>(sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
 		return Signal { observer in
 			let state = Atomic(SampleState<Value>())
 			let disposable = CompositeDisposable()
@@ -593,9 +585,9 @@ extension SignalType {
 			
 			disposable += sampler.observe { event in
 				switch event {
-				case .Next:
+				case .Next(let samplerValue):
 					if let value = state.value.latestValue {
-						observer.sendNext(value)
+						observer.sendNext((value, samplerValue))
 					}
 				case .Completed:
 					let oldState = state.modify { st in
@@ -616,6 +608,21 @@ extension SignalType {
 
 			return disposable
 		}
+	}
+	
+	/// Forwards the latest value from `signal` whenever `sampler` sends a Next
+	/// event.
+	///
+	/// If `sampler` fires before a value has been observed on `signal`, nothing
+	/// happens.
+	///
+	/// Returns a signal that will send values from `signal`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input signals have
+	/// completed, or interrupt if either input signal is interrupted.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+		return sampleWith(sampler)
+			.map { $0.0 }
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed

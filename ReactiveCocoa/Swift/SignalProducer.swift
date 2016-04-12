@@ -579,6 +579,18 @@ extension SignalProducerType {
 		return lift { $0.materialize() }
 	}
 
+	// TODO: fix doc here
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return liftLeft(Signal.sampleWith)(sampler)
+	}
+	
+	// TODO: fix doc here
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return lift(Signal.sampleWith)(sampler)
+	}
+
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.
 	///

@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <Quick/Quick.h>
-#import <Nimble/Nimble.h>
+@import Quick;
+@import Nimble;
 
 #import <objc/message.h>
 #import "RACSignal.h"

@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <Quick/Quick.h>
-#import <Nimble/Nimble.h>
+@import Quick;
+@import Nimble;
 
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
@@ -86,7 +86,7 @@ qck_describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 		expect(@(tailInvoked)).to(beTruthy());
 	});
 
-	qck_afterEach(^{
+	qck_context(@"behaves like a sequence", ^{
 		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,

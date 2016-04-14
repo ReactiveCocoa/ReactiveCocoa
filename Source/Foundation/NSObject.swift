@@ -29,6 +29,7 @@ extension NSObject {
     
     /// Creates a signal that will be triggered when the object
     /// is deallocated.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public final func willDeallocSignal() -> Signal<(), NoError> {
         return self
             .rac_willDeallocSignal()
@@ -39,6 +40,7 @@ extension NSObject {
 extension SignalProducerType {
     /// Forwards events from `self` until `object` is deallocated,
     /// at which point the returned producer will complete.
+    @warn_unused_result(message="Did you forget to call `start` on the producer?")
     public final func takeUntilObjectDeallocates(object: NSObject) -> SignalProducer<Self.Value, Self.Error> {
         return self.lift { $0.takeUntilObjectDeallocates(object) }
     }    
@@ -47,6 +49,7 @@ extension SignalProducerType {
 extension SignalType {
     /// Forwards events from `self` until `object` is deallocated,
     /// at which point the returned signal will complete.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public final func takeUntilObjectDeallocates(object: NSObject) -> Signal<Self.Value, Self.Error> {
         return self.takeUntil(object.willDeallocSignal())
     }

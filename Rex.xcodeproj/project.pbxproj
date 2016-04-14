@@ -19,6 +19,10 @@
 		8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */; };
 		9DA915A41CA6301C003723B9 /* UIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA915A31CA6301C003723B9 /* UIDatePicker.swift */; };
 		9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */; };
+		C72CF3E51CBF188A00E19897 /* RACSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72CF3E41CBF188A00E19897 /* RACSignal.swift */; };
+		C72CF3E61CBF188A00E19897 /* RACSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72CF3E41CBF188A00E19897 /* RACSignal.swift */; };
+		C72CF3E71CBF188A00E19897 /* RACSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72CF3E41CBF188A00E19897 /* RACSignal.swift */; };
+		C72CF3E81CBF188A00E19897 /* RACSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72CF3E41CBF188A00E19897 /* RACSignal.swift */; };
 		C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E841C4B41E100086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E851C4B420A00086F3C /* UITextFieldTests.swift */; };
@@ -188,6 +192,7 @@
 		8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItemTests.swift; sourceTree = "<group>"; };
 		9DA915A31CA6301C003723B9 /* UIDatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePicker.swift; sourceTree = "<group>"; };
 		9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePickerTests.swift; sourceTree = "<group>"; };
+		C72CF3E41CBF188A00E19897 /* RACSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RACSignal.swift; sourceTree = "<group>"; };
 		C7932E811C4B3EDB00086F3C /* UITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		C7932E851C4B420A00086F3C /* UITextFieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldTests.swift; sourceTree = "<group>"; };
 		C7DCE2B21CB3C872001217D8 /* UITextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
@@ -319,6 +324,7 @@
 				D8A454051BD26A1A00C9E790 /* Property.swift */,
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
+				C72CF3E41CBF188A00E19897 /* RACSignal.swift */,
 				4238D5941B4D593E008534C0 /* AppKit */,
 				D8F097391B17F2BF002E15BA /* Foundation */,
 				D86FFBD31B34B0E2001A89B3 /* UIKit */,
@@ -746,6 +752,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C72CF3E51CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8A454061BD26A1A00C9E790 /* Property.swift in Sources */,
 				D86FFBDA1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D86FFBD11B34AD6F001A89B3 /* Association.swift in Sources */,
@@ -783,6 +790,7 @@
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				D8E4A6211B7BBB2100EAD8A8 /* UIBarItem.swift in Sources */,
 				7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */,
+				C72CF3E61CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8A454071BD26A1A00C9E790 /* Property.swift in Sources */,
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
@@ -825,6 +833,7 @@
 				D8715DA31C21107F005F4191 /* Association.swift in Sources */,
 				D8715DA51C21107F005F4191 /* NSObject.swift in Sources */,
 				D8715D9F1C210FF9005F4191 /* Signal.swift in Sources */,
+				C72CF3E81CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8715DA41C21107F005F4191 /* NSData.swift in Sources */,
 				D8715D9D1C210FF9005F4191 /* Action.swift in Sources */,
 				D8715DA61C21107F005F4191 /* NSUserDefaults.swift in Sources */,
@@ -845,6 +854,7 @@
 				D8715DC01C2112D6005F4191 /* NSObject.swift in Sources */,
 				D8715DC91C211553005F4191 /* UIControl.swift in Sources */,
 				D8715DBC1C2112D1005F4191 /* Signal.swift in Sources */,
+				C72CF3E71CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8715DBF1C2112D6005F4191 /* NSData.swift in Sources */,
 				D8715DCC1C211553005F4191 /* UIView.swift in Sources */,
 				D8715DBA1C2112D1005F4191 /* Action.swift in Sources */,

@@ -24,6 +24,30 @@ extension NSObject {
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty
-            }
+        }
+    }
+    
+    /// Creates a signal that will be triggered when the object
+    /// is deallocated.
+    public final func willDeallocSignal() -> Signal<(), NoError> {
+        return self
+            .rac_willDeallocSignal()
+            .toTriggerSignal()
+    }
+}
+
+extension SignalProducerType {
+    /// Forwards events from `self` until `object` is deallocated,
+    /// at which point the returned producer will complete.
+    public final func takeUntilObjectDeallocates(object: NSObject) -> SignalProducer<Self.Value, Self.Error> {
+        return self.lift { $0.takeUntilObjectDeallocates(object) }
+    }    
+}
+
+extension SignalType {
+    /// Forwards events from `self` until `object` is deallocated,
+    /// at which point the returned signal will complete.
+    public final func takeUntilObjectDeallocates(object: NSObject) -> Signal<Self.Value, Self.Error> {
+        return self.takeUntil(object.willDeallocSignal())
     }
 }

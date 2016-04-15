@@ -19,7 +19,7 @@ extension RACSignal {
     /// use this method to be able to expose these inherently hot streams
     /// as `Signal`s.
     @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func toSignalAssumingHot() -> Signal<AnyObject?, NSError> {
+    public func toSignal() -> Signal<AnyObject?, NSError> {
         return Signal { observer in
             return self.toSignalProducer().start(observer)
         }
@@ -31,7 +31,7 @@ extension RACSignal {
     @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public final func toTriggerSignal() -> Signal<(), NoError> {
         return self
-            .toSignalAssumingHot()
+            .toSignal()
             .map { _ in () }
             .ignoreError()
     }

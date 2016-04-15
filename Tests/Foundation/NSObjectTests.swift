@@ -31,7 +31,7 @@ final class NSObjectTests: XCTestCase {
         let object = Object()
 
         timer(1, onScheduler: QueueScheduler(name: "test.queue"))
-            .takeUntilObjectDeallocates(object)
+            .takeUntil(object.willDeallocSignal)
             .startWithCompleted {
                 expectation.fulfill()
         }

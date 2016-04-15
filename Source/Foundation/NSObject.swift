@@ -24,6 +24,14 @@ extension NSObject {
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty
-            }
+        }
+    }
+    
+    /// Creates a signal that will be triggered when the object
+    /// is deallocated.
+    public var rex_willDeallocSignal: Signal<(), NoError> {
+        return self
+            .rac_willDeallocSignal()
+            .rex_toTriggerSignal()
     }
 }

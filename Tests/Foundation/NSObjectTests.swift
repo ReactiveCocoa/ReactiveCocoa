@@ -11,7 +11,7 @@ import ReactiveCocoa
 import XCTest
 
 final class NSObjectTests: XCTestCase {
-
+    
     func testProducerForKeyPath() {
         let object = Object()
         var value: String = ""
@@ -21,6 +21,20 @@ final class NSObjectTests: XCTestCase {
 
         object.string = "bar"
         XCTAssertEqual(value, "bar")
+    }
+    
+    func testObjectsWillBeDeallocatedSignal() {
+        
+        let expectation = self.expectationWithDescription("Expected timer to send `completed` event when object deallocates")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let object = Object()
+
+        timer(1, onScheduler: QueueScheduler(name: "test.queue"))
+            .takeUntil(object.rex_willDeallocSignal)
+            .startWithCompleted {
+                expectation.fulfill()
+        }
     }
 }
 

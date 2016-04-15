@@ -29,9 +29,9 @@ extension NSObject {
     
     /// Creates a signal that will be triggered when the object
     /// is deallocated.
-    public var willDeallocSignal: Signal<(), NoError> {
+    public var rex_willDeallocSignal: Signal<(), NoError> {
         return self
             .rac_willDeallocSignal()
-            .toTriggerSignal()
+            .rex_toTriggerSignal()
     }
 }

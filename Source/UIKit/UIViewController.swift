@@ -26,8 +26,6 @@ extension UIViewController {
     private func triggerForSelector(selector: Selector) -> Signal<(), NoError>  {
         return self
             .rac_signalForSelector(selector)
-            .rex_toSignal()
-            .map { _ in () }
-            .ignoreError()
+            .rex_toTriggerSignal()
     }
 }

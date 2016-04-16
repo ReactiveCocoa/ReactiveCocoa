@@ -453,9 +453,20 @@ extension SignalProducerType {
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
 		return { otherSignal in
 			return SignalProducer { observer, outerDisposable in
+				let (wrapperSignal, otherSignalObserver) = Signal<U, F>.pipe()
+
+				// Avoid memory leak caused by the direct use of the given signal.
+				//
+				// See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2758
+				// for the details.
+				outerDisposable += ActionDisposable {
+					otherSignalObserver.sendInterrupted()
+				}
+				outerDisposable += otherSignal.observe(otherSignalObserver)
+
 				self.startWithSignal { signal, disposable in
 					outerDisposable += disposable
-					outerDisposable += transform(signal)(otherSignal).observe(observer)
+					outerDisposable += transform(signal)(wrapperSignal).observe(observer)
 				}
 			}
 		}
@@ -593,7 +604,7 @@ extension SignalProducerType {
 	/// completed, or interrupt if either input is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftLeft(Signal.sampleOn)(SignalProducer(signal: sampler))
+		return lift(Signal.sampleOn)(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed

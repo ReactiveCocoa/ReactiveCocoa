@@ -49,4 +49,34 @@ class UIViewControllerTests: XCTestCase {
         
         viewController.viewWillDisappear(true)
     }
+    
+    func testViewDidAppear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewDidAppearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewDidAppearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewDidAppear(true)
+    }
+    
+    func testViewWillAppear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewWillAppearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewWillAppearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewWillAppear(true)
+    }
 }

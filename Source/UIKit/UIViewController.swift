@@ -23,6 +23,18 @@ extension UIViewController {
         return triggerForSelector(#selector(UIViewController.viewWillDisappear(_:)))
     }
     
+    /// Returns a `Signal`, that will be triggered
+    /// when `self`'s `viewDidAppear` is called
+    public var rex_viewDidAppearSignal: Signal<(), NoError> {
+        return triggerForSelector(#selector(UIViewController.viewDidAppear(_:)))
+    }
+    
+    /// Returns a `Signal`, that will be triggered
+    /// when `self`'s `viewWillAppear` is called
+    public var rex_viewWillAppearSignal: Signal<(), NoError> {
+        return triggerForSelector(#selector(UIViewController.viewWillAppear(_:)))
+    }
+    
     private func triggerForSelector(selector: Selector) -> Signal<(), NoError>  {
         return self
             .rac_signalForSelector(selector)

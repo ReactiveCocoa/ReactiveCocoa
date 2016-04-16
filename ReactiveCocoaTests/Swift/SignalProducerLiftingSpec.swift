@@ -916,15 +916,15 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			describe("memory") {
 				class Payload {
+					let action: () -> ()
+
 					init(onDeinit action: () -> ()) {
 						self.action = action
 					}
 
 					deinit {
-						action?()
+						action()
 					}
-
-					var action: (() -> ())?
 				}
 
 				var sampledProducer: SignalProducer<Payload, NoError>!
@@ -932,7 +932,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				beforeEach {
 					let (producer, incomingObserver) = SignalProducer<Payload, NoError>.buffer(0)
-					let (sampler, incomingSamplerObserver) = Signal<(), NoError>.pipe()
+					let (sampler, _) = Signal<(), NoError>.pipe()
 					sampledProducer = producer.sampleOn(sampler)
 					observer = incomingObserver
 				}
@@ -942,13 +942,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 					let disposable = sampledProducer.start()
 
-					observer.sendNext(Payload { payloadFreed = true; })
+					observer.sendNext(Payload { payloadFreed = true })
 					observer.sendCompleted()
 
-					expect(payloadFreed).to(beFalse())
+					expect(payloadFreed) == false
 
 					disposable.dispose()
-					expect(payloadFreed).to(beTrue())
+					expect(payloadFreed) == true
 				}
 			}
 		}

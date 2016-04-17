@@ -11,6 +11,8 @@
 		02D2602B1C1D6DB8003ACC61 /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
+		43047EA31CA1A75A00B82CB6 /* SignalProducerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43047EA11CA1A75A00B82CB6 /* SignalProducerExtensions.swift */; };
+		43047EA01CA1A55800B82CB6 /* UIKitExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43047E9F1CA1A55800B82CB6 /* UIKitExtensions.swift */; };
 		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		579504341BB8A34300A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		57A4D1B11BA13D7A00F7D4B1 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
@@ -794,6 +796,8 @@
 		02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalLifetimeSpec.swift; sourceTree = "<group>"; };
 		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
+		43047EA11CA1A75A00B82CB6 /* SignalProducerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerExtensions.swift; sourceTree = "<group>"; };
+		43047E9F1CA1A55800B82CB6 /* UIKitExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKitExtensions.swift; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -1496,6 +1500,7 @@
 		D03B4A3A19F4C26D009E02AC /* Internal Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				43047EA11CA1A75A00B82CB6 /* SignalProducerExtensions.swift */,
 				D00004081A46864E000E7D41 /* TupleExtensions.swift */,
 			);
 			name = "Internal Utilities";
@@ -1505,6 +1510,7 @@
 			isa = PBXGroup;
 			children = (
 				D03B4A3C19F4C39A009E02AC /* FoundationExtensions.swift */,
+				43047E9F1CA1A55800B82CB6 /* UIKitExtensions.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -2587,8 +2593,10 @@
 				D037657D19EDA41200A782A9 /* RACEagerSequence.m in Sources */,
 				D037657919EDA41200A782A9 /* RACDynamicSignal.m in Sources */,
 				D037659519EDA41200A782A9 /* RACImmediateScheduler.m in Sources */,
+				43047EA31CA1A75A00B82CB6 /* SignalProducerExtensions.swift in Sources */,
 				D037651719EDA41200A782A9 /* NSObject+RACDeallocating.m in Sources */,
 				D037658519EDA41200A782A9 /* RACEmptySignal.m in Sources */,
+				43047EA01CA1A55800B82CB6 /* UIKitExtensions.swift in Sources */,
 				D037663719EDA41200A782A9 /* UIDatePicker+RACSignalSupport.m in Sources */,
 				D08C54B71A69A3DB00AD8286 /* Event.swift in Sources */,
 				D037654719EDA41200A782A9 /* NSURLConnection+RACSupport.m in Sources */,

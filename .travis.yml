@@ -8,7 +8,13 @@ before_script:
   - git submodule update --init --recursive
 script:
   - set -o pipefail
-  - xcodebuild test -workspace "$TRAVIS_XCODE_WORKSPACE" -scheme "$TRAVIS_XCODE_SCHEME" -sdk "$XCODE_SDK" | xcpretty
+  - xcodebuild test
+      -workspace "$TRAVIS_XCODE_WORKSPACE"
+      -scheme "$TRAVIS_XCODE_SCHEME"
+      -sdk "$XCODE_SDK"
+      -configuration Release
+      ENABLE_TESTABILITY=YES
+      | xcpretty
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:
   include:

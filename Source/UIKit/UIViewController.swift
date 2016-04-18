@@ -12,15 +12,26 @@ import UIKit
 
 extension UIViewController {
     
-    public typealias Completion = (Void -> Void)?
-    public typealias DismissingInformation = (Bool, Completion)?
-    public var rex_dismissModally: MutableProperty<DismissingInformation> {
+    public typealias DismissingCompletion = (Void -> Void)?
+    public typealias DismissingInformation = (animated: Bool, completion: DismissingCompletion)?
+    
+    /// Wraps a viewController's `dismissViewControllerAnimated` function in a bindable property.
+    /// It mimics the same input as `dismissViewControllerAnimated`: a `Bool` flag for the animation
+    /// and a `(Void -> Void)?` closure for `completion`.
+    /// E.g:
+    /// ```
+    /// //Dismissed with animation (`true`) and `nil` completion
+    /// viewController.rex_dismissAnimated <~ aProducer.map { _ in (true, nil) }
+    /// ```
+    /// The dismissal observation can be made either with binding (example above)
+    /// or `viewController.dismissViewControllerAnimated(true, completion: nil)`
+    public var rex_dismissAnimated: MutableProperty<DismissingInformation> {
         
         let initial: UIViewController -> DismissingInformation = { _ in nil }
         let setter: (UIViewController, DismissingInformation) -> Void = { host, dismissingInfo in
             
             guard let unwrapped = dismissingInfo else { return }
-            host.dismissViewControllerAnimated(unwrapped.0, completion: unwrapped.1)
+            host.dismissViewControllerAnimated(unwrapped.animated, completion: unwrapped.completion)
         }
         
         let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter)

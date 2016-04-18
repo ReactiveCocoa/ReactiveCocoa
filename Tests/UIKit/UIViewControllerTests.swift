@@ -28,11 +28,11 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissModally.signal.observeNext { _ in
+        viewController.rex_dismissAnimated.signal.observeNext { _ in
             expectation.fulfill()
         }
                 
-        viewController.rex_dismissModally <~ SignalProducer(value: (true, nil))
+        viewController.rex_dismissAnimated <~ SignalProducer(value: (true, nil))
     }
     
     func testDismissViewController_via_cocoaDismiss() {
@@ -43,7 +43,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissModally.signal.observeNext { _ in
+        viewController.rex_dismissAnimated.signal.observeNext { _ in
             expectation.fulfill()
         }
 

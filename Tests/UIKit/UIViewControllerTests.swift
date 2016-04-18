@@ -20,7 +20,7 @@ class UIViewControllerTests: XCTestCase {
         super.tearDown()
     }
     
-    func testDismissViewController() {
+    func testDismissViewController_via_property() {
         
         let expectation = self.expectationWithDescription("Expected rex_dismissModally to be triggered")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
@@ -35,4 +35,18 @@ class UIViewControllerTests: XCTestCase {
         viewController.rex_dismissModally <~ SignalProducer(value: (true, nil))
     }
     
+    func testDismissViewController_via_cocoaDismiss() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_dismissModally to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_dismissModally.signal.observeNext { _ in
+            expectation.fulfill()
+        }
+
+        viewController.dismissViewControllerAnimated(true, completion: nil)
+    }
 }

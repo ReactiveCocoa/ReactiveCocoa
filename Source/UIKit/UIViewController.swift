@@ -24,7 +24,13 @@ extension UIViewController {
         }
         
         let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter)
+        
+        property <~ rac_signalForSelector(#selector(UIViewController.dismissViewControllerAnimated(_:completion:)))
+            .takeUntilBlock { _ in property.value != nil }
+            .rex_toTriggerSignal()
+            .map { _ in return nil }
 
+        
         return property
     }
 }

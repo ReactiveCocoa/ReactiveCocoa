@@ -32,7 +32,7 @@ class UIViewControllerTests: XCTestCase {
             expectation.fulfill()
         }
                 
-        viewController.rex_dismissAnimated <~ SignalProducer(value: (true, nil))
+        viewController.rex_dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
     }
     
     func testDismissViewController_via_cocoaDismiss() {

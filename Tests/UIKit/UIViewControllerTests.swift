@@ -20,6 +20,66 @@ class UIViewControllerTests: XCTestCase {
         super.tearDown()
     }
     
+    func testViewDidDisappear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewDidDisappearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewDidDisappearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewDidDisappear(true)
+    }
+    
+    func testViewWillDisappear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewWillDisappearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewWillDisappearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewWillDisappear(true)
+    }
+    
+    func testViewDidAppear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewDidAppearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewDidAppearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewDidAppear(true)
+    }
+    
+    func testViewWillAppear() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_viewWillAppearSignal to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_viewWillAppearSignal.observeNext {
+            expectation.fulfill()
+        }
+        
+        viewController.viewWillAppear(true)
+    }
+    
     func testDismissViewController_via_property() {
         
         let expectation = self.expectationWithDescription("Expected rex_dismissModally to be triggered")

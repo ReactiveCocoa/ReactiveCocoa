@@ -26,8 +26,8 @@
 		C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E841C4B41E100086F3C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E811C4B3EDB00086F3C /* UITextField.swift */; };
 		C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E851C4B420A00086F3C /* UITextFieldTests.swift */; };
-		C7945F161CC2D83100DC9E37 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945F151CC2D83100DC9E37 /* UIViewController.swift */; };
-		C7945F191CC2D88800DC9E37 /* UIViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945F171CC2D87300DC9E37 /* UIViewControllerTests.swift */; };
+		C7945F111CC192E800DC9E37 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945F101CC192E800DC9E37 /* UIViewController.swift */; };
+		C7945F141CC1DFBE00DC9E37 /* UIViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */; };
 		C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B21CB3C872001217D8 /* UITextView.swift */; };
 		C7DCE2B71CB3C9D6001217D8 /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -197,8 +197,8 @@
 		C72CF3E41CBF188A00E19897 /* RACSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RACSignal.swift; sourceTree = "<group>"; };
 		C7932E811C4B3EDB00086F3C /* UITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		C7932E851C4B420A00086F3C /* UITextFieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldTests.swift; sourceTree = "<group>"; };
-		C7945F151CC2D83100DC9E37 /* UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
-		C7945F171CC2D87300DC9E37 /* UIViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerTests.swift; sourceTree = "<group>"; };
+		C7945F101CC192E800DC9E37 /* UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
+		C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerTests.swift; sourceTree = "<group>"; };
 		C7DCE2B21CB3C872001217D8 /* UITextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextViewTests.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -415,7 +415,7 @@
 				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
 				C7DCE2B21CB3C872001217D8 /* UITextView.swift */,
 				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
-				C7945F151CC2D83100DC9E37 /* UIViewController.swift */,
+				C7945F101CC192E800DC9E37 /* UIViewController.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -454,7 +454,7 @@
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
 				C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */,
 				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
-				C7945F171CC2D87300DC9E37 /* UIViewControllerTests.swift */,
+				C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -796,11 +796,11 @@
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				D8E4A6211B7BBB2100EAD8A8 /* UIBarItem.swift in Sources */,
 				7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */,
-				C7945F161CC2D83100DC9E37 /* UIViewController.swift in Sources */,
 				C72CF3E61CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8A454071BD26A1A00C9E790 /* Property.swift in Sources */,
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
+				C7945F111CC192E800DC9E37 /* UIViewController.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */,
 				8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */,
@@ -822,7 +822,7 @@
 				C7932E871C4B42F500086F3C /* UITextFieldTests.swift in Sources */,
 				8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */,
 				D8A4540A1BD2772700C9E790 /* PropertyTests.swift in Sources */,
-				C7945F191CC2D88800DC9E37 /* UIViewControllerTests.swift in Sources */,
+				C7945F141CC1DFBE00DC9E37 /* UIViewControllerTests.swift in Sources */,
 				9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,

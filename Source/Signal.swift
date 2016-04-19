@@ -13,6 +13,7 @@ extension SignalType {
 
     /// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
     /// forwared on the returned signal.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func filterMap<U>(transform: Value -> U?) -> Signal<U, Error> {
         return Signal<U, Error> { observer in
             return self.observe(Observer(next: { value in
@@ -31,6 +32,7 @@ extension SignalType {
 
     /// Returns a signal that drops `Error` sending `replacement` terminal event
     /// instead, defaulting to `Completed`.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func ignoreError(replacement replacement: Event<Value, NoError> = .Completed) -> Signal<Value, NoError> {
         precondition(replacement.isTerminating)
 
@@ -55,6 +57,7 @@ extension SignalType {
     ///
     /// If the interval is 0, the timeout will be scheduled immediately. The signal
     /// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<Value, Error>, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
         precondition(interval >= 0)
         precondition(event.isTerminating)
@@ -78,6 +81,7 @@ extension SignalType {
     ///
     /// This operator is useful for scenarios like type-to-search where you want to
     /// wait for a "lull" in typing before kicking off a search request.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
         precondition(interval >= 0)
 
@@ -93,6 +97,7 @@ extension SignalType {
     ///
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func muteFor(interval: NSTimeInterval, clock: DateSchedulerType) -> Signal<Value, Error> {
         precondition(interval > 0)
 
@@ -111,6 +116,7 @@ extension SignalType {
 
 extension SignalType where Value: SequenceType {
     /// Returns a signal that flattens sequences of elements. The inverse of `collect`.
+    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func uncollect() -> Signal<Value.Generator.Element, Error> {
         return Signal<Value.Generator.Element, Error> { observer in
             return self.observe { event in

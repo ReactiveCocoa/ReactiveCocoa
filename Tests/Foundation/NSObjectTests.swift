@@ -64,7 +64,6 @@ final class NSObjectDeallocTests: XCTestCase {
     }
 }
 
-
 class Object: NSObject {
     dynamic var string = "foo"
 }

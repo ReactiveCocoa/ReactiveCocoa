@@ -6,9 +6,8 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
-import Foundation
-import Result
 import ReactiveCocoa
+import enum Result.NoError
 
 extension RACSignal {
     

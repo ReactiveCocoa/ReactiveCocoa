@@ -13,6 +13,7 @@ import enum Result.NoError
 extension UIControl {
 #if os(iOS)
     /// Creates a producer for the sender whenever a specified control event is triggered.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func rex_controlEvents(events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
         return rac_signalForControlEvents(events)
             .toSignalProducer()

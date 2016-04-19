@@ -95,7 +95,4 @@ class UIButtonTests: XCTestCase {
         
         XCTAssertTrue(passed.value)
     }
-    
-    
-
 }

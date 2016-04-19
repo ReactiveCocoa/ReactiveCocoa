@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-import Foundation
 import ReactiveCocoa
 import enum Result.NoError
 
@@ -15,6 +14,7 @@ extension NSUserDefaults {
     /// by casting to NSObject and checking for equality. If the values aren't
     /// convertible this will generate events whenever _any_ value in NSUserDefaults
     /// changes.
+    @warn_unused_result(message="Did you forget to call `start` on the producer?")
     public func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
         let center = NSNotificationCenter.defaultCenter()
         let initial = objectForKey(key)

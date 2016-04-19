@@ -11,26 +11,31 @@ import enum Result.NoError
 
 extension PropertyType where Value == Bool {
     /// The conjunction of `self` and `other`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func and<P: PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: [AnyProperty(self), AnyProperty(other)])
     }
 
     /// The conjunction of `self` and `other`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func and(other: AnyProperty<Bool>) -> AndProperty {
         return AndProperty(terms: [AnyProperty(self), other])
     }
 
     /// The disjunction of `self` and `other`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func or<P: PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: [AnyProperty(self), AnyProperty(other)])
     }
 
     /// The disjunction of `self` and `other`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func or(other: AnyProperty<Bool>) -> OrProperty {
         return OrProperty(terms: [AnyProperty(self), other])
     }
 
     /// A negated property of `self`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func not() -> NotProperty {
         return NotProperty(source: AnyProperty(self), invert: true)
     }
@@ -59,11 +64,13 @@ public struct AndProperty: PropertyType {
     }
 
     /// Creates a new property with an additional conjunctive term.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
         return AndProperty(terms: terms + [AnyProperty(other)])
     }
 
     /// Creates a new property with an additional conjunctive term.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func and(other: AnyProperty<Bool>) -> AndProperty {
         return AndProperty(terms: terms + [other])
     }
@@ -96,11 +103,13 @@ public struct OrProperty: PropertyType {
     }
 
     /// Creates a new property with an additional disjunctive term.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
         return OrProperty(terms: terms + [AnyProperty(other)])
     }
 
     /// Creates a new property with an additional disjunctive term.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func or(other: AnyProperty<Bool>) -> OrProperty {
         return OrProperty(terms: terms + [other])
     }
@@ -128,6 +137,7 @@ public struct NotProperty: PropertyType {
     }
 
     /// A negated property of `self`.
+    @warn_unused_result(message="Did you forget to use the property?")
     public func not() -> NotProperty {
         return NotProperty(source: source, invert: !invert)
     }

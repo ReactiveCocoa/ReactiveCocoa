@@ -30,13 +30,11 @@ class UITableViewCellTests: XCTestCase {
         XCTAssertEqual(label.text, "John")
 
         titleProperty <~ SignalProducer(value: "Frank")
-
         XCTAssertEqual(label.text, "Frank")
 
         cell.prepareForReuse()
 
         titleProperty <~ SignalProducer(value: "Will")
-
         XCTAssertEqual(label.text, "Frank")
     }
     

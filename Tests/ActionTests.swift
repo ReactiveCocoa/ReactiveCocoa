@@ -33,7 +33,7 @@ final class ActionTests: XCTestCase {
     }
     
     func testCompleted() {
-        let (producer, sink) = SignalProducer<Int, TestError>.buffer(Int.max)
+        let (producer, observer) = SignalProducer<Int, TestError>.buffer(Int.max)
         let action = Action { producer }
 
         var completed = false
@@ -45,15 +45,15 @@ final class ActionTests: XCTestCase {
             .apply()
             .start()
         
-        sink.sendNext(1)
+        observer.sendNext(1)
         XCTAssertFalse(completed)
 
-        sink.sendCompleted()
+        observer.sendCompleted()
         XCTAssertTrue(completed)
     }
     
     func testCompletedOnFailed() {
-        let (producer, sink) = SignalProducer<Int, TestError>.buffer(Int.max)
+        let (producer, observer) = SignalProducer<Int, TestError>.buffer(Int.max)
         let action = Action { producer }
         
         var completed = false
@@ -65,7 +65,7 @@ final class ActionTests: XCTestCase {
             .apply()
             .start()
         
-        sink.sendFailed(.Unknown)
+        observer.sendFailed(.Unknown)
         XCTAssertFalse(completed)
     }
 }

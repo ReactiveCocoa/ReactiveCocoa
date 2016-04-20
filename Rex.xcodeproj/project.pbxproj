@@ -10,6 +10,20 @@
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
 		7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */; };
 		7D2AA99D1CB6F275008AB5C9 /* UISwitchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */; };
+		7DBD48F31CC8141D0077AD4F /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD48F21CC8141D0077AD4F /* Reusable.swift */; };
+		7DBD48F41CC8141D0077AD4F /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD48F21CC8141D0077AD4F /* Reusable.swift */; };
+		7DC325741CC6FCF100746D88 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325721CC6FCF100746D88 /* UITableViewCell.swift */; };
+		7DC325751CC6FCF100746D88 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325721CC6FCF100746D88 /* UITableViewCell.swift */; };
+		7DC325761CC6FCF100746D88 /* UITableViewHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */; };
+		7DC325771CC6FCF100746D88 /* UITableViewHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */; };
+		7DC3257E1CC6FD1C00746D88 /* UITableViewCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */; };
+		7DC3257F1CC6FD1E00746D88 /* UITableViewCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */; };
+		7DC325801CC6FD2100746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */; };
+		7DC325811CC6FD2300746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */; };
+		7DCF5B331CC80D77004AEE75 /* UICollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF5B311CC80D0E004AEE75 /* UICollectionReusableView.swift */; };
+		7DCF5B341CC80D78004AEE75 /* UICollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF5B311CC80D0E004AEE75 /* UICollectionReusableView.swift */; };
+		7DCF5B361CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */; };
+		7DCF5B371CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */; };
 		8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */; };
 		8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E21BD7EF740097FB60 /* UIImageView.swift */; };
 		8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8289A2E41BD7F6DD0097FB60 /* UIView.swift */; };
@@ -185,6 +199,13 @@
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISwitch.swift; sourceTree = "<group>"; };
 		7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISwitchTests.swift; sourceTree = "<group>"; };
+		7DBD48F21CC8141D0077AD4F /* Reusable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reusable.swift; sourceTree = "<group>"; };
+		7DC325721CC6FCF100746D88 /* UITableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
+		7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewHeaderFooterView.swift; sourceTree = "<group>"; };
+		7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewCellTests.swift; sourceTree = "<group>"; };
+		7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewHeaderFooterViewTests.swift; sourceTree = "<group>"; };
+		7DCF5B311CC80D0E004AEE75 /* UICollectionReusableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionReusableView.swift; sourceTree = "<group>"; };
+		7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionReusableViewTests.swift; sourceTree = "<group>"; };
 		8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageViewTests.swift; sourceTree = "<group>"; };
 		8289A2E21BD7EF740097FB60 /* UIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageView.swift; sourceTree = "<group>"; };
 		8289A2E41BD7F6DD0097FB60 /* UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
@@ -329,6 +350,7 @@
 				D8003EBC1AFED01000D7D3C5 /* Signal.swift */,
 				D8003EB81AFEC7A900D7D3C5 /* SignalProducer.swift */,
 				C72CF3E41CBF188A00E19897 /* RACSignal.swift */,
+				7DBD48F21CC8141D0077AD4F /* Reusable.swift */,
 				4238D5941B4D593E008534C0 /* AppKit */,
 				D8F097391B17F2BF002E15BA /* Foundation */,
 				D86FFBD31B34B0E2001A89B3 /* UIKit */,
@@ -407,11 +429,14 @@
 				5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */,
 				5173EBC51B625A2600C9B48E /* UIBarItem.swift */,
 				D86FFBDC1B34B691001A89B3 /* UIButton.swift */,
+				7DCF5B311CC80D0E004AEE75 /* UICollectionReusableView.swift */,
 				D86FFBD41B34B0FE001A89B3 /* UIControl.swift */,
 				9DA915A31CA6301C003723B9 /* UIDatePicker.swift */,
 				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 				7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */,
+				7DC325721CC6FCF100746D88 /* UITableViewCell.swift */,
+				7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */,
 				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
 				C7DCE2B21CB3C872001217D8 /* UITextView.swift */,
 				8289A2E41BD7F6DD0097FB60 /* UIView.swift */,
@@ -447,10 +472,13 @@
 				8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */,
 				8295FD881B873490007C9000 /* UIButtonTests.swift */,
 				8295FD851B873081007C9000 /* UIControlTests.swift */,
+				7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */,
 				9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */,
 				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
 				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
 				7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */,
+				7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */,
+				7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */,
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
 				C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */,
 				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
@@ -788,14 +816,18 @@
 			files = (
 				9DA915A41CA6301C003723B9 /* UIDatePicker.swift in Sources */,
 				D86FFBD81B34B242001A89B3 /* UILabel.swift in Sources */,
+				7DCF5B331CC80D77004AEE75 /* UICollectionReusableView.swift in Sources */,
 				D86FFBDB1B34B3F0001A89B3 /* Action.swift in Sources */,
 				D86FFBD21B34AD7A001A89B3 /* Association.swift in Sources */,
 				C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */,
+				7DC325761CC6FCF100746D88 /* UITableViewHeaderFooterView.swift in Sources */,
+				7DC325741CC6FCF100746D88 /* UITableViewCell.swift in Sources */,
 				8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
 				D8E4A6211B7BBB2100EAD8A8 /* UIBarItem.swift in Sources */,
 				7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */,
+				7DBD48F31CC8141D0077AD4F /* Reusable.swift in Sources */,
 				C72CF3E61CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8A454071BD26A1A00C9E790 /* Property.swift in Sources */,
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
@@ -814,8 +846,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DC325801CC6FD2100746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */,
 				D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */,
+				7DCF5B361CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */,
 				8289A2E81BD7F7900097FB60 /* UIViewTests.swift in Sources */,
 				D8F073161B863CE70047D546 /* UILabelTests.swift in Sources */,
 				7D2AA99D1CB6F275008AB5C9 /* UISwitchTests.swift in Sources */,
@@ -823,6 +857,7 @@
 				8295FD8A1B87352D007C9000 /* UIButtonTests.swift in Sources */,
 				D8A4540A1BD2772700C9E790 /* PropertyTests.swift in Sources */,
 				C7945F141CC1DFBE00DC9E37 /* UIViewControllerTests.swift in Sources */,
+				7DC3257F1CC6FD1E00746D88 /* UITableViewCellTests.swift in Sources */,
 				9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
@@ -854,13 +889,17 @@
 			files = (
 				D8715DBB1C2112D1005F4191 /* Property.swift in Sources */,
 				D8715DCA1C211553005F4191 /* UILabel.swift in Sources */,
+				7DCF5B341CC80D78004AEE75 /* UICollectionReusableView.swift in Sources */,
 				D8715DCB1C211553005F4191 /* UIImageView.swift in Sources */,
 				C7932E841C4B41E100086F3C /* UITextField.swift in Sources */,
+				7DBD48F41CC8141D0077AD4F /* Reusable.swift in Sources */,
 				D8715DC61C211553005F4191 /* UIBarButtonItem.swift in Sources */,
 				D8715DBD1C2112D1005F4191 /* SignalProducer.swift in Sources */,
 				D8715DBE1C2112D6005F4191 /* Association.swift in Sources */,
+				7DC325771CC6FCF100746D88 /* UITableViewHeaderFooterView.swift in Sources */,
 				D8715DC01C2112D6005F4191 /* NSObject.swift in Sources */,
 				D8715DC91C211553005F4191 /* UIControl.swift in Sources */,
+				7DC325751CC6FCF100746D88 /* UITableViewCell.swift in Sources */,
 				D8715DBC1C2112D1005F4191 /* Signal.swift in Sources */,
 				C72CF3E71CBF188A00E19897 /* RACSignal.swift in Sources */,
 				D8715DBF1C2112D6005F4191 /* NSData.swift in Sources */,
@@ -877,12 +916,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8715DE51C211643005F4191 /* UIViewTests.swift in Sources */,
+				7DCF5B371CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */,
 				D8715DDE1C211637005F4191 /* SignalProducerTests.swift in Sources */,
 				D8715DE11C211643005F4191 /* UIButtonTests.swift in Sources */,
 				D8715DE21C211643005F4191 /* UIControlTests.swift in Sources */,
 				D8715DDF1C21163B005F4191 /* NSObjectTests.swift in Sources */,
+				7DC3257E1CC6FD1C00746D88 /* UITableViewCellTests.swift in Sources */,
 				D8715DDC1C211637005F4191 /* PropertyTests.swift in Sources */,
 				D8715DDD1C211637005F4191 /* SignalTests.swift in Sources */,
+				7DC325811CC6FD2300746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				D8715DE41C211643005F4191 /* UIImageViewTests.swift in Sources */,
 				D8715DE31C211643005F4191 /* UILabelTests.swift in Sources */,
 				D8715DE01C211643005F4191 /* UIBarButtonItemTests.swift in Sources */,

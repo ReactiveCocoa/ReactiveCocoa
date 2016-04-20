@@ -16,7 +16,7 @@ extension Action {
     }
 
     /// Whether the action execution was completed succesfully.
-    public var completed: Signal<Void, NoError> {
+    public var rex_completed: Signal<Void, NoError> {
         return events
             .filter { event in
                 if case .Completed = event {
@@ -29,7 +29,7 @@ extension Action {
     }
     
     /// Whether the action execution was started.
-    public var started: Signal<Void, NoError> {
+    public var rex_started: Signal<Void, NoError> {
         return self.executing.signal
             .filter { $0 }
             .map { _ in }

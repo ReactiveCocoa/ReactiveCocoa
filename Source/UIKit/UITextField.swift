@@ -13,7 +13,7 @@ import enum Result.NoError
 extension UITextField {
     
     /// Sends the field's string value whenever it changes.
-    public var rex_textSignal: SignalProducer<String, NoError> {
+    public var rex_text: SignalProducer<String, NoError> {
         return NSNotificationCenter.defaultCenter()
             .rac_notifications(UITextFieldTextDidChangeNotification, object: self)
             .filterMap  { ($0.object as? UITextField)?.text }

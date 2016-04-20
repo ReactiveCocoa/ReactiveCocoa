@@ -22,13 +22,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidDisappear() {
         
-        let expectation = self.expectationWithDescription("Expected rex_viewDidDisappearSignal to be triggered")
+        let expectation = self.expectationWithDescription("Expected rex_viewDidDisappear to be triggered")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
 
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidDisappearSignal.observeNext {
+        viewController.rex_viewDidDisappear.observeNext {
             expectation.fulfill()
         }
         
@@ -37,13 +37,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillDisappear() {
         
-        let expectation = self.expectationWithDescription("Expected rex_viewWillDisappearSignal to be triggered")
+        let expectation = self.expectationWithDescription("Expected rex_viewWillDisappear to be triggered")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillDisappearSignal.observeNext {
+        viewController.rex_viewWillDisappear.observeNext {
             expectation.fulfill()
         }
         
@@ -52,13 +52,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidAppear() {
         
-        let expectation = self.expectationWithDescription("Expected rex_viewDidAppearSignal to be triggered")
+        let expectation = self.expectationWithDescription("Expected rex_viewDidAppear to be triggered")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidAppearSignal.observeNext {
+        viewController.rex_viewDidAppear.observeNext {
             expectation.fulfill()
         }
         
@@ -67,13 +67,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillAppear() {
         
-        let expectation = self.expectationWithDescription("Expected rex_viewWillAppearSignal to be triggered")
+        let expectation = self.expectationWithDescription("Expected rex_viewWillAppear to be triggered")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillAppearSignal.observeNext {
+        viewController.rex_viewWillAppear.observeNext {
             expectation.fulfill()
         }
         

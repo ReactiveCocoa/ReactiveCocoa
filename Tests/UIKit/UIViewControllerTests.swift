@@ -79,4 +79,34 @@ class UIViewControllerTests: XCTestCase {
         
         viewController.viewWillAppear(true)
     }
+    
+    func testDismissViewController_via_property() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_dismissModally to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_dismissAnimated.signal.observeNext { _ in
+            expectation.fulfill()
+        }
+                
+        viewController.rex_dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
+    }
+    
+    func testDismissViewController_via_cocoaDismiss() {
+        
+        let expectation = self.expectationWithDescription("Expected rex_dismissModally to be triggered")
+        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        
+        let viewController = UIViewController()
+        _viewController = viewController
+        
+        viewController.rex_dismissAnimated.signal.observeNext { _ in
+            expectation.fulfill()
+        }
+
+        viewController.dismissViewControllerAnimated(true, completion: nil)
+    }
 }

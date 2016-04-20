@@ -13,13 +13,13 @@ import XCTest
 class UITextViewTests: XCTestCase {
     
     func testTextProperty() {
-        let expectation = self.expectationWithDescription("Expected textSignal's value to equal to the textViews's text")
+        let expectation = self.expectationWithDescription("Expected `rex_text`'s value to equal to the textViews's text")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
         
         let textView = UITextView(frame: CGRectZero)
         textView.text = "Test"
         
-        textView.rex_textSignal.startWithNext { text in
+        textView.rex_text.startWithNext { text in
             XCTAssertEqual(text, textView.text)
             expectation.fulfill()
         }

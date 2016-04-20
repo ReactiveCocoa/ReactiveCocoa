@@ -24,5 +24,4 @@ class UISwitchTests: XCTestCase {
         observer.sendNext(false)
         XCTAssertFalse(s.on)
     }
-    
 }

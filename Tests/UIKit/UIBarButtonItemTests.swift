@@ -43,5 +43,4 @@ class UIBarButtonItemTests: XCTestCase {
         observer.sendNext(true)
         XCTAssertTrue(barButtonItem.enabled)
     }
-
 }

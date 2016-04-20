@@ -45,5 +45,4 @@ class UIDatePickerTests: XCTestCase {
         picker.userInteractionEnabled = true
         picker.sendActionsForControlEvents(.ValueChanged)
     }
-    
 }

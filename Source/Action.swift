@@ -15,7 +15,7 @@ extension Action {
         return Action(enabledIf: ConstantProperty(false)) { _ in .empty }
     }
 
-    /// Whether the action execution was completed succesfully.
+    /// Whether the action execution was completed successfully.
     public var rex_completed: Signal<Void, NoError> {
         return events
             .filter { event in

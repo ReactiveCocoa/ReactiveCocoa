@@ -12,7 +12,7 @@ import Result
 
 class UITableViewCellTests: XCTestCase {
     
-    func testPrepareForReuseSignal() {
+    func testPrepareForReuse() {
 
         let titleProperty = MutableProperty("John")
 
@@ -25,7 +25,7 @@ class UITableViewCellTests: XCTestCase {
         label.rex_text <~
             titleProperty
                 .producer
-                .takeUntil(cell.rex_prepareForReuseSignal)
+                .takeUntil(cell.rex_prepareForReuse)
 
         XCTAssertEqual(label.text, "John")
 

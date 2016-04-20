@@ -12,7 +12,7 @@ import Result
 
 class UITableViewHeaderFooterViewTests: XCTestCase {
     
-    func testPrepareForReuseSignal() {
+    func testPrepareForReuse() {
 
         let hiddenProperty = MutableProperty(false)
 
@@ -21,7 +21,7 @@ class UITableViewHeaderFooterViewTests: XCTestCase {
         header.rex_hidden <~
             hiddenProperty
                 .producer
-                .takeUntil(header.rex_prepareForReuseSignal)
+                .takeUntil(header.rex_prepareForReuse)
 
         XCTAssertFalse(header.hidden)
 

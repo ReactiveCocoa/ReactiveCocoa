@@ -8,8 +8,6 @@
 
 import XCTest
 import ReactiveCocoa
-import Result
-
 
 class UICollectionReusableViewTests: XCTestCase {
     
@@ -34,5 +32,4 @@ class UICollectionReusableViewTests: XCTestCase {
         hiddenProperty <~ SignalProducer(value: false)
         XCTAssertTrue(cell.hidden)
     }
-    
 }

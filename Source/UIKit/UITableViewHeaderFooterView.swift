@@ -7,7 +7,5 @@
 //
 
 import UIKit
-import ReactiveCocoa
-import Result
 
 extension UITableViewHeaderFooterView: Reusable {}

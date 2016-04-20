@@ -8,7 +8,6 @@
 
 import XCTest
 import ReactiveCocoa
-import Result
 
 class UITableViewHeaderFooterViewTests: XCTestCase {
     
@@ -33,5 +32,4 @@ class UITableViewHeaderFooterViewTests: XCTestCase {
         hiddenProperty <~ SignalProducer(value: false)
         XCTAssertTrue(header.hidden)
     }
-    
 }

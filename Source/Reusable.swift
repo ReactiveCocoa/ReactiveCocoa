@@ -6,9 +6,8 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
-import Foundation
 import ReactiveCocoa
-import Result
+import enum Result.NoError
 
 
 /// A protocol for components that can be reused using `prepareForReuse`.
@@ -44,5 +43,4 @@ extension Reusable {
         return rac_prepareForReuseSignal
             .rex_toTriggerSignal()
     }
-    
 }

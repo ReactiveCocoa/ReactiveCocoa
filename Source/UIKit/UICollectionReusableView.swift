@@ -6,8 +6,6 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
-import Foundation
-import ReactiveCocoa
-import Result
+import UIKit
 
 extension UICollectionReusableView: Reusable {}

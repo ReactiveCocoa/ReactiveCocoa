@@ -8,7 +8,6 @@
 
 import XCTest
 import ReactiveCocoa
-import Result
 
 class UITableViewCellTests: XCTestCase {
     
@@ -37,5 +36,4 @@ class UITableViewCellTests: XCTestCase {
         titleProperty <~ SignalProducer(value: "Will")
         XCTAssertEqual(label.text, "Frank")
     }
-    
 }

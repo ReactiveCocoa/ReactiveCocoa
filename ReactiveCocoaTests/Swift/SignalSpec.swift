@@ -147,7 +147,7 @@ class SignalSpec: QuickSpec {
 				signal.observe { event in
 					switch event {
 					case .Next, .Failed, .Completed:
-						hasUnexpectedEventsEmitted = false
+						hasUnexpectedEventsEmitted = true
 					case .Interrupted:
 						signalInterrupted = true
 					}

@@ -1217,7 +1217,7 @@ extension SignalProducerType {
 		// This will go "out of scope" when the returned `SignalProducer` goes out of scope.
 		// This lets us know when we're supposed to dispose the underlying producer.
 		// This is necessary because `struct`s don't have `deinit`.
-		let token = NSObject()
+		let tracker = Tracker()
 
 		return SignalProducer { observer, disposable in
 			let initializedProducer: SignalProducer<Value, Error>
@@ -1242,22 +1242,17 @@ extension SignalProducerType {
 
 			if shouldStartUnderlyingProducer {
 				self.producer
-					.takeUntil(token.willDeallocSignal)
+					.takeUntil(tracker.deallocSignal)
 					.start(initializedObserver)
 			}
 		}
 	}
 }
 
-private extension NSObject {
-	var willDeallocSignal: SignalProducer<(), NoError> {
-		return self
-			.rac_willDeallocSignal()
-			.toSignalProducer()
-			.map { _ in () }
-			.mapError { error in
-				fatalError("Unexpected error: \(error)")
-				()
-			}
+private final class Tracker {
+	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
+
+	deinit {
+		observer.sendCompleted()
 	}
 }

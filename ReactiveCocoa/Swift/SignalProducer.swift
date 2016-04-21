@@ -1217,7 +1217,7 @@ extension SignalProducerType {
 		// This will go "out of scope" when the returned `SignalProducer` goes out of scope.
 		// This lets us know when we're supposed to dispose the underlying producer.
 		// This is necessary because `struct`s don't have `deinit`.
-		let tracker = Tracker()
+		let token = DeallocationToken()
 
 		return SignalProducer { observer, disposable in
 			let initializedProducer: SignalProducer<Value, Error>
@@ -1242,14 +1242,14 @@ extension SignalProducerType {
 
 			if shouldStartUnderlyingProducer {
 				self.producer
-					.takeUntil(tracker.deallocSignal)
+					.takeUntil(token.deallocSignal)
 					.start(initializedObserver)
 			}
 		}
 	}
 }
 
-private final class Tracker {
+private final class DeallocationToken {
 	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
 
 	deinit {

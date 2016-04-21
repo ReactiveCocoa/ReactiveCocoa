@@ -21,11 +21,12 @@ Pod::Spec.new do |s|
   s.source       = { :git => 'https://github.com/neilpa/Rex.git', :tag => s.version }
   s.dependency 'ReactiveCocoa', '~> 4.1'
   s.ios.framework  = 'UIKit'
+  s.tvos.framework = 'UIKit'
   s.osx.framework  = 'AppKit'
 
   s.source_files  = 'Source/**/*.swift'
   s.ios.exclude_files = 'Source/AppKit/*'
-  s.tvos.exclude_files = 'Source/AppKit/*'
+  s.tvos.exclude_files = 'Source/AppKit/*', 'Source/UIKit/UIDatePicker.swift'
   s.watchos.exclude_files = 'Source/AppKit/*', 'Source/UIKit/*'
   s.osx.exclude_files = 'Source/UIKit/*'
 

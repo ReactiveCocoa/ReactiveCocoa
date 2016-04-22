@@ -18,21 +18,19 @@ extension Action {
     /// Whether the action execution was started.
     public var rex_started: Signal<Void, NoError> {
         return self.executing.signal
-            .filter { $0 }
-            .map { _ in }
+            .filterMap { $0 ? () : nil }
     }
 
     /// Whether the action execution was completed successfully.
     public var rex_completed: Signal<Void, NoError> {
         return events
-            .filter { event in
+            .filterMap { event -> Void? in
                 if case .Completed = event {
-                    return true
+                    return ()
                 } else {
-                    return false
+                    return nil
                 }
             }
-            .map { _ in }
     }
 }
 

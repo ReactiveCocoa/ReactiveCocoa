@@ -16,17 +16,20 @@ extension SignalType {
     @warn_unused_result(message="Did you forget to call `observe` on the signal?")
     public func filterMap<U>(transform: Value -> U?) -> Signal<U, Error> {
         return Signal<U, Error> { observer in
-            return self.observe(Observer(next: { value in
-                if let val = transform(value) {
-                    observer.sendNext(val)
+            return self.observe { event in
+                switch event {
+                case let .Next(value):
+                    if let mapped = transform(value) {
+                        observer.sendNext(mapped)
+                    }
+                case let .Failed(error):
+                    observer.sendFailed(error)
+                case .Completed:
+                    observer.sendCompleted()
+                case .Interrupted:
+                    observer.sendInterrupted()
                 }
-            }, failed: { error in
-                observer.sendFailed(error)
-            }, completed: {
-                observer.sendCompleted()
-            }, interrupted: {
-                observer.sendInterrupted()
-            }))
+            }
         }
     }
 

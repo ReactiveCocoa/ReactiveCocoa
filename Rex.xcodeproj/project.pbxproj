@@ -44,6 +44,9 @@
 		C7945F141CC1DFBE00DC9E37 /* UIViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */; };
 		C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B21CB3C872001217D8 /* UITextView.swift */; };
 		C7DCE2B71CB3C9D6001217D8 /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */; };
+		CC02C18A1CCA704E0025CC04 /* ActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02C1881CCA704C0025CC04 /* ActionTests.swift */; };
+		CC02C18B1CCA704F0025CC04 /* ActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02C1881CCA704C0025CC04 /* ActionTests.swift */; };
+		CC02C18C1CCA704F0025CC04 /* ActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02C1881CCA704C0025CC04 /* ActionTests.swift */; };
 		D8003E941AFEC3D400D7D3C5 /* Rex.h in Headers */ = {isa = PBXBuildFile; fileRef = D8003E931AFEC3D400D7D3C5 /* Rex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D8003EB41AFEC6B000D7D3C5 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8003EB51AFEC6B000D7D3C5 /* Result.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8003EAE1AFEC68A00D7D3C5 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -222,6 +225,7 @@
 		C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerTests.swift; sourceTree = "<group>"; };
 		C7DCE2B21CB3C872001217D8 /* UITextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextViewTests.swift; sourceTree = "<group>"; };
+		CC02C1881CCA704C0025CC04 /* ActionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionTests.swift; sourceTree = "<group>"; };
 		D8003E921AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8003E931AFEC3D400D7D3C5 /* Rex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rex.h; sourceTree = "<group>"; };
 		D8003E9F1AFEC3D400D7D3C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -371,6 +375,7 @@
 		D8003E9D1AFEC3D400D7D3C5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				CC02C1881CCA704C0025CC04 /* ActionTests.swift */,
 				D8A454081BD2772700C9E790 /* PropertyTests.swift */,
 				D8003EBE1AFED2F800D7D3C5 /* SignalTests.swift */,
 				D8003EC01AFED30100D7D3C5 /* SignalProducerTests.swift */,
@@ -803,6 +808,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC02C18A1CCA704E0025CC04 /* ActionTests.swift in Sources */,
 				D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */,
 				D8003EC21AFED30F00D7D3C5 /* SignalTests.swift in Sources */,
 				D8003EC31AFED30F00D7D3C5 /* SignalProducerTests.swift in Sources */,
@@ -846,6 +852,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC02C18B1CCA704F0025CC04 /* ActionTests.swift in Sources */,
 				7DC325801CC6FD2100746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */,
 				D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */,
@@ -920,6 +927,7 @@
 				D8715DDE1C211637005F4191 /* SignalProducerTests.swift in Sources */,
 				D8715DE11C211643005F4191 /* UIButtonTests.swift in Sources */,
 				D8715DE21C211643005F4191 /* UIControlTests.swift in Sources */,
+				CC02C18C1CCA704F0025CC04 /* ActionTests.swift in Sources */,
 				D8715DDF1C21163B005F4191 /* NSObjectTests.swift in Sources */,
 				7DC3257E1CC6FD1C00746D88 /* UITableViewCellTests.swift in Sources */,
 				D8715DDC1C211637005F4191 /* PropertyTests.swift in Sources */,

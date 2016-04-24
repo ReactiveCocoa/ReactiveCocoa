@@ -64,12 +64,12 @@ public final class UIScheduler: SchedulerType {
 
 	public func schedule(action: () -> ()) -> Disposable? {
 		let disposable = SimpleDisposable()
-		let actionAndDecrement: () -> () = {
+		func actionAndDecrement() {
 			if !disposable.disposed {
 				action()
 			}
 
-			OSAtomicDecrement32(&self.queueLength)
+			OSAtomicDecrement32(&queueLength)
 		}
 
 		let queued = OSAtomicIncrement32(&queueLength)

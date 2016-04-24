@@ -726,12 +726,12 @@ extension SignalType {
 		return self
 			.scan((nil, false)) { (accumulated: (Value?, Bool), next: Value) -> (value: Value?, repeated: Bool) in
 				switch accumulated.0 {
-				case .None:
+				case nil:
 					return (next, false)
-				case let .Some(prev) where isRepeat(prev, next):
+				case let prev? where isRepeat(prev, next):
 					return (prev, true)
-				case .Some:
-					return (Optional.Some(next), false)
+				case _?:
+					return (Optional(next), false)
 				}
 			}
 			.filter { !$0.repeated }

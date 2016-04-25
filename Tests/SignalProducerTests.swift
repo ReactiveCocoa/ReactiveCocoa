@@ -14,7 +14,7 @@ import enum Result.NoError
 final class SignalProducerTests: XCTestCase {
 
     func testGroupBy() {
-        let (producer, sink) = SignalProducer<Int, NoError>.buffer(Int.max)
+        let (producer, observer) = SignalProducer<Int, NoError>.buffer(Int.max)
         var evens: [Int] = []
         var odds: [Int] = []
         let disposable = CompositeDisposable()
@@ -35,21 +35,21 @@ final class SignalProducerTests: XCTestCase {
                 interrupted = true
             }))
 
-        sink.sendNext(1)
+        observer.sendNext(1)
         XCTAssert(evens == [])
         XCTAssert(odds == [1])
 
-        sink.sendNext(2)
+        observer.sendNext(2)
         XCTAssert(evens == [2])
         XCTAssert(odds == [1])
 
-        sink.sendNext(3)
+        observer.sendNext(3)
         XCTAssert(evens == [2])
         XCTAssert(odds == [1, 3])
 
         disposable.dispose()
 
-        sink.sendNext(1)
+        observer.sendNext(1)
         XCTAssert(interrupted)
         XCTAssertFalse(completed)
     }

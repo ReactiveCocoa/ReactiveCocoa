@@ -28,11 +28,11 @@ extension SignalProducerType {
                 lock.lock()
                 var group = groups[key]
                 if group == nil {
-                    let (producer, sink) = SignalProducer<Value, Error>.buffer(Int.max)
+                    let (producer, innerObserver) = SignalProducer<Value, Error>.buffer(Int.max)
                     observer.sendNext(key, producer)
 
-                    groups[key] = sink
-                    group = sink
+                    groups[key] = innerObserver
+                    group = innerObserver
                 }
                 lock.unlock()
 

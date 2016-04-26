@@ -42,13 +42,13 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		switch strategy {
 		case .Merge:
-			return self.merge()
+			return merge()
 
 		case .Concat:
-			return self.concat()
+			return concat()
 
 		case .Latest:
-			return self.switchToLatest()
+			return switchToLatest()
 		}
 	}
 }
@@ -66,13 +66,13 @@ extension SignalProducerType where Value: SignalProducerType, Error == Value.Err
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		switch strategy {
 		case .Merge:
-			return self.merge()
+			return merge()
 
 		case .Concat:
-			return self.concat()
+			return concat()
 
 		case .Latest:
-			return self.switchToLatest()
+			return switchToLatest()
 		}
 	}
 }
@@ -88,7 +88,7 @@ extension SignalType where Value: SignalType, Error == Value.Error {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return map(SignalProducer.init).flatten(strategy)
 	}
 }
 
@@ -103,7 +103,7 @@ extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return map(SignalProducer.init).flatten(strategy)
 	}
 }
 
@@ -124,7 +124,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			let relayDisposable = CompositeDisposable()
 
 			disposable += relayDisposable
-			disposable += self.observeConcat(relayObserver, relayDisposable)
+			disposable += observeConcat(relayObserver, relayDisposable)
 
 			return disposable
 		}
@@ -133,7 +133,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	private func observeConcat(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable? = nil) -> Disposable? {
 		let state = ConcatState(observer: observer, disposable: disposable)
 
-		return self.observe { event in
+		return observe { event in
 			switch event {
 			case let .Next(value):
 				state.enqueueSignalProducer(value.producer)
@@ -179,7 +179,7 @@ extension SignalProducerType {
 	/// `concat`s `next` onto `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func concat(next: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
-		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [self.producer, next]).flatten(.Concat)
+		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [producer, next]).flatten(.Concat)
 	}
 }
 
@@ -241,8 +241,8 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(signalProducer: SignalProducer<Value, Error>) {
-		signalProducer.startWithSignal { signal, disposable in
-			let handle = self.disposable?.addDisposable(disposable) ?? nil
+		signalProducer.startWithSignal { signal, signalDisposable in
+			let handle = disposable?.addDisposable(signalDisposable) ?? nil
 
 			signal.observe { event in
 				switch event {
@@ -270,7 +270,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			let relayDisposable = CompositeDisposable()
 
 			disposable += relayDisposable
-			disposable += self.observeMerge(relayObserver, relayDisposable)
+			disposable += observeMerge(relayObserver, relayDisposable)
 
 			return disposable
 		}
@@ -285,7 +285,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			}
 		}
 
-		return self.observe { event in
+		return observe { event in
 			switch event {
 			case let .Next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
@@ -363,7 +363,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			let serial = SerialDisposable()
 
 			composite += serial
-			composite += self.observeSwitchToLatest(observer, serial)
+			composite += observeSwitchToLatest(observer, serial)
 
 			return composite
 		}
@@ -372,7 +372,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	private func observeSwitchToLatest(observer: Observer<Value.Value, Error>, _ latestInnerDisposable: SerialDisposable) -> Disposable? {
 		let state = Atomic(LatestState<Value, Error>())
 
-		return self.observe { event in
+		return observe { event in
 			switch event {
 			case let .Next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
@@ -531,12 +531,12 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatMapError<F>(handler: Error -> SignalProducer<Value, F>) -> Signal<Value, F> {
 		return Signal { observer in
-			self.observeFlatMapError(handler, observer, SerialDisposable())
+			observeFlatMapError(handler, observer, SerialDisposable())
 		}
 	}
 
 	private func observeFlatMapError<F>(handler: Error -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ serialDisposable: SerialDisposable) -> Disposable? {
-		return self.observe { event in
+		return observe { event in
 			switch event {
 			case let .Next(value):
 				observer.sendNext(value)

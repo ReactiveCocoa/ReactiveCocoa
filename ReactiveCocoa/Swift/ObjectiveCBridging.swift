@@ -15,16 +15,16 @@ extension RACScheduler: DateSchedulerType {
 	}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		let disposable: RACDisposable = self.schedule(action) // Call the Objective-C implementation
+		let disposable: RACDisposable = schedule(action) // Call the Objective-C implementation
 		return disposable as Disposable?
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return self.after(date, schedule: action)
+		return after(date, schedule: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
+		return after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
 
@@ -87,8 +87,7 @@ extension SignalProducerType where Value: AnyObject {
 	///
 	/// Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.lift { $0.optionalize() }
+		return lift { $0.optionalize() }
 			.toRACSignal()
 	}
 }
@@ -99,8 +98,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	///
 	/// Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.mapError { $0 as NSError }
+		return mapError { $0 as NSError }
 			.toRACSignal()
 	}
 }
@@ -111,8 +109,7 @@ extension SignalProducerType where Value: AnyObject, Error: NSError {
 	///
 	/// Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.lift { $0.optionalize() }
+		return lift { $0.optionalize() }
 			.toRACSignal()
 	}
 }
@@ -152,8 +149,7 @@ extension SignalType where Value: AnyObject {
 	///
 	/// Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.optionalize()
+		return optionalize()
 			.toRACSignal()
 	}
 }
@@ -163,8 +159,7 @@ extension SignalType where Value: AnyObject, Error: NSError {
 	///
 	/// Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.optionalize()
+		return optionalize()
 			.toRACSignal()
 	}
 }
@@ -174,8 +169,7 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 	///
 	/// Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		return self
-			.mapError { $0 as NSError }
+		return mapError { $0 as NSError }
 			.toRACSignal()
 	}
 }
@@ -220,7 +214,7 @@ extension RACCommand {
 	public func toAction(file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
-		enabledProperty <~ self.enabled.toSignalProducer()
+		enabledProperty <~ enabled.toSignalProducer()
 			.map { $0 as! Bool }
 			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
@@ -236,7 +230,7 @@ extension RACCommand {
 
 extension Action {
 	private var commandEnabled: RACSignal {
-		return self.enabled.producer
+		return enabled.producer
 			.map { $0 as NSNumber }
 			.toRACSignal()
 	}

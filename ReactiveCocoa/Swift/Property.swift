@@ -144,6 +144,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		var value = initialValue
 
 		lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
+
 		getter = { value }
 		setter = { newValue in value = newValue }
 

@@ -130,16 +130,25 @@ public final class Action<Input, Output, Error: ErrorType> {
 }
 
 public protocol ActionType {
-	/// The type of argument to apply the action to
+	/// The type of argument to apply the action to.
 	typealias Input
-	/// The type of values returned by the action
+	/// The type of values returned by the action.
 	typealias Output
 	/// The type of error when the action fails. If errors aren't possible then `NoError` can be used.
 	typealias Error: ErrorType
-	
+
+	/// Whether the action is currently enabled.
 	var enabled: AnyProperty<Bool> { get }
+
+	/// Extracts an action from the receiver.
 	var action: Action<Input, Output, Error> { get }
-	
+
+	/// Creates a SignalProducer that, when started, will execute the action
+	/// with the given input, then forward the results upon the produced Signal.
+	///
+	/// If the action is disabled when the returned SignalProducer is started,
+	/// the produced signal will send `ActionError.NotEnabled`, and nothing will
+	/// be sent upon `values` or `errors` for that particular signal.
 	func apply(input: Input) -> SignalProducer<Output, ActionError<Error>>
 }
 

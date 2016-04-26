@@ -106,7 +106,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 
 		set {
-			modify { _ in newValue }
+			swap(newValue)
 		}
 	}
 

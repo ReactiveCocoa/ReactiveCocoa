@@ -95,9 +95,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
 
-	/// The getter and setter of the underlying storage, which could outlive
-	/// the property if any of the returned producer is being retained.
+	/// The getter of the underlying storage, which may outlive the property
+	/// if a returned producer is being retained.
 	private let getter: () -> Value
+
+	/// The setter of the underlying storage.
 	private let setter: Value -> Void
 
 	/// The current value of the property.

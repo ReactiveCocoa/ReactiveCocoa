@@ -131,11 +131,11 @@ public final class Action<Input, Output, Error: ErrorType> {
 
 public protocol ActionType {
 	/// The type of argument to apply the action to.
-	typealias Input
+	associatedtype Input
 	/// The type of values returned by the action.
-	typealias Output
+	associatedtype Output
 	/// The type of error when the action fails. If errors aren't possible then `NoError` can be used.
-	typealias Error: ErrorType
+	associatedtype Error: ErrorType
 
 	/// Whether the action is currently enabled.
 	var enabled: AnyProperty<Bool> { get }

@@ -246,6 +246,23 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(value) == 1
 			}
+
+			it("should not deadlock on recursive ABA observation") {
+				let propertyA = MutableProperty(0)
+				let propertyB = MutableProperty(0)
+
+				var value: Int?
+				propertyA.producer.startWithNext { _ in
+					propertyB.producer.startWithNext { _ in
+						propertyA.producer.startWithNext { x in value = x }
+					}
+				}
+
+				expect(value) == 0
+
+				propertyA.value = 1
+				expect(value) == 1
+			}
 		}
 
 		describe("AnyProperty") {

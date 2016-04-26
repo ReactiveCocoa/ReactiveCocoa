@@ -129,6 +129,26 @@ public final class Action<Input, Output, Error: ErrorType> {
 	}
 }
 
+public protocol ActionType {
+	/// The type of argument to apply the action to
+	typealias Input
+	/// The type of values returned by the action
+	typealias Output
+	/// The type of error when the action fails. If errors aren't possible then `NoError` can be used.
+	typealias Error: ErrorType
+	
+	var enabled: AnyProperty<Bool> { get }
+	var action: Action<Input, Output, Error> { get }
+	
+	func apply(input: Input) -> SignalProducer<Output, ActionError<Error>>
+}
+
+extension Action: ActionType {
+	public var action: Action {
+		return self
+	}
+}
+
 /// Wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.
 public final class CocoaAction: NSObject {

@@ -49,6 +49,7 @@ import Foundation
 scopedExample("`empty`") {
     
     let emptyProducer = SignalProducer<Int, NoError>.empty
+    
     let observer = Observer<Int, NoError>(
         failed: { _ in print("error not called") },
         completed: { print("completed called")},
@@ -64,6 +65,7 @@ scopedExample("`empty`") {
 scopedExample("`never`") {
     
     let neverProducer = SignalProducer<Int, NoError>.never
+    
     let observer = Observer<Int, NoError>(
         failed: { _ in print("error not called") },
         completed: { print("completed not called")},

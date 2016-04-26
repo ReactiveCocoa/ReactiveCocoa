@@ -25,9 +25,9 @@ final class SignalProducerTests: XCTestCase {
             .groupBy { $0 % 2 == 0 }
             .start(Observer(next: { key, group in
                 if key {
-                    group.start(Observer(next: { evens.append($0) }))
+                    group.startWithNext { evens.append($0) }
                 } else {
-                    group.start(Observer(next: { odds.append($0) }))
+                    group.startWithNext { odds.append($0) }
                 }
             },completed: {
                 completed = true

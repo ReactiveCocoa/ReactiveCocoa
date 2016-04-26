@@ -22,34 +22,37 @@ extension SignalProducerType {
             let lock = NSRecursiveLock()
             lock.name = "me.neilpa.rex.groupBy"
 
-            self.start(Observer(next: { value in
-                let key = grouping(value)
+            self.start { event in
+                switch event {
+                case let .Next(value):
+                    let key = grouping(value)
 
-                lock.lock()
-                var group = groups[key]
-                if group == nil {
-                    let (producer, innerObserver) = SignalProducer<Value, Error>.buffer(Int.max)
-                    observer.sendNext(key, producer)
+                    lock.lock()
+                    var group = groups[key]
+                    if group == nil {
+                        let (producer, innerObserver) = SignalProducer<Value, Error>.buffer(Int.max)
+                        observer.sendNext(key, producer)
 
-                    groups[key] = innerObserver
-                    group = innerObserver
+                        groups[key] = innerObserver
+                        group = innerObserver
+                    }
+                    lock.unlock()
+                    
+                    group!.sendNext(value)
+
+                case let .Failed(error):
+                    observer.sendFailed(error)
+                    groups.values.forEach { $0.sendFailed(error) }
+
+                case .Completed:
+                    observer.sendCompleted()
+                    groups.values.forEach { $0.sendCompleted() }
+
+                case .Interrupted:
+                    observer.sendInterrupted()
+                    groups.values.forEach { $0.sendInterrupted() }
                 }
-                lock.unlock()
-
-                group!.sendNext(value)
-
-            }, failed: { error in
-                observer.sendFailed(error)
-                groups.values.forEach { $0.sendFailed(error) }
-
-            }, completed: { _ in
-                observer.sendCompleted()
-                groups.values.forEach { $0.sendCompleted() }
-
-            }, interrupted: { _ in
-                observer.sendInterrupted()
-                groups.values.forEach { $0.sendInterrupted() }
-            }))
+            }
         }
     }
 

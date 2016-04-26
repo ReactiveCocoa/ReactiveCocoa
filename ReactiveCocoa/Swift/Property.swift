@@ -122,15 +122,16 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [getter, lock, weak self] producerObserver, producerDisposable in
-			lock.lock()
-			defer { lock.unlock() }
-
-			producerObserver.sendNext(getter())
-
+		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
 			if let strongSelf = self {
-				producerDisposable += strongSelf.signal.observe(producerObserver)
+				strongSelf.withValue { value in
+					producerObserver.sendNext(value)
+					producerDisposable += strongSelf.signal.observe(producerObserver)
+				}
 			} else {
+				/// As the setter would have been deinitialized with the property,
+				/// the underlying storage would be immutable, and locking is no longer necessary.
+				producerObserver.sendNext(getter())
 				producerObserver.sendCompleted()
 			}
 		}

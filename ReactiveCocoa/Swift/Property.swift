@@ -95,8 +95,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
 
-	/// The getter and setter of the underlying storage. It could outlive
-	/// the property if any of the returned producer is retained.
+	/// The getter and setter of the underlying storage, which could outlive
+	/// the property if any of the returned producer is being retained.
 	private let getter: () -> Value
 	private let setter: Value -> Void
 
@@ -122,7 +122,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [getter, setter, lock, weak self] producerObserver, producerDisposable in
+		return SignalProducer { [getter, lock, weak self] producerObserver, producerDisposable in
 			lock.lock()
 			defer { lock.unlock() }
 
@@ -145,7 +145,6 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		setter = { newValue in value = newValue }
 
 		(signal, observer) = Signal.pipe()
-		observer.sendNext(initialValue)
 	}
 
 	/// Atomically replaces the contents of the variable.

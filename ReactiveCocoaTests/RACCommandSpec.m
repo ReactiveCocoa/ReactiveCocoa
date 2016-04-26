@@ -199,7 +199,7 @@ qck_it(@"should invoke the signalBlock once per execution", ^{
 });
 
 qck_it(@"should send on executionSignals in order of execution", ^{
-	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSequence *seq) {
+	RACCommand<RACSequence *> *command = [[RACCommand alloc] initWithSignalBlock:^(RACSequence *seq) {
 		return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 	}];
 
@@ -221,7 +221,7 @@ qck_it(@"should send on executionSignals in order of execution", ^{
 });
 
 qck_it(@"should wait for all signals to complete or error before executing sends NO", ^{
-	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+	RACCommand<RACSignal *> *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
 
@@ -320,7 +320,7 @@ qck_it(@"should deliver errors from -execute:", ^{
 });
 
 qck_it(@"should deliver errors onto 'errors'", ^{
-	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+	RACCommand<RACSignal *> *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
 
@@ -378,7 +378,7 @@ qck_it(@"should not deliver non-error events onto 'errors'", ^{
 });
 
 qck_it(@"should send errors on the main thread", ^{
-	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+	RACCommand<RACSignal *> *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
 

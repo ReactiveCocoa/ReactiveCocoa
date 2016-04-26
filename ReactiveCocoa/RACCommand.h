@@ -24,7 +24,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 
 /// A command is a signal triggered in response to some action, typically
 /// UI-related.
-@interface RACCommand : NSObject
+@interface RACCommand<__contravariant InputType> : NSObject
 
 /// A signal of the signals returned by successful invocations of -execute:
 /// (i.e., while the receiver is `enabled`).
@@ -77,7 +77,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 @property (atomic, assign) BOOL allowsConcurrentExecution;
 
 /// Invokes -initWithEnabled:signalBlock: with a nil `enabledSignal`.
-- (id)initWithSignalBlock:(RACSignal * (^)(id input))signalBlock;
+- (id)initWithSignalBlock:(RACSignal * (^)(InputType input))signalBlock;
 
 /// Initializes a command that is conditionally enabled.
 ///
@@ -92,7 +92,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 ///                 to a replay subject, sent on `executionSignals`, then
 ///                 subscribed to synchronously. Neither the block nor the
 ///                 returned signal may be nil.
-- (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(id input))signalBlock;
+- (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(InputType input))signalBlock;
 
 /// If the receiver is enabled, this method will:
 ///
@@ -107,7 +107,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 /// Returns the multicasted signal, after subscription. If the receiver is not
 /// enabled, returns a signal that will send an error with code
 /// RACCommandErrorNotEnabled.
-- (RACSignal *)execute:(id)input;
+- (RACSignal *)execute:(InputType)input;
 
 @end
 

@@ -133,20 +133,22 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 		// Used as an atomic variable so we can remove observers without needing
 		// to run on the queue.
-		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
+		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState(capacity: capacity))
 
 		let producer = self.init { observer, disposable in
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
+			var generator: IndexingGenerator<Array<Value>>?
 
 			let replay: () -> () = {
 				let originalState = state.modify { state in
 					var mutableState = state
 					token = mutableState.observers?.insert(observer)
+					generator = mutableState.generator()
 					return mutableState
 				}
 
-				originalState.values.forEach(observer.sendNext)
+				generator!.forEach(observer.sendNext)
 
 				if let terminationEvent = originalState.terminationEvent {
 					observer.action(terminationEvent)
@@ -184,7 +186,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 					var mutableState = state
 
 					if let value = event.value {
-						mutableState.addValue(value, upToCapacity: capacity)
+						mutableState.addValue(value)
 					} else {
 						// Disconnect all observers and prevent future
 						// attachments.
@@ -263,9 +265,17 @@ public struct SignalProducer<Value, Error: ErrorType> {
 }
 
 private struct BufferState<Value, Error: ErrorType> {
-	// All values in the buffer.
-	var values: [Value] = []
-
+    
+    init(capacity: Int) {
+        self.capacity = capacity
+    }
+    
+    private var values: [Value] = []
+    private var index = 0
+    private var count = 0
+    private var capacity: Int
+    private var slice: Array<Value>?
+    
 	// Any terminating event sent to the buffer.
 	//
 	// This will be nil if termination has not occurred.
@@ -275,16 +285,29 @@ private struct BufferState<Value, Error: ErrorType> {
 	// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
-	// Appends a new value to the buffer, trimming it down to the given capacity
-	// if necessary.
-	mutating func addValue(value: Value, upToCapacity capacity: Int) {
-		values.append(value)
-
-		let overflow = values.count - capacity
-		if overflow > 0 {
-			values.removeRange(0..<overflow)
-		}
-	}
+    mutating func addValue(value: Value) {
+        if self.capacity == 1 {
+            self.values = [value]
+            return
+        }
+        if values.count == 0 {
+            values = Array<Value>(count: self.capacity * 2, repeatedValue: value)
+        }
+        values[index] = value
+        values[index + capacity] = value
+        index = (index + 1) % (self.capacity)
+        if count < self.capacity {
+            count = count + 1
+        }
+        self.slice = nil
+    }
+    
+    mutating func generator() -> IndexingGenerator<Array<Value>> {
+        if slice == nil {
+            self.slice = Array(self.values[index..<(index + count)])
+        }
+        return self.slice!.generate()
+    }
 }
 
 public protocol SignalProducerType {

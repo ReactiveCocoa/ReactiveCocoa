@@ -52,7 +52,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// it unsafe for use when the action is parameterized for something like `Void`
 	/// input. In those cases, explicitly assign a value to this property that transforms
 	/// the input to suit your needs.
-	public lazy var unsafeCocoaAction: CocoaAction = CocoaAction(self) { $0 as! Input }
+	public lazy var unsafeCocoaAction: CocoaAction = CocoaAction(self)
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.

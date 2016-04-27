@@ -152,6 +152,33 @@ class PropertySpec: QuickSpec {
 				expect(signalCompleted) == true
 			}
 
+			it("should yield a producer which emits the latest value and complete even if the property is deallocated") {
+				var mutableProperty: MutableProperty? = MutableProperty(initialPropertyValue)
+				let producer = mutableProperty!.producer
+
+				var producerCompleted = false
+				var hasUnanticipatedEvent = false
+				var latestValue = mutableProperty?.value
+
+				mutableProperty!.value = subsequentPropertyValue
+				mutableProperty = nil
+
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						latestValue = value
+					case .Completed:
+						producerCompleted = true
+					case .Interrupted, .Failed:
+						hasUnanticipatedEvent = true
+					}
+				}
+
+				expect(hasUnanticipatedEvent) == false
+				expect(producerCompleted) == true
+				expect(latestValue) == subsequentPropertyValue
+			}
+
 			it("should modify the value atomically") {
 				let property = MutableProperty(initialPropertyValue)
 
@@ -244,6 +271,23 @@ class PropertySpec: QuickSpec {
 				expect(value) == 0
 
 				property.value = 1
+				expect(value) == 1
+			}
+
+			it("should not deadlock on recursive ABA observation") {
+				let propertyA = MutableProperty(0)
+				let propertyB = MutableProperty(0)
+
+				var value: Int?
+				propertyA.producer.startWithNext { _ in
+					propertyB.producer.startWithNext { _ in
+						propertyA.producer.startWithNext { x in value = x }
+					}
+				}
+
+				expect(value) == 0
+
+				propertyA.value = 1
 				expect(value) == 1
 			}
 		}

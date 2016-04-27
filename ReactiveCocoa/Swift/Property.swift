@@ -94,7 +94,13 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
-	private var _value: Value
+
+	/// The getter of the underlying storage, which may outlive the property
+	/// if a returned producer is being retained.
+	private let getter: () -> Value
+
+	/// The setter of the underlying storage.
+	private let setter: Value -> Void
 
 	/// The current value of the property.
 	///
@@ -112,28 +118,38 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
-	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
-		var extractedSignal: Signal<Value, NoError>!
-		self.producer.startWithSignal { signal, _ in
-			extractedSignal = signal
-		}
-		return extractedSignal
-	}()
+	public let signal: Signal<Value, NoError>
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public let producer: SignalProducer<Value, NoError>
+	public var producer: SignalProducer<Value, NoError> {
+		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
+			if let strongSelf = self {
+				strongSelf.withValue { value in
+					producerObserver.sendNext(value)
+					producerDisposable += strongSelf.signal.observe(producerObserver)
+				}
+			} else {
+				/// As the setter would have been deinitialized with the property,
+				/// the underlying storage would be immutable, and locking is no longer necessary.
+				producerObserver.sendNext(getter())
+				producerObserver.sendCompleted()
+			}
+		}
+	}
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
-		_value = initialValue
+		var value = initialValue
 
 		lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		(producer, observer) = SignalProducer.buffer(1)
-		observer.sendNext(initialValue)
+		getter = { value }
+		setter = { newValue in value = newValue }
+
+		(signal, observer) = Signal.pipe()
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -150,9 +166,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		let oldValue = _value
-		_value = try action(_value)
-		observer.sendNext(_value)
+		let oldValue = getter()
+		setter(try action(oldValue))
+		self.observer.sendNext(getter())
+
 		return oldValue
 	}
 
@@ -164,7 +181,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		return try action(_value)
+		return try action(getter())
 	}
 
 	deinit {

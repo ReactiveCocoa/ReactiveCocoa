@@ -518,6 +518,12 @@ class PropertySpec: QuickSpec {
 				object = nil
 				expect(dynamicProperty).to(beNil())
 			}
+
+			it("should support un-bridged reference types") {
+				let dynamicProperty = DynamicProperty<UnbridgedObject>(object: object, keyPath: "rac_reference")
+				dynamicProperty.value = UnbridgedObject("foo")
+				expect(object.rac_reference.value) == "foo"
+			}
 		}
 
 		describe("binding") {
@@ -713,4 +719,12 @@ class PropertySpec: QuickSpec {
 
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+}
+
+private class UnbridgedObject: NSObject {
+	let value: String
+	init(_ value: String) {
+		self.value = value
+	}
 }

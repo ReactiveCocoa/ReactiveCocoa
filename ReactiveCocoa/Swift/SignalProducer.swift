@@ -141,9 +141,9 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 			let replay: () -> () = {
 				let originalState = state.modify { state in
-					var mutableState = state
-					token = mutableState.observers?.insert(observer)
-					return mutableState
+					var state = state
+					token = state.observers?.insert(observer)
+					return state
 				}
 
 				originalState.values.forEach(observer.sendNext)
@@ -168,9 +168,9 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			if let token = token {
 				disposable.addDisposable {
 					state.modify { state in
-						var mutableState = state
-						mutableState.observers?.removeValueForToken(token)
-						return mutableState
+						var state = state
+						state.observers?.removeValueForToken(token)
+						return state
 					}
 				}
 			}

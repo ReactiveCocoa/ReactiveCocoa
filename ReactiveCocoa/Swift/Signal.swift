@@ -570,17 +570,17 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					state.modify { st in
-						var mutableSt = st
-						mutableSt.latestValue = value
-						return mutableSt
+						var st = st
+						st.latestValue = value
+						return st
 					}
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Completed:
 					let oldState = state.modify { st in
-						var mutableSt = st
-						mutableSt.signalCompleted = true
-						return mutableSt
+						var st = st
+						st.signalCompleted = true
+						return st
 					}
 					
 					if oldState.samplerCompleted {
@@ -599,9 +599,9 @@ extension SignalType {
 					}
 				case .Completed:
 					let oldState = state.modify { st in
-						var mutableSt = st
-						mutableSt.samplerCompleted = true
-						return mutableSt
+						var st = st
+						st.samplerCompleted = true
+						return st
 					}
 					
 					if oldState.signalCompleted {
@@ -891,9 +891,9 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					states.modify { states in
-						var mutableStates = states
-						mutableStates.0.values.append(value)
-						return mutableStates
+						var states = states
+						states.0.values.append(value)
+						return states
 					}
 					
 					flush()
@@ -901,9 +901,9 @@ extension SignalType {
 					onFailed(error)
 				case .Completed:
 					states.modify { states in
-						var mutableStates = states
-						mutableStates.0.completed = true
-						return mutableStates
+						var states = states
+						states.0.completed = true
+						return states
 					}
 					
 					flush()
@@ -916,9 +916,9 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					states.modify { states in
-						var mutableStates = states
-						mutableStates.1.values.append(value)
-						return mutableStates
+						var states = states
+						states.1.values.append(value)
+						return states
 					}
 					
 					flush()
@@ -926,9 +926,9 @@ extension SignalType {
 					onFailed(error)
 				case .Completed:
 					states.modify { states in
-						var mutableStates = states
-						mutableStates.1.completed = true
-						return mutableStates
+						var states = states
+						states.1.completed = true
+						return states
 					}
 					
 					flush()
@@ -998,25 +998,25 @@ extension SignalType {
 				if case let .Next(value) = event {
 					var scheduleDate: NSDate!
 					state.modify { state in
-						var mutableState = state
-						mutableState.pendingValue = value
+						var state = state
+						state.pendingValue = value
 
-						let proposedScheduleDate = mutableState.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
 
-						return mutableState
+						return state
 					}
 
 					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
 						let previousState = state.modify { state in
-							var mutableState = state
+							var state = state
 
-							if mutableState.pendingValue != nil {
-								mutableState.pendingValue = nil
-								mutableState.previousDate = scheduleDate
+							if state.pendingValue != nil {
+								state.pendingValue = nil
+								state.previousDate = scheduleDate
 							}
 
-							return mutableState
+							return state
 						}
 						
 						if let pendingValue = previousState.pendingValue {

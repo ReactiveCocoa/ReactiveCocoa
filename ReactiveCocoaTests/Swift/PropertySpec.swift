@@ -369,7 +369,7 @@ class PropertySpec: QuickSpec {
 
 		describe("DynamicProperty") {
 			var object: ObservableObject!
-			var property: DynamicProperty!
+			var property: DynamicProperty<Int>!
 
 			let propertyValue: () -> Int? = {
 				if let value: AnyObject = property?.value {
@@ -383,7 +383,7 @@ class PropertySpec: QuickSpec {
 				object = ObservableObject()
 				expect(object.rac_value) == 0
 
-				property = DynamicProperty(object: object, keyPath: "rac_value")
+				property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -407,7 +407,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -423,7 +423,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -439,7 +439,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -455,7 +455,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -473,7 +473,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.producer.startWithCompleted {
 						completed = true
@@ -494,7 +494,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.signal.observeCompleted {
 						completed = true
@@ -510,7 +510,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty? = property
+				weak var dynamicProperty: DynamicProperty<Int>? = property
 				
 				property = nil
 				expect(dynamicProperty).toNot(beNil())
@@ -675,13 +675,13 @@ class PropertySpec: QuickSpec {
 
 			describe("to a dynamic property") {
 				var object: ObservableObject!
-				var property: DynamicProperty!
+				var property: DynamicProperty<Int>!
 
 				beforeEach {
 					object = ObservableObject()
 					expect(object.rac_value) == 0
 
-					property = DynamicProperty(object: object, keyPath: "rac_value")
+					property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 				}
 
 				afterEach {

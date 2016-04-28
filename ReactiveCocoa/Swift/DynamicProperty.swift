@@ -7,23 +7,23 @@ import enum Result.NoError
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-@objc public final class DynamicProperty: RACDynamicPropertySuperclass, MutablePropertyType {
-	public typealias Value = AnyObject?
+public final class DynamicProperty<SwiftValue: _ObjectiveCBridgeable>: MutablePropertyType {
+	public typealias Value = SwiftValue?
 
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private var property: MutableProperty<AnyObject?>?
+	private var property: MutableProperty<SwiftValue?>?
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
-	public var value: AnyObject? {
-		@objc(rac_value) get {
-			return object?.valueForKeyPath(keyPath)
+	public var value: SwiftValue? {
+		get {
+			return object?.valueForKeyPath(keyPath).map { $0 as! SwiftValue }
 		}
 
-		@objc(setRac_value:) set(newValue) {
-			object?.setValue(newValue, forKeyPath: keyPath)
+		set(newValue) {
+			object?.setValue(newValue?._bridgeToObjectiveC(), forKeyPath: keyPath)
 		}
 	}
 
@@ -33,11 +33,11 @@ import enum Result.NoError
 	///
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
-	public var producer: SignalProducer<AnyObject?, NoError> {
+	public var producer: SignalProducer<SwiftValue?, NoError> {
 		return property?.producer ?? .empty
 	}
 
-	public var signal: Signal<AnyObject?, NoError> {
+	public var signal: Signal<SwiftValue?, NoError> {
 		return property?.signal ?? .empty
 	}
 
@@ -50,14 +50,13 @@ import enum Result.NoError
 
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
-		super.init()
 
 		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
 			.toSignalProducer()
 			.start { event in
 				switch event {
 				case let .Next(newValue):
-					self.property?.value = newValue
+					self.property?.value = newValue.map { $0 as! SwiftValue }
 				case let .Failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
 				case .Interrupted, .Completed:

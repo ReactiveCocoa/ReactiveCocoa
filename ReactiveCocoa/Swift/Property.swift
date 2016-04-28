@@ -244,18 +244,15 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 }
 
 
-/// Binds a signal to a `DynamicProperty`, automatically bridging values to Objective-C.
-public func <~ <Value: _ObjectiveCBridgeable>(property: DynamicProperty, signal: Signal<Value, NoError>) -> Disposable {
-	return property <~ signal.map { $0._bridgeToObjectiveC() }
+public func <~ <P: MutablePropertyType, S: SignalType where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+	return property <~ signal.map(Optional.Some)
 }
 
-/// Binds a signal producer to a `DynamicProperty`, automatically bridging values to Objective-C.
-public func <~ <Value: _ObjectiveCBridgeable>(property: DynamicProperty, producer: SignalProducer<Value, NoError>) -> Disposable {
-	return property <~ producer.map { $0._bridgeToObjectiveC() }
+public func <~ <P: MutablePropertyType, S: SignalProducerType where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
+	return property <~ producer.map(Optional.Some)
 }
 
-/// Binds `destinationProperty` to the latest values of `sourceProperty`, automatically bridging values to Objective-C.
-public func <~ <Value: _ObjectiveCBridgeable, Source: PropertyType where Source.Value == Value>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: MutablePropertyType, Source: PropertyType where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
 

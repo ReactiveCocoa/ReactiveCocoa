@@ -128,21 +128,23 @@ public final class Signal<Value, Error: ErrorType> {
 	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
-			guard let immutableObservers = observers else { return nil }
-			var mutableObservers = immutableObservers
-			
-			token = mutableObservers.insert(observer)
-			return mutableObservers
+			guard var observers = observers else {
+				return nil
+			}
+
+			token = observers.insert(observer)
+			return observers
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
 				self?.atomicObservers.modify { observers in
-					guard let immutableObservers = observers else { return nil }
-					var mutableObservers = immutableObservers
+					guard var observers = observers else {
+						return nil
+					}
 
-					mutableObservers.removeValueForToken(token)
-					return mutableObservers
+					observers.removeValueForToken(token)
+					return observers
 				}
 			}
 		} else {

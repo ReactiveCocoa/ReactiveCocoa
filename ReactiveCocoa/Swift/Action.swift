@@ -52,7 +52,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// it unsafe for use when the action is parameterized for something like `Void`
 	/// input. In those cases, explicitly assign a value to this property that transforms
 	/// the input to suit your needs.
-	public lazy var unsafeCocoaAction: CocoaAction = CocoaAction(self) { $0 as! Input }
+	public lazy var unsafeCocoaAction: CocoaAction = CocoaAction(self)
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
@@ -217,6 +217,14 @@ public final class CocoaAction: NSObject {
 	/// always providing the given input.
 	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
 		self.init(action, { _ in input })
+	}
+	
+	/// Initializes a Cocoa action that will invoke the given Action
+	/// with the input provided on `execute`. The provided input should have
+	/// the same type as the `Action`'s `Input` parameter.
+	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>) {
+		let identity: AnyObject? -> Input = { $0 as! Input }
+		self.init(action, identity)
 	}
 
 	deinit {

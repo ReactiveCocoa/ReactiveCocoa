@@ -301,24 +301,94 @@ extension SignalType {
 	}
 }
 
-/// A reference type which wraps an array to avoid copying it for performance and
-/// memory usage optimization.
-private final class CollectState<Value> {
-	var values: [Value] = []
-
-	func append(value: Value) -> Self {
-		values.append(value)
-		return self
-	}
-}
-
 extension SignalType {
+
 	/// Returns a signal that will yield an array of values when `self` completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect() -> Signal<[Value], Error> {
-		return self
-			.reduce(CollectState()) { $0.append($1) }
-			.map { $0.values }
+		return collect { _,_ in false }
+	}
+
+	/// Returns a signal that will yield an array of values until it reaches a certain
+	/// count.
+	///
+	/// When the count is reached the array is sent and the signal starts over 
+	/// yielding a new array of values.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func collect(count: Int) -> Signal<[Value], Error> {
+		return collect { values, _ in values.count == count }
+	}
+
+	/// Returns a signal that will yield an array of values based on a predicate.
+	///
+	/// The predicate should return `true` when the values should be sent and `false` 
+	/// when the values should be collected. The predicate receives the `values` 
+	/// already collected and the next value that should or should not be 
+	/// collected.
+	///
+	/// #### Example
+	///
+	///     let (signal, observer) = Signal<Int, NoError>.pipe()
+	///
+	///     signal
+	///         .collect { values, next in next != 7 }
+	///         .observeNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(1)
+	///     observer.sendNext(7)
+	///     observer.sendNext(7)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 1]
+	///     // [7]
+	///     // [7]
+	///     // [5, 6]
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
+		return Signal { observer in
+			var values: [Value] = []
+
+			func collectNextValue(value: Value) -> Bool {
+				if !predicate(values: values, next: value) {
+					values.append(value)
+					return true
+				}
+				return false
+			}
+
+			func sendValuesCollected() {
+				observer.sendNext(values)
+				values.removeAll()
+			}
+
+			return self.observe { event in
+				switch event {
+				case let .Next(value):
+					if !collectNextValue(value) {
+						// Value should not be collected, send all values collected...
+						sendValuesCollected()
+						// Re-check if the next value should now be collected or sent...
+						if !collectNextValue(value) {
+							// Value cannot be collected
+							observer.sendNext([value])
+						}
+					}
+
+				case .Completed:
+					sendValuesCollected()
+					observer.sendCompleted()
+
+				case let .Failed(error):
+					observer.sendFailed(error)
+				case .Interrupted:
+					observer.sendInterrupted()
+				}
+			}
+		}
 	}
 
 	/// Forwards all events onto the given scheduler, instead of whichever

@@ -893,6 +893,84 @@ class SignalSpec: QuickSpec {
 				observer.sendFailed(.Default)
 				expect(error) == TestError.Default
 			}
+
+			it("should collect a certain count of values") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect(3)
+
+				var expectedValues = [
+					[1, 2, 3],
+					[4, 5, 6],
+					[7, 8, 9],
+					[0]
+				]
+
+				signal.observeNext { value in
+					expect(value) == expectedValues.removeFirst()
+				}
+
+				signal.observeCompleted {
+					expect(expectedValues) == []
+				}
+
+				expectedValues
+					.flatMap { $0 }
+					.forEach(observer.sendNext)
+
+				observer.sendCompleted()
+			}
+
+			it("should collect values until it matches a certain value") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect { _, next in next != 5 }
+
+				var expectedValues = [
+					[5, 5],
+					[42],
+					[5]
+				]
+
+				signal.observeNext { value in
+					expect(value) == expectedValues.removeFirst()
+				}
+
+				signal.observeCompleted {
+					expect(expectedValues) == []
+				}
+
+				expectedValues
+					.flatMap { $0 }
+					.forEach(observer.sendNext)
+
+				observer.sendCompleted()
+			}
+
+			it("should collect values until it matches a certain condition on values") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect { values, _ in values.reduce(0, combine: +) == 10 }
+
+				var expectedValues = [
+					[1, 2, 3, 4],
+					[5, 6, 7, 8, 9]
+				]
+
+				signal.observeNext { value in
+					expect(value) == expectedValues.removeFirst()
+				}
+
+				signal.observeCompleted {
+					expect(expectedValues) == []
+				}
+
+				expectedValues
+					.flatMap { $0 }
+					.forEach(observer.sendNext)
+
+				observer.sendCompleted()
+			}
 		}
 
 		describe("takeUntil") {

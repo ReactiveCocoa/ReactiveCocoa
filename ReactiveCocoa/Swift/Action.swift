@@ -222,7 +222,7 @@ public final class CocoaAction: NSObject {
 	/// Initializes a Cocoa action that will invoke the given Action
 	/// with the input provided on `execute`. The provided input should have
 	/// the same type as the `Action`'s `Input` parameter.
-    public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>) {
+	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>) {
 		let identity: AnyObject? -> Input = { $0 as! Input }
 		self.init(action, identity)
 	}

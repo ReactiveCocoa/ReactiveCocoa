@@ -189,6 +189,33 @@ To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into
 our event stream.
 
+#### Debugging event streams
+
+Due to its nature, a stream's stack trace might have dozens of frames, which, more often than not, can make debugging a very frustrating activity. 
+A naive way of debugging, is by injecting side effects into the stream, like so:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .on(event: { print ($0) }) // the side effect
+```
+
+This will print the stream's [events][Events], while preserving the original stream behaviour. Both [`SignalProducer`][Signal producers]
+and [`Signal`][Signals] provide the `debug` operator, that will do this automatically for you:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .debug()
+```
+
+For more information and advance usage, check the [Debugging Techniques](Documentation/DebuggingTechniques.md) document.
+
+
 ## Objective-C and Swift
 
 Although ReactiveCocoa was started as an Objective-C framework, as of [version

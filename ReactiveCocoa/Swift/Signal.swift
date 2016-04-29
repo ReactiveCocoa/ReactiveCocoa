@@ -1287,11 +1287,13 @@ public protocol EventLogger {
 	func logEvent(event: String)
 }
 
-final class Logger: EventLogger {
+extension EventLogger {
 	func logEvent(event: String) {
 		print(event)
 	}
 }
+
+final class Logger: EventLogger {}
 
 extension SignalType {
 	/// Logs all events that the receiver sends.

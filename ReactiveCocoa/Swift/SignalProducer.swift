@@ -554,8 +554,8 @@ extension SignalProducerType {
 	///     // [7]
 	///     // [5, 6]
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
-		return lift { $0.collect(predicate) }
+	public func collect(strategy: CollectStrategy, predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(strategy, predicate: predicate) }
 	}
 
 	/// Forwards all events onto the given scheduler, instead of whichever

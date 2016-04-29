@@ -301,12 +301,17 @@ extension SignalType {
 	}
 }
 
+public enum CollectStrategy {
+	case Inclusive
+	case Exclusive
+}
+
 extension SignalType {
 
 	/// Returns a signal that will yield an array of values when `self` completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect() -> Signal<[Value], Error> {
-		return collect { _,_ in false }
+		return collect(.Inclusive) { _ in false }
 	}
 
 	/// Returns a signal that will yield an array of values until it reaches a certain
@@ -316,14 +321,15 @@ extension SignalType {
 	/// yielding a new array of values.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect(count: Int) -> Signal<[Value], Error> {
-		return collect { values, _ in values.count == count }
+		precondition(count > 0)
+		return collect(.Inclusive) { values, _ in values.count == count }
 	}
 
 	/// Returns a signal that will yield an array of values based on a predicate.
 	///
-	/// The predicate should return `true` when the values should be sent and `false` 
-	/// when the values should be collected. The predicate receives the `values` 
-	/// already collected and the next value that should or should not be 
+	/// The predicate should return `true` when the values should be sent and `false`
+	/// when the values should be collected. The predicate receives the `values`
+	/// already collected and the next value that should or should not be
 	/// collected.
 	///
 	/// #### Example
@@ -331,7 +337,7 @@ extension SignalType {
 	///     let (signal, observer) = Signal<Int, NoError>.pipe()
 	///
 	///     signal
-	///         .collect { values, next in next != 7 }
+	///         .collect { values, next in next == 7 }
 	///         .observeNext { print($0) }
 	///
 	///     observer.sendNext(1)
@@ -345,43 +351,48 @@ extension SignalType {
 	///     // Output:
 	///     // [1, 1]
 	///     // [7]
-	///     // [7]
-	///     // [5, 6]
+	///     // [7, 5, 6]
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
+	public func collect(strategy: CollectStrategy, predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			var values: [Value] = []
 
-			func collectNextValue(value: Value) -> Bool {
-				if !predicate(values: values, next: value) {
-					values.append(value)
-					return true
-				}
-				return false
-			}
-
-			func sendValuesCollected() {
+			let flushValues = { (completed: Bool) in
 				observer.sendNext(values)
-				values.removeAll()
+				if !completed {
+					// Minor optimization to avoid consecutive allocations. Can
+					// be useful for sequences of regular or similar size and to
+					// track if any value was ever collected.
+					values.removeAll(keepCapacity: true)
+				}
 			}
 
 			return self.observe { event in
 				switch event {
 				case let .Next(value):
-					if !collectNextValue(value) {
-						// Value should not be collected, send all values collected...
-						sendValuesCollected()
-						// Re-check if the next value should now be collected or sent...
-						if !collectNextValue(value) {
-							// Value cannot be collected
-							observer.sendNext([value])
+					switch strategy {
+					case .Inclusive:
+						values.append(value)
+						if predicate(values: values, next: value) {
+							flushValues(false)
 						}
+					case .Exclusive:
+						if predicate(values: values, next: value) {
+							flushValues(false)
+						}
+						values.append(value)
 					}
-
 				case .Completed:
-					sendValuesCollected()
+					// Flush any items remaining or alternatively flush an empty
+					// array if we haven't collected any value (values's capacity 
+					// should only be zero if we haven't collected any value since
+					// we're keeping the capacity of the array to avoid unnecessary 
+					// and expensive allocations). This also guarantees 
+					// retro-compatibility around the original `collect()` operator.
+					if !values.isEmpty || values.capacity == 0 {
+						flushValues(true)
+					}
 					observer.sendCompleted()
-
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Interrupted:

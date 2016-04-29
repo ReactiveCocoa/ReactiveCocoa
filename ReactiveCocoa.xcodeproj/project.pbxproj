@@ -310,6 +310,8 @@
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		C79B64741CD38B2B003F2376 /* TestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B64731CD38B2B003F2376 /* TestLogger.swift */; };
+		C79B64751CD38B2B003F2376 /* TestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B64731CD38B2B003F2376 /* TestLogger.swift */; };
 		CA6F28501C52626B001879D2 /* FlattenSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6F284F1C52626B001879D2 /* FlattenSpec.swift */; };
 		CA6F28511C52626B001879D2 /* FlattenSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6F284F1C52626B001879D2 /* FlattenSpec.swift */; };
 		CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
@@ -813,6 +815,7 @@
 		A9B315541B3940610001CB9C /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B696FB801A7640C00075236D /* TestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
 		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SignalProducerNimbleMatchers.swift; path = Swift/SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
+		C79B64731CD38B2B003F2376 /* TestLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLogger.swift; sourceTree = "<group>"; };
 		CA6F284F1C52626B001879D2 /* FlattenSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlattenSpec.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1684,6 +1687,7 @@
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
 				CA6F284F1C52626B001879D2 /* FlattenSpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
+				C79B64731CD38B2B003F2376 /* TestLogger.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -2477,6 +2481,7 @@
 				D8170FC11B100EBC004192AD /* FoundationExtensionsSpec.swift in Sources */,
 				D03766C919EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D03766C319EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
+				C79B64741CD38B2B003F2376 /* TestLogger.swift in Sources */,
 				D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				CA6F28501C52626B001879D2 /* FlattenSpec.swift in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
@@ -2675,6 +2680,7 @@
 				D03766D219EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
 				D03766F419EDA60000A782A9 /* RACSequenceAdditionsSpec.m in Sources */,
 				D0C3131419EF2B2000984962 /* SchedulerSpec.swift in Sources */,
+				C79B64751CD38B2B003F2376 /* TestLogger.swift in Sources */,
 				D0C3131219EF2B2000984962 /* DisposableSpec.swift in Sources */,
 				D03766EE19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
 				D03766EA19EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,

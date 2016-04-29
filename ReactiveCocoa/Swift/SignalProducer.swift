@@ -1267,3 +1267,12 @@ private final class DeallocationToken {
 		observer.sendCompleted()
 	}
 }
+
+extension SignalProducerType where Value: Equatable {
+	/// Logs all events that the receiver sends.
+	/// By default, it will print to the standard output.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func debug() -> SignalProducer<Value, Error> {
+		return lift { $0.debug() }
+	}
+}

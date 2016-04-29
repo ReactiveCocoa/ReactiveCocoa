@@ -1277,3 +1277,33 @@ extension SignalType where Error == NoError {
 		}
 	}
 }
+
+/// Used with the `debug` operator to customize 
+/// the `Event` string.
+///
+/// This is useful, when you want to do more than
+/// just printing to the standard output.
+public protocol EventLogger {
+	func logEvent(event: String)
+}
+
+private class Logger: EventLogger {
+	private func logEvent(event: String) {
+		print(event)
+	}
+}
+
+extension SignalType {
+	/// Logs all events that the receiver sends.
+	/// By default, it will print to the standard output.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func debug(identifier: String = "", logger: EventLogger = Logger()) -> Signal<Value, Error> {
+		let prefix = identifier == "" ? identifier : identifier + ": "
+		
+		let logEvent: Event<Self.Value, Self.Error> -> Void = { event in
+			logger.logEvent(prefix + event.description)
+		}
+		
+		return self.on(event: logEvent)
+	}
+}

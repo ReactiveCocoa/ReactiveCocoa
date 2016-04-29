@@ -580,7 +580,7 @@ extension SignalProducerType {
 	}
 
 	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
-	/// only when`sampler` sends a Next event.
+	/// only when `sampler` sends a Next event.
 	///
 	/// If `sampler` fires before a value has been observed on `self`, nothing
 	/// happens.
@@ -594,7 +594,7 @@ extension SignalProducerType {
 	}
 	
 	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
-	/// only when`sampler` sends a Next event.
+	/// only when `sampler` sends a Next event.
 	///
 	/// If `sampler` fires before a value has been observed on `self`, nothing
 	/// happens.

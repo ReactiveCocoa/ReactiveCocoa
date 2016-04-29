@@ -13,6 +13,7 @@ In both cases errors are related to incorrect assumptions about type. Such issue
 
 Below is an example of type-error scenario:
 
+```
 ```swift
 SignalProducer<Int, NoError>(value:42)
     .on(next: { answer in
@@ -38,10 +39,37 @@ let disposable = sideEffectProducer.startWithCompleted {
 
 The code above will not compile too, but with the error `error: cannot convert value of type '(_) -> _' to expected argument type '(Int -> ())?'` on definition of `on` closure. This gives enough of information to locate unexpected `return _` since `on` closure should not have any return value.
 
+#### Binding `DynamicProperty` with `<~` operator
+
+Using the `<~` operator to bind a `Signal` or a `SignalProducer` to a `DynamicProperty` can result in unexpected compiler errors. 
+
+Below is an example of this scenario:
+
+```swift
+let label = UILabel()
+let property = MutableProperty<String>("")
+
+DynamicProperty(object: label, keyPath: "text") <~ property.producer
+```
+
+This will often result in a compiler error: 
+
+> error: binary operator '<~' cannot be applied to operands of type 'DynamicProperty' and 'SignalProducer<String, NoError>'
+DynamicProperty(object: label, keyPath: "text") <~ property.producer
+
+The reason is a limitation in the swift type checker - A `DynamicProperty` always has a type of `AnyObject?`, but the `<~` operator requires the values of both sides to have the same type, so the right side value would have to be `AnyObject?` as well, but usually a more concrete type is used (in this example `String`).
+
+Usually, the fix is as easy as adding a `.map{ $0 }`.
+
+```swift
+DynamicProperty(object: label, keyPath: "text") <~ property.producer.map { $0 }
+```
+
+This allows the type checker to infer that `String` can be converted to `AnyProperty?` and thus, the binding succeeds.
+
 #### Debugging event streams
 
 As mentioned in the README, stream debugging can be quite difficut and tedious, so we provide the `debug` operator. In its  simplest form:
-
 
 ```swift
 let searchString = textField.rac_textSignal()
@@ -57,7 +85,6 @@ The biggest problem with this approach, is that it will continue to ouput in Rel
 1. Comment out the operator: `//.debug()`. This is the simpleste approach, but it's error prone, since you will eventually forget to do this.
 2. Use the `EventLogger` protocol and manipulate the output as you see fit. This is the recommended approach.
 
-
 Let's see how we could leverage the `EventLogger` protocol, so we don't print in Release mode:
 
 ```swift
@@ -69,7 +96,6 @@ final class MyLogger: EventLogger {
         #endif
     }
 }
-
 ```
 
 You would then:

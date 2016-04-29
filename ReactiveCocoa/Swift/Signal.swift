@@ -1287,8 +1287,8 @@ public protocol EventLogger {
 	func logEvent(event: String)
 }
 
-private class Logger: EventLogger {
-	private func logEvent(event: String) {
+final class Logger: EventLogger {
+	func logEvent(event: String) {
 		print(event)
 	}
 }

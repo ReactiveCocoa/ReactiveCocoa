@@ -551,7 +551,15 @@ private struct SampleState<Value> {
 }
 
 extension SignalType {
-	// TODO: fix the doc here
+	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
+	/// only when`sampler` sends a Next event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a signal that will send values from `self` and `sampler`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input signals have
+	/// completed, or interrupt if either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func sampleWith<T>(sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
 		return Signal { observer in
@@ -610,13 +618,13 @@ extension SignalType {
 		}
 	}
 	
-	/// Forwards the latest value from `signal` whenever `sampler` sends a Next
+	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.
 	///
-	/// If `sampler` fires before a value has been observed on `signal`, nothing
+	/// If `sampler` fires before a value has been observed on `self`, nothing
 	/// happens.
 	///
-	/// Returns a signal that will send values from `signal`, sampled (possibly
+	/// Returns a signal that will send values from `self`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")

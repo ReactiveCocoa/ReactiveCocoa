@@ -579,6 +579,34 @@ extension SignalProducerType {
 		return lift { $0.materialize() }
 	}
 
+	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
+	/// only when `sampler` sends a Next event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input producers have
+	/// completed, or interrupt if either input producer is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return liftLeft(Signal.sampleWith)(sampler)
+	}
+	
+	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
+	/// only when `sampler` sends a Next event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both inputs have
+	/// completed, or interrupt if either input is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return lift(Signal.sampleWith)(sampler)
+	}
+
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.
 	///

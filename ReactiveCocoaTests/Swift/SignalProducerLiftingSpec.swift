@@ -850,6 +850,71 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 		}
 
+		describe("sampleWith") {
+			var sampledProducer: SignalProducer<(Int, String), NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var samplerObserver: Signal<String, NoError>.Observer!
+			
+			beforeEach {
+				let (producer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
+				let (sampler, incomingSamplerObserver) = SignalProducer<String, NoError>.buffer(1)
+				sampledProducer = producer.sampleWith(sampler)
+				observer = incomingObserver
+				samplerObserver = incomingSamplerObserver
+			}
+			
+			it("should forward the latest value when the sampler fires") {
+				var result: [String] = []
+				sampledProducer.startWithNext { (left, right) in result.append("\(left)\(right)") }
+				
+				observer.sendNext(1)
+				observer.sendNext(2)
+				samplerObserver.sendNext("a")
+				expect(result) == [ "2a" ]
+			}
+			
+			it("should do nothing if sampler fires before signal receives value") {
+				var result: [String] = []
+				sampledProducer.startWithNext { (left, right) in result.append("\(left)\(right)") }
+				
+				samplerObserver.sendNext("a")
+				expect(result).to(beEmpty())
+			}
+			
+			it("should send lates value multiple times when sampler fires multiple times") {
+				var result: [String] = []
+				sampledProducer.startWithNext { (left, right) in result.append("\(left)\(right)") }
+				
+				observer.sendNext(1)
+				samplerObserver.sendNext("a")
+				samplerObserver.sendNext("b")
+				expect(result) == [ "1a", "1b" ]
+			}
+			
+			it("should complete when both inputs have completed") {
+				var completed = false
+				sampledProducer.startWithCompleted { completed = true }
+				
+				observer.sendCompleted()
+				expect(completed) == false
+				
+				samplerObserver.sendCompleted()
+				expect(completed) == true
+			}
+			
+			it("should emit an initial value if the sampler is a synchronous SignalProducer") {
+				let producer = SignalProducer<Int, NoError>(values: [1])
+				let sampler = SignalProducer<String, NoError>(value: "a")
+				
+				let result = producer.sampleWith(sampler)
+				
+				var valueReceived: String?
+				result.startWithNext { (left, right) in valueReceived = "\(left)\(right)" }
+				
+				expect(valueReceived) == "1a"
+			}
+		}
+
 		describe("sampleOn") {
 			var sampledProducer: SignalProducer<Int, NoError>!
 			var observer: Signal<Int, NoError>.Observer!

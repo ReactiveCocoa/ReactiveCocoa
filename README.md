@@ -203,14 +203,14 @@ let searchString = textField.rac_textSignal()
 ```
 
 This will print the stream's [events][Events], while preserving the original stream behaviour. Both [`SignalProducer`][Signal producers]
-and [`Signal`][Signals] provide the `debug` operator, that will do this automatically for you:
+and [`Signal`][Signals] provide the `logEvents` operator, that will do this automatically for you:
 
 ```swift
 let searchString = textField.rac_textSignal()
     .toSignalProducer()
     .map { text in text as! String }
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
-    .debug()
+    .logEvents()
 ```
 
 For more information and advance usage, check the [Debugging Techniques](Documentation/DebuggingTechniques.md) document.

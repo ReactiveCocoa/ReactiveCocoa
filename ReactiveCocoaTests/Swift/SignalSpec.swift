@@ -1913,19 +1913,21 @@ class SignalSpec: QuickSpec {
 				itBehavesLike(zipExampleName)
 			}
 			
-			describe("debug") {
+			describe("log events") {
 				
 				it("should output the correct event without identifier"){
 					
 					let expectations: [String -> Void] = [
-						{ event in expect(event) == "NEXT 1"},
-						{ event in expect(event) == "COMPLETED"}
+						{ event in expect(event) == "[] Next 1"},
+						{ event in expect(event) == "[] Completed"},
+						{ event in expect(event) == "[] Terminated"},
+						{ event in expect(event) == "[] Disposed"}
 						]
 					
 					let logger = TestLogger(expectations: expectations)
 					
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					signal.debug(logger: logger).observe { _ in }
+					signal.logEvents(logger: logger).observe { _ in }
 					
 					observer.sendNext(1)
 					observer.sendCompleted()
@@ -1934,14 +1936,16 @@ class SignalSpec: QuickSpec {
 				it("should output the correct event with identifier"){
 					
 					let expectations: [String -> Void] = [
-						{ event in expect(event) == "test.rac: NEXT 1"},
-						{ event in expect(event) == "test.rac: FAILED Error1"}
+						{ event in expect(event) == "[test.rac] Next 1"},
+						{ event in expect(event) == "[test.rac] Failed Error1"},
+						{ event in expect(event) == "[test.rac] Terminated"},
+						{ event in expect(event) == "[test.rac] Disposed"}
 					]
 
 					let logger = TestLogger(expectations: expectations)
 
 					let (signal, observer) = Signal<Int, TestError>.pipe()
-					signal.debug("test.rac", logger: logger).observe { _ in }
+					signal.logEvents("test.rac", logger: logger).observe { _ in }
 					
 					observer.sendNext(1)
 					observer.sendFailed(.Error1)

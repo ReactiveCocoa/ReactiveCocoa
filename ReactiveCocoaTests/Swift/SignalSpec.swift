@@ -1919,9 +1919,9 @@ class SignalSpec: QuickSpec {
 					
 					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[] Next 1"},
-						{ event in expect(event) == "[] Completed ()"},
-						{ event in expect(event) == "[] Terminated ()"},
-						{ event in expect(event) == "[] Disposed ()"}
+						{ event in expect(event) == "[] Completed"},
+						{ event in expect(event) == "[] Terminated"},
+						{ event in expect(event) == "[] Disposed"}
 						]
 					
 					let logger = TestLogger(expectations: expectations)
@@ -1938,8 +1938,8 @@ class SignalSpec: QuickSpec {
 					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[test.rac] Next 1"},
 						{ event in expect(event) == "[test.rac] Failed Error1"},
-						{ event in expect(event) == "[test.rac] Terminated ()"},
-						{ event in expect(event) == "[test.rac] Disposed ()"}
+						{ event in expect(event) == "[test.rac] Terminated"},
+						{ event in expect(event) == "[test.rac] Disposed"}
 					]
 
 					let logger = TestLogger(expectations: expectations)

@@ -520,6 +520,20 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
+		describe("map") {
+			it("should transform the current value and all subsequent values") {
+				let property = MutableProperty(1)
+				let mappedProperty = property
+					.map { $0 + 1 }
+					.map { $0 + 2 }
+
+				expect(mappedProperty.value) == 4
+
+				property.value = 2
+				expect(mappedProperty.value) == 5
+			}
+		}
+
 		describe("binding") {
 			describe("from a Signal") {
 				it("should update the property with values sent from the signal") {

@@ -1362,17 +1362,17 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should output the correct event"){
 				
 				let expectations: [String -> Void] = [
-					{ event in expect(event) == "[] Started"},
+					{ event in expect(event) == "[] Started ()"},
 					{ event in expect(event) == "[] Next 1"},
-					{ event in expect(event) == "[] Completed"},
-					{ event in expect(event) == "[] Terminated"},
-					{ event in expect(event) == "[] Disposed"}
+					{ event in expect(event) == "[] Completed ()"},
+					{ event in expect(event) == "[] Terminated ()"},
+					{ event in expect(event) == "[] Disposed ()"}
 				]
 				
 				let logger = TestLogger(expectations: expectations)
 				
 				let (producer, observer) = SignalProducer<Int, TestError>.buffer(1)
-				producer.logEvents(logger: logger).startWithNext { _ in }
+				producer.logEvents(logger: logger.logEvent).startWithNext { _ in }
 				
 				observer.sendNext(1)
 				observer.sendCompleted()

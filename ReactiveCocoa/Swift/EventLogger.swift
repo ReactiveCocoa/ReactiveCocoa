@@ -8,21 +8,6 @@
 
 import Foundation
 
-/// Used with the `debug` operator to customize
-/// the `Event` string.
-///
-/// This is useful, when you want to do more than
-/// just printing to the standard output.
-public protocol EventLogger {
-	func logEvent(event: String, fileName: String, functionName: String, lineNumber: Int)
-}
-
-extension EventLogger {
-	func logEvent(event: String, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line) {
-		print("\(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
-	}
-}
-
 public enum LoggingEvent: String {
 	case Started, Next, Completed, Failed, Terminated, Disposed, Interrupted
 	
@@ -31,36 +16,33 @@ public enum LoggingEvent: String {
 	}()
 }
 
-private func createEventLog(event: LoggingEvent, events: Set<LoggingEvent>, logEvent: String -> Void) -> (Void -> Void)? {
-	return events.contains(event) ? { logEvent("\(event.rawValue)") } : nil
+private func printLog(event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
+	print("\(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
 }
 
-private func createEventLog<T>(event: LoggingEvent, events: Set<LoggingEvent>, logEvent: String -> Void) -> (T -> Void)? {
-	return events.contains(event) ? { logEvent("\(event.rawValue) \($0)") } : nil
-}
-
-final class Logger: EventLogger {}
-
+public typealias EventLogger = (event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
 typealias OptionalClosure = (Void -> Void)?
 
 extension SignalType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func logEvents(identifier: String = "", events: Set<LoggingEvent> = LoggingEvent.allEvents, logger: EventLogger = Logger(), fileName: String = #file, functionName: String = #function, lineNumber: Int = #line) -> Signal<Value, Error> {
+	public func logEvents(identifier: String = "", events: Set<LoggingEvent> = LoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> Signal<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
-			logger.logEvent("[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+			logger(event: "[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 		}
 		
-		let failed: (Self.Error -> Void)? = createEventLog(.Failed, events: events, logEvent: logEvent)
-		let completed: OptionalClosure = createEventLog(.Completed, events: events, logEvent: logEvent)
-		let interrupted: OptionalClosure = createEventLog(.Interrupted, events: events, logEvent: logEvent)
-		let terminated: OptionalClosure = createEventLog(.Terminated, events: events, logEvent: logEvent)
-		let disposed: OptionalClosure = createEventLog(.Disposed, events: events, logEvent: logEvent)
-		let next: (Self.Value -> Void)? = createEventLog(.Next, events: events, logEvent: logEvent)
+		func log<T>(event: LoggingEvent) -> (T -> Void)? {
+			return events.contains(event) ? { logEvent("\(event.rawValue) \($0)") } : nil
+		}
 
-		return self.on(failed: failed, completed: completed, interrupted: interrupted, terminated: terminated, disposed: disposed, next: next)
+		return self.on(failed: log(.Failed),
+		               completed: log(.Completed),
+		               interrupted: log(.Interrupted),
+		               terminated: log(.Terminated),
+		               disposed: log(.Disposed),
+		               next: log(.Next))
 	}
 }
 
@@ -68,15 +50,17 @@ extension SignalProducerType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func logEvents(identifier: String = "", events: Set<LoggingEvent> = LoggingEvent.allEvents, logger: EventLogger = Logger(), fileName: String = #file, functionName: String = #function, lineNumber: Int = #line) -> SignalProducer<Value, Error> {
+	public func logEvents(identifier: String = "", events: Set<LoggingEvent> = LoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> SignalProducer<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
-			logger.logEvent("[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+			logger(event: "[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 		}
 		
-		let started: OptionalClosure = createEventLog(.Started, events: events, logEvent: logEvent)
+		func log<T>(event: LoggingEvent) -> (T -> Void)? {
+			return events.contains(event) ? { logEvent("\(event.rawValue) \($0)") } : nil
+		}
 		
 		return lift { $0.logEvents(identifier, events: events, logger: logger, fileName: fileName, functionName: functionName, lineNumber: lineNumber) }
-			.on(started: started)
+			.on(started: log(.Started))
 	}
 }

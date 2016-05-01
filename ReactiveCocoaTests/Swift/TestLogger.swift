@@ -17,7 +17,7 @@ final class TestLogger {
 	}
 }
 
-extension TestLogger: EventLogger {
+extension TestLogger {
 	
 	func logEvent(event: String, fileName: String, functionName: String, lineNumber: Int) {
 		expectations.removeFirst()(event)

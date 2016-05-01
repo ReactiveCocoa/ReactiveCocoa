@@ -82,18 +82,16 @@ This will print to the standard output the events. For most use cases, this is e
 The biggest problem with this approach, is that it will continue to ouput in Release mode. This leaves with you with two options:
 
 1. Comment out the operator: `//.logEvents()`. This is the simpleste approach, but it's error prone, since you will eventually forget to do this.
-2. Use the `EventLogger` protocol and manipulate the output as you see fit. This is the recommended approach.
+2. Pass your own function and manipulate the output as you see fit. This is the recommended approach.
 
 Let's see how we could leverage the `EventLogger` protocol, so we don't print in Release mode:
 
 ```swift
-final class MyLogger: EventLogger {
-    func logEvent(event: String, fileName: String, functionName: String, lineNumber: Int) {
-        // Don't forget to set up the DEBUG symbol (http://stackoverflow.com/a/24112024/491239)
-        #if DEBUG
-            print(event)
-        #endif
-    }
+func debugLog(event: String, fileName: String, functionName: String, lineNumber: Int) {
+   // Don't forget to set up the DEBUG symbol (http://stackoverflow.com/a/24112024/491239)
+   #if DEBUG
+      print(event)
+   #endif
 }
 ```
 
@@ -106,7 +104,7 @@ let searchString = textField.rac_textSignal()
     .toSignalProducer()
     .map { text in text as! String }
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
-    .logEvents(logger: logger)
+    .logEvents(logger: debugLog)
 ```
 
 Finally we also provide the `identifier` parameter. This is useful when you are debugging multiple streams and you don't want to get lost:

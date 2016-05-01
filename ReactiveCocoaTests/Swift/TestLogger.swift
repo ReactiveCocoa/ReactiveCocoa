@@ -19,7 +19,7 @@ final class TestLogger {
 
 extension TestLogger {
 	
-	func logEvent(event: String, fileName: String, functionName: String, lineNumber: Int) {
-		expectations.removeFirst()(event)
+	func logEvent(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
+		expectations.removeFirst()("[\(identifier)] \(event)")
 	}
 }

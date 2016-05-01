@@ -24,11 +24,11 @@ public enum SignalProducerLoggingEvent: String {
 	}()
 }
 
-private func printLog(event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
-	print("\(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
+private func printLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
+	print("[\(identifier)] \(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
 }
 
-public typealias EventLogger = (event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
+public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
 
 extension SignalType {
 	/// Logs all events that the receiver sends.
@@ -37,7 +37,7 @@ extension SignalType {
 	public func logEvents(identifier: String = "", events: Set<SignalLoggingEvent> = SignalLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> Signal<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
-			logger(event: "[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+			logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 		}
 		
 		func log(event: SignalLoggingEvent) -> (Void -> Void)? {
@@ -65,7 +65,7 @@ extension SignalProducerType {
 	public func logEvents(identifier: String = "", events: Set<SignalProducerLoggingEvent> = SignalProducerLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> SignalProducer<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
-			logger(event: "[\(identifier)] \(event)", fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+			logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 		}
 		
 		func log(event: SignalProducerLoggingEvent) -> (Void -> Void)? {

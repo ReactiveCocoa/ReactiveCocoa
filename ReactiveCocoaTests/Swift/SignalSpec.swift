@@ -1950,6 +1950,21 @@ class SignalSpec: QuickSpec {
 					observer.sendNext(1)
 					observer.sendFailed(.Error1)
 				}
+				
+				it("should only output the events specified in the `events` parameter"){
+					
+					let expectations: [String -> Void] = [
+						{ event in expect(event) == "[test.rac] Failed Error1"},
+					]
+					
+					let logger = TestLogger(expectations: expectations)
+					
+					let (signal, observer) = Signal<Int, TestError>.pipe()
+					signal.logEvents("test.rac", events: [.Failed], logger: logger.logEvent).observe { _ in }
+					
+					observer.sendNext(1)
+					observer.sendFailed(.Error1)
+				}
 			}
 		}
 	}

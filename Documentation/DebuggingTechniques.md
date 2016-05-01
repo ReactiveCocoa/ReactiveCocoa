@@ -84,10 +84,10 @@ The biggest problem with this approach, is that it will continue to ouput in Rel
 1. Comment out the operator: `//.logEvents()`. This is the simpleste approach, but it's error prone, since you will eventually forget to do this.
 2. Pass your own function and manipulate the output as you see fit. This is the recommended approach.
 
-Let's see how we could leverage the `EventLogger` protocol, so we don't print in Release mode:
+Let's see how this would look like if we didn't want to print in Release mode:
 
 ```swift
-func debugLog(event: String, fileName: String, functionName: String, lineNumber: Int) {
+func debugLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
    // Don't forget to set up the DEBUG symbol (http://stackoverflow.com/a/24112024/491239)
    #if DEBUG
       print(event)
@@ -98,8 +98,6 @@ func debugLog(event: String, fileName: String, functionName: String, lineNumber:
 You would then:
 
 ```swift
-let logger = MyLogger()
-
 let searchString = textField.rac_textSignal()
     .toSignalProducer()
     .map { text in text as! String }
@@ -107,7 +105,7 @@ let searchString = textField.rac_textSignal()
     .logEvents(logger: debugLog)
 ```
 
-Finally we also provide the `identifier` parameter. This is useful when you are debugging multiple streams and you don't want to get lost:
+We also provide the `identifier` parameter. This is useful when you are debugging multiple streams and you don't want to get lost:
 
 ```swift
 let searchString = textField.rac_textSignal()
@@ -115,6 +113,16 @@ let searchString = textField.rac_textSignal()
     .map { text in text as! String }
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
     .logEvents("✨My awesome stream ✨")
+```
+
+There also cases, specially with [hot signals][[Signals]], when there is simply too much output. For those, you can specify which events you are interested in:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents(events:[.Disposed])
 ```
 
 

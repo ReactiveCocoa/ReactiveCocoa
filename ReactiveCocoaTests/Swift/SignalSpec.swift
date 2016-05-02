@@ -1945,7 +1945,7 @@ class SignalSpec: QuickSpec {
 					let logger = TestLogger(expectations: expectations)
 
 					let (signal, observer) = Signal<Int, TestError>.pipe()
-					signal.logEvents("test.rac", logger: logger.logEvent).observe { _ in }
+					signal.logEvents(identifier: "test.rac", logger: logger.logEvent).observe { _ in }
 					
 					observer.sendNext(1)
 					observer.sendFailed(.Error1)
@@ -1960,7 +1960,7 @@ class SignalSpec: QuickSpec {
 					let logger = TestLogger(expectations: expectations)
 					
 					let (signal, observer) = Signal<Int, TestError>.pipe()
-					signal.logEvents("test.rac", events: [.Failed], logger: logger.logEvent).observe { _ in }
+					signal.logEvents(identifier: "test.rac", events: [.Failed], logger: logger.logEvent).observe { _ in }
 					
 					observer.sendNext(1)
 					observer.sendFailed(.Error1)

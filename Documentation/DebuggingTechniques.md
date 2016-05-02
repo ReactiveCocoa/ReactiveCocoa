@@ -112,7 +112,7 @@ let searchString = textField.rac_textSignal()
     .toSignalProducer()
     .map { text in text as! String }
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
-    .logEvents("✨My awesome stream ✨")
+    .logEvents(identifier: "✨My awesome stream ✨")
 ```
 
 There also cases, specially with [hot signals][[Signals]], when there is simply too much output. For those, you can specify which events you are interested in:
@@ -122,7 +122,7 @@ let searchString = textField.rac_textSignal()
     .toSignalProducer()
     .map { text in text as! String }
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
-    .logEvents(events:[.Disposed])
+    .logEvents(events:[.Disposed]) // This will happen when the `UITextField` is released
 ```
 
 

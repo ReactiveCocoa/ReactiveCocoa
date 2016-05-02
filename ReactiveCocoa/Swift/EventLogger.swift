@@ -24,7 +24,7 @@ public enum SignalProducerLoggingEvent: String {
 	}()
 }
 
-private func printLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
+private func defaultEventLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
 	print("[\(identifier)] \(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
 }
 
@@ -34,7 +34,7 @@ extension SignalType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func logEvents(identifier: String = "", events: Set<SignalLoggingEvent> = SignalLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> Signal<Value, Error> {
+	public func logEvents(identifier identifier: String = "", events: Set<SignalLoggingEvent> = SignalLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
 			logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
@@ -62,7 +62,7 @@ extension SignalProducerType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func logEvents(identifier: String = "", events: Set<SignalProducerLoggingEvent> = SignalProducerLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = printLog) -> SignalProducer<Value, Error> {
+	public func logEvents(identifier identifier: String = "", events: Set<SignalProducerLoggingEvent> = SignalProducerLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
 		
 		let logEvent: String -> Void = { event in
 			logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)

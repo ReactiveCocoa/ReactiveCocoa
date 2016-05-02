@@ -174,14 +174,12 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
-		lock.lock()
-		defer { lock.unlock() }
-
-		let oldValue = getter()
-		setter(try action(oldValue))
-		self.observer.sendNext(getter())
-
-		return oldValue
+		return try withValue { value in
+			let newValue = try action(value)
+			setter(newValue)
+			observer.sendNext(newValue)
+			return value
+		}
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the

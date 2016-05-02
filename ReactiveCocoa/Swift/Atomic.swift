@@ -48,12 +48,10 @@ public final class Atomic<Value> {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
-		lock()
-		defer { unlock() }
-
-		let oldValue = _value
-		_value = try action(_value)
-		return oldValue
+		return try withValue { value in
+			_value = try action(value)
+			return value
+		}
 	}
 	
 	/// Atomically performs an arbitrary action using the current value of the

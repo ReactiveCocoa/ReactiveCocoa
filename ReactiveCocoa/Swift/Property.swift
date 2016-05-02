@@ -224,7 +224,7 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 			property?.value = value
 		case .Completed:
 			disposable.dispose()
-		default:
+		case .Failed, .Interrupted:
 			break
 		}
 	}

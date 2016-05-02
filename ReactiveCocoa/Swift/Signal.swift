@@ -419,7 +419,7 @@ extension SignalType {
 						observer.action(event)
 					}
 
-				default:
+				case .Next, .Completed:
 					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 					scheduler.scheduleAfter(date) {
 						observer.action(event)
@@ -609,7 +609,7 @@ extension SignalType {
 					}
 				case .Interrupted:
 					observer.sendInterrupted()
-				default:
+				case .Failed:
 					break
 				}
 			}
@@ -771,7 +771,7 @@ extension SignalType {
 						fallthrough
 					}
 
-				default:
+				case .Failed, .Completed, .Interrupted:
 					observer.action(event)
 				}
 			}

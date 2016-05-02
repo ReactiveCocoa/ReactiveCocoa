@@ -1241,9 +1241,9 @@ class SignalProducerSpec: QuickSpec {
 							receivedValues.append(value)
 						case .Completed:
 							completed = true
-						case .Failed(_):
+						case .Failed:
 							errored = true
-						default:
+						case .Interrupted:
 							break
 						}
 					}

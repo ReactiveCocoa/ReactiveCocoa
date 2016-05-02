@@ -708,10 +708,10 @@ scopedExample("`flatMapError`") {
 scopedExample("`sampleWith`") {
     
     let producer = SignalProducer<Int, NoError>(values: [1,2,3,4])
-	let sampler = SignalProducer<String, NoError>(values: ["a", "b"])
+    let sampler = SignalProducer<String, NoError>(values: ["a", "b"])
 				
-	let result = producer.sampleWith(sampler)
-
+    let result = producer.sampleWith(sampler)
+    
     result.startWithNext { (left, right) in print("\(left)\(right)") }
 }
 
@@ -726,7 +726,6 @@ scopedExample("`log events`") {
     
     baseProducer
         .logEvents(identifier: "Playground is fun!")
-        .startWithNext { _ in
-    }
+        .start()
 }
 

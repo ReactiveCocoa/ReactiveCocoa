@@ -73,6 +73,7 @@
 			if (index != NSNotFound) [subscribers removeObjectAtIndex:index];
 		}
 	}]];
+
 	return disposable;
 }
 

@@ -55,7 +55,7 @@ class PropertySpec: QuickSpec {
 						sentValue = value
 					case .Completed:
 						signalCompleted = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -309,7 +309,7 @@ class PropertySpec: QuickSpec {
 							sentValue = value
 						case .Completed:
 							producerCompleted = true
-						default:
+						case .Failed, .Interrupted:
 							break
 						}
 					}
@@ -320,7 +320,7 @@ class PropertySpec: QuickSpec {
 							signalSentValue = value
 						case .Interrupted:
 							signalInterrupted = true
-						default:
+						case .Failed, .Completed:
 							break
 						}
 					}

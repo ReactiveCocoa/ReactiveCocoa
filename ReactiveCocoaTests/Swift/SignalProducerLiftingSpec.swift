@@ -131,7 +131,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						lastValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -164,7 +164,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						lastValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -320,7 +320,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						lastValue = value
-					default:
+					case .Failed, .Completed, .Interrupted:
 						break
 					}
 				}
@@ -368,7 +368,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						lastValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -437,7 +437,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						result.append(number)
 					case .Interrupted:
 						interrupted = true
-					default:
+					case .Failed, .Completed:
 						break
 					}
 				}
@@ -523,7 +523,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						lastValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -593,7 +593,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						lastValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -648,7 +648,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						latestValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -674,7 +674,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						latestValue = value
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -729,7 +729,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 							result.append(number)
 						case .Completed:
 							completed = true
-						default:
+						case .Failed, .Interrupted:
 							break
 						}
 					}
@@ -831,7 +831,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						values.append(value)
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -1109,7 +1109,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 						result.append("\(left)\(right)")
 					case .Completed:
 						completed = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -1142,7 +1142,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					switch latestEvent {
 					case let .Next(value):
 						expect(value) == 2
-					default:
+					case .Failed, .Completed, .Interrupted:
 						fail()
 					}
 				}
@@ -1150,9 +1150,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendFailed(TestError.Default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Failed(_):
-						()
-					default:
+					case .Failed:
+						break
+					case .Next, .Completed, .Interrupted:
 						fail()
 					}
 				}
@@ -1244,9 +1244,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 					switch event {
 					case let .Next(value):
 						result.append(value)
-					case .Failed(_):
+					case .Failed:
 						errored = true
-					default:
+					case .Completed, .Interrupted:
 						break
 					}
 				}
@@ -1281,9 +1281,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
-					default:
+					case .Next, .Interrupted:
 						break
 					}
 				}
@@ -1307,9 +1307,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 					switch event {
 					case .Completed:
 						completed = true
-					case .Failed(_):
+					case .Failed:
 						errored = true
-					default:
+					case .Next, .Interrupted:
 						break
 					}
 				}

@@ -278,6 +278,18 @@ private struct BufferState<Value, Error: ErrorType> {
 	// Appends a new value to the buffer, trimming it down to the given capacity
 	// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
+		precondition(capacity >= 0)
+
+		if capacity == 0 {
+			values = []
+			return
+		}
+
+		if capacity == 1 {
+			values = [ value ]
+			return
+		}
+
 		values.append(value)
 
 		let overflow = values.count - capacity

@@ -23,14 +23,14 @@
 #import "RACUnit.h"
 
 @interface RACTestSubscriber : NSObject <RACSubscriber>
-@property (nonatomic, strong, readonly) RACDisposable *testingDisposable;
+@property (nonatomic, strong, readonly) RACDisposable *disposable;
 @end
 
 @implementation RACTestSubscriber
 
 - (instancetype)init {
 	self = [super init];
-	_testingDisposable = [RACDisposable new];
+	_disposable = [RACDisposable new];
 	return self;
 }
 
@@ -39,7 +39,7 @@
 - (void)sendCompleted {}
 
 - (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
-	[disposable addDisposable:self.testingDisposable];
+	[disposable addDisposable:self.disposable];
 }
 
 @end
@@ -76,7 +76,7 @@ qck_describe(@"RACSubject", ^{
 
 		[[subject subscribe:subscriber] dispose];
 
-		expect(@(subscriber.testingDisposable.disposed)).to(beTruthy());
+		expect(@(subscriber.disposable.disposed)).to(beTruthy());
 	});
 
 	qck_itBehavesLike(RACSubscriberExamples, ^{

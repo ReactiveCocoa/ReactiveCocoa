@@ -70,7 +70,7 @@ qck_describe(@"RACSubject", ^{
 		}];
 	});
 
-	qck_fit(@"should dispose the paired disposable when a subscription terminates", ^{
+	qck_it(@"should dispose the paired disposable when a subscription terminates", ^{
 		RACSubject* subject = [RACSubject new];
 		RACTestSubscriber* subscriber = [RACTestSubscriber new];
 

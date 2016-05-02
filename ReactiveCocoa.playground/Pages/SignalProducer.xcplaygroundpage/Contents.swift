@@ -699,3 +699,34 @@ scopedExample("`flatMapError`") {
             print(value)
     }
 }
+
+/*:
+ ### `logEvents`
+ Logs all events that the receiver sends.
+ By default, it will print to the standard output.
+ */
+scopedExample("`sampleWith`") {
+    
+    let producer = SignalProducer<Int, NoError>(values: [1,2,3,4])
+	let sampler = SignalProducer<String, NoError>(values: ["a", "b"])
+				
+	let result = producer.sampleWith(sampler)
+
+    result.startWithNext { (left, right) in print("\(left)\(right)") }
+}
+
+/*:
+ ### `logEvents`
+ Logs all events that the receiver sends.
+ By default, it will print to the standard output.
+ */
+scopedExample("`log events`") {
+    
+    let baseProducer = SignalProducer<Int, NoError>(values: [1,2,3,4,42])
+    
+    baseProducer
+        .logEvents(identifier: "Playground is fun!")
+        .startWithNext { _ in
+    }
+}
+

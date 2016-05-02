@@ -62,7 +62,7 @@
 		[subscribers addObject:subscriber];
 	}
 	
-	return [RACDisposable disposableWithBlock:^{
+	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@synchronized (subscribers) {
 			// Since newer subscribers are generally shorter-lived, search
 			// starting from the end of the list.
@@ -72,7 +72,9 @@
 
 			if (index != NSNotFound) [subscribers removeObjectAtIndex:index];
 		}
-	}];
+	}]];
+
+	return disposable;
 }
 
 - (void)enumerateSubscribersUsingBlock:(void (^)(id<RACSubscriber> subscriber))block {

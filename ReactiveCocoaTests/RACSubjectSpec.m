@@ -14,12 +14,35 @@
 #import <libkern/OSAtomic.h>
 #import "EXTScope.h"
 #import "RACBehaviorSubject.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import "RACUnit.h"
+
+@interface RACTestSubscriber : NSObject <RACSubscriber>
+@property (nonatomic, strong, readonly) RACDisposable *disposable;
+@end
+
+@implementation RACTestSubscriber
+
+- (instancetype)init {
+	self = [super init];
+	_disposable = [RACDisposable new];
+	return self;
+}
+
+- (void)sendNext:(id)value {}
+- (void)sendError:(NSError *)error {}
+- (void)sendCompleted {}
+
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
+	[disposable addDisposable:self.disposable];
+}
+
+@end
 
 QuickSpecBegin(RACSubjectSpec)
 
@@ -45,6 +68,15 @@ qck_describe(@"RACSubject", ^{
 		} completed:^{
 			success = YES;
 		}];
+	});
+
+	qck_it(@"should dispose the paired disposable when a subscription terminates", ^{
+		RACSubject* subject = [RACSubject new];
+		RACTestSubscriber* subscriber = [RACTestSubscriber new];
+
+		[[subject subscribe:subscriber] dispose];
+
+		expect(@(subscriber.disposable.disposed)).to(beTruthy());
 	});
 
 	qck_itBehavesLike(RACSubscriberExamples, ^{

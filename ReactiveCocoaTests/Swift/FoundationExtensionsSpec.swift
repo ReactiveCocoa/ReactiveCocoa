@@ -11,6 +11,8 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
+private final class FooClass {}
+
 class FoundationExtensionsSpec: QuickSpec {
 	override func spec() {
 		describe("NSNotificationCenter.rac_notifications") {
@@ -36,7 +38,7 @@ class FoundationExtensionsSpec: QuickSpec {
 			}
 
 			it("should send Interrupted when the observed object is freed") {
-				var observedObject: AnyObject? = NSObject()
+				var observedObject: AnyObject? = FooClass()
 				let producer = center.rac_notifications(object: observedObject)
 				observedObject = nil
 
@@ -44,11 +46,41 @@ class FoundationExtensionsSpec: QuickSpec {
 				let disposable = producer.startWithInterrupted {
 					interrupted = true
 				}
-				expect(interrupted).to(beTrue())
+				expect(interrupted) == true
 
 				disposable.dispose()
 			}
 
+			context("observing NSObject-derived objects") {
+				it("should send Completed when the observed object is freed before resulting producer is started") {
+					var observedObject: AnyObject? = NSObject()
+					let producer = center.rac_notifications(object: observedObject)
+					observedObject = nil
+
+					var completed = false
+					let disposable = producer.startWithCompleted {
+						completed = true
+					}
+					expect(completed) == true
+
+					disposable.dispose()
+				}
+
+				it("should send Completed when the observed object is freed after resulting producer is started") {
+					var observedObject: AnyObject? = NSObject()
+					let producer = center.rac_notifications(object: observedObject)
+
+					var completed = false
+					let disposable = producer.startWithCompleted {
+						completed = true
+					}
+
+					observedObject = nil
+					expect(completed) == true
+					
+					disposable.dispose()
+				}
+			}
 		}
 	}
 }

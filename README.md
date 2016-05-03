@@ -9,6 +9,7 @@ ReactiveCocoa (RAC) is a Cocoa framework inspired by [Functional Reactive Progra
  1. [Objective-C and Swift](#objective-c-and-swift)
  1. [How does ReactiveCocoa relate to Rx?](#how-does-reactivecocoa-relate-to-rx)
  1. [Getting started](#getting-started)
+ 1.  [Playground](#playground)
 
 If you’re already familiar with functional reactive programming or what
 ReactiveCocoa is about, check out the [Documentation][] folder for more in-depth
@@ -346,7 +347,17 @@ Once you’ve set up your project, check out the [Framework Overview][] for
 a tour of ReactiveCocoa’s concepts, and the [Basic Operators][] for some
 introductory examples of using it.
 
+## Playground
 
+We also provide a great Playground, so you can get used to ReactiveCocoa's operators. In order to start using it:
+
+ 1. Clone the ReactiveCocoa repository.
+ 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
+ 1. Open `ReactiveCocoa.xcworkspace`. 
+ 1. Build both `Result-Mac` and `ReactiveCocoa-Mac` targets.
+ 1. Open the ReactiveCocoa.playground
+ 1. Have fun! 
+    
 [Actions]: Documentation/FrameworkOverview.md#actions
 [Basic Operators]: Documentation/BasicOperators.md
 [CHANGELOG]: CHANGELOG.md

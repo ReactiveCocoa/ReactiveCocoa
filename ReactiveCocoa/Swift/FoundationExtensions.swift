@@ -30,16 +30,17 @@ extension NSNotificationCenter {
 		let objectWasNil = (object == nil)
 
 		let producer = SignalProducer<NSNotification, NoError> { [weak object] observer, disposable in
-			if object != nil || objectWasNil {
-				let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
-					observer.sendNext(notification)
-				}
-
-				disposable.addDisposable {
-					self.removeObserver(notificationObserver)
-				}
-			} else {
+			guard object != nil || objectWasNil else {
 				observer.sendInterrupted()
+				return
+			}
+
+			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
+				observer.sendNext(notification)
+			}
+
+			disposable.addDisposable {
+				self.removeObserver(notificationObserver)
 			}
 		}
 

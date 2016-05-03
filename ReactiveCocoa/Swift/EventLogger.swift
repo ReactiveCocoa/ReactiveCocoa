@@ -25,7 +25,7 @@ public enum SignalProducerLoggingEvent: String {
 }
 
 private func defaultEventLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void {
-	print("[\(identifier)] \(event) fileName: \(fileName), functionaName: \(functionName), lineNumber: \(lineNumber)")
+	print("[\(identifier)] \(event) fileName: \(fileName), functionName: \(functionName), lineNumber: \(lineNumber)")
 }
 
 public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void

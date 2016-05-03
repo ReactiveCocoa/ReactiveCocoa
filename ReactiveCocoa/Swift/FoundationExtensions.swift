@@ -9,12 +9,40 @@
 import Foundation
 import enum Result.NoError
 
+private extension NSObject {
+	var willDeallocProducer: SignalProducer<(), NoError> {
+		return rac_willDeallocSignal()
+			.toSignalProducer()
+			.map { _ in () }
+			.mapError { error in
+				fatalError("Unexpected error: \(error)")
+				()
+		}
+	}
+}
+
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.
-	/// This producer will not terminate naturally, so it must be explicitly
-	/// disposed to avoid leaks.
+	///
+	/// If the `object` is an instance of non-`NSObject` classes and the instance
+	/// is deallocated before starting the producer, the producer will terminate
+	/// immediatelly with an .Interrupted event.
+	///
+	/// If the `object` is `NSObject`, the producer will terminate automatically
+	/// when the given object is deallocated.
+	///
+	/// Otherwise, the producer will not terminate naturally, so it must be
+	/// explicitly disposed to avoid leaks.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
-		return SignalProducer { observer, disposable in
+		// We're weakly capturing an optional reference here, which makes destructuring awkward.
+		let objectWasNil = (object == nil)
+
+		let producer = SignalProducer<NSNotification, NoError> { [weak object] observer, disposable in
+			guard object != nil || objectWasNil else {
+				observer.sendInterrupted()
+				return
+			}
+
 			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
 				observer.sendNext(notification)
 			}
@@ -22,6 +50,12 @@ extension NSNotificationCenter {
 			disposable.addDisposable {
 				self.removeObserver(notificationObserver)
 			}
+		}
+
+		if let object = object as? NSObject {
+			return producer.takeUntil(object.willDeallocProducer)
+		} else {
+			return producer
 		}
 	}
 }

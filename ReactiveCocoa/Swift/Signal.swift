@@ -301,36 +301,122 @@ extension SignalType {
 	}
 }
 
-public enum CollectStrategy {
-	case Inclusive
-	case Exclusive
+/// A reference type which wraps an array to auxiliate the collection of values
+/// for `collect` operator.
+private final class CollectState<Value> {
+	var values: [Value] = []
+
+	/// Collects a new value.
+	func append(value: Value) {
+		values.append(value)
+	}
+
+	/// Check if there are any items remaining.
+	///
+	/// - Note: This method also checks if there weren't collected any values 
+	/// and, in that case, it means an empty array should be sent as the result
+	/// of collect.
+	var isEmpty: Bool {
+		/// We use capacity being zero to determine if we haven't collected any 
+		/// value since we're keeping the capacity of the array to avoid 
+		/// unnecessary and expensive allocations). This also guarantees 
+		/// retro-compatibility around the original `collect()` operator.
+		return values.isEmpty && values.capacity > 0
+	}
+
+	/// Removes all values previously collected if any.
+	func flush() {
+		// Minor optimization to avoid consecutive allocations. Can
+		// be useful for sequences of regular or similar size and to
+		// track if any value was ever collected.
+		values.removeAll(keepCapacity: true)
+	}
 }
+
 
 extension SignalType {
 
-	/// Returns a signal that will yield an array of values when `self` completes.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect() -> Signal<[Value], Error> {
-		return collect(.Inclusive) { _ in false }
-	}
-
-	/// Returns a signal that will yield an array of values until it reaches a certain
-	/// count.
+	/// Returns a signal that will yield an array of values until it reaches a 
+	/// certain count.
 	///
 	/// When the count is reached the array is sent and the signal starts over 
 	/// yielding a new array of values.
+	///
+	/// - Precondition: `count` should be greater than zero.
+	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(count: Int) -> Signal<[Value], Error> {
+	public func collect(count count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
-		return collect(.Inclusive) { values, _ in values.count == count }
+		return collect { values in values.count == count }
 	}
 
-	/// Returns a signal that will yield an array of values based on a predicate.
+	/// Returns a signal that will yield an array of values based on a predicate
+	/// which matches the values collected.
 	///
-	/// The predicate should return `true` when the values should be sent and `false`
-	/// when the values should be collected. The predicate receives the `values`
-	/// already collected and the next value that should or should not be
-	/// collected.
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The predicate receives the `values` already 
+	/// collected which will already include the next value. By default, uses a
+	/// predicate that collects all the values until `self` completes.
+	///
+	/// #### Example
+	///
+	///     let (signal, observer) = Signal<Int, NoError>.pipe()
+	///
+	///     signal
+	///         .collect { values in values.reduce(0, combine: +) <= 8 }
+	///         .observeNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(3)
+	///     observer.sendNext(4)
+	///     observer.sendNext(7)
+	///     observer.sendNext(1)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 3, 4]
+	///     // [7, 1]
+	///     // [5, 6]
+	///
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func collect(predicate: (values: [Value]) -> Bool = { _ in false }) -> Signal<[Value], Error> {
+		return Signal { observer in
+			let state = CollectState<Value>()
+
+			return self.observe { event in
+				switch event {
+				case let .Next(value):
+					state.append(value)
+					if predicate(values: state.values) {
+						observer.sendNext(state.values)
+						state.flush()
+					}
+				case .Completed:
+					if !state.isEmpty {
+						observer.sendNext(state.values)
+					}
+					observer.sendCompleted()
+				case let .Failed(error):
+					observer.sendFailed(error)
+				case .Interrupted:
+					observer.sendInterrupted()
+				}
+			}
+		}
+	}
+
+	/// Returns a signal that will yield an array of values based on a predicate
+	/// which matches the values collected and the next value.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The predicate receives both the `values` 
+	/// already collected as the next value that may be collected into the 
+	/// current sequence or, otherwise, trigger the flush of the current and
+	/// starting a new one with the next value included.
 	///
 	/// #### Example
 	///
@@ -353,44 +439,21 @@ extension SignalType {
 	///     // [7]
 	///     // [7, 5, 6]
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(strategy: CollectStrategy, predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
+	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
-			var values: [Value] = []
-
-			let flushValues = { (completed: Bool) in
-				observer.sendNext(values)
-				if !completed {
-					// Minor optimization to avoid consecutive allocations. Can
-					// be useful for sequences of regular or similar size and to
-					// track if any value was ever collected.
-					values.removeAll(keepCapacity: true)
-				}
-			}
+			let state = CollectState<Value>()
 
 			return self.observe { event in
 				switch event {
 				case let .Next(value):
-					switch strategy {
-					case .Inclusive:
-						values.append(value)
-						if predicate(values: values, next: value) {
-							flushValues(false)
-						}
-					case .Exclusive:
-						if predicate(values: values, next: value) {
-							flushValues(false)
-						}
-						values.append(value)
+					if predicate(values: state.values, next: value) {
+						observer.sendNext(state.values)
+						state.flush()
 					}
+					state.append(value)
 				case .Completed:
-					// Flush any items remaining or alternatively flush an empty
-					// array if we haven't collected any value (values's capacity 
-					// should only be zero if we haven't collected any value since
-					// we're keeping the capacity of the array to avoid unnecessary 
-					// and expensive allocations). This also guarantees 
-					// retro-compatibility around the original `collect()` operator.
-					if !values.isEmpty || values.capacity == 0 {
-						flushValues(true)
+					if !state.isEmpty {
+						observer.sendNext(state.values)
 					}
 					observer.sendCompleted()
 				case let .Failed(error):

@@ -497,43 +497,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(error) == TestError.Default
 			}
 
-			it("should collect a certain count of values") {
+			it("should collect an exact count of values") {
 				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
 
-				let producer = original.collect(3)
-
-				var expectedValues = [
-					[1, 2, 3],
-					[4, 5, 6],
-					[7, 8, 9],
-					[0]
-				]
-
-				producer.startWithNext { value in
-					expect(value) == expectedValues.removeFirst()
-				}
-
-				producer.startWithCompleted {
-					expect(expectedValues) == []
-				}
-
-				expectedValues
-					.flatMap { $0 }
-					.forEach(observer.sendNext)
-
-				observer.sendCompleted()
-			}
-
-			it("should collect an exact count of values and send them without waiting for the next element") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
-
-				let producer = original.collect(3)
-
-				let expectedValues = [
-					[1, 2, 3],
-					[4, 5, 6],
-					[7, 8, 9]
-				]
+				let producer = original.collect(count: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -541,23 +508,30 @@ class SignalProducerLiftingSpec: QuickSpec {
 					observedValues.append(value)
 				}
 
-				producer.startWithCompleted {
-					expect(expectedValues) == observedValues
-				}
+				var expectation: [[Int]] = []
 
-				expectedValues.enumerate().forEach { index, sequence in
-					sequence.forEach(observer.sendNext)
+				for i in 1...7 {
 
-					expect(observedValues[index]) == sequence
+					observer.sendNext(i)
+
+					if i % 3 == 0 {
+						expectation.append([Int]((i - 2)...i))
+						expect(observedValues) == expectation
+					} else {
+						expect(observedValues) == expectation
+					}
 				}
 
 				observer.sendCompleted()
+
+				expectation.append([7])
+				expect(observedValues) == expectation
 			}
 
 			it("should collect values until it matches a certain value") {
 				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
 
-				let producer = original.collect(.Exclusive) { _, next in next != 5 }
+				let producer = original.collect { _, next in next != 5 }
 
 				var expectedValues = [
 					[5, 5],
@@ -582,7 +556,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
 
-				let producer = original.collect(.Inclusive) { values, _ in values.reduce(0, combine: +) == 10 }
+				let producer = original.collect { values in values.reduce(0, combine: +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],
@@ -596,7 +570,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				producer.startWithCompleted {
 					expect(expectedValues) == []
 				}
-				
+
 				expectedValues
 					.flatMap { $0 }
 					.forEach(observer.sendNext)

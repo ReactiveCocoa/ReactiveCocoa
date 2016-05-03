@@ -894,43 +894,10 @@ class SignalSpec: QuickSpec {
 				expect(error) == TestError.Default
 			}
 
-			it("should collect a certain count of values") {
+			it("should collect an exact count of values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect(3)
-
-				var expectedValues = [
-					[1, 2, 3],
-					[4, 5, 6],
-					[7, 8, 9],
-					[0]
-				]
-
-				signal.observeNext { value in
-					expect(value) == expectedValues.removeFirst()
-				}
-
-				signal.observeCompleted {
-					expect(expectedValues) == []
-				}
-
-				expectedValues
-					.flatMap { $0 }
-					.forEach(observer.sendNext)
-
-				observer.sendCompleted()
-			}
-
-			it("should collect an exact count of values and send them without waiting for the next element") {
-				let (original, observer) = Signal<Int, NoError>.pipe()
-
-				let signal = original.collect(3)
-
-				let expectedValues = [
-					[1, 2, 3],
-					[4, 5, 6],
-					[7, 8, 9]
-				]
+				let signal = original.collect(count: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -938,23 +905,30 @@ class SignalSpec: QuickSpec {
 					observedValues.append(value)
 				}
 
-				signal.observeCompleted {
-					expect(expectedValues) == observedValues
-				}
+				var expectation: [[Int]] = []
 
-				expectedValues.enumerate().forEach { index, sequence in
-					sequence.forEach(observer.sendNext)
+				for i in 1...7 {
 
-					expect(observedValues[index]) == sequence
+					observer.sendNext(i)
+
+					if i % 3 == 0 {
+						expectation.append([Int]((i - 2)...i))
+						expect(observedValues) == expectation
+					} else {
+						expect(observedValues) == expectation
+					}
 				}
 
 				observer.sendCompleted()
+
+				expectation.append([7])
+				expect(observedValues) == expectation
 			}
 
 			it("should collect values until it matches a certain value") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect(.Exclusive) { _, next in next != 5 }
+				let signal = original.collect { _, next in next != 5 }
 
 				var expectedValues = [
 					[5, 5],
@@ -979,7 +953,7 @@ class SignalSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect(.Inclusive) { values, _ in values.reduce(0, combine: +) == 10 }
+				let signal = original.collect { values in values.reduce(0, combine: +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],

@@ -509,35 +509,71 @@ extension SignalProducerType {
 		return lift { $0.take(count) }
 	}
 
-	/// Returns a producer that will yield an array of values when `self` completes.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func collect() -> SignalProducer<[Value], Error> {
-		return lift { $0.collect() }
-	}
-
 	/// Returns a producer that will yield an array of values until it reaches a
 	/// certain count.
 	///
 	/// When the count is reached the array is sent and the producer starts over
 	/// yielding a new array of values.
+	///
+	/// - Precondition: `count` should be greater than zero.
+	///
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func collect(count: Int) -> SignalProducer<[Value], Error> {
-		return lift { $0.collect(count) }
+	public func collect(count count: Int) -> SignalProducer<[Value], Error> {
+		precondition(count > 0)
+		return lift { $0.collect(count: count) }
 	}
 
-	/// Returns a producer that will yield an array of values based on a predicate.
+	/// Returns a producer that will yield an array of values based on a 
+	/// predicate which matches the values collected.
 	///
-	/// The predicate should return `true` when the values should be sent and `false`
-	/// when the values should be collected. The predicate receives the `values`
-	/// already collected and the next value that should or should not be
-	/// collected.
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The predicate receives the `values` already
+	/// collected which will already include the next value. By default, uses a
+	/// predicate that collects all the values until `self` completes.
 	///
 	/// #### Example
 	///
 	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 	///
 	///     producer
-	///         .collect { values, next in next != 7 }
+	///         .collect { values in values.reduce(0, combine: +) <= 8 }
+	///         .startWithNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(3)
+	///     observer.sendNext(4)
+	///     observer.sendNext(7)
+	///     observer.sendNext(1)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 3, 4]
+	///     // [7, 1]
+	///     // [5, 6]
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(predicate: (values: [Value]) -> Bool = { _ in false }) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
+	}
+
+	/// Returns a producer that will yield an array of values based on a
+	/// predicate which matches the values collected and the next value.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The predicate receives both the `values`
+	/// already collected as the next value that may be collected into the
+	/// current sequence or, otherwise, trigger the flush of the current and
+	/// starting a new one with the next value included.
+	///
+	/// #### Example
+	///
+	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	///
+	///     producer
+	///         .collect { values, next in next == 7 }
 	///         .startWithNext { print($0) }
 	///
 	///     observer.sendNext(1)
@@ -551,11 +587,10 @@ extension SignalProducerType {
 	///     // Output:
 	///     // [1, 1]
 	///     // [7]
-	///     // [7]
-	///     // [5, 6]
+	///     // [7, 5, 6]
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func collect(strategy: CollectStrategy, predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
-		return lift { $0.collect(strategy, predicate: predicate) }
+	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
 	}
 
 	/// Forwards all events onto the given scheduler, instead of whichever

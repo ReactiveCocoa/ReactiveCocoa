@@ -30,7 +30,7 @@ import Foundation
  can only evaluate the events in the same order as they are sent on the signal. There
  is no random access to values of a signal.
  
- Signals can be manipulated by applying [primitives][BasicOperators] to them.
+ Signals can be manipulated by applying [primitives](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/BasicOperators.md) to them.
  Typical primitives to manipulate a single signal like `filter`, `map` and
  `reduce` are available, as well as primitives to manipulate multiple signals
  at once (`zip`). Primitives operate only on the `Next` events of a signal.

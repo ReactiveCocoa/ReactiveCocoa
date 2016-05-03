@@ -42,6 +42,29 @@ import Foundation
  */
 
 /*:
+ ### `Subscription`
+ A SignalProducer represents an operation that can be started on demand. Starting the operation returns a Signal on which the result(s) of the operation can be observed. This behavior is sometimes also called "cold". 
+This means that a subscriber will never miss any valus sent by the SignalProducer.
+ */
+scopedExample("Subscription") {
+    let producer = SignalProducer<Int, NoError>({ (observer, _) in
+        print("New subscription, starting operation")
+        observer.sendNext(1)
+        observer.sendNext(2)
+    })
+    
+    let subscriber1 = Observer<Int, NoError>(next: { print("Subscriber 1 received \($0)") })
+    let subscriber2 = Observer<Int, NoError>(next: { print("Subscriber 2 received \($0)") })
+
+    print("Subscriber 1 subscribes to producer")
+    producer.start(subscriber1)
+
+    print("Subscriber 2 subscribes to producer")
+    // Notice, how the producer will start the work again
+    producer.start(subscriber2)
+}
+
+/*:
  ### `empty`
  A producer for a Signal that will immediately complete without sending
  any values.

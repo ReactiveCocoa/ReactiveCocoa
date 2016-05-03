@@ -345,7 +345,7 @@ scopedExample("`combineLatestWith`") {
     
     producer1.combineLatestWith(producer2)
         .startWithNext { value in
-            print(value)
+            print("\(value)")
     }
 }
 
@@ -420,7 +420,7 @@ scopedExample("`combinePrevious`") {
     SignalProducer<Int, NoError>(values: [1,2,3,4])
         .combinePrevious(42)
         .startWithNext { value in
-            print(value)
+            print("\(value)")
     }
 }
 
@@ -556,7 +556,7 @@ scopedExample("`zipWith`") {
     baseProducer
         .zipWith(zippedProducer)
         .startWithNext { value in
-            print(value)
+            print("\(value)")
     }
 }
 

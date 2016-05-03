@@ -651,7 +651,25 @@ extension SignalProducerType {
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftRight(Signal.takeUntil)(trigger)
+		// This should be the implementation of this method:
+		// return liftRight(Signal.takeUntil)(trigger)
+		//
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
+		//
+		// This can be reverted once tests with -O work correctly.
+
+		return SignalProducer { observer, outerDisposable in
+			self.startWithSignal { signal, disposable in
+				outerDisposable.addDisposable(disposable)
+
+				trigger.startWithSignal { triggerSignal, triggerDisposable in
+					outerDisposable.addDisposable(triggerDisposable)
+
+					signal.takeUntil(triggerSignal).observe(observer)
+				}
+			}
+		}
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed

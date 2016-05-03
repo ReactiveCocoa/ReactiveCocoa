@@ -52,7 +52,7 @@ class FoundationExtensionsSpec: QuickSpec {
 			}
 
 			context("observing NSObject-derived objects") {
-				it("should send Completed when the observed object is freed before resulting producer is started") {
+				it("should send Completed when the observed object is freed before the resulting producer is started") {
 					var observedObject: AnyObject? = NSObject()
 					let producer = center.rac_notifications(object: observedObject)
 					observedObject = nil
@@ -66,7 +66,7 @@ class FoundationExtensionsSpec: QuickSpec {
 					disposable.dispose()
 				}
 
-				it("should send Completed when the observed object is freed after resulting producer is started") {
+				it("should send Completed when the observed object is freed after the resulting producer is started") {
 					var observedObject: AnyObject? = NSObject()
 					let producer = center.rac_notifications(object: observedObject)
 

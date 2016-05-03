@@ -369,7 +369,7 @@ class PropertySpec: QuickSpec {
 
 		describe("DynamicProperty") {
 			var object: ObservableObject!
-			var property: DynamicProperty!
+			var property: DynamicProperty<Int>!
 
 			let propertyValue: () -> Int? = {
 				if let value: AnyObject = property?.value {
@@ -383,7 +383,7 @@ class PropertySpec: QuickSpec {
 				object = ObservableObject()
 				expect(object.rac_value) == 0
 
-				property = DynamicProperty(object: object, keyPath: "rac_value")
+				property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -407,7 +407,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -423,7 +423,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -439,7 +439,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -455,7 +455,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -473,7 +473,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.producer.startWithCompleted {
 						completed = true
@@ -494,7 +494,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.signal.observeCompleted {
 						completed = true
@@ -510,13 +510,19 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty? = property
+				weak var dynamicProperty: DynamicProperty<Int>? = property
 				
 				property = nil
 				expect(dynamicProperty).toNot(beNil())
 				
 				object = nil
 				expect(dynamicProperty).to(beNil())
+			}
+
+			it("should support un-bridged reference types") {
+				let dynamicProperty = DynamicProperty<UnbridgedObject>(object: object, keyPath: "rac_reference")
+				dynamicProperty.value = UnbridgedObject("foo")
+				expect(object.rac_reference.value) == "foo"
 			}
 		}
 
@@ -686,10 +692,53 @@ class PropertySpec: QuickSpec {
 					expect(bindingDisposable.disposed) == true
 				}
 			}
+
+			describe("to a dynamic property") {
+				var object: ObservableObject!
+				var property: DynamicProperty<Int>!
+
+				beforeEach {
+					object = ObservableObject()
+					expect(object.rac_value) == 0
+
+					property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+				}
+
+				afterEach {
+					object = nil
+				}
+
+				it("should bridge values sent on a signal to Objective-C") {
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					property <~ signal
+					observer.sendNext(1)
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values sent on a signal producer to Objective-C") {
+					let producer = SignalProducer<Int, NoError>(value: 1)
+					property <~ producer
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values from a source property to Objective-C") {
+					let source = MutableProperty(1)
+					property <~ source
+					expect(object.rac_value) == 1
+				}
+			}
 		}
 	}
 }
 
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+}
+
+private class UnbridgedObject: NSObject {
+	let value: String
+	init(_ value: String) {
+		self.value = value
+	}
 }

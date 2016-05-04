@@ -631,10 +631,12 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("takeWhile") {
 			var producer: SignalProducer<Int, NoError>!
 			var observer: Signal<Int, NoError>.Observer!
+			var inclusive: Bool!
 
 			beforeEach {
+				inclusive = false
 				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
-				producer = baseProducer.takeWhile { $0 <= 4 }
+				producer = baseProducer.takeWhile(inclusive) { $0 <= 4 }
 				observer = incomingObserver
 			}
 
@@ -660,7 +662,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				observer.sendNext(5)
-				expect(latestValue) == 4
+				expect(latestValue) == (inclusive == true ? 5 : 4)
 				expect(completed) == true
 			}
 
@@ -680,6 +682,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				observer.sendNext(5)
+				if inclusive == true {
+					expect(latestValue) == 5
+				} else {
+					expect(latestValue).to(beNil())
+				}
 				expect(latestValue).to(beNil())
 				expect(completed) == true
 			}

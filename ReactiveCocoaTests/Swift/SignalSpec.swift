@@ -1028,10 +1028,12 @@ class SignalSpec: QuickSpec {
 		describe("takeWhile") {
 			var signal: Signal<Int, NoError>!
 			var observer: Signal<Int, NoError>.Observer!
+			var inclusive: Bool!
 
 			beforeEach {
+				inclusive = false
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
-				signal = baseSignal.takeWhile { $0 <= 4 }
+				signal = baseSignal.takeWhile(inclusive) { $0 <= 4 }
 				observer = incomingObserver
 			}
 
@@ -1057,7 +1059,7 @@ class SignalSpec: QuickSpec {
 				}
 
 				observer.sendNext(5)
-				expect(latestValue) == 4
+				expect(latestValue) == (inclusive == true ? 5 : 4)
 				expect(completed) == true
 			}
 
@@ -1077,7 +1079,11 @@ class SignalSpec: QuickSpec {
 				}
 
 				observer.sendNext(5)
-				expect(latestValue).to(beNil())
+				if inclusive == true {
+					expect(latestValue) == 5
+				} else {
+					expect(latestValue).to(beNil())
+				}
 				expect(completed) == true
 			}
 		}

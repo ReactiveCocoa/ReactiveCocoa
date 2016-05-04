@@ -334,10 +334,10 @@ scopedExample("`observeOn`") {
 }
 
 /*:
- ### `collect`
- Returns a signal that will yield an array of values when `signal` completes.
+ ### `collect()`
+ Returns a producer that will yield an array of values until it completes.
  */
-scopedExample("`collect`") {
+scopedExample("`collect()`") {
     
     SignalProducer<Int, NoError> { observer, disposable in
         observer.sendNext(1)
@@ -347,6 +347,73 @@ scopedExample("`collect`") {
         observer.sendCompleted()
         }
         .collect()
+        .startWithNext { value in
+            print(value)
+    }
+}
+
+/*:
+ ### `collect(count:)`
+ Returns a producer that will yield an array of values until it reaches a certain count.
+ */
+scopedExample("`collect(count:)`") {
+
+    SignalProducer<Int, NoError> { observer, disposable in
+        observer.sendNext(1)
+        observer.sendNext(2)
+        observer.sendNext(3)
+        observer.sendNext(4)
+        observer.sendCompleted()
+        }
+        .collect(count: 2)
+        .startWithNext { value in
+            print(value)
+    }
+}
+
+/*:
+ ### ``collect(predicate:)` matching values inclusively`
+ Returns a producer that will yield an array of values based on a predicate
+ which matches the values collected.
+
+ When producer completes any remaining values will be sent, the last values
+ array may not match `predicate`. Alternatively, if were not collected any
+ values will sent an empty array of values.
+ */
+scopedExample("`collect(predicate:)` matching values inclusively") {
+
+    SignalProducer<Int, NoError> { observer, disposable in
+        observer.sendNext(1)
+        observer.sendNext(2)
+        observer.sendNext(3)
+        observer.sendNext(4)
+        observer.sendCompleted()
+        }
+        .collect { values in values.reduce(0, combine: +) == 3 }
+        .startWithNext { value in
+            print(value)
+    }
+}
+
+/*:
+ ### `collect(count:) matching values exclusively
+ Returns a producer that will yield an array of values based on a predicate
+ which matches the values collected and the next value.
+ 
+ When producer completes any remaining values will be sent, the last values
+ array may not match `predicate`. Alternatively, if were not collected any
+ values will sent an empty array of values.
+ */
+scopedExample("`collect(predicate:)` matching values exclusively") {
+
+    SignalProducer<Int, NoError> { observer, disposable in
+        observer.sendNext(1)
+        observer.sendNext(2)
+        observer.sendNext(3)
+        observer.sendNext(4)
+        observer.sendCompleted()
+        }
+        .collect { values, next in next == 3 }
         .startWithNext { value in
             print(value)
     }

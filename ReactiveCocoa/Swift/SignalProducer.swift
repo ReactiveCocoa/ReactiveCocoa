@@ -205,6 +205,20 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 		return (producer, bufferingObserver)
 	}
+	
+	/// Accumulate values in array. Drain it with propagation after reaching specified size
+	func accumulate(size: Int) -> SignalProducer<[Value], Error> {
+		var values: [Value] = []
+		func next(value: Value) {
+			if values.count >= size {
+				values.removeAll()
+			}
+			values.append(value)
+		}
+		return on(next: next)
+			.filter { _ in values.count < size }
+			.map { _ -> [Value] in return values }
+	}
 
 	/// Creates a SignalProducer that will attempt the given operation once for
 	/// each invocation of start().

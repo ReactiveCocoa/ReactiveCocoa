@@ -955,6 +955,20 @@ extension SignalType {
 			return disposable
 		}
 	}
+	
+	/// Accumulate values in array. Drain it with propagation after reaching specified size
+	func accumulate(size: Int) -> Signal<[Value], Error> {
+		var values: [Value] = []
+		func next(value: Value) {
+			if values.count >= size {
+				values.removeAll()
+			}
+			values.append(value)
+		}
+		return on(next: next)
+			.filter { _ in values.count < size }
+			.map { _ -> [Value] in return values }
+	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.

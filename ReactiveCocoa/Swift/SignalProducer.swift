@@ -509,6 +509,17 @@ extension SignalProducerType {
 		return lift { $0.take(count) }
 	}
 
+	/// Returns a producer that will yield an array of values when `self` 
+	/// completes.
+	///
+	/// - Note: When `self` completes without collecting any value, it will sent
+	/// an empty array of values.
+	///
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect() -> SignalProducer<[Value], Error> {
+		return lift { $0.collect() }
+	}
+
 	/// Returns a producer that will yield an array of values until it reaches a
 	/// certain count.
 	///
@@ -516,6 +527,10 @@ extension SignalProducerType {
 	/// yielding a new array of values.
 	///
 	/// - Precondition: `count` should be greater than zero.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not have `count` values. Alternatively, if were not collected
+	/// any values will sent an empty array of values.
 	///
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect(count count: Int) -> SignalProducer<[Value], Error> {
@@ -528,16 +543,20 @@ extension SignalProducerType {
 	///
 	/// - parameter predicate: Predicate to match when values should be sent
 	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The predicate receives the `values` already
-	/// collected which will already include the next value. By default, uses a
-	/// predicate that collects all the values until `self` completes.
+	/// it should return `false`). The most recent value (`next`) is included in
+	/// `values` and will be the end of the current array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
 	///
 	/// #### Example
 	///
 	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 	///
 	///     producer
-	///         .collect { values in values.reduce(0, combine: +) <= 8 }
+	///         .collect { values in values.reduce(0, combine: +) == 8 }
 	///         .startWithNext { print($0) }
 	///
 	///     observer.sendNext(1)
@@ -554,7 +573,7 @@ extension SignalProducerType {
 	///     // [7, 1]
 	///     // [5, 6]
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func collect(predicate: (values: [Value]) -> Bool = { _ in false }) -> SignalProducer<[Value], Error> {
+	public func collect(predicate: (values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
@@ -563,10 +582,13 @@ extension SignalProducerType {
 	///
 	/// - parameter predicate: Predicate to match when values should be sent
 	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The predicate receives both the `values`
-	/// already collected as the next value that may be collected into the
-	/// current sequence or, otherwise, trigger the flush of the current and
-	/// starting a new one with the next value included.
+	/// it should return `false`). The most recent value (`next`) is not included
+	/// in `values` and will be the start of the next array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
 	///
 	/// #### Example
 	///

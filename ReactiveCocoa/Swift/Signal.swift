@@ -336,6 +336,16 @@ private final class CollectState<Value> {
 
 extension SignalType {
 
+	/// Returns a signal that will yield an array of values when `self` completes.
+	///
+	/// - Note: When `self` completes without collecting any value, it will sent
+	/// an empty array of values.
+	///
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func collect() -> Signal<[Value], Error> {
+		return collect { _,_ in false }
+	}
+
 	/// Returns a signal that will yield an array of values until it reaches a 
 	/// certain count.
 	///
@@ -343,6 +353,10 @@ extension SignalType {
 	/// yielding a new array of values.
 	///
 	/// - Precondition: `count` should be greater than zero.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not have `count` values. Alternatively, if were not collected 
+	/// any values will sent an empty array of values.
 	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect(count count: Int) -> Signal<[Value], Error> {
@@ -355,16 +369,20 @@ extension SignalType {
 	///
 	/// - parameter predicate: Predicate to match when values should be sent
 	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The predicate receives the `values` already 
-	/// collected which will already include the next value. By default, uses a
-	/// predicate that collects all the values until `self` completes.
+	/// it should return `false`). The most recent value (`next`) is included in 
+	/// `values` and will be the end of the current array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any 
+	/// values will sent an empty array of values.
 	///
 	/// #### Example
 	///
 	///     let (signal, observer) = Signal<Int, NoError>.pipe()
 	///
 	///     signal
-	///         .collect { values in values.reduce(0, combine: +) <= 8 }
+	///         .collect { values in values.reduce(0, combine: +) == 8 }
 	///         .observeNext { print($0) }
 	///
 	///     observer.sendNext(1)
@@ -382,7 +400,7 @@ extension SignalType {
 	///     // [5, 6]
 	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(predicate: (values: [Value]) -> Bool = { _ in false }) -> Signal<[Value], Error> {
+	public func collect(predicate: (values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
 
@@ -411,12 +429,15 @@ extension SignalType {
 	/// Returns a signal that will yield an array of values based on a predicate
 	/// which matches the values collected and the next value.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent
+	/// - parameter predicate: Predicate to match when values should be sent 
 	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The predicate receives both the `values` 
-	/// already collected as the next value that may be collected into the 
-	/// current sequence or, otherwise, trigger the flush of the current and
-	/// starting a new one with the next value included.
+	/// it should return `false`). The most recent value (`next`) is not included
+	/// in `values` and will be the start of the next array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
 	///
 	/// #### Example
 	///

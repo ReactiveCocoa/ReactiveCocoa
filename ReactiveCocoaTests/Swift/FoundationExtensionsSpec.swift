@@ -44,7 +44,7 @@ class FoundationExtensionsSpec: QuickSpec {
 				let disposable = producer.startWithInterrupted {
 					interrupted = true
 				}
-				expect(interrupted).to(beTrue())
+				expect(interrupted) == true
 
 				disposable.dispose()
 			}

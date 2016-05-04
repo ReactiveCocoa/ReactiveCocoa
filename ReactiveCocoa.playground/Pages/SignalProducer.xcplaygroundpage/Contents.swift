@@ -584,24 +584,25 @@ scopedExample("`skipWhile`") {
  */
 scopedExample("`takeUntilReplacement`") {
     
-    let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.buffer(1)
-    let (replacementSignal, incomingReplacementObserver) = SignalProducer<Int, NoError>.buffer(1)
-    
+    let (replacementSignal, incomingReplacementObserver) = Signal<Int, NoError>.pipe()
+
+    let baseProducer = SignalProducer<Int, NoError> { incomingObserver, _ in
+        incomingObserver.sendNext(1)
+        incomingObserver.sendNext(2)
+        incomingObserver.sendNext(3)
+
+        incomingReplacementObserver.sendNext(42)
+
+        incomingObserver.sendNext(4)
+
+        incomingReplacementObserver.sendNext(42)
+    }
+
     let producer = baseProducer.takeUntilReplacement(replacementSignal)
     
-    producer.startWithNext{ value in
+    producer.startWithNext { value in
         print(value)
     }
-    
-    incomingObserver.sendNext(1)
-    incomingObserver.sendNext(2)
-    incomingObserver.sendNext(3)
-    
-    incomingReplacementObserver.sendNext(42)
-    
-    incomingObserver.sendNext(4)
-    
-    incomingReplacementObserver.sendNext(42)
 }
 
 /*:

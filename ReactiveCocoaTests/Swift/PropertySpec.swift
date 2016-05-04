@@ -233,7 +233,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should not deadlock on recursive value access") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
 				let property = MutableProperty(0)
 				var value: Int?
 
@@ -247,7 +247,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should not deadlock on recursive value access with a closure") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
 				let property = MutableProperty(0)
 				var value: Int?
 
@@ -610,8 +610,8 @@ class PropertySpec: QuickSpec {
 				}
 
 				it("should tear down the binding when bound signal is completed") {
-					let (signalProducer, observer) = SignalProducer<String, NoError>.buffer(1)
-					
+					let (signalProducer, observer) = SignalProducer<String, NoError>.pipe()
+
 					let mutableProperty = MutableProperty(initialPropertyValue)
 					mutableProperty <~ signalProducer
 

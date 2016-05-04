@@ -17,16 +17,17 @@ extension NSNotificationCenter {
 		// We're weakly capturing an optional reference here, which makes destructuring awkward.
 		let objectWasNil = (object == nil)
 		return SignalProducer { [weak object] observer, disposable in
-			if object != nil || objectWasNil {
-				let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
-					observer.sendNext(notification)
-				}
-
-				disposable.addDisposable {
-					self.removeObserver(notificationObserver)
-				}
-			} else {
+			guard object != nil || objectWasNil else {
 				observer.sendInterrupted()
+				return
+			}
+
+			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
+				observer.sendNext(notification)
+			}
+
+			disposable.addDisposable {
+				self.removeObserver(notificationObserver)
 			}
 		}
 	}

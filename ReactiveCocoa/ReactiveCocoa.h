@@ -37,7 +37,6 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACCompoundDisposable.h>
 #import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACDynamicPropertySuperclass.h>
 #import <ReactiveCocoa/RACEvent.h>
 #import <ReactiveCocoa/RACGroupedSignal.h>
 #import <ReactiveCocoa/RACKVOChannel.h>

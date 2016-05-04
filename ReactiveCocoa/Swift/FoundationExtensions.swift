@@ -11,8 +11,10 @@ import enum Result.NoError
 
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.
-	/// This producer will not terminate naturally, so it must be explicitly
-	/// disposed to avoid leaks.
+	/// If the `object` is deallocated before starting the producer, it will 
+	/// terminate immediatelly with an Interrupted event. Otherwise, the producer
+	/// will not terminate naturally, so it must be explicitly disposed to avoid
+	/// leaks.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> SignalProducer<NSNotification, NoError> {
 		// We're weakly capturing an optional reference here, which makes destructuring awkward.
 		let objectWasNil = (object == nil)

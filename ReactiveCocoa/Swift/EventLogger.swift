@@ -9,7 +9,7 @@
 import Foundation
 
 public enum SignalLoggingEvent: String {
-	case Started, Next, Completed, Failed, Terminated, Disposed, Interrupted
+	case Next, Completed, Failed, Terminated, Disposed, Interrupted
 	
 	public static let allEvents: Set<SignalLoggingEvent> = {
 		return [.Next, .Completed, .Failed, .Terminated, .Disposed, .Interrupted]

@@ -134,6 +134,10 @@
 		D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097431B17F3C8002E15BA /* NSObject.swift */; };
 		D8F0974A1B17F5E1002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
 		D8F0974B1B17F5E2002E15BA /* NSObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F097471B17F5DD002E15BA /* NSObjectTests.swift */; };
+		E6933BEA1CD9C335006F7CE7 /* UIProgressViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6933BE81CD9C1F1006F7CE7 /* UIProgressViewTests.swift */; };
+		E6933BEB1CD9C363006F7CE7 /* UIProgressViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6933BE81CD9C1F1006F7CE7 /* UIProgressViewTests.swift */; };
+		E6933BEC1CD9C37D006F7CE7 /* UIProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6933BE61CD9C0B2006F7CE7 /* UIProgressView.swift */; };
+		E6933BED1CD9C37D006F7CE7 /* UIProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6933BE61CD9C0B2006F7CE7 /* UIProgressView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -260,6 +264,8 @@
 		D8F0973C1B17F30D002E15BA /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = NSUserDefaults.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D8F097431B17F3C8002E15BA /* NSObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = NSObject.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D8F097471B17F5DD002E15BA /* NSObjectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = NSObjectTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		E6933BE61CD9C0B2006F7CE7 /* UIProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIProgressView.swift; sourceTree = "<group>"; };
+		E6933BE81CD9C1F1006F7CE7 /* UIProgressViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIProgressViewTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -439,6 +445,7 @@
 				9DA915A31CA6301C003723B9 /* UIDatePicker.swift */,
 				8289A2E21BD7EF740097FB60 /* UIImageView.swift */,
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
+				E6933BE61CD9C0B2006F7CE7 /* UIProgressView.swift */,
 				7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */,
 				7DC325721CC6FCF100746D88 /* UITableViewCell.swift */,
 				7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */,
@@ -476,18 +483,19 @@
 			children = (
 				8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */,
 				8295FD881B873490007C9000 /* UIButtonTests.swift */,
-				8295FD851B873081007C9000 /* UIControlTests.swift */,
 				7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */,
+				8295FD851B873081007C9000 /* UIControlTests.swift */,
 				9DA915A51CA63046003723B9 /* UIDatePickerTests.swift */,
 				8289A2E01BD7EF1F0097FB60 /* UIImageViewTests.swift */,
 				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
+				E6933BE81CD9C1F1006F7CE7 /* UIProgressViewTests.swift */,
 				7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */,
 				7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */,
 				7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */,
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
 				C7DCE2B51CB3C9C1001217D8 /* UITextViewTests.swift */,
-				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 				C7945F121CC1DFB400DC9E37 /* UIViewControllerTests.swift */,
+				8289A2E61BD7F7730097FB60 /* UIViewTests.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -839,6 +847,7 @@
 				D8E4A6201B7BBB1600EAD8A8 /* UIBarButtonItem.swift in Sources */,
 				D8F097451B17F3C8002E15BA /* NSObject.swift in Sources */,
 				C7945F111CC192E800DC9E37 /* UIViewController.swift in Sources */,
+				E6933BEC1CD9C37D006F7CE7 /* UIProgressView.swift in Sources */,
 				D834572E1AFEE45B0070616A /* SignalProducer.swift in Sources */,
 				C7DCE2B41CB3C89A001217D8 /* UITextView.swift in Sources */,
 				8289A2E51BD7F6DD0097FB60 /* UIView.swift in Sources */,
@@ -852,6 +861,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6933BEA1CD9C335006F7CE7 /* UIProgressViewTests.swift in Sources */,
 				CC02C18B1CCA704F0025CC04 /* ActionTests.swift in Sources */,
 				7DC325801CC6FD2100746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */,
@@ -909,6 +919,7 @@
 				7DC325751CC6FCF100746D88 /* UITableViewCell.swift in Sources */,
 				D8715DBC1C2112D1005F4191 /* Signal.swift in Sources */,
 				C72CF3E71CBF188A00E19897 /* RACSignal.swift in Sources */,
+				E6933BED1CD9C37D006F7CE7 /* UIProgressView.swift in Sources */,
 				D8715DBF1C2112D6005F4191 /* NSData.swift in Sources */,
 				D8715DCC1C211553005F4191 /* UIView.swift in Sources */,
 				D8715DBA1C2112D1005F4191 /* Action.swift in Sources */,
@@ -922,6 +933,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6933BEB1CD9C363006F7CE7 /* UIProgressViewTests.swift in Sources */,
 				D8715DE51C211643005F4191 /* UIViewTests.swift in Sources */,
 				7DCF5B371CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */,
 				D8715DDE1C211637005F4191 /* SignalProducerTests.swift in Sources */,

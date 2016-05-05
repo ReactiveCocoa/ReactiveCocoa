@@ -3,7 +3,7 @@ import enum Result.NoError
 
 /// Models types that can be represented in Objective-C (i.e., reference
 /// types, including generic types when boxed via `AnyObject`).
-private protocol ObjectiveCRepresenting {
+private protocol ObjectiveCRepresentable {
 	associatedtype Value
 	func extractValue(fromRepresentation representation: AnyObject) -> Value
 	func represent(value value: Value) -> AnyObject
@@ -50,11 +50,11 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
-	private init<Representation: ObjectiveCRepresenting where Representation.Value == Value>(object: NSObject?, keyPath: String, representation: Representation) {
+	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable) {
 		self.object = object
 		self.keyPath = keyPath
 		self.property = MutableProperty(nil)
-		self.representation = AnyRepresentation(representation)
+		self.representation = AnyRepresentation(representable)
 
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
@@ -81,7 +81,7 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	///
 	/// `object` must support weak references!
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representation: BridgeableRepresentation())
+		self.init(object: object, keyPath: keyPath, representable: BridgeableRepresentation())
 	}
 }
 
@@ -92,12 +92,12 @@ extension DynamicProperty where Value: AnyObject {
 	///
 	/// `object` must support weak references!
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representation: DirectRepresentation())
+		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation())
 	}
 }
 
 /// Represents values in Objective-C directly, via `AnyObject`.
-private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresenting {
+private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
 	func extractValue(fromRepresentation representation: AnyObject) -> Value {
 		return representation as! Value
 	}
@@ -108,7 +108,7 @@ private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresenting {
 }
 
 /// Represents values in Objective-C indirectly, via bridging.
-private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresenting {
+private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresentable {
 	func extractValue(fromRepresentation representation: AnyObject) -> Value {
 		let object = representation as! Value._ObjectiveCType
 		var result: Value?
@@ -122,11 +122,11 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 }
 
 /// A type-erased wrapper for generic types representable in Objective-C.
-private struct AnyRepresentation<Value>: ObjectiveCRepresenting {
+private struct AnyRepresentation<Value>: ObjectiveCRepresentable {
 	private let extract: AnyObject -> Value
 	private let represent: Value -> AnyObject
 
-	init<Base: ObjectiveCRepresenting where Base.Value == Value>(_ base: Base) {
+	init<Base: ObjectiveCRepresentable where Base.Value == Value>(_ base: Base) {
 		self.extract = { base.extractValue(fromRepresentation: $0) }
 		self.represent = { base.represent(value: $0) }
 	}

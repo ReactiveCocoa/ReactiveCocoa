@@ -66,3 +66,20 @@ import enum Result.NoError
 			}
 	}
 }
+
+// MARK: Operators
+
+/// Binds a signal to a `DynamicProperty`, automatically bridging values to Objective-C.
+public func <~ <S: SignalType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, signal: S) -> Disposable {
+	return property <~ signal.map { $0._bridgeToObjectiveC() }
+}
+
+/// Binds a signal producer to a `DynamicProperty`, automatically bridging values to Objective-C.
+public func <~ <S: SignalProducerType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, producer: S) -> Disposable {
+	return property <~ producer.map { $0._bridgeToObjectiveC() }
+}
+
+/// Binds `destinationProperty` to the latest values of `sourceProperty`, automatically bridging values to Objective-C.
+public func <~ <Source: PropertyType where Source.Value: _ObjectiveCBridgeable>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
+	return destinationProperty <~ sourceProperty.producer
+}

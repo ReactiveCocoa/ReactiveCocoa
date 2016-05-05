@@ -1026,9 +1026,9 @@ class SignalProducerSpec: QuickSpec {
 		describe("flatten") {
 			describe("FlattenStrategy.Concat") {
 				describe("sequencing") {
-					var completePrevious: (Void -> Void)!
-					var sendSubsequent: (Void -> Void)!
-					var completeOuter: (Void -> Void)!
+					var completePrevious: (() -> ())!
+					var sendSubsequent: (() -> ())!
+					var completeOuter: (() -> ())!
 
 					var subsequentStarted = false
 
@@ -1100,8 +1100,8 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				describe("completion") {
-					var completeOuter: (Void -> Void)!
-					var completeInner: (Void -> Void)!
+					var completeOuter: (() -> ())!
+					var completeInner: (() -> ())!
 
 					var completed = false
 
@@ -1140,10 +1140,10 @@ class SignalProducerSpec: QuickSpec {
 
 			describe("FlattenStrategy.Merge") {
 				describe("behavior") {
-					var completeA: (Void -> Void)!
-					var sendA: (Void -> Void)!
-					var completeB: (Void -> Void)!
-					var sendB: (Void -> Void)!
+					var completeA: (() -> ())!
+					var sendA: (() -> ())!
+					var completeB: (() -> ())!
+					var sendB: (() -> ())!
 
 					var outerCompleted = false
 
@@ -1317,7 +1317,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("interruption") {
 				var innerObserver: Signal<(), NoError>.Observer!
 				var outerObserver: Signal<SignalProducer<(), NoError>, NoError>.Observer!
-				var execute: (FlattenStrategy -> Void)!
+				var execute: (FlattenStrategy -> ())!
 
 				var interrupted = false
 				var completed = false
@@ -1409,9 +1409,9 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			describe("disposal") {
-				var completeOuter: (Void -> Void)!
-				var disposeOuter: (Void -> Void)!
-				var execute: (FlattenStrategy -> Void)!
+				var completeOuter: (() -> ())!
+				var disposeOuter: (() -> ())!
+				var execute: (FlattenStrategy -> ())!
 
 				var innerDisposable = SimpleDisposable()
 				var interrupted = false

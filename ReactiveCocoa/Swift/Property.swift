@@ -111,7 +111,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	private let getter: () -> Value
 
 	/// The setter of the underlying storage.
-	private let setter: Value -> Void
+	private let setter: Value -> ()
 
 	/// The current value of the property.
 	///

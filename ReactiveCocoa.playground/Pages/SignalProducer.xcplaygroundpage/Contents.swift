@@ -311,7 +311,7 @@ scopedExample("`take`") {
  */
 scopedExample("`observeOn`") {
     let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-    let completion: Void -> Void = { print("is main thread? \(NSThread.currentThread().isMainThread)") }
+    let completion: () -> () = { print("is main thread? \(NSThread.currentThread().isMainThread)") }
     
     baseProducer
         .observeOn(QueueScheduler(name: "test"))
@@ -634,7 +634,7 @@ scopedExample("`zipWith`") {
 scopedExample("`times`") {
     var counter = 0
     
-    SignalProducer<Void, NoError> { observer, disposable in
+    SignalProducer<(), NoError> { observer, disposable in
             counter += 1
             observer.sendCompleted()
         }

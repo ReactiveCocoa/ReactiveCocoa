@@ -254,11 +254,11 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 
 
 public func <~ <P: MutablePropertyType, S: SignalType where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
-	return property <~ signal.map(Optional.Some)
+	return property <~ signal.optionalize()
 }
 
 public func <~ <P: MutablePropertyType, S: SignalProducerType where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
-	return property <~ producer.map(Optional.Some)
+	return property <~ producer.optionalize()
 }
 
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {

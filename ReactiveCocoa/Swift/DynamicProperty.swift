@@ -26,11 +26,11 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	/// Coding.
 	public var value: Value? {
 		get {
-			return object?.valueForKeyPath(keyPath).map(representation.extractValue(fromRepresentation:))
+			return object?.valueForKeyPath(keyPath).map(representation.extractValue)
 		}
 
 		set(newValue) {
-			object?.setValue(newValue.map(representation.represent(value:)), forKeyPath: keyPath)
+			object?.setValue(newValue.map(representation.represent), forKeyPath: keyPath)
 		}
 	}
 
@@ -64,7 +64,7 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 			.start { event in
 				switch event {
 				case let .Next(newValue):
-					self.property?.value = newValue.map(self.representation.extractValue(fromRepresentation:))
+					self.property?.value = newValue.map(self.representation.extractValue)
 				case let .Failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
 				case .Interrupted, .Completed:
@@ -127,8 +127,8 @@ private struct AnyRepresentation<Value>: ObjectiveCRepresentable {
 	private let represent: Value -> AnyObject
 
 	init<Base: ObjectiveCRepresentable where Base.Value == Value>(_ base: Base) {
-		self.extract = { base.extractValue(fromRepresentation: $0) }
-		self.represent = { base.represent(value: $0) }
+		self.extract = base.extractValue
+		self.represent = base.represent
 	}
 
 	func extractValue(fromRepresentation representation: AnyObject) -> Value {

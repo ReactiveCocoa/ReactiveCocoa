@@ -64,7 +64,7 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 			.start { event in
 				switch event {
 				case let .Next(newValue):
-					self.property?.value = newValue.map(representation.extractValue(fromRepresentation:))
+					self.property?.value = newValue.map(self.representation.extractValue(fromRepresentation:))
 				case let .Failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
 				case .Interrupted, .Completed:

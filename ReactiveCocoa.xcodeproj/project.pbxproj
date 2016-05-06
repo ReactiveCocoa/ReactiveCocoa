@@ -375,6 +375,10 @@
 		A9F793341B60D0140026BCBA /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		B696FB811A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
+		BEBDD6E51CDC292D009A75A9 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646B19EDA41200A782A9 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BEBDD6E61CDC292D009A75A9 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646B19EDA41200A782A9 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BEBDD6E71CDC292E009A75A9 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646B19EDA41200A782A9 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BEBDD6E81CDC292F009A75A9 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = D037646B19EDA41200A782A9 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		C79B64741CD38B2B003F2376 /* TestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B64731CD38B2B003F2376 /* TestLogger.swift */; };
@@ -1814,6 +1818,7 @@
 				57A4D20D1BA13D7A00F7D4B1 /* metamacros.h in Headers */,
 				57A4D20E1BA13D7A00F7D4B1 /* NSArray+RACSequenceAdditions.h in Headers */,
 				57A4D20F1BA13D7A00F7D4B1 /* NSData+RACSupport.h in Headers */,
+				BEBDD6E51CDC292D009A75A9 /* RACDelegateProxy.h in Headers */,
 				57A4D2101BA13D7A00F7D4B1 /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				57A4D2111BA13D7A00F7D4B1 /* NSEnumerator+RACSequenceAdditions.h in Headers */,
 				57A4D2121BA13D7A00F7D4B1 /* NSFileHandle+RACSupport.h in Headers */,
@@ -1900,6 +1905,7 @@
 				A9B315EE1B3940AC0001CB9C /* RACCompoundDisposable.h in Headers */,
 				A9B315F01B3940AC0001CB9C /* RACDisposable.h in Headers */,
 				A9B315F71B3940AC0001CB9C /* RACEvent.h in Headers */,
+				BEBDD6E61CDC292D009A75A9 /* RACDelegateProxy.h in Headers */,
 				A9B315F81B3940AC0001CB9C /* RACGroupedSignal.h in Headers */,
 				A9B315FB1B3940AC0001CB9C /* RACKVOChannel.h in Headers */,
 				A9B315FE1B3940AC0001CB9C /* RACMulticastConnection.h in Headers */,
@@ -1946,6 +1952,7 @@
 				D03765C419EDA41200A782A9 /* RACScheduler+Subclass.h in Headers */,
 				D037656E19EDA41200A782A9 /* RACDisposable.h in Headers */,
 				D03765B019EDA41200A782A9 /* RACQueueScheduler.h in Headers */,
+				BEBDD6E81CDC292F009A75A9 /* RACDelegateProxy.h in Headers */,
 				D037652419EDA41200A782A9 /* NSObject+RACPropertySubscribing.h in Headers */,
 				D037650019EDA41200A782A9 /* NSFileHandle+RACSupport.h in Headers */,
 				D037653019EDA41200A782A9 /* NSSet+RACSequenceAdditions.h in Headers */,
@@ -2057,6 +2064,7 @@
 				D037664D19EDA41200A782A9 /* UIStepper+RACSignalSupport.h in Headers */,
 				D037662119EDA41200A782A9 /* UIBarButtonItem+RACCommandSupport.h in Headers */,
 				D03765EB19EDA41200A782A9 /* RACSubject.h in Headers */,
+				BEBDD6E71CDC292E009A75A9 /* RACDelegateProxy.h in Headers */,
 				D037656119EDA41200A782A9 /* RACCommand.h in Headers */,
 				D03765EF19EDA41200A782A9 /* RACSubscriber.h in Headers */,
 			);

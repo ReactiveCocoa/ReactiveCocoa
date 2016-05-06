@@ -63,6 +63,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 
 #if TARGET_OS_WATCH
 #elif TARGET_OS_IOS || TARGET_OS_TV
+	#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
 	#import <ReactiveCocoa/UIButton+RACCommandSupport.h>
 	#import <ReactiveCocoa/UICollectionReusableView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UIControl+RACSignalSupport.h>
@@ -77,7 +78,6 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 		#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 		#import <ReactiveCocoa/UIStepper+RACSignalSupport.h>
 		#import <ReactiveCocoa/UIDatePicker+RACSignalSupport.h>
-		#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
 		#import <ReactiveCocoa/UIAlertView+RACSignalSupport.h>
 		#import <ReactiveCocoa/UIActionSheet+RACSignalSupport.h>
 		#import <ReactiveCocoa/MKAnnotationView+RACSignalSupport.h>

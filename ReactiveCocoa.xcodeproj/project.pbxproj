@@ -170,8 +170,6 @@
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
 		7A7065851A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
 		7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
-		7DFBED121CDB8CD600EE435B /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DFBED101CDB8CD600EE435B /* Nimble.framework */; };
-		7DFBED131CDB8CD600EE435B /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DFBED111CDB8CD600EE435B /* Quick.framework */; };
 		7DFBED141CDB8CE600EE435B /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
 		7DFBED1E1CDB8D7000EE435B /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7DFBED1F1CDB8D7800EE435B /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -397,6 +395,8 @@
 		CDC42E331AE7AC6D00965373 /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CDCD247A1C277EEC00710AEE /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; };
 		CDCD247B1C277EED00710AEE /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; };
+		CDF066CA1CDC1CA200199626 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
+		CDF066CB1CDC1CA200199626 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
 		D00004091A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D000040A1A46864E000E7D41 /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -903,8 +903,6 @@
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7DFBED101CDB8CD600EE435B /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "Carthage/Checkouts/Nimble/build/Debug-appletvos/Nimble.framework"; sourceTree = "<group>"; };
-		7DFBED111CDB8CD600EE435B /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "Carthage/Checkouts/Quick/build/Debug-appletvos/Quick.framework"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
@@ -1240,8 +1238,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DFBED121CDB8CD600EE435B /* Nimble.framework in Frameworks */,
-				7DFBED131CDB8CD600EE435B /* Quick.framework in Frameworks */,
+				CDF066CA1CDC1CA200199626 /* Nimble.framework in Frameworks */,
+				CDF066CB1CDC1CA200199626 /* Quick.framework in Frameworks */,
 				7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1629,8 +1627,6 @@
 		D04725E019E49ED7006002AA = {
 			isa = PBXGroup;
 			children = (
-				7DFBED101CDB8CD600EE435B /* Nimble.framework */,
-				7DFBED111CDB8CD600EE435B /* Quick.framework */,
 				D04725EC19E49ED7006002AA /* ReactiveCocoa */,
 				D04725F919E49ED7006002AA /* ReactiveCocoaTests */,
 				D047262519E49FE8006002AA /* Configuration */,

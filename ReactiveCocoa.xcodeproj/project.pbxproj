@@ -3004,6 +3004,7 @@
 		};
 		7DFBED0B1CDB8C9500EE435B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -3018,6 +3019,7 @@
 		};
 		7DFBED0C1CDB8C9500EE435B /* Test */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -3032,6 +3034,7 @@
 		};
 		7DFBED0D1CDB8C9500EE435B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -3046,6 +3049,7 @@
 		};
 		7DFBED0E1CDB8C9500EE435B /* Profile */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",

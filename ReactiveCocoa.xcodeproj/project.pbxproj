@@ -3011,7 +3011,6 @@
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SDKROOT = appletvos9.2;
 			};
@@ -3026,7 +3025,6 @@
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SDKROOT = appletvos9.2;
 			};
@@ -3041,7 +3039,6 @@
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SDKROOT = appletvos9.2;
 			};
@@ -3056,7 +3053,6 @@
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SDKROOT = appletvos9.2;
 			};

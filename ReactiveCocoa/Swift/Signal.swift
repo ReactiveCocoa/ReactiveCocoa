@@ -1216,24 +1216,24 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Value: Hashable {
-	/// Forwards only those values from `self` that are unique across the set of
+extension SignalType {
+	/// Forwards only those values from `self` that have unique identities across the set of
 	/// all values that have been seen.
-	/// Note: This causes values that are forwarded to be retained to check for
-	/// uniqueness.
+	///
+	/// Note: This causes the identities to be retained to check for uniqueness.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func uniqueValues() -> Signal<Value, Error> {
+	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> Signal<Value, Error> {
 		return Signal { observer in
-			let seenValues: Atomic<Set<Value>> = Atomic([])
+			let seenValues: Atomic<Set<Identity>> = Atomic([])
 			
 			return self
-				.filter { value in return seenValues.withValue { !$0.contains(value) } }
+				.filter { value in return seenValues.withValue { !$0.contains(transform(value)) } }
 				.observe { event in
 					switch event {
 					case let .Next(value):
 						seenValues.modify { set in
 							var mutableSet = set
-							mutableSet.insert(value)
+							mutableSet.insert(transform(value))
 							return mutableSet
 						}
 						fallthrough
@@ -1242,6 +1242,19 @@ extension SignalType where Value: Hashable {
 					}
 			}
 		}
+	}
+}
+
+extension SignalType where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the values to be retained to check for uniqueness. Providing
+	/// a function that returns a unique value for each sent value can help you reduce
+	/// the memory footprint.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func uniqueValues() -> Signal<Value, Error> {
+		return uniqueValues { $0 }
 	}
 }
 

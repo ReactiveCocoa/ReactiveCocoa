@@ -10,9 +10,9 @@ import Foundation
 @testable import ReactiveCocoa
 
 final class TestLogger {
-	private var expectations: [String -> ()]
+	private var expectations: [String -> Void]
 	
-	init(expectations: [String -> ()]) {
+	init(expectations: [String -> Void]) {
 		self.expectations = expectations
 	}
 }

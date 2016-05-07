@@ -18,7 +18,7 @@ import Result
 public struct SignalProducer<Value, Error: ErrorType> {
 	public typealias ProducedSignal = Signal<Value, Error>
 
-	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()
+	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
 
 	/// Initializes a SignalProducer that will emit the same events as the given signal.
 	///
@@ -41,7 +41,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// event is sent to the observer, the given CompositeDisposable will be
 	/// disposed, at which point work should be interrupted and any temporary
 	/// resources cleaned up.
-	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()) {
+	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
 		self.startHandler = startHandler
 	}
 
@@ -139,7 +139,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
 
-			let replay: () -> () = {
+			let replay = {
 				let originalState = state.modify { state in
 					var state = state
 					token = state.observers?.insert(observer)
@@ -229,7 +229,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> ()) {
+	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> Void) {
 		let (signal, observer) = Signal<Value, Error>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
@@ -311,7 +311,7 @@ public protocol SignalProducerType {
 
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
-	func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> ())
+	func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> Void)
 }
 
 extension SignalProducer: SignalProducerType {
@@ -349,7 +349,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithNext(next: Value -> ()) -> Disposable {
+	public func startWithNext(next: Value -> Void) -> Disposable {
 		return start(Observer(next: next))
 	}
 
@@ -359,7 +359,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithCompleted(completed: () -> ()) -> Disposable {
+	public func startWithCompleted(completed: () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
 	
@@ -369,7 +369,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithFailed(failed: Error -> ()) -> Disposable {
+	public func startWithFailed(failed: Error -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
 	
@@ -379,7 +379,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithInterrupted(interrupted: () -> ()) -> Disposable {
+	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
 
@@ -994,7 +994,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 extension SignalProducerType {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func on(started started: (() -> ())? = nil, event: (Event<Value, Error> -> ())? = nil, failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (Value -> ())? = nil) -> SignalProducer<Value, Error> {
+	public func on(started started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			self.startWithSignal { signal, disposable in

@@ -187,7 +187,7 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeNext(next: Value -> ()) -> Disposable? {
+	public func observeNext(next: Value -> Void) -> Disposable? {
 		return observe(Observer(next: next))
 	}
 
@@ -197,7 +197,7 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeCompleted(completed: () -> ()) -> Disposable? {
+	public func observeCompleted(completed: () -> Void) -> Disposable? {
 		return observe(Observer(completed: completed))
 	}
 	
@@ -207,7 +207,7 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeFailed(error: Error -> ()) -> Disposable? {
+	public func observeFailed(error: Error -> Void) -> Disposable? {
 		return observe(Observer(failed: error))
 	}
 	
@@ -218,7 +218,7 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeInterrupted(interrupted: () -> ()) -> Disposable? {
+	public func observeInterrupted(interrupted: () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
 
@@ -246,7 +246,7 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
-			return self.observe { (event: Event<Value, Error>) -> () in
+			return self.observe { (event: Event<Value, Error>) -> Void in
 				if case let .Next(value) = event {
 					if predicate(value) {
 						observer.sendNext(value)
@@ -505,7 +505,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> (), _ onFailed: Error -> (), _ onBothCompleted: () -> (), _ onInterrupted: () -> ()) -> Disposable? {
+	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> Void, _ onFailed: Error -> Void, _ onBothCompleted: () -> Void, _ onInterrupted: () -> Void) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
@@ -552,7 +552,7 @@ extension SignalType {
 			let signalState = CombineLatestState<Value>()
 			let otherState = CombineLatestState<U>()
 			
-			let onBothNext = { () -> () in
+			let onBothNext = {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
 			
@@ -674,7 +674,7 @@ extension SignalType where Value: EventType, Error == NoError {
 extension SignalType {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func on(event event: (Event<Value, Error> -> ())? = nil, failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (Value -> ())? = nil) -> Signal<Value, Error> {
+	public func on(event event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
@@ -1040,7 +1040,7 @@ extension SignalType {
 			let states = Atomic(ZipState<Value>(), ZipState<U>())
 			let disposable = CompositeDisposable()
 			
-			let flush = { () -> () in
+			let flush = {
 				var originalStates: (ZipState<Value>, ZipState<U>)!
 				states.modify { states in
 					originalStates = states

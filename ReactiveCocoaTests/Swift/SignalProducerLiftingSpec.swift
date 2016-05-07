@@ -1063,9 +1063,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			describe("memory") {
 				class Payload {
-					let action: () -> ()
+					let action: () -> Void
 
-					init(onDeinit action: () -> ()) {
+					init(onDeinit action: () -> Void) {
 						self.action = action
 					}
 

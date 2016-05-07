@@ -14,16 +14,16 @@ extension RACScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	public func schedule(action: () -> ()) -> Disposable? {
+	public func schedule(action: () -> Void) -> Disposable? {
 		let disposable: RACDisposable = self.schedule(action) // Call the Objective-C implementation
 		return disposable as Disposable?
 	}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }

@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RACCommand;
+@class RACCommand<__contravariant InputType>;
 
 @interface NSControl (RACCommandSupport)
 
@@ -17,6 +17,6 @@
 /// to the command's `canExecute`.
 ///
 /// Note: this will reset the control's target and action.
-@property (nonatomic, strong) RACCommand *rac_command;
+@property (nonatomic, strong) RACCommand<__kindof NSControl *> *rac_command;
 
 @end

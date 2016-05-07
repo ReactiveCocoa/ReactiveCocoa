@@ -78,11 +78,12 @@ public final class CompositeDisposable: Disposable {
 		public func remove() {
 			if let token = bagToken.swap(nil) {
 				disposable?.disposables.modify { bag in
-					guard let immutableBag = bag else { return nil }
-					var mutableBag = immutableBag
+					guard var bag = bag else {
+						return nil
+					}
 
-					mutableBag.removeValueForToken(token)
-					return mutableBag
+					bag.removeValueForToken(token)
+					return bag
 				}
 			}
 		}
@@ -103,10 +104,16 @@ public final class CompositeDisposable: Disposable {
 
 		self.disposables = Atomic(bag)
 	}
+	
+	/// Initializes a CompositeDisposable containing the given sequence of
+	/// disposables.
+	public convenience init<S: SequenceType where S.Generator.Element == Disposable?>(_ disposables: S) {
+		self.init(disposables.flatMap { $0 })
+	}
 
 	/// Initializes an empty CompositeDisposable.
 	public convenience init() {
-		self.init([])
+		self.init([Disposable]())
 	}
 
 	public func dispose() {
@@ -126,13 +133,14 @@ public final class CompositeDisposable: Disposable {
 
 		var handle: DisposableHandle? = nil
 		disposables.modify { ds in
-			guard let immutableDs = ds else { return nil }
-			var mutableDs = immutableDs
+			guard var ds = ds else {
+				return nil
+			}
 
-			let token = mutableDs.insert(d)
+			let token = ds.insert(d)
 			handle = DisposableHandle(bagToken: token, disposable: self)
 
-			return mutableDs
+			return ds
 		}
 
 		if let handle = handle {
@@ -199,9 +207,9 @@ public final class SerialDisposable: Disposable {
 
 		set(d) {
 			let oldState = state.modify { state in
-				var mutableState = state
-				mutableState.innerDisposable = d
-				return mutableState
+				var state = state
+				state.innerDisposable = d
+				return state
 			}
 
 			oldState.innerDisposable?.dispose()

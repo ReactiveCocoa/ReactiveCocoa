@@ -1,10 +1,41 @@
 language: objective-c
-osx_image: xcode7.1
+osx_image: xcode7.3
 before_install: true
 install: true
 git:
   submodules: false
-script: script/cibuild ReactiveCocoa-Mac ReactiveCocoa-iOS
+before_script:
+  - git submodule update --init --recursive
+script:
+  - set -o pipefail
+  - xcodebuild $XCODE_ACTION
+      -workspace "$TRAVIS_XCODE_WORKSPACE"
+      -scheme "$TRAVIS_XCODE_SCHEME"
+      -sdk "$XCODE_SDK"
+      -configuration Release
+      ENABLE_TESTABILITY=YES
+      GCC_GENERATE_DEBUGGING_SYMBOLS=NO
+      RUN_CLANG_STATIC_ANALYZER=NO
+      | xcpretty
+xcode_workspace: ReactiveCocoa.xcworkspace
+matrix:
+  include:
+    - xcode_scheme: ReactiveCocoa-Mac
+      env:
+        - XCODE_SDK=macosx
+        - XCODE_ACTION=test
+    - xcode_scheme: ReactiveCocoa-iOS
+      env:
+        - XCODE_SDK=iphonesimulator
+        - XCODE_ACTION=test
+    - xcode_scheme: ReactiveCocoa-tvOS
+      env:
+        - XCODE_SDK=appletvsimulator
+        - XCODE_ACTION=test
+    - xcode_scheme: ReactiveCocoa-watchOS
+      env:
+        - XCODE_SDK=watchsimulator
+        - XCODE_ACTION=build
 notifications:
   email: false
   slack:

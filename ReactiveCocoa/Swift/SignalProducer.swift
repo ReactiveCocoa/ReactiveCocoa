@@ -141,9 +141,9 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 			let replay: () -> () = {
 				let originalState = state.modify { state in
-					var mutableState = state
-					token = mutableState.observers?.insert(observer)
-					return mutableState
+					var state = state
+					token = state.observers?.insert(observer)
+					return state
 				}
 
 				originalState.values.forEach(observer.sendNext)
@@ -168,9 +168,9 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			if let token = token {
 				disposable.addDisposable {
 					state.modify { state in
-						var mutableState = state
-						mutableState.observers?.removeValueForToken(token)
-						return mutableState
+						var state = state
+						state.observers?.removeValueForToken(token)
+						return state
 					}
 				}
 			}
@@ -278,6 +278,18 @@ private struct BufferState<Value, Error: ErrorType> {
 	// Appends a new value to the buffer, trimming it down to the given capacity
 	// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
+		precondition(capacity >= 0)
+
+		if capacity == 0 {
+			values = []
+			return
+		}
+
+		if capacity == 1 {
+			values = [ value ]
+			return
+		}
+
 		values.append(value)
 
 		let overflow = values.count - capacity
@@ -289,10 +301,10 @@ private struct BufferState<Value, Error: ErrorType> {
 
 public protocol SignalProducerType {
 	/// The type of values being sent on the producer
-	typealias Value
+	associatedtype Value
 	/// The type of error that can occur on the producer. If errors aren't possible
 	/// then `NoError` can be used.
-	typealias Error: ErrorType
+	associatedtype Error: ErrorType
 
 	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<Value, Error> { get }
@@ -453,9 +465,20 @@ extension SignalProducerType {
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
 		return { otherSignal in
 			return SignalProducer { observer, outerDisposable in
+				let (wrapperSignal, otherSignalObserver) = Signal<U, F>.pipe()
+
+				// Avoid memory leak caused by the direct use of the given signal.
+				//
+				// See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2758
+				// for the details.
+				outerDisposable += ActionDisposable {
+					otherSignalObserver.sendInterrupted()
+				}
+				outerDisposable += otherSignal.observe(otherSignalObserver)
+
 				self.startWithSignal { signal, disposable in
 					outerDisposable += disposable
-					outerDisposable += transform(signal)(otherSignal).observe(observer)
+					outerDisposable += transform(signal)(wrapperSignal).observe(observer)
 				}
 			}
 		}
@@ -486,10 +509,110 @@ extension SignalProducerType {
 		return lift { $0.take(count) }
 	}
 
-	/// Returns a signal that will yield an array of values when `signal` completes.
+	/// Returns a producer that will yield an array of values when `self` 
+	/// completes.
+	///
+	/// - Note: When `self` completes without collecting any value, it will sent
+	/// an empty array of values.
+	///
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect() -> SignalProducer<[Value], Error> {
 		return lift { $0.collect() }
+	}
+
+	/// Returns a producer that will yield an array of values until it reaches a
+	/// certain count.
+	///
+	/// When the count is reached the array is sent and the producer starts over
+	/// yielding a new array of values.
+	///
+	/// - Precondition: `count` should be greater than zero.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not have `count` values. Alternatively, if were not collected
+	/// any values will sent an empty array of values.
+	///
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(count count: Int) -> SignalProducer<[Value], Error> {
+		precondition(count > 0)
+		return lift { $0.collect(count: count) }
+	}
+
+	/// Returns a producer that will yield an array of values based on a 
+	/// predicate which matches the values collected.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The most recent value (`next`) is included in
+	/// `values` and will be the end of the current array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
+	///
+	/// #### Example
+	///
+	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	///
+	///     producer
+	///         .collect { values in values.reduce(0, combine: +) == 8 }
+	///         .startWithNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(3)
+	///     observer.sendNext(4)
+	///     observer.sendNext(7)
+	///     observer.sendNext(1)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 3, 4]
+	///     // [7, 1]
+	///     // [5, 6]
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(predicate: (values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
+	}
+
+	/// Returns a producer that will yield an array of values based on a
+	/// predicate which matches the values collected and the next value.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The most recent value (`next`) is not included
+	/// in `values` and will be the start of the next array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
+	///
+	/// #### Example
+	///
+	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	///
+	///     producer
+	///         .collect { values, next in next == 7 }
+	///         .startWithNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(1)
+	///     observer.sendNext(7)
+	///     observer.sendNext(7)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 1]
+	///     // [7]
+	///     // [7, 5, 6]
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
 	}
 
 	/// Forwards all events onto the given scheduler, instead of whichever
@@ -507,7 +630,25 @@ extension SignalProducerType {
 	/// will also be interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return liftRight(Signal.combineLatestWith)(otherProducer)
+		// This should be the implementation of this method:
+		// return liftRight(Signal.combineLatestWith)(otherProducer)
+		//
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
+		//
+		// This can be reverted once tests with -O don't crash. 
+
+		return SignalProducer { observer, outerDisposable in
+			self.startWithSignal { signal, disposable in
+				outerDisposable.addDisposable(disposable)
+
+				otherProducer.startWithSignal { otherSignal, otherDisposable in
+					outerDisposable.addDisposable(otherDisposable)
+
+					signal.combineLatestWith(otherSignal).observe(observer)
+				}
+			}
+		}
 	}
 
 	/// Combines the latest value of the receiver with the latest value from
@@ -550,6 +691,34 @@ extension SignalProducerType {
 		return lift { $0.materialize() }
 	}
 
+	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
+	/// only when `sampler` sends a Next event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both input producers have
+	/// completed, or interrupt if either input producer is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return liftLeft(Signal.sampleWith)(sampler)
+	}
+	
+	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
+	/// only when `sampler` sends a Next event.
+	///
+	/// If `sampler` fires before a value has been observed on `self`, nothing
+	/// happens.
+	///
+	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
+	/// multiple times) by `sampler`, then complete once both inputs have
+	/// completed, or interrupt if either input is interrupted.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func sampleWith<T>(sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return lift(Signal.sampleWith)(sampler)
+	}
+
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
 	/// event.
 	///
@@ -582,7 +751,25 @@ extension SignalProducerType {
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftRight(Signal.takeUntil)(trigger)
+		// This should be the implementation of this method:
+		// return liftRight(Signal.takeUntil)(trigger)
+		//
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
+		//
+		// This can be reverted once tests with -O work correctly.
+
+		return SignalProducer { observer, outerDisposable in
+			self.startWithSignal { signal, disposable in
+				outerDisposable.addDisposable(disposable)
+
+				trigger.startWithSignal { triggerSignal, triggerDisposable in
+					outerDisposable.addDisposable(triggerDisposable)
+
+					signal.takeUntil(triggerSignal).observe(observer)
+				}
+			}
+		}
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
@@ -1209,7 +1396,7 @@ extension SignalProducerType {
 		// This will go "out of scope" when the returned `SignalProducer` goes out of scope.
 		// This lets us know when we're supposed to dispose the underlying producer.
 		// This is necessary because `struct`s don't have `deinit`.
-		let token = NSObject()
+		let token = DeallocationToken()
 
 		return SignalProducer { observer, disposable in
 			let initializedProducer: SignalProducer<Value, Error>
@@ -1234,22 +1421,17 @@ extension SignalProducerType {
 
 			if shouldStartUnderlyingProducer {
 				self.producer
-					.takeUntil(token.willDeallocSignal)
+					.takeUntil(token.deallocSignal)
 					.start(initializedObserver)
 			}
 		}
 	}
 }
 
-private extension NSObject {
-	var willDeallocSignal: SignalProducer<(), NoError> {
-		return self
-			.rac_willDeallocSignal()
-			.toSignalProducer()
-			.map { _ in () }
-			.mapError { error in
-				fatalError("Unexpected error: \(error)")
-				()
-			}
+private final class DeallocationToken {
+	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
+
+	deinit {
+		observer.sendCompleted()
 	}
 }

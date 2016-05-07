@@ -55,7 +55,7 @@ class PropertySpec: QuickSpec {
 						sentValue = value
 					case .Completed:
 						signalCompleted = true
-					default:
+					case .Failed, .Interrupted:
 						break
 					}
 				}
@@ -152,6 +152,33 @@ class PropertySpec: QuickSpec {
 				expect(signalCompleted) == true
 			}
 
+			it("should yield a producer which emits the latest value and complete even if the property is deallocated") {
+				var mutableProperty: MutableProperty? = MutableProperty(initialPropertyValue)
+				let producer = mutableProperty!.producer
+
+				var producerCompleted = false
+				var hasUnanticipatedEvent = false
+				var latestValue = mutableProperty?.value
+
+				mutableProperty!.value = subsequentPropertyValue
+				mutableProperty = nil
+
+				producer.start { event in
+					switch event {
+					case let .Next(value):
+						latestValue = value
+					case .Completed:
+						producerCompleted = true
+					case .Interrupted, .Failed:
+						hasUnanticipatedEvent = true
+					}
+				}
+
+				expect(hasUnanticipatedEvent) == false
+				expect(producerCompleted) == true
+				expect(latestValue) == subsequentPropertyValue
+			}
+
 			it("should modify the value atomically") {
 				let property = MutableProperty(initialPropertyValue)
 
@@ -206,7 +233,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should not deadlock on recursive value access") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
 				let property = MutableProperty(0)
 				var value: Int?
 
@@ -220,7 +247,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should not deadlock on recursive value access with a closure") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
 				let property = MutableProperty(0)
 				var value: Int?
 
@@ -246,6 +273,23 @@ class PropertySpec: QuickSpec {
 				property.value = 1
 				expect(value) == 1
 			}
+
+			it("should not deadlock on recursive ABA observation") {
+				let propertyA = MutableProperty(0)
+				let propertyB = MutableProperty(0)
+
+				var value: Int?
+				propertyA.producer.startWithNext { _ in
+					propertyB.producer.startWithNext { _ in
+						propertyA.producer.startWithNext { x in value = x }
+					}
+				}
+
+				expect(value) == 0
+
+				propertyA.value = 1
+				expect(value) == 1
+			}
 		}
 
 		describe("AnyProperty") {
@@ -265,7 +309,7 @@ class PropertySpec: QuickSpec {
 							sentValue = value
 						case .Completed:
 							producerCompleted = true
-						default:
+						case .Failed, .Interrupted:
 							break
 						}
 					}
@@ -276,7 +320,7 @@ class PropertySpec: QuickSpec {
 							signalSentValue = value
 						case .Interrupted:
 							signalInterrupted = true
-						default:
+						case .Failed, .Completed:
 							break
 						}
 					}
@@ -476,6 +520,20 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
+		describe("map") {
+			it("should transform the current value and all subsequent values") {
+				let property = MutableProperty(1)
+				let mappedProperty = property
+					.map { $0 + 1 }
+					.map { $0 + 2 }
+
+				expect(mappedProperty.value) == 4
+
+				property.value = 2
+				expect(mappedProperty.value) == 5
+			}
+		}
+
 		describe("binding") {
 			describe("from a Signal") {
 				it("should update the property with values sent from the signal") {
@@ -552,8 +610,8 @@ class PropertySpec: QuickSpec {
 				}
 
 				it("should tear down the binding when bound signal is completed") {
-					let (signalProducer, observer) = SignalProducer<String, NoError>.buffer(1)
-					
+					let (signalProducer, observer) = SignalProducer<String, NoError>.pipe()
+
 					let mutableProperty = MutableProperty(initialPropertyValue)
 					mutableProperty <~ signalProducer
 
@@ -626,6 +684,41 @@ class PropertySpec: QuickSpec {
 					destinationProperty = nil
 
 					expect(bindingDisposable.disposed) == true
+				}
+			}
+
+			describe("to a dynamic property") {
+				var object: ObservableObject!
+				var property: DynamicProperty!
+
+				beforeEach {
+					object = ObservableObject()
+					expect(object.rac_value) == 0
+
+					property = DynamicProperty(object: object, keyPath: "rac_value")
+				}
+
+				afterEach {
+					object = nil
+				}
+
+				it("should bridge values sent on a signal to Objective-C") {
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					property <~ signal
+					observer.sendNext(1)
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values sent on a signal producer to Objective-C") {
+					let producer = SignalProducer<Int, NoError>(value: 1)
+					property <~ producer
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values from a source property to Objective-C") {
+					let source = MutableProperty(1)
+					property <~ source
+					expect(object.rac_value) == 1
 				}
 			}
 		}

@@ -86,7 +86,7 @@ qck_describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 		expect(@(tailInvoked)).to(beTruthy());
 	});
 
-	qck_afterEach(^{
+	qck_context(@"behaves like a sequence", ^{
 		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,

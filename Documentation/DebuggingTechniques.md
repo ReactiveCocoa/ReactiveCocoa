@@ -13,7 +13,7 @@ In both cases errors are related to incorrect assumptions about type. Such issue
 
 Below is an example of type-error scenario:
 
-```
+```swift
 SignalProducer<Int, NoError>(value:42)
     .on(next: { answer in
         return _
@@ -24,9 +24,9 @@ SignalProducer<Int, NoError>(value:42)
 ```
 
 The code above will not compile with the following error on a `print` call `error: ambiguous reference to member 'print'
-print("Completed.")` To find the actual source of errors signal chains need to be broken apart. Add explicit definitions of closure types on each of the steps:
+print("Completed.")`. To find the actual compile error, the chain needs to be broken apart. Add explicit definitions of closure types on each of the steps:
 
-```
+```swift
 let initialProducer = SignalProducer<Int, NoError>.init(value:42)
 let sideEffectProducer = initialProducer.on(next: { (answer: Int) in
     return _
@@ -37,3 +37,92 @@ let disposable = sideEffectProducer.startWithCompleted {
 ```
 
 The code above will not compile too, but with the error `error: cannot convert value of type '(_) -> _' to expected argument type '(Int -> ())?'` on definition of `on` closure. This gives enough of information to locate unexpected `return _` since `on` closure should not have any return value.
+
+#### Binding `DynamicProperty` with `<~` operator
+
+Using the `<~` operator to bind a `Signal` or a `SignalProducer` to a `DynamicProperty` can result in unexpected compiler errors. 
+
+Below is an example of this scenario:
+
+```swift
+let label = UILabel()
+let property = MutableProperty<String>("")
+
+DynamicProperty(object: label, keyPath: "text") <~ property.producer
+```
+
+This will often result in a compiler error: 
+
+> error: binary operator '<~' cannot be applied to operands of type 'DynamicProperty' and 'SignalProducer<String, NoError>'
+DynamicProperty(object: label, keyPath: "text") <~ property.producer
+
+The reason is a limitation in the swift type checker - A `DynamicProperty` always has a type of `AnyObject?`, but the `<~` operator requires the values of both sides to have the same type, so the right side value would have to be `AnyObject?` as well, but usually a more concrete type is used (in this example `String`).
+
+Usually, the fix is as easy as adding a `.map{ $0 }`.
+
+```swift
+DynamicProperty(object: label, keyPath: "text") <~ property.producer.map { $0 }
+```
+
+This allows the type checker to infer that `String` can be converted to `AnyProperty?` and thus, the binding succeeds.
+
+#### Debugging event streams
+
+As mentioned in the README, stream debugging can be quite difficut and tedious, so we provide the `logEvents` operator. In its  simplest form:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents()
+```
+
+This will print to the standard output the events. For most use cases, this is enough and will greatly help you understand your flow. 
+The biggest problem with this approach, is that it will continue to ouput in Release mode. This leaves with you with two options:
+
+1. Comment out the operator: `//.logEvents()`. This is the simpleste approach, but it's error prone, since you will eventually forget to do this.
+2. Pass your own function and manipulate the output as you see fit. This is the recommended approach.
+
+Let's see how this would look like if we didn't want to print in Release mode:
+
+```swift
+func debugLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
+   // Don't forget to set up the DEBUG symbol (http://stackoverflow.com/a/24112024/491239)
+   #if DEBUG
+      print(event)
+   #endif
+}
+```
+
+You would then:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents(logger: debugLog)
+```
+
+We also provide the `identifier` parameter. This is useful when you are debugging multiple streams and you don't want to get lost:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents(identifier: "✨My awesome stream ✨")
+```
+
+There also cases, specially with [hot signals][[Signals]], when there is simply too much output. For those, you can specify which events you are interested in:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents(events:[.Disposed]) // This will happen when the `UITextField` is released
+```
+
+

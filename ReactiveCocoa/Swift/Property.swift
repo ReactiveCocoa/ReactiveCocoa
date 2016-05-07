@@ -3,7 +3,7 @@ import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
 public protocol PropertyType {
-	typealias Value
+	associatedtype Value
 
 	/// The current value of the property.
 	var value: Value { get }
@@ -60,6 +60,17 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 }
 
+extension PropertyType {
+	/// Maps the current value and all subsequent values to a new value.
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
+			disposable += ActionDisposable { self }
+			disposable += self.producer.map(transform).start(observer)
+		}
+		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+	}
+}
+
 /// A property that never changes.
 public struct ConstantProperty<Value>: PropertyType {
 
@@ -94,7 +105,13 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
-	private var _value: Value
+
+	/// The getter of the underlying storage, which may outlive the property
+	/// if a returned producer is being retained.
+	private let getter: () -> Value
+
+	/// The setter of the underlying storage.
+	private let setter: Value -> ()
 
 	/// The current value of the property.
 	///
@@ -106,34 +123,44 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 
 		set {
-			modify { _ in newValue }
+			swap(newValue)
 		}
 	}
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
-	public lazy var signal: Signal<Value, NoError> = { [unowned self] in
-		var extractedSignal: Signal<Value, NoError>!
-		self.producer.startWithSignal { signal, _ in
-			extractedSignal = signal
-		}
-		return extractedSignal
-	}()
+	public let signal: Signal<Value, NoError>
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public let producer: SignalProducer<Value, NoError>
+	public var producer: SignalProducer<Value, NoError> {
+		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
+			if let strongSelf = self {
+				strongSelf.withValue { value in
+					producerObserver.sendNext(value)
+					producerDisposable += strongSelf.signal.observe(producerObserver)
+				}
+			} else {
+				/// As the setter would have been deinitialized with the property,
+				/// the underlying storage would be immutable, and locking is no longer necessary.
+				producerObserver.sendNext(getter())
+				producerObserver.sendCompleted()
+			}
+		}
+	}
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
-		_value = initialValue
+		var value = initialValue
 
 		lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		(producer, observer) = SignalProducer.buffer(1)
-		observer.sendNext(initialValue)
+		getter = { value }
+		setter = { newValue in value = newValue }
+
+		(signal, observer) = Signal.pipe()
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -147,13 +174,12 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
-		lock.lock()
-		defer { lock.unlock() }
-
-		let oldValue = _value
-		_value = try action(_value)
-		observer.sendNext(_value)
-		return oldValue
+		return try withValue { value in
+			let newValue = try action(value)
+			setter(newValue)
+			observer.sendNext(newValue)
+			return value
+		}
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the
@@ -164,77 +190,11 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		return try action(_value)
+		return try action(getter())
 	}
 
 	deinit {
 		observer.sendCompleted()
-	}
-}
-
-/// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
-/// Coding and Key-Value Observing.
-///
-/// Use this class only as a last resort! `MutableProperty` is generally better
-/// unless KVC/KVO is required by the API you're using (for example,
-/// `NSOperation`).
-@objc public final class DynamicProperty: RACDynamicPropertySuperclass, MutablePropertyType {
-	public typealias Value = AnyObject?
-
-	private weak var object: NSObject?
-	private let keyPath: String
-
-	private var property: MutableProperty<AnyObject?>?
-
-	/// The current value of the property, as read and written using Key-Value
-	/// Coding.
-	public var value: AnyObject? {
-		@objc(rac_value) get {
-			return object?.valueForKeyPath(keyPath)
-		}
-
-		@objc(setRac_value:) set(newValue) {
-			object?.setValue(newValue, forKeyPath: keyPath)
-		}
-	}
-
-	/// A producer that will create a Key-Value Observer for the given object,
-	/// send its initial value then all changes over time, and then complete
-	/// when the observed object has deallocated.
-	///
-	/// By definition, this only works if the object given to init() is
-	/// KVO-compliant. Most UI controls are not!
-	public var producer: SignalProducer<AnyObject?, NoError> {
-		return property?.producer ?? .empty
-	}
-
-	public var signal: Signal<AnyObject?, NoError> {
-		return property?.signal ?? .empty
-	}
-
-	/// Initializes a property that will observe and set the given key path of
-	/// the given object. `object` must support weak references!
-	public init(object: NSObject?, keyPath: String) {
-		self.object = object
-		self.keyPath = keyPath
-		self.property = MutableProperty(nil)
-
-		/// DynamicProperty stay alive as long as object is alive.
-		/// This is made possible by strong reference cycles.
-		super.init()
-
-		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
-			.toSignalProducer()
-			.start { event in
-				switch event {
-				case let .Next(newValue):
-					self.property?.value = newValue
-				case let .Failed(error):
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .Interrupted, .Completed:
-					self.property = nil
-				}
-			}
 	}
 }
 
@@ -262,7 +222,7 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 			property?.value = value
 		case .Completed:
 			disposable.dispose()
-		default:
+		case .Failed, .Interrupted:
 			break
 		}
 	}

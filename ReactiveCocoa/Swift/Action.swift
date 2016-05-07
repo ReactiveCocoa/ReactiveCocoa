@@ -129,12 +129,41 @@ public final class Action<Input, Output, Error: ErrorType> {
 	}
 }
 
+public protocol ActionType {
+	/// The type of argument to apply the action to.
+	associatedtype Input
+	/// The type of values returned by the action.
+	associatedtype Output
+	/// The type of error when the action fails. If errors aren't possible then `NoError` can be used.
+	associatedtype Error: ErrorType
+
+	/// Whether the action is currently enabled.
+	var enabled: AnyProperty<Bool> { get }
+
+	/// Extracts an action from the receiver.
+	var action: Action<Input, Output, Error> { get }
+
+	/// Creates a SignalProducer that, when started, will execute the action
+	/// with the given input, then forward the results upon the produced Signal.
+	///
+	/// If the action is disabled when the returned SignalProducer is started,
+	/// the produced signal will send `ActionError.NotEnabled`, and nothing will
+	/// be sent upon `values` or `errors` for that particular signal.
+	func apply(input: Input) -> SignalProducer<Output, ActionError<Error>>
+}
+
+extension Action: ActionType {
+	public var action: Action {
+		return self
+	}
+}
+
 /// Wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.
 public final class CocoaAction: NSObject {
 	/// The selector that a caller should invoke upon a CocoaAction in order to
 	/// execute it.
-	public static let selector: Selector = "execute:"
+	public static let selector: Selector = #selector(CocoaAction.execute(_:))
 
 	/// Whether the action is enabled.
 	///

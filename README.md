@@ -1,6 +1,6 @@
 ![](Logo/header.png)
 
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 2.1.1](https://img.shields.io/badge/Swift-2.1.1-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 2.2.x](https://img.shields.io/badge/Swift-2.2.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
 ReactiveCocoa (RAC) is a Cocoa framework inspired by [Functional Reactive Programming](https://en.wikipedia.org/wiki/Functional_reactive_programming). It provides APIs for composing and transforming **streams of values over time**.
 
@@ -9,6 +9,7 @@ ReactiveCocoa (RAC) is a Cocoa framework inspired by [Functional Reactive Progra
  1. [Objective-C and Swift](#objective-c-and-swift)
  1. [How does ReactiveCocoa relate to Rx?](#how-does-reactivecocoa-relate-to-rx)
  1. [Getting started](#getting-started)
+ 1.  [Playground](#playground)
 
 If you’re already familiar with functional reactive programming or what
 ReactiveCocoa is about, check out the [Documentation][] folder for more in-depth
@@ -23,7 +24,7 @@ own](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new)!
 
 #### Compatibility
 
-This documents the RAC 4 which targets `Swift 2.1.x`. For `Swift 1.2` support see [RAC
+This documents the RAC 4 which targets `Swift 2.2.x`. For `Swift 1.2` support see [RAC
 3](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v3.0.0).
 
 _Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
@@ -189,6 +190,33 @@ To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into
 our event stream.
 
+#### Debugging event streams
+
+Due to its nature, a stream's stack trace might have dozens of frames, which, more often than not, can make debugging a very frustrating activity. 
+A naive way of debugging, is by injecting side effects into the stream, like so:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .on(event: { print ($0) }) // the side effect
+```
+
+This will print the stream's [events][Events], while preserving the original stream behaviour. Both [`SignalProducer`][Signal producers]
+and [`Signal`][Signals] provide the `logEvents` operator, that will do this automatically for you:
+
+```swift
+let searchString = textField.rac_textSignal()
+    .toSignalProducer()
+    .map { text in text as! String }
+    .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
+    .logEvents()
+```
+
+For more information and advance usage, check the [Debugging Techniques](Documentation/DebuggingTechniques.md) document.
+
+
 ## Objective-C and Swift
 
 Although ReactiveCocoa was started as an Objective-C framework, as of [version
@@ -319,7 +347,17 @@ Once you’ve set up your project, check out the [Framework Overview][] for
 a tour of ReactiveCocoa’s concepts, and the [Basic Operators][] for some
 introductory examples of using it.
 
+## Playground
 
+We also provide a great Playground, so you can get used to ReactiveCocoa's operators. In order to start using it:
+
+ 1. Clone the ReactiveCocoa repository.
+ 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
+ 1. Open `ReactiveCocoa.xcworkspace`. 
+ 1. Build both `Result-Mac` and `ReactiveCocoa-Mac` targets.
+ 1. Open the ReactiveCocoa.playground
+ 1. Have fun! 
+    
 [Actions]: Documentation/FrameworkOverview.md#actions
 [Basic Operators]: Documentation/BasicOperators.md
 [CHANGELOG]: CHANGELOG.md

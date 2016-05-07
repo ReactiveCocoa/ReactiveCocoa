@@ -151,7 +151,7 @@ class SchedulerSpec: QuickSpec {
 					for _ in 0..<5 {
 						scheduler.schedule {
 							expect(NSThread.isMainThread()) == false
-							value++
+							value += 1
 						}
 					}
 
@@ -183,7 +183,9 @@ class SchedulerSpec: QuickSpec {
 					disposable.innerDisposable = scheduler.scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
 						expect(NSThread.isMainThread()) == false
 
-						if ++count == timesToRun {
+						count += 1
+
+						if count == timesToRun {
 							disposable.dispose()
 						}
 					}

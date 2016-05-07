@@ -22,7 +22,7 @@ class SignalSpec: QuickSpec {
 			
 			it("should run the generator immediately") {
 				var didRunGenerator = false
-				Signal<AnyObject, NoError> { observer in
+				_ = Signal<AnyObject, NoError> { observer in
 					didRunGenerator = true
 					return nil
 				}
@@ -147,7 +147,7 @@ class SignalSpec: QuickSpec {
 				signal.observe { event in
 					switch event {
 					case .Next, .Failed, .Completed:
-						hasUnexpectedEventsEmitted = false
+						hasUnexpectedEventsEmitted = true
 					case .Interrupted:
 						signalInterrupted = true
 					}
@@ -625,6 +625,40 @@ class SignalSpec: QuickSpec {
 				observer.sendNext("d")
 				expect(values) == [ "a", "cc", "d" ]
 			}
+
+			it("should not store strong reference to previously passed items") {
+				var disposedItems: [Bool] = []
+
+				struct Item {
+					let payload: Bool
+					let disposable: ScopedDisposable
+				}
+
+				func item(payload: Bool) -> Item {
+					return Item(
+						payload: payload,
+						disposable: ScopedDisposable(ActionDisposable { disposedItems.append(payload) })
+					)
+				}
+
+				let (baseSignal, observer) = Signal<Item, NoError>.pipe()
+				baseSignal.skipRepeats { $0.payload == $1.payload }.observeNext { _ in }
+
+				observer.sendNext(item(true))
+				expect(disposedItems) == []
+
+				observer.sendNext(item(false))
+				expect(disposedItems) == [ true ]
+
+				observer.sendNext(item(false))
+				expect(disposedItems) == [ true, false ]
+
+				observer.sendNext(item(true))
+				expect(disposedItems) == [ true, false, false ]
+
+				observer.sendCompleted()
+				expect(disposedItems) == [ true, false, false, true ]
+			}
 		}
 		
 		describe("uniqueValues", {
@@ -888,6 +922,87 @@ class SignalSpec: QuickSpec {
 				expect(error).to(beNil())
 				observer.sendFailed(.Default)
 				expect(error) == TestError.Default
+			}
+
+			it("should collect an exact count of values") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect(count: 3)
+
+				var observedValues: [[Int]] = []
+
+				signal.observeNext { value in
+					observedValues.append(value)
+				}
+
+				var expectation: [[Int]] = []
+
+				for i in 1...7 {
+
+					observer.sendNext(i)
+
+					if i % 3 == 0 {
+						expectation.append([Int]((i - 2)...i))
+						expect(observedValues) == expectation
+					} else {
+						expect(observedValues) == expectation
+					}
+				}
+
+				observer.sendCompleted()
+
+				expectation.append([7])
+				expect(observedValues) == expectation
+			}
+
+			it("should collect values until it matches a certain value") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect { _, next in next != 5 }
+
+				var expectedValues = [
+					[5, 5],
+					[42, 5]
+				]
+
+				signal.observeNext { value in
+					expect(value) == expectedValues.removeFirst()
+				}
+
+				signal.observeCompleted {
+					expect(expectedValues) == []
+				}
+
+				expectedValues
+					.flatMap { $0 }
+					.forEach(observer.sendNext)
+
+				observer.sendCompleted()
+			}
+
+			it("should collect values until it matches a certain condition on values") {
+				let (original, observer) = Signal<Int, NoError>.pipe()
+
+				let signal = original.collect { values in values.reduce(0, combine: +) == 10 }
+
+				var expectedValues = [
+					[1, 2, 3, 4],
+					[5, 6, 7, 8, 9]
+				]
+
+				signal.observeNext { value in
+					expect(value) == expectedValues.removeFirst()
+				}
+
+				signal.observeCompleted {
+					expect(expectedValues) == []
+				}
+
+				expectedValues
+					.flatMap { $0 }
+					.forEach(observer.sendNext)
+
+				observer.sendCompleted()
 			}
 		}
 
@@ -1239,6 +1354,59 @@ class SignalSpec: QuickSpec {
 
 				scheduler.run()
 				expect(values) == [ 0 ]
+				expect(completed) == true
+			}
+		}
+
+		describe("sampleWith") {
+			var sampledSignal: Signal<(Int, String), NoError>!
+			var observer: Signal<Int, NoError>.Observer!
+			var samplerObserver: Signal<String, NoError>.Observer!
+			
+			beforeEach {
+				let (signal, incomingObserver) = Signal<Int, NoError>.pipe()
+				let (sampler, incomingSamplerObserver) = Signal<String, NoError>.pipe()
+				sampledSignal = signal.sampleWith(sampler)
+				observer = incomingObserver
+				samplerObserver = incomingSamplerObserver
+			}
+
+			it("should forward the latest value when the sampler fires") {
+				var result: [String] = []
+				sampledSignal.observeNext { (left, right) in result.append("\(left)\(right)") }
+				
+				observer.sendNext(1)
+				observer.sendNext(2)
+				samplerObserver.sendNext("a")
+				expect(result) == [ "2a" ]
+			}
+
+			it("should do nothing if sampler fires before signal receives value") {
+				var result: [String] = []
+				sampledSignal.observeNext { (left, right) in result.append("\(left)\(right)") }
+				
+				samplerObserver.sendNext("a")
+				expect(result).to(beEmpty())
+			}
+
+			it("should send lates value with sampler value multiple times when sampler fires multiple times") {
+				var result: [String] = []
+				sampledSignal.observeNext { (left, right) in result.append("\(left)\(right)") }
+				
+				observer.sendNext(1)
+				samplerObserver.sendNext("a")
+				samplerObserver.sendNext("b")
+				expect(result) == [ "1a", "1b" ]
+			}
+
+			it("should complete when both inputs have completed") {
+				var completed = false
+				sampledSignal.observeCompleted { completed = true }
+				
+				observer.sendCompleted()
+				expect(completed) == false
+				
+				samplerObserver.sendCompleted()
 				expect(completed) == true
 			}
 		}
@@ -1907,6 +2075,62 @@ class SignalSpec: QuickSpec {
 				}
 				
 				itBehavesLike(zipExampleName)
+			}
+			
+			describe("log events") {
+				it("should output the correct event without identifier") {
+					let expectations: [String -> ()] = [
+						{ event in expect(event) == "[] Next 1" },
+						{ event in expect(event) == "[] Completed" },
+						{ event in expect(event) == "[] Terminated" },
+						{ event in expect(event) == "[] Disposed" },
+					]
+
+					let logger = TestLogger(expectations: expectations)
+					
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					signal
+						.logEvents(logger: logger.logEvent)
+						.observe { _ in }
+					
+					observer.sendNext(1)
+					observer.sendCompleted()
+				}
+				
+				it("should output the correct event with identifier") {
+					let expectations: [String -> ()] = [
+						{ event in expect(event) == "[test.rac] Next 1" },
+						{ event in expect(event) == "[test.rac] Failed Error1" },
+						{ event in expect(event) == "[test.rac] Terminated" },
+						{ event in expect(event) == "[test.rac] Disposed" },
+					]
+
+					let logger = TestLogger(expectations: expectations)
+
+					let (signal, observer) = Signal<Int, TestError>.pipe()
+					signal
+						.logEvents(identifier: "test.rac", logger: logger.logEvent)
+						.observe { _ in }
+					
+					observer.sendNext(1)
+					observer.sendFailed(.Error1)
+				}
+				
+				it("should only output the events specified in the `events` parameter") {
+					let expectations: [String -> ()] = [
+						{ event in expect(event) == "[test.rac] Failed Error1" },
+					]
+					
+					let logger = TestLogger(expectations: expectations)
+					
+					let (signal, observer) = Signal<Int, TestError>.pipe()
+					signal
+						.logEvents(identifier: "test.rac", events: [.Failed], logger: logger.logEvent)
+						.observe { _ in }
+					
+					observer.sendNext(1)
+					observer.sendFailed(.Error1)
+				}
 			}
 		}
 	}

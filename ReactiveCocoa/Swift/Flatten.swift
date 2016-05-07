@@ -253,7 +253,7 @@ private final class ConcatState<Value, Error: ErrorType> {
 						self.startNextSignalProducer(nextSignalProducer)
 					}
 
-				default:
+				case .Next, .Failed:
 					self.observer.action(event)
 				}
 			}
@@ -298,7 +298,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 							handle.remove()
 							decrementInFlight()
 
-						default:
+						case .Next, .Failed:
 							observer.action(event)
 						}
 					}
@@ -422,7 +422,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 								observer.sendCompleted()
 							}
 
-						default:
+						case .Next, .Failed:
 							observer.action(event)
 						}
 					}

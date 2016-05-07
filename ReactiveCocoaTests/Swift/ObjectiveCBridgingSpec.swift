@@ -58,8 +58,10 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				var subscriptions = 0
 
 				let racSignal = RACSignal.createSignal { subscriber in
-					subscriber.sendNext(subscriptions++)
+					subscriber.sendNext(subscriptions)
 					subscriber.sendCompleted()
+
+					subscriptions += 1
 
 					return nil
 				}
@@ -151,7 +153,11 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					var subscriptions = 0
 
 					let producer = SignalProducer<NSNumber, NoError>.attempt {
-						return .Success(subscriptions++)
+						defer {
+							subscriptions += 1
+						}
+
+						return .Success(subscriptions)
 					}
 					let racSignal = producer.toRACSignal()
 

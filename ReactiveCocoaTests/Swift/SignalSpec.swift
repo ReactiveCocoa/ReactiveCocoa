@@ -257,7 +257,7 @@ class SignalSpec: QuickSpec {
 				weak var testStr: NSMutableString?
 				let (signal, observer) = Signal<Int, NoError>.pipe()
 
-				let test: () -> () = {
+				let test = {
 					let innerStr: NSMutableString = NSMutableString()
 					signal.observeNext { value in
 						innerStr.appendString("\(value)")
@@ -279,7 +279,7 @@ class SignalSpec: QuickSpec {
 				weak var testStr: NSMutableString?
 				let (signal, observer) = Signal<Int, NoError>.pipe()
 
-				let test: () -> () = {
+				let test = {
 					let innerStr: NSMutableString = NSMutableString()
 					signal.observeNext { value in
 						innerStr.appendString("\(value)")
@@ -2049,7 +2049,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("log events") {
 				it("should output the correct event without identifier") {
-					let expectations: [String -> ()] = [
+					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[] Next 1" },
 						{ event in expect(event) == "[] Completed" },
 						{ event in expect(event) == "[] Terminated" },
@@ -2068,7 +2068,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should output the correct event with identifier") {
-					let expectations: [String -> ()] = [
+					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[test.rac] Next 1" },
 						{ event in expect(event) == "[test.rac] Failed Error1" },
 						{ event in expect(event) == "[test.rac] Terminated" },
@@ -2087,7 +2087,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should only output the events specified in the `events` parameter") {
-					let expectations: [String -> ()] = [
+					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[test.rac] Failed Error1" },
 					]
 					

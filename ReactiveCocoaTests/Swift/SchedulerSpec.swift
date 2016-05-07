@@ -26,7 +26,7 @@ class SchedulerSpec: QuickSpec {
 		}
 
 		describe("UIScheduler") {
-			func dispatchSyncInBackground(action: () -> ()) {
+			func dispatchSyncInBackground(action: () -> Void) {
 				let group = dispatch_group_create()
 				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), action)
 				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)

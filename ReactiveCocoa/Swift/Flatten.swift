@@ -278,7 +278,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 
 	private func observeMerge(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
-		let decrementInFlight: () -> () = {
+		let decrementInFlight = {
 			let orig = inFlight.modify { $0 - 1 }
 			if orig == 1 {
 				observer.sendCompleted()

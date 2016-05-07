@@ -644,7 +644,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should release observer when disposed") {
 				weak var objectRetainedByObserver: NSObject?
 				var disposable: Disposable!
-				let test: () -> () = {
+				let test = {
 					let producer = SignalProducer<Int, NoError>.never
 					let object = NSObject()
 					objectRetainedByObserver = object
@@ -891,15 +891,15 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					.on(started: { () -> () in
+					.on(started: {
 						started += 1
-					}, event: { (e: Event<Int, TestError>) -> () in
+					}, event: { e in
 						event += 1
-					}, next: { (n: Int) -> () in
+					}, next: { n in
 						next += 1
-					}, completed: { () -> () in
+					}, completed: {
 						completed += 1
-					}, terminated: { () -> () in
+					}, terminated: {
 						terminated += 1
 					})
 
@@ -1026,9 +1026,9 @@ class SignalProducerSpec: QuickSpec {
 		describe("flatten") {
 			describe("FlattenStrategy.Concat") {
 				describe("sequencing") {
-					var completePrevious: (() -> ())!
-					var sendSubsequent: (() -> ())!
-					var completeOuter: (() -> ())!
+					var completePrevious: (() -> Void)!
+					var sendSubsequent: (() -> Void)!
+					var completeOuter: (() -> Void)!
 
 					var subsequentStarted = false
 
@@ -1100,8 +1100,8 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				describe("completion") {
-					var completeOuter: (() -> ())!
-					var completeInner: (() -> ())!
+					var completeOuter: (() -> Void)!
+					var completeInner: (() -> Void)!
 
 					var completed = false
 
@@ -1140,10 +1140,10 @@ class SignalProducerSpec: QuickSpec {
 
 			describe("FlattenStrategy.Merge") {
 				describe("behavior") {
-					var completeA: (() -> ())!
-					var sendA: (() -> ())!
-					var completeB: (() -> ())!
-					var sendB: (() -> ())!
+					var completeA: (() -> Void)!
+					var sendA: (() -> Void)!
+					var completeB: (() -> Void)!
+					var sendB: (() -> Void)!
 
 					var outerCompleted = false
 
@@ -1317,7 +1317,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("interruption") {
 				var innerObserver: Signal<(), NoError>.Observer!
 				var outerObserver: Signal<SignalProducer<(), NoError>, NoError>.Observer!
-				var execute: (FlattenStrategy -> ())!
+				var execute: (FlattenStrategy -> Void)!
 
 				var interrupted = false
 				var completed = false
@@ -1409,9 +1409,9 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			describe("disposal") {
-				var completeOuter: (() -> ())!
-				var disposeOuter: (() -> ())!
-				var execute: (FlattenStrategy -> ())!
+				var completeOuter: (() -> Void)!
+				var disposeOuter: (() -> Void)!
+				var execute: (FlattenStrategy -> Void)!
 
 				var innerDisposable = SimpleDisposable()
 				var interrupted = false
@@ -2072,9 +2072,9 @@ class SignalProducerSpec: QuickSpec {
 
 				it("does not leak buffered values") {
 					final class Value {
-						private let deinitBlock: () -> ()
+						private let deinitBlock: () -> Void
 
-						init(deinitBlock: () -> ()) {
+						init(deinitBlock: () -> Void) {
 							self.deinitBlock = deinitBlock
 						}
 
@@ -2109,7 +2109,7 @@ class SignalProducerSpec: QuickSpec {
 			
 			describe("log events") {
 				it("should output the correct event") {
-					let expectations: [String -> ()] = [
+					let expectations: [String -> Void] = [
 						{ event in expect(event) == "[] Started" },
 						{ event in expect(event) == "[] Next 1" },
 						{ event in expect(event) == "[] Completed" },

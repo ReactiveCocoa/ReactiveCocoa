@@ -1220,7 +1220,7 @@ extension SignalType where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	/// Note: This causes values that are forwarded to be retained to check for
-	/// uniquness.
+	/// uniqueness.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues() -> Signal<Value, Error> {
 		return Signal { observer in

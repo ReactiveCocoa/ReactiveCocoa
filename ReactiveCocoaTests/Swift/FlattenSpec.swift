@@ -147,6 +147,82 @@ class FlattenSpec: QuickSpec {
 				innerObserver.sendNext(4)
 				expect(observed).to(equal(4))
 			}
+			
+			it("works with TestError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with NoError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with NoError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with TestError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
 		}
 		
 		describe("Signal.flatMap()") {

@@ -1227,16 +1227,25 @@ extension SignalType {
 			let seenValues: Atomic<Set<Identity>> = Atomic([])
 			
 			return self
-				.filter { value in return seenValues.withValue { !$0.contains(transform(value)) } }
 				.observe { event in
 					switch event {
 					case let .Next(value):
+						let identity = transform(value)
+						var isUnique: Bool = false
 						seenValues.modify { set in
-							var mutableSet = set
-							mutableSet.insert(transform(value))
-							return mutableSet
+							if set.contains(identity) {
+								return set
+							} else {
+								isUnique = true
+								var mutableSet = set
+								mutableSet.insert(identity)
+								return mutableSet
+							}
 						}
-						fallthrough
+						if isUnique {
+							fallthrough
+						}
+						
 					default:
 						observer.action(event)
 					}

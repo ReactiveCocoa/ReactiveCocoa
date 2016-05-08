@@ -548,6 +548,30 @@ extension SignalType {
 	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> Signal<U, Error>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
 	}
+
+	/// Maps each event from `signal` to a new signal, then flattens the
+	/// resulting signals (into a signal of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `signal` or any of the created signals emit an error, the returned
+	/// signal will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMap<U>(strategy: FlattenStrategy, transform: Value -> Signal<U, NoError>) -> Signal<U, Error> {
+		return map(transform).flatten(strategy)
+	}
+}
+
+extension SignalType where Error == NoError {
+	/// Maps each event from `signal` to a new signal, then flattens the
+	/// resulting signals (into a signal of values), according to the
+	/// semantics of the given strategy.
+	///
+	/// If `signal` or any of the created signals emit an error, the returned
+	/// signal will forward that error immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatMap<U, E>(strategy: FlattenStrategy, transform: Value -> Signal<U, E>) -> Signal<U, E> {
+		return map(transform).flatten(strategy)
+	}
 }
 
 extension SignalProducerType {

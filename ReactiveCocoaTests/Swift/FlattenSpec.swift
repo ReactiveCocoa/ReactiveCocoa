@@ -70,6 +70,84 @@ class FlattenSpec: QuickSpec {
 			describeSignalFlattenDisposal(.Merge, name: "merge")
 			describeSignalFlattenDisposal(.Concat, name: "concat")
 		}
+		
+		describe("Signal.flatten()") {
+			it("works with TestError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with NoError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with NoError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+			
+			it("works with TestError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (innerSignal, innerObserver) = Inner.pipe()
+				let (outerSignal, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outerSignal
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(innerSignal)
+				innerObserver.sendNext(4)
+				expect(observed).to(equal(4))
+			}
+		}
 
 		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {

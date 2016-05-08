@@ -6,6 +6,8 @@
 //  Copyright © 2015 GitHub. All rights reserved.
 //
 
+import Result
+
 /// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {
 	/// The producers should be merged, so that any value received on any of the
@@ -89,6 +91,54 @@ extension SignalType where Value: SignalType, Error == Value.Error {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		return self.map(SignalProducer.init).flatten(strategy)
+	}
+}
+
+extension SignalType where Value: SignalType, Error == NoError {
+	/// Flattens the inner signals sent upon `signal` (into a single signal of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If an active inner signal emits an error, the returned signal will
+	/// forward that error immediately.
+	///
+	/// `Interrupted` events on inner signals will be treated like `Completed`
+	/// events on inner signals.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
+		return self
+			.map(SignalProducer.init)
+			.promoteErrors(Value.Error.self)
+			.flatten(strategy)
+	}
+}
+
+extension SignalType where Value: SignalType, Error == NoError, Value.Error == NoError {
+	/// Flattens the inner signals sent upon `signal` (into a single signal of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// `Interrupted` events on inner signals will be treated like `Completed`
+	/// events on inner signals.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
+		return self.map(SignalProducer.init).flatten(strategy)
+	}
+}
+
+extension SignalType where Value: SignalType, Value.Error == NoError {
+	/// Flattens the inner signals sent upon `signal` (into a single signal of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// If `signal` emits an error, the returned signal will forward
+	/// that error immediately.
+	///
+	/// `Interrupted` events on inner signals will be treated like `Completed`
+	/// events on inner signals.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
+		return self
+			.map { $0.promoteErrors(Error.self) }
+			.map(SignalProducer.init)
+			.flatten(strategy)
 	}
 }
 

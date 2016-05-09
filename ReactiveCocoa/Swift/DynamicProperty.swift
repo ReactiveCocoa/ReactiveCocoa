@@ -83,7 +83,7 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	/// to Objective-C.
 	///
 	/// `object` must support weak references!
-	public convenience init(object: NSObject, keyPath: String) {
+	public convenience init(object: NSObject?, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: BridgeableRepresentation.self)
 	}
 }
@@ -94,7 +94,7 @@ extension DynamicProperty where Value: AnyObject {
 	/// represented directly in Objective-C via `AnyObject`.
 	///
 	/// `object` must support weak references!
-	public convenience init(object: NSObject, keyPath: String) {
+	public convenience init(object: NSObject?, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
 	}
 }

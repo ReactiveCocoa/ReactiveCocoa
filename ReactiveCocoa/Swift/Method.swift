@@ -1,6 +1,6 @@
 import enum Result.NoError
 
-public protocol MethodType: class {
+public protocol MethodType: class, Bindable {
 	associatedtype Object: AnyObject
 	associatedtype Input
 	associatedtype Output
@@ -16,10 +16,7 @@ public extension MethodType {
 
 	func lift<Error: ErrorType>(with signal: Signal<Input, Error>) -> Signal<Output, Error> {
 		if object == nil {
-			return Signal { observer in
-				observer.sendInterrupted()
-				return nil
-			}
+			return .empty
 		}
 
 		return signal
@@ -27,7 +24,7 @@ public extension MethodType {
 			.materialize()
 			.map { event -> Event<Output?, Error> in
 				if case .Next(.None) = event {
-					return .Interrupted
+					return .Completed
 				} else {
 					return event
 				}
@@ -46,7 +43,7 @@ public extension MethodType {
 @_transparent private func _lifted<Method: MethodType, Error: ErrorType>(method method: Method, with producer: SignalProducer<Method.Input, Error>, lift: Signal<Method.Input, Error> -> Signal<Method.Output, Error>) -> SignalProducer<Method.Output, Error> {
 	return SignalProducer { [weak method] observer, disposable in
 		guard method != nil else {
-			observer.sendInterrupted()
+			observer.sendCompleted()
 			return
 		}
 
@@ -60,15 +57,15 @@ public extension MethodType {
 public final class Method<Object: AnyObject, Input, Output>: MethodType {
 	public private(set) weak var object: Object?
 	public let function: (Object, Input) -> Output
+	public let complete: Signal<(), NoError>? = nil
 
 	public init(object: Object?, function: (Object, Input) -> Output) {
 		self.object = object
 		self.function = function
 	}
 
-	public init(object: Object?, function: Object -> Input -> Output) {
-		self.object = object
-		self.function = { object, input in function(object)(input) }
+	public convenience init(object: Object?, function: Object -> Input -> Output) {
+		self.init(object: object) { object, input in function(object)(input) }
 	}
 }
 
@@ -77,20 +74,8 @@ public extension MethodType where Object: NSObject {
 	func lift<Error: ErrorType>(with signal: Signal<Input, Error>) -> Signal<Output, Error> {
 		guard let object: NSObject = object else { return .empty }
 
-		let (deallocated, deallocatedObserver) = Signal<(), NoError>.pipe()
-		object.rac_deallocDisposable.addDisposable(RACDisposable(block: deallocatedObserver.sendCompleted))
-
 		return signal
-			.takeUntil(deallocated)
-			.materialize()
-			.map { event -> Event<Input, Error> in
-				if case .Completed = event {
-					return .Interrupted
-				} else {
-					return event
-				}
-			}
-			.dematerialize()
+			.takeUntil(object.rac_willDealloc)
 			.map(call)
 			.ignoreNil()
 	}
@@ -101,3 +86,16 @@ public extension MethodType where Object: NSObject {
 	}
 }
 #endif
+
+public func <~ <M: MethodType>(method: M, signal: Signal<M.Input, NoError>) -> Disposable {
+	let (cancelled, observer) = Signal<(), NoError>.pipe()
+	let disposable = ActionDisposable(action: observer.sendCompleted)
+
+	method.lift(with: signal.takeUntil(cancelled))
+
+	return disposable
+}
+
+public func <~ <M: MethodType>(method: M, producer: SignalProducer<M.Input, NoError>) -> Disposable {
+	return method.lifted(with: producer).start()
+}

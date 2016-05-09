@@ -9,6 +9,25 @@
 import Foundation
 import enum Result.NoError
 
+private var WillDeallocKey: UInt8 = 0
+
+extension NSObject {
+	var rac_willDealloc: Signal<(), NoError> {
+		if let signal = objc_getAssociatedObject(self, &WillDeallocKey) as? Signal<(), NoError> {
+			return signal
+		}
+
+		let (signal, observer) = Signal<(), NoError>.pipe()
+
+		let completedDisposable = RACDisposable(block: observer.sendCompleted)
+		rac_deallocDisposable.addDisposable(completedDisposable)
+
+		objc_setAssociatedObject(self, &WillDeallocKey, signal, .OBJC_ASSOCIATION_RETAIN)
+
+		return signal
+	}
+}
+
 extension NSNotificationCenter {
 	/// Returns a producer of notifications posted that match the given criteria.
 	/// If the `object` is deallocated before starting the producer, it will 

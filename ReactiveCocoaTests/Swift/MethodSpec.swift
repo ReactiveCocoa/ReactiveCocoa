@@ -45,14 +45,14 @@ final class MethodSpec: QuickSpec {
 					expect(outputValues) == ["1", "2", "3"]
 				}
 
-				it("is interrupted on input if the underlying object has been deallocated") {
+				it("is completed on input if the underlying object has been deallocated") {
 					let (input, inputObserver) = Signal<Int, NoError>.pipe()
 					let output = method.lift(with: input)
 
 					var outputValues: [String] = []
-					var interrupted = false
+					var completed = false
 					output.observeNext { outputValues.append($0) }
-					output.observeInterrupted { interrupted = true }
+					output.observeCompleted { completed = true }
 
 					inputObserver.sendNext(1)
 					inputObserver.sendNext(2)
@@ -60,7 +60,7 @@ final class MethodSpec: QuickSpec {
 					inputObserver.sendNext(3)
 
 					expect(outputValues) == ["1", "2"]
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 
 				it("is interrupted immediately if the underlying object is already nil") {
@@ -104,21 +104,21 @@ final class MethodSpec: QuickSpec {
 					expect(outputValues) == ["1", "2", "3"]
 				}
 
-				it("is interrupted immediately on deallocation if the underlying object is an Objective-C object") {
+				it("is completed immediately on deallocation if the underlying object is an Objective-C object") {
 					let (input, inputObserver) = Signal<Int, NoError>.pipe()
 					let output = method.lift(with: input)
 
 					var outputValues: [String] = []
-					var interrupted = false
+					var completed = false
 					output.observeNext { outputValues.append($0) }
-					output.observeInterrupted { interrupted = true }
+					output.observeCompleted { completed = true }
 
 					inputObserver.sendNext(1)
 					inputObserver.sendNext(2)
 					object = nil
 
 					expect(outputValues) == ["1", "2"]
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 
 				it("is interrupted immediately if the underlying object is already nil") {
@@ -163,17 +163,17 @@ final class MethodSpec: QuickSpec {
 					expect(sentOutput) == ["1", "2", "3"]
 				}
 
-				it("is interrupted on input if the underlying object is deallocated") {
+				it("is completed on input if the underlying object is deallocated") {
 					let (input, inputObserver) = SignalProducer<Int, NoError>.buffer(1)
 
 					var outputValues: [String] = []
-					var interrupted = false
+					var completed = false
 					method.lifted(with: input).start { event in
 						switch event {
 						case .Next(let value):
 							outputValues.append(value)
-						case .Interrupted:
-							interrupted = true
+						case .Completed:
+							completed = true
 						default:
 							break
 						}
@@ -185,16 +185,16 @@ final class MethodSpec: QuickSpec {
 					inputObserver.sendNext(3)
 
 					expect(outputValues) == ["1", "2"]
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 
-				it("is interrupted immediately if the underlying object is already nil") {
+				it("is completed immediately if the underlying object is already nil") {
 					object = nil
 
-					var interrupted = false
-					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { interrupted = true }
+					var completed = false
+					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { completed = true }
 
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 			}
 
@@ -226,17 +226,17 @@ final class MethodSpec: QuickSpec {
 					expect(sentOutput) == ["1", "2", "3"]
 				}
 
-				it("is interrupted immediately if the underlying object is deallocated") {
+				it("is completed immediately if the underlying object is deallocated") {
 					let (input, inputObserver) = SignalProducer<Int, NoError>.buffer(1)
 
 					var outputValues: [String] = []
-					var interrupted = false
+					var completed = false
 					method.lifted(with: input).start { event in
 						switch event {
 						case .Next(let value):
 							outputValues.append(value)
-						case .Interrupted:
-							interrupted = true
+						case .Completed:
+							completed = true
 						default:
 							break
 						}
@@ -247,19 +247,89 @@ final class MethodSpec: QuickSpec {
 					object = nil
 
 					expect(outputValues) == ["1", "2"]
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 
-				it("is interrupted immediately if the underlying object is already nil") {
+				it("is completed immediately if the underlying object is already nil") {
 					object = nil
 
-					var interrupted = false
-					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { interrupted = true }
+					var completed = false
+					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { completed = true }
 
-					expect(interrupted) == true
+					expect(completed) == true
 				}
 			}
 #endif
+		}
+
+		describe("binding") {
+			var object: TestObject!
+			var method: ReactiveCocoa.Method<TestObject, Int, String>!
+			var outputValues: [String]!
+
+			beforeEach {
+				object = TestObject()
+				outputValues = []
+				method = Method(object: object) { object, input in
+					let output = object.string(from: input)
+					outputValues.append(output)
+					return output
+				}
+			}
+
+			afterEach {
+				object = nil
+				method = nil
+				outputValues = nil
+			}
+
+			describe("signals") {
+				it("terminates the binding when the return disposable is disposed of") {
+					let (input, observer) = Signal<Int, NoError>.pipe()
+					let disposable = method <~ input
+
+					observer.sendNext(1)
+					disposable.dispose()
+					observer.sendNext(2)
+
+					expect(outputValues) == ["1"]
+				}
+
+				it("terminates the binding when the object is deallocated") {
+					let (input, observer) = Signal<Int, NoError>.pipe()
+					method <~ input
+
+					observer.sendNext(1)
+					object = nil
+					observer.sendNext(2)
+
+					expect(outputValues) == ["1"]
+				}
+			}
+
+			describe("producers") {
+				it("terminates the binding when the return disposable is disposed of") {
+					let (input, observer) = SignalProducer<Int, NoError>.buffer(1)
+					let disposable = method <~ input
+
+					observer.sendNext(1)
+					disposable.dispose()
+					observer.sendNext(2)
+
+					expect(outputValues) == ["1"]
+				}
+
+				it("terminates the binding when the object is deallocated") {
+					let (input, observer) = SignalProducer<Int, NoError>.buffer(1)
+					method <~ input
+
+					observer.sendNext(1)
+					object = nil
+					observer.sendNext(2)
+
+					expect(outputValues) == ["1"]
+				}
+			}
 		}
 	}
 }

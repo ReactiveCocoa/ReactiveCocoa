@@ -961,6 +961,29 @@ extension SignalProducerType where Value: Equatable {
 	}
 }
 
+extension SignalProducerType {
+	/// Forwards only those values from `self` that have unique identities across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the identities to be retained to check for uniqueness.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> SignalProducer<Value, Error> {
+		return lift { $0.uniqueValues(transform) }
+	}
+}
+
+extension SignalProducerType where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the values to be retained to check for uniqueness. Providing
+	/// a function that returns a unique value for each sent value can help you reduce
+	/// the memory footprint.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func uniqueValues() -> SignalProducer<Value, Error> {
+		return lift { $0.uniqueValues() }
+	}
+}
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.

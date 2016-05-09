@@ -1239,7 +1239,7 @@ extension SignalType {
 					case .Failed, .Completed, .Interrupted:
 						observer.action(event)
 					}
-			}
+				}
 		}
 	}
 }

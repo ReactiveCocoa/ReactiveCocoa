@@ -1246,7 +1246,7 @@ extension SignalType {
 							fallthrough
 						}
 						
-					default:
+					case .Failed, .Completed, .Interrupted:
 						observer.action(event)
 					}
 			}

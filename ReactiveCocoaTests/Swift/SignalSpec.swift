@@ -661,7 +661,7 @@ class SignalSpec: QuickSpec {
 			}
 		}
 		
-		describe("uniqueValues", {
+		describe("uniqueValues") {
 			it("should skip values that have been already seen"){
 				let (baseSignal, observer) = Signal<String, NoError>.pipe()
 				let signal = baseSignal.uniqueValues()
@@ -689,7 +689,7 @@ class SignalSpec: QuickSpec {
 				observer.sendCompleted()
 				expect(values) == [ "a", "b", "c" ]
 			}
-		})
+		}
 		
 		describe("skipWhile") {
 			var signal: Signal<Int, NoError>!

@@ -1041,25 +1041,22 @@ extension SignalType {
 			let disposable = CompositeDisposable()
 			
 			let flush = {
-				var originalStates: (ZipState<Value>, ZipState<U>)!
-				states.modify { states in
-					originalStates = states
+				var (leftOriginal, rightOriginal) = states.modify { states in
+					var (left, right) = states
+					let extractCount = min(left.values.count, right.values.count)
 					
-					var updatedStates = states
-					let extractCount = min(states.0.values.count, states.1.values.count)
-					
-					updatedStates.0.values.removeRange(0 ..< extractCount)
-					updatedStates.1.values.removeRange(0 ..< extractCount)
-					return updatedStates
+					left.values.removeRange(0 ..< extractCount)
+					right.values.removeRange(0 ..< extractCount)
+					return (left, right)
 				}
 				
-				while !originalStates.0.values.isEmpty && !originalStates.1.values.isEmpty {
-					let left = originalStates.0.values.removeAtIndex(0)
-					let right = originalStates.1.values.removeAtIndex(0)
+				while !leftOriginal.values.isEmpty && !rightOriginal.values.isEmpty {
+					let left = leftOriginal.values.removeAtIndex(0)
+					let right = rightOriginal.values.removeAtIndex(0)
 					observer.sendNext((left, right))
 				}
 				
-				if originalStates.0.isFinished || originalStates.1.isFinished {
+				if leftOriginal.isFinished || rightOriginal.isFinished {
 					observer.sendCompleted()
 				}
 			}

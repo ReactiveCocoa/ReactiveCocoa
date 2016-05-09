@@ -662,7 +662,7 @@ class SignalSpec: QuickSpec {
 		}
 		
 		describe("uniqueValues") {
-			it("should skip values that have been already seen"){
+			it("should skip values that have been already seen") {
 				let (baseSignal, observer) = Signal<String, NoError>.pipe()
 				let signal = baseSignal.uniqueValues()
 				

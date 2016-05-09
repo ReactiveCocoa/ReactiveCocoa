@@ -192,7 +192,7 @@ final class MethodSpec: QuickSpec {
 					object = nil
 
 					var interrupted = false
-					method.lifted(with: .empty).startWithInterrupted { interrupted = true }
+					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { interrupted = true }
 
 					expect(interrupted) == true
 				}
@@ -254,7 +254,7 @@ final class MethodSpec: QuickSpec {
 					object = nil
 
 					var interrupted = false
-					method.lifted(with: .empty).startWithInterrupted { interrupted = true }
+					method.lifted(with: SignalProducer<Int, NoError>.empty).startWithInterrupted { interrupted = true }
 
 					expect(interrupted) == true
 				}

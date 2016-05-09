@@ -1224,25 +1224,15 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> Signal<Value, Error> {
 		return Signal { observer in
-			let seenValues: Atomic<Set<Identity>> = Atomic([])
+			var seenValues: Set<Identity> = []
 			
 			return self
 				.observe { event in
 					switch event {
 					case let .Next(value):
 						let identity = transform(value)
-						var isUnique: Bool = false
-						seenValues.modify { set in
-							if set.contains(identity) {
-								return set
-							} else {
-								isUnique = true
-								var mutableSet = set
-								mutableSet.insert(identity)
-								return mutableSet
-							}
-						}
-						if isUnique {
+						if !seenValues.contains(identity) {
+							seenValues.insert(identity)
 							fallthrough
 						}
 						

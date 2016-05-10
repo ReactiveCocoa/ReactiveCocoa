@@ -113,7 +113,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError Signal") {
@@ -132,7 +132,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError Signal") {
@@ -151,7 +151,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError Signal") {
@@ -170,7 +170,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a TestError SignalProducer") {
@@ -189,7 +189,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError SignalProducer") {
@@ -208,7 +208,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError SignalProducer") {
@@ -227,7 +227,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError SignalProducer") {
@@ -246,7 +246,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 		}
 		
@@ -267,7 +267,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError Signal") {
@@ -286,7 +286,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError Signal") {
@@ -305,7 +305,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError Signal") {
@@ -324,7 +324,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a TestError SignalProducer") {
@@ -343,7 +343,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError SignalProducer") {
@@ -362,7 +362,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError SignalProducer") {
@@ -381,7 +381,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError SignalProducer") {
@@ -400,7 +400,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(innerSignal)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 		}
 		
@@ -421,7 +421,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError Signal") {
@@ -440,7 +440,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError Signal") {
@@ -459,7 +459,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError Signal") {
@@ -478,7 +478,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a TestError SignalProducer") {
@@ -497,7 +497,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError SignalProducer") {
@@ -516,7 +516,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError SignalProducer") {
@@ -535,7 +535,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError SignalProducer") {
@@ -554,7 +554,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 		}
 		
@@ -575,7 +575,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError Signal") {
@@ -594,7 +594,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError Signal") {
@@ -613,7 +613,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError Signal") {
@@ -632,7 +632,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a TestError SignalProducer") {
@@ -651,7 +651,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a TestError SignalProducer") {
@@ -670,7 +670,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with NoError and a NoError SignalProducer") {
@@ -689,7 +689,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 			
 			it("works with TestError and a NoError SignalProducer") {
@@ -708,7 +708,7 @@ class FlattenSpec: QuickSpec {
 				
 				outerObserver.sendNext(4)
 				innerObserver.sendNext(4)
-				expect(observed).to(equal(4))
+				expect(observed) == 4
 			}
 		}
 	}

@@ -210,7 +210,6 @@ extension SignalType where Value: SignalType, Error == NoError {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		return self
-			.map(SignalProducer.init)
 			.promoteErrors(Value.Error.self)
 			.flatten(strategy)
 	}
@@ -239,9 +238,7 @@ extension SignalType where Value: SignalType, Value.Error == NoError {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
-		return self
-			.map(SignalProducer.init)
-			.flatMap(strategy) { $0.promoteErrors(Error.self) }
+		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
 }
 
@@ -272,7 +269,6 @@ extension SignalProducerType where Value: SignalType, Error == NoError {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		return self
-			.map(SignalProducer.init)
 			.promoteErrors(Value.Error.self)
 			.flatten(strategy)
 	}
@@ -301,9 +297,7 @@ extension SignalProducerType where Value: SignalType, Value.Error == NoError {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
-		return self
-			.map(SignalProducer.init)
-			.flatMap(strategy) { $0.promoteErrors(Error.self) }
+		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
 }
 

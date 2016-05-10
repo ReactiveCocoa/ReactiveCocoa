@@ -101,17 +101,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = Signal<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -120,17 +120,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = Signal<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -139,17 +139,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = Signal<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -158,17 +158,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = Signal<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -177,17 +177,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = Signal<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -196,17 +196,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = Signal<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -215,17 +215,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = Signal<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -234,17 +234,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = Signal<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.observeNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -255,17 +255,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = SignalProducer<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -274,17 +274,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = SignalProducer<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -293,17 +293,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = SignalProducer<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -312,17 +312,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = SignalProducer<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -331,17 +331,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = SignalProducer<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -350,17 +350,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = SignalProducer<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -369,17 +369,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = SignalProducer<Inner, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -388,17 +388,17 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = SignalProducer<Inner, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
+				outer
 					.flatten(.Latest)
 					.startWithNext { value in
 						observed = value
 					}
 				
-				outerObserver.sendNext(innerSignal)
+				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
@@ -409,12 +409,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = Signal<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -428,12 +428,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = Signal<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -447,12 +447,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = Signal<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -466,12 +466,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = Signal<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -485,12 +485,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = Signal<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -504,12 +504,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = Signal<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -523,12 +523,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = Signal<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -542,12 +542,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = Signal<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -563,12 +563,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = SignalProducer<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -582,12 +582,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, TestError>
 				typealias Outer = SignalProducer<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -601,12 +601,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = SignalProducer<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -620,12 +620,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = Signal<Int, NoError>
 				typealias Outer = SignalProducer<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -639,12 +639,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = SignalProducer<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -658,12 +658,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, TestError>
 				typealias Outer = SignalProducer<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -677,12 +677,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = SignalProducer<Int, NoError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -696,12 +696,12 @@ class FlattenSpec: QuickSpec {
 				typealias Inner = SignalProducer<Int, NoError>
 				typealias Outer = SignalProducer<Int, TestError>
 				
-				let (innerSignal, innerObserver) = Inner.pipe()
-				let (outerSignal, outerObserver) = Outer.pipe()
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
 				
 				var observed: Int? = nil
-				outerSignal
-					.flatMap(.Latest) { _ in innerSignal }
+				outer
+					.flatMap(.Latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}

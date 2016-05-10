@@ -70,6 +70,31 @@ class FlattenSpec: QuickSpec {
 			describeSignalFlattenDisposal(.Merge, name: "merge")
 			describeSignalFlattenDisposal(.Concat, name: "concat")
 		}
+
+		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+			describe(name) {
+				it("disposes original signal when result signal interrupted") {
+					var disposed = false
+
+					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { _, disposable in
+						disposable += ActionDisposable {
+							disposed = true
+						}
+					}
+						.flatten(flattenStrategy)
+						.start()
+
+					disposable.dispose()
+					expect(disposed) == true
+				}
+			}
+		}
+
+		context("SignalProducer") {
+			describeSignalProducerFlattenDisposal(.Latest, name: "switchToLatest")
+			describeSignalProducerFlattenDisposal(.Merge, name: "merge")
+			describeSignalProducerFlattenDisposal(.Concat, name: "concat")
+		}
 		
 		describe("Signal.flatten()") {
 			it("works with TestError and a TestError Signal") {
@@ -685,31 +710,6 @@ class FlattenSpec: QuickSpec {
 				innerObserver.sendNext(4)
 				expect(observed).to(equal(4))
 			}
-		}
-
-		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
-			describe(name) {
-				it("disposes original signal when result signal interrupted") {
-					var disposed = false
-
-					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { _, disposable in
-						disposable += ActionDisposable {
-							disposed = true
-						}
-					}
-						.flatten(flattenStrategy)
-						.start()
-
-					disposable.dispose()
-					expect(disposed) == true
-				}
-			}
-		}
-
-		context("SignalProducer") {
-			describeSignalProducerFlattenDisposal(.Latest, name: "switchToLatest")
-			describeSignalProducerFlattenDisposal(.Merge, name: "merge")
-			describeSignalProducerFlattenDisposal(.Concat, name: "concat")
 		}
 	}
 }

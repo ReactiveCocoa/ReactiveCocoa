@@ -6,7 +6,7 @@
 //  Copyright © 2015 GitHub. All rights reserved.
 //
 
-import Result
+import enum Result.NoError
 
 /// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {

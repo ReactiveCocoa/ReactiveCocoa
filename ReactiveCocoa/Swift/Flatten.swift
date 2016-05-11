@@ -6,7 +6,7 @@
 //  Copyright © 2015 GitHub. All rights reserved.
 //
 
-import Result
+import enum Result.NoError
 
 /// Describes how multiple producers should be joined together.
 public enum FlattenStrategy: Equatable {
@@ -143,7 +143,9 @@ extension SignalProducerType where Value: SignalProducerType, Error == NoError {
 	/// events on inner producers.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
-		return self.promoteErrors(Value.Error.self).flatten(strategy)
+		return self
+			.promoteErrors(Value.Error.self)
+			.flatten(strategy)
 	}
 }
 
@@ -194,7 +196,9 @@ extension SignalType where Value: SignalType, Error == Value.Error {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return self
+			.map(SignalProducer.init)
+			.flatten(strategy)
 	}
 }
 
@@ -223,7 +227,9 @@ extension SignalType where Value: SignalType, Error == NoError, Value.Error == N
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return self
+			.map(SignalProducer.init)
+			.flatten(strategy)
 	}
 }
 
@@ -253,7 +259,9 @@ extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return self
+			.map(SignalProducer.init)
+			.flatten(strategy)
 	}
 }
 
@@ -282,7 +290,9 @@ extension SignalProducerType where Value: SignalType, Error == NoError, Value.Er
 	/// events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
-		return self.map(SignalProducer.init).flatten(strategy)
+		return self
+			.map(SignalProducer.init)
+			.flatten(strategy)
 	}
 }
 
@@ -373,7 +383,7 @@ extension SignalProducerType {
 	/// `concat`s `next` onto `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func concat(next: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
-		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [self.producer, next]).flatten(.Concat)
+		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [ self.producer, next ]).flatten(.Concat)
 	}
 }
 
@@ -534,7 +544,7 @@ extension SignalType {
 		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
 		var result: Signal<Value, Error>!
 
-		producer.startWithSignal { (signal, _) in
+		producer.startWithSignal { signal, _ in
 			result = signal.flatten(.Merge)
 		}
 

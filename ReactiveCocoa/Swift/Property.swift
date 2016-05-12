@@ -90,7 +90,7 @@ public struct ConstantProperty<Value>: PropertyType {
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
+public protocol MutablePropertyType: class, PropertyType, Bindable {
 	var value: Value { get set }
 }
 
@@ -98,6 +98,7 @@ public protocol MutablePropertyType: class, PropertyType {
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyType {
+	public typealias Input = Value
 
 	private let observer: Signal<Value, NoError>.Observer
 
@@ -131,6 +132,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// then complete when the property has deinitialized.
 	public let signal: Signal<Value, NoError>
 
+	public let complete: Signal<(), NoError>?
+
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
@@ -161,6 +164,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		setter = { newValue in value = newValue }
 
 		(signal, observer) = Signal.pipe()
+
+		complete = Signal { [signal] observer in
+			signal.observeCompleted(observer.sendCompleted)
+		}
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -198,13 +205,6 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	}
 }
 
-infix operator <~ {
-	associativity right
-
-	// Binds tighter than assignment but looser than everything else
-	precedence 93
-}
-
 /// Binds a signal to a property, updating the property's value to the latest
 /// value sent by the signal.
 ///
@@ -212,7 +212,7 @@ infix operator <~ {
 /// or when the signal sends a `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
-	disposable += property.producer.startWithCompleted {
+	disposable += property.complete?.observeCompleted {
 		disposable.dispose()
 	}
 
@@ -228,35 +228,4 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 	}
 
 	return disposable
-}
-
-
-/// Creates a signal from the given producer, which will be immediately bound to
-/// the given property, updating the property's value to the latest value sent
-/// by the signal.
-///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the created signal sends a `Completed` event.
-public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
-	var disposable: Disposable!
-
-	producer.startWithSignal { signal, signalDisposable in
-		property <~ signal
-		disposable = signalDisposable
-
-		property.producer.startWithCompleted {
-			signalDisposable.dispose()
-		}
-	}
-
-	return disposable
-}
-
-
-/// Binds `destinationProperty` to the latest values of `sourceProperty`.
-///
-/// The binding will automatically terminate when either property is
-/// deinitialized.
-public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
 }

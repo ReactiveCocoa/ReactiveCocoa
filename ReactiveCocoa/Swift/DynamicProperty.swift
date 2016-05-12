@@ -9,6 +9,7 @@ import enum Result.NoError
 /// `NSOperation`).
 @objc public final class DynamicProperty: RACDynamicPropertySuperclass, MutablePropertyType {
 	public typealias Value = AnyObject?
+	public typealias Input = Value
 
 	private weak var object: NSObject?
 	private let keyPath: String
@@ -41,12 +42,15 @@ import enum Result.NoError
 		return property?.signal ?? .empty
 	}
 
+	public let complete: Signal<(), NoError>?
+
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
 		self.property = MutableProperty(nil)
+		self.complete = object?.rac_willDealloc ?? .empty
 
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
@@ -70,12 +74,12 @@ import enum Result.NoError
 // MARK: Operators
 
 /// Binds a signal to a `DynamicProperty`, automatically bridging values to Objective-C.
-public func <~ <S: SignalType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, signal: S) -> Disposable {
+public func <~ <Value: _ObjectiveCBridgeable>(property: DynamicProperty, signal: Signal<Value, NoError>) -> Disposable {
 	return property <~ signal.map { $0._bridgeToObjectiveC() }
 }
 
 /// Binds a signal producer to a `DynamicProperty`, automatically bridging values to Objective-C.
-public func <~ <S: SignalProducerType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, producer: S) -> Disposable {
+public func <~ <Value: _ObjectiveCBridgeable>(property: DynamicProperty, producer: SignalProducer<Value, NoError>) -> Disposable {
 	return property <~ producer.map { $0._bridgeToObjectiveC() }
 }
 

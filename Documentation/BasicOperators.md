@@ -34,15 +34,16 @@ types will be referred to by name.
 
 **[Flattening producers](#flattening-producers)**
 
-  1. [Concatenating](#concatenating)
   1. [Merging](#merging)
+  1. [Concatenating](#concatenating)
   1. [Switching to the latest](#switching-to-the-latest)
 
 **[Handling failures](#handling-failures)**
 
-  1. [Catching failures](#catch)
-  1. [Mapping errors](#mapping-errors)
+  1. [Catching failures](#catching-failures)
   1. [Retrying](#retrying)
+  1. [Mapping errors](#mapping-errors)
+  1. [Promote](#promote)
 
 ## Performing side effects with event streams
 

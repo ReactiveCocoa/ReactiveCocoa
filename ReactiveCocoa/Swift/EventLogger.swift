@@ -8,20 +8,23 @@
 
 import Foundation
 
-public enum SignalLoggingEvent: String {
-	case Next, Completed, Failed, Terminated, Disposed, Interrupted
-	
-	public static let allEvents: Set<SignalLoggingEvent> = [
-		.Next, .Completed, .Failed, .Terminated, .Disposed, .Interrupted,
-	]
-}
+/// A namespace for logging event types.
+public enum LoggingEvent {
+	public enum Signal: String {
+		case Next, Completed, Failed, Terminated, Disposed, Interrupted
 
-public enum SignalProducerLoggingEvent: String {
-	case Started, Next, Completed, Failed, Terminated, Disposed, Interrupted
-	
-	public static let allEvents: Set<SignalProducerLoggingEvent> = [
-		.Started, .Next, .Completed, .Failed, .Terminated, .Disposed, .Interrupted,
-	]
+		public static let allEvents: Set<Signal> = [
+			.Next, .Completed, .Failed, .Terminated, .Disposed, .Interrupted,
+		]
+	}
+
+	public enum SignalProducer: String {
+		case Started, Next, Completed, Failed, Terminated, Disposed, Interrupted
+
+		public static let allEvents: Set<SignalProducer> = [
+			.Started, .Next, .Completed, .Failed, .Terminated, .Disposed, .Interrupted,
+		]
+	}
 }
 
 private func defaultEventLog(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
@@ -34,8 +37,8 @@ extension SignalType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func logEvents(identifier identifier: String = "", events: Set<SignalLoggingEvent> = SignalLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
-		func log<T>(event: SignalLoggingEvent) -> (T -> Void)? {
+	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
+		func log<T>(event: LoggingEvent.Signal) -> (T -> Void)? {
 			return event.logIfNeeded(events) { event in
 				logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 			}
@@ -56,8 +59,8 @@ extension SignalProducerType {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func logEvents(identifier identifier: String = "", events: Set<SignalProducerLoggingEvent> = SignalProducerLoggingEvent.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
-		func log<T>(event: SignalProducerLoggingEvent) -> (T -> Void)? {
+	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
+		func log<T>(event: LoggingEvent.SignalProducer) -> (T -> Void)? {
 			return event.logIfNeeded(events) { event in
 				logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
 			}
@@ -76,8 +79,8 @@ extension SignalProducerType {
 }
 
 private protocol LoggingEventType: Hashable, RawRepresentable {}
-extension SignalLoggingEvent: LoggingEventType {}
-extension SignalProducerLoggingEvent: LoggingEventType {}
+extension LoggingEvent.Signal: LoggingEventType {}
+extension LoggingEvent.SignalProducer: LoggingEventType {}
 
 private extension LoggingEventType {
 	func logIfNeeded<T>(events: Set<Self>, logger: String -> Void) -> (T -> Void)? {

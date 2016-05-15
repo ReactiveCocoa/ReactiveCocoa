@@ -263,20 +263,20 @@ public struct SignalProducer<Value, Error: ErrorType> {
 }
 
 private struct BufferState<Value, Error: ErrorType> {
-	// All values in the buffer.
+	/// All values in the buffer.
 	var values: [Value] = []
 
-	// Any terminating event sent to the buffer.
-	//
-	// This will be nil if termination has not occurred.
+	/// Any terminating event sent to the buffer.
+	///
+	/// This will be nil if termination has not occurred.
 	var terminationEvent: Event<Value, Error>?
 
-	// The observers currently attached to the buffered producer, or nil if the
-	// producer was terminated.
+	/// The observers currently attached to the buffered producer, or nil if the
+	/// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
-	// Appends a new value to the buffer, trimming it down to the given capacity
-	// if necessary.
+	/// Appends a new value to the buffer, trimming it down to the given capacity
+	/// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		precondition(capacity >= 0)
 

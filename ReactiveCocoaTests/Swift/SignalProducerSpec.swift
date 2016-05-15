@@ -373,6 +373,32 @@ class SignalProducerSpec: QuickSpec {
 				expect(values) == [ 1, 2, 3 ]
 			}
 
+			it("should not deadlock in pair when started while sending") {
+				let (producer1, observer1) = SignalProducer<String, NoError>.buffer(Int.max)
+				let (producer2, observer2) = SignalProducer<String, NoError>.buffer(Int.max)
+
+				observer1.sendNext("A")
+				observer1.sendNext("B")
+				observer2.sendNext("1")
+				observer2.sendNext("2")
+
+				var valuePairs: [String] = []
+				producer1.startWithCompleted {
+					producer2.startWithCompleted {
+						valuePairs = []
+						producer1.startWithNext { value1 in
+							producer2.startWithNext { value2 in
+								valuePairs.append(value1 + value2)
+							}
+						}
+					}
+				}
+
+				observer1.sendCompleted()
+				observer2.sendCompleted()
+				expect(valuePairs).to(equal([ "A1", "A2", "B1", "B2" ]))
+			}
+
 			it("should buffer values before sending recursively to new observers") {
 				let (producer, observer) = SignalProducer<Int, NoError>.buffer(Int.max)
 

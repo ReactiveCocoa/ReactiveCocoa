@@ -1,0 +1,33 @@
+#!/bin/bash
+
+BUILD_DIRECTORY="build"
+CONFIGURATION=Release
+
+if [[ -z $TRAVIS_XCODE_WORKSPACE ]]; then
+	echo "\$TRAVIS_XCODE_WORKSPACE is not set. Using \`ReactiveCocoa.xcworkspace\`"
+	TRAVIS_XCODE_WORKSPACE="ReactiveCocoa.xcworkspace"
+fi
+
+if [[ -z $TRAVIS_XCODE_SCHEME ]]; then
+	echo "\$TRAVIS_XCODE_SCHEME is not set. Using \`ReactiveCocoa-Mac\`"
+	TRAVIS_XCODE_SCHEME="ReactiveCocoa-Mac"
+fi
+
+xcodebuild $XCODE_ACTION \
+      -workspace "$TRAVIS_XCODE_WORKSPACE" \
+      -scheme "$TRAVIS_XCODE_SCHEME" \
+      -sdk "$XCODE_SDK" \
+      -derivedDataPath "${BUILD_DIRECTORY}" \
+      -configuration $CONFIGURATION \
+      ENABLE_TESTABILITY=YES \
+      GCC_GENERATE_DEBUGGING_SYMBOLS=NO \
+      RUN_CLANG_STATIC_ANALYZER=NO \
+      | xcpretty
+
+# Compile code in playgrounds 
+if [[ $XCODE_SDK -eq "macosx" ]]; then
+      echo "SDK is $XCODE_SDK, validating playground..."
+      . script/validate-playground.sh
+else
+      echo "SDK is $XCODE_SDK, not validating playground."
+fi

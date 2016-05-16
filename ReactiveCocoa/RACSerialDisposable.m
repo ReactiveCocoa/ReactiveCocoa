@@ -7,22 +7,19 @@
 //
 
 #import "RACSerialDisposable.h"
-#import <libkern/OSAtomic.h>
+#import <pthread/pthread.h>
 
 @interface RACSerialDisposable () {
 	// The receiver's `disposable`. This variable must only be referenced while
-	// _spinLock is held.
+	// _mutex is held.
 	RACDisposable * _disposable;
 
-	// YES if the receiver has been disposed. This variable must only be modified
-	// while _spinLock is held.
+	// YES if the receiver has been disposed. This variable must only be accessed
+	// while _mutex is held.
 	BOOL _disposed;
 
-	// A spinlock to protect access to _disposable and _disposed.
-	//
-	// It must be used when _disposable is mutated or retained and when _disposed
-	// is mutated.
-	OSSpinLock _spinLock;
+	// A mutex to protect access to _disposable and _disposed.
+	pthread_mutex_t _mutex;
 }
 
 @end
@@ -32,15 +29,17 @@
 #pragma mark Properties
 
 - (BOOL)isDisposed {
-	return _disposed;
+	pthread_mutex_lock(&_mutex);
+	const BOOL disposed = _disposed;
+	pthread_mutex_unlock(&_mutex);
+
+	return disposed;
 }
 
 - (RACDisposable *)disposable {
-	RACDisposable *result;
-
-	OSSpinLockLock(&_spinLock);
-	result = _disposable;
-	OSSpinLockUnlock(&_spinLock);
+	pthread_mutex_lock(&_mutex);
+	RACDisposable * const result = _disposable;
+	pthread_mutex_unlock(&_mutex);
 
 	return result;
 }
@@ -57,7 +56,17 @@
 	return serialDisposable;
 }
 
-- (id)initWithBlock:(void (^)(void))block {
+- (instancetype)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	const int result = pthread_mutex_init(&_mutex, NULL);
+	NSCAssert(0 == result, @"Failed to initialize mutex with error %d", result);
+
+	return self;
+}
+
+- (instancetype)initWithBlock:(void (^)(void))block {
 	self = [self init];
 	if (self == nil) return nil;
 
@@ -66,19 +75,24 @@
 	return self;
 }
 
+- (void)dealloc {
+	const int result = pthread_mutex_destroy(&_mutex);
+	NSCAssert(0 == result, @"Failed to destroy mutex with error %d", result);
+}
+
 #pragma mark Inner Disposable
 
 - (RACDisposable *)swapInDisposable:(RACDisposable *)newDisposable {
 	RACDisposable *existingDisposable;
 	BOOL alreadyDisposed;
 
-	OSSpinLockLock(&_spinLock);
+	pthread_mutex_lock(&_mutex);
 	alreadyDisposed = _disposed;
 	if (!alreadyDisposed) {
 		existingDisposable = _disposable;
 		_disposable = newDisposable;
 	}
-	OSSpinLockUnlock(&_spinLock);
+	pthread_mutex_unlock(&_mutex);
 
 	if (alreadyDisposed) {
 		[newDisposable dispose];
@@ -93,13 +107,13 @@
 - (void)dispose {
 	RACDisposable *existingDisposable;
 
-	OSSpinLockLock(&_spinLock);
+	pthread_mutex_lock(&_mutex);
 	if (!_disposed) {
 		existingDisposable = _disposable;
 		_disposed = YES;
 		_disposable = nil;
 	}
-	OSSpinLockUnlock(&_spinLock);
+	pthread_mutex_unlock(&_mutex);
 	
 	[existingDisposable dispose];
 }

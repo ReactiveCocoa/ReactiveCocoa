@@ -193,11 +193,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 				return mutableState
 			}
 			
-			if let observers = originalState.observers {
-				for observer in observers {
-					observer.action(event)
-				}
-			}
+			originalState.observers?.forEach { $0.action(event) }
 		}
 
 		return (producer, bufferingObserver)

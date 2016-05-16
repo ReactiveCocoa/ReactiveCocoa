@@ -312,11 +312,13 @@ scopedExample("`take`") {
 scopedExample("`observeOn`") {
     let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
     let completion = { print("is main thread? \(NSThread.currentThread().isMainThread)") }
-    
+
+    if #available(OSX 10.10, *) {
     baseProducer
-        .observeOn(QueueScheduler(name: "test"))
+        .observeOn(QueueScheduler(qos: QOS_CLASS_DEFAULT, name: "test"))
         .startWithCompleted(completion)
-    
+    }
+
     baseProducer
         .startWithCompleted(completion)
 }

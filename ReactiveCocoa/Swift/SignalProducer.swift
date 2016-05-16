@@ -140,7 +140,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 				if replayValues.isEmpty {
 					token = state.observers?.insert(observer)
 				} else {
-					replayToken = state.replayBuffers?.insert(replayBuffer)
+					replayToken = state.replayBuffers.insert(replayBuffer)
 				}
 				return state
 			}
@@ -148,15 +148,13 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			while !replayValues.isEmpty {
 				replayValues.forEach(observer.sendNext)
 				
-				if next.terminationEvent != nil { break }
-				
 				next = state.modify { state in
 					var state = state
 					replayValues = replayBuffer.values
 					replayBuffer.values = []
 					if replayValues.isEmpty {
 						if let replayToken = replayToken {
-							state.replayBuffers?.removeValueForToken(replayToken)
+							state.replayBuffers.removeValueForToken(replayToken)
 						}
 						token = state.observers?.insert(observer)
 					}
@@ -282,17 +280,15 @@ private struct BufferState<Value, Error: ErrorType> {
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 	
 	/// The set of unused replay token identifiers.
-	var replayBuffers: Bag<ReplayBuffer<Value>>? = Bag()
+	var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
 
 	/// Appends a new value to the buffer, trimming it down to the given capacity
 	/// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		precondition(capacity >= 0)
 		
-		if let replayBuffers = replayBuffers {
-			for buffer in replayBuffers {
-				buffer.values.append(value)
-			}
+		for buffer in replayBuffers {
+			buffer.values.append(value)
 		}
 
 		if capacity == 0 {

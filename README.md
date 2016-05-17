@@ -183,8 +183,8 @@ let searchStrings = textField.rac_textSignal()
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```
 
-This prevents values from being sent less than 0.5 seconds apart, so the user
-must stop editing for at least that long before we'll use their string.
+This prevents values from being sent less than 0.5 seconds apart, so the user 
+must stop editing for at least that long  before we'll use their string.
 
 To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into

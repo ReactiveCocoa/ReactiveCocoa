@@ -396,7 +396,7 @@ class SignalProducerSpec: QuickSpec {
 
 				observer1.sendCompleted()
 				observer2.sendCompleted()
-				expect(valuePairs).to(equal([ "A1", "A2", "B1", "B2" ]))
+				expect(valuePairs) == [ "A1", "A2", "B1", "B2" ]
 			}
 
 			it("should buffer values before sending recursively to new observers") {

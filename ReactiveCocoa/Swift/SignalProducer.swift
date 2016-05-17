@@ -124,32 +124,35 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// Used as an atomic variable so we can remove observers without needing
-		// to run on the queue.
+		// to run on a serial queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
 
 		let producer = self.init { observer, disposable in
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
-			
+
 			let replayBuffer = ReplayBuffer<Value>()
 			var replayValues: [Value] = []
 			var replayToken: RemovalToken?
 			var next = state.modify { state in
 				var state = state
+
 				replayValues = state.values
 				if replayValues.isEmpty {
 					token = state.observers?.insert(observer)
 				} else {
 					replayToken = state.replayBuffers.insert(replayBuffer)
 				}
+
 				return state
 			}
-			
+
 			while !replayValues.isEmpty {
 				replayValues.forEach(observer.sendNext)
-				
+
 				next = state.modify { state in
 					var state = state
+
 					replayValues = replayBuffer.values
 					replayBuffer.values = []
 					if replayValues.isEmpty {
@@ -158,10 +161,11 @@ public struct SignalProducer<Value, Error: ErrorType> {
 						}
 						token = state.observers?.insert(observer)
 					}
+
 					return state
 				}
 			}
-			
+
 			if let terminationEvent = next.terminationEvent {
 				observer.action(terminationEvent)
 			}
@@ -179,20 +183,20 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
 			let originalState = state.modify { state in
-				var mutableState = state
-				
+				var state = state
+
 				if let value = event.value {
-					mutableState.addValue(value, upToCapacity: capacity)
+					state.addValue(value, upToCapacity: capacity)
 				} else {
 					// Disconnect all observers and prevent future
 					// attachments.
-					mutableState.terminationEvent = event
-					mutableState.observers = nil
+					state.terminationEvent = event
+					state.observers = nil
 				}
-				
-				return mutableState
+
+				return state
 			}
-			
+
 			originalState.observers?.forEach { $0.action(event) }
 		}
 
@@ -274,7 +278,7 @@ private struct BufferState<Value, Error: ErrorType> {
 	/// The observers currently attached to the buffered producer, or nil if the
 	/// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
-	
+
 	/// The set of unused replay token identifiers.
 	var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
 
@@ -282,7 +286,7 @@ private struct BufferState<Value, Error: ErrorType> {
 	/// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		precondition(capacity >= 0)
-		
+
 		for buffer in replayBuffers {
 			buffer.values.append(value)
 		}

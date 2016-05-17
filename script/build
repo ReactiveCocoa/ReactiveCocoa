@@ -13,6 +13,16 @@ if [[ -z $TRAVIS_XCODE_SCHEME ]]; then
 	TRAVIS_XCODE_SCHEME="ReactiveCocoa-Mac"
 fi
 
+if [[ -z $XCODE_ACTION ]]; then
+      echo "\$XCODE_ACTION is not set. Using \`build\`"
+      XCODE_ACTION="build"
+fi
+
+if [[ -z $XCODE_SDK ]]; then
+      echo "\$XCODE_SDK is not set. Using \`macosx\`"
+      XCODE_SDK="macosx"
+fi
+
 xcodebuild $XCODE_ACTION \
       -workspace "$TRAVIS_XCODE_WORKSPACE" \
       -scheme "$TRAVIS_XCODE_SCHEME" \

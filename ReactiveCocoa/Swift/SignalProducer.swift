@@ -124,7 +124,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// Used as an atomic variable so we can remove observers without needing
-		// to run on the queue.
+		// to run on a serial queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
 
 		let producer = self.init { observer, disposable in

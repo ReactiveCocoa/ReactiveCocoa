@@ -2076,6 +2076,29 @@ class SignalProducerSpec: QuickSpec {
 					disposable.dispose()
 					expect(disposed) == false
 				}
+				
+				it("does not dispose if it has active subscriptions") {
+					var disposed = false
+
+					let producer = SignalProducer<Int, NoError>.never
+						.on(disposed: { disposed = true })
+
+					var replayedProducer = ImplicitlyUnwrappedOptional(producer.replayLazily(1))
+
+					expect(disposed) == false
+					let disposable1 = replayedProducer.start()
+					let disposable2 = replayedProducer.start()
+					expect(disposed) == false
+
+					replayedProducer = nil
+					expect(disposed) == false
+
+					disposable1.dispose()
+					expect(disposed) == false
+					
+					disposable2.dispose()
+					expect(disposed) == true
+				}
 
 				it("disposes underlying producer when the producer is deallocated") {
 					var disposed = false

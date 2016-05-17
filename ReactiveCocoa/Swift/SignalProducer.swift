@@ -1412,6 +1412,7 @@ extension SignalProducerType {
 		let token = DeallocationToken()
 
 		return SignalProducer { observer, disposable in
+			var token: DeallocationToken? = token
 			let initializedProducer: SignalProducer<Value, Error>
 			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
 			let shouldStartUnderlyingProducer: Bool
@@ -1431,10 +1432,14 @@ extension SignalProducerType {
 
 			// subscribe `observer` before starting the underlying producer.
 			disposable += initializedProducer.start(observer)
+			disposable.addDisposable {
+				// Don't dispose of the original producer until all observers
+				// have terminated.
+				token = nil
+			}
 
 			if shouldStartUnderlyingProducer {
-				self.producer
-					.takeUntil(token.deallocSignal)
+				self.takeUntil(token!.deallocSignal)
 					.start(initializedObserver)
 			}
 		}

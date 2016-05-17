@@ -170,7 +170,8 @@ let searchResults = searchStrings
 
 #### Throttling requests
 
-Now, let’s say you only want to actually perform the search periodically, to minimize traffic.
+Now, let’s say you only want to actually perform the search periodically,
+to minimize traffic.
 
 ReactiveCocoa has a declarative `throttle` operator that we can apply to our
 search strings:
@@ -182,7 +183,8 @@ let searchStrings = textField.rac_textSignal()
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```
 
-This will result in the values being sent _every_ 0.5 seconds after the first event, so the user must stop editing for at least that long before we'll use their search string.
+This prevents values from being sent less than 0.5 seconds apart, so the user
+must stop editing for at least that long before we'll use their string.
 
 To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into

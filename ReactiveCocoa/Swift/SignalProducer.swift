@@ -123,14 +123,6 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
-		// This is effectively used as a synchronous mutex, but permitting
-		// limited recursive locking (see below).
-		//
-		// The queue is a "variable" just so we can use its address as the key
-		// and the value for dispatch_queue_set_specific().
-		var queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer", DISPATCH_QUEUE_SERIAL)
-		dispatch_queue_set_specific(queue, &queue, &queue, nil)
-
 		// Used as an atomic variable so we can remove observers without needing
 		// to run on the queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
@@ -138,31 +130,40 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		let producer = self.init { observer, disposable in
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
-
-			let replay = {
-				let originalState = state.modify { state in
-					var state = state
+			
+			let replayBuffer = ReplayBuffer<Value>()
+			var replayValues: [Value] = []
+			var replayToken: RemovalToken?
+			var next = state.modify { state in
+				var state = state
+				replayValues = state.values
+				if replayValues.isEmpty {
 					token = state.observers?.insert(observer)
+				} else {
+					replayToken = state.replayBuffers.insert(replayBuffer)
+				}
+				return state
+			}
+			
+			while !replayValues.isEmpty {
+				replayValues.forEach(observer.sendNext)
+				
+				next = state.modify { state in
+					var state = state
+					replayValues = replayBuffer.values
+					replayBuffer.values = []
+					if replayValues.isEmpty {
+						if let replayToken = replayToken {
+							state.replayBuffers.removeValueForToken(replayToken)
+						}
+						token = state.observers?.insert(observer)
+					}
 					return state
 				}
-
-				originalState.values.forEach(observer.sendNext)
-
-				if let terminationEvent = originalState.terminationEvent {
-					observer.action(terminationEvent)
-				}
 			}
-
-			// Prevent other threads from sending events while we're replaying,
-			// but don't deadlock if we're replaying in response to a buffer
-			// event observed elsewhere.
-			//
-			// In other words, this permits limited signal recursion for the
-			// specific case of replaying past events.
-			if dispatch_get_specific(&queue) != nil {
-				replay()
-			} else {
-				dispatch_sync(queue, replay)
+			
+			if let terminationEvent = next.terminationEvent {
+				observer.action(terminationEvent)
 			}
 
 			if let token = token {
@@ -177,30 +178,22 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
-			// Send serially with respect to other senders, and never while
-			// another thread is in the process of replaying.
-			dispatch_sync(queue) {
-				let originalState = state.modify { state in
-					var mutableState = state
-
-					if let value = event.value {
-						mutableState.addValue(value, upToCapacity: capacity)
-					} else {
-						// Disconnect all observers and prevent future
-						// attachments.
-						mutableState.terminationEvent = event
-						mutableState.observers = nil
-					}
-
-					return mutableState
+			let originalState = state.modify { state in
+				var mutableState = state
+				
+				if let value = event.value {
+					mutableState.addValue(value, upToCapacity: capacity)
+				} else {
+					// Disconnect all observers and prevent future
+					// attachments.
+					mutableState.terminationEvent = event
+					mutableState.observers = nil
 				}
-
-				if let observers = originalState.observers {
-					for observer in observers {
-						observer.action(event)
-					}
-				}
+				
+				return mutableState
 			}
+			
+			originalState.observers?.forEach { $0.action(event) }
 		}
 
 		return (producer, bufferingObserver)
@@ -262,23 +255,37 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	}
 }
 
+/// A uniquely identifying token for Observers that are replaying values in
+/// BufferState.
+private final class ReplayBuffer<Value> {
+	private var values: [Value] = []
+}
+
+
 private struct BufferState<Value, Error: ErrorType> {
-	// All values in the buffer.
+	/// All values in the buffer.
 	var values: [Value] = []
 
-	// Any terminating event sent to the buffer.
-	//
-	// This will be nil if termination has not occurred.
+	/// Any terminating event sent to the buffer.
+	///
+	/// This will be nil if termination has not occurred.
 	var terminationEvent: Event<Value, Error>?
 
-	// The observers currently attached to the buffered producer, or nil if the
-	// producer was terminated.
+	/// The observers currently attached to the buffered producer, or nil if the
+	/// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
+	
+	/// The set of unused replay token identifiers.
+	var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
 
-	// Appends a new value to the buffer, trimming it down to the given capacity
-	// if necessary.
+	/// Appends a new value to the buffer, trimming it down to the given capacity
+	/// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		precondition(capacity >= 0)
+		
+		for buffer in replayBuffers {
+			buffer.values.append(value)
+		}
 
 		if capacity == 0 {
 			values = []

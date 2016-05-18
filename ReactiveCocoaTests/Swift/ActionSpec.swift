@@ -165,7 +165,8 @@ class ActionSpec: QuickSpec {
 			it("should generate KVO notifications for enabled") {
 				var values: [Bool] = []
 
-				action.unsafeCocoaAction
+				let cocoaAction = action.unsafeCocoaAction
+				cocoaAction
 					.rac_valuesForKeyPath("enabled", observer: nil)
 					.toSignalProducer()
 					.map { $0! as! Bool }
@@ -176,12 +177,15 @@ class ActionSpec: QuickSpec {
 				let result = action.apply(0).first()
 				expect(result?.value) == 1
 				expect(values).toEventually(equal([ true, false, true ]))
+				
+				_ = cocoaAction
 			}
 
 			it("should generate KVO notifications for executing") {
 				var values: [Bool] = []
 
-				action.unsafeCocoaAction
+				let cocoaAction = action.unsafeCocoaAction
+				cocoaAction
 					.rac_valuesForKeyPath("executing", observer: nil)
 					.toSignalProducer()
 					.map { $0! as! Bool }
@@ -192,6 +196,8 @@ class ActionSpec: QuickSpec {
 				let result = action.apply(0).first()
 				expect(result?.value) == 1
 				expect(values).toEventually(equal([ false, true, false ]))
+				
+				_ = cocoaAction
 			}
 			
 			context("lifetime") {

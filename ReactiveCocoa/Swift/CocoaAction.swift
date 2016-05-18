@@ -77,15 +77,13 @@ public final class CocoaAction: NSObject {
 }
 
 extension Action {
-	/// Lazy creation and storage of a UI bindable `CocoaAction`. The default behavior
-	/// force casts the AnyObject? input to match the action's `Input` type. This makes
-	/// it unsafe for use when the action is parameterized for something like `Void`
-	/// input. In those cases, explicitly assign a value to this property that transforms
-	/// the input to suit your needs.
+	/// A UI bindable `CocoaAction`. The default behavior force casts the
+	/// AnyObject? input to match the action's `Input` type. This makes it
+	/// unsafe for use when the action is parameterized for something like
+	/// `Void` input. In those cases, explicitly assign a value to this property
+	/// that transforms the input to suit your needs.
 	public var unsafeCocoaAction: CocoaAction {
-		return associatedObject(self, key: &unsafeCocoaActionKey, initial: { host in
-			CocoaAction(host) { $0 as! Input }
-		})
+		return CocoaAction(self) { $0 as! Input }
 	}
 }
 

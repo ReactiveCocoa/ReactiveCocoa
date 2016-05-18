@@ -193,6 +193,21 @@ class ActionSpec: QuickSpec {
 				expect(result?.value) == 1
 				expect(values).toEventually(equal([ false, true, false ]))
 			}
+			
+			context("lifetime") {
+				it("unsafeCocoaAction should not create a retain cycle") {
+					weak var weakAction: Action<Int, Int, NoError>?
+					var action: Action<Int, Int, NoError>? = Action { _ in
+						return SignalProducer(value: 42)
+					}
+					weakAction = action
+					expect(weakAction).notTo(beNil())
+					
+					_ = action!.unsafeCocoaAction
+					action = nil
+					expect(weakAction).to(beNil())
+				}
+			}
 		}
 	}
 }

@@ -86,5 +86,3 @@ extension Action {
 		return CocoaAction(self) { $0 as! Input }
 	}
 }
-
-private var unsafeCocoaActionKey: UInt8 = 0

@@ -15,6 +15,10 @@ private let initialPropertyValue = "InitialValue"
 private let subsequentPropertyValue = "SubsequentValue"
 private let finalPropertyValue = "FinalValue"
 
+private let initialOtherPropertyValue = "InitialOtherValue"
+private let subsequentOtherPropertyValue = "SubsequentOtherValue"
+private let finalOtherPropertyValue = "FinalOtherValue"
+
 class PropertySpec: QuickSpec {
 	override func spec() {
 		describe("ConstantProperty") {
@@ -482,6 +486,124 @@ class PropertySpec: QuickSpec {
 
 					anotherMappedProperty = nil
 					expect(isFirstPropertyDeinited) == true
+				}
+			}
+
+			describe("combineLatest") {
+				var property: MutableProperty<String>!
+				var otherProperty: MutableProperty<String>!
+
+				beforeEach {
+					property = MutableProperty(initialPropertyValue)
+					otherProperty = MutableProperty(initialOtherPropertyValue)
+				}
+
+				it("should forward the latest values from both inputs") {
+					let combinedProperty = property.combineLatest(with: otherProperty)
+					var latest: (String, String)?
+					combinedProperty.signal.observeNext { latest = $0 }
+
+					property.value = subsequentPropertyValue
+					expect(latest?.0) == subsequentPropertyValue
+					expect(latest?.1) == initialOtherPropertyValue
+
+					// is there a better way to test tuples?
+					otherProperty.value = subsequentOtherPropertyValue
+					expect(latest?.0) == subsequentPropertyValue
+					expect(latest?.1) == subsequentOtherPropertyValue
+
+					property.value = finalPropertyValue
+					expect(latest?.0) == finalPropertyValue
+					expect(latest?.1) == subsequentOtherPropertyValue
+				}
+
+				it("should complete when the combined property and both source properties are deinitialized") {
+					var completed = false
+
+					var combinedProperty = Optional(property.combineLatest(with: otherProperty))
+					combinedProperty!.signal.observeCompleted { completed = true }
+
+					property = nil
+					expect(completed) == false
+
+					otherProperty = nil
+					expect(completed) == false
+
+					combinedProperty = nil
+					expect(completed) == true
+				}
+			}
+
+			describe("zip") {
+				var property: MutableProperty<String>!
+				var otherProperty: MutableProperty<String>!
+
+				beforeEach {
+					property = MutableProperty(initialPropertyValue)
+					otherProperty = MutableProperty(initialOtherPropertyValue)
+				}
+
+				it("should combine pairs") {
+					var result: [String] = []
+
+					let zippedProperty = property.zip(with: otherProperty)
+					zippedProperty.producer.startWithNext { (left, right) in result.append("\(left)\(right)") }
+
+					let firstResult = [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+					let secondResult = firstResult + [ "\(subsequentPropertyValue)\(subsequentOtherPropertyValue)" ]
+					let thirdResult = secondResult + [ "\(finalPropertyValue)\(finalOtherPropertyValue)" ]
+					let finalResult = thirdResult + [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					expect(result) == firstResult
+
+					property.value = subsequentPropertyValue
+					expect(result) == firstResult
+
+					otherProperty.value = subsequentOtherPropertyValue
+					expect(result) == secondResult
+
+					property.value = finalPropertyValue
+					otherProperty.value = finalOtherPropertyValue
+					expect(result) == thirdResult
+
+					property.value = initialPropertyValue
+					expect(result) == thirdResult
+
+					property.value = subsequentPropertyValue
+					expect(result) == thirdResult
+
+					otherProperty.value = initialOtherPropertyValue
+					expect(result) == finalResult
+				}
+
+				it("should complete when the zipped property is deinitialized") {
+					var result: [String] = []
+					var completed = false
+
+					var zippedProperty = Optional(property.zip(with: otherProperty))
+					zippedProperty!.producer.start { event in
+						switch event {
+						case let .Next(left, right):
+							result.append("\(left)\(right)")
+						case .Completed:
+							completed = true
+						default:
+							break
+						}
+					}
+
+					expect(completed) == false
+					expect(result) == [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					property.value = subsequentPropertyValue
+					expect(result) == [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					property = nil
+					otherProperty = nil
+					expect(completed) == false
+
+					zippedProperty = nil
+					expect(completed) == true
 				}
 			}
 		}

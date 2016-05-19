@@ -34,6 +34,8 @@ extension PropertyType {
 	}
 
 	/// Maps the current value and all subsequent values to a new value.
+	///
+	/// A mapped property would retain its source property.
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			let producer = SignalProducer(signal: signal)
@@ -46,44 +48,52 @@ extension PropertyType {
 
 	/// Combine the current value and all subsequent values from two `Property`s
 	/// to obtain a new value by applying the supplied transform.
+	///
+	/// A combined property would retain its source properties.
 	public func combineLatest<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			return other.withValue { currentOtherValue in
-				let producer = SignalProducer(signal: signal)
-					.combineLatestWith(SignalProducer(signal: other.signal))
+				let combinedProducer = SignalProducer(value: currentValue).takeUntilReplacement(signal)
+					.combineLatestWith(SignalProducer(value: currentOtherValue).takeUntilReplacement(other.signal))
 					.map(transform)
-					.on(completed: { self })
+					.on(completed: { self; other })
 
-				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: producer)
+				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: combinedProducer)
 			}
 		}
 	}
 
 	/// Combine the current value and all subsequent values from two `Property`s
 	/// to a tuple.
+	///
+	/// A zipped property would retain its source properties.
 	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return combineLatest(with: other, combining: { $0 })
 	}
 
 	/// Zip the current value and all subsequent values from two `Property`s
 	/// to obtain a new value by applying the supplied transform.
+	///
+	/// A zipped property would retain its source properties.
 	public func zip<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			return other.withValue { currentOtherValue in
-				let producer = SignalProducer(signal: signal)
+				let zippedProducer = SignalProducer(signal: signal)
 					.zipWith(SignalProducer(signal: other.signal))
 					.map(transform)
-					.on(completed: { self })
+					.on(completed: { self; other })
 
-				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: producer)
+				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: zippedProducer)
 			}
 		}
 	}
 
 	/// Zip the current value and all subsequent values from two `Property`s
 	/// to a tuple.
+	///
+	/// A zipped property would retain its source properties.
 	public func zip<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
-		return combineLatest(with: other, combining: { $0 })
+		return zip(with: other, combining: { $0 })
 	}
 }
 

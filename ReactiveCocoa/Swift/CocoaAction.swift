@@ -11,20 +11,14 @@ public final class CocoaAction: NSObject {
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public var enabled: Bool {
-		return _enabled
-	}
+	public private(set) var enabled: Bool = false
 	
 	/// Whether the action is executing.
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public var executing: Bool {
-		return _executing
-	}
+	public private(set) var executing: Bool = false
 	
-	private var _enabled = false
-	private var _executing = false
 	private let _execute: AnyObject? -> Void
 	private let disposable = CompositeDisposable()
 	
@@ -42,7 +36,7 @@ public final class CocoaAction: NSObject {
 			.observeOn(UIScheduler())
 			.startWithNext { [weak self] value in
 				self?.willChangeValueForKey("enabled")
-				self?._enabled = value
+				self?.enabled = value
 				self?.didChangeValueForKey("enabled")
 		}
 		
@@ -50,7 +44,7 @@ public final class CocoaAction: NSObject {
 			.observeOn(UIScheduler())
 			.startWithNext { [weak self] value in
 				self?.willChangeValueForKey("executing")
-				self?._executing = value
+				self?.executing = value
 				self?.didChangeValueForKey("executing")
 		}
 	}

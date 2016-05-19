@@ -5,44 +5,120 @@ import enum Result.NoError
 public protocol PropertyType {
 	associatedtype Value
 
-	/// The current value of the property.
-	var value: Value { get }
-
 	/// A producer for Signals that will send the property's current value,
-	/// followed by all changes over time.
+	/// followed by all changes over time, then complete when the property has
+	/// deinitialized.
 	var producer: SignalProducer<Value, NoError> { get }
 
 	/// A signal that will send the property's changes over time.
 	var signal: Signal<Value, NoError> { get }
+
+	/// Performs an arbitrary action using the current value of the
+	/// variable. Conforming types may optionally guarantee atomicity.
+	///
+	/// Returns the result of the action.
+	func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result
+}
+
+/// Represents an observable property that can be mutated directly.
+///
+/// Only classes can conform to this protocol, because instances must support
+/// weak references (and value types currently do not).
+public protocol MutablePropertyType: class, PropertyType {
+	func modify(@noescape action: Value throws -> Value) rethrows -> Value
+}
+
+extension PropertyType {
+	public var value: Value {
+		return withValue { $0 }
+	}
+
+	/// Maps the current value and all subsequent values to a new value.
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		return withValue { currentValue in
+			let producer = SignalProducer(signal: signal)
+				.map(transform)
+				.on(completed: { self })
+
+			return AnyProperty(initialValue: transform(currentValue), producer: producer)
+		}
+	}
+
+	/// Combine the current value and all subsequent values from two `Property`s
+	/// to obtain a new value by applying the supplied transform.
+	public func combineLatest<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
+		return withValue { currentValue in
+			return other.withValue { currentOtherValue in
+				let producer = SignalProducer(signal: signal)
+					.combineLatestWith(SignalProducer(signal: other.signal))
+					.map(transform)
+					.on(completed: { self })
+
+				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: producer)
+			}
+		}
+	}
+
+	/// Combine the current value and all subsequent values from two `Property`s
+	/// to a tuple.
+	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
+		return combineLatest(with: other, combining: { $0 })
+	}
+
+	/// Zip the current value and all subsequent values from two `Property`s
+	/// to obtain a new value by applying the supplied transform.
+	public func zip<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
+		return withValue { currentValue in
+			return other.withValue { currentOtherValue in
+				let producer = SignalProducer(signal: signal)
+					.zipWith(SignalProducer(signal: other.signal))
+					.map(transform)
+					.on(completed: { self })
+
+				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: producer)
+			}
+		}
+	}
+
+	/// Zip the current value and all subsequent values from two `Property`s
+	/// to a tuple.
+	public func zip<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
+		return combineLatest(with: other, combining: { $0 })
+	}
+}
+
+extension MutablePropertyType {
+	public var value: Value {
+		get { return withValue { $0 } }
+		set { swap(newValue) }
+	}
+
+	/// Atomically modifies the variable. Conforming types may optionally
+	/// guarantee atomicity.
+	///
+	/// Returns the old value.
+	public func swap(newValue: Value) -> Value {
+		return modify { _ in newValue }
+	}
 }
 
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
+	private let box: AnyPropertyBoxBase<Value>
 
-	private let _value: () -> Value
-	private let _producer: () -> SignalProducer<Value, NoError>
-	private let _signal: () -> Signal<Value, NoError>
-
-
-	public var value: Value {
-		return _value()
+	public var signal: Signal<Value, NoError> {
+		return box.signal
 	}
 
 	public var producer: SignalProducer<Value, NoError> {
-		return _producer()
+		return box.producer
 	}
 
-	public var signal: Signal<Value, NoError> {
-		return _signal()
-	}
-	
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		_value = { property.value }
-		_producer = { property.producer }
-		_signal = { property.signal }
+		box = AnyPropertyBox(property)
 	}
-	
+
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
@@ -50,7 +126,7 @@ public struct AnyProperty<Value>: PropertyType {
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
-	
+
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
@@ -58,16 +134,36 @@ public struct AnyProperty<Value>: PropertyType {
 		mutableProperty <~ signal
 		self.init(mutableProperty)
 	}
+
+	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
+		return try box.withValue(action)
+	}
 }
 
-extension PropertyType {
-	/// Maps the current value and all subsequent values to a new value.
-	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
-		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
-			disposable += ActionDisposable { self }
-			disposable += self.producer.map(transform).start(observer)
-		}
-		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+/// A type-erased view to the underlying property which allows mutation of the
+/// value.
+public class AnyMutableProperty<Value>: MutablePropertyType {
+	private let box: AnyPropertyBoxBase<Value>
+
+	public var signal: Signal<Value, NoError> {
+		return box.signal
+	}
+
+	public var producer: SignalProducer<Value, NoError> {
+		return box.producer
+	}
+
+	/// Initializes a property as a read-only view of the given property.
+	public init<P: MutablePropertyType where P.Value == Value>(_ property: P) {
+		box = AnyMutablePropertyBox(property)
+	}
+
+	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
+		return try box.withValue(action)
+	}
+
+	public func modify(@noescape action: Value throws -> Value) rethrows -> Value {
+		return try box.modify(action)
 	}
 }
 
@@ -84,14 +180,10 @@ public struct ConstantProperty<Value>: PropertyType {
 		self.producer = SignalProducer(value: value)
 		self.signal = .empty
 	}
-}
 
-/// Represents an observable property that can be mutated directly.
-///
-/// Only classes can conform to this protocol, because instances must support
-/// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
-	var value: Value { get set }
+	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
+		return try action(value)
+	}
 }
 
 /// A mutable property of type `Value` that allows observation of its changes.
@@ -112,20 +204,6 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// The setter of the underlying storage.
 	private let setter: Value -> Void
-
-	/// The current value of the property.
-	///
-	/// Setting this to a new value will notify all observers of any Signals
-	/// created from the `values` producer.
-	public var value: Value {
-		get {
-			return withValue { $0 }
-		}
-
-		set {
-			swap(newValue)
-		}
-	}
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
@@ -161,13 +239,6 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		setter = { newValue in value = newValue }
 
 		(signal, observer) = Signal.pipe()
-	}
-
-	/// Atomically replaces the contents of the variable.
-	///
-	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
-		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
@@ -259,4 +330,55 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
+}
+
+/// The type-erasing box for `AnyMutableProperty`.
+private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
+	override init(_ property: P) {
+		super.init(property)
+	}
+
+	override func modify(@noescape action: P.Value throws -> P.Value) rethrows -> P.Value {
+		return try wrappingProperty.modify(action)
+	}
+}
+
+/// The type-erasing box for `AnyProperty`.
+private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
+	let wrappingProperty: P
+
+	init(_ property: P) {
+		wrappingProperty = property
+	}
+
+	override var signal: Signal<P.Value, NoError> {
+		return wrappingProperty.signal
+	}
+
+	override var producer: SignalProducer<P.Value, NoError> {
+		return wrappingProperty.producer
+	}
+
+	override func withValue<Result>(@noescape action: P.Value throws -> Result) rethrows -> Result {
+		return try wrappingProperty.withValue(action)
+	}
+}
+
+/// The base class of the type-erasing boxes.
+private class AnyPropertyBoxBase<Value>: PropertyType {
+	var signal: Signal<Value, NoError> {
+		fatalError("This method should have been overriden by a subclass.")
+	}
+
+	var producer: SignalProducer<Value, NoError> {
+		fatalError("This method should have been overriden by a subclass.")
+	}
+
+	func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
+		fatalError("This method should have been overriden by a subclass.")
+	}
+
+	func modify(@noescape action: Value throws -> Value) rethrows -> Value {
+		fatalError("This method should have been overriden by a subclass.")
+	}
 }

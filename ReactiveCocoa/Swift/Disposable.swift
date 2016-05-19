@@ -183,6 +183,33 @@ public final class ScopedDisposable: Disposable {
 	}
 }
 
+
+/// A disposable that, upon deinitialization, will automatically dispose of
+/// another disposable.
+public final class GenericScopedDisposable<DisposableType: Disposable>: Disposable {
+	/// The disposable which will be disposed when the ScopedDisposable
+	/// deinitializes.
+	public let innerDisposable: DisposableType
+	
+	public var disposed: Bool {
+		return innerDisposable.disposed
+	}
+	
+	/// Initializes the receiver to dispose of the argument upon
+	/// deinitialization.
+	public init(_ disposable: DisposableType) {
+		innerDisposable = disposable
+	}
+	
+	deinit {
+		dispose()
+	}
+	
+	public func dispose() {
+		innerDisposable.dispose()
+	}
+}
+
 /// A disposable that will optionally dispose of another disposable.
 public final class SerialDisposable: Disposable {
 	private struct State {
@@ -241,4 +268,16 @@ public final class SerialDisposable: Disposable {
 ///
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)
+}
+
+/// Adds the right-hand-side disposable to the left-hand-side
+/// `ScopedDisposable<CompositeDisposable>`.
+///
+///     disposable += producer
+///         .filter { ... }
+///         .map    { ... }
+///         .start(observer)
+///
+public func +=<T: CompositeDisposable>(lhs: GenericScopedDisposable<T>, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	return lhs.innerDisposable += rhs
 }

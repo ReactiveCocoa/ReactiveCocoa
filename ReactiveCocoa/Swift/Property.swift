@@ -33,9 +33,10 @@ extension PropertyType {
 		return withValue { $0 }
 	}
 
-	/// Maps the current value and all subsequent values to a new value.
+	/// Maps the current value and all subsequent values as a new property.
 	///
 	/// A mapped property would retain its source property.
+	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			let producer = SignalProducer(signal: signal)
@@ -46,10 +47,12 @@ extension PropertyType {
 		}
 	}
 
-	/// Combine the current value and all subsequent values from two `Property`s
-	/// to obtain a new value by applying the supplied transform.
+	/// Combines the current value and the subsequent values of two `Property`s in
+	/// the manner described by `Signal.combineLatestWith:`, and applys the supplied
+	/// transform on the combined pair.
 	///
 	/// A combined property would retain its source properties.
+	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combineLatest<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			return other.withValue { currentOtherValue in
@@ -63,18 +66,21 @@ extension PropertyType {
 		}
 	}
 
-	/// Combine the current value and all subsequent values from two `Property`s
-	/// to a tuple.
+	/// Combines the current value and the subsequent values of two `Property`s in
+	/// the manner described by `Signal.combineLatestWith:`.
 	///
 	/// A zipped property would retain its source properties.
+	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return combineLatest(with: other, combining: { $0 })
 	}
 
-	/// Zip the current value and all subsequent values from two `Property`s
-	/// to obtain a new value by applying the supplied transform.
+	/// Zips the current value and the subsequent values of two `Property`s in
+	/// the manner described by `Signal.zipWith:`, and applys the supplied
+	/// transform on the zipped pair.
 	///
 	/// A zipped property would retain its source properties.
+	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func zip<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
 		return withValue { currentValue in
 			return other.withValue { currentOtherValue in
@@ -88,10 +94,11 @@ extension PropertyType {
 		}
 	}
 
-	/// Zip the current value and all subsequent values from two `Property`s
-	/// to a tuple.
+	/// Zips the current value and the subsequent values of two `Property`s in
+	/// the manner described by `Signal.zipWith`.
 	///
 	/// A zipped property would retain its source properties.
+	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func zip<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return zip(with: other, combining: { $0 })
 	}

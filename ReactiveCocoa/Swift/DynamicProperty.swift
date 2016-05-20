@@ -54,7 +54,7 @@ import enum Result.NoError
 			}
 	}
 
-	/// Atomically modifies the variable.
+	/// Modifies the variable.
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
@@ -63,7 +63,7 @@ import enum Result.NoError
 		return oldValue
 	}
 
-	/// Atomically performs an arbitrary action using the current value of the
+	/// Performs an arbitrary action using the current value of the
 	/// variable.
 	///
 	/// Returns the result of the action.

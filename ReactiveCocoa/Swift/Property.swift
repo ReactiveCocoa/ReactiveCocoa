@@ -38,13 +38,8 @@ extension PropertyType {
 	/// A mapped property would retain its source property.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
-		return withValue { currentValue in
-			let producer = SignalProducer(signal: signal)
-				.map(transform)
-				.on(completed: { self })
-
-			return AnyProperty(initialValue: transform(currentValue), producer: producer)
-		}
+		return AnyProperty(propertyProducer: producer.map(transform),
+		                   with: ActionDisposable { self })
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
@@ -54,22 +49,14 @@ extension PropertyType {
 	/// A combined property would retain its source properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combineLatest<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
-		return withValue { currentValue in
-			return other.withValue { currentOtherValue in
-				let combinedProducer = SignalProducer(value: currentValue).takeUntilReplacement(signal)
-					.combineLatestWith(SignalProducer(value: currentOtherValue).takeUntilReplacement(other.signal))
-					.map(transform)
-					.on(completed: { self; other })
-
-				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: combinedProducer)
-			}
-		}
+		return AnyProperty(propertyProducer: producer.combineLatestWith(other.producer).map(transform),
+		                   with: ActionDisposable { self; other })
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
 	///
-	/// A zipped property would retain its source properties.
+	/// A combined property would retain its source properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return combineLatest(with: other, combining: { $0 })
@@ -82,16 +69,8 @@ extension PropertyType {
 	/// A zipped property would retain its source properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func zip<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
-		return withValue { currentValue in
-			return other.withValue { currentOtherValue in
-				let zippedProducer = SignalProducer(signal: signal)
-					.zipWith(SignalProducer(signal: other.signal))
-					.map(transform)
-					.on(completed: { self; other })
-
-				return AnyProperty(initialValue: transform((currentValue, currentOtherValue)), producer: zippedProducer)
-			}
-		}
+		return AnyProperty(propertyProducer: producer.zipWith(other.producer).map(transform),
+		                   with: ActionDisposable { self; other })
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
@@ -150,6 +129,48 @@ public struct AnyProperty<Value>: PropertyType {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ signal
 		self.init(mutableProperty)
+	}
+
+	/// Initializes a property from a producer that promises to send at least one
+	/// value synchronously in its start handler before sending any subsequent event.
+	/// If the producer fails its promise, a fatal error would be raised.
+	internal init(propertyProducer: SignalProducer<Value, NoError>, with disposable: Disposable? = nil) {
+		var mutableProperty: MutableProperty<Value>?
+		weak var weakMutableProperty: MutableProperty<Value>?
+
+		let compositeDisposable = CompositeDisposable()
+		if let disposable = disposable {
+			compositeDisposable += disposable
+		}
+
+		compositeDisposable += propertyProducer.start { event in
+			switch event {
+			case let .Next(value):
+				if let property = weakMutableProperty {
+					property.value = value
+				} else {
+					mutableProperty = MutableProperty(value)
+					weakMutableProperty = mutableProperty
+				}
+
+			case .Completed, .Interrupted:
+				compositeDisposable.dispose()
+
+			case let .Failed(error):
+				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
+			}
+		}
+
+		if let property = mutableProperty {
+			property.producer.startWithCompleted {
+				compositeDisposable.dispose()
+			}
+
+			self.init(property)
+			mutableProperty = nil
+		} else {
+			fatalError("A producer promised to send at least one value. Received none.")
+		}
 	}
 
 	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {

@@ -69,7 +69,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 		errors = events.map { $0.error }.ignoreNil()
 
 		_enabled <~ enabledIf.producer
-			.combineLatestWith(executing.producer)
+			.combineLatestWith(_executing.producer)
 			.map(Action.shouldBeEnabled)
 	}
 

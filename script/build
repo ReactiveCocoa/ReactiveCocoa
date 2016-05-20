@@ -37,6 +37,4 @@ xcodebuild $XCODE_ACTION \
 if [[ $XCODE_SDK -eq "macosx" ]]; then
       echo "SDK is $XCODE_SDK, validating playground..."
       . script/validate-playground.sh
-else
-      echo "SDK is $XCODE_SDK, not validating playground."
 fi

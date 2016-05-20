@@ -29,57 +29,137 @@ public protocol MutablePropertyType: class, PropertyType {
 }
 
 extension PropertyType {
+	/// The current value of the property.
 	public var value: Value {
 		return withValue { $0 }
 	}
+}
 
-	/// Maps the current value and all subsequent values as a new property.
-	///
-	/// A mapped property would retain its source property.
+/// Protocol composition operators
+///
+/// As the event stream of a property completes when the property has
+/// deinitialized, a property composited using these operators must be
+/// retained to keep the event stream alive.
+///
+/// Moreover, the resulting property of these operators would retain
+/// its source properties until it is deinitialized. In other words,
+/// it is safe to use the operators in chain.
+extension PropertyType {
+	/// Lifts an unary SignalProducer operator to operate upon Properties instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
-		return AnyProperty(propertyProducer: producer.map(transform),
+	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
+		return AnyProperty(propertyProducer: transform(producer),
 		                   with: ActionDisposable { self })
 	}
 
-	/// Combines the current value and the subsequent values of two `Property`s in
-	/// the manner described by `Signal.combineLatestWith:`, and applys the supplied
-	/// transform on the combined pair.
-	///
-	/// A combined property would retain its source properties.
+	/// Lifts a binary SignalProducer operator to operate upon Properties instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func combineLatest<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
-		return AnyProperty(propertyProducer: producer.combineLatestWith(other.producer).map(transform),
-		                   with: ActionDisposable { self; other })
+	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
+		return { otherProperty in
+			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
+			                   with: ActionDisposable { self; otherProperty })
+		}
+	}
+
+	/// Lifts an unary SignalProducer operator to operate upon Properties instead.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	private func lift<U>(disposable: Disposable, @noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
+		return AnyProperty(propertyProducer: transform(producer),
+		                   with: ActionDisposable { self; disposable.dispose() })
+	}
+
+	/// Maps the current value and all subsequent values to a new property.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+		return lift { $0.map(transform) }
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
-	///
-	/// A combined property would retain its source properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
-		return combineLatest(with: other, combining: { $0 })
-	}
-
-	/// Zips the current value and the subsequent values of two `Property`s in
-	/// the manner described by `Signal.zipWith:`, and applys the supplied
-	/// transform on the zipped pair.
-	///
-	/// A zipped property would retain its source properties.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func zip<P: PropertyType, U>(with other: P, combining transform: (Value, P.Value) -> U) -> AnyProperty<U> {
-		return AnyProperty(propertyProducer: producer.zipWith(other.producer).map(transform),
-		                   with: ActionDisposable { self; other })
+		return lift(SignalProducer.combineLatestWith)(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
-	///
-	/// A zipped property would retain its source properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func zip<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
-		return zip(with: other, combining: { $0 })
+		return lift(SignalProducer.zipWith)(other)
+	}
+
+	/// Forwards events from `self` with history: values of the returned property
+	/// are a tuple whose first member is the previous value and whose second member
+	/// is the current value. `initial` is supplied as the first member of the first
+	/// tuple.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
+		return lift { $0.combinePrevious(initial) }
+	}
+
+	/// Forwards only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
+		return lift { $0.skipRepeats(isRepeat) }
+	}
+}
+
+extension PropertyType where Value: Equatable {
+	/// Forwards only those values from `self` which is not equal to the previous
+	/// value. The first value is always forwarded.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func skipRepeats() -> AnyProperty<Value> {
+		return lift { $0.skipRepeats() }
+	}
+}
+
+extension PropertyType where Value: PropertyType {
+	/// Returns a property that forwards values from the latest property hold by
+	/// `self`, ignoring values sent on previous inner properties.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func flattenLatest() -> AnyProperty<Value.Value> {
+		return lift { $0.flatMap(.Latest) { $0.producer } }
+	}
+
+	/// Maps a property to a new property, and then flattens it in the manner
+	/// described by `flattenLatest`.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func flatMapLatest<P: PropertyType>(transform: Value -> P) -> AnyProperty<P.Value> {
+		let disposable = CompositeDisposable()
+
+		return lift(disposable) { producer -> SignalProducer<P.Value, NoError> in
+			return producer.flatMap(.Latest) { property -> SignalProducer<P.Value, NoError> in
+				let mappedProperty = transform(property)
+				let token = disposable.addDisposable { mappedProperty }
+
+				return mappedProperty.producer.on(disposed: { token.remove() })
+			}
+		}
+	}
+}
+
+extension PropertyType {
+	/// Forwards only those values from `self` that have unique identities across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the identities to be retained to check for uniqueness.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> AnyProperty<Value> {
+		return lift { $0.uniqueValues(transform) }
+	}
+}
+
+extension PropertyType where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the values to be retained to check for uniqueness. Providing
+	/// a function that returns a unique value for each sent value can help you reduce
+	/// the memory footprint.
+	@warn_unused_result(message="Did you forget to use the composed property?")
+	public func uniqueValues() -> AnyProperty<Value> {
+		return lift { $0.uniqueValues() }
 	}
 }
 
@@ -134,7 +214,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property from a producer that promises to send at least one
 	/// value synchronously in its start handler before sending any subsequent event.
 	/// If the producer fails its promise, a fatal error would be raised.
-	internal init(propertyProducer: SignalProducer<Value, NoError>, with disposable: Disposable? = nil) {
+	private init(propertyProducer: SignalProducer<Value, NoError>, with disposable: Disposable? = nil) {
 		var mutableProperty: MutableProperty<Value>?
 		weak var weakMutableProperty: MutableProperty<Value>?
 

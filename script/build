@@ -4,35 +4,34 @@ BUILD_DIRECTORY="build"
 CONFIGURATION=Release
 
 if [[ -z $TRAVIS_XCODE_WORKSPACE ]]; then
-	echo "\$TRAVIS_XCODE_WORKSPACE is not set. Using \`ReactiveCocoa.xcworkspace\`"
-	TRAVIS_XCODE_WORKSPACE="ReactiveCocoa.xcworkspace"
+    echo "Error: \$TRAVIS_XCODE_WORKSPACE is not set."
+    exit 1
 fi
 
 if [[ -z $TRAVIS_XCODE_SCHEME ]]; then
-	echo "\$TRAVIS_XCODE_SCHEME is not set. Using \`ReactiveCocoa-Mac\`"
-	TRAVIS_XCODE_SCHEME="ReactiveCocoa-Mac"
+    echo "Error: \$TRAVIS_XCODE_SCHEME is not set!"
+    exit 1
 fi
 
 if [[ -z $XCODE_ACTION ]]; then
-      echo "\$XCODE_ACTION is not set. Using \`build\`"
-      XCODE_ACTION="build"
+    echo "Error: \$XCODE_ACTION is not set!"
+    exit 1
 fi
 
 if [[ -z $XCODE_SDK ]]; then
-      echo "\$XCODE_SDK is not set. Using \`macosx\`"
-      XCODE_SDK="macosx"
+      echo "Error: \$XCODE_SDK is not set!"
+      exit 1
 fi
 
 xcodebuild $XCODE_ACTION \
-      -workspace "$TRAVIS_XCODE_WORKSPACE" \
-      -scheme "$TRAVIS_XCODE_SCHEME" \
-      -sdk "$XCODE_SDK" \
-      -derivedDataPath "${BUILD_DIRECTORY}" \
-      -configuration $CONFIGURATION \
-      ENABLE_TESTABILITY=YES \
-      GCC_GENERATE_DEBUGGING_SYMBOLS=NO \
-      RUN_CLANG_STATIC_ANALYZER=NO \
-      | xcpretty
+    -workspace "$TRAVIS_XCODE_WORKSPACE" \
+    -scheme "$TRAVIS_XCODE_SCHEME" \
+    -sdk "$XCODE_SDK" \
+    -derivedDataPath "${BUILD_DIRECTORY}" \
+    -configuration $CONFIGURATION \
+    ENABLE_TESTABILITY=YES \
+    GCC_GENERATE_DEBUGGING_SYMBOLS=NO \
+    RUN_CLANG_STATIC_ANALYZER=NO | xcpretty
 
 # Compile code in playgrounds 
 if [[ $XCODE_SDK -eq "macosx" ]]; then

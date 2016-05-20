@@ -110,7 +110,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 				disposable.addDisposable(signalDisposable)
 
 				signal.observe { event in
-					observer.action(event.mapError { .ProducerError($0) })
+					observer.action(event.mapError(ActionError.ProducerError))
 					self.eventsObserver.sendNext(event)
 				}
 			}

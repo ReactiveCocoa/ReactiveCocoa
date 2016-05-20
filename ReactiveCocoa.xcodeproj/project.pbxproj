@@ -397,6 +397,9 @@
 		CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
+		CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
+		CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
+		CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
 		CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
@@ -923,6 +926,7 @@
 		C79B647B1CD52E23003F2376 /* EventLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventLogger.swift; sourceTree = "<group>"; };
 		CA6F284F1C52626B001879D2 /* FlattenSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlattenSpec.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
+		CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaActionSpec.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D00004081A46864E000E7D41 /* TupleExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TupleExtensions.swift; sourceTree = "<group>"; };
 		D021671C1A6CD50500987861 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ActionSpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -1794,16 +1798,17 @@
 				D021671C1A6CD50500987861 /* ActionSpec.swift */,
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
+				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
+				CA6F284F1C52626B001879D2 /* FlattenSpec.swift */,
 				D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */,
 				D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
 				02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */,
-				D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */,
 				D8024DB11B2E1BB0005E6B9A /* SignalProducerLiftingSpec.swift */,
+				D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */,
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
-				CA6F284F1C52626B001879D2 /* FlattenSpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				C79B64731CD38B2B003F2376 /* TestLogger.swift */,
 			);
@@ -2461,6 +2466,7 @@
 				7DFBED471CDB8DE300EE435B /* RACDisposableSpec.m in Sources */,
 				7DFBED481CDB8DE300EE435B /* RACEventSpec.m in Sources */,
 				7DFBED491CDB8DE300EE435B /* RACKVOChannelSpec.m in Sources */,
+				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				7DFBED4A1CDB8DE300EE435B /* RACKVOProxySpec.m in Sources */,
 				7DFBED4B1CDB8DE300EE435B /* RACKVOWrapperSpec.m in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
@@ -2724,6 +2730,7 @@
 				7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
 				579504331BB8A34200A5E482 /* BagSpec.swift in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
+				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D0A226081A72E0E900D33B74 /* SignalSpec.swift in Sources */,
@@ -2935,6 +2942,7 @@
 				D037671A19EDA60000A782A9 /* UIActionSheetRACSupportSpec.m in Sources */,
 				D03766DA19EDA60000A782A9 /* RACChannelExamples.m in Sources */,
 				D03766F619EDA60000A782A9 /* RACSequenceExamples.m in Sources */,
+				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				02D2602A1C1D6DAF003ACC61 /* SignalLifetimeSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

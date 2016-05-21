@@ -115,12 +115,19 @@ extension PropertyType where Value: Equatable {
 	}
 }
 
+public enum PropertyFlattenStrategy {
+	case Latest
+}
+
 extension PropertyType where Value: PropertyType {
 	/// Returns a property that forwards values from the latest property hold by
 	/// `self`, ignoring values sent on previous inner properties.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flattenLatest() -> AnyProperty<Value.Value> {
-		return lift { $0.flatMap(.Latest) { $0.producer } }
+	public func flatten(strategy: PropertyFlattenStrategy) -> AnyProperty<Value.Value> {
+		switch strategy {
+		case .Latest:
+			return lift { $0.flatMap(.Latest) { $0.producer } }
+		}
 	}
 }
 
@@ -128,15 +135,18 @@ extension PropertyType {
 	/// Maps a property to a new property, and then flattens it in the manner
 	/// described by `flattenLatest`.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flatMapLatest<P: PropertyType>(transform: Value -> P) -> AnyProperty<P.Value> {
-		let disposable = CompositeDisposable()
+	public func flatMap<P: PropertyType>(strategy: PropertyFlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
+		switch strategy {
+		case .Latest:
+			let disposable = CompositeDisposable()
 
-		return lift(disposable) { producer -> SignalProducer<P.Value, NoError> in
-			return producer.flatMap(.Latest) { property -> SignalProducer<P.Value, NoError> in
-				let mappedProperty = transform(property)
-				let token = disposable.addDisposable { mappedProperty }
+			return lift(disposable) { producer -> SignalProducer<P.Value, NoError> in
+				return producer.flatMap(.Latest) { property -> SignalProducer<P.Value, NoError> in
+					let mappedProperty = transform(property)
+					let token = disposable.addDisposable { mappedProperty }
 
-				return mappedProperty.producer.on(disposed: { token.remove() })
+					return mappedProperty.producer.on(disposed: { token.remove() })
+				}
 			}
 		}
 	}

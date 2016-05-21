@@ -341,6 +341,49 @@ class PropertySpec: QuickSpec {
 					expect(producerCompleted) == true
 					expect(signalInterrupted) == true
 				}
+
+				it("should have its producer and signal completed when it has deinitialized") {
+					let mutableProperty = MutableProperty(initialPropertyValue)
+					var property = Optional(AnyProperty(mutableProperty))
+
+					var sentValue: String?
+					var signalSentValue: String?
+					var producerCompleted = false
+					var signalInterrupted = false
+
+					property!.producer.start { event in
+						switch event {
+						case let .Next(value):
+							sentValue = value
+						case .Completed:
+							producerCompleted = true
+						case .Failed, .Interrupted:
+							break
+						}
+					}
+
+					property!.signal.observe { event in
+						switch event {
+						case let .Next(value):
+							signalSentValue = value
+						case .Interrupted:
+							signalInterrupted = true
+						case .Failed, .Completed:
+							break
+						}
+					}
+
+					expect(sentValue) == initialPropertyValue
+					expect(signalSentValue).to(beNil())
+
+					property = nil
+					mutableProperty.value = subsequentPropertyValue
+
+					expect(sentValue) == initialPropertyValue
+					expect(signalSentValue).to(beNil())
+					expect(producerCompleted) == true
+					expect(signalInterrupted) == false
+				}
 			}
 			
 			describe("from a value and SignalProducer") {
@@ -818,151 +861,155 @@ class PropertySpec: QuickSpec {
 			}
 
 			describe("flattening") {
-				describe("flattenLatest") {
-					it("should forward values from the latest inner property") {
-						let firstProperty = Optional(MutableProperty(0))
-						var secondProperty = Optional(MutableProperty(10))
-						var thirdProperty = Optional(MutableProperty(20))
+				describe("flatten") {
+					describe("PropertyFlattenStrategy.Latest") {
+						it("should forward values from the latest inner property") {
+							let firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
 
-						let outerProperty = MutableProperty(firstProperty!)
+							let outerProperty = MutableProperty(firstProperty!)
 
-						var receivedValues: [Int] = []
-						var errored = false
-						var completed = false
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
 
-						var flattened = Optional(outerProperty.flattenLatest())
+							var flattened = Optional(outerProperty.flatten(.Latest))
 
-						flattened!.producer.start { event in
-							switch event {
-							case let .Next(value):
-								receivedValues.append(value)
-							case .Completed:
-								completed = true
-							case .Failed:
-								errored = true
-							case .Interrupted:
-								break
+							flattened!.producer.start { event in
+								switch event {
+								case let .Next(value):
+									receivedValues.append(value)
+								case .Completed:
+									completed = true
+								case .Failed:
+									errored = true
+								case .Interrupted:
+									break
+								}
 							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21 ]
+							expect(errored) == false
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							secondProperty = nil
+							thirdProperty!.value = 22
+							thirdProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 22 ]
+							expect(errored) == false
+							expect(completed) == false
+
+							flattened = nil
+							expect(errored) == false
+							expect(completed) == true
 						}
 
-						expect(receivedValues) == [ 0 ]
+						it("should release the old properties when switched or deallocated") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
 
-						outerProperty.value = secondProperty!
-						secondProperty!.value = 11
-						outerProperty.value = thirdProperty!
-						thirdProperty!.value = 21
+							weak var weakFirstProperty = firstProperty
+							weak var weakSecondProperty = secondProperty
+							weak var weakThirdProperty = thirdProperty
 
-						expect(receivedValues) == [ 0, 10, 11, 20, 21 ]
-						expect(errored) == false
-						expect(completed) == false
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+							var flattened = Optional(outerProperty!.flatten(.Latest))
 
-						secondProperty!.value = 12
-						secondProperty = nil
-						thirdProperty!.value = 22
-						thirdProperty = nil
+							var errored = false
+							var completed = false
 
-						expect(receivedValues) == [ 0, 10, 11, 20, 21, 22 ]
-						expect(errored) == false
-						expect(completed) == false
-
-						flattened = nil
-						expect(errored) == false
-						expect(completed) == true
-					}
-
-					it("should release the old properties when switched or deallocated") {
-						var firstProperty = Optional(MutableProperty(0))
-						var secondProperty = Optional(MutableProperty(10))
-						var thirdProperty = Optional(MutableProperty(20))
-
-						weak var weakFirstProperty = firstProperty
-						weak var weakSecondProperty = secondProperty
-						weak var weakThirdProperty = thirdProperty
-
-						var outerProperty = Optional(MutableProperty(firstProperty!))
-						var flattened = Optional(outerProperty!.flattenLatest())
-
-						var errored = false
-						var completed = false
-
-						flattened!.producer.start { event in
-							switch event {
-							case .Completed:
-								completed = true
-							case .Failed:
-								errored = true
-							case .Interrupted, .Next:
-								break
+							flattened!.producer.start { event in
+								switch event {
+								case .Completed:
+									completed = true
+								case .Failed:
+									errored = true
+								case .Interrupted, .Next:
+									break
+								}
 							}
+
+							firstProperty = nil
+							outerProperty!.value = secondProperty!
+							expect(weakFirstProperty).to(beNil())
+
+							secondProperty = nil
+							outerProperty!.value = thirdProperty!
+							expect(weakSecondProperty).to(beNil())
+
+							thirdProperty = nil
+							outerProperty = nil
+							flattened = nil
+							expect(weakThirdProperty).to(beNil())
+							expect(errored) == false
+							expect(completed) == true
 						}
-
-						firstProperty = nil
-						outerProperty!.value = secondProperty!
-						expect(weakFirstProperty).to(beNil())
-
-						secondProperty = nil
-						outerProperty!.value = thirdProperty!
-						expect(weakSecondProperty).to(beNil())
-
-						thirdProperty = nil
-						outerProperty = nil
-						flattened = nil
-						expect(weakThirdProperty).to(beNil())
-						expect(errored) == false
-						expect(completed) == true
 					}
 				}
 
-				describe("flatMapLatest") {
-					it("should forward values from the latest inner transformed property") {
-						let firstProperty = Optional(MutableProperty(0))
-						var secondProperty = Optional(MutableProperty(10))
-						var thirdProperty = Optional(MutableProperty(20))
+				describe("flatMap") {
+					describe("PropertyFlattenStrategy.Latest") {
+						it("should forward values from the latest inner transformed property") {
+							let firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
 
-						let outerProperty = MutableProperty(firstProperty!)
+							let outerProperty = MutableProperty(firstProperty!)
 
-						var receivedValues: [String] = []
-						var errored = false
-						var completed = false
+							var receivedValues: [String] = []
+							var errored = false
+							var completed = false
 
-						var flattened = Optional(outerProperty.flatMapLatest { $0.map { "\($0)" } })
+							var flattened = Optional(outerProperty.flatMap(.Latest) { $0.map { "\($0)" } })
 
-						flattened!.producer.start { event in
-							switch event {
-							case let .Next(value):
-								receivedValues.append(value)
-							case .Completed:
-								completed = true
-							case .Failed:
-								errored = true
-							case .Interrupted:
-								break
+							flattened!.producer.start { event in
+								switch event {
+								case let .Next(value):
+									receivedValues.append(value)
+								case .Completed:
+									completed = true
+								case .Failed:
+									errored = true
+								case .Interrupted:
+									break
+								}
 							}
+
+							expect(receivedValues) == [ "0" ]
+
+							outerProperty.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ "0", "10", "11", "20", "21" ]
+							expect(errored) == false
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							secondProperty = nil
+							thirdProperty!.value = 22
+							thirdProperty = nil
+
+							expect(receivedValues) == [ "0", "10", "11", "20", "21", "22" ]
+							expect(errored) == false
+							expect(completed) == false
+							
+							flattened = nil
+							expect(errored) == false
+							expect(completed) == true
 						}
-
-						expect(receivedValues) == [ "0" ]
-
-						outerProperty.value = secondProperty!
-						secondProperty!.value = 11
-						outerProperty.value = thirdProperty!
-						thirdProperty!.value = 21
-
-						expect(receivedValues) == [ "0", "10", "11", "20", "21" ]
-						expect(errored) == false
-						expect(completed) == false
-
-						secondProperty!.value = 12
-						secondProperty = nil
-						thirdProperty!.value = 22
-						thirdProperty = nil
-
-						expect(receivedValues) == [ "0", "10", "11", "20", "21", "22" ]
-						expect(errored) == false
-						expect(completed) == false
-
-						flattened = nil
-						expect(errored) == false
-						expect(completed) == true
 					}
 				}
 			}

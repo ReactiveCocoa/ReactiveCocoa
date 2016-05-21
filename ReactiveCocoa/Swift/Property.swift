@@ -121,7 +121,9 @@ extension PropertyType where Value: PropertyType {
 	public func flattenLatest() -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(.Latest) { $0.producer } }
 	}
+}
 
+extension PropertyType {
 	/// Maps a property to a new property, and then flattens it in the manner
 	/// described by `flattenLatest`.
 	@warn_unused_result(message="Did you forget to use the composed property?")
@@ -137,9 +139,7 @@ extension PropertyType where Value: PropertyType {
 			}
 		}
 	}
-}
 
-extension PropertyType {
 	/// Forwards only those values from `self` that have unique identities across the set of
 	/// all values that have been seen.
 	///

@@ -19,8 +19,8 @@ if [[ -z $XCODE_ACTION ]]; then
 fi
 
 if [[ -z $XCODE_SDK ]]; then
-      echo "Error: \$XCODE_SDK is not set!"
-      exit 1
+    echo "Error: \$XCODE_SDK is not set!"
+    exit 1
 fi
 
 xcodebuild $XCODE_ACTION \
@@ -35,6 +35,6 @@ xcodebuild $XCODE_ACTION \
 
 # Compile code in playgrounds 
 if [[ $XCODE_SDK -eq "macosx" ]]; then
-      echo "SDK is $XCODE_SDK, validating playground..."
-      . script/validate-playground.sh
+    echo "SDK is $XCODE_SDK, validating playground..."
+    . script/validate-playground.sh
 fi

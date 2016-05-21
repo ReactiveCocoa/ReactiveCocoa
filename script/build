@@ -34,7 +34,7 @@ xcodebuild $XCODE_ACTION \
     RUN_CLANG_STATIC_ANALYZER=NO | xcpretty
 
 # Compile code in playgrounds 
-if [[ $XCODE_SDK -eq "macosx" ]]; then
+if [[ $XCODE_SDK = "macosx" ]]; then
     echo "SDK is $XCODE_SDK, validating playground..."
     . script/validate-playground.sh
 fi

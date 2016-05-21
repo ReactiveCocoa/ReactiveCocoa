@@ -7,7 +7,6 @@ git:
 before_script:
   - git submodule update --init --recursive
 script:
-  - set -o pipefail
   - script/build
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:

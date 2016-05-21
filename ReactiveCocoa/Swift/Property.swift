@@ -10,7 +10,8 @@ public protocol PropertyType {
 	/// deinitialized.
 	var producer: SignalProducer<Value, NoError> { get }
 
-	/// A signal that will send the property's changes over time.
+	/// A signal that will send the property's changes over time, then complete
+	/// when the property has deinitialized.
 	var signal: Signal<Value, NoError> { get }
 
 	/// Performs an arbitrary action using the current value of the
@@ -464,21 +465,26 @@ private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
 /// The type-erasing box for `AnyProperty`.
 private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
 	let wrappingProperty: P
+	let (deinitSignal, deinitObserver) = Signal<(), NoError>.pipe()
 
 	init(_ property: P) {
 		wrappingProperty = property
 	}
 
 	override var signal: Signal<P.Value, NoError> {
-		return wrappingProperty.signal
+		return wrappingProperty.signal.takeUntil(deinitSignal)
 	}
 
 	override var producer: SignalProducer<P.Value, NoError> {
-		return wrappingProperty.producer
+		return wrappingProperty.producer.takeUntil(deinitSignal)
 	}
 
 	override func withValue<Result>(@noescape action: P.Value throws -> Result) rethrows -> Result {
 		return try wrappingProperty.withValue(action)
+	}
+
+	deinit {
+		deinitObserver.sendCompleted()
 	}
 }
 

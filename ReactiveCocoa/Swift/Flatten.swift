@@ -552,6 +552,22 @@ extension SignalType {
 	}
 }
 
+extension SignalType {
+	/// Merges the given producers into a single `SignalProducer` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public static func merge<S : SequenceType where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<Value, Error> {
+		return SignalProducer(values: producers).flatten(.Merge)
+	}
+	
+	/// Merges the given producers into a single `SignalProducer` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public static func merge<Value, Error: ErrorType>(producers: SignalProducer<Value, Error>...) -> SignalProducer<Value, Error> {
+		return SignalProducer(values: producers).flatten(.Merge)
+	}
+}
+
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Returns a signal that forwards values from the latest signal sent on
 	/// `signal`, ignoring values sent on previous inner signal.

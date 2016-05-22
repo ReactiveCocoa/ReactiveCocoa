@@ -146,16 +146,7 @@ extension PropertyType {
 	public func flatMap<P: PropertyType>(strategy: PropertyFlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
 		switch strategy {
 		case .Latest:
-			let disposable = CompositeDisposable()
-
-			return lift(disposable) { producer -> SignalProducer<P.Value, NoError> in
-				return producer.flatMap(.Latest) { property -> SignalProducer<P.Value, NoError> in
-					let mappedProperty = transform(property)
-					let token = disposable.addDisposable { mappedProperty }
-
-					return mappedProperty.producer.on(disposed: { token.remove() })
-				}
-			}
+			return lift { $0.flatMap(.Latest) { transform($0).producer } }
 		}
 	}
 

@@ -552,7 +552,7 @@ extension SignalType {
 	}
 }
 
-extension SignalType {
+extension SignalProducerType {
 	/// Merges the given producers into a single `SignalProducer` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")

@@ -69,7 +69,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 		errors = events.map { $0.error }.ignoreNil()
 
 		_enabled <~ enabledIf.producer
-			.combineLatestWith(executing.producer)
+			.combineLatestWith(_executing.producer)
 			.map(Action.shouldBeEnabled)
 	}
 
@@ -110,7 +110,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 				disposable.addDisposable(signalDisposable)
 
 				signal.observe { event in
-					observer.action(event.mapError { .ProducerError($0) })
+					observer.action(event.mapError(ActionError.ProducerError))
 					self.eventsObserver.sendNext(event)
 				}
 			}

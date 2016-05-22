@@ -8,13 +8,14 @@ public protocol PropertyType {
 	/// The current value of the property.
 	var value: Value { get }
 
-	/// A producer for Signals that will send the property's current value,
-	/// followed by all changes over time, then complete when the property has
-	/// deinitialized.
+	/// A producer for signals that sends the property's current value,
+	/// followed by all changes over time. It completes when the property
+	/// has deinitialized, or has no further change.
 	var producer: SignalProducer<Value, NoError> { get }
 
-	/// A signal that will send the property's changes over time, then complete
-	/// when the property has deinitialized.
+	/// A signal that will send the property's changes over time. It
+	/// completes when the property has deinitialized, or has no further
+	/// change.
 	var signal: Signal<Value, NoError> { get }
 
 	/// Performs an arbitrary action using the current value of the
@@ -65,7 +66,8 @@ extension PropertyType {
 	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure, default: { self })
+		let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure,
+		                                  default: { self })
 
 		return AnyProperty(propertyProducer: transform(producer),
 		                   capturing: capturingClosure)
@@ -75,8 +77,10 @@ extension PropertyType {
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure, default: { self })
-			let otherCapturingClosure = coalescing((otherProperty as? AnyProperty<P.Value>)?.box.capturingClosure, default: { otherProperty })
+			let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure,
+			                                  default: { self })
+			let otherCapturingClosure = coalescing((otherProperty as? AnyProperty<P.Value>)?.box.capturingClosure,
+			                                       default: { otherProperty })
 
 			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
 			                   capturing: { _ = capturingClosure; _ = otherCapturingClosure })
@@ -180,6 +184,7 @@ extension PropertyType where Value: Hashable {
 }
 
 extension MutablePropertyType {
+	/// The current value of the property.
 	public var value: Value {
 		get { return withValue { $0 } }
 		set { swap(newValue) }
@@ -194,7 +199,7 @@ extension MutablePropertyType {
 	}
 }
 
-/// A read-only property that allows observation of its changes.
+/// A read-only, type-erased view of a property.
 public struct AnyProperty<Value>: PropertyType {
 	private let box: AnyPropertyBoxBase<Value>
 
@@ -283,8 +288,7 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 }
 
-/// A type-erased view to the underlying property which allows mutation of the
-/// value.
+/// A type-erased view of a mutable property.
 public class AnyMutableProperty<Value>: MutablePropertyType {
 	private let box: AnyPropertyBoxBase<Value>
 
@@ -338,7 +342,6 @@ public struct ConstantProperty<Value>: PropertyType {
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyType {
-
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
@@ -449,7 +452,6 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 	return disposable
 }
 
-
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
@@ -471,7 +473,6 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 	return disposable
 }
 
-
 public func <~ <P: MutablePropertyType, S: SignalType where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
 }
@@ -483,7 +484,6 @@ public func <~ <P: MutablePropertyType, S: SignalProducerType where P.Value == S
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
-
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///

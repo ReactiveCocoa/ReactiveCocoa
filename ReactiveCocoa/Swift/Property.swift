@@ -40,32 +40,41 @@ extension PropertyType {
 	}
 }
 
+/// Workaround of the nil coalescing operator, as it does not work as
+/// intended with function types.
+///
+/// https://bugs.swift.org/browse/SR-832
+private func coalescing<T>(optional: T?, default value: T) -> T {
+	return optional ?? value
+}
+
 /// Protocol composition operators
 ///
 /// The producer and the signal of transformed properties would complete
 /// only when its source properties have deinitialized.
+///
+/// A transformed property would retain its ultimate source, but not
+/// any intermediate property during the composition.
 extension PropertyType {
 	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
+		let capturingClosure = coalescing((self as? AnyProperty<Value>)?.capturingClosure, default: { self })
+
 		return AnyProperty(propertyProducer: transform(producer),
-		                   with: ActionDisposable { self })
+		                   capturing: capturingClosure)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
-			                   with: ActionDisposable { self; otherProperty })
-		}
-	}
+			let capturingClosure = coalescing((self as? AnyProperty<Value>)?.capturingClosure, default: { self })
+			let otherCapturingClosure = coalescing((otherProperty as? AnyProperty<P.Value>)?.capturingClosure, default: { otherProperty })
 
-	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	private func lift<U>(disposable: Disposable, @noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		return AnyProperty(propertyProducer: transform(producer),
-		                   with: ActionDisposable { self; disposable.dispose() })
+			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
+			                   capturing: { _ = capturingClosure; _ = otherCapturingClosure })
+		}
 	}
 
 	/// Maps the current value and all subsequent values to a new property.
@@ -191,6 +200,7 @@ extension MutablePropertyType {
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
 	private let box: AnyPropertyBoxBase<Value>
+	private let capturingClosure: (() -> Void)?
 
 	/// A producer for Signals that will send the wrapped property's current value,
 	/// followed by all changes over time, then complete when the wrapped property has
@@ -208,6 +218,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		box = AnyPropertyBox(property)
+		capturingClosure = nil
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -234,23 +245,22 @@ public struct AnyProperty<Value>: PropertyType {
 	///
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
-	private init(propertyProducer: SignalProducer<Value, NoError>, with disposable: Disposable? = nil) {
+	private init(propertyProducer: SignalProducer<Value, NoError>, capturing closure: (() -> Void)? = nil) {
 		var mutableProperty: MutableProperty<Value>?
 		weak var weakMutableProperty: MutableProperty<Value>?
+		var hasInitialized = false
 
 		let compositeDisposable = CompositeDisposable()
-		if let disposable = disposable {
-			compositeDisposable += disposable
-		}
 
 		compositeDisposable += propertyProducer.start { event in
 			switch event {
 			case let .Next(value):
-				if let property = weakMutableProperty {
-					property.value = value
+				if hasInitialized {
+					weakMutableProperty?.value = value
 				} else {
 					mutableProperty = MutableProperty(value)
 					weakMutableProperty = mutableProperty
+					hasInitialized = true
 				}
 
 			case .Completed, .Interrupted:
@@ -262,11 +272,12 @@ public struct AnyProperty<Value>: PropertyType {
 		}
 
 		if let property = mutableProperty {
-			property.producer.startWithCompleted {
+			compositeDisposable += property.producer.startWithCompleted {
 				compositeDisposable.dispose()
 			}
 
 			box = AnyPropertyBox(property, source: propertyProducer)
+			capturingClosure = closure
 			mutableProperty = nil
 		} else {
 			fatalError("A producer promised to send at least one value. Received none.")

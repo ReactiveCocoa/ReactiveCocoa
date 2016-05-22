@@ -471,16 +471,16 @@ For example:
 producer.start { event in
     switch event {
     case let .Next(value):
-        println("Next event: \(value)")
+        print("Next event: \(value)")
 
     case let .Failed(error):
-        println("Failed event: \(error)")
+        print("Failed event: \(error)")
 
     case .Completed:
-        println("Completed event")
+        print("Completed event")
 
     case .Interrupted:
-        println("Interrupted event")
+        print("Interrupted event")
     }
 }
 ```

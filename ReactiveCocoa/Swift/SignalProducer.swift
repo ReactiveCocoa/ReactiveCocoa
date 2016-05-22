@@ -18,7 +18,7 @@ import Result
 public struct SignalProducer<Value, Error: ErrorType> {
 	public typealias ProducedSignal = Signal<Value, Error>
 
-	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()
+	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
 
 	/// Initializes a SignalProducer that will emit the same events as the given signal.
 	///
@@ -41,7 +41,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// event is sent to the observer, the given CompositeDisposable will be
 	/// disposed, at which point work should be interrupted and any temporary
 	/// resources cleaned up.
-	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> ()) {
+	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
 		self.startHandler = startHandler
 	}
 
@@ -123,46 +123,51 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
-		// This is effectively used as a synchronous mutex, but permitting
-		// limited recursive locking (see below).
-		//
-		// The queue is a "variable" just so we can use its address as the key
-		// and the value for dispatch_queue_set_specific().
-		var queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer", DISPATCH_QUEUE_SERIAL)
-		dispatch_queue_set_specific(queue, &queue, &queue, nil)
-
 		// Used as an atomic variable so we can remove observers without needing
-		// to run on the queue.
+		// to run on a serial queue.
 		let state: Atomic<BufferState<Value, Error>> = Atomic(BufferState())
 
 		let producer = self.init { observer, disposable in
 			// Assigned to when replay() is invoked synchronously below.
 			var token: RemovalToken?
 
-			let replay: () -> () = {
-				let originalState = state.modify { state in
-					var state = state
+			let replayBuffer = ReplayBuffer<Value>()
+			var replayValues: [Value] = []
+			var replayToken: RemovalToken?
+			var next = state.modify { state in
+				var state = state
+
+				replayValues = state.values
+				if replayValues.isEmpty {
 					token = state.observers?.insert(observer)
-					return state
+				} else {
+					replayToken = state.replayBuffers.insert(replayBuffer)
 				}
 
-				originalState.values.forEach(observer.sendNext)
+				return state
+			}
 
-				if let terminationEvent = originalState.terminationEvent {
-					observer.action(terminationEvent)
+			while !replayValues.isEmpty {
+				replayValues.forEach(observer.sendNext)
+
+				next = state.modify { state in
+					var state = state
+
+					replayValues = replayBuffer.values
+					replayBuffer.values = []
+					if replayValues.isEmpty {
+						if let replayToken = replayToken {
+							state.replayBuffers.removeValueForToken(replayToken)
+						}
+						token = state.observers?.insert(observer)
+					}
+
+					return state
 				}
 			}
 
-			// Prevent other threads from sending events while we're replaying,
-			// but don't deadlock if we're replaying in response to a buffer
-			// event observed elsewhere.
-			//
-			// In other words, this permits limited signal recursion for the
-			// specific case of replaying past events.
-			if dispatch_get_specific(&queue) != nil {
-				replay()
-			} else {
-				dispatch_sync(queue, replay)
+			if let terminationEvent = next.terminationEvent {
+				observer.action(terminationEvent)
 			}
 
 			if let token = token {
@@ -177,30 +182,22 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
-			// Send serially with respect to other senders, and never while
-			// another thread is in the process of replaying.
-			dispatch_sync(queue) {
-				let originalState = state.modify { state in
-					var mutableState = state
+			let originalState = state.modify { state in
+				var state = state
 
-					if let value = event.value {
-						mutableState.addValue(value, upToCapacity: capacity)
-					} else {
-						// Disconnect all observers and prevent future
-						// attachments.
-						mutableState.terminationEvent = event
-						mutableState.observers = nil
-					}
-
-					return mutableState
+				if let value = event.value {
+					state.addValue(value, upToCapacity: capacity)
+				} else {
+					// Disconnect all observers and prevent future
+					// attachments.
+					state.terminationEvent = event
+					state.observers = nil
 				}
 
-				if let observers = originalState.observers {
-					for observer in observers {
-						observer.action(event)
-					}
-				}
+				return state
 			}
+
+			originalState.observers?.forEach { $0.action(event) }
 		}
 
 		return (producer, bufferingObserver)
@@ -229,7 +226,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> ()) {
+	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> Void) {
 		let (signal, observer) = Signal<Value, Error>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
@@ -262,23 +259,37 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	}
 }
 
+/// A uniquely identifying token for Observers that are replaying values in
+/// BufferState.
+private final class ReplayBuffer<Value> {
+	private var values: [Value] = []
+}
+
+
 private struct BufferState<Value, Error: ErrorType> {
-	// All values in the buffer.
+	/// All values in the buffer.
 	var values: [Value] = []
 
-	// Any terminating event sent to the buffer.
-	//
-	// This will be nil if termination has not occurred.
+	/// Any terminating event sent to the buffer.
+	///
+	/// This will be nil if termination has not occurred.
 	var terminationEvent: Event<Value, Error>?
 
-	// The observers currently attached to the buffered producer, or nil if the
-	// producer was terminated.
+	/// The observers currently attached to the buffered producer, or nil if the
+	/// producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
-	// Appends a new value to the buffer, trimming it down to the given capacity
-	// if necessary.
+	/// The set of unused replay token identifiers.
+	var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
+
+	/// Appends a new value to the buffer, trimming it down to the given capacity
+	/// if necessary.
 	mutating func addValue(value: Value, upToCapacity capacity: Int) {
 		precondition(capacity >= 0)
+
+		for buffer in replayBuffers {
+			buffer.values.append(value)
+		}
 
 		if capacity == 0 {
 			values = []
@@ -311,7 +322,7 @@ public protocol SignalProducerType {
 
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
-	func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> ())
+	func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> Void)
 }
 
 extension SignalProducer: SignalProducerType {
@@ -349,7 +360,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithNext(next: Value -> ()) -> Disposable {
+	public func startWithNext(next: Value -> Void) -> Disposable {
 		return start(Observer(next: next))
 	}
 
@@ -359,7 +370,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithCompleted(completed: () -> ()) -> Disposable {
+	public func startWithCompleted(completed: () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
 	
@@ -369,7 +380,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithFailed(failed: Error -> ()) -> Disposable {
+	public func startWithFailed(failed: Error -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
 	
@@ -379,7 +390,7 @@ extension SignalProducerType {
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal.
-	public func startWithInterrupted(interrupted: () -> ()) -> Disposable {
+	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
 
@@ -509,10 +520,110 @@ extension SignalProducerType {
 		return lift { $0.take(count) }
 	}
 
-	/// Returns a signal that will yield an array of values when `signal` completes.
+	/// Returns a producer that will yield an array of values when `self` 
+	/// completes.
+	///
+	/// - Note: When `self` completes without collecting any value, it will sent
+	/// an empty array of values.
+	///
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect() -> SignalProducer<[Value], Error> {
 		return lift { $0.collect() }
+	}
+
+	/// Returns a producer that will yield an array of values until it reaches a
+	/// certain count.
+	///
+	/// When the count is reached the array is sent and the producer starts over
+	/// yielding a new array of values.
+	///
+	/// - Precondition: `count` should be greater than zero.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not have `count` values. Alternatively, if were not collected
+	/// any values will sent an empty array of values.
+	///
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(count count: Int) -> SignalProducer<[Value], Error> {
+		precondition(count > 0)
+		return lift { $0.collect(count: count) }
+	}
+
+	/// Returns a producer that will yield an array of values based on a 
+	/// predicate which matches the values collected.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The most recent value (`next`) is included in
+	/// `values` and will be the end of the current array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
+	///
+	/// #### Example
+	///
+	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	///
+	///     producer
+	///         .collect { values in values.reduce(0, combine: +) == 8 }
+	///         .startWithNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(3)
+	///     observer.sendNext(4)
+	///     observer.sendNext(7)
+	///     observer.sendNext(1)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 3, 4]
+	///     // [7, 1]
+	///     // [5, 6]
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(predicate: (values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
+	}
+
+	/// Returns a producer that will yield an array of values based on a
+	/// predicate which matches the values collected and the next value.
+	///
+	/// - parameter predicate: Predicate to match when values should be sent
+	/// (returning `true`) or alternatively when they should be collected (where
+	/// it should return `false`). The most recent value (`next`) is not included
+	/// in `values` and will be the start of the next array of values if the
+	/// predicate returns `true`.
+	///
+	/// - Note: When `self` completes any remaining values will be sent, the last
+	/// array may not match `predicate`. Alternatively, if were not collected any
+	/// values will sent an empty array of values.
+	///
+	/// #### Example
+	///
+	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	///
+	///     producer
+	///         .collect { values, next in next == 7 }
+	///         .startWithNext { print($0) }
+	///
+	///     observer.sendNext(1)
+	///     observer.sendNext(1)
+	///     observer.sendNext(7)
+	///     observer.sendNext(7)
+	///     observer.sendNext(5)
+	///     observer.sendNext(6)
+	///     observer.sendCompleted()
+	///
+	///     // Output:
+	///     // [1, 1]
+	///     // [7]
+	///     // [7, 5, 6]
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
+		return lift { $0.collect(predicate) }
 	}
 
 	/// Forwards all events onto the given scheduler, instead of whichever
@@ -651,7 +762,25 @@ extension SignalProducerType {
 	/// event, at which point the returned producer will complete.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftRight(Signal.takeUntil)(trigger)
+		// This should be the implementation of this method:
+		// return liftRight(Signal.takeUntil)(trigger)
+		//
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
+		//
+		// This can be reverted once tests with -O work correctly.
+
+		return SignalProducer { observer, outerDisposable in
+			self.startWithSignal { signal, disposable in
+				outerDisposable.addDisposable(disposable)
+
+				trigger.startWithSignal { triggerSignal, triggerDisposable in
+					outerDisposable.addDisposable(triggerDisposable)
+
+					signal.takeUntil(triggerSignal).observe(observer)
+				}
+			}
+		}
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
@@ -843,6 +972,29 @@ extension SignalProducerType where Value: Equatable {
 	}
 }
 
+extension SignalProducerType {
+	/// Forwards only those values from `self` that have unique identities across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the identities to be retained to check for uniqueness.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> SignalProducer<Value, Error> {
+		return lift { $0.uniqueValues(transform) }
+	}
+}
+
+extension SignalProducerType where Value: Hashable {
+	/// Forwards only those values from `self` that are unique across the set of
+	/// all values that have been seen.
+	///
+	/// Note: This causes the values to be retained to check for uniqueness. Providing
+	/// a function that returns a unique value for each sent value can help you reduce
+	/// the memory footprint.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func uniqueValues() -> SignalProducer<Value, Error> {
+		return lift { $0.uniqueValues() }
+	}
+}
 
 /// Creates a repeating timer of the given interval, with a reasonable
 /// default leeway, sending updates on the given scheduler.
@@ -876,7 +1028,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 extension SignalProducerType {
 	/// Injects side effects to be performed upon the specified signal events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func on(started started: (() -> ())? = nil, event: (Event<Value, Error> -> ())? = nil, failed: (Error -> ())? = nil, completed: (() -> ())? = nil, interrupted: (() -> ())? = nil, terminated: (() -> ())? = nil, disposed: (() -> ())? = nil, next: (Value -> ())? = nil) -> SignalProducer<Value, Error> {
+	public func on(started started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
 			started?()
 			self.startWithSignal { signal, disposable in
@@ -1271,6 +1423,7 @@ extension SignalProducerType {
 		let token = DeallocationToken()
 
 		return SignalProducer { observer, disposable in
+			var token: DeallocationToken? = token
 			let initializedProducer: SignalProducer<Value, Error>
 			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
 			let shouldStartUnderlyingProducer: Bool
@@ -1290,10 +1443,14 @@ extension SignalProducerType {
 
 			// subscribe `observer` before starting the underlying producer.
 			disposable += initializedProducer.start(observer)
+			disposable.addDisposable {
+				// Don't dispose of the original producer until all observers
+				// have terminated.
+				token = nil
+			}
 
 			if shouldStartUnderlyingProducer {
-				self.producer
-					.takeUntil(token.deallocSignal)
+				self.takeUntil(token!.deallocSignal)
 					.start(initializedObserver)
 			}
 		}

@@ -27,8 +27,6 @@ own](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new)!
 This documents the RAC 4 which targets `Swift 2.2.x`. For `Swift 1.2` support see [RAC
 3](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v3.0.0).
 
-_Many thanks to [Rheinfabrik](http://www.rheinfabrik.de) for generously sponsoring the development of ReactiveCocoa 3!_
-
 ## Introduction
 
 ReactiveCocoa is inspired by [functional reactive
@@ -170,8 +168,8 @@ let searchResults = searchStrings
 
 #### Throttling requests
 
-Now, let’s say you only want to actually perform the search when the user pauses
-typing, to minimize traffic.
+Now, let’s say you only want to actually perform the search periodically,
+to minimize traffic.
 
 ReactiveCocoa has a declarative `throttle` operator that we can apply to our
 search strings:
@@ -183,8 +181,7 @@ let searchStrings = textField.rac_textSignal()
     .throttle(0.5, onScheduler: QueueScheduler.mainQueueScheduler)
 ```
 
-This prevents values from being sent less than 0.5 seconds apart, so the user
-must stop editing for at least that long before we’ll use their search string.
+This prevents values from being sent less than 0.5 seconds apart.
 
 To do this manually would require significant state, and end up much harder to
 read! With ReactiveCocoa, we can use just one operator to incorporate _time_ into

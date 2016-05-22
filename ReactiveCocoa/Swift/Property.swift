@@ -26,6 +26,10 @@ public protocol PropertyType {
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
 public protocol MutablePropertyType: class, PropertyType {
+	/// Modifies the variable. Conforming types may optionally
+	/// guarantee atomicity.
+	///
+	/// Returns the old value.
 	func modify(@noescape action: Value throws -> Value) rethrows -> Value
 }
 
@@ -38,22 +42,17 @@ extension PropertyType {
 
 /// Protocol composition operators
 ///
-/// As the event stream of a property completes when the property has
-/// deinitialized, a property composited using these operators must be
-/// retained to keep the event stream alive.
-///
-/// Moreover, the resulting property of these operators would retain
-/// its source properties until it is deinitialized. In other words,
-/// it is safe to use the operators in chain.
+/// The producer and the signal of transformed properties would complete
+/// only when its source properties have deinitialized.
 extension PropertyType {
-	/// Lifts an unary SignalProducer operator to operate upon Properties instead.
+	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(propertyProducer: transform(producer),
 		                   with: ActionDisposable { self })
 	}
 
-	/// Lifts a binary SignalProducer operator to operate upon Properties instead.
+	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
@@ -62,7 +61,7 @@ extension PropertyType {
 		}
 	}
 
-	/// Lifts an unary SignalProducer operator to operate upon Properties instead.
+	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(disposable: Disposable, @noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(propertyProducer: transform(producer),
@@ -180,7 +179,7 @@ extension MutablePropertyType {
 		set { swap(newValue) }
 	}
 
-	/// Atomically modifies the variable. Conforming types may optionally
+	/// Modifies the variable. Conforming types may optionally
 	/// guarantee atomicity.
 	///
 	/// Returns the old value.
@@ -193,12 +192,17 @@ extension MutablePropertyType {
 public struct AnyProperty<Value>: PropertyType {
 	private let box: AnyPropertyBoxBase<Value>
 
-	public var signal: Signal<Value, NoError> {
-		return box.signal
-	}
-
+	/// A producer for Signals that will send the wrapped property's current value,
+	/// followed by all changes over time, then complete when the wrapped property has
+	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
 		return box.producer
+	}
+
+	/// A signal that will send the wrapped property's changes over time, then complete
+	/// when the wrapped property has deinitialized.
+	public var signal: Signal<Value, NoError> {
+		return box.signal
 	}
 
 	/// Initializes a property as a read-only view of the given property.
@@ -208,23 +212,28 @@ public struct AnyProperty<Value>: PropertyType {
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
+	///
+	/// The producer and the signal of the created property would complete only
+	/// when the `producer` completes.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
-		mutableProperty <~ producer
-		self.init(mutableProperty)
+		self.init(propertyProducer: SignalProducer(value: initialValue).takeUntilReplacement(producer))
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
+	///
+	/// The producer and the signal of the created property would complete only
+	/// when the `signal` completes.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
-		mutableProperty <~ signal
-		self.init(mutableProperty)
+		self.init(propertyProducer: SignalProducer(value: initialValue).takeUntilReplacement(signal))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
 	/// value synchronously in its start handler before sending any subsequent event.
 	/// If the producer fails its promise, a fatal error would be raised.
+	///
+	/// The producer and the signal of the created property would complete only
+	/// when the `propertyProducer` completes.
 	private init(propertyProducer: SignalProducer<Value, NoError>, with disposable: Disposable? = nil) {
 		var mutableProperty: MutableProperty<Value>?
 		weak var weakMutableProperty: MutableProperty<Value>?
@@ -257,7 +266,7 @@ public struct AnyProperty<Value>: PropertyType {
 				compositeDisposable.dispose()
 			}
 
-			self.init(property)
+			box = AnyPropertyBox(property, source: propertyProducer)
 			mutableProperty = nil
 		} else {
 			fatalError("A producer promised to send at least one value. Received none.")
@@ -274,12 +283,17 @@ public struct AnyProperty<Value>: PropertyType {
 public class AnyMutableProperty<Value>: MutablePropertyType {
 	private let box: AnyPropertyBoxBase<Value>
 
-	public var signal: Signal<Value, NoError> {
-		return box.signal
-	}
-
+	/// A producer for Signals that will send the property's current value,
+	/// followed by all changes over time, then complete when the property has
+	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
 		return box.producer
+	}
+
+	/// A signal that will send the property's changes over time, then complete
+	/// when the property has deinitialized.
+	public var signal: Signal<Value, NoError> {
+		return box.signal
 	}
 
 	/// Initializes a property as a read-only view of the given property.
@@ -463,8 +477,8 @@ public func <~ <Destination: MutablePropertyType, Source: PropertyType where Sou
 
 /// The type-erasing box for `AnyMutableProperty`.
 private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
-	override init(_ property: P) {
-		super.init(property)
+	override init(_ property: P, source producer: SignalProducer<P.Value, NoError>? = nil) {
+		super.init(property, source: producer)
 	}
 
 	override func modify(@noescape action: P.Value throws -> P.Value) rethrows -> P.Value {
@@ -475,26 +489,30 @@ private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
 /// The type-erasing box for `AnyProperty`.
 private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
 	let wrappingProperty: P
-	let (deinitSignal, deinitObserver) = Signal<(), NoError>.pipe()
+	let sourceProducer: SignalProducer<P.Value, NoError>?
 
-	init(_ property: P) {
+	/// Wraps a property, and shadows its producer and signal with `source` if supplied.
+	init(_ property: P, source producer: SignalProducer<P.Value, NoError>? = nil) {
 		wrappingProperty = property
+		sourceProducer = producer
 	}
 
 	override var signal: Signal<P.Value, NoError> {
-		return wrappingProperty.signal.takeUntil(deinitSignal)
+		if let producer = sourceProducer {
+			var extractedSignal: Signal<P.Value, NoError>!
+			producer.startWithSignal { signal, _ in extractedSignal = signal }
+			return extractedSignal
+		} else {
+			return wrappingProperty.signal
+		}
 	}
 
 	override var producer: SignalProducer<P.Value, NoError> {
-		return wrappingProperty.producer.takeUntil(deinitSignal)
+		return sourceProducer ?? wrappingProperty.producer
 	}
 
 	override func withValue<Result>(@noescape action: P.Value throws -> Result) rethrows -> Result {
 		return try wrappingProperty.withValue(action)
-	}
-
-	deinit {
-		deinitObserver.sendCompleted()
 	}
 }
 

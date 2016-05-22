@@ -237,13 +237,13 @@ public struct AnyProperty<Value>: PropertyType {
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
 	private init(propertyProducer: SignalProducer<Value, NoError>, capturing closure: (() -> Void)? = nil) {
+		let disposable = CompositeDisposable()
+
+		var hasInitialized = false
 		var mutableProperty: MutableProperty<Value>?
 		weak var weakMutableProperty: MutableProperty<Value>?
-		var hasInitialized = false
 
-		let compositeDisposable = CompositeDisposable()
-
-		compositeDisposable += propertyProducer.start { event in
+		disposable += propertyProducer.start { event in
 			switch event {
 			case let .Next(value):
 				if hasInitialized {
@@ -255,7 +255,7 @@ public struct AnyProperty<Value>: PropertyType {
 				}
 
 			case .Completed, .Interrupted:
-				compositeDisposable.dispose()
+				disposable.dispose()
 
 			case let .Failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
@@ -263,8 +263,8 @@ public struct AnyProperty<Value>: PropertyType {
 		}
 
 		if let property = mutableProperty {
-			compositeDisposable += property.producer.startWithCompleted {
-				compositeDisposable.dispose()
+			disposable += property.producer.startWithCompleted {
+				disposable.dispose()
 			}
 
 			box = AnyPropertyBox(property, source: propertyProducer)
@@ -484,19 +484,19 @@ private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
 	}
 
 	override func modify(@noescape action: P.Value throws -> P.Value) rethrows -> P.Value {
-		return try wrappingProperty.modify(action)
+		return try property.modify(action)
 	}
 }
 
 /// The type-erasing box for `AnyProperty`.
 private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
-	let wrappingProperty: P
+	let property: P
 	let sourceProducer: SignalProducer<P.Value, NoError>?
 
 	/// Wraps a property, and shadows its producer and signal with `source` if supplied.
 	init(_ property: P, source producer: SignalProducer<P.Value, NoError>? = nil) {
-		wrappingProperty = property
-		sourceProducer = producer
+		self.property = property
+		self.sourceProducer = producer
 	}
 
 	override var signal: Signal<P.Value, NoError> {
@@ -505,16 +505,16 @@ private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
 			producer.startWithSignal { signal, _ in extractedSignal = signal }
 			return extractedSignal
 		} else {
-			return wrappingProperty.signal
+			return property.signal
 		}
 	}
 
 	override var producer: SignalProducer<P.Value, NoError> {
-		return sourceProducer ?? wrappingProperty.producer
+		return sourceProducer ?? property.producer
 	}
 
 	override func withValue<Result>(@noescape action: P.Value throws -> Result) rethrows -> Result {
-		return try wrappingProperty.withValue(action)
+		return try property.withValue(action)
 	}
 }
 

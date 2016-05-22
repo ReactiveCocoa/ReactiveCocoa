@@ -15,18 +15,6 @@ import enum Result.NoError
 
 	private var property: MutableProperty<AnyObject?>?
 
-	/// The current value of the property, as read and written using Key-Value
-	/// Coding.
-	public var value: AnyObject? {
-		@objc(rac_value) get {
-			return object?.valueForKeyPath(keyPath)
-		}
-
-		@objc(setRac_value:) set(newValue) {
-			object?.setValue(newValue, forKeyPath: keyPath)
-		}
-	}
-
 	/// A producer that will create a Key-Value Observer for the given object,
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.
@@ -64,6 +52,23 @@ import enum Result.NoError
 					self.property = nil
 				}
 			}
+	}
+
+	/// Modifies the variable.
+	///
+	/// Returns the old value.
+	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+		let oldValue = value
+		object?.setValue(try action(oldValue), forKey: keyPath)
+		return oldValue
+	}
+
+	/// Performs an arbitrary action using the current value of the
+	/// variable.
+	///
+	/// Returns the result of the action.
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		return try action(object?.valueForKeyPath(keyPath))
 	}
 }
 

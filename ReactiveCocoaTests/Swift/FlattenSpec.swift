@@ -95,5 +95,621 @@ class FlattenSpec: QuickSpec {
 			describeSignalProducerFlattenDisposal(.Merge, name: "merge")
 			describeSignalProducerFlattenDisposal(.Concat, name: "concat")
 		}
+		
+		describe("Signal.flatten()") {
+			it("works with TestError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+		}
+		
+		describe("SignalProducer.flatten()") {
+			it("works with TestError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = SignalProducer<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = SignalProducer<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = SignalProducer<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = SignalProducer<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = SignalProducer<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = SignalProducer<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = SignalProducer<Inner, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = SignalProducer<Inner, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(inner)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+		}
+		
+		describe("Signal.flatMap()") {
+			it("works with TestError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = Signal<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = Signal<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = Signal<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = Signal<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.observeNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+		}
+		
+		describe("SignalProducer.flatMap()") {
+			it("works with TestError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = SignalProducer<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError Signal") {
+				typealias Inner = Signal<Int, TestError>
+				typealias Outer = SignalProducer<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = SignalProducer<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError Signal") {
+				typealias Inner = Signal<Int, NoError>
+				typealias Outer = SignalProducer<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = SignalProducer<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a TestError SignalProducer") {
+				typealias Inner = SignalProducer<Int, TestError>
+				typealias Outer = SignalProducer<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with NoError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = SignalProducer<Int, NoError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+			
+			it("works with TestError and a NoError SignalProducer") {
+				typealias Inner = SignalProducer<Int, NoError>
+				typealias Outer = SignalProducer<Int, TestError>
+				
+				let (inner, innerObserver) = Inner.pipe()
+				let (outer, outerObserver) = Outer.pipe()
+				
+				var observed: Int? = nil
+				outer
+					.flatMap(.Latest) { _ in inner }
+					.startWithNext { value in
+						observed = value
+					}
+				
+				outerObserver.sendNext(4)
+				innerObserver.sendNext(4)
+				expect(observed) == 4
+			}
+		}
 	}
 }

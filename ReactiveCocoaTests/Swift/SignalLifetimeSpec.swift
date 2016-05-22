@@ -125,7 +125,7 @@ class SignalLifetimeSpec: QuickSpec {
 
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				let test = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
@@ -146,7 +146,7 @@ class SignalLifetimeSpec: QuickSpec {
 
 				// Use an inner closure to help ARC deallocate things as we
 				// expect.
-				let test: () -> () = {
+				let test = {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
@@ -165,7 +165,7 @@ class SignalLifetimeSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				weak var weakSignal: Signal<(), NoError>?
 
-				let test: () -> () = {
+				let test = {
 					let (signal, observer) = Signal<(), NoError>.pipe()
 					weakSignal = signal
 

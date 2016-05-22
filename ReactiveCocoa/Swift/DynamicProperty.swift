@@ -24,18 +24,6 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 
 	private var property: MutableProperty<Value?>?
 
-	/// The current value of the property, as read and written using Key-Value
-	/// Coding.
-	public var value: Value? {
-		get {
-			return object?.valueForKeyPath(keyPath).map(extractValue)
-		}
-
-		set(newValue) {
-			object?.setValue(newValue.map(represent), forKeyPath: keyPath)
-		}
-	}
-
 	/// A producer that will create a Key-Value Observer for the given object,
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.
@@ -75,6 +63,40 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 				}
 			}
 	}
+
+	/// Modifies the variable.
+	///
+	/// Returns the old value.
+	public func modify(@noescape action: (Value?) throws -> Value?) rethrows -> Value? {
+		let oldValue = value
+		object?.setValue(try action(oldValue).map(represent), forKeyPath: keyPath)
+		return oldValue
+	}
+
+	/// Performs an arbitrary action using the current value of the
+	/// variable.
+	///
+	/// Returns the result of the action.
+	public func withValue<Result>(@noescape action: (Value?) throws -> Result) rethrows -> Result {
+		return try action(object?.valueForKeyPath(keyPath).map(extractValue))
+	}
+}
+
+// MARK: Operators
+
+/// Binds a signal to a `DynamicProperty`, automatically bridging values to Objective-C.
+public func <~ <S: SignalType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, signal: S) -> Disposable {
+	return property <~ signal.map { $0._bridgeToObjectiveC() }
+}
+
+/// Binds a signal producer to a `DynamicProperty`, automatically bridging values to Objective-C.
+public func <~ <S: SignalProducerType where S.Value: _ObjectiveCBridgeable, S.Error == NoError>(property: DynamicProperty, producer: S) -> Disposable {
+	return property <~ producer.map { $0._bridgeToObjectiveC() }
+}
+
+/// Binds `destinationProperty` to the latest values of `sourceProperty`, automatically bridging values to Objective-C.
+public func <~ <Source: PropertyType where Source.Value: _ObjectiveCBridgeable>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
+	return destinationProperty <~ sourceProperty.producer
 }
 
 extension DynamicProperty where Value: _ObjectiveCBridgeable {

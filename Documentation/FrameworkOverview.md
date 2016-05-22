@@ -202,7 +202,7 @@ do not allow tasks to be reordered or depend on one another.
 [Signal]: ../ReactiveCocoa/Swift/Signal.swift
 [SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
 [Action]: ../ReactiveCocoa/Swift/Action.swift
-[CocoaAction]: ../ReactiveCocoa/Swift/Action.swift
+[CocoaAction]: ../ReactiveCocoa/Swift/CocoaAction.swift
 [Disposable]: ../ReactiveCocoa/Swift/Disposable.swift
 [Scheduler]: ../ReactiveCocoa/Swift/Scheduler.swift
 [Property]: ../ReactiveCocoa/Swift/Property.swift

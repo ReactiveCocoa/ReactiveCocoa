@@ -30,7 +30,7 @@ import Foundation
  can only evaluate the events in the same order as they are sent on the signal. There
  is no random access to values of a signal.
  
- Signals can be manipulated by applying [primitives][BasicOperators] to them.
+ Signals can be manipulated by applying [primitives](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/BasicOperators.md) to them.
  Typical primitives to manipulate a single signal like `filter`, `map` and
  `reduce` are available, as well as primitives to manipulate multiple signals
  at once (`zip`). Primitives operate only on the `Next` events of a signal.
@@ -51,8 +51,8 @@ scopedExample("Subscription") {
     // Signal.pipe is a way to manually control a signal. the returned observer can be used to send values to the signal
     let (signal, observer) = Signal<Int, NoError>.pipe()
     
-    let subscriber1 = Observer<Int, NoError>(next: { print("Subscriber 1 received \($0)") })
-    let subscriber2 = Observer<Int, NoError>(next: { print("Subscriber 2 received \($0)") })
+    let subscriber1 = Observer<Int, NoError>(next: { print("Subscriber 1 received \($0)") } )
+    let subscriber2 = Observer<Int, NoError>(next: { print("Subscriber 2 received \($0)") } )
     
     print("Subscriber 1 subscribes to the signal")
     signal.observe(subscriber1)
@@ -75,14 +75,14 @@ scopedExample("Subscription") {
  A Signal that completes immediately without emitting any value.
  */
 scopedExample("`empty`") {
-    
     let emptySignal = Signal<Int, NoError>.empty
     
     let observer = Observer<Int, NoError>(
         failed: { _ in print("error not called") },
-        completed: { print("completed not called")},
-        next: { _ in print("next not called")},
-        interrupted: { print("interrupted called")})
+        completed: { print("completed not called") },
+        interrupted: { print("interrupted called") },
+        next: { _ in print("next not called") }
+    )
     
     emptySignal.observe(observer)
 }
@@ -92,14 +92,14 @@ scopedExample("`empty`") {
  A Signal that never sends any events to its observers.
  */
 scopedExample("`never`") {
-    
     let neverSignal = Signal<Int, NoError>.never
     
     let observer = Observer<Int, NoError>(
         failed: { _ in print("error not called") },
-        completed: { print("completed not called")},
-        next: { _ in print("next not called")},
-        interrupted: { print("interrupted not called")})
+        completed: { print("completed not called") },
+        interrupted: { print("interrupted not called") },
+        next: { _ in print("next not called") }
+    )
     
     neverSignal.observe(observer)
 }

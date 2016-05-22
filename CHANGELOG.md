@@ -363,7 +363,7 @@ the sink:
 let (signal, sink) = Signal<Int, NoError>.pipe()
 
 signal.observe(next: { value in
-    println(value)
+    print(value)
 })
 
 // Prints each number
@@ -395,7 +395,7 @@ signal.observe(sink)
 
 // Prints each value buffered
 producer.start(next: { value in
-    println(value)
+    print(value)
 })
 ```
 
@@ -421,7 +421,7 @@ let producer = timer(5, onScheduler: QueueScheduler.mainQueueScheduler).take(3)
 // are generated.
 producer.startWithSignal { signal, disposable in
     signal.observe(next: { date in
-        println(date)
+        print(date)
     })
 
     signal.observe(someOtherObserver)

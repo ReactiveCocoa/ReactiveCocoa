@@ -28,7 +28,7 @@ extension NSNotificationCenter {
 				observer.sendNext(notification)
 			}
 
-			disposable.addDisposable {
+			disposable += {
 				self.removeObserver(notificationObserver)
 			}
 		}
@@ -51,7 +51,7 @@ extension NSURLSession {
 				}
 			}
 
-			disposable.addDisposable {
+			disposable += {
 				task.cancel()
 			}
 			task.resume()

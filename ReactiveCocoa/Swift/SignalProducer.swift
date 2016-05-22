@@ -171,7 +171,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			}
 
 			if let token = token {
-				disposable.addDisposable {
+				disposable += {
 					state.modify { state in
 						var state = state
 						state.observers?.removeValueForToken(token)
@@ -1443,7 +1443,7 @@ extension SignalProducerType {
 
 			// subscribe `observer` before starting the underlying producer.
 			disposable += initializedProducer.start(observer)
-			disposable.addDisposable {
+			disposable += {
 				// Don't dispose of the original producer until all observers
 				// have terminated.
 				token = nil

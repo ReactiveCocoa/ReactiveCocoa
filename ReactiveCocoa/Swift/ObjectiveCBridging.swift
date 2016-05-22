@@ -72,13 +72,6 @@ extension RACSignal {
 	}
 }
 
-extension SignalType {
-	/// Turns each value into an Optional.
-	private func optionalize() -> Signal<Value?, Error> {
-		return signal.map(Optional.init)
-	}
-}
-
 // MARK: - toRACSignal
 
 extension SignalProducerType where Value: AnyObject {

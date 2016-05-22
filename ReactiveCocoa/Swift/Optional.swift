@@ -20,3 +20,17 @@ extension Optional: OptionalType {
 		return self
 	}
 }
+
+extension SignalType {
+	/// Turns each value into an Optional.
+	internal func optionalize() -> Signal<Value?, Error> {
+		return map(Optional.init)
+	}
+}
+
+extension SignalProducerType {
+	/// Turns each value into an Optional.
+	internal func optionalize() -> SignalProducer<Value?, Error> {
+		return lift { $0.optionalize() }
+	}
+}

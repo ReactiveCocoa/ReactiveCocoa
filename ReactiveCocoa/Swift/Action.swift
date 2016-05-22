@@ -115,7 +115,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 				}
 			}
 
-			disposable.addDisposable {
+			disposable += {
 				self._executing.value = false
 			}
 		}

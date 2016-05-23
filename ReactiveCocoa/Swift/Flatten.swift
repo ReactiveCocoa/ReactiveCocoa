@@ -550,6 +550,13 @@ extension SignalType {
 
 		return result
 	}
+	
+	/// Merges the given signals into a single `Signal` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public static func merge<Value, Error: ErrorType>(signals: Signal<Value, Error>...) -> Signal<Value, Error> {
+		return Signal.merge(signals)
+	}
 }
 
 extension SignalProducerType {
@@ -564,7 +571,7 @@ extension SignalProducerType {
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public static func merge<Value, Error: ErrorType>(producers: SignalProducer<Value, Error>...) -> SignalProducer<Value, Error> {
-		return SignalProducer(values: producers).flatten(.Merge)
+		return SignalProducer.merge(producers)
 	}
 }
 

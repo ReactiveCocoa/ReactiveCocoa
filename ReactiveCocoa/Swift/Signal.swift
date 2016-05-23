@@ -1022,12 +1022,12 @@ extension SignalType {
 	}
 }
 
-private struct ZipState<Value> {
-	var values: [Value] = []
-	var completed = false
+private struct ZipState<Left, Right> {
+	var values: (left: [Left], right: [Right]) = ([], [])
+	var completed: (left: Bool, right: Bool) = (false, false)
 
 	var isFinished: Bool {
-		return values.isEmpty && completed
+		return (completed.left && values.left.isEmpty) || (completed.right && values.right.isEmpty)
 	}
 }
 
@@ -1037,26 +1037,29 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func zipWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
-			let states = Atomic(ZipState<Value>(), ZipState<U>())
+			let state = Atomic(ZipState<Value, U>())
 			let disposable = CompositeDisposable()
 			
 			let flush = {
-				var (leftOriginal, rightOriginal) = states.modify { states in
-					var (left, right) = states
-					let extractCount = min(left.values.count, right.values.count)
-					
-					left.values.removeRange(0 ..< extractCount)
-					right.values.removeRange(0 ..< extractCount)
-					return (left, right)
+				var tuple: (Value, U)?
+				var isFinished = false
+				state.modify { state in
+					var state = state
+					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
+						return state
+					}
+
+					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
+					isFinished = state.isFinished
+
+					return state
 				}
-				
-				while !leftOriginal.values.isEmpty && !rightOriginal.values.isEmpty {
-					let left = leftOriginal.values.removeAtIndex(0)
-					let right = rightOriginal.values.removeAtIndex(0)
-					observer.sendNext((left, right))
+
+				if let tuple = tuple {
+					observer.sendNext(tuple)
 				}
-				
-				if leftOriginal.isFinished || rightOriginal.isFinished {
+
+				if isFinished {
 					observer.sendCompleted()
 				}
 			}
@@ -1067,20 +1070,20 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { states in
-						var states = states
-						states.0.values.append(value)
-						return states
+					state.modify { state in
+						var state = state
+						state.values.left.append(value)
+						return state
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { states in
-						var states = states
-						states.0.completed = true
-						return states
+					state.modify { state in
+						var state = state
+						state.completed.left = true
+						return state
 					}
 					
 					flush()
@@ -1092,20 +1095,20 @@ extension SignalType {
 			disposable += otherSignal.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { states in
-						var states = states
-						states.1.values.append(value)
-						return states
+					state.modify { state in
+						var state = state
+						state.values.right.append(value)
+						return state
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { states in
-						var states = states
-						states.1.completed = true
-						return states
+					state.modify { state in
+						var state = state
+						state.completed.right = true
+						return state
 					}
 					
 					flush()

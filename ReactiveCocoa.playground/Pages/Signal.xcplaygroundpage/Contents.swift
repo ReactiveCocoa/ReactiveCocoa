@@ -6,8 +6,8 @@
     **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
     - `carthage checkout`
  1. Open `ReactiveCocoa.xcworkspace`
+ 1. Build `Result-Mac` scheme 
  1. Build `ReactiveCocoa-Mac` scheme
- 1. Build `Result-Mac` scheme
  1. Finally open the `ReactiveCocoa.playground`
  1. Choose `View > Show Debug Area`
  */

@@ -1026,8 +1026,8 @@ private struct ZipState<Value> {
 	var values: [Value] = []
 	var completed = false
 
-	func isFinished(extractCount: Int) -> Bool {
-		return completed && values.count == extractCount
+	var isFinished: Bool {
+		return completed && values.isEmpty
 	}
 }
 
@@ -1042,23 +1042,24 @@ extension SignalType {
 			
 			let flush = {
 				var tuple: (Value, U)?
-				let (leftOriginal, rightOriginal) = states.modify { states in
+				var isFinished = false
+				states.modify { states in
 					var (left, right) = states
 					guard !left.values.isEmpty && !right.values.isEmpty else {
 						return states
 					}
 
 					tuple = (left.values.removeFirst(), right.values.removeFirst())
+					isFinished = left.isFinished || right.isFinished
+
 					return (left, right)
 				}
 
-				var extractCount = 0
 				if let tuple = tuple {
-					extractCount = 1
 					observer.sendNext(tuple)
 				}
 
-				if leftOriginal.isFinished(extractCount) || rightOriginal.isFinished(extractCount) {
+				if isFinished {
 					observer.sendCompleted()
 				}
 			}

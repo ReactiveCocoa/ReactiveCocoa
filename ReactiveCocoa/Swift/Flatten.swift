@@ -540,8 +540,8 @@ extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public static func merge<S: SequenceType where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<Value, Error> {
-		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
+	public static func merge<Seq: SequenceType, S: SignalType where S.Value == Value, S.Error == Error, Seq.Generator.Element == S>(signals: Seq) -> Signal<Value, Error> {
+		let producer = SignalProducer<S, Error>(values: signals)
 		var result: Signal<Value, Error>!
 
 		producer.startWithSignal { signal, _ in
@@ -554,7 +554,7 @@ extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public static func merge<Value, Error: ErrorType>(signals: Signal<Value, Error>...) -> Signal<Value, Error> {
+	public static func merge<S: SignalType where S.Value == Value, S.Error == Error>(signals: S...) -> Signal<Value, Error> {
 		return Signal.merge(signals)
 	}
 }
@@ -563,14 +563,14 @@ extension SignalProducerType {
 	/// Merges the given producers into a single `SignalProducer` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public static func merge<S : SequenceType where S.Generator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<Value, Error> {
+	public static func merge<Seq: SequenceType, S: SignalProducerType where S.Value == Value, S.Error == Error, Seq.Generator.Element == S>(producers: Seq) -> SignalProducer<Value, Error> {
 		return SignalProducer(values: producers).flatten(.Merge)
 	}
 	
 	/// Merges the given producers into a single `SignalProducer` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public static func merge<Value, Error: ErrorType>(producers: SignalProducer<Value, Error>...) -> SignalProducer<Value, Error> {
+	public static func merge<S: SignalProducerType where S.Value == Value, S.Error == Error>(producers: S...) -> SignalProducer<Value, Error> {
 		return SignalProducer.merge(producers)
 	}
 }

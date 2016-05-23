@@ -47,14 +47,6 @@ extension PropertyType {
 	}
 }
 
-/// Workaround of the nil coalescing operator, as it does not work as
-/// intended with function types.
-///
-/// https://bugs.swift.org/browse/SR-832
-private func coalescing<T>(optional: T?, default value: T) -> T {
-	return optional ?? value
-}
-
 /// Protocol composition operators
 ///
 /// The producer and the signal of transformed properties would complete
@@ -66,24 +58,16 @@ extension PropertyType {
 	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure,
-		                                  default: { self })
-
 		return AnyProperty(propertyProducer: transform(producer),
-		                   capturing: capturingClosure)
+		                   capturing: capture(self))
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			let capturingClosure = coalescing((self as? AnyProperty<Value>)?.box.capturingClosure,
-			                                  default: { self })
-			let otherCapturingClosure = coalescing((otherProperty as? AnyProperty<P.Value>)?.box.capturingClosure,
-			                                       default: { otherProperty })
-
 			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
-			                   capturing: { _ = capturingClosure; _ = otherCapturingClosure })
+			                   capturing: capture(self, otherProperty))
 		}
 	}
 
@@ -558,4 +542,23 @@ private class AnyPropertyBoxBase<Value>: PropertyType {
 	func modify(@noescape action: Value throws -> Value) rethrows -> Value {
 		fatalError("This method should have been overriden by a subclass.")
 	}
+}
+
+/// Check if `property` is an `AnyProperty` and has already captured its sources
+/// using a closure. Returns that closure if it does. Otherwise, returns a closure
+/// which captures `property`.
+private func capture<P: PropertyType>(property: P) -> (() -> Void) {
+	if let property = property as? AnyProperty<P.Value>, closure = property.box.capturingClosure {
+		return closure
+	} else {
+		return { property }
+	}
+}
+
+/// Applies `capture(_:)` on the supplied properties, and returns a closure that
+/// captures the resulting closures.
+private func capture<P1: PropertyType, P2: PropertyType>(firstProperty: P1, _ secondProperty: P2) -> (() -> Void) {
+	let firstClosure = capture(firstProperty)
+	let secondClosure = capture(secondProperty)
+	return { _ = (firstClosure, secondClosure) }
 }

@@ -1,11 +1,15 @@
 /*:
  > # IMPORTANT: To use `ReactiveCocoa.playground`, please:
  
+ 1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
+    - `script/bootstrap`
+    **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
+    - `carthage checkout`
  1. Open `ReactiveCocoa.xcworkspace`
- 2. Build `ReactiveCocoa-Mac` scheme
- 3. Build `Result-Mac` scheme
- 3. Finally open the `ReactiveCocoa.playground`
- 4. Choose `View > Show Debug Area`
+ 1. Build `Result-Mac` scheme 
+ 1. Build `ReactiveCocoa-Mac` scheme
+ 1. Finally open the `ReactiveCocoa.playground`
+ 1. Choose `View > Show Debug Area`
  */
 
 import Result
@@ -360,7 +364,7 @@ scopedExample("`collect(count:)`") {
 }
 
 /*:
- ### ``collect(predicate:)` matching values inclusively`
+ ### `collect(predicate:)` matching values inclusively
  Returns a producer that will yield an array of values based on a predicate
  which matches the values collected.
 
@@ -383,7 +387,7 @@ scopedExample("`collect(predicate:)` matching values inclusively") {
 }
 
 /*:
- ### `collect(count:) matching values exclusively
+ ### `collect(count:)` matching values exclusively
  Returns a producer that will yield an array of values based on a predicate
  which matches the values collected and the next value.
  
@@ -687,7 +691,7 @@ scopedExample("`then`") {
 }
 
 /*:
- ### `replayLazely`
+ ### `replayLazily`
  Creates a new `SignalProducer` that will multicast values emitted by
  the underlying producer, up to `capacity`.
  This means that all clients of this `SignalProducer` will see the same version

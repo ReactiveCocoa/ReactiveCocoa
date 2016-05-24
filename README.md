@@ -349,11 +349,14 @@ introductory examples of using it.
 We also provide a great Playground, so you can get used to ReactiveCocoa's operators. In order to start using it:
 
  1. Clone the ReactiveCocoa repository.
- 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
- 1. Open `ReactiveCocoa.xcworkspace`. 
- 1. Build both `Result-Mac` and `ReactiveCocoa-Mac` targets.
- 1. Open the ReactiveCocoa.playground
- 1. Have fun! 
+ 1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
+     - `script/bootstrap` **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed    
+     - `carthage checkout`
+ 1. Open `ReactiveCocoa.xcworkspace`
+ 1. Build `Result-Mac` scheme
+ 1. Build `ReactiveCocoa-Mac` scheme
+ 1. Finally open the `ReactiveCocoa.playground`
+ 1. Choose `View > Show Debug Area`
     
 [Actions]: Documentation/FrameworkOverview.md#actions
 [Basic Operators]: Documentation/BasicOperators.md

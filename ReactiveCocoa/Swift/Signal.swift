@@ -247,12 +247,13 @@ extension SignalType {
 	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { (event: Event<Value, Error>) -> Void in
-				if case let .Next(value) = event {
-					if predicate(value) {
-						observer.sendNext(value)
-					}
-				} else {
+				guard let value = event.value else {
 					observer.action(event)
+					return
+				}
+
+				if predicate(value) {
+					observer.sendNext(value)
 				}
 			}
 		}
@@ -283,18 +284,18 @@ extension SignalType {
 			var taken = 0
 
 			return self.observe { event in
-				if case let .Next(value) = event {
-					if taken < count {
-						taken += 1
-						observer.sendNext(value)
-					}
-
-					if taken == count {
-						observer.sendCompleted()
-					}
-
-				} else {
+				guard let value = event.value else {
 					observer.action(event)
+					return
+				}
+
+				if taken < count {
+					taken += 1
+					observer.sendNext(value)
+				}
+
+				if taken == count {
+					observer.sendCompleted()
 				}
 			}
 		}
@@ -1012,7 +1013,7 @@ extension SignalType {
 	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
-				if case let .Next(value) = event where !predicate(value) {
+				if let value = event.value where !predicate(value) {
 					observer.sendCompleted()
 				} else {
 					observer.action(event)
@@ -1175,38 +1176,38 @@ extension SignalType {
 			disposable.addDisposable(schedulerDisposable)
 
 			disposable += self.observe { event in
-				if case let .Next(value) = event {
-					var scheduleDate: NSDate!
-					state.modify { state in
-						var state = state
-						state.pendingValue = value
+				guard let value = event.value else {
+					schedulerDisposable.innerDisposable = scheduler.schedule {
+						observer.action(event)
+					}
+					return
+				}
 
-						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
+				var scheduleDate: NSDate!
+				state.modify { state in
+					var state = state
+					state.pendingValue = value
+
+					let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+					scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
+
+					return state
+				}
+
+				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+					let previousState = state.modify { state in
+						var state = state
+
+						if state.pendingValue != nil {
+							state.pendingValue = nil
+							state.previousDate = scheduleDate
+						}
 
 						return state
 					}
-
-					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-						let previousState = state.modify { state in
-							var state = state
-
-							if state.pendingValue != nil {
-								state.pendingValue = nil
-								state.previousDate = scheduleDate
-							}
-
-							return state
-						}
-						
-						if let pendingValue = previousState.pendingValue {
-							observer.sendNext(pendingValue)
-						}
-					}
-
-				} else {
-					schedulerDisposable.innerDisposable = scheduler.schedule {
-						observer.action(event)
+					
+					if let pendingValue = previousState.pendingValue {
+						observer.sendNext(pendingValue)
 					}
 				}
 			}

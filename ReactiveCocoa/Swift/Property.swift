@@ -413,7 +413,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// `property`. The resulting property captures `property`.
 	private init<P: PropertyType>(transforming property: P, @noescape using transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(property.producer),
-		          capturing: capture(property))
+		          capturing: AnyProperty.capture(property))
 	}
 
 	/// Initializes a property by applying the binary `SignalProducer` transform on
@@ -421,7 +421,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// and `anotherProperty`.
 	private init<P1: PropertyType, P2: PropertyType>(transformingFirst property: P1, second anotherProperty: P2, @noescape using transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(property.producer)(anotherProperty.producer),
-		          capturing: capture(property, anotherProperty))
+		          capturing: AnyProperty.capture(property, anotherProperty))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
@@ -470,6 +470,25 @@ public struct AnyProperty<Value>: PropertyType {
 
 	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
 		return try box.withValue(action)
+	}
+
+	/// Check if `property` is an `AnyProperty` and has already captured its sources
+	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
+	/// which captures `property`.
+	private static func capture<P: PropertyType>(property: P) -> (() -> Void) {
+		if let property = property as? AnyProperty<P.Value>, closure = property.box.capturingClosure {
+			return closure
+		} else {
+			return { property }
+		}
+	}
+
+	/// Applies `capture(_:)` on the supplied properties, and returns a closure that
+	/// captures the resulting closures.
+	private static func capture<P1: PropertyType, P2: PropertyType>(firstProperty: P1, _ secondProperty: P2) -> (() -> Void) {
+		let firstClosure = capture(firstProperty)
+		let secondClosure = capture(secondProperty)
+		return { _ = (firstClosure, secondClosure) }
 	}
 }
 
@@ -743,23 +762,4 @@ private class AnyPropertyBoxBase<Value>: PropertyType {
 	func modify(@noescape action: Value throws -> Value) rethrows -> Value {
 		fatalError("This method should have been overriden by a subclass.")
 	}
-}
-
-/// Check if `property` is an `AnyProperty` and has already captured its sources
-/// using a closure. Returns that closure if it does. Otherwise, returns a closure
-/// which captures `property`.
-private func capture<P: PropertyType>(property: P) -> (() -> Void) {
-	if let property = property as? AnyProperty<P.Value>, closure = property.box.capturingClosure {
-		return closure
-	} else {
-		return { property }
-	}
-}
-
-/// Applies `capture(_:)` on the supplied properties, and returns a closure that
-/// captures the resulting closures.
-private func capture<P1: PropertyType, P2: PropertyType>(firstProperty: P1, _ secondProperty: P2) -> (() -> Void) {
-	let firstClosure = capture(firstProperty)
-	let secondClosure = capture(secondProperty)
-	return { _ = (firstClosure, secondClosure) }
 }

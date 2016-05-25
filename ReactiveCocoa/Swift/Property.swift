@@ -337,6 +337,7 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 /// A read-only, type-erased view of a property.
 public struct AnyProperty<Value>: PropertyType {
 	private let capturingClosure: (() -> Void)?
+	private let disposable: Disposable?
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -363,6 +364,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		capturingClosure = AnyProperty.capture(property)
+		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -406,45 +408,33 @@ public struct AnyProperty<Value>: PropertyType {
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
 	private init(propertyProducer: SignalProducer<Value, NoError>, capturing closure: (() -> Void)? = nil) {
-		let disposable = CompositeDisposable()
+		var observerDisposable: Disposable!
+		var value: Value!
 
-		var hasInitialized = false
-		var mutableProperty: MutableProperty<Value>?
-		weak var weakMutableProperty: MutableProperty<Value>?
-
-		disposable += propertyProducer.start { event in
+		observerDisposable = propertyProducer.start { event in
 			switch event {
-			case let .Next(value):
-				if hasInitialized {
-					weakMutableProperty?.value = value
-				} else {
-					mutableProperty = MutableProperty(value)
-					weakMutableProperty = mutableProperty
-					hasInitialized = true
-				}
+			case let .Next(newValue):
+				value = newValue
 
 			case .Completed, .Interrupted:
-				disposable.dispose()
+				observerDisposable.dispose()
 
 			case let .Failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
 
-		if let property = mutableProperty {
-			disposable += property.producer.startWithCompleted {
-				disposable.dispose()
-			}
-
+		if value != nil {
+			disposable = ScopedDisposable(observerDisposable)
 			capturingClosure = closure
-			_value = { property.value }
+
+			_value = { value }
 			_producer = { propertyProducer }
 			_signal = {
 				var extractedSignal: Signal<Value, NoError>!
 				propertyProducer.startWithSignal { signal, _ in extractedSignal = signal }
 				return extractedSignal
 			}
-			mutableProperty = nil
 		} else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}

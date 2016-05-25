@@ -58,16 +58,14 @@ extension PropertyType {
 	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		return AnyProperty(propertyProducer: transform(producer),
-		                   capturing: capture(self))
+		return AnyProperty(transforming: self, using: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			return AnyProperty(propertyProducer: transform(self.producer)(otherProperty.producer),
-			                   capturing: capture(self, otherProperty))
+			return AnyProperty(transformingFirst: self, second: otherProperty, using: transform)
 		}
 	}
 
@@ -411,6 +409,21 @@ public struct AnyProperty<Value>: PropertyType {
 		self.init(propertyProducer: SignalProducer(value: initialValue).takeUntilReplacement(signal))
 	}
 
+	/// Initializes a property by applying the unary `SignalProducer` transform on
+	/// `property`. The resulting property captures `property`.
+	private init<P: PropertyType>(transforming property: P, @noescape using transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
+		self.init(propertyProducer: transform(property.producer),
+		          capturing: capture(property))
+	}
+
+	/// Initializes a property by applying the binary `SignalProducer` transform on
+	/// `property` and `anotherProperty`. The resulting property captures `property`
+	/// and `anotherProperty`.
+	private init<P1: PropertyType, P2: PropertyType>(transformingFirst property: P1, second anotherProperty: P2, @noescape using transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
+		self.init(propertyProducer: transform(property.producer)(anotherProperty.producer),
+		          capturing: capture(property, anotherProperty))
+	}
+
 	/// Initializes a property from a producer that promises to send at least one
 	/// value synchronously in its start handler before sending any subsequent event.
 	/// If the producer fails its promise, a fatal error would be raised.
@@ -586,7 +599,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 		return try action(getter())
 	}
-	
+
 	deinit {
 		observer.sendCompleted()
 	}

@@ -357,6 +357,8 @@ public struct AnyProperty<Value>: PropertyType {
 
 	/// A signal that will send the wrapped property's changes over time, then complete
 	/// when the wrapped property has deinitialized.
+	///
+	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}

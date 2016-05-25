@@ -17,12 +17,6 @@ public protocol PropertyType {
 	/// completes when the property has deinitialized, or has no further
 	/// change.
 	var signal: Signal<Value, NoError> { get }
-
-	/// Performs an arbitrary action using the current value of the
-	/// variable. Conforming types may optionally guarantee atomicity.
-	///
-	/// Returns the result of the action.
-	func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result
 }
 
 /// Represents an observable property that can be mutated directly.
@@ -32,19 +26,6 @@ public protocol PropertyType {
 public protocol MutablePropertyType: class, PropertyType {
 	/// The current value of the property.
 	var value: Value { get set }
-
-	/// Modifies the variable. Conforming types may optionally
-	/// guarantee atomicity.
-	///
-	/// Returns the old value.
-	func modify(@noescape action: Value throws -> Value) rethrows -> Value
-}
-
-extension PropertyType {
-	/// The current value of the property.
-	public var value: Value {
-		return withValue { $0 }
-	}
 }
 
 /// Protocol composition operators
@@ -353,42 +334,38 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 	return nil
 }
 
-extension MutablePropertyType {
-	/// The current value of the property.
-	public var value: Value {
-		get { return withValue { $0 } }
-		set { swap(newValue) }
-	}
-
-	/// Modifies the variable. Conforming types may optionally
-	/// guarantee atomicity.
-	///
-	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
-		return modify { _ in newValue }
-	}
-}
-
 /// A read-only, type-erased view of a property.
 public struct AnyProperty<Value>: PropertyType {
-	private let box: AnyPropertyBoxBase<Value>
+	private let capturingClosure: (() -> Void)?
+
+	private let _value: () -> Value
+	private let _producer: () -> SignalProducer<Value, NoError>
+	private let _signal: () -> Signal<Value, NoError>
+
+	/// The current value of the property.
+	public var value: Value {
+		return _value()
+	}
 
 	/// A producer for Signals that will send the wrapped property's current value,
 	/// followed by all changes over time, then complete when the wrapped property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return box.producer
+		return _producer()
 	}
 
 	/// A signal that will send the wrapped property's changes over time, then complete
 	/// when the wrapped property has deinitialized.
 	public var signal: Signal<Value, NoError> {
-		return box.signal
+		return _signal()
 	}
 
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		box = AnyPropertyBox(property)
+		capturingClosure = AnyProperty.capture(property)
+		_value = { property.value }
+		_producer = { property.producer }
+		_signal = { property.signal }
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -461,22 +438,25 @@ public struct AnyProperty<Value>: PropertyType {
 				disposable.dispose()
 			}
 
-			box = AnyPropertyBox(property, source: propertyProducer, capturing: closure)
+			capturingClosure = closure
+			_value = { property.value }
+			_producer = { propertyProducer }
+			_signal = {
+				var extractedSignal: Signal<Value, NoError>!
+				propertyProducer.startWithSignal { signal, _ in extractedSignal = signal }
+				return extractedSignal
+			}
 			mutableProperty = nil
 		} else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
 	}
 
-	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
-		return try box.withValue(action)
-	}
-
 	/// Check if `property` is an `AnyProperty` and has already captured its sources
 	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
 	/// which captures `property`.
 	private static func capture<P: PropertyType>(property: P) -> (() -> Void) {
-		if let property = property as? AnyProperty<P.Value>, closure = property.box.capturingClosure {
+		if let property = property as? AnyProperty<P.Value>, closure = property.capturingClosure {
 			return closure
 		} else {
 			return { property }
@@ -492,37 +472,6 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 }
 
-/// A type-erased view of a mutable property.
-public class AnyMutableProperty<Value>: MutablePropertyType {
-	private let box: AnyPropertyBoxBase<Value>
-
-	/// A producer for Signals that will send the property's current value,
-	/// followed by all changes over time, then complete when the property has
-	/// deinitialized.
-	public var producer: SignalProducer<Value, NoError> {
-		return box.producer
-	}
-
-	/// A signal that will send the property's changes over time, then complete
-	/// when the property has deinitialized.
-	public var signal: Signal<Value, NoError> {
-		return box.signal
-	}
-
-	/// Initializes a property as a read-only view of the given property.
-	public init<P: MutablePropertyType where P.Value == Value>(_ property: P) {
-		box = AnyMutablePropertyBox(property)
-	}
-
-	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
-		return try box.withValue(action)
-	}
-
-	public func modify(@noescape action: Value throws -> Value) rethrows -> Value {
-		return try box.modify(action)
-	}
-}
-
 /// A property that never changes.
 public struct ConstantProperty<Value>: PropertyType {
 
@@ -535,10 +484,6 @@ public struct ConstantProperty<Value>: PropertyType {
 		self.value = value
 		self.producer = SignalProducer(value: value)
 		self.signal = .empty
-	}
-
-	public func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
-		return try action(value)
 	}
 }
 
@@ -559,6 +504,20 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// The setter of the underlying storage.
 	private let setter: Value -> Void
+
+	/// The current value of the property.
+	///
+	/// Setting this to a new value will notify all observers of `signal`, or signals
+	/// created using `producer`.
+	public var value: Value {
+		get {
+			return withValue { $0 }
+		}
+
+		set {
+			swap(newValue)
+		}
+	}
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
@@ -594,6 +553,13 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		setter = { newValue in value = newValue }
 
 		(signal, observer) = Signal.pipe()
+	}
+
+	/// Atomically replaces the contents of the variable.
+	///
+	/// Returns the old value.
+	public func swap(newValue: Value) -> Value {
+		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
@@ -695,71 +661,4 @@ public func <~ <Destination: MutablePropertyType, Source: PropertyType where Des
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
-}
-
-/// The type-erasing box for `AnyMutableProperty`.
-private class AnyMutablePropertyBox<P: MutablePropertyType>: AnyPropertyBox<P> {
-	override init(_ property: P, source producer: SignalProducer<P.Value, NoError>? = nil, capturing closure: (() -> Void)? = nil) {
-		super.init(property, source: producer, capturing: closure)
-	}
-
-	override func modify(@noescape action: P.Value throws -> P.Value) rethrows -> P.Value {
-		return try property.modify(action)
-	}
-}
-
-/// The type-erasing box for `AnyProperty`.
-private class AnyPropertyBox<P: PropertyType>: AnyPropertyBoxBase<P.Value> {
-	let property: P
-	let sourceProducer: SignalProducer<P.Value, NoError>?
-
-	/// Wraps a property, and shadows its producer and signal with `source` if supplied.
-	init(_ property: P, source producer: SignalProducer<P.Value, NoError>? = nil, capturing closure: (() -> Void)? = nil) {
-		self.property = property
-		self.sourceProducer = producer
-		super.init(capturing: closure)
-	}
-
-	override var signal: Signal<P.Value, NoError> {
-		if let producer = sourceProducer {
-			var extractedSignal: Signal<P.Value, NoError>!
-			producer.startWithSignal { signal, _ in extractedSignal = signal }
-			return extractedSignal
-		} else {
-			return property.signal
-		}
-	}
-
-	override var producer: SignalProducer<P.Value, NoError> {
-		return sourceProducer ?? property.producer
-	}
-
-	override func withValue<Result>(@noescape action: P.Value throws -> Result) rethrows -> Result {
-		return try property.withValue(action)
-	}
-}
-
-/// The base class of the type-erasing boxes.
-private class AnyPropertyBoxBase<Value>: PropertyType {
-	let capturingClosure: (() -> Void)?
-
-	init(capturing closure: (() -> Void)?) {
-		capturingClosure = closure
-	}
-
-	var signal: Signal<Value, NoError> {
-		fatalError("This method should have been overriden by a subclass.")
-	}
-
-	var producer: SignalProducer<Value, NoError> {
-		fatalError("This method should have been overriden by a subclass.")
-	}
-
-	func withValue<Result>(@noescape action: Value throws -> Result) rethrows -> Result {
-		fatalError("This method should have been overriden by a subclass.")
-	}
-
-	func modify(@noescape action: Value throws -> Value) rethrows -> Value {
-		fatalError("This method should have been overriden by a subclass.")
-	}
 }

@@ -75,16 +75,6 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 				}
 			}
 	}
-
-	public func withValue<Result>(@noescape action: Value? throws -> Result) rethrows -> Result {
-		return try action(value)
-	}
-
-	public func modify(@noescape action: Value? throws -> Value?) rethrows -> Value? {
-		let oldValue = value
-		value = try action(oldValue)
-		return oldValue
-	}
 }
 
 extension DynamicProperty where Value: _ObjectiveCBridgeable {

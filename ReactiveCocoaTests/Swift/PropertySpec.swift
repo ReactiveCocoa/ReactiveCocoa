@@ -336,6 +336,22 @@ class PropertySpec: QuickSpec {
 				}
 
 				describe("transformed properties") {
+					it("should have the latest value available before sending any value") {
+						var latestValue: Int!
+
+						let property = MutableProperty(1)
+						let mappedProperty = property.map { $0 + 1 }
+						mappedProperty.producer.startWithNext { _ in latestValue = mappedProperty.value }
+
+						expect(latestValue) == 2
+
+						property.value = 2
+						expect(latestValue) == 3
+
+						property.value = 3
+						expect(latestValue) == 4
+					}
+
 					it("should retain its source property") {
 						var property = Optional(MutableProperty(1))
 						weak var weakProperty = property

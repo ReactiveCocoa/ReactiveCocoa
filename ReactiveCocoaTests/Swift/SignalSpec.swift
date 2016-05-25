@@ -1287,6 +1287,10 @@ class SignalSpec: QuickSpec {
 				observer.sendCompleted()
 				expect(completed) == false
 
+				scheduler.advance()
+				expect(values) == [ 0 ]
+				expect(completed) == true
+
 				scheduler.run()
 				expect(values) == [ 0 ]
 				expect(completed) == true

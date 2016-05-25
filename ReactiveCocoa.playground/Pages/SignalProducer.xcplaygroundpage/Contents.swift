@@ -48,7 +48,7 @@ import Foundation
 /*:
  ### `Subscription`
  A SignalProducer represents an operation that can be started on demand. Starting the operation returns a Signal on which the result(s) of the operation can be observed. This behavior is sometimes also called "cold". 
-This means that a subscriber will never miss any valus sent by the SignalProducer.
+This means that a subscriber will never miss any values sent by the SignalProducer.
  */
 scopedExample("Subscription") {
     let producer = SignalProducer<Int, NoError> { observer, _ in
@@ -504,18 +504,6 @@ scopedExample("`combinePrevious`") {
 }
 
 /*:
- ### `reduce`
- Like `scan`, but sends only the final value and then immediately completes.
- */
-scopedExample("`reduce`") {
-    SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-        .reduce(0, +)
-        .startWithNext { value in
-            print(value)
-        }
-}
-
-/*:
  ### `scan`
  Aggregates `self`'s values into a single combined value. When `self` emits
  its first value, `combine` is invoked with `initial` as the first argument and
@@ -529,6 +517,18 @@ scopedExample("`scan`") {
         .startWithNext { value in
             print(value)
         }
+}
+
+/*:
+ ### `reduce`
+ Like `scan`, but sends only the final value and then immediately completes.
+ */
+scopedExample("`reduce`") {
+    SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
+        .reduce(0, +)
+        .startWithNext { value in
+            print(value)
+    }
 }
 
 /*:
@@ -762,9 +762,14 @@ scopedExample("`flatMapError`") {
 }
 
 /*:
- ### `logEvents`
- Logs all events that the receiver sends.
- By default, it will print to the standard output.
+ ### `sampleWith`
+ Forwards the latest value from `self` with the value from `sampler` as a tuple,
+ only when `sampler` sends a Next event.
+ 
+ If `sampler` fires before a value has been observed on `self`, nothing happens.
+ Returns a producer that will send values from `self` and `sampler`,
+ sampled (possibly multiple times) by `sampler`, then complete once both
+ input producers have completed, or interrupt if either input producer is interrupted.
  */
 scopedExample("`sampleWith`") {
     let producer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])

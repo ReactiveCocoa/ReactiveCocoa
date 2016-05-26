@@ -19,7 +19,7 @@ import Foundation
 /*:
  ## Signal
  
- A **signal**, represented by the [`Signal`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Signal.swift) type, is any series of [events](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Event.swift)
+ A **signal**, represented by the [`Signal`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Signal.swift) type, is any series of [`Event`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Event.swift) values
  over time that can be observed.
  
  Signals are generally used to represent event streams that are already “in progress”,

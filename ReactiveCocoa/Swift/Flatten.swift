@@ -385,6 +385,12 @@ extension SignalProducerType {
 	public func concat(next: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
 		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [ self.producer, next ]).flatten(.Concat)
 	}
+
+	/// `concat`s `self` onto initial `value`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func beginWith(value: Value) -> SignalProducer<Value, Error> {
+		return SignalProducer(value: value).concat(self.producer)
+	}
 }
 
 private final class ConcatState<Value, Error: ErrorType> {

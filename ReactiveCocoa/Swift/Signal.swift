@@ -506,7 +506,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> Void, _ onFailed: Error -> Void, _ onBothCompleted: () -> Void, _ onInterrupted: () -> Void) -> Disposable? {
+	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
@@ -514,26 +514,26 @@ extension SignalType {
 
 				signalState.latestValue = value
 				if otherState.latestValue != nil {
-					onBothNext()
+					observer.sendNext()
 				}
 
 				lock.unlock()
 
 			case let .Failed(error):
-				onFailed(error)
+				observer.sendFailed(error)
 
 			case .Completed:
 				lock.lock()
 
 				signalState.completed = true
 				if otherState.completed {
-					onBothCompleted()
+					observer.sendCompleted()
 				}
 
 				lock.unlock()
 
 			case .Interrupted:
-				onInterrupted()
+				observer.sendInterrupted()
 			}
 		}
 	}
@@ -552,18 +552,16 @@ extension SignalType {
 
 			let signalState = CombineLatestState<Value>()
 			let otherState = CombineLatestState<U>()
-			
+
 			let onBothNext = {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
-			
-			let onFailed = observer.sendFailed
-			let onBothCompleted = observer.sendCompleted
-			let onInterrupted = observer.sendInterrupted
+
+			let observer = Signal<(), Error>.Observer(next: onBothNext, failed: observer.sendFailed, completed: observer.sendCompleted, interrupted: observer.sendInterrupted)
 
 			let disposable = CompositeDisposable()
-			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
+			disposable += self.observeWithStates(signalState, otherState, lock, observer)
+			disposable += otherSignal.observeWithStates(otherState, signalState, lock, observer)
 			
 			return disposable
 		}

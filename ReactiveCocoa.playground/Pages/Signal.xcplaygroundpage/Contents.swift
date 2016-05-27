@@ -107,3 +107,135 @@ scopedExample("`never`") {
     
     neverSignal.observe(observer)
 }
+
+/*:
+ ## `Operators`
+ ### `uniqueValues`
+ Forwards only those values from `self` that are unique across the set of
+ all values that have been seen.
+ 
+ Note: This causes the values to be retained to check for uniqueness. Providing
+ a function that returns a unique value for each sent value can help you reduce
+ the memory footprint.
+ */
+scopedExample("`uniqueValues`") {
+    let (signal, observer) = Signal<Int, NoError>.pipe()
+    let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
+    let uniqueSignal = signal.uniqueValues()
+
+    uniqueSignal.observe(subscriber)
+    observer.sendNext(1)
+    observer.sendNext(2)
+    observer.sendNext(3)
+    observer.sendNext(4)
+    observer.sendNext(3)
+    observer.sendNext(3)
+    observer.sendNext(5)
+}
+
+/*:
+ ### `map`
+ Maps each value in the signal to a new value.
+ */
+scopedExample("`map`") {
+    let (signal, observer) = Signal<Int, NoError>.pipe()
+    let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
+    let mappedSignal = signal.map { $0 * 2 }
+
+    mappedSignal.observe(subscriber)
+    print("Send value `10` on the signal")
+    observer.sendNext(10)
+}
+
+/*:
+ ### `mapError`
+ Maps errors in the signal to a new error.
+ */
+scopedExample("`mapError`") {    
+    let (signal, observer) = Signal<Int, NSError>.pipe()
+    let subscriber = Observer<Int, NSError>(failed: { print("Subscriber received error: \($0)") } )
+    let mappedErrorSignal = signal.mapError { (error:NSError) -> NSError in
+        let userInfo = [NSLocalizedDescriptionKey: "🔥"]
+        let code = error.code + 10000
+        let mappedError = NSError(domain: "com.reactivecocoa.errordomain", code: code, userInfo: userInfo)
+        return mappedError
+    }
+
+    mappedErrorSignal.observe(subscriber)
+    print("Send error `NSError(domain: \"com.reactivecocoa.errordomain\", code: 4815, userInfo: nil)` on the signal")
+    observer.sendFailed(NSError(domain: "com.reactivecocoa.errordomain", code: 4815, userInfo: nil))
+}
+
+/*:
+ ### `filter`
+ Preserves only the values of the signal that pass the given predicate.
+ */
+scopedExample("`filter`") {
+    let (signal, observer) = Signal<Int, NoError>.pipe()
+    let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
+    // subscriber will only receive events with values greater than 12
+    let filteredSignal = signal.filter { $0 > 12 ? true : false }
+
+    filteredSignal.observe(subscriber)
+    observer.sendNext(10)
+    observer.sendNext(11)
+    observer.sendNext(12)
+    observer.sendNext(13)
+    observer.sendNext(14)
+}
+
+/*:
+ ### `ignoreNil`
+ Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+ values are dropped.
+ */
+scopedExample("`ignoreNil`") {
+    let (signal, observer) = Signal<Int?, NoError>.pipe()
+    // note that the signal is of type `Int?` and observer is of type `Int`, given we're unwrapping
+    // non-`nil` values
+    let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
+    let ignoreNilSignal = signal.ignoreNil()
+
+    ignoreNilSignal.observe(subscriber)
+    observer.sendNext(1)
+    observer.sendNext(nil)
+    observer.sendNext(3)
+}
+
+/*:
+ ### `take`
+ Returns a signal that will yield the first `count` values from `self`
+ */
+scopedExample("`take`") {
+    let (signal, observer) = Signal<Int, NoError>.pipe()
+    let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
+    let takeSignal = signal.take(2)
+
+    takeSignal.observe(subscriber)
+    observer.sendNext(1)
+    observer.sendNext(2)
+    observer.sendNext(3)
+    observer.sendNext(4)
+}
+
+/*:
+ ### `collect`
+ Returns a signal that will yield an array of values when `self` completes.
+ - Note: When `self` completes without collecting any value, it will send
+ an empty array of values.
+ */
+scopedExample("`collect`") {
+    let (signal, observer) = Signal<Int, NoError>.pipe()
+    // note that the signal is of type `Int` and observer is of type `[Int]` given we're "collecting"
+    // `Int` values for the lifetime of the signal
+    let subscriber = Observer<[Int], NoError>(next: { print("Subscriber received \($0)") } )
+    let collectSignal = signal.collect()
+
+    collectSignal.observe(subscriber)
+    observer.sendNext(1)
+    observer.sendNext(2)
+    observer.sendNext(3)
+    observer.sendNext(4)
+    observer.sendCompleted()
+}
+

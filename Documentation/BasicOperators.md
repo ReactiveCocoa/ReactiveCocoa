@@ -131,7 +131,7 @@ These operators transform an event stream into a new stream.
 
 ### Mapping
 
-The `map` operator is used to transform the values in a event stream, creating
+The `map` operator is used to transform the values in an event stream, creating
 a new stream with the results.
 
 ```Swift

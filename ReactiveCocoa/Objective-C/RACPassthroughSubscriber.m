@@ -7,6 +7,7 @@
 //
 
 #import "RACPassthroughSubscriber.h"
+#import <ReactiveCocoa/EXTScope.h>
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
@@ -33,7 +34,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 @interface RACPassthroughSubscriber ()
 
 // The subscriber to which events should be forwarded.
-@property (nonatomic, strong, readonly) id<RACSubscriber> innerSubscriber;
+@property (nonatomic, strong, readwrite) id<RACSubscriber> innerSubscriber;
 
 // The signal sending events to this subscriber.
 //
@@ -63,6 +64,14 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	_disposable = disposable;
 
 	[self.innerSubscriber didSubscribeWithDisposable:self.disposable];
+	@weakify(self);
+	[self.disposable addDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(self);
+		@synchronized (self) {
+			self.innerSubscriber = nil;
+		}
+	}]];
+
 	return self;
 }
 
@@ -75,7 +84,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 		RACSIGNAL_NEXT(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString([value description]));
 	}
 
-	[self.innerSubscriber sendNext:value];
+	@synchronized (self) {
+		[self.innerSubscriber sendNext:value];
+	}
 }
 
 - (void)sendError:(NSError *)error {
@@ -85,7 +96,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 		RACSIGNAL_ERROR(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(error.description));
 	}
 
-	[self.innerSubscriber sendError:error];
+	@synchronized (self) {
+		[self.innerSubscriber sendError:error];
+	}
 }
 
 - (void)sendCompleted {
@@ -95,7 +108,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 		RACSIGNAL_COMPLETED(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description));
 	}
 
-	[self.innerSubscriber sendCompleted];
+	@synchronized (self) {
+		[self.innerSubscriber sendCompleted];
+	}
 }
 
 - (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {

@@ -251,6 +251,19 @@ qck_describe(@"-bind:", ^{
 		expect(@(secondSubscribed)).to(beFalsy());
 		expect(@(errored)).to(beTruthy());
 	});
+	
+	qck_it(@"should not retain signals that are subscribed", ^{
+		__weak RACSignal *weakSignal;
+		@autoreleasepool {
+			RACSignal *delaySignal = [[RACSignal return:@123] delay:1];
+			[[delaySignal map:^id(id value) {
+				return @456;
+			}] subscribeNext:^(id x) {
+			}];
+			weakSignal = delaySignal;
+		}
+		expect(weakSignal).to(beNil());
+	});
 });
 
 qck_describe(@"subscribing", ^{

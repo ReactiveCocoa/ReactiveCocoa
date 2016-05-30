@@ -842,11 +842,11 @@ class FlattenSpec: QuickSpec {
 			}
 		}
 
-		describe("SignalProducer.beginWith()") {
+		describe("SignalProducer.prefix(value:)") {
 			it("should emit initial value") {
 				let (signal, observer) = SignalProducer<Int, NoError>.pipe()
 
-				let mergedSignals = signal.beginWith(0)
+				let mergedSignals = signal.prefix(value: 0)
 
 				var lastValue: Int?
 				mergedSignals.startWithNext { lastValue = $0 }

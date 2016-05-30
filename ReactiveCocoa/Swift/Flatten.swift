@@ -388,7 +388,7 @@ extension SignalProducerType {
 
 	/// `concat`s `self` onto initial `value`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func beginWith(value: Value) -> SignalProducer<Value, Error> {
+	public func prefix(value value: Value) -> SignalProducer<Value, Error> {
 		return SignalProducer(value: value).concat(self.producer)
 	}
 }

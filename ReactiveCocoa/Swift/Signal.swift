@@ -339,7 +339,7 @@ extension SignalType {
 
 	/// Returns a signal that will yield an array of values when `self` completes.
 	///
-	/// - Note: When `self` completes without collecting any value, it will sent
+	/// - Note: When `self` completes without collecting any value, it will send
 	/// an empty array of values.
 	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")

@@ -1227,11 +1227,18 @@ extension SignalType {
 	/// will be discarded and the returned signal will terminate immediately.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
-		return materialize().flatMap(.Latest, transform: { event in
-			event.isTerminating
-				? SignalProducer(value: event).observeOn(scheduler)
-				: SignalProducer(value: event).delay(interval, onScheduler: scheduler)
-		}).dematerialize()
+		precondition(interval >= 0)
+		
+		return self
+			.materialize()
+			.flatMap(.Latest) { event -> SignalProducer<Event<Value, Error>, NoError> in
+				if event.isTerminating {
+					return SignalProducer(value: event).observeOn(scheduler)
+				} else {
+					return SignalProducer(value: event).delay(interval, onScheduler: scheduler)
+				}
+			}
+			.dematerialize()
 	}
 }
 

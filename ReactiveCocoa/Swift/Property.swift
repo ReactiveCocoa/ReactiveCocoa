@@ -36,7 +36,7 @@ public protocol MutablePropertyType: class, PropertyType {
 /// A transformed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyType {
-	/// Lifts an unary SignalProducer operator to operate upon PropertyType instead.
+	/// Lifts a unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(transforming: self, using: transform)

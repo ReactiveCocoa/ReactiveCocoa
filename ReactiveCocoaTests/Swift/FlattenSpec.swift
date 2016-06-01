@@ -863,5 +863,28 @@ class FlattenSpec: QuickSpec {
 				expect(lastValue) == 3
 			}
 		}
+		
+		describe("SignalProducer.suffix(value:)") {
+			it("should emit final value") {
+				let (signal, observer) = SignalProducer<Int, NoError>.pipe()
+				
+				let mergedSignals = signal.suffix(value: 4)
+				
+				var lastValue: Int?
+				mergedSignals.startWithNext { lastValue = $0 }
+								
+				observer.sendNext(1)
+				expect(lastValue) == 1
+				
+				observer.sendNext(2)
+				expect(lastValue) == 2
+				
+				observer.sendNext(3)
+				expect(lastValue) == 3
+				
+				observer.sendCompleted()
+				expect(lastValue) == 4
+			}
+		}
 	}
 }

@@ -466,7 +466,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				it("should forward the latest values from both inputs") {
-					let combinedProperty = property.combineLatest(with: otherProperty)
+					let combinedProperty = property.combineLatestWith(otherProperty)
 					var latest: (String, String)?
 					combinedProperty.signal.observeNext { latest = $0 }
 
@@ -487,7 +487,7 @@ class PropertySpec: QuickSpec {
 				it("should complete when the source properties are deinitialized") {
 					var completed = false
 
-					var combinedProperty = Optional(property.combineLatest(with: otherProperty))
+					var combinedProperty = Optional(property.combineLatestWith(otherProperty))
 					combinedProperty!.signal.observeCompleted { completed = true }
 
 					combinedProperty = nil
@@ -513,7 +513,7 @@ class PropertySpec: QuickSpec {
 				it("should combine pairs") {
 					var result: [String] = []
 
-					let zippedProperty = property.zip(with: otherProperty)
+					let zippedProperty = property.zipWith(otherProperty)
 					zippedProperty.producer.startWithNext { (left, right) in result.append("\(left)\(right)") }
 
 					let firstResult = [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
@@ -547,7 +547,7 @@ class PropertySpec: QuickSpec {
 					var result: [String] = []
 					var completed = false
 
-					var zippedProperty = Optional(property.zip(with: otherProperty))
+					var zippedProperty = Optional(property.zipWith(otherProperty))
 					zippedProperty!.producer.start { event in
 						switch event {
 						case let .Next(left, right):

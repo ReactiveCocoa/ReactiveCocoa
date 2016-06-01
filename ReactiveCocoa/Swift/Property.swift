@@ -59,14 +59,14 @@ extension PropertyType {
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func combineLatest<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
+	public func combineLatestWith<P: PropertyType>(other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.combineLatestWith)(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func zip<P: PropertyType>(with other: P) -> AnyProperty<(Value, P.Value)> {
+	public func zipWith<P: PropertyType>(other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.zipWith)(other)
 	}
 
@@ -150,7 +150,7 @@ extension PropertyType where Value: Hashable {
 /// `combineLatest(with:)`.
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.combineLatest(with: b)
+	return a.combineLatestWith(b)
 }
 
 /// Combines the values of all the given properties, in the manner described by
@@ -158,7 +158,7 @@ public func combineLatest<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> Any
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 	return combineLatest(a, b)
-		.combineLatest(with: c)
+		.combineLatestWith(c)
 		.map(repack)
 }
 
@@ -167,7 +167,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType>(a: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 	return combineLatest(a, b, c)
-		.combineLatest(with: d)
+		.combineLatestWith(d)
 		.map(repack)
 }
 
@@ -176,7 +176,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 	return combineLatest(a, b, c, d)
-		.combineLatest(with: e)
+		.combineLatestWith(e)
 		.map(repack)
 }
 
@@ -185,7 +185,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 	return combineLatest(a, b, c, d, e)
-		.combineLatest(with: f)
+		.combineLatestWith(f)
 		.map(repack)
 }
 
@@ -194,7 +194,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 	return combineLatest(a, b, c, d, e, f)
-		.combineLatest(with: g)
+		.combineLatestWith(g)
 		.map(repack)
 }
 
@@ -203,7 +203,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatest(with: h)
+		.combineLatestWith(h)
 		.map(repack)
 }
 
@@ -212,7 +212,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatest(with: i)
+		.combineLatestWith(i)
 		.map(repack)
 }
 
@@ -221,7 +221,7 @@ public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: 
 @warn_unused_result(message="Did you forget to use the property?")
 public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatest(with: j)
+		.combineLatestWith(j)
 		.map(repack)
 }
 
@@ -233,7 +233,7 @@ public func combineLatest<S: SequenceType where S.Generator.Element: PropertyTyp
 	if let first = generator.next() {
 		let initial = first.map { [$0] }
 		return GeneratorSequence(generator).reduce(initial) { property, next in
-			property.combineLatest(with: next).map { $0.0 + [$0.1] }
+			property.combineLatestWith(next).map { $0.0 + [$0.1] }
 		}
 	}
 
@@ -244,7 +244,7 @@ public func combineLatest<S: SequenceType where S.Generator.Element: PropertyTyp
 /// `zip(with:)`.
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.zip(with: b)
+	return a.zipWith(b)
 }
 
 /// Zips the values of all the given properties, in the manner described by
@@ -252,7 +252,7 @@ public func zip<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 	return zip(a, b)
-		.zip(with: c)
+		.zipWith(c)
 		.map(repack)
 }
 
@@ -261,7 +261,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B,
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 	return zip(a, b, c)
-		.zip(with: d)
+		.zipWith(d)
 		.map(repack)
 }
 
@@ -270,7 +270,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 	return zip(a, b, c, d)
-		.zip(with: e)
+		.zipWith(e)
 		.map(repack)
 }
 
@@ -279,7 +279,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 	return zip(a, b, c, d, e)
-		.zip(with: f)
+		.zipWith(f)
 		.map(repack)
 }
 
@@ -288,7 +288,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 	return zip(a, b, c, d, e, f)
-		.zip(with: g)
+		.zipWith(g)
 		.map(repack)
 }
 
@@ -297,7 +297,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 	return zip(a, b, c, d, e, f, g)
-		.zip(with: h)
+		.zipWith(h)
 		.map(repack)
 }
 
@@ -306,7 +306,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 	return zip(a, b, c, d, e, f, g, h)
-		.zip(with: i)
+		.zipWith(i)
 		.map(repack)
 }
 
@@ -315,7 +315,7 @@ public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyTy
 @warn_unused_result(message="Did you forget to use the property?")
 public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 	return zip(a, b, c, d, e, f, g, h, i)
-		.zip(with: j)
+		.zipWith(j)
 		.map(repack)
 }
 
@@ -327,7 +327,7 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 	if let first = generator.next() {
 		let initial = first.map { [$0] }
 		return GeneratorSequence(generator).reduce(initial) { property, next in
-			property.zip(with: next).map { $0.0 + [$0.1] }
+			property.zipWith(next).map { $0.0 + [$0.1] }
 		}
 	}
 

@@ -46,7 +46,7 @@ extension PropertyType {
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			return AnyProperty(transformingFirst: self, second: otherProperty, using: transform)
+			return AnyProperty(combining: (self, otherProperty), using: transform)
 		}
 	}
 
@@ -336,7 +336,7 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 
 /// A read-only, type-erased view of a property.
 public struct AnyProperty<Value>: PropertyType {
-	private let capturingClosure: (() -> Void)?
+	private let sources: [Any]
 	private let disposable: Disposable?
 
 	private let _value: () -> Value
@@ -365,7 +365,7 @@ public struct AnyProperty<Value>: PropertyType {
 
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		capturingClosure = AnyProperty.capture(property)
+		sources = AnyProperty.capture(property)
 		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
@@ -398,9 +398,9 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property by applying the binary `SignalProducer` transform on
 	/// `property` and `anotherProperty`. The resulting property captures `property`
 	/// and `anotherProperty`.
-	private init<P1: PropertyType, P2: PropertyType>(transformingFirst property: P1, second anotherProperty: P2, @noescape using transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(property.producer)(anotherProperty.producer),
-		          capturing: AnyProperty.capture(property, anotherProperty))
+	private init<P1: PropertyType, P2: PropertyType>(combining properties: (P1, P2), @noescape using transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
+		self.init(propertyProducer: transform(properties.0.producer)(properties.1.producer),
+		          capturing: AnyProperty.capture(properties.0) + AnyProperty.capture(properties.1))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
@@ -409,7 +409,7 @@ public struct AnyProperty<Value>: PropertyType {
 	///
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
-	private init(propertyProducer: SignalProducer<Value, NoError>, capturing closure: (() -> Void)? = nil) {
+	private init(propertyProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
 		var observerDisposable: Disposable!
 		var value: Value!
 
@@ -428,7 +428,7 @@ public struct AnyProperty<Value>: PropertyType {
 
 		if value != nil {
 			disposable = ScopedDisposable(observerDisposable)
-			capturingClosure = closure
+			self.sources = sources
 
 			_value = { value }
 			_producer = { propertyProducer }
@@ -445,20 +445,12 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Check if `property` is an `AnyProperty` and has already captured its sources
 	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
 	/// which captures `property`.
-	private static func capture<P: PropertyType>(property: P) -> (() -> Void) {
-		if let property = property as? AnyProperty<P.Value>, closure = property.capturingClosure {
-			return closure
+	private static func capture<P: PropertyType>(property: P) -> [Any] {
+		if let property = property as? AnyProperty<P.Value> {
+			return property.sources
 		} else {
-			return { property }
+			return [property]
 		}
-	}
-
-	/// Applies `capture(_:)` on the supplied properties, and returns a closure that
-	/// captures the resulting closures.
-	private static func capture<P1: PropertyType, P2: PropertyType>(firstProperty: P1, _ secondProperty: P2) -> (() -> Void) {
-		let firstClosure = capture(firstProperty)
-		let secondClosure = capture(secondProperty)
-		return { _ = (firstClosure, secondClosure) }
 	}
 }
 

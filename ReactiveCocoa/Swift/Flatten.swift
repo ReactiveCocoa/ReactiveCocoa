@@ -394,7 +394,7 @@ extension SignalProducerType {
 	
 	/// `concat`s `self` onto initial `previous`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func prefix(previous: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
+	public func prefix<P: SignalProducerType where P.Value == Value, P.Error == Error>(previous: P) -> SignalProducer<Value, Error> {
 		return previous.concat(self.producer)
 	}
 	

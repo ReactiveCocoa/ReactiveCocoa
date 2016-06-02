@@ -221,8 +221,8 @@ scopedExample("`startWithFailed`") {
 /*:
  ### `startWithInterrupted`
  Creates a Signal from the producer, then adds exactly one observer to
- the Signal, which will invoke the given callback when a `failed` event is
- received.
+ the Signal, which will invoke the given callback when an `interrupted` event 
+ is received.
  
  Returns a Disposable which can be used to interrupt the work associated
  with the Signal.

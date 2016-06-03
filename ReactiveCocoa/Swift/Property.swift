@@ -39,14 +39,14 @@ extension PropertyType {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		return AnyProperty(transforming: self, using: transform)
+		return AnyProperty(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
 		return { otherProperty in
-			return AnyProperty(combining: (self, otherProperty), using: transform)
+			return AnyProperty(self, otherProperty, transform: transform)
 		}
 	}
 
@@ -390,7 +390,7 @@ public struct AnyProperty<Value>: PropertyType {
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
-	private init<P: PropertyType>(transforming property: P, @noescape using transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
+	private init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(property.producer),
 		          capturing: AnyProperty.capture(property))
 	}
@@ -398,9 +398,9 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property by applying the binary `SignalProducer` transform on
 	/// `property` and `anotherProperty`. The resulting property captures `property`
 	/// and `anotherProperty`.
-	private init<P1: PropertyType, P2: PropertyType>(combining properties: (P1, P2), @noescape using transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(properties.0.producer)(properties.1.producer),
-		          capturing: AnyProperty.capture(properties.0) + AnyProperty.capture(properties.1))
+	private init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
+		self.init(propertyProducer: transform(firstProperty.producer)(secondProperty.producer),
+		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one

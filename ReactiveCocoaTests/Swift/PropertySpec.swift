@@ -779,7 +779,137 @@ class PropertySpec: QuickSpec {
 
 			describe("flattening") {
 				describe("flatten") {
-					describe("PropertyFlattenStrategy.Latest") {
+					describe("FlattenStrategy.Concat") {
+						it("should concatenate the values as the inner property is replaced and deinitialized") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
+
+							var flattenedProperty = Optional(outerProperty!.flatten(.Concat))
+
+							flattenedProperty!.producer.start { event in
+								switch event {
+								case let .Next(value):
+									receivedValues.append(value)
+								case .Completed:
+									completed = true
+								case .Failed:
+									errored = true
+								case .Interrupted:
+									break
+								}
+							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0 ]
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							thirdProperty!.value = 22
+
+							expect(receivedValues) == [ 0 ]
+							expect(completed) == false
+
+							firstProperty = nil
+
+							expect(receivedValues) == [ 0, 12 ]
+							expect(completed) == false
+
+							secondProperty = nil
+
+							expect(receivedValues) == [ 0, 12, 22 ]
+							expect(completed) == false
+
+							outerProperty = nil
+							expect(completed) == false
+
+							thirdProperty = nil
+							expect(completed) == false
+
+							flattenedProperty = nil
+							expect(completed) == true
+							expect(errored) == false
+						}
+					}
+
+					describe("FlattenStrategy.Merge") {
+						it("should merge the values of all inner properties") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
+
+							var flattenedProperty = Optional(outerProperty!.flatten(.Merge))
+
+							flattenedProperty!.producer.start { event in
+								switch event {
+								case let .Next(value):
+									receivedValues.append(value)
+								case .Completed:
+									completed = true
+								case .Failed:
+									errored = true
+								case .Interrupted:
+									break
+								}
+							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21 ]
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							thirdProperty!.value = 22
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							firstProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							secondProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							outerProperty = nil
+							expect(completed) == false
+
+							thirdProperty = nil
+							expect(completed) == false
+
+							flattenedProperty = nil
+							expect(completed) == true
+							expect(errored) == false
+						}
+					}
+
+					describe("FlattenStrategy.Latest") {
 						it("should forward values from the latest inner property") {
 							let firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))

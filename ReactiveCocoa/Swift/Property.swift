@@ -99,13 +99,6 @@ extension PropertyType where Value: Equatable {
 extension PropertyType where Value: PropertyType {
 	/// Flattens the inner properties sent upon `self` (into a single property),
 	/// according to the semantics of the given strategy.
-	///
-	/// Note that if you flatten properties using the `Concat` strategy, the
-	/// flattened property must not be retained. Otherwise, it may not behave
-	/// as expected, as transformed properties would retain their sources, and
-	/// consequently the first inner property would never emit a terminating event.
-	///
-	/// Using only the producer would not cause a problem.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func flatten(strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
@@ -116,8 +109,6 @@ extension PropertyType {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
-	///
-	/// Refers to `PropertyType.flatten` for the caveats.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func flatMap<P: PropertyType>(strategy: FlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }

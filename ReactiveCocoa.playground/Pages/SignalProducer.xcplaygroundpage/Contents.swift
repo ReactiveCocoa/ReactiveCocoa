@@ -446,16 +446,16 @@ scopedExample("`skip`") {
 
 /*:
  ### `materialize`
- Forwards the latest value from `self` whenever `sampler` sends a Next
- event.
  
- If `sampler` fires before a value has been observed on `self`, nothing
- happens.
- 
- Returns a producer that will send values from `self`, sampled (possibly
- multiple times) by `sampler`, then complete once both input producers have
- completed, or interrupt if either input producer is interrupted.
- */
+Treats all Events from the input producer as plain values, allowing them to be
+manipulated just like any other value.
+
+In other words, this brings Events “into the monad.”
+
+When a Completed or Failed event is received, the resulting producer will send
+the Event itself and then complete. When an Interrupted event is received,
+the resulting producer will send the Event itself and then interrupt.
+*/
 scopedExample("`materialize`") {
     SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
         .materialize()

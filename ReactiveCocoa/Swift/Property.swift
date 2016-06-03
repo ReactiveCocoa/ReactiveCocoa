@@ -96,31 +96,31 @@ extension PropertyType where Value: Equatable {
 	}
 }
 
-public enum PropertyFlattenStrategy {
-	case Latest
-}
-
 extension PropertyType where Value: PropertyType {
-	/// Returns a property that forwards values from the latest property hold by
-	/// `self`, ignoring values sent on previous inner properties.
+	/// Flattens the inner properties sent upon `self` (into a single property),
+	/// according to the semantics of the given strategy.
+	///
+	/// Note that if you flatten properties using the `Concat` strategy, the
+	/// flattened property must not be retained. Otherwise, it may not behave
+	/// as expected, as transformed properties would retain their sources, and
+	/// consequently the first inner property would never emit a terminating event.
+	///
+	/// Using only the producer would not cause a problem.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flatten(strategy: PropertyFlattenStrategy) -> AnyProperty<Value.Value> {
-		switch strategy {
-		case .Latest:
-			return lift { $0.flatMap(.Latest) { $0.producer } }
-		}
+	public func flatten(strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
+		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
 }
 
 extension PropertyType {
-	/// Maps a property to a new property, and then flattens it in the manner
-	/// described by `flattenLatest`.
+	/// Maps each property from `self` to a new property, then flattens the
+	/// resulting properties (into a single property), according to the
+	/// semantics of the given strategy.
+	///
+	/// Refers to `PropertyType.flatten` for the caveats.
 	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flatMap<P: PropertyType>(strategy: PropertyFlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
-		switch strategy {
-		case .Latest:
-			return lift { $0.flatMap(.Latest) { transform($0).producer } }
-		}
+	public func flatMap<P: PropertyType>(strategy: FlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
+		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
 	/// Forwards only those values from `self` that have unique identities across the set of

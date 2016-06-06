@@ -401,7 +401,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
 	private init(propertyProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
-		var observerDisposable: Disposable!
+		var observerDisposable: Disposable?
 		var value: Value!
 
 		observerDisposable = propertyProducer.start { event in
@@ -410,7 +410,7 @@ public struct AnyProperty<Value>: PropertyType {
 				value = newValue
 
 			case .Completed, .Interrupted:
-				observerDisposable.dispose()
+				observerDisposable?.dispose()
 
 			case let .Failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
@@ -418,7 +418,7 @@ public struct AnyProperty<Value>: PropertyType {
 		}
 
 		if value != nil {
-			disposable = ScopedDisposable(observerDisposable)
+			disposable = observerDisposable.map(ScopedDisposable.init)
 			self.sources = sources
 
 			_value = { value }

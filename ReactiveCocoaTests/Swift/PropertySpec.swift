@@ -431,6 +431,31 @@ class PropertySpec: QuickSpec {
 
 					expect(property.value) == subsequentPropertyValue
 				}
+
+				it("should return a producer and a signal that respect the lifetime of its ultimate source") {
+					var signalCompleted = false
+					var producerCompleted = false
+					var signalInterrupted = false
+
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					let property = AnyProperty(initialValue: 1, producer: SignalProducer(signal: signal))
+					property.signal.observeCompleted { signalCompleted = true }
+					property.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property.value) == 1
+
+					observer.sendNext(2)
+					expect(property.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					observer.sendCompleted()
+					expect(producerCompleted) == true
+					expect(signalCompleted) == true
+
+					property.signal.observeInterrupted { signalInterrupted = true }
+					expect(signalInterrupted) == true
+				}
 			}
 
 			describe("from a value and Signal") {
@@ -446,6 +471,32 @@ class PropertySpec: QuickSpec {
 					observer.sendNext(subsequentPropertyValue)
 
 					expect(property.value) == subsequentPropertyValue
+				}
+
+
+				it("should return a producer and a signal that respect the lifetime of its ultimate source") {
+					var signalCompleted = false
+					var producerCompleted = false
+					var signalInterrupted = false
+
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					let property = AnyProperty(initialValue: 1, signal: signal)
+					property.signal.observeCompleted { signalCompleted = true }
+					property.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property.value) == 1
+
+					observer.sendNext(2)
+					expect(property.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					observer.sendCompleted()
+					expect(producerCompleted) == true
+					expect(signalCompleted) == true
+
+					property.signal.observeInterrupted { signalInterrupted = true }
+					expect(signalInterrupted) == true
 				}
 			}
 		}

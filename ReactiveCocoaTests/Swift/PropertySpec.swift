@@ -370,6 +370,13 @@ class PropertySpec: QuickSpec {
 						expect(weakProperty).to(beNil())
 					}
 
+					it("should transform property from a property that has a terminated producer") {
+						let property = ConstantProperty(1)
+						let transformedProperty = property.map { $0 + 1 }
+
+						expect(transformedProperty.value) == 2
+					}
+
 					describe("signal lifetime and producer lifetime") {
 						it("should return a producer and a signal which respect the lifetime of the source property instead of the read-only view itself") {
 							var signalCompleted = 0

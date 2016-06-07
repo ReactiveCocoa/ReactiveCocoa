@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
+		5B7F81E31D0842AD0014B06D /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */; };
+		5B7F81E41D0842B50014B06D /* UISegmentedControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882F1D071639000B888F /* UISegmentedControlTests.swift */; };
 		7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */; };
 		7D2AA99D1CB6F275008AB5C9 /* UISwitchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */; };
 		7DBD48F31CC8141D0077AD4F /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD48F21CC8141D0077AD4F /* Reusable.swift */; };
@@ -204,6 +206,8 @@
 		4238D5951B4D5950008534C0 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = NSTextField.swift; path = AppKit/NSTextField.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5173EBC51B625A2600C9B48E /* UIBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UIBarItem.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UIBarButtonItem.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISegmentedControl.swift; sourceTree = "<group>"; };
+		5B1C882F1D071639000B888F /* UISegmentedControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISegmentedControlTests.swift; sourceTree = "<group>"; };
 		7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UISwitch.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UISwitchTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7DBD48F21CC8141D0077AD4F /* Reusable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reusable.swift; sourceTree = "<group>"; };
@@ -447,6 +451,7 @@
 				D86FFBD71B34B242001A89B3 /* UILabel.swift */,
 				E6933BE61CD9C0B2006F7CE7 /* UIProgressView.swift */,
 				7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */,
+				5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */,
 				7DC325721CC6FCF100746D88 /* UITableViewCell.swift */,
 				7DC325731CC6FCF100746D88 /* UITableViewHeaderFooterView.swift */,
 				C7932E811C4B3EDB00086F3C /* UITextField.swift */,
@@ -490,6 +495,7 @@
 				D8F073141B861B3A0047D546 /* UILabelTests.swift */,
 				E6933BE81CD9C1F1006F7CE7 /* UIProgressViewTests.swift */,
 				7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */,
+				5B1C882F1D071639000B888F /* UISegmentedControlTests.swift */,
 				7DC325781CC6FD0A00746D88 /* UITableViewCellTests.swift */,
 				7DC325791CC6FD0A00746D88 /* UITableViewHeaderFooterViewTests.swift */,
 				C7932E851C4B420A00086F3C /* UITextFieldTests.swift */,
@@ -836,6 +842,7 @@
 				C7932E831C4B3F3000086F3C /* UITextField.swift in Sources */,
 				7DC325761CC6FCF100746D88 /* UITableViewHeaderFooterView.swift in Sources */,
 				7DC325741CC6FCF100746D88 /* UITableViewCell.swift in Sources */,
+				5B7F81E31D0842AD0014B06D /* UISegmentedControl.swift in Sources */,
 				8289A2E31BD7EF740097FB60 /* UIImageView.swift in Sources */,
 				D8F0973E1B17F30D002E15BA /* NSUserDefaults.swift in Sources */,
 				D834572D1AFEE45B0070616A /* Signal.swift in Sources */,
@@ -881,6 +888,7 @@
 				8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */,
 				8295FD871B87309F007C9000 /* UIControlTests.swift in Sources */,
 				C7DCE2B71CB3C9D6001217D8 /* UITextViewTests.swift in Sources */,
+				5B7F81E41D0842B50014B06D /* UISegmentedControlTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

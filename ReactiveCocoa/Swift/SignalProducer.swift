@@ -89,6 +89,12 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			observer.sendCompleted()
 		}
 	}
+	
+	/// Creates a producer for a Signal that will immediately send the values
+	/// from the given sequence, then complete.
+	public init(values: Value...) {
+		self.init(values: values)
+	}
 
 	/// A producer for a Signal that will immediately complete without sending
 	/// any values.
@@ -171,7 +177,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			}
 
 			if let token = token {
-				disposable.addDisposable {
+				disposable += {
 					state.modify { state in
 						var state = state
 						state.observers?.removeValueForToken(token)
@@ -922,6 +928,20 @@ extension SignalProducerType {
 		return lift { $0.throttle(interval, onScheduler: scheduler) }
 	}
 
+	/// Debounce values sent by the receiver, such that at least `interval`
+	/// seconds pass after the receiver has last sent a value, then
+	/// forwards the latest value on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	///
+	/// If `self` terminates while a value is being debounced, that value
+	/// will be discarded and the returned producer will terminate immediately.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
+		return lift { $0.debounce(interval, onScheduler: scheduler) }
+	}
+
 	/// Forwards events from `self` until `interval`. Then if producer isn't completed yet,
 	/// fails with `error` on `scheduler`.
 	///
@@ -1443,7 +1463,7 @@ extension SignalProducerType {
 
 			// subscribe `observer` before starting the underlying producer.
 			disposable += initializedProducer.start(observer)
-			disposable.addDisposable {
+			disposable += {
 				// Don't dispose of the original producer until all observers
 				// have terminated.
 				token = nil

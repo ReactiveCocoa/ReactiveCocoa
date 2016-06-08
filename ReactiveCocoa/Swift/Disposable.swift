@@ -242,3 +242,12 @@ public final class SerialDisposable: Disposable {
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)
 }
+
+/// Adds the right-hand-side `ActionDisposable` to the left-hand-side
+/// `CompositeDisposable`.
+///
+///     disposable += { ... }
+///
+public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
+	return lhs.addDisposable(rhs)
+}

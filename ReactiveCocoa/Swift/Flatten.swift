@@ -385,6 +385,24 @@ extension SignalProducerType {
 	public func concat(next: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
 		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [ self.producer, next ]).flatten(.Concat)
 	}
+	
+	/// `concat`s `value` onto `self`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func concat(value value: Value) -> SignalProducer<Value, Error> {
+		return self.concat(SignalProducer(value: value))
+	}
+	
+	/// `concat`s `self` onto initial `previous`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func prefix<P: SignalProducerType where P.Value == Value, P.Error == Error>(previous: P) -> SignalProducer<Value, Error> {
+		return previous.concat(self.producer)
+	}
+	
+	/// `concat`s `self` onto initial `value`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func prefix(value value: Value) -> SignalProducer<Value, Error> {
+		return self.prefix(SignalProducer(value: value))
+	}
 }
 
 private final class ConcatState<Value, Error: ErrorType> {
@@ -540,8 +558,8 @@ extension SignalType {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public static func merge<S: SequenceType where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<Value, Error> {
-		let producer = SignalProducer<Signal<Value, Error>, Error>(values: signals)
+	public static func merge<Seq: SequenceType, S: SignalType where S.Value == Value, S.Error == Error, Seq.Generator.Element == S>(signals: Seq) -> Signal<Value, Error> {
+		let producer = SignalProducer<S, Error>(values: signals)
 		var result: Signal<Value, Error>!
 
 		producer.startWithSignal { signal, _ in
@@ -549,6 +567,29 @@ extension SignalType {
 		}
 
 		return result
+	}
+	
+	/// Merges the given signals into a single `Signal` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public static func merge<S: SignalType where S.Value == Value, S.Error == Error>(signals: S...) -> Signal<Value, Error> {
+		return Signal.merge(signals)
+	}
+}
+
+extension SignalProducerType {
+	/// Merges the given producers into a single `SignalProducer` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public static func merge<Seq: SequenceType, S: SignalProducerType where S.Value == Value, S.Error == Error, Seq.Generator.Element == S>(producers: Seq) -> SignalProducer<Value, Error> {
+		return SignalProducer(values: producers).flatten(.Merge)
+	}
+	
+	/// Merges the given producers into a single `SignalProducer` that will emit all values
+	/// from each of them, and complete when all of them have completed.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public static func merge<S: SignalProducerType where S.Value == Value, S.Error == Error>(producers: S...) -> SignalProducer<Value, Error> {
+		return SignalProducer.merge(producers)
 	}
 }
 

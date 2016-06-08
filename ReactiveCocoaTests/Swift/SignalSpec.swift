@@ -377,71 +377,6 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("Signal.merge") {
-			it("should emit values from all signals") {
-				let (signal1, observer1) = Signal<Int, NoError>.pipe()
-				let (signal2, observer2) = Signal<Int, NoError>.pipe()
-
-				let mergedSignals = Signal.merge([signal1, signal2])
-
-				var lastValue: Int?
-				mergedSignals.observeNext { lastValue = $0 }
-
-				expect(lastValue).to(beNil())
-
-				observer1.sendNext(1)
-				expect(lastValue) == 1
-
-				observer2.sendNext(2)
-				expect(lastValue) == 2
-
-				observer1.sendNext(3)
-				expect(lastValue) == 3
-			}
-
-			it("should not stop when one signal completes") {
-				let (signal1, observer1) = Signal<Int, NoError>.pipe()
-				let (signal2, observer2) = Signal<Int, NoError>.pipe()
-
-				let mergedSignals = Signal.merge([signal1, signal2])
-
-				var lastValue: Int?
-				mergedSignals.observeNext { lastValue = $0 }
-
-				expect(lastValue).to(beNil())
-
-				observer1.sendNext(1)
-				expect(lastValue) == 1
-
-				observer1.sendCompleted()
-				expect(lastValue) == 1
-
-				observer2.sendNext(2)
-				expect(lastValue) == 2
-			}
-
-			it("should complete when all signals complete") {
-				let (signal1, observer1) = Signal<Int, NoError>.pipe()
-				let (signal2, observer2) = Signal<Int, NoError>.pipe()
-
-				let mergedSignals = Signal.merge([signal1, signal2])
-
-				var completed = false
-				mergedSignals.observeCompleted { completed = true }
-
-				expect(completed) == false
-
-				observer1.sendNext(1)
-				expect(completed) == false
-
-				observer1.sendCompleted()
-				expect(completed) == false
-
-				observer2.sendCompleted()
-				expect(completed) == true
-			}
-		}
-
 		describe("ignoreNil") {
 			it("should forward only non-nil values") {
 				let (signal, observer) = Signal<Int?, NoError>.pipe()
@@ -1352,8 +1287,99 @@ class SignalSpec: QuickSpec {
 				observer.sendCompleted()
 				expect(completed) == false
 
+				scheduler.advance()
+				expect(values) == [ 0 ]
+				expect(completed) == true
+
 				scheduler.run()
 				expect(values) == [ 0 ]
+				expect(completed) == true
+			}
+		}
+
+		describe("debounce") {
+			var scheduler: TestScheduler!
+			var observer: Signal<Int, NoError>.Observer!
+			var signal: Signal<Int, NoError>!
+
+			beforeEach {
+				scheduler = TestScheduler()
+
+				let (baseSignal, baseObserver) = Signal<Int, NoError>.pipe()
+				observer = baseObserver
+
+				signal = baseSignal.debounce(1, onScheduler: scheduler)
+				expect(signal).notTo(beNil())
+			}
+
+			it("should send values on the given scheduler once the interval has passed since the last value was sent") {
+				var values: [Int] = []
+				signal.observeNext { value in
+					values.append(value)
+				}
+
+				expect(values) == []
+
+				observer.sendNext(0)
+				expect(values) == []
+
+				scheduler.advance()
+				expect(values) == []
+
+				observer.sendNext(1)
+				observer.sendNext(2)
+				expect(values) == []
+
+				scheduler.advanceByInterval(1.5)
+				expect(values) == [ 2 ]
+
+				scheduler.advanceByInterval(3)
+				expect(values) == [ 2 ]
+
+				observer.sendNext(3)
+				expect(values) == [ 2 ]
+
+				scheduler.advance()
+				expect(values) == [ 2 ]
+
+				observer.sendNext(4)
+				observer.sendNext(5)
+				scheduler.advance()
+				expect(values) == [ 2 ]
+
+				scheduler.run()
+				expect(values) == [ 2, 5 ]
+			}
+
+			it("should schedule completion immediately") {
+				var values: [Int] = []
+				var completed = false
+
+				signal.observe { event in
+					switch event {
+					case let .Next(value):
+						values.append(value)
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				observer.sendNext(0)
+				scheduler.advance()
+				expect(values) == []
+
+				observer.sendNext(1)
+				observer.sendCompleted()
+				expect(completed) == false
+
+				scheduler.advance()
+				expect(values) == []
+				expect(completed) == true
+
+				scheduler.run()
+				expect(values) == []
 				expect(completed) == true
 			}
 		}

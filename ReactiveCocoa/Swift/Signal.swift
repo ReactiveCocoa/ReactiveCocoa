@@ -247,12 +247,13 @@ extension SignalType {
 	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { (event: Event<Value, Error>) -> Void in
-				if case let .Next(value) = event {
-					if predicate(value) {
-						observer.sendNext(value)
-					}
-				} else {
+				guard let value = event.value else {
 					observer.action(event)
+					return
+				}
+
+				if predicate(value) {
+					observer.sendNext(value)
 				}
 			}
 		}
@@ -283,18 +284,18 @@ extension SignalType {
 			var taken = 0
 
 			return self.observe { event in
-				if case let .Next(value) = event {
-					if taken < count {
-						taken += 1
-						observer.sendNext(value)
-					}
-
-					if taken == count {
-						observer.sendCompleted()
-					}
-
-				} else {
+				guard let value = event.value else {
 					observer.action(event)
+					return
+				}
+
+				if taken < count {
+					taken += 1
+					observer.sendNext(value)
+				}
+
+				if taken == count {
+					observer.sendCompleted()
 				}
 			}
 		}
@@ -338,7 +339,7 @@ extension SignalType {
 
 	/// Returns a signal that will yield an array of values when `self` completes.
 	///
-	/// - Note: When `self` completes without collecting any value, it will sent
+	/// - Note: When `self` completes without collecting any value, it will send
 	/// an empty array of values.
 	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -505,7 +506,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ onBothNext: () -> Void, _ onFailed: Error -> Void, _ onBothCompleted: () -> Void, _ onInterrupted: () -> Void) -> Disposable? {
+	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .Next(value):
@@ -513,26 +514,26 @@ extension SignalType {
 
 				signalState.latestValue = value
 				if otherState.latestValue != nil {
-					onBothNext()
+					observer.sendNext()
 				}
 
 				lock.unlock()
 
 			case let .Failed(error):
-				onFailed(error)
+				observer.sendFailed(error)
 
 			case .Completed:
 				lock.lock()
 
 				signalState.completed = true
 				if otherState.completed {
-					onBothCompleted()
+					observer.sendCompleted()
 				}
 
 				lock.unlock()
 
 			case .Interrupted:
-				onInterrupted()
+				observer.sendInterrupted()
 			}
 		}
 	}
@@ -551,18 +552,16 @@ extension SignalType {
 
 			let signalState = CombineLatestState<Value>()
 			let otherState = CombineLatestState<U>()
-			
+
 			let onBothNext = {
 				observer.sendNext((signalState.latestValue!, otherState.latestValue!))
 			}
-			
-			let onFailed = observer.sendFailed
-			let onBothCompleted = observer.sendCompleted
-			let onInterrupted = observer.sendInterrupted
+
+			let observer = Signal<(), Error>.Observer(next: onBothNext, failed: observer.sendFailed, completed: observer.sendCompleted, interrupted: observer.sendInterrupted)
 
 			let disposable = CompositeDisposable()
-			disposable += self.observeWithStates(signalState, otherState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, onBothNext, onFailed, onBothCompleted, onInterrupted)
+			disposable += self.observeWithStates(signalState, otherState, lock, observer)
+			disposable += otherSignal.observeWithStates(otherState, signalState, lock, observer)
 			
 			return disposable
 		}
@@ -1012,7 +1011,7 @@ extension SignalType {
 	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
-				if case let .Next(value) = event where !predicate(value) {
+				if let value = event.value where !predicate(value) {
 					observer.sendCompleted()
 				} else {
 					observer.action(event)
@@ -1022,12 +1021,12 @@ extension SignalType {
 	}
 }
 
-private struct ZipState<Value> {
-	var values: [Value] = []
-	var completed = false
+private struct ZipState<Left, Right> {
+	var values: (left: [Left], right: [Right]) = ([], [])
+	var completed: (left: Bool, right: Bool) = (false, false)
 
 	var isFinished: Bool {
-		return values.isEmpty && completed
+		return (completed.left && values.left.isEmpty) || (completed.right && values.right.isEmpty)
 	}
 }
 
@@ -1037,26 +1036,29 @@ extension SignalType {
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func zipWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
-			let states = Atomic(ZipState<Value>(), ZipState<U>())
+			let state = Atomic(ZipState<Value, U>())
 			let disposable = CompositeDisposable()
 			
 			let flush = {
-				var (leftOriginal, rightOriginal) = states.modify { states in
-					var (left, right) = states
-					let extractCount = min(left.values.count, right.values.count)
-					
-					left.values.removeRange(0 ..< extractCount)
-					right.values.removeRange(0 ..< extractCount)
-					return (left, right)
+				var tuple: (Value, U)?
+				var isFinished = false
+				state.modify { state in
+					var state = state
+					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
+						return state
+					}
+
+					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
+					isFinished = state.isFinished
+
+					return state
 				}
-				
-				while !leftOriginal.values.isEmpty && !rightOriginal.values.isEmpty {
-					let left = leftOriginal.values.removeAtIndex(0)
-					let right = rightOriginal.values.removeAtIndex(0)
-					observer.sendNext((left, right))
+
+				if let tuple = tuple {
+					observer.sendNext(tuple)
 				}
-				
-				if leftOriginal.isFinished || rightOriginal.isFinished {
+
+				if isFinished {
 					observer.sendCompleted()
 				}
 			}
@@ -1067,20 +1069,20 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { states in
-						var states = states
-						states.0.values.append(value)
-						return states
+					state.modify { state in
+						var state = state
+						state.values.left.append(value)
+						return state
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { states in
-						var states = states
-						states.0.completed = true
-						return states
+					state.modify { state in
+						var state = state
+						state.completed.left = true
+						return state
 					}
 					
 					flush()
@@ -1092,20 +1094,20 @@ extension SignalType {
 			disposable += otherSignal.observe { event in
 				switch event {
 				case let .Next(value):
-					states.modify { states in
-						var states = states
-						states.1.values.append(value)
-						return states
+					state.modify { state in
+						var state = state
+						state.values.right.append(value)
+						return state
 					}
 					
 					flush()
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					states.modify { states in
-						var states = states
-						states.1.completed = true
-						return states
+					state.modify { state in
+						var state = state
+						state.completed.right = true
+						return state
 					}
 					
 					flush()
@@ -1172,44 +1174,69 @@ extension SignalType {
 			disposable.addDisposable(schedulerDisposable)
 
 			disposable += self.observe { event in
-				if case let .Next(value) = event {
-					var scheduleDate: NSDate!
-					state.modify { state in
-						var state = state
-						state.pendingValue = value
+				guard let value = event.value else {
+					schedulerDisposable.innerDisposable = scheduler.schedule {
+						observer.action(event)
+					}
+					return
+				}
 
-						let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-						scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
+				var scheduleDate: NSDate!
+				state.modify { state in
+					var state = state
+					state.pendingValue = value
+
+					let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
+					scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
+
+					return state
+				}
+
+				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+					let previousState = state.modify { state in
+						var state = state
+
+						if state.pendingValue != nil {
+							state.pendingValue = nil
+							state.previousDate = scheduleDate
+						}
 
 						return state
 					}
-
-					schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
-						let previousState = state.modify { state in
-							var state = state
-
-							if state.pendingValue != nil {
-								state.pendingValue = nil
-								state.previousDate = scheduleDate
-							}
-
-							return state
-						}
-						
-						if let pendingValue = previousState.pendingValue {
-							observer.sendNext(pendingValue)
-						}
-					}
-
-				} else {
-					schedulerDisposable.innerDisposable = scheduler.schedule {
-						observer.action(event)
+					
+					if let pendingValue = previousState.pendingValue {
+						observer.sendNext(pendingValue)
 					}
 				}
 			}
 
 			return disposable
 		}
+	}
+
+	/// Debounce values sent by the receiver, such that at least `interval`
+	/// seconds pass after the receiver has last sent a value, then
+	/// forwards the latest value on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	///
+	/// If the input signal terminates while a value is being debounced, that value
+	/// will be discarded and the returned signal will terminate immediately.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+		precondition(interval >= 0)
+		
+		return self
+			.materialize()
+			.flatMap(.Latest) { event -> SignalProducer<Event<Value, Error>, NoError> in
+				if event.isTerminating {
+					return SignalProducer(value: event).observeOn(scheduler)
+				} else {
+					return SignalProducer(value: event).delay(interval, onScheduler: scheduler)
+				}
+			}
+			.dematerialize()
 	}
 }
 

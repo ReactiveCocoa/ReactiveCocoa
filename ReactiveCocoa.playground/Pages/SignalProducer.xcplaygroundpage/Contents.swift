@@ -1,11 +1,15 @@
 /*:
  > # IMPORTANT: To use `ReactiveCocoa.playground`, please:
  
+ 1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
+    - `script/bootstrap`
+    **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
+    - `carthage checkout`
  1. Open `ReactiveCocoa.xcworkspace`
- 2. Build `ReactiveCocoa-Mac` scheme
- 3. Build `Result-Mac` scheme
- 3. Finally open the `ReactiveCocoa.playground`
- 4. Choose `View > Show Debug Area`
+ 1. Build `Result-Mac` scheme 
+ 1. Build `ReactiveCocoa-Mac` scheme
+ 1. Finally open the `ReactiveCocoa.playground`
+ 1. Choose `View > Show Debug Area`
  */
 
 import Result
@@ -44,7 +48,7 @@ import Foundation
 /*:
  ### `Subscription`
  A SignalProducer represents an operation that can be started on demand. Starting the operation returns a Signal on which the result(s) of the operation can be observed. This behavior is sometimes also called "cold". 
-This means that a subscriber will never miss any valus sent by the SignalProducer.
+This means that a subscriber will never miss any values sent by the SignalProducer.
  */
 scopedExample("Subscription") {
     let producer = SignalProducer<Int, NoError> { observer, _ in
@@ -217,8 +221,8 @@ scopedExample("`startWithFailed`") {
 /*:
  ### `startWithInterrupted`
  Creates a Signal from the producer, then adds exactly one observer to
- the Signal, which will invoke the given callback when a `failed` event is
- received.
+ the Signal, which will invoke the given callback when an `interrupted` event 
+ is received.
  
  Returns a Disposable which can be used to interrupt the work associated
  with the Signal.
@@ -360,7 +364,7 @@ scopedExample("`collect(count:)`") {
 }
 
 /*:
- ### ``collect(predicate:)` matching values inclusively`
+ ### `collect(predicate:)` matching values inclusively
  Returns a producer that will yield an array of values based on a predicate
  which matches the values collected.
 
@@ -383,7 +387,7 @@ scopedExample("`collect(predicate:)` matching values inclusively") {
 }
 
 /*:
- ### `collect(count:) matching values exclusively
+ ### `collect(count:)` matching values exclusively
  Returns a producer that will yield an array of values based on a predicate
  which matches the values collected and the next value.
  
@@ -442,16 +446,16 @@ scopedExample("`skip`") {
 
 /*:
  ### `materialize`
- Forwards the latest value from `self` whenever `sampler` sends a Next
- event.
  
- If `sampler` fires before a value has been observed on `self`, nothing
- happens.
- 
- Returns a producer that will send values from `self`, sampled (possibly
- multiple times) by `sampler`, then complete once both input producers have
- completed, or interrupt if either input producer is interrupted.
- */
+Treats all Events from the input producer as plain values, allowing them to be
+manipulated just like any other value.
+
+In other words, this brings Events “into the monad.”
+
+When a Completed or Failed event is received, the resulting producer will send
+the Event itself and then complete. When an Interrupted event is received,
+the resulting producer will send the Event itself and then interrupt.
+*/
 scopedExample("`materialize`") {
     SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
         .materialize()
@@ -500,18 +504,6 @@ scopedExample("`combinePrevious`") {
 }
 
 /*:
- ### `reduce`
- Like `scan`, but sends only the final value and then immediately completes.
- */
-scopedExample("`reduce`") {
-    SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-        .reduce(0, +)
-        .startWithNext { value in
-            print(value)
-        }
-}
-
-/*:
  ### `scan`
  Aggregates `self`'s values into a single combined value. When `self` emits
  its first value, `combine` is invoked with `initial` as the first argument and
@@ -525,6 +517,18 @@ scopedExample("`scan`") {
         .startWithNext { value in
             print(value)
         }
+}
+
+/*:
+ ### `reduce`
+ Like `scan`, but sends only the final value and then immediately completes.
+ */
+scopedExample("`reduce`") {
+    SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
+        .reduce(0, +)
+        .startWithNext { value in
+            print(value)
+    }
 }
 
 /*:
@@ -687,7 +691,7 @@ scopedExample("`then`") {
 }
 
 /*:
- ### `replayLazely`
+ ### `replayLazily`
  Creates a new `SignalProducer` that will multicast values emitted by
  the underlying producer, up to `capacity`.
  This means that all clients of this `SignalProducer` will see the same version
@@ -758,9 +762,14 @@ scopedExample("`flatMapError`") {
 }
 
 /*:
- ### `logEvents`
- Logs all events that the receiver sends.
- By default, it will print to the standard output.
+ ### `sampleWith`
+ Forwards the latest value from `self` with the value from `sampler` as a tuple,
+ only when `sampler` sends a Next event.
+ 
+ If `sampler` fires before a value has been observed on `self`, nothing happens.
+ Returns a producer that will send values from `self` and `sampler`,
+ sampled (possibly multiple times) by `sampler`, then complete once both
+ input producers have completed, or interrupt if either input producer is interrupted.
  */
 scopedExample("`sampleWith`") {
     let producer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])

@@ -1026,7 +1026,7 @@ private struct ZipState<Left, Right> {
 	var completed: (left: Bool, right: Bool) = (false, false)
 
 	var isFinished: Bool {
-		return (completed.left && values.left.isEmpty) || (completed.right && values.right.isEmpty)
+		return (completed.left && values.left.isEmpty) || (completed.right && values.right.isEmpty) || (completed.left && completed.right)
 	}
 }
 
@@ -1044,13 +1044,13 @@ extension SignalType {
 				var isFinished = false
 				state.modify { state in
 					var state = state
+					defer { isFinished = state.isFinished }
+
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
 						return state
 					}
 
 					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
-					isFinished = state.isFinished
-
 					return state
 				}
 

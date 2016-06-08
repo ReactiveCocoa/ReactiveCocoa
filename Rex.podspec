@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
 
   s.source_files  = 'Source/**/*.swift'
   s.ios.exclude_files = 'Source/AppKit/*'
-  s.tvos.exclude_files = 'Source/AppKit/*', 'Source/UIKit/UIDatePicker.swift', 'Source/UIKit/UISwitch.swift'
+  s.tvos.exclude_files = 'Source/AppKit/*', 'Source/UIKit/UIDatePicker.swift', 'Source/UIKit/UISwitch.swift', 'Source/UIKit/UISegmentedControl.swift'
   s.watchos.exclude_files = 'Source/AppKit/*', 'Source/UIKit/*'
   s.osx.exclude_files = 'Source/UIKit/*'
 

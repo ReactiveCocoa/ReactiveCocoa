@@ -366,14 +366,14 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: SignalProducer(value: initialValue).concat(producer),
+		self.init(propertyProducer: producer.prefix(value: initialValue),
 		          capturing: [])
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		self.init(propertyProducer: SignalProducer(value: initialValue).concat(SignalProducer(signal: signal)),
+		self.init(propertyProducer: SignalProducer(signal: signal).prefix(value: initialValue),
 		          capturing: [])
 	}
 

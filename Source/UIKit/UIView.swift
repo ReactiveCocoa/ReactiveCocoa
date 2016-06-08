@@ -19,7 +19,14 @@ extension UIView {
     public var rex_hidden: MutableProperty<Bool> {
         return associatedProperty(self, key: &hiddenKey, initial: { $0.hidden }, setter: { $0.hidden = $1 })
     }
+    
+        
+    /// Wraps a view's `userInteractionEnabled` state in a bindable property.
+    public var rex_userInteractionEnabled: MutableProperty<Bool> {
+        return associatedProperty(self, key: &userInteractionEnabledKey, initial: { $0.userInteractionEnabled }, setter: { $0.userInteractionEnabled = $1 })
+    }
 }
 
 private var alphaKey: UInt8 = 0
 private var hiddenKey: UInt8 = 0
+private var userInteractionEnabledKey: UInt8 = 0

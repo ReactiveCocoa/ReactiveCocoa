@@ -64,4 +64,17 @@ class UIViewTests: XCTestCase {
         observer.sendNext(secondChange)
         XCTAssertEqualWithAccuracy(view.alpha, secondChange, accuracy: 0.01)
     }
+    
+    func testUserInteractionEnabledProperty() {
+        let view = UIView(frame: CGRectZero)
+        view.userInteractionEnabled = true
+        
+        let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+        view.rex_userInteractionEnabled <~ SignalProducer(signal: pipeSignal)
+        
+        observer.sendNext(true)
+        XCTAssertTrue(view.userInteractionEnabled)
+        observer.sendNext(false)
+        XCTAssertFalse(view.userInteractionEnabled)
+    }
 }

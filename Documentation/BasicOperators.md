@@ -90,7 +90,7 @@ Note that it is not necessary to observe all four types of event - all of them a
 Side effects can be injected on a `SignalProducer` with the `on` operator without actually subscribing to it. 
 
 ```Swift
-let producer = signalProducer
+let producer = SignalProducer
     .on(started: {
         print("Started")
     }, event: { event in

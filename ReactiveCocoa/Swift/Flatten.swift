@@ -427,13 +427,11 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var shouldStart = true
 
-		queuedSignalProducers.modify {
+		queuedSignalProducers.modify { queue in
 			// An empty queue means the concat is idle, ready & waiting to start
 			// the next producer.
-			var queue = $0
 			shouldStart = queue.isEmpty
 			queue.append(producer)
-			return queue
 		}
 
 		if shouldStart {
@@ -448,14 +446,12 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var nextSignalProducer: SignalProducer<Value, Error>?
 
-		queuedSignalProducers.modify {
+		queuedSignalProducers.modify { queue in
 			// Active producers remain in the queue until completed. Since
 			// dequeueing happens at completion of the active producer, the
 			// first producer in the queue can be removed.
-			var queue = $0
 			if !queue.isEmpty { queue.removeAtIndex(0) }
 			nextSignalProducer = queue.first
-			return queue
 		}
 
 		return nextSignalProducer
@@ -501,7 +497,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	private func observeMerge(observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
 		let decrementInFlight = {
-			let orig = inFlight.modify { $0 - 1 }
+			let orig = inFlight.modify { $0 -= 1 }
 			if orig == 1 {
 				observer.sendCompleted()
 			}
@@ -511,7 +507,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			switch event {
 			case let .Next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
-					inFlight.modify { $0 + 1 }
+					inFlight.modify { $0 += 1 }
 					let handle = disposable.addDisposable(innerDisposable)
 
 					innerSignal.observe { event in
@@ -621,21 +617,17 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			switch event {
 			case let .Next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
-					state.modify {
+					state.modify { state in
 						// When we replace the disposable below, this prevents the
 						// generated Interrupted event from doing any work.
-						var state = $0
 						state.replacingInnerSignal = true
-						return state
 					}
 
 					latestInnerDisposable.innerDisposable = innerDisposable
 
-					state.modify {
-						var state = $0
+					state.modify { state in
 						state.replacingInnerSignal = false
 						state.innerSignalComplete = false
-						return state
 					}
 
 					innerSignal.observe { event in
@@ -643,13 +635,10 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 						case .Interrupted:
 							// If interruption occurred as a result of a new producer
 							// arriving, we don't want to notify our observer.
-							let original = state.modify {
-								var state = $0
+							let original = state.modify { state in
 								if !state.replacingInnerSignal {
 									state.innerSignalComplete = true
 								}
-
-								return state
 							}
 
 							if !original.replacingInnerSignal && original.outerSignalComplete {
@@ -657,10 +646,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 							}
 
 						case .Completed:
-							let original = state.modify {
-								var state = $0
+							let original = state.modify { state in
 								state.innerSignalComplete = true
-								return state
 							}
 
 							if original.outerSignalComplete {
@@ -675,10 +662,8 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			case let .Failed(error):
 				observer.sendFailed(error)
 			case .Completed:
-				let original = state.modify {
-					var state = $0
+				let original = state.modify { state in
 					state.outerSignalComplete = true
-					return state
 				}
 
 				if original.innerSignalComplete {

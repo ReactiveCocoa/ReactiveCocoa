@@ -1597,6 +1597,63 @@ class SignalSpec: QuickSpec {
 				expect(completed) == true
 				expect(result) == [ "0foo" ]
 			}
+
+			it("should complete when both signal have completed") {
+				var result: [String] = []
+				var completed = false
+
+				zipped.observe { event in
+					switch event {
+					case let .Next(left, right):
+						result.append("\(left)\(right)")
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				expect(completed) == false
+
+				leftObserver.sendNext(0)
+				leftObserver.sendCompleted()
+				expect(completed) == false
+				expect(result) == []
+
+				rightObserver.sendCompleted()
+				expect(result) == [ ]
+			}
+
+			it("should complete and drop unpaired pending values when both signal have completed") {
+				var result: [String] = []
+				var completed = false
+
+				zipped.observe { event in
+					switch event {
+					case let .Next(left, right):
+						result.append("\(left)\(right)")
+					case .Completed:
+						completed = true
+					default:
+						break
+					}
+				}
+
+				expect(completed) == false
+
+				leftObserver.sendNext(0)
+				leftObserver.sendNext(1)
+				leftObserver.sendNext(2)
+				leftObserver.sendNext(3)
+				leftObserver.sendCompleted()
+				expect(completed) == false
+				expect(result) == []
+
+				rightObserver.sendNext("foo")
+				rightObserver.sendNext("bar")
+				rightObserver.sendCompleted()
+				expect(result) == ["0foo", "1bar"]
+			}
 		}
 
 		describe("materialize") {

@@ -366,17 +366,15 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
-		mutableProperty <~ producer
-		self.init(mutableProperty)
+		self.init(propertyProducer: producer.prefix(value: initialValue),
+		          capturing: [])
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
-		mutableProperty <~ signal
-		self.init(mutableProperty)
+		self.init(propertyProducer: SignalProducer(signal: signal).prefix(value: initialValue),
+		          capturing: [])
 	}
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on

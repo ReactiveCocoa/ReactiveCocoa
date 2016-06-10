@@ -438,14 +438,20 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					let property = AnyProperty(initialValue: 1, producer: SignalProducer(signal: signal))
-					property.signal.observeCompleted { signalCompleted = true }
-					property.producer.startWithCompleted { producerCompleted = true }
+					var property = Optional(AnyProperty(initialValue: 1, producer: SignalProducer(signal: signal)))
+					let propertySignal = property!.signal
 
-					expect(property.value) == 1
+					propertySignal.observeCompleted { signalCompleted = true }
+					property!.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property!.value) == 1
 
 					observer.sendNext(2)
-					expect(property.value) == 2
+					expect(property!.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					property = nil
 					expect(producerCompleted) == false
 					expect(signalCompleted) == false
 
@@ -453,7 +459,7 @@ class PropertySpec: QuickSpec {
 					expect(producerCompleted) == true
 					expect(signalCompleted) == true
 
-					property.signal.observeInterrupted { signalInterrupted = true }
+					propertySignal.observeInterrupted { signalInterrupted = true }
 					expect(signalInterrupted) == true
 				}
 			}
@@ -480,14 +486,20 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					let property = AnyProperty(initialValue: 1, signal: signal)
-					property.signal.observeCompleted { signalCompleted = true }
-					property.producer.startWithCompleted { producerCompleted = true }
+					var property = Optional(AnyProperty(initialValue: 1, signal: signal))
+					let propertySignal = property!.signal
 
-					expect(property.value) == 1
+					propertySignal.observeCompleted { signalCompleted = true }
+					property!.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property!.value) == 1
 
 					observer.sendNext(2)
-					expect(property.value) == 2
+					expect(property!.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					property = nil
 					expect(producerCompleted) == false
 					expect(signalCompleted) == false
 
@@ -495,7 +507,7 @@ class PropertySpec: QuickSpec {
 					expect(producerCompleted) == true
 					expect(signalCompleted) == true
 
-					property.signal.observeInterrupted { signalInterrupted = true }
+					propertySignal.observeInterrupted { signalInterrupted = true }
 					expect(signalInterrupted) == true
 				}
 			}

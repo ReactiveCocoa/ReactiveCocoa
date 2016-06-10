@@ -1044,13 +1044,14 @@ extension SignalType {
 				var isFinished = false
 
 				state.modify { state in
-					defer { isFinished = state.isFinished }
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
+						isFinished = state.isFinished
 						return state
 					}
 
 					var state = state
 					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
+					isFinished = state.isFinished
 					return state
 				}
 

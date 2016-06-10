@@ -264,7 +264,8 @@ class FlattenSpec: QuickSpec {
 					.flatten(.Concat)
 					.observeNext { value in
 						observedValues.append(value)
-				}
+					}
+				
 				innerObserver.sendNext(sequence)
 				expect(observedValues) == sequence
 			}
@@ -438,7 +439,7 @@ class FlattenSpec: QuickSpec {
 					.flatten(.Latest)
 					.startWithNext { value in
 						observedValues.append(value)
-				}
+					}
 				
 				expect(observedValues) == sequence
 			}

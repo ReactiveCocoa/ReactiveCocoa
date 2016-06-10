@@ -248,6 +248,15 @@ extension SignalType where Value: SignalType, Value.Error == NoError {
 	}
 }
 
+extension SignalType where Value: SequenceType, Error == NoError {
+	/// Flattens the `sequence` value sent by `signal` according to
+	/// the semantics of the given strategy.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Generator.Element, Error> {
+		return self.flatMap(strategy) { .init(values: $0) }
+	}
+}
+
 extension SignalProducerType where Value: SignalType, Error == Value.Error {
 	/// Flattens the inner signals sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
@@ -311,6 +320,14 @@ extension SignalProducerType where Value: SignalType, Value.Error == NoError {
 	}
 }
 
+extension SignalProducerType where Value: SequenceType, Error == NoError {
+	/// Flattens the `sequence` value sent by `producer` according to
+	/// the semantics of the given strategy.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Generator.Element, Error> {
+		return self.flatMap(strategy) { .init(values: $0) }
+	}
+}
 
 extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	/// Returns a signal which sends all the values from producer signal emitted from

@@ -248,6 +248,20 @@ class FlattenSpec: QuickSpec {
 				innerObserver.sendNext(4)
 				expect(observed) == 4
 			}
+			
+			it("works with CollectionType as a value") {
+				let (signal, innerObserver) = Signal<[Int], NoError>.pipe()
+				let collection = [1, 2, 3]
+				var observedValues = [Int]()
+				
+				signal
+					.flatten(.Concat)
+					.observeNext { value in
+						observedValues.append(value)
+				}
+				innerObserver.sendNext(collection)
+				expect(observedValues) == collection
+			}
 		}
 		
 		describe("SignalProducer.flatten()") {
@@ -401,6 +415,20 @@ class FlattenSpec: QuickSpec {
 				outerObserver.sendNext(inner)
 				innerObserver.sendNext(4)
 				expect(observed) == 4
+			}
+			
+			it("works with CollectionType as a value") {
+				let collection = [1, 2, 3]
+				var observedValues = [Int]()
+				
+				let producer = SignalProducer<[Int], NoError>(value: collection)
+				producer
+					.flatten(.Latest)
+					.startWithNext { value in
+						observedValues.append(value)
+				}
+				
+				expect(observedValues) == collection
 			}
 		}
 		

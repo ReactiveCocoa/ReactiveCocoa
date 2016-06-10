@@ -1023,10 +1023,10 @@ extension SignalType {
 
 private struct ZipState<Left, Right> {
 	var values: (left: [Left], right: [Right]) = ([], [])
-	var completed: (left: Bool, right: Bool) = (false, false)
+	var isCompleted: (left: Bool, right: Bool) = (false, false)
 
 	var isFinished: Bool {
-		return (completed.left && values.left.isEmpty) || (completed.right && values.right.isEmpty)
+		return (isCompleted.left && values.left.isEmpty) || (isCompleted.right && values.right.isEmpty)
 	}
 }
 
@@ -1042,15 +1042,16 @@ extension SignalType {
 			let flush = {
 				var tuple: (Value, U)?
 				var isFinished = false
+
 				state.modify { state in
-					var state = state
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
+						isFinished = state.isFinished
 						return state
 					}
 
+					var state = state
 					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
 					isFinished = state.isFinished
-
 					return state
 				}
 
@@ -1081,7 +1082,7 @@ extension SignalType {
 				case .Completed:
 					state.modify { state in
 						var state = state
-						state.completed.left = true
+						state.isCompleted.left = true
 						return state
 					}
 					
@@ -1106,7 +1107,7 @@ extension SignalType {
 				case .Completed:
 					state.modify { state in
 						var state = state
-						state.completed.right = true
+						state.isCompleted.right = true
 						return state
 					}
 					

@@ -6,10 +6,9 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+import ReactiveSwift
 
 class ActionSpec: QuickSpec {
 	override func spec() {

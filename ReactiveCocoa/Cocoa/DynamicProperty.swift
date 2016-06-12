@@ -1,4 +1,5 @@
 import Foundation
+import ReactiveSwift
 import enum Result.NoError
 
 /// Models types that can be represented in Objective-C (i.e., reference

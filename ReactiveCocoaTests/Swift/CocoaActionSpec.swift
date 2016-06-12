@@ -1,7 +1,7 @@
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+import ReactiveSwift
 
 class CocoaActionSpec: QuickSpec {
 	override func spec() {

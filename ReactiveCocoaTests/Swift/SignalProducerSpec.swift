@@ -11,7 +11,7 @@ import Foundation
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+import ReactiveSwift
 
 class SignalProducerSpec: QuickSpec {
 	override func spec() {

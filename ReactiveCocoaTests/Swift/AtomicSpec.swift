@@ -8,7 +8,7 @@
 
 import Nimble
 import Quick
-import ReactiveCocoa
+import ReactiveSwift
 
 class AtomicSpec: QuickSpec {
 	override func spec() {

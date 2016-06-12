@@ -16,7 +16,7 @@ import Result
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated.
 public final class Signal<Value, Error: ErrorType> {
-	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
+	public typealias Observer = ReactiveSwift.Observer<Value, Error>
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
 

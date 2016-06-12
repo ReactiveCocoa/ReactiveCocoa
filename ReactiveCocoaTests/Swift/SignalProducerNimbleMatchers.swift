@@ -8,7 +8,7 @@
 
 import Foundation
 
-import ReactiveCocoa
+import ReactiveSwift
 import Nimble
 
 public func sendValue<T: Equatable, E: Equatable>(value: T?, sendError: E?, complete: Bool) -> NonNilMatcherFunc<SignalProducer<T, E>> {

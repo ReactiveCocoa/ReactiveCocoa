@@ -8,7 +8,7 @@
 
 import Nimble
 import Quick
-import ReactiveCocoa
+import ReactiveSwift
 
 class BagSpec: QuickSpec {
 	override func spec() {

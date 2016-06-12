@@ -7,6 +7,7 @@
 //
 
 import Result
+import ReactiveSwift
 
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateSchedulerType {

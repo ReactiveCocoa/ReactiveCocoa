@@ -1,6 +1,13 @@
 import Foundation
 import enum Result.NoError
 
+#if REACTIVE_SWIFT
+	import ReactiveSwift
+#else
+	import ReactiveCocoa
+#endif
+
+
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
 /// Coding and Key-Value Observing.
 ///

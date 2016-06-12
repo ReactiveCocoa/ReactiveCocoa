@@ -9,7 +9,12 @@
 import Result
 import Nimble
 import Quick
-import ReactiveCocoa
+
+#if REACTIVE_SWIFT
+	import ReactiveSwift
+#else
+	import ReactiveCocoa
+#endif
 
 class SignalLifetimeSpec: QuickSpec {
 	override func spec() {

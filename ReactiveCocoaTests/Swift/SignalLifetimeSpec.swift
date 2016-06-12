@@ -11,9 +11,9 @@ import Nimble
 import Quick
 
 #if REACTIVE_SWIFT
-	import ReactiveSwift
+import ReactiveSwift
 #else
-	import ReactiveCocoa
+import ReactiveCocoa
 #endif
 
 class SignalLifetimeSpec: QuickSpec {

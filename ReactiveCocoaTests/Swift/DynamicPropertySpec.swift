@@ -3,9 +3,9 @@ import Quick
 import Nimble
 
 #if REACTIVE_SWIFT
-	import ReactiveSwift
+import ReactiveSwift
 #else
-	import ReactiveCocoa
+import ReactiveCocoa
 #endif
 
 

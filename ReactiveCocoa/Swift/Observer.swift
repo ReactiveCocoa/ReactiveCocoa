@@ -31,10 +31,20 @@ public struct Observer<Value, Error: ErrorType> {
 
 	public let action: Action
 
+	/// Initializer that accepts a closure that processes the event
+	///
+	/// - parameter action: A closure of type `Event<Value, Error: ErrorType> -> Void`
 	public init(_ action: Action) {
 		self.action = action
 	}
 
+	/// Initializer that accepts closures for different event types
+	///
+	/// - parameters:
+	///   - failed: optional closure that accepts `Error` parameter when `Failed` event is observed
+	///	  - completed: optional closure executed when `Completed` event is observed
+	///	  - interruped: optional closure executed when `Interrupted` event is observed
+	///   - next: optional closure executed when `Next` event is observed
 	public init(failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (Value -> Void)? = nil) {
 		self.init { event in
 			switch event {
@@ -56,11 +66,15 @@ public struct Observer<Value, Error: ErrorType> {
 
 extension Observer: ObserverType {
 	/// Puts a `Next` event into the given observer.
+	///
+	/// - parameter value: a value sent with the `Next` event
 	public func sendNext(value: Value) {
 		action(.Next(value))
 	}
 
 	/// Puts a `Failed` event into the given observer.
+	///
+	/// - parameter error: an error object sent with `Failed` event
 	public func sendFailed(error: Error) {
 		action(.Failed(error))
 	}

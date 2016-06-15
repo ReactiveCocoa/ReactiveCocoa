@@ -15,7 +15,7 @@ public protocol SchedulerType {
 	/// When the work is executed depends on the scheduler in use.
 	///
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins.
+	///	           to cancel the work before it begins.
 	func schedule(action: () -> Void) -> Disposable?
 }
 
@@ -46,7 +46,7 @@ public protocol DateSchedulerType: SchedulerType {
 	///   - withLeeway: some delta for repetition
 	///   - action: closure to perform
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins
+	///	           to cancel the work before it begins
 	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable?
 }
 
@@ -95,7 +95,7 @@ public final class UIScheduler: SchedulerType {
 	///
 	/// - parameter action: closure to perform on main thread
 	/// - returns: disposable that can be used to
-	///			   cancel the work before it begins
+	///	           cancel the work before it begins
 	public func schedule(action: () -> Void) -> Disposable? {
 		let disposable = SimpleDisposable()
 		let actionAndDecrement = {
@@ -167,7 +167,7 @@ public final class QueueScheduler: DateSchedulerType {
 	///
 	/// - parameter action: action to schedule
 	/// - returns: disposable that can be used to
-	///			   cancel the work before it begins
+	///	           cancel the work before it begins
 	public func schedule(action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
@@ -217,7 +217,7 @@ public final class QueueScheduler: DateSchedulerType {
 	///   - repeatingEvery: repetition interval
 	///   - action: closure to repeat
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins;
+	///	           to cancel the work before it begins;
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> Disposable? {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
@@ -230,10 +230,10 @@ public final class QueueScheduler: DateSchedulerType {
 	/// - parameters:
 	///   - date: date to schedule the first action for
 	///   - repeatingEvery: repetition interval
-	///	  - leeway: some delta for repetition interval
+	///   - leeway: some delta for repetition interval
 	///   - action: closure to repeat
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins;
+	///	           to cancel the work before it begins;
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		precondition(repeatingEvery >= 0)
 		precondition(leeway >= 0)
@@ -330,7 +330,7 @@ public final class TestScheduler: DateSchedulerType {
 	///   - repeatingEvery: repetition interval
 	///   - action: closure to repeat
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins;
+	///	           to cancel the work before it begins;
 	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> Void) {
 		precondition(repeatingEvery >= 0)
 
@@ -349,7 +349,7 @@ public final class TestScheduler: DateSchedulerType {
 	///	  - leeway: some delta for repetition interval
 	///   - action: closure to repeat
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins;
+	///	           to cancel the work before it begins;
 	public func scheduleAfter(interval: NSTimeInterval, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {
 		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), repeatingEvery: repeatingEvery, withLeeway: leeway, action: action)
 	}
@@ -363,7 +363,7 @@ public final class TestScheduler: DateSchedulerType {
 	///	  - leeway: some delta for repetition interval
 	///   - action: closure to repeat
 	/// - returns: optional disposable that can be used
-	///			   to cancel the work before it begins;
+	///	           to cancel the work before it begins;
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {
 		let disposable = SerialDisposable()
 		scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)

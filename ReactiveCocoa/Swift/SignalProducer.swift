@@ -170,7 +170,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 			if let token = token {
 				disposable += {
-					state.modify { state in
+					state.withMutableValue { state in
 						state.observers?.removeValueForToken(token)
 					}
 				}

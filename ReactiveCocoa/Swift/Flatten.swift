@@ -427,7 +427,7 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var shouldStart = true
 
-		queuedSignalProducers.modify { queue in
+		queuedSignalProducers.withMutableValue { queue in
 			// An empty queue means the concat is idle, ready & waiting to start
 			// the next producer.
 			shouldStart = queue.isEmpty
@@ -446,7 +446,7 @@ private final class ConcatState<Value, Error: ErrorType> {
 
 		var nextSignalProducer: SignalProducer<Value, Error>?
 
-		queuedSignalProducers.modify { queue in
+		queuedSignalProducers.withMutableValue { queue in
 			// Active producers remain in the queue until completed. Since
 			// dequeueing happens at completion of the active producer, the
 			// first producer in the queue can be removed.
@@ -507,7 +507,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			switch event {
 			case let .Next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
-					inFlight.modify { $0 += 1 }
+					inFlight.withMutableValue { $0 += 1 }
 					let handle = disposable.addDisposable(innerDisposable)
 
 					innerSignal.observe { event in
@@ -617,7 +617,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 			switch event {
 			case let .Next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
-					state.modify { state in
+					state.withMutableValue { state in
 						// When we replace the disposable below, this prevents the
 						// generated Interrupted event from doing any work.
 						state.replacingInnerSignal = true
@@ -625,7 +625,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 
 					latestInnerDisposable.innerDisposable = innerDisposable
 
-					state.modify { state in
+					state.withMutableValue { state in
 						state.replacingInnerSignal = false
 						state.innerSignalComplete = false
 					}

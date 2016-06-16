@@ -20,7 +20,7 @@ public final class Atomic<Value> {
 		}
 	
 		set(newValue) {
-			swap(newValue)
+			withMutableValue { $0 = newValue }
 		}
 	}
 	
@@ -57,20 +57,31 @@ public final class Atomic<Value> {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (inout Value) throws -> Void) rethrows -> Value {
-		return try withValue { value in
-			try action(&_value)
-			return value
+		return try withMutableValue { value in
+			let oldValue = value
+			try action(&value)
+			return oldValue
 		}
 	}
-	
+
+	/// Atomically performs an arbitrary action using an in-out reference to the current value
+	/// of the variable.
+	///
+	/// Returns the result of the action.
+	public func withMutableValue<Result>(@noescape action: (inout Value) throws -> Result) rethrows -> Result {
+		lock()
+		defer { unlock() }
+
+		return try action(&_value)
+	}
+
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///
 	/// Returns the result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
-		lock()
-		defer { unlock() }
-
-		return try action(_value)
+		return try withMutableValue {
+			return try action($0)
+		}
 	}
 }

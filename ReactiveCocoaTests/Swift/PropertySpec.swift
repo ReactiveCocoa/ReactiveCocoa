@@ -236,6 +236,18 @@ class PropertySpec: QuickSpec {
 				expect(property.value) == initialPropertyValue
 			}
 
+			it("should perform an action with the value, and reflect the changes made in the action") {
+				let property = MutableProperty(initialPropertyValue)
+
+				let result: Bool = property.withMutableValue {
+					$0 = subsequentPropertyValue
+					return $0.isEmpty
+				}
+
+				expect(result) == false
+				expect(property.value) == subsequentPropertyValue
+			}
+
 			it("should not deadlock on recursive value access") {
 				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
 				let property = MutableProperty(0)

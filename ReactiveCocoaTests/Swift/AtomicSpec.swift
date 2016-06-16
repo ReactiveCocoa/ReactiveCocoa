@@ -40,5 +40,14 @@ class AtomicSpec: QuickSpec {
 			expect(result) == true
 			expect(atomic.value) == 1
 		}
+
+		it("should perform an action with the value, and reflect the changes made within the action") {
+			let result: Bool = atomic.withMutableValue {
+				$0 += 1
+				return $0 == 2
+			}
+			expect(result) == true
+			expect(atomic.value) == 2
+		}
 	}
 }

@@ -31,8 +31,8 @@ import enum Result.NoError
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.
 	///
-	/// By definition, this only works if the object given to init() is
-	/// KVO-compliant. Most UI controls are not!
+	/// - note: this only works if the object given to init() is KVO-compliant. 
+	///         Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
 		return property?.producer ?? .empty
 	}
@@ -43,6 +43,10 @@ import enum Result.NoError
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: Object's key path to be observed.
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath

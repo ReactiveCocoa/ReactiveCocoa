@@ -468,12 +468,9 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// underlying producer prevents sending recursive events.
 	private let lock: NSRecursiveLock
 
-	/// The getter of the underlying storage, which may outlive the property
+	/// The box of the underlying storage, which may outlive the property
 	/// if a returned producer is being retained.
-	private let getter: () -> Value
-
-	/// The setter of the underlying storage.
-	private let setter: Value -> Void
+	private let box: Box<Value>
 
 	/// The current value of the property.
 	///
@@ -497,7 +494,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
+		return SignalProducer { [box, weak self] producerObserver, producerDisposable in
 			if let strongSelf = self {
 				strongSelf.withValue { value in
 					producerObserver.sendNext(value)
@@ -506,7 +503,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 			} else {
 				/// As the setter would have been deinitialized with the property,
 				/// the underlying storage would be immutable, and locking is no longer necessary.
-				producerObserver.sendNext(getter())
+				producerObserver.sendNext(box.value)
 				producerObserver.sendCompleted()
 			}
 		}
@@ -514,14 +511,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
-		var value = initialValue
-
 		lock = NSRecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
-		getter = { value }
-		setter = { newValue in value = newValue }
-
+		box = Box(initialValue)
 		(signal, observer) = Signal.pipe()
 	}
 
@@ -529,17 +522,16 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	public func swap(newValue: Value) -> Value {
-		return modify { _ in newValue }
+		return modify { $0 = newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+	public func modify(@noescape action: (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
-			let newValue = try action(value)
-			setter(newValue)
-			observer.sendNext(newValue)
+			try action(&box.value)
+			observer.sendNext(box.value)
 			return value
 		}
 	}
@@ -552,11 +544,19 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		lock.lock()
 		defer { lock.unlock() }
 
-		return try action(getter())
+		return try action(box.value)
 	}
 
 	deinit {
 		observer.sendCompleted()
+	}
+}
+
+private class Box<Value> {
+	var value: Value
+
+	init(_ value: Value) {
+		self.value = value
 	}
 }
 

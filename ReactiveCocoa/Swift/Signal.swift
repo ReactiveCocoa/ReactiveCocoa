@@ -128,23 +128,13 @@ public final class Signal<Value, Error: ErrorType> {
 	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
-			guard var observers = observers else {
-				return nil
-			}
-
-			token = observers.insert(observer)
-			return observers
+			token = observers?.insert(observer)
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
 				self?.atomicObservers.modify { observers in
-					guard var observers = observers else {
-						return nil
-					}
-
-					observers.removeValueForToken(token)
-					return observers
+					observers?.removeValueForToken(token)
 				}
 			}
 		} else {
@@ -734,17 +724,13 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					state.modify { st in
-						var st = st
 						st.latestValue = value
-						return st
 					}
 				case let .Failed(error):
 					observer.sendFailed(error)
 				case .Completed:
 					let oldState = state.modify { st in
-						var st = st
 						st.signalCompleted = true
-						return st
 					}
 					
 					if oldState.samplerCompleted {
@@ -763,9 +749,7 @@ extension SignalType {
 					}
 				case .Completed:
 					let oldState = state.modify { st in
-						var st = st
 						st.samplerCompleted = true
-						return st
 					}
 					
 					if oldState.signalCompleted {
@@ -1046,13 +1030,11 @@ extension SignalType {
 				state.modify { state in
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
 						isFinished = state.isFinished
-						return state
+						return
 					}
 
-					var state = state
 					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
 					isFinished = state.isFinished
-					return state
 				}
 
 				if let tuple = tuple {
@@ -1071,9 +1053,7 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					state.modify { state in
-						var state = state
 						state.values.left.append(value)
-						return state
 					}
 					
 					flush()
@@ -1081,9 +1061,7 @@ extension SignalType {
 					onFailed(error)
 				case .Completed:
 					state.modify { state in
-						var state = state
 						state.isCompleted.left = true
-						return state
 					}
 					
 					flush()
@@ -1096,9 +1074,7 @@ extension SignalType {
 				switch event {
 				case let .Next(value):
 					state.modify { state in
-						var state = state
 						state.values.right.append(value)
-						return state
 					}
 					
 					flush()
@@ -1106,9 +1082,7 @@ extension SignalType {
 					onFailed(error)
 				case .Completed:
 					state.modify { state in
-						var state = state
 						state.isCompleted.right = true
-						return state
 					}
 					
 					flush()
@@ -1184,25 +1158,18 @@ extension SignalType {
 
 				var scheduleDate: NSDate!
 				state.modify { state in
-					var state = state
 					state.pendingValue = value
 
 					let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
 					scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
-
-					return state
 				}
 
 				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
 					let previousState = state.modify { state in
-						var state = state
-
 						if state.pendingValue != nil {
 							state.pendingValue = nil
 							state.previousDate = scheduleDate
 						}
-
-						return state
 					}
 					
 					if let pendingValue = previousState.pendingValue {

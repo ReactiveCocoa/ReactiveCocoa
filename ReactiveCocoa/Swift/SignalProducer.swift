@@ -141,24 +141,18 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			var replayValues: [Value] = []
 			var replayToken: RemovalToken?
 			var next = state.modify { state in
-				var state = state
-
 				replayValues = state.values
 				if replayValues.isEmpty {
 					token = state.observers?.insert(observer)
 				} else {
 					replayToken = state.replayBuffers.insert(replayBuffer)
 				}
-
-				return state
 			}
 
 			while !replayValues.isEmpty {
 				replayValues.forEach(observer.sendNext)
 
 				next = state.modify { state in
-					var state = state
-
 					replayValues = replayBuffer.values
 					replayBuffer.values = []
 					if replayValues.isEmpty {
@@ -167,8 +161,6 @@ public struct SignalProducer<Value, Error: ErrorType> {
 						}
 						token = state.observers?.insert(observer)
 					}
-
-					return state
 				}
 			}
 
@@ -179,9 +171,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 			if let token = token {
 				disposable += {
 					state.modify { state in
-						var state = state
 						state.observers?.removeValueForToken(token)
-						return state
 					}
 				}
 			}
@@ -189,8 +179,6 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
 			let originalState = state.modify { state in
-				var state = state
-
 				if let value = event.value {
 					state.addValue(value, upToCapacity: capacity)
 				} else {
@@ -199,8 +187,6 @@ public struct SignalProducer<Value, Error: ErrorType> {
 					state.terminationEvent = event
 					state.observers = nil
 				}
-
-				return state
 			}
 
 			originalState.observers?.forEach { $0.action(event) }

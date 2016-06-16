@@ -186,7 +186,7 @@ class PropertySpec: QuickSpec {
 			it("should modify the value atomically") {
 				let property = MutableProperty(initialPropertyValue)
 
-				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+				expect(property.modify({ $0 = subsequentPropertyValue })) == initialPropertyValue
 				expect(property.value) == subsequentPropertyValue
 			}
 
@@ -199,7 +199,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				expect(value) == initialPropertyValue
-				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+				expect(property.modify({ $0 = subsequentPropertyValue })) == initialPropertyValue
 
 				expect(property.value) == subsequentPropertyValue
 				expect(value) == subsequentPropertyValue

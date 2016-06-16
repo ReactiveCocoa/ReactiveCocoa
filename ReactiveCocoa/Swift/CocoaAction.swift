@@ -28,8 +28,9 @@ public final class CocoaAction: NSObject {
 	/// - parameters:
 	///   - action: Executable action.
 	///   - inputTransform: Closure that accepts the UI control performing the
-	///     action and returns a value (e.g. `(UISwitch) -> (Bool)` telling
-	///     whether the switch is currently on.
+	///                     action and returns a value (e.g. 
+	///                     `(UISwitch) -> (Bool)` telling whether the switch is
+    ///                     currently on.
 	/// - note: You must cast the passed in object to the control type you need
 	///         since there is no way to know where this cocoa action will be
 	///         added as a target.

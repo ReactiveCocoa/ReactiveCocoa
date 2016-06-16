@@ -18,8 +18,8 @@ extension RACScheduler: DateSchedulerType {
 
 	/// Schedules an action for immediate execution
 	///
-	/// - parameter action: closure to perform
-	/// - returns: disposable that can be used to cancel the work before it
+	/// - parameter action: Closure to perform.
+	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
 	/// - note: This method calls the Objective-C implementation of `schedule:`
 	///         method.
@@ -31,9 +31,9 @@ extension RACScheduler: DateSchedulerType {
 	/// Schedules an action for execution at or after the given date.
 	///
 	/// - parameters:
-	///   - date: starting date
-	///   - action: closure to perform
-	/// - returns: optional disposable that can be used to cancel the work
+	///   - date: Starting date.
+	///   - action: Closure to perform.
+	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
@@ -43,12 +43,12 @@ extension RACScheduler: DateSchedulerType {
 	/// given start time.
 	///
 	/// - parameters:
-	///   - date: starting date
-	///   - repeatingEvery: repetition interval
-	///   - withLeeway: some delta for repetition
-	///   - action: closure to perform
-	/// - returns: optional disposable that can be used to cancel the work
-	///            before it begins
+	///   - date: Starting date.
+	///   - repeatingEvery: Repetition interval.
+	///   - withLeeway: Some delta for repetition.
+	///   - action: Closure to perform.
+	/// - returns: Optional disposable that can be used to cancel the work
+	///            before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
@@ -57,7 +57,7 @@ extension RACScheduler: DateSchedulerType {
 extension ImmediateScheduler {
 	/// Creates `RACScheduler` that performs actions instantly
 	///
-	/// - returns: `RACScheduler` that instantly performs actions
+	/// - returns: `RACScheduler` that instantly performs actions.
 	public func toRACScheduler() -> RACScheduler {
 		return RACScheduler.immediateScheduler()
 	}
@@ -66,7 +66,7 @@ extension ImmediateScheduler {
 extension UIScheduler {
 	/// Creates `RACScheduler` for `UIScheduler`
 	///
-	/// - returns: `RACScheduler` instance that queues events on main thread
+	/// - returns: `RACScheduler` instance that queues events on main thread.
 	public func toRACScheduler() -> RACScheduler {
 		return RACScheduler.mainThreadScheduler()
 	}
@@ -76,7 +76,7 @@ extension QueueScheduler {
 	/// Creates `RACScheduler` backed with owned queue
 	///
 	/// - returns: Instance `RACScheduler` that queues events on 
-	///            `QueueScheduler`'s queue
+	///            `QueueScheduler`'s queue.
 	public func toRACScheduler() -> RACScheduler {
 		return RACTargetQueueScheduler(name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.toRACScheduler()", targetQueue: queue)
 	}
@@ -91,9 +91,9 @@ extension RACSignal {
 	/// each invocation of start().
 	///
 	/// - parameters:
-	///   - file: current file name
-	///   - line: current line in file
-	/// - returns: signal producer created from `self`
+	///   - file: Current file name.
+	///   - line: Current line in file.
+	/// - returns: Signal producer created from `self`.
 	public func toSignalProducer(file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { obj in
@@ -126,7 +126,7 @@ extension SignalProducerType where Value: AnyObject {
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -139,7 +139,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -152,7 +152,7 @@ extension SignalProducerType where Value: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -165,7 +165,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for rdar://22708537
@@ -195,7 +195,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 extension SignalType where Value: AnyObject {
 	/// Creates a RACSignal that will observe the given signal.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -207,7 +207,7 @@ extension SignalType where Value: AnyObject {
 extension SignalType where Value: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will observe the given signal.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -219,7 +219,7 @@ extension SignalType where Value: AnyObject, Error: NSError {
 extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 	/// Creates a RACSignal that will observe the given signal.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -231,7 +231,7 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will observe the given signal.
 	///
-	/// - returns: `RACSignal` instantiated from `self`
+	/// - returns: `RACSignal` instantiated from `self`.
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for rdar://22708537
@@ -264,9 +264,9 @@ extension RACCommand {
 	/// Creates an Action that will execute the receiver.
 	///
 	/// - parameters:
-	///   - file: current file name
-	///   - line: current line in file
-	/// - returns: Action created from `self`
+	///   - file: Current file name.
+	///   - line: Current line in file.
+	/// - returns: Action created from `self`.
 	/// - note: The returned Action will not necessarily be marked as executing
 	///         when the command is. However, the reverse is always true: the
     ///         RACCommand will always be marked as executing when the action 
@@ -298,7 +298,7 @@ extension ActionType {
 
 /// Creates a RACCommand that will execute the action.
 ///
-/// - returns: `RACCommand` with bound action
+/// - returns: `RACCommand` with bound action.
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.
@@ -312,7 +312,7 @@ public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Ou
 
 /// Creates a RACCommand that will execute the action.
 ///
-/// - returns: `RACCommand` with bound action
+/// - returns: `RACCommand` with bound action.
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.

@@ -29,12 +29,12 @@ public protocol ObserverType {
 public struct Observer<Value, Error: ErrorType> {
 	public typealias Action = Event<Value, Error> -> Void
 
-	/// An action that will be performed upon arrival of the event
+	/// An action that will be performed upon arrival of the event.
 	public let action: Action
 
 	/// Initializer that accepts a closure accepting an event for the observer.
 	///
-	/// - parameter action: A closure to lift over received event
+	/// - parameter action: A closure to lift over received event.
 	public init(_ action: Action) {
 		self.action = action
 	}
@@ -42,13 +42,13 @@ public struct Observer<Value, Error: ErrorType> {
 	/// Initializer that accepts closures for different event types
 	///
 	/// - parameters:
-	///   - failed: optional closure that accepts `Error` parameter when 
-	///             `Failed` event is observed
-	///	  - completed: optional closure executed when `Completed` event is 
-	///                observed
-	///	  - interruped: optional closure executed when `Interrupted` event is 
-	///                 observed
-	///   - next: optional closure executed when `Next` event is observed
+	///   - failed: Optional closure that accepts `Error` parameter when
+	///             `Failed` event is observed.
+	///	  - completed: Optional closure executed when `Completed` event is
+	///                observed.
+	///	  - interruped: Optional closure executed when `Interrupted` event is
+	///                 observed.
+	///   - next: Optional closure executed when `Next` event is observed.
 	public init(failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (Value -> Void)? = nil) {
 		self.init { event in
 			switch event {
@@ -71,14 +71,14 @@ public struct Observer<Value, Error: ErrorType> {
 extension Observer: ObserverType {
 	/// Puts a `Next` event into the given observer.
 	///
-	/// - parameter value: a value sent with the `Next` event
+	/// - parameter value: A value sent with the `Next` event.
 	public func sendNext(value: Value) {
 		action(.Next(value))
 	}
 
 	/// Puts a `Failed` event into the given observer.
 	///
-	/// - parameter error: an error object sent with `Failed` event
+	/// - parameter error: An error object sent with `Failed` event.
 	public func sendFailed(error: Error) {
 		action(.Failed(error))
 	}

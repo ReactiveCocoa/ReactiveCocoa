@@ -25,7 +25,7 @@ public enum Event<Value, Error: ErrorType> {
 	/// will be received.
 	///
 	/// - important: This event does not signify the successful or failed
-	///	             completion of the signal
+	///	             completion of the signal.
 	case Interrupted
 
 	/// Whether this event indicates signal termination (i.e., that no further
@@ -42,9 +42,9 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's value.
 	///
-	/// - parameter f: closure/function accepting a value and returning event
-	///	               with a different type of value
-	/// - important: the function is applied only to `Next` type events
+	/// - parameter f: Closure/function accepting a value and returning event
+	///	               with a different type of value.
+	/// - important: The function is applied only to `Next` type events.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
@@ -63,9 +63,9 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's error.
 	///
-	/// - parameter f: closure/function accepting an error object and returning
-	///	               different type of error object
-	/// - important: the function is applied only to `Failed` type event
+	/// - parameter f: Closure/function accepting an error object and returning
+	///	               different type of error object.
+	/// - important: The function is applied only to `Failed` type event.
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):

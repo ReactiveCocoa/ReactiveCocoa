@@ -24,6 +24,15 @@ public final class CocoaAction: NSObject {
 	
 	/// Initializes a Cocoa action that will invoke the given Action by
 	/// transforming the object given to execute().
+	///
+	/// - parameters:
+	///   - action: Executable action.
+	///   - inputTransform: Closure that accepts the UI control performing the
+	///     action and returns a value (e.g. `(UISwitch) -> (Bool)` telling
+	///     whether the switch is currently on.
+	/// - note: You must cast the passed in object to the control type you need
+	///         since there is no way to know where this cocoa action will be
+	///         added as a target.
 	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: AnyObject? -> Input) {
 		_execute = { input in
 			let producer = action.apply(inputTransform(input))
@@ -49,8 +58,12 @@ public final class CocoaAction: NSObject {
 		}
 	}
 	
-	/// Initializes a Cocoa action that will invoke the given Action by
-	/// always providing the given input.
+	/// Initializes a Cocoa action that will invoke the given Action by always
+	/// providing the given input.
+	///
+	/// - parameters:
+	///   - action: Executable action.
+	///   - input: A value given as input to the action.
 	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
 		self.init(action, { _ in input })
 	}
@@ -61,6 +74,8 @@ public final class CocoaAction: NSObject {
 	
 	/// Attempts to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
+	///
+	/// - parameter input: A value for the action passed during initialisation.
 	@IBAction public func execute(input: AnyObject?) {
 		_execute(input)
 	}
@@ -71,11 +86,13 @@ public final class CocoaAction: NSObject {
 }
 
 extension Action {
-	/// A UI bindable `CocoaAction`. The default behavior force casts the
-	/// AnyObject? input to match the action's `Input` type. This makes it
-	/// unsafe for use when the action is parameterized for something like
-	/// `Void` input. In those cases, explicitly assign a value to this property
-	/// that transforms the input to suit your needs.
+	/// A UI bindable `CocoaAction`.
+	///
+	/// - warning: The default behavior force casts the `AnyObject?` input to 
+	///            match the action's `Input` type. This makes it unsafe for use 
+	///            when the action is parameterized for something like `Void` 
+	///            input. In those cases, explicitly assign a value to this
+    ///            property that transforms the input to suit your needs.
 	public var unsafeCocoaAction: CocoaAction {
 		return CocoaAction(self) { $0 as! Input }
 	}

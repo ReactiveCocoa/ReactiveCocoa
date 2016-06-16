@@ -35,8 +35,8 @@ private func defaultEventLog(identifier: String, event: String, fileName: String
 public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
 
 extension SignalType {
-	/// Logs all events that the receiver sends.
-	/// By default, it will print to the standard output.
+	/// Logs all events that the receiver sends. By default, it will print to 
+	/// the standard output.
 	///
 	/// - parameters:
 	///   - identifier: signal identifier
@@ -66,8 +66,8 @@ extension SignalType {
 }
 
 extension SignalProducerType {
-	/// Logs all events that the receiver sends.
-	/// By default, it will print to the standard output.
+	/// Logs all events that the receiver sends. By default, it will print to 
+	/// the standard output.
 	///
 	/// - parameters:
 	///   - identifier: signal identifier

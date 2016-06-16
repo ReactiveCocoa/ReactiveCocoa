@@ -24,10 +24,9 @@ public enum Event<Value, Error: ErrorType> {
 	/// Event production on the signal has been interrupted. No further events
 	/// will be received.
 	///
-	/// - important: This event does not signify the successful
-	///	             or failed completion of the signal
+	/// - important: This event does not signify the successful or failed
+	///	             completion of the signal
 	case Interrupted
-
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -43,8 +42,8 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's value.
 	///
-	/// - parameter f: closure/function accepting a value and returning
-	///	               event with a different type of value
+	/// - parameter f: closure/function accepting a value and returning event
+	///	               with a different type of value
 	/// - important: the function is applied only to `Next` type events
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
@@ -64,8 +63,8 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's error.
 	///
-	/// - parameter f: closure/function accepting an error object
-	///	               and returning different type of error object
+	/// - parameter f: closure/function accepting an error object and returning
+	///	               different type of error object
 	/// - important: the function is applied only to `Failed` type event
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
@@ -143,7 +142,8 @@ extension Event: CustomStringConvertible {
 public protocol EventType {
 	/// The value type of an event.
 	associatedtype Value
-	/// The error type of an event. If errors aren't possible then `NoError` can be used.
+	/// The error type of an event. If errors aren't possible then `NoError` can
+    /// be used.
 	associatedtype Error: ErrorType
 	/// Extracts the event from the receiver.
 	var event: Event<Value, Error> { get }

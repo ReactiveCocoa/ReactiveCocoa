@@ -60,7 +60,7 @@ extension Observer: ObserverType {
 		action(.Next(value))
 	}
 
-	/// Puts an `Failed` event into the given observer.
+	/// Puts a `Failed` event into the given observer.
 	public func sendFailed(error: Error) {
 		action(.Failed(error))
 	}
@@ -70,7 +70,7 @@ extension Observer: ObserverType {
 		action(.Completed)
 	}
 
-	/// Puts a `Interrupted` event into the given observer.
+	/// Puts an `Interrupted` event into the given observer.
 	public func sendInterrupted() {
 		action(.Interrupted)
 	}

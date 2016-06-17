@@ -297,7 +297,7 @@ class PropertySpec: QuickSpec {
 		}
 
 		describe("AnyProperty") {
-			describe("from a PropertyType") {
+			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
 					let property = AnyProperty(constantProperty)
@@ -513,7 +513,7 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
-		describe("PropertyType") {
+		describe("PropertyProtocol") {
 			describe("map") {
 				it("should transform the current value and all subsequent values") {
 					let property = MutableProperty(1)

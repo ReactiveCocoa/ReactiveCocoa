@@ -11,7 +11,7 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
-private extension SignalType {
+private extension SignalProtocol {
 	typealias Pipe = (signal: Signal<Value, Error>, observer: Observer<Value, Error>)
 }
 
@@ -19,7 +19,7 @@ private typealias Pipe = Signal<SignalProducer<Int, TestError>, TestError>.Pipe
 
 class FlattenSpec: QuickSpec {
 	override func spec() {
-		func describeSignalFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+		func describeSignalFlattenDisposal(_ flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {
 				var pipe: Pipe!
 				var disposable: Disposable?
@@ -71,7 +71,7 @@ class FlattenSpec: QuickSpec {
 			describeSignalFlattenDisposal(.Concat, name: "concat")
 		}
 
-		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+		func describeSignalProducerFlattenDisposal(_ flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {
 				it("disposes original signal when result signal interrupted") {
 					var disposed = false

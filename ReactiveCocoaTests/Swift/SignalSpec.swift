@@ -569,7 +569,7 @@ class SignalSpec: QuickSpec {
 					let disposable: ScopedDisposable
 				}
 
-				func item(payload: Bool) -> Item {
+				func item(_ payload: Bool) -> Item {
 					return Item(
 						payload: payload,
 						disposable: ScopedDisposable(ActionDisposable { disposedItems.append(payload) })
@@ -2162,7 +2162,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("log events") {
 				it("should output the correct event without identifier") {
-					let expectations: [String -> Void] = [
+					let expectations: [(String) -> Void] = [
 						{ event in expect(event) == "[] Next 1" },
 						{ event in expect(event) == "[] Completed" },
 						{ event in expect(event) == "[] Terminated" },
@@ -2181,7 +2181,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should output the correct event with identifier") {
-					let expectations: [String -> Void] = [
+					let expectations: [(String) -> Void] = [
 						{ event in expect(event) == "[test.rac] Next 1" },
 						{ event in expect(event) == "[test.rac] Failed Error1" },
 						{ event in expect(event) == "[test.rac] Terminated" },
@@ -2200,7 +2200,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				it("should only output the events specified in the `events` parameter") {
-					let expectations: [String -> Void] = [
+					let expectations: [(String) -> Void] = [
 						{ event in expect(event) == "[test.rac] Failed Error1" },
 					]
 					

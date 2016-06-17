@@ -6,7 +6,7 @@ import enum Result.NoError
 private protocol ObjectiveCRepresentable {
 	associatedtype Value
 	static func extractValue(fromRepresentation representation: AnyObject) -> Value
-	static func represent(value value: Value) -> AnyObject
+	static func represent(value: Value) -> AnyObject
 }
 
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
@@ -19,8 +19,8 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: AnyObject -> Value
-	private let represent: Value -> AnyObject
+	private let extractValue: (AnyObject) -> Value
+	private let represent: (Value) -> AnyObject
 
 	private var property: MutableProperty<Value?>?
 
@@ -28,7 +28,7 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	/// Coding.
 	public var value: Value? {
 		get {
-			return object?.valueForKeyPath(keyPath).map(extractValue)
+			return object?.value(forKeyPath: keyPath).map(extractValue)
 		}
 
 		set(newValue) {
@@ -62,15 +62,15 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
 
-		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
+		object?.rac_values(forKeyPath: keyPath, observer: nil)?
 			.toSignalProducer()
 			.start { event in
 				switch event {
-				case let .Next(newValue):
+				case let .next(newValue):
 					self.property?.value = newValue.map(self.extractValue)
-				case let .Failed(error):
+				case let .failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .Interrupted, .Completed:
+				case .interrupted, .completed:
 					self.property = nil
 				}
 			}
@@ -105,7 +105,7 @@ private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
 		return representation as! Value
 	}
 
-	static func represent(value value: Value) -> AnyObject {
+	static func represent(value: Value) -> AnyObject {
 		return value
 	}
 }
@@ -119,7 +119,7 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 		return result!
 	}
 
-	static func represent(value value: Value) -> AnyObject {
+	static func represent(value: Value) -> AnyObject {
 		return value._bridgeToObjectiveC()
 	}
 }

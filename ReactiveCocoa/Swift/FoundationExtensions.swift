@@ -16,6 +16,7 @@ extension NSNotificationCenter {
 	/// - parameters:
 	///   - name: notification name to observe
 	///   - object: an instance that sends the notifications
+	///
 	/// - returns: A producer of notifications posted that match the given 
 	///            criteria.
 	///
@@ -51,6 +52,7 @@ extension NSURLSession {
 	///
 	/// - returns: A producer that will execute the given request once for each
 	///            invocation of `start()`.
+	///
 	/// - note: This method will not send error event upon server-side error
 	///         (i.e. when response with code other than 200...299 is received).
 	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse), NSError> {

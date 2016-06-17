@@ -45,6 +45,7 @@ extension SignalType {
 	///   - functionName: Function where event was fired.
 	///   - lineNumber: Line number where event was fired.
 	///   - logger: Logger that logs the events.
+	///
 	/// - returns: Signal that, when observed, logs the fired events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
@@ -76,6 +77,7 @@ extension SignalProducerType {
 	///   - functionName: Function where event was fired.
 	///   - lineNumber: Line number where event was fired.
 	///   - logger: Logger that logs the events.
+	///
 	/// - returns: Signal producer that, when started, logs the fired events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {

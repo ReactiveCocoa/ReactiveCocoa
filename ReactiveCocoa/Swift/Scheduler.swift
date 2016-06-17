@@ -33,6 +33,7 @@ public protocol DateSchedulerType: SchedulerType {
 	/// - parameters:
 	///   - date: Starting date.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable?
@@ -45,6 +46,7 @@ public protocol DateSchedulerType: SchedulerType {
 	///   - repeatingEvery: Repetition interval.
 	///   - withLeeway: Some delta for repetition.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable?
@@ -135,6 +137,7 @@ public final class QueueScheduler: DateSchedulerType {
 	///
 	/// - note: Even if the queue is concurrent, all work items enqueued with
 	///         the `QueueScheduler` will be serial with respect to each other.
+	///
   	/// - warning: Obsoleted in OS X 10.11.
 	@available(OSX, deprecated=10.10, obsoleted=10.11, message="Use init(qos:, name:) instead")
 	public convenience init(queue: dispatch_queue_t, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
@@ -199,6 +202,7 @@ public final class QueueScheduler: DateSchedulerType {
 	/// - parameters:
 	///   - date: Starting date.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
@@ -220,6 +224,7 @@ public final class QueueScheduler: DateSchedulerType {
 	///   - date: Date to schedule the first action for.
 	///   - repeatingEvery: Repetition interval.
 	///   - action: Closure to repeat.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> Disposable? {
@@ -236,6 +241,7 @@ public final class QueueScheduler: DateSchedulerType {
 	///   - repeatingEvery: Repetition interval.
 	///   - leeway: Some delta for repetition interval.
 	///   - action: Closure to repeat.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> Disposable? {
@@ -314,9 +320,11 @@ public final class TestScheduler: DateSchedulerType {
 	///
 	/// - note: The work is executed on `currentDate` as it is understood by the
 	///         scheduler.
+	///
 	/// - parameters:
 	///   - action: An action that will be performed on scheduler's
 	///             `currentDate`.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func schedule(action: () -> Void) -> Disposable? {
@@ -328,6 +336,7 @@ public final class TestScheduler: DateSchedulerType {
 	/// - parameters:
 	///   - date: Starting date.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(interval: NSTimeInterval, action: () -> Void) -> Disposable? {
@@ -345,6 +354,7 @@ public final class TestScheduler: DateSchedulerType {
 	///   - date: Date to schedule the first action for.
 	///   - repeatingEvery: Repetition interval.
 	///   - action: Closure to repeat.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> Void) {
@@ -364,6 +374,7 @@ public final class TestScheduler: DateSchedulerType {
 	///   - repeatingEvery: Repetition interval.
 	///	  - leeway: Some delta for repetition interval.
 	///   - action: Closure to repeat.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(interval: NSTimeInterval, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {
@@ -378,6 +389,7 @@ public final class TestScheduler: DateSchedulerType {
 	///   - repeatingEvery: Repetition interval.
 	///	  - leeway: Some delta for repetition interval.
 	///   - action: Closure to repeat.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///	           before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval = 0, action: () -> Void) -> Disposable? {

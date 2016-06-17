@@ -23,6 +23,7 @@ extension RACScheduler: DateSchedulerType {
 	///
 	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
+	///
 	/// - note: This method calls the Objective-C implementation of `schedule:`
 	///         method.
 	public func schedule(action: () -> Void) -> Disposable? {
@@ -35,6 +36,7 @@ extension RACScheduler: DateSchedulerType {
 	/// - parameters:
 	///   - date: Starting date.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, action: () -> Void) -> Disposable? {
@@ -49,6 +51,7 @@ extension RACScheduler: DateSchedulerType {
 	///   - repeatingEvery: Repetition interval.
 	///   - withLeeway: Some delta for repetition.
 	///   - action: Closure to perform.
+	///
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable? {
@@ -95,6 +98,7 @@ extension RACSignal {
 	/// - parameters:
 	///   - file: Current file name.
 	///   - line: Current line in file.
+	///
 	/// - returns: Signal producer created from `self`.
 	public func toSignalProducer(file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
@@ -129,6 +133,7 @@ extension SignalProducerType where Value: AnyObject {
 	/// subscription.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -142,6 +147,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	/// subscription.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -155,6 +161,7 @@ extension SignalProducerType where Value: AnyObject, Error: NSError {
 	/// subscription.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -168,6 +175,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	/// subscription.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for rdar://22708537
@@ -198,6 +206,7 @@ extension SignalType where Value: AnyObject {
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -210,6 +219,7 @@ extension SignalType where Value: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -222,6 +232,7 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
@@ -234,6 +245,7 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject, Error:
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
+	///
 	/// - note: Any `Interrupted` event will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for rdar://22708537
@@ -268,7 +280,9 @@ extension RACCommand {
 	/// - parameters:
 	///   - file: Current file name.
 	///   - line: Current line in file.
+	///
 	/// - returns: Action created from `self`.
+	///
 	/// - note: The returned Action will not necessarily be marked as executing
 	///         when the command is. However, the reverse is always true: the
     ///         RACCommand will always be marked as executing when the action 
@@ -301,6 +315,7 @@ extension ActionType {
 /// Creates a RACCommand that will execute the action.
 ///
 /// - returns: `RACCommand` with bound action.
+///
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.
@@ -315,6 +330,7 @@ public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Ou
 /// Creates a RACCommand that will execute the action.
 ///
 /// - returns: `RACCommand` with bound action.
+///
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.

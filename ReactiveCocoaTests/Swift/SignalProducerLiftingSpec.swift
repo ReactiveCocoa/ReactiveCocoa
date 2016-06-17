@@ -47,7 +47,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				expect(error).to(beNil())
 
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				expect(error) == producerError
 			}
 		}
@@ -127,11 +127,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -160,11 +160,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -318,9 +318,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Failed, .Completed, .Interrupted:
+					case .failed, .completed, .interrupted:
 						break
 					}
 				}
@@ -364,11 +364,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var completed = false
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -433,11 +433,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				.take(0)
 				.start { event in
 					switch event {
-					case let .Next(number):
+					case let .next(number):
 						result.append(number)
-					case .Interrupted:
+					case .interrupted:
 						interrupted = true
-					case .Failed, .Completed:
+					case .failed, .completed:
 						break
 					}
 				}
@@ -493,8 +493,8 @@ class SignalProducerLiftingSpec: QuickSpec {
 				producer.startWithFailed { error = $0 }
 
 				expect(error).to(beNil())
-				observer.sendFailed(.Default)
-				expect(error) == TestError.Default
+				observer.sendFailed(.default)
+				expect(error) == TestError.default
 			}
 
 			it("should collect an exact count of values") {
@@ -601,11 +601,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -671,11 +671,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -726,11 +726,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -752,11 +752,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -807,11 +807,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 					.delay(10, onScheduler: testScheduler)
 					.start { event in
 						switch event {
-						case let .Next(number):
+						case let .next(number):
 							result.append(number)
-						case .Completed:
+						case .completed:
 							completed = true
-						case .Failed, .Interrupted:
+						case .failed, .interrupted:
 							break
 						}
 					}
@@ -835,7 +835,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					let observer = observer
 
 					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
+						observer.sendFailed(TestError.default)
 					}
 				}
 				
@@ -909,11 +909,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						values.append(value)
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -1187,11 +1187,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				zipped.start { event in
 					switch event {
-					case let .Next(left, right):
+					case let .next(left, right):
 						result.append("\(left)\(right)")
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -1222,19 +1222,19 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(latestEvent).toNot(beNil())
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case let .Next(value):
+					case let .next(value):
 						expect(value) == 2
-					case .Failed, .Completed, .Interrupted:
+					case .failed, .completed, .interrupted:
 						fail()
 					}
 				}
 				
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Failed:
+					case .failed:
 						break
-					case .Next, .Completed, .Interrupted:
+					case .next, .completed, .interrupted:
 						fail()
 					}
 				}
@@ -1260,10 +1260,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				expect(result).to(beEmpty())
 				
-				observer.sendNext(.Next(2))
+				observer.sendNext(.next(2))
 				expect(result) == [ 2 ]
 				
-				observer.sendNext(.Next(4))
+				observer.sendNext(.next(4))
 				expect(result) == [ 2, 4 ]
 			}
 
@@ -1273,7 +1273,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				expect(errored) == false
 				
-				observer.sendNext(.Failed(TestError.Default))
+				observer.sendNext(.failed(TestError.default))
 				expect(errored) == true
 			}
 
@@ -1282,7 +1282,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				dematerialized.startWithCompleted { completed = true }
 				
 				expect(completed) == false
-				observer.sendNext(IntEvent.Completed)
+				observer.sendNext(IntEvent.completed)
 				expect(completed) == true
 			}
 		}
@@ -1330,11 +1330,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var errored = false
 				lastThree.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						result.append(value)
-					case .Failed:
+					case .failed:
 						errored = true
-					case .Completed, .Interrupted:
+					case .completed, .interrupted:
 						break
 					}
 				}
@@ -1344,7 +1344,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(3)
 				expect(errored) == false
 				
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				expect(errored) == true
 				expect(result).to(beEmpty())
 			}
@@ -1358,7 +1358,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseProducer, incomingObserver) = SignalProducer<Int, TestError>.pipe()
-				producer = baseProducer.timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
+				producer = baseProducer.timeoutWithError(TestError.default, afterInterval: 2, onScheduler: testScheduler)
 				observer = incomingObserver
 			}
 
@@ -1367,11 +1367,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var errored = false
 				producer.start { event in
 					switch event {
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed:
+					case .failed:
 						errored = true
-					case .Next, .Interrupted:
+					case .next, .interrupted:
 						break
 					}
 				}
@@ -1393,11 +1393,11 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var errored = false
 				producer.start { event in
 					switch event {
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed:
+					case .failed:
 						errored = true
-					case .Next, .Interrupted:
+					case .next, .interrupted:
 						break
 					}
 				}
@@ -1438,7 +1438,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should error if an attempt fails") {
 				let (baseProducer, observer) = SignalProducer<Int, TestError>.pipe()
 				let producer = baseProducer.attempt { _ in
-					return .Failure(.Default)
+					return .Failure(.default)
 				}
 				
 				var error: TestError?
@@ -1447,7 +1447,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error) == TestError.Default
+				expect(error) == TestError.default
 			}
 		}
 		
@@ -1475,7 +1475,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should error if a mapping fails") {
 				let (baseProducer, observer) = SignalProducer<Int, TestError>.pipe()
 				let producer = baseProducer.attemptMap { _ -> Result<Bool, TestError> in
-					return .Failure(.Default)
+					return .Failure(.default)
 				}
 				
 				var error: TestError?
@@ -1484,7 +1484,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error) == TestError.Default
+				expect(error) == TestError.default
 			}
 		}
 		

@@ -11,7 +11,7 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
-private extension SignalType {
+private extension SignalProtocol {
 	typealias Pipe = (signal: Signal<Value, Error>, observer: Observer<Value, Error>)
 }
 
@@ -19,7 +19,7 @@ private typealias Pipe = Signal<SignalProducer<Int, TestError>, TestError>.Pipe
 
 class FlattenSpec: QuickSpec {
 	override func spec() {
-		func describeSignalFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+		func describeSignalFlattenDisposal(_ flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {
 				var pipe: Pipe!
 				var disposable: Disposable?
@@ -53,7 +53,7 @@ class FlattenSpec: QuickSpec {
 					}
 
 					it("should dispose inner signals when outer signal failed") {
-						pipe.observer.sendFailed(.Default)
+						pipe.observer.sendFailed(.default)
 						expect(disposed) == true
 					}
 
@@ -66,12 +66,12 @@ class FlattenSpec: QuickSpec {
 		}
 
 		context("Signal") {
-			describeSignalFlattenDisposal(.Latest, name: "switchToLatest")
-			describeSignalFlattenDisposal(.Merge, name: "merge")
-			describeSignalFlattenDisposal(.Concat, name: "concat")
+			describeSignalFlattenDisposal(.latest, name: "switchToLatest")
+			describeSignalFlattenDisposal(.merge, name: "merge")
+			describeSignalFlattenDisposal(.concat, name: "concat")
 		}
 
-		func describeSignalProducerFlattenDisposal(flattenStrategy: FlattenStrategy, name: String) {
+		func describeSignalProducerFlattenDisposal(_ flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {
 				it("disposes original signal when result signal interrupted") {
 					var disposed = false
@@ -91,9 +91,9 @@ class FlattenSpec: QuickSpec {
 		}
 
 		context("SignalProducer") {
-			describeSignalProducerFlattenDisposal(.Latest, name: "switchToLatest")
-			describeSignalProducerFlattenDisposal(.Merge, name: "merge")
-			describeSignalProducerFlattenDisposal(.Concat, name: "concat")
+			describeSignalProducerFlattenDisposal(.latest, name: "switchToLatest")
+			describeSignalProducerFlattenDisposal(.merge, name: "merge")
+			describeSignalProducerFlattenDisposal(.concat, name: "concat")
 		}
 		
 		describe("Signal.flatten()") {
@@ -106,7 +106,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -126,7 +126,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -146,7 +146,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.observeNext { value in
 						observed = value
 					}
@@ -165,7 +165,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -185,7 +185,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -205,7 +205,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -225,7 +225,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.observeNext { value in
 						observed = value
 					}
@@ -244,7 +244,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -261,7 +261,7 @@ class FlattenSpec: QuickSpec {
 				var observedValues = [Int]()
 				
 				signal
-					.flatten(.Concat)
+					.flatten(.concat)
 					.observeNext { value in
 						observedValues.append(value)
 					}
@@ -281,7 +281,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -301,7 +301,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -321,7 +321,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.startWithNext { value in
 						observed = value
 					}
@@ -340,7 +340,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -360,7 +360,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -380,7 +380,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -400,7 +400,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.startWithNext { value in
 						observed = value
 					}
@@ -419,7 +419,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -436,7 +436,7 @@ class FlattenSpec: QuickSpec {
 				
 				let producer = SignalProducer<[Int], NoError>(value: sequence)
 				producer
-					.flatten(.Latest)
+					.flatten(.latest)
 					.startWithNext { value in
 						observedValues.append(value)
 					}
@@ -455,7 +455,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -475,7 +475,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -495,7 +495,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -514,7 +514,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -534,7 +534,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -554,7 +554,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -574,7 +574,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.observeNext { value in
 						observed = value
 					}
@@ -593,7 +593,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.observeNext { value in
 						observed = value
@@ -615,7 +615,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -635,7 +635,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -655,7 +655,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -674,7 +674,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -694,7 +694,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -714,7 +714,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
@@ -734,7 +734,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.startWithNext { value in
 						observed = value
 					}
@@ -753,7 +753,7 @@ class FlattenSpec: QuickSpec {
 				
 				var observed: Int? = nil
 				outer
-					.flatMap(.Latest) { _ in inner }
+					.flatMap(.latest) { _ in inner }
 					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value

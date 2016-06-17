@@ -32,9 +32,9 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.signal.observe { event in
 					switch event {
-					case .Interrupted:
+					case .interrupted:
 						signalInterrupted = true
-					case .Next, .Failed, .Completed:
+					case .next, .failed, .completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}
@@ -51,11 +51,11 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						sentValue = value
-					case .Completed:
+					case .completed:
 						signalCompleted = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -165,11 +165,11 @@ class PropertySpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						producerCompleted = true
-					case .Interrupted, .Failed:
+					case .interrupted, .failed:
 						hasUnanticipatedEvent = true
 					}
 				}
@@ -293,7 +293,7 @@ class PropertySpec: QuickSpec {
 		}
 
 		describe("AnyProperty") {
-			describe("from a PropertyType") {
+			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
 					let property = AnyProperty(constantProperty)
@@ -305,22 +305,22 @@ class PropertySpec: QuickSpec {
 
 					property.producer.start { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							sentValue = value
-						case .Completed:
+						case .completed:
 							producerCompleted = true
-						case .Failed, .Interrupted:
+						case .failed, .interrupted:
 							break
 						}
 					}
 
 					property.signal.observe { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							signalSentValue = value
-						case .Interrupted:
+						case .interrupted:
 							signalInterrupted = true
-						case .Failed, .Completed:
+						case .failed, .completed:
 							break
 						}
 					}

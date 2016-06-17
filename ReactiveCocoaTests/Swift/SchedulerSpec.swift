@@ -26,16 +26,17 @@ class SchedulerSpec: QuickSpec {
 		}
 
 		describe("UIScheduler") {
-			func dispatchSyncInBackground(action: () -> Void) {
-				let group = dispatch_group_create()
-				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), action)
-				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+			func dispatchSyncInBackground(_ action: () -> Void) {
+				let group = DispatchGroup()
+				DispatchQueue.global(attributes: .qosUserInteractive)
+					.async(group: group, qos: .userInteractive, flags: [], execute: action)
+				group.wait()
 			}
 
 			it("should run actions immediately when on the main thread") {
 				let scheduler = UIScheduler()
 				var values: [Int] = []
-				expect(NSThread.isMainThread()) == true
+				expect(Thread.isMainThread()) == true
 
 				scheduler.schedule {
 					values.append(0)
@@ -60,7 +61,7 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(NSThread.isMainThread()) == true
+						expect(Thread.isMainThread()) == true
 						values.append(0)
 					}
 
@@ -72,12 +73,12 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(NSThread.isMainThread()) == true
+						expect(Thread.isMainThread()) == true
 						values.append(1)
 					}
 
 					scheduler.schedule {
-						expect(NSThread.isMainThread()) == true
+						expect(Thread.isMainThread()) == true
 						values.append(2)
 					}
 
@@ -94,7 +95,7 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(NSThread.isMainThread()) == true
+						expect(Thread.isMainThread()) == true
 						values.append(0)
 					}
 
@@ -102,12 +103,12 @@ class SchedulerSpec: QuickSpec {
 				}
 
 				scheduler.schedule {
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 					values.append(1)
 				}
 
 				scheduler.schedule {
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 					values.append(2)
 				}
 
@@ -119,15 +120,10 @@ class SchedulerSpec: QuickSpec {
 		describe("QueueScheduler") {
 			it("should run enqueued actions on a global queue") {
 				var didRun = false
-				let scheduler: QueueScheduler
-				if #available(OSX 10.10, *) {
-					scheduler = QueueScheduler(qos: QOS_CLASS_DEFAULT)
-				} else {
-					scheduler = QueueScheduler(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-				}
+				let scheduler = QueueScheduler(qos: .qosDefault)
 				scheduler.schedule {
 					didRun = true
-					expect(NSThread.isMainThread()) == false
+					expect(Thread.isMainThread()) == false
 				}
 
 				expect{didRun}.toEventually(beTruthy())
@@ -137,12 +133,8 @@ class SchedulerSpec: QuickSpec {
 				var scheduler: QueueScheduler!
 
 				beforeEach {
-					if #available(OSX 10.10, *) {
-						scheduler = QueueScheduler(qos: QOS_CLASS_DEFAULT)
-					} else {
-						scheduler = QueueScheduler(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-					}
-					dispatch_suspend(scheduler.queue)
+					scheduler = QueueScheduler(qos: .qosDefault)
+					scheduler.queue.suspend()
 				}
 
 				it("should run enqueued actions serially on the given queue") {
@@ -150,27 +142,27 @@ class SchedulerSpec: QuickSpec {
 
 					for _ in 0..<5 {
 						scheduler.schedule {
-							expect(NSThread.isMainThread()) == false
+							expect(Thread.isMainThread()) == false
 							value += 1
 						}
 					}
 
 					expect(value) == 0
 
-					dispatch_resume(scheduler.queue)
+					scheduler.queue.resume()
 					expect{value}.toEventually(equal(5))
 				}
 
 				it("should run enqueued actions after a given date") {
 					var didRun = false
-					scheduler.scheduleAfter(NSDate()) {
+					scheduler.scheduleAfter(Date()) {
 						didRun = true
-						expect(NSThread.isMainThread()) == false
+						expect(Thread.isMainThread()) == false
 					}
 
 					expect(didRun) == false
 
-					dispatch_resume(scheduler.queue)
+					scheduler.queue.resume()
 					expect{didRun}.toEventually(beTruthy())
 				}
 
@@ -180,8 +172,8 @@ class SchedulerSpec: QuickSpec {
 					var count = 0
 					let timesToRun = 3
 
-					disposable.innerDisposable = scheduler.scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
-						expect(NSThread.isMainThread()) == false
+					disposable.innerDisposable = scheduler.scheduleAfter(Date(), repeatingEvery: 0.01, withLeeway: 0) {
+						expect(Thread.isMainThread()) == false
 
 						count += 1
 
@@ -192,7 +184,7 @@ class SchedulerSpec: QuickSpec {
 
 					expect(count) == 0
 
-					dispatch_resume(scheduler.queue)
+					scheduler.queue.resume()
 					expect{count}.toEventually(equal(timesToRun))
 				}
 			}
@@ -200,13 +192,13 @@ class SchedulerSpec: QuickSpec {
 
 		describe("TestScheduler") {
 			var scheduler: TestScheduler!
-			var startDate: NSDate!
+			var startDate: Date!
 
 			// How much dates are allowed to differ when they should be "equal."
 			let dateComparisonDelta = 0.00001
 
 			beforeEach {
-				startDate = NSDate()
+				startDate = Date()
 
 				scheduler = TestScheduler(startDate: startDate)
 				expect(scheduler.currentDate) == startDate
@@ -217,12 +209,12 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.schedule {
 					string += "foo"
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 				}
 
 				scheduler.schedule {
 					string += "bar"
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 				}
 
 				expect(string) == ""
@@ -238,24 +230,24 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.scheduleAfter(15) { [weak scheduler] in
 					string += "bar"
-					expect(NSThread.isMainThread()) == true
-					expect(scheduler?.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(15), within: dateComparisonDelta))
+					expect(Thread.isMainThread()) == true
+					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(15), within: dateComparisonDelta))
 				}
 
 				scheduler.scheduleAfter(5) { [weak scheduler] in
 					string += "foo"
-					expect(NSThread.isMainThread()) == true
-					expect(scheduler?.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(5), within: dateComparisonDelta))
+					expect(Thread.isMainThread()) == true
+					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(5), within: dateComparisonDelta))
 				}
 
 				expect(string) == ""
 
 				scheduler.advanceByInterval(10)
-				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(10), within: dateComparisonDelta))
+				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(10), within: dateComparisonDelta))
 				expect(string) == "foo"
 
 				scheduler.advanceByInterval(10)
-				expect(scheduler.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(20), within: dateComparisonDelta))
+				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(20), within: dateComparisonDelta))
 				expect(string) == "foobar"
 			}
 
@@ -264,17 +256,17 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.scheduleAfter(15) {
 					string += "bar"
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 				}
 
 				scheduler.scheduleAfter(5) {
 					string += "foo"
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 				}
 
 				scheduler.schedule {
 					string += "fuzzbuzz"
-					expect(NSThread.isMainThread()) == true
+					expect(Thread.isMainThread()) == true
 				}
 
 				expect(string) == ""

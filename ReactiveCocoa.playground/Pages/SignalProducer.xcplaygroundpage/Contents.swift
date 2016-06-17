@@ -387,7 +387,7 @@ scopedExample("`collect(predicate:)` matching values inclusively") {
 }
 
 /*:
- ### `collect(count:)` matching values exclusively
+ ### `collect(predicate:)` matching values exclusively
  Returns a producer that will yield an array of values based on a predicate
  which matches the values collected and the next value.
  

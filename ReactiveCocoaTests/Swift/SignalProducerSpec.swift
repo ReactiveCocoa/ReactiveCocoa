@@ -1688,6 +1688,25 @@ class SignalProducerSpec: QuickSpec {
 				expect(result?.error) == TestError.Default
 			}
 
+			it("should forward interruptions from the original producer") {
+				let (original, observer) = SignalProducer<Int, NoError>.pipe()
+
+				var subsequentStarted = false
+				let subsequent = SignalProducer<Int, NoError> { observer, _ in
+					subsequentStarted = true
+				}
+
+				var interrupted = false
+				let producer = original.then(subsequent)
+				producer.startWithInterrupted {
+					interrupted = true
+				}
+				expect(subsequentStarted) == false
+
+				observer.sendInterrupted()
+				expect(interrupted) == true
+			}
+
 			it("should complete when both inputs have completed") {
 				let (original, originalObserver) = SignalProducer<Int, NoError>.pipe()
 				let (subsequent, subsequentObserver) = SignalProducer<String, NoError>.pipe()

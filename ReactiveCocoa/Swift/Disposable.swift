@@ -93,7 +93,7 @@ public final class CompositeDisposable: Disposable {
 		return disposables.value == nil
 	}
 
-	/// Initializes a CompositeDisposable containing the given sequence of
+	/// Initializes a `CompositeDisposable` containing the given sequence of
 	/// disposables.
 	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
@@ -105,13 +105,13 @@ public final class CompositeDisposable: Disposable {
 		self.disposables = Atomic(bag)
 	}
 	
-	/// Initializes a CompositeDisposable containing the given sequence of
+	/// Initializes a `CompositeDisposable` containing the given sequence of
 	/// disposables.
 	public convenience init<S: SequenceType where S.Generator.Element == Disposable?>(_ disposables: S) {
 		self.init(disposables.flatMap { $0 })
 	}
 
-	/// Initializes an empty CompositeDisposable.
+	/// Initializes an empty `CompositeDisposable`.
 	public convenience init() {
 		self.init([Disposable]())
 	}

@@ -1317,12 +1317,12 @@ extension SignalProducerType {
 	}
 
 	/// Waits for completion of `producer`, *then* forwards all events from
-	/// `replacement`. Any failure sent from `producer` is forwarded immediately, in
-	/// which case `replacement` will not be started, and none of its events will be
-	/// be forwarded. All values sent from `producer` are ignored.
+	/// `replacement`. Any failure or interruption sent from `producer` is forwarded
+	/// immediately, in which case `replacement` will not be started, and none of its
+	/// events will be be forwarded. All values sent from `producer` are ignored.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func then<U>(replacement: SignalProducer<U, Error>) -> SignalProducer<U, Error> {
-		let relay = SignalProducer<U, Error> { observer, observerDisposable in
+		return SignalProducer<U, Error> { observer, observerDisposable in
 			self.startWithSignal { signal, signalDisposable in
 				observerDisposable.addDisposable(signalDisposable)
 
@@ -1331,7 +1331,7 @@ extension SignalProducerType {
 					case let .Failed(error):
 						observer.sendFailed(error)
 					case .Completed:
-						observer.sendCompleted()
+						observerDisposable += replacement.start(observer)
 					case .Interrupted:
 						observer.sendInterrupted()
 					case .Next:
@@ -1340,8 +1340,6 @@ extension SignalProducerType {
 				}
 			}
 		}
-
-		return relay.concat(replacement)
 	}
 
 	/// Starts the producer, then blocks, waiting for the first value.

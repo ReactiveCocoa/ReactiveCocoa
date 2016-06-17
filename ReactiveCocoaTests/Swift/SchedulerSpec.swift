@@ -236,14 +236,16 @@ class SchedulerSpec: QuickSpec {
 			it("should run actions when advanced past the target date") {
 				var string = ""
 
-				scheduler.scheduleAfter(15) {
+				scheduler.scheduleAfter(15) { [weak scheduler] in
 					string += "bar"
 					expect(NSThread.isMainThread()) == true
+					expect(scheduler?.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(15), within: dateComparisonDelta))
 				}
 
-				scheduler.scheduleAfter(5) {
+				scheduler.scheduleAfter(5) { [weak scheduler] in
 					string += "foo"
 					expect(NSThread.isMainThread()) == true
+					expect(scheduler?.currentDate).to(beCloseTo(startDate.dateByAddingTimeInterval(5), within: dateComparisonDelta))
 				}
 
 				expect(string) == ""

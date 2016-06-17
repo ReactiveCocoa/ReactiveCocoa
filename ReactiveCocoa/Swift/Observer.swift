@@ -6,6 +6,24 @@
 //  Copyright © 2015 GitHub. All rights reserved.
 //
 
+/// A protocol for type-constrained extensions of `Observer`.
+public protocol ObserverType {
+	associatedtype Value
+	associatedtype Error: ErrorType
+
+	/// Puts a `Next` event into the given observer.
+	func sendNext(value: Value)
+
+	/// Puts a `Failed` event into the given observer.
+	func sendFailed(error: Error)
+
+	/// Puts a `Completed` event into the given observer.
+	func sendCompleted()
+
+	/// Puts an `Interrupted` event into the given observer.
+	func sendInterrupted()
+}
+
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
 public struct Observer<Value, Error: ErrorType> {
@@ -34,7 +52,9 @@ public struct Observer<Value, Error: ErrorType> {
 			}
 		}
 	}
+}
 
+extension Observer: ObserverType {
 	/// Puts a `Next` event into the given observer.
 	public func sendNext(value: Value) {
 		action(.Next(value))

@@ -76,7 +76,8 @@ public final class CocoaAction: NSObject {
 	/// Attempts to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
 	///
-	/// - parameter input: A value for the action passed during initialisation.
+	/// - parameters:
+	///   - input: A value for the action passed during initialisation.
 	@IBAction public func execute(input: AnyObject?) {
 		_execute(input)
 	}

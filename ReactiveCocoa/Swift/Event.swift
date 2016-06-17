@@ -42,8 +42,10 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's value.
 	///
-	/// - parameter f: Closure/function accepting a value and returning event
-	///	               with a different type of value.
+	/// - parameters:
+	///   - f: Closure/function accepting a value and returning event with a
+	///	       different type of value.
+	///
 	/// - important: The function is applied only to `Next` type events.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
@@ -63,8 +65,10 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Lifts the given function over the event's error.
 	///
-	/// - parameter f: Closure/function accepting an error object and returning
-	///	               different type of error object.
+	/// - parameters:
+	///   - f: Closure/function accepting an error object and returning
+	///	       different type of error object.
+	///
 	/// - important: The function is applied only to `Failed` type event.
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {

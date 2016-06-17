@@ -18,7 +18,9 @@ extension RACScheduler: DateSchedulerType {
 
 	/// Schedules an action for immediate execution
 	///
-	/// - parameter action: Closure to perform.
+	/// - parameters:
+	///   - action: Closure to perform.
+	///
 	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
 	/// - note: This method calls the Objective-C implementation of `schedule:`

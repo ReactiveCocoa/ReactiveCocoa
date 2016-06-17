@@ -82,8 +82,9 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Initializes an action that will be enabled by default, and creates a
 	/// SignalProducer for each input.
 	///
-	/// - parameter execute: A closure that returns the signal producer returned
-	///                      by calling `apply(Input)` on the action.
+	/// - parameters:
+	///   - execute: A closure that returns the signal producer returned by
+	///              calling `apply(Input)` on the action.
 	public convenience init(_ execute: Input -> SignalProducer<Output, Error>) {
 		self.init(enabledIf: ConstantProperty(true), execute)
 	}
@@ -95,8 +96,10 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.
 	///
-	/// - parameter input: A value that will be passed to closure creating the
-	///                    signal producer.
+	/// - parameters:
+	///   - input: A value that will be passed to closure creating the signal
+	///            producer.
+	///
 	/// - note: If the action is disabled when the returned SignalProducer is
 	///         started, the produced signal will send `ActionError.NotEnabled`,
 	///         and nothing will be sent upon `values` or `errors` for that
@@ -151,8 +154,10 @@ public protocol ActionType {
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.
 	///
-	/// - parameter input: A value that will be passed to closure creating the
-	///                    signal producer.
+	/// - parameters:
+	///   - input: A value that will be passed to closure creating the signal
+	///            producer.
+	///
 	/// - note: If the action is disabled when the returned SignalProducer is
 	///         started, the produced signal will send `ActionError.NotEnabled`,
 	///         and nothing will be sent upon `values` or `errors` for that

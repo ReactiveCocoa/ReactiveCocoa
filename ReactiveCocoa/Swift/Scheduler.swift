@@ -56,7 +56,9 @@ public final class ImmediateScheduler: SchedulerType {
 
 	/// Immediately calls passed in `action`.
 	///
-	/// - parameter action: Closure to perform.
+	/// - parameters:
+	///   - action: Closure to perform.
+	///
 	/// - returns: `nil`.
 	public func schedule(action: () -> Void) -> Disposable? {
 		action()
@@ -92,7 +94,9 @@ public final class UIScheduler: SchedulerType {
 	/// thread and no work is queued, no scheduling takes place and the action
 	/// is called instantly.
 	///
-	/// - parameter action: Closure to perform on main thread.
+	/// - parameters:
+	///   - action: Closure to perform on main thread.
+	///
 	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
 	public func schedule(action: () -> Void) -> Disposable? {
@@ -163,7 +167,9 @@ public final class QueueScheduler: DateSchedulerType {
 
 	/// Schedules action for dispatch on internal queue
 	///
-	/// - parameter action: Action to schedule.
+	/// - parameters:
+	///   - action: Action to schedule.
+	///
 	/// - returns: Disposable that can be used to cancel the work before it 
 	///            begins.
 	public func schedule(action: () -> Void) -> Disposable? {
@@ -284,7 +290,8 @@ public final class TestScheduler: DateSchedulerType {
 
 	/// Initializes a TestScheduler with the given start date.
 	///
-	/// - parameter startDate: The start date of the scheduler.
+	/// - parameters:
+	///   - startDate: The start date of the scheduler.
 	public init(startDate: NSDate = NSDate(timeIntervalSinceReferenceDate: 0)) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.TestScheduler"
 		_currentDate = startDate
@@ -307,8 +314,9 @@ public final class TestScheduler: DateSchedulerType {
 	///
 	/// - note: The work is executed on `currentDate` as it is understood by the
 	///         scheduler.
-	/// - parameter action: An action that will be performed on scheduler's
-	///                     `currentDate`.
+	/// - parameters:
+	///   - action: An action that will be performed on scheduler's
+	///             `currentDate`.
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	public func schedule(action: () -> Void) -> Disposable? {
@@ -390,7 +398,8 @@ public final class TestScheduler: DateSchedulerType {
 	/// Advances the virtualized clock by the given interval, dequeuing and
 	/// executing any actions along the way.
 	///
-	/// - parameter interval: Interval by which advance the current date.
+	/// - parameters:
+	///   - interval: Interval by which advance the current date.
 	public func advanceByInterval(interval: NSTimeInterval) {
 		lock.lock()
 		advanceToDate(currentDate.dateByAddingTimeInterval(interval))
@@ -400,7 +409,8 @@ public final class TestScheduler: DateSchedulerType {
 	/// Advances the virtualized clock to the given future date, dequeuing and
 	/// executing any actions up until that point.
 	///
-	/// - parameter newDate: Future date.
+	/// - parameters:
+	///   - newDate: Future date.
 	public func advanceToDate(newDate: NSDate) {
 		lock.lock()
 

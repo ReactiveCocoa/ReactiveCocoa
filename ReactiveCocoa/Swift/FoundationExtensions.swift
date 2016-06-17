@@ -46,8 +46,9 @@ extension NSNotificationCenter {
 private let defaultSessionError = NSError(domain: "org.reactivecocoa.ReactiveCocoa.rac_dataWithRequest", code: 1, userInfo: nil)
 
 extension NSURLSession {
-	/// - parameter request: A request that will be performed when producer is
-	///                      started
+	/// - parameters:
+	///   - request: A request that will be performed when producer is started
+	///
 	/// - returns: A producer that will execute the given request once for each
 	///            invocation of `start()`.
 	/// - note: This method will not send error event upon server-side error

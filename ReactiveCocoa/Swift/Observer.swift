@@ -34,7 +34,8 @@ public struct Observer<Value, Error: ErrorType> {
 
 	/// Initializer that accepts a closure accepting an event for the observer.
 	///
-	/// - parameter action: A closure to lift over received event.
+	/// - parameters:
+	///   - action: A closure to lift over received event.
 	public init(_ action: Action) {
 		self.action = action
 	}
@@ -71,14 +72,16 @@ public struct Observer<Value, Error: ErrorType> {
 extension Observer: ObserverType {
 	/// Puts a `Next` event into the given observer.
 	///
-	/// - parameter value: A value sent with the `Next` event.
+	/// - parameters:
+	///   - value: A value sent with the `Next` event.
 	public func sendNext(value: Value) {
 		action(.Next(value))
 	}
 
 	/// Puts a `Failed` event into the given observer.
 	///
-	/// - parameter error: An error object sent with `Failed` event.
+	/// - parameters:
+	///   - error: An error object sent with `Failed` event.
 	public func sendFailed(error: Error) {
 		action(.Failed(error))
 	}

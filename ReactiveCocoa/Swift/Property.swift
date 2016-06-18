@@ -76,7 +76,7 @@ extension PropertyType {
 	/// Maps the current value and all subsequent values to a new value.
 	///
 	/// - parameters:
-	///   - transform: A function that will map the current value property to a
+	///   - transform: A closure that will map the current value property to a
 	///                new value.
 	///
 	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
@@ -201,7 +201,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Atomically modifies the variable.
 	///
 	/// - parameters:
-	///   - action: A function that accepts old property value and returns a new
+	///   - action: A closure that accepts old property value and returns a new
 	///             property value.
 	/// - returns: The previous property value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
@@ -217,7 +217,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// variable.
 	///
 	/// - parameters:
-	///   - action: A function that accepts current property value.
+	///   - action: A closure that accepts current property value.
 	///
 	/// - returns: the result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
@@ -299,12 +299,26 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 /// print(property.value) // prints `1`
 /// ````
 ///
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer({ /* do some work after some time */ })
+/// let disposable = (property <~ producer)
+/// ...
+/// // Terminates binding before property dealloc or signal's
+/// // `Completed` event.
+/// disposable.dispose()
+/// ````
+///
 /// - note: The binding will automatically terminate when the property is 
-///         deinitialized, or when the created signal sends a `Completed` event.
+///         deinitialized, or when the created producer sends a `Completed` 
+///         event.
 ///
 /// - parameters:
 ///   - property: A property to bind to.
 ///   - producer: A producer to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or producer's `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
@@ -325,8 +339,31 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// dstProperty <~ srcProperty
+/// print(dstProperty.value) // prints 10
+/// ````
+///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// let disposable = (dstProperty <~ srcProperty)
+/// ...
+/// disposable.dispose() // terminate the binding earlier if needed
+/// ````
+///
 /// - note: The binding will automatically terminate when either property is
 ///         deinitialized.
+///
+/// - parameters:
+///   - destinationProperty: A property to bind to.
+///   - sourceProperty: A property to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of destination property or source property
+///            producer's `Completed` event.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

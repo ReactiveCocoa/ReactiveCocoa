@@ -170,7 +170,7 @@ public final class CompositeDisposable: Disposable {
 	/// Adds an ActionDisposable to the list.
 	///
 	/// - parameters:
-	///   - action: A function that will be called when calling `dispose()`.
+	///   - action: A closure that will be called when calling `dispose()`.
 	///
 	/// - returns: Instance of `DisposableHandle` that can be used to opaquely
 	///            remove the disposable later (if desired).

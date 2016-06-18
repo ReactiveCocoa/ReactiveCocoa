@@ -40,13 +40,13 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given function over the event's value.
+	/// Lifts the given closure over the event's value.
 	///
 	/// - parameters:
-	///   - f: Closure/function accepting a value and returning event with a
+	///   - f: A closure that acceps a value and returning event with a
 	///	       different type of value.
 	///
-	/// - important: The function is applied only to `Next` type events.
+	/// - important: The closure is called only on `Next` type events.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
@@ -63,13 +63,13 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given function over the event's error.
+	/// Lifts the given closure over the event's error.
 	///
 	/// - parameters:
-	///   - f: Closure/function accepting an error object and returning
+	///   - f: A closure that accepts an error object and returning
 	///	       different type of error object.
 	///
-	/// - important: The function is applied only to `Failed` type event.
+	/// - important: The closure is called only on `Failed` type event.
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):

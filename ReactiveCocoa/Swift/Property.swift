@@ -37,6 +37,9 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 	
 	/// Initializes a property as a read-only view of the given property.
+	///
+	/// - parameters:
+	///   - property: A property to read as own value.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
@@ -45,6 +48,11 @@ public struct AnyProperty<Value>: PropertyType {
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - producer: A producer that will start immediately and send values to
+	///               the property.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ producer
@@ -53,6 +61,10 @@ public struct AnyProperty<Value>: PropertyType {
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - signal: A signal that will send values to the property.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ signal
@@ -62,6 +74,13 @@ public struct AnyProperty<Value>: PropertyType {
 
 extension PropertyType {
 	/// Maps the current value and all subsequent values to a new value.
+	///
+	/// - parameters:
+	///   - transform: A function that will map the current value property to a
+	///                new value.
+	///
+	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
+	///            from `self`.
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
 		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
 			disposable += ActionDisposable { self }
@@ -79,6 +98,9 @@ public struct ConstantProperty<Value>: PropertyType {
 	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
+	///
+	/// - parameters:
+	///   - value: Property's value.
 	public init(_ value: Value) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
@@ -151,6 +173,9 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	}
 
 	/// Initializes the property with the given value to start.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
 		var value = initialValue
 
@@ -165,14 +190,20 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Atomically replaces the contents of the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - newValue: New property value.
+	///
+	/// - returns: The previous property value.
 	public func swap(newValue: Value) -> Value {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - action: A function that accepts old property value and returns a new
+	///             property value.
+	/// - returns: The previous property value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
 		return try withValue { value in
 			let newValue = try action(value)
@@ -185,7 +216,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///
-	/// Returns the result of the action.
+	/// - parameters:
+	///   - action: A function that accepts current property value.
+	///
+	/// - returns: the result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }

@@ -866,6 +866,11 @@ class SignalProducerSpec: QuickSpec {
 				let scheduler = TestScheduler()
 				let producer = timer(1, onScheduler: scheduler, withLeeway: 0)
 
+				let startDate = scheduler.currentDate
+				let tick1 = startDate.dateByAddingTimeInterval(1)
+				let tick2 = startDate.dateByAddingTimeInterval(2)
+				let tick3 = startDate.dateByAddingTimeInterval(3)
+
 				var dates: [NSDate] = []
 				producer.startWithNext { dates.append($0) }
 
@@ -873,18 +878,16 @@ class SignalProducerSpec: QuickSpec {
 				expect(dates) == []
 
 				scheduler.advanceByInterval(1)
-				let firstTick = scheduler.currentDate
-				expect(dates) == [firstTick]
+				expect(dates) == [tick1]
 
 				scheduler.advance()
-				expect(dates) == [firstTick]
+				expect(dates) == [tick1]
 
 				scheduler.advanceByInterval(0.2)
-				let secondTick = scheduler.currentDate
-				expect(dates) == [firstTick, secondTick]
+				expect(dates) == [tick1, tick2]
 
 				scheduler.advanceByInterval(1)
-				expect(dates) == [firstTick, secondTick, scheduler.currentDate]
+				expect(dates) == [tick1, tick2, tick3]
 			}
 
 			it("should release the signal when disposed") {

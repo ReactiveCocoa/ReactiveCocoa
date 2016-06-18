@@ -242,8 +242,31 @@ infix operator <~ {
 /// Binds a signal to a property, updating the property's value to the latest
 /// value sent by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the signal sends a `Completed` event.
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the signal sends a `Completed` event.
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// property <~ signal
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// let disposable = property <~ signal
+/// ...
+/// // Terminates binding before property dealloc or signal's 
+/// // `Completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - signal: A signal to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or signal's `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
@@ -269,8 +292,19 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the created signal sends a `Completed` event.
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer<Int, NoError>(value: 1)
+/// property <~ producer
+/// print(property.value) // prints `1`
+/// ````
+///
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the created signal sends a `Completed` event.
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - producer: A producer to bind.
 public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
@@ -291,8 +325,8 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
-/// The binding will automatically terminate when either property is
-/// deinitialized.
+/// - note: The binding will automatically terminate when either property is
+///         deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

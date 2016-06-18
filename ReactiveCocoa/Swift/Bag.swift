@@ -25,7 +25,10 @@ public struct Bag<Element> {
 	}
 
 	/// Inserts the given value in the collection, and returns a token that can
-	/// later be passed to removeValueForToken().
+	/// later be passed to `removeValueForToken()`.
+	///
+	/// - parameters:
+	///   - value: A value that will be inserted.
 	public mutating func insert(value: Element) -> RemovalToken {
 		let (nextIdentifier, overflow) = UInt.addWithOverflow(currentIdentifier, 1)
 		if overflow {
@@ -41,9 +44,12 @@ public struct Bag<Element> {
 		return token
 	}
 
-	/// Removes a value, given the token returned from insert().
+	/// Removes a value, given the token returned from `insert()`.
 	///
-	/// If the value has already been removed, nothing happens.
+	/// - note: If the value has already been removed, nothing happens.
+	///
+	/// - parameters:
+	///   - token: A token that was returned from  `insert()` call.
 	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.

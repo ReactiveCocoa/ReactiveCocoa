@@ -126,14 +126,13 @@ public final class Signal<Value, Error: ErrorType> {
 	/// Returns a Disposable which can be used to disconnect the observer. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
 	public func observe(observer: Observer) -> Disposable? {
-		var token: RemovalToken?
-		atomicObservers.modify { observers in
-			token = observers?.insert(observer)
+		let token = atomicObservers.withMutableValue { observers in
+			return observers?.insert(observer)
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				self?.atomicObservers.modify { observers in
+				self?.atomicObservers.withMutableValue { observers in
 					observers?.removeValueForToken(token)
 				}
 			}
@@ -723,7 +722,7 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					state.modify { st in
+					state.withMutableValue { st in
 						st.latestValue = value
 					}
 				case let .Failed(error):
@@ -1027,7 +1026,7 @@ extension SignalType {
 				var tuple: (Value, U)?
 				var isFinished = false
 
-				state.modify { state in
+				state.withMutableValue { state in
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
 						isFinished = state.isFinished
 						return
@@ -1052,7 +1051,7 @@ extension SignalType {
 			disposable += self.observe { event in
 				switch event {
 				case let .Next(value):
-					state.modify { state in
+					state.withMutableValue { state in
 						state.values.left.append(value)
 					}
 					
@@ -1060,7 +1059,7 @@ extension SignalType {
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					state.modify { state in
+					state.withMutableValue { state in
 						state.isCompleted.left = true
 					}
 					
@@ -1073,7 +1072,7 @@ extension SignalType {
 			disposable += otherSignal.observe { event in
 				switch event {
 				case let .Next(value):
-					state.modify { state in
+					state.withMutableValue { state in
 						state.values.right.append(value)
 					}
 					
@@ -1081,7 +1080,7 @@ extension SignalType {
 				case let .Failed(error):
 					onFailed(error)
 				case .Completed:
-					state.modify { state in
+					state.withMutableValue { state in
 						state.isCompleted.right = true
 					}
 					
@@ -1157,7 +1156,7 @@ extension SignalType {
 				}
 
 				var scheduleDate: NSDate!
-				state.modify { state in
+				state.withMutableValue { state in
 					state.pendingValue = value
 
 					let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate

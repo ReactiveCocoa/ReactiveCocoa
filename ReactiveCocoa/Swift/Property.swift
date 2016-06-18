@@ -529,11 +529,27 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (inout Value) throws -> Void) rethrows -> Value {
-		return try withValue { value in
-			try action(&box.value)
-			observer.sendNext(box.value)
-			return value
+		return try withMutableValue { value in
+			let oldValue = value
+			try action(&value)
+			return oldValue
 		}
+	}
+
+	/// Atomically performs an arbitrary action using an in-out reference to the current value
+	/// of the variable. Due to the copy-in, copy-out semantic of `inout`, a `.Next` event would
+	/// be emitted after the execution of `action` regardless whether any mutation has happened
+	/// through the in-out reference.
+	///
+	/// Returns the result of the action.
+	public func withMutableValue<Result>(@noescape action: (inout Value) throws -> Result) rethrows -> Result {
+		lock.lock()
+		defer {
+			observer.sendNext(box.value)
+			lock.unlock()
+		}
+
+		return try action(&box.value)
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the

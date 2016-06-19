@@ -3143,6 +3143,7 @@
 /* Begin XCBuildConfiguration section */
 		530F8B851D0DB70B00009C2C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APPLICATION_EXTENSION_API_ONLY = YES;
@@ -3182,7 +3183,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
-					REACTIVE_SWIFT,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -3195,6 +3195,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -3370,6 +3371,7 @@
 		};
 		530F8B891D0DB70B00009C2C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -4060,6 +4062,7 @@
 				530F8B881D0DB70B00009C2C /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwiftTests" */ = {
 			isa = XCConfigurationList;
@@ -4070,6 +4073,7 @@
 				530F8B8C1D0DB70B00009C2C /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		57A4D23C1BA13D7A00F7D4B1 /* Build configuration list for PBXNativeTarget "ReactiveCocoa-tvOS" */ = {
 			isa = XCConfigurationList;

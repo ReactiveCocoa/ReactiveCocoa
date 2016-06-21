@@ -25,7 +25,7 @@ public enum Event<Value, Error: ErrorType> {
 	/// will be received.
 	///
 	/// - important: This event does not signify the successful or failed
-	///	             completion of the signal.
+	///              completion of the signal.
 	case Interrupted
 
 	/// Whether this event indicates signal termination (i.e., that no further
@@ -147,7 +147,7 @@ public protocol EventType {
 	/// The value type of an event.
 	associatedtype Value
 	/// The error type of an event. If errors aren't possible then `NoError` can
-    /// be used.
+	/// be used.
 	associatedtype Error: ErrorType
 	/// Extracts the event from the receiver.
 	var event: Event<Value, Error> { get }

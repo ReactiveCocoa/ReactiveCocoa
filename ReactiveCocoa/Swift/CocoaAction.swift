@@ -29,8 +29,8 @@ public final class CocoaAction: NSObject {
 	///   - action: Executable action.
 	///   - inputTransform: Closure that accepts the UI control performing the
 	///                     action and returns a value (e.g. 
-	///                     `(UISwitch) -> (Bool)` telling whether the switch is
-    ///                     currently on.
+	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
+	///                     switch is currently on.
 	///
 	/// - note: You must cast the passed in object to the control type you need
 	///         since there is no way to know where this cocoa action will be
@@ -95,7 +95,7 @@ extension Action {
 	///            match the action's `Input` type. This makes it unsafe for use 
 	///            when the action is parameterized for something like `Void` 
 	///            input. In those cases, explicitly assign a value to this
-    ///            property that transforms the input to suit your needs.
+	///            property that transforms the input to suit your needs.
 	public var unsafeCocoaAction: CocoaAction {
 		return CocoaAction(self) { $0 as! Input }
 	}

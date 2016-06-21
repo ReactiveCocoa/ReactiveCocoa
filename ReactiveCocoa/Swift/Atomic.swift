@@ -62,7 +62,7 @@ public final class Atomic<Value> {
 	/// Atomically modifies the variable.
 	///
 	/// - parameters:
-	///   - action: A closure that accepts current value.
+	///   - action: A closure that takes the current value.
 	///
 	/// - returns: The old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
@@ -76,7 +76,7 @@ public final class Atomic<Value> {
 	/// variable.
 	///
 	/// - parameters:
-	///   - action: A closure that accepts current value.
+	///   - action: A closure that takes the current value.
 	///
 	/// - returns: The result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {

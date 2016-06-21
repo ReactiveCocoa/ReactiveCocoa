@@ -101,7 +101,8 @@ public final class CompositeDisposable: Disposable {
 	/// disposables.
 	///
 	/// - parameters:
-	///   - disposables: A collection of `Disposable` conforming objects.
+	///   - disposables: A collection of objects conforming to the `Disposable`
+	///                  protocol
 	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
 
@@ -116,7 +117,8 @@ public final class CompositeDisposable: Disposable {
 	/// disposables.
 	///
 	/// - parameters:
-	///   - disposables: A collection of `Disposable` conforming objects.
+	///   - disposables: A collection of objects conforming to the `Disposable`
+	///                  protocol
 	public convenience init<S: SequenceType where S.Generator.Element == Disposable?>(_ disposables: S) {
 		self.init(disposables.flatMap { $0 })
 	}
@@ -140,8 +142,8 @@ public final class CompositeDisposable: Disposable {
 	/// - parameters:
 	///   - d: Optional disposable.
 	///
-	/// - returns: Instance of `DisposableHandle` that can be used to opaquely
-	///            remove the disposable later (if desired).
+	/// - returns: An instance of `DisposableHandle` that can be used to
+	///            opaquely remove the disposable later (if desired).
 	public func addDisposable(d: Disposable?) -> DisposableHandle {
 		guard let d = d else {
 			return DisposableHandle.empty
@@ -170,10 +172,10 @@ public final class CompositeDisposable: Disposable {
 	/// Adds an ActionDisposable to the list.
 	///
 	/// - parameters:
-	///   - action: A closure that will be called when calling `dispose()`.
+	///   - action: A closure that will be invoked when `dispose()` is called.
 	///
-	/// - returns: Instance of `DisposableHandle` that can be used to opaquely
-	///            remove the disposable later (if desired).
+	/// - returns: An instance of `DisposableHandle` that can be used to
+	///            opaquely remove the disposable later (if desired).
 	public func addDisposable(action: () -> Void) -> DisposableHandle {
 		return addDisposable(ActionDisposable(action: action))
 	}
@@ -262,7 +264,7 @@ public final class SerialDisposable: Disposable {
 /// Adds the right-hand-side disposable to the left-hand-side
 /// `CompositeDisposable`.
 ///
-///  ````
+/// ````
 ///  disposable += producer
 ///      .filter { ... }
 ///      .map    { ... }

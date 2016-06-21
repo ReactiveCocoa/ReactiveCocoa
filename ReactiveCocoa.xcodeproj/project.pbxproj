@@ -2220,7 +2220,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0710;
-				ORGANIZATIONNAME = GitHub;
+				ORGANIZATIONNAME = ReactiveCocoa;
 				TargetAttributes = {
 					7DFBED021CDB8C9500EE435B = {
 						CreatedOnToolsVersion = 7.3.1;

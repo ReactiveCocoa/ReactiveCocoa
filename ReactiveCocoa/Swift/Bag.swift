@@ -49,7 +49,7 @@ public struct Bag<Element> {
 	/// - note: If the value has already been removed, nothing happens.
 	///
 	/// - parameters:
-	///   - token: A token that was returned from  `insert()` call.
+	///   - token: A token returned from a call to `insert()`.
 	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.

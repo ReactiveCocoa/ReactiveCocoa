@@ -64,7 +64,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	///   - enabledIf: Boolean property that shows whether the action is
 	///                enabled.
 	///   - execute: A closure that returns the signal producer returned by
-    ///              calling `apply(Input)` on the action.
+	///              calling `apply(Input)` on the action.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output, Error>) {
 		executeClosure = execute
 		userEnabled = AnyProperty(enabledIf)
@@ -97,7 +97,7 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// - parameters:
-	///   - input: A value that will be passed to closure creating the signal
+	///   - input: A value that will be passed to the closure creating the signal
 	///            producer.
 	///
 	/// - note: If the action is disabled when the returned SignalProducer is
@@ -142,7 +142,8 @@ public protocol ActionType {
 	associatedtype Input
 	/// The type of values returned by the action.
 	associatedtype Output
-	/// The type of error when the action fails. If errors aren't possible then `NoError` can be used.
+	/// The type of error when the action fails. If errors aren't possible then
+	/// `NoError` can be used.
 	associatedtype Error: ErrorType
 
 	/// Whether the action is currently enabled.
@@ -155,7 +156,7 @@ public protocol ActionType {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// - parameters:
-	///   - input: A value that will be passed to closure creating the signal
+	///   - input: A value that will be passed to the closure creating the signal
 	///            producer.
 	///
 	/// - note: If the action is disabled when the returned SignalProducer is

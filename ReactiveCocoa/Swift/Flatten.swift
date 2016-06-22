@@ -61,7 +61,7 @@ extension SignalType where Value: SignalProducerType, Error == NoError {
 	///
 	/// - parameter strategy: Strategy used when flattening signals.
 	/// - note: If an active inner producer fails, the returned signal will
-    ///         forward that failure immediately.
+	///         forward that failure immediately.
 	/// - warning: `Interrupted` events on inner producers will be treated like
 	///            `Completed` events on inner producers.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -155,7 +155,7 @@ extension SignalProducerType where Value: SignalProducerType, Error == NoError, 
 	/// producer of values), according to the semantics of the given strategy.
 	///
 	/// - warning: `Interrupted` events on inner producers will be treated like
-    /// `Completed` events on inner producers.
+	///            `Completed` events on inner producers.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		switch strategy {
@@ -225,7 +225,7 @@ extension SignalType where Value: SignalType, Error == NoError, Value.Error == N
 	/// values), according to the semantics of the given strategy.
 	///
 	/// - warning: `Interrupted` events on inner signals will be treated like
-    ///            `Completed` events on inner signals.
+	///            `Completed` events on inner signals.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func flatten(strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		return self
@@ -339,7 +339,7 @@ extension SignalType where Value: SignalProducerType, Error == Value.Error {
 	///         forward that failure immediately
 	///
 	/// - note: The returned signal completes only when `signal` and all
-    ///         producers emitted from `signal` complete.
+	///         producers emitted from `signal` complete.
 	private func concat() -> Signal<Value.Value, Error> {
 		return Signal<Value.Value, Error> { relayObserver in
 			let disposable = CompositeDisposable()

@@ -1,8 +1,8 @@
 # Documenting Code
 
-Follow these rules when documenting code using Xcode's markup:
+Please follow these guidelines when documenting code using [Xcode's markup](https://developer.apple.com/library/mac/documentation/Xcode/Reference/xcode_markup_formatting_ref/):
 
-- Expand lines up to 80 characters per line. If the line extends beyond 80 characters the next line must be indented at the previous markup token's colon position + 1 space:
+- Expand lines up to 80 characters per line. If the line extends beyond 80 characters the next line must be indented at the previous markup delimiter's colon position + 1 space:
 
 ```
 /// DO:
@@ -26,7 +26,7 @@ Follow these rules when documenting code using Xcode's markup:
 /// fringilla turpis in bibendum volutpat.
 ```
 
-- Always use `parameters` instead of `parameter` even if function has one parameter:
+- Always use the `parameters` delimiter instead of the `parameter` delimiter even if a function has only one parameter:
 
 ```
 /// DO:
@@ -36,7 +36,7 @@ Follow these rules when documenting code using Xcode's markup:
 /// - parameter foo: Instance of `Foo`.
 ```
 
-- Do not add any `return` token to initializers' markup:
+- Do not add a `return` delimiter to an initializer's markup:
 
 ```
 /// DO:
@@ -63,11 +63,11 @@ init(withBar bar: Bar = Bar.defaultBar()) {
 ///   - foo: foo for the function;
 ```
 
-- Add one line between markup tokens and no whitespace lines between function's `parameters`:
+- Add one line between markup delimiters and no whitespace lines between a function's `parameters`:
 
 ```
 /// DO:
-/// - note: This is amazing function.
+/// - note: This is an amazing function.
 ///
 /// - parameters:
 ///   - foo: Instance of `Foo`.
@@ -76,7 +76,7 @@ init(withBar bar: Bar = Bar.defaultBar()) {
 /// - returns: Something magical.
 /// ...
 /// DON'T:
-/// - note: Don't forget to breathe.
+/// - note: Don't forget to breathe, it's important! 😎
 /// - parameters:
 ///   - foo: Instance of `Foo`.
 ///   - bar: Instance of `Bar`.

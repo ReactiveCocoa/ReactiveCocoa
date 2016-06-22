@@ -40,16 +40,16 @@ public struct Observer<Value, Error: ErrorType> {
 		self.action = action
 	}
 
-	/// Initializer that accepts closures for different event types
+	/// Initializer that accepts closures for different event types.
 	///
 	/// - parameters:
-	///   - failed: Optional closure that accepts `Error` parameter when
+	///   - failed: Optional closure that accepts an `Error` parameter when a
 	///             `Failed` event is observed.
-	///	  - completed: Optional closure executed when `Completed` event is
+	///	  - completed: Optional closure executed when a `Completed` event is
 	///                observed.
-	///	  - interruped: Optional closure executed when `Interrupted` event is
+	///	  - interruped: Optional closure executed when an `Interrupted` event is
 	///                 observed.
-	///   - next: Optional closure executed when `Next` event is observed.
+	///   - next: Optional closure executed when a `Next` event is observed.
 	public init(failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (Value -> Void)? = nil) {
 		self.init { event in
 			switch event {

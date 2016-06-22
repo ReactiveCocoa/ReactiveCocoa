@@ -39,15 +39,15 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property as a read-only view of the given property.
 	///
 	/// - parameters:
-	///   - property: A property to read as own value.
+	///   - property: A property to read as this property's own value.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
 	
-	/// Initializes a property that first takes on `initialValue`, then each value
-	/// sent on a signal created by `producer`.
+	/// Initializes a property that first takes on `initialValue`, then each
+	/// value sent on a signal created by `producer`.
 	///
 	/// - parameters:
 	///   - initialValue: Starting value for the property.
@@ -59,8 +59,8 @@ public struct AnyProperty<Value>: PropertyType {
 		self.init(mutableProperty)
 	}
 	
-	/// Initializes a property that first takes on `initialValue`, then each value
-	/// sent on `signal`.
+	/// Initializes a property that first takes on `initialValue`, then each
+	/// value sent on `signal`.
 	///
 	/// - parameters:
 	///   - initialValue: Starting value for the property.
@@ -76,8 +76,8 @@ extension PropertyType {
 	/// Maps the current value and all subsequent values to a new value.
 	///
 	/// - parameters:
-	///   - transform: A closure that will map the current value property to a
-	///                new value.
+	///   - transform: A closure that will map the current `value` of this
+	///                `Property` to a new value.
 	///
 	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
 	///            from `self`.
@@ -172,7 +172,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 	}
 
-	/// Initializes the property with the given value to start.
+	/// Initializes a mutable property that first takes on `initialValue`
 	///
 	/// - parameters:
 	///   - initialValue: Starting value for the mutable property.
@@ -304,8 +304,8 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 /// let producer = SignalProducer({ /* do some work after some time */ })
 /// let disposable = (property <~ producer)
 /// ...
-/// // Terminates binding before property dealloc or signal's
-/// // `Completed` event.
+/// // Terminates binding before property dealloc or
+/// // signal's `Completed` event.
 /// disposable.dispose()
 /// ````
 ///
@@ -351,7 +351,8 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 /// let srcProperty = ConstantProperty(10)
 /// let disposable = (dstProperty <~ srcProperty)
 /// ...
-/// disposable.dispose() // terminate the binding earlier if needed
+/// disposable.dispose() // terminate the binding earlier if
+///                      // needed
 /// ````
 ///
 /// - note: The binding will automatically terminate when either property is

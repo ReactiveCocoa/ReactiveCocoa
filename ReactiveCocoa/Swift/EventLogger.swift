@@ -31,7 +31,7 @@ private func defaultEventLog(identifier: String, event: String, fileName: String
 	print("[\(identifier)] \(event) fileName: \(fileName), functionName: \(functionName), lineNumber: \(lineNumber)")
 }
 
-/// A type that represents event logging function.
+/// A type that represents an event logging function.
 public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
 
 extension SignalType {
@@ -39,9 +39,10 @@ extension SignalType {
 	/// the standard output.
 	///
 	/// - parameters:
-	///   - identifier: Signal identifier.
+	///   - identifier: a string to identify the Signal firing events.
 	///   - events: Types of events to log.
-	///   - filename: Filename where event was fired.
+	///   - fileName: Name of the file containing the code which fired the
+	///               event.
 	///   - functionName: Function where event was fired.
 	///   - lineNumber: Line number where event was fired.
 	///   - logger: Logger that logs the events.
@@ -71,9 +72,10 @@ extension SignalProducerType {
 	/// the standard output.
 	///
 	/// - parameters:
-	///   - identifier: Signal identifier.
+	///   - identifier: a string to identify the SignalProducer firing events.
 	///   - events: Types of events to log.
-	///   - filename: Filename where event was fired.
+	///   - fileName: Name of the file containing the code which fired the
+	///               event.
 	///   - functionName: Function where event was fired.
 	///   - lineNumber: Line number where event was fired.
 	///   - logger: Logger that logs the events.

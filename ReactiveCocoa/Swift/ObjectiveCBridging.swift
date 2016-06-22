@@ -16,7 +16,7 @@ extension RACScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	/// Schedules an action for immediate execution
+	/// Schedules an action for immediate execution.
 	///
 	/// - parameters:
 	///   - action: Closure to perform.
@@ -50,9 +50,9 @@ extension RACScheduler: DateSchedulerType {
 	///   - date: Starting date.
 	///   - repeatingEvery: Repetition interval.
 	///   - withLeeway: Some delta for repetition.
-	///   - action: Closure to perform.
+	///   - action: Closure of the action to perform.
 	///
-	/// - returns: Optional disposable that can be used to cancel the work
+	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
@@ -60,7 +60,7 @@ extension RACScheduler: DateSchedulerType {
 }
 
 extension ImmediateScheduler {
-	/// Creates `RACScheduler` that performs actions instantly
+	/// Creates `RACScheduler` that performs actions instantly.
 	///
 	/// - returns: `RACScheduler` that instantly performs actions.
 	public func toRACScheduler() -> RACScheduler {
@@ -78,7 +78,7 @@ extension UIScheduler {
 }
 
 extension QueueScheduler {
-	/// Creates `RACScheduler` backed with owned queue
+	/// Creates `RACScheduler` backed with own queue
 	///
 	/// - returns: Instance `RACScheduler` that queues events on 
 	///            `QueueScheduler`'s queue.
@@ -134,7 +134,7 @@ extension SignalProducerType where Value: AnyObject {
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.lift { $0.optionalize() }
@@ -148,7 +148,7 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.mapError { $0 as NSError }
@@ -162,7 +162,7 @@ extension SignalProducerType where Value: AnyObject, Error: NSError {
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.lift { $0.optionalize() }
@@ -176,11 +176,12 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		// This special casing of `Error: NSError` is a workaround for rdar://22708537
-		// which causes an NSError's UserInfo dictionary to get discarded
-		// during a cast from ErrorType to NSError in a generic function
+		// This special casing of `Error: NSError` is a workaround for
+		// rdar://22708537 which causes an NSError's UserInfo dictionary to get
+		// discarded during a cast from ErrorType to NSError in a generic
+		// function
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = self.start { event in
 				switch event {
@@ -207,7 +208,7 @@ extension SignalType where Value: AnyObject {
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.optionalize()
@@ -220,7 +221,7 @@ extension SignalType where Value: AnyObject, Error: NSError {
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.optionalize()
@@ -233,7 +234,7 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.mapError { $0 as NSError }
@@ -246,11 +247,12 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject, Error:
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	///
-	/// - note: Any `Interrupted` event will be silently discarded.
+	/// - note: Any `Interrupted` events will be silently discarded.
 	public func toRACSignal() -> RACSignal {
-		// This special casing of `Error: NSError` is a workaround for rdar://22708537
-		// which causes an NSError's UserInfo dictionary to get discarded
-		// during a cast from ErrorType to NSError in a generic function
+		// This special casing of `Error: NSError` is a workaround for
+		// rdar://22708537 which causes an NSError's UserInfo dictionary to get
+		// discarded during a cast from ErrorType to NSError in a generic
+		// function
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = self.observe { event in
 				switch event {
@@ -285,7 +287,7 @@ extension RACCommand {
 	///
 	/// - note: The returned Action will not necessarily be marked as executing
 	///         when the command is. However, the reverse is always true: the
-    ///         RACCommand will always be marked as executing when the action 
+	///         RACCommand will always be marked as executing when the action
 	///         is.
 	public func toAction(file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)

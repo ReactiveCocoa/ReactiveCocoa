@@ -274,7 +274,7 @@ class SignalLifetimeSpec: QuickSpec {
 	}
 }
 
-private extension SignalType {
+private extension SignalProtocol {
 	func testTransform() -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe(observer.action)

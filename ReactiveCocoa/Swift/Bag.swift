@@ -26,7 +26,8 @@ public struct Bag<Element> {
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	public mutating func insert(value: Element) -> RemovalToken {
+	@discardableResult
+	public mutating func insert(_ value: Element) -> RemovalToken {
 		let (nextIdentifier, overflow) = UInt.addWithOverflow(currentIdentifier, 1)
 		if overflow {
 			reindex()
@@ -44,12 +45,12 @@ public struct Bag<Element> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	public mutating func removeValueForToken(token: RemovalToken) {
+	public mutating func removeValueForToken(_ token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
-			for i in elements.indices.reverse() {
+			for i in elements.indices.reversed() {
 				if elements[i].identifier == identifier {
-					elements.removeAtIndex(i)
+					elements.remove(at: i)
 					token.identifier = nil
 					break
 				}
@@ -70,7 +71,7 @@ public struct Bag<Element> {
 	}
 }
 
-extension Bag: CollectionType {
+extension Bag: Collection {
 	public typealias Index = Array<Element>.Index
 
 	public var startIndex: Index {
@@ -83,6 +84,10 @@ extension Bag: CollectionType {
 
 	public subscript(index: Index) -> Element {
 		return elements[index].value
+	}
+
+	public func index(after i: Index) -> Index {
+		return i + 1
 	}
 }
 

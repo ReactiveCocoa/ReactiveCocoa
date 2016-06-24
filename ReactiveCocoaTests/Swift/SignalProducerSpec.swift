@@ -743,7 +743,7 @@ class SignalProducerSpec: QuickSpec {
 					let otherProducer = SignalProducer<Int, NoError>(values: [3, 4])
 
 					var counter = 0
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<(Int, Int), NoError> in
 						return { otherSignal in
 							counter += 1
 							return zip(signal, otherSignal)
@@ -764,7 +764,7 @@ class SignalProducerSpec: QuickSpec {
 					let baseProducer = SignalProducer<Int, NoError>(values: [1, 2, 3])
 					let otherProducer = SignalProducer<Int, NoError>(values: [4, 5, 6])
 
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<Int, NoError> in
 						return { otherSignal in
 							return zip(signal, otherSignal).map { first, second in first + second }
 						}
@@ -783,7 +783,7 @@ class SignalProducerSpec: QuickSpec {
 					let (otherSignal, otherSignalObserver) = Signal<Int, NoError>.pipe()
 
 					var counter = 0
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<(Int, Int), NoError> in
+					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<(Int, Int), NoError> in
 						return { otherSignal in
 							counter += 1
 							return zip(signal, otherSignal)
@@ -806,7 +806,7 @@ class SignalProducerSpec: QuickSpec {
 					let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3 ])
 					let (otherSignal, otherSignalObserver) = Signal<Int, NoError>.pipe()
 
-					let transform = { (signal: Signal<Int, NoError>) -> Signal<Int, NoError> -> Signal<Int, NoError> in
+					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<Int, NoError> in
 						return { otherSignal in
 							return zip(signal, otherSignal).map(+)
 						}
@@ -1343,7 +1343,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("interruption") {
 				var innerObserver: Signal<(), NoError>.Observer!
 				var outerObserver: Signal<SignalProducer<(), NoError>, NoError>.Observer!
-				var execute: (FlattenStrategy -> Void)!
+				var execute: ((FlattenStrategy) -> Void)!
 
 				var interrupted = false
 				var completed = false
@@ -1437,7 +1437,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("disposal") {
 				var completeOuter: (() -> Void)!
 				var disposeOuter: (() -> Void)!
-				var execute: (FlattenStrategy -> Void)!
+				var execute: ((FlattenStrategy) -> Void)!
 
 				var innerDisposable = SimpleDisposable()
 				var interrupted = false
@@ -2177,7 +2177,7 @@ class SignalProducerSpec: QuickSpec {
 			
 			describe("log events") {
 				it("should output the correct event") {
-					let expectations: [String -> Void] = [
+					let expectations: [(String) -> Void] = [
 						{ event in expect(event) == "[] Started" },
 						{ event in expect(event) == "[] Next 1" },
 						{ event in expect(event) == "[] Completed" },
@@ -2209,7 +2209,7 @@ extension SignalProducer {
 
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
-	private static func attemptWithResults<C: CollectionType where C.Generator.Element == Result<Value, Error>, C.Index.Distance == Int>(results: C) -> SignalProducer<Value, Error> {
+	private static func attemptWithResults<C: CollectionType where C.Generator.Element == Result<Value, Error>, C.Index.Distance == Int>(_ results: C) -> SignalProducer<Value, Error> {
 		let resultCount = results.count
 		var operationIndex = 0
 

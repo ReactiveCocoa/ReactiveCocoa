@@ -21,14 +21,14 @@ extension Optional: OptionalType {
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Turns each value into an Optional.
 	internal func optionalize() -> Signal<Value?, Error> {
 		return map(Optional.init)
 	}
 }
 
-extension SignalProducerType {
+extension SignalProducerProtocol {
 	/// Turns each value into an Optional.
 	internal func optionalize() -> SignalProducer<Value?, Error> {
 		return lift { $0.optionalize() }

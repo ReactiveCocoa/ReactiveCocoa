@@ -10,16 +10,16 @@ import Foundation
 @testable import ReactiveCocoa
 
 final class TestLogger {
-	private var expectations: [String -> Void]
+	private var expectations: [(String) -> Void]
 	
-	init(expectations: [String -> Void]) {
+	init(expectations: [(String) -> Void]) {
 		self.expectations = expectations
 	}
 }
 
 extension TestLogger {
 	
-	func logEvent(identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
+	func logEvent(_ identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
 		expectations.removeFirst()("[\(identifier)] \(event)")
 	}
 }

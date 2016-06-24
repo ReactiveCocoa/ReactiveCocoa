@@ -1099,11 +1099,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProduc
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-<<<<<<< HEAD
-public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
-=======
 public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
->>>>>>> 21ec54ef51fad0152c459503dfcac74d704d7a25
 	var generator = producers.makeIterator()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }
@@ -1187,11 +1183,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProducer<A, Erro
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-<<<<<<< HEAD
-public func zip<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
-=======
 public func zip<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
->>>>>>> 21ec54ef51fad0152c459503dfcac74d704d7a25
 	var generator = producers.makeIterator()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }

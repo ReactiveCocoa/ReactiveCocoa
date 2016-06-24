@@ -132,7 +132,7 @@ scopedExample("`buffer`") {
     
     producer.start { event in
         switch event {
-        case let .Next(value):
+        case let .next(value):
             values.append(value)
         default:
             break

@@ -36,9 +36,9 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.signal.observe { event in
 					switch event {
-					case .Interrupted:
+					case .interrupted:
 						signalInterrupted = true
-					case .Next, .Failed, .Completed:
+					case .next, .failed, .completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}
@@ -55,11 +55,11 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						sentValue = value
-					case .Completed:
+					case .completed:
 						signalCompleted = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -169,11 +169,11 @@ class PropertySpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						producerCompleted = true
-					case .Interrupted, .Failed:
+					case .interrupted, .failed:
 						hasUnanticipatedEvent = true
 					}
 				}
@@ -309,22 +309,22 @@ class PropertySpec: QuickSpec {
 
 					property.producer.start { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							sentValue = value
-						case .Completed:
+						case .completed:
 							producerCompleted = true
-						case .Failed, .Interrupted:
+						case .failed, .interrupted:
 							break
 						}
 					}
 
 					property.signal.observe { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							signalSentValue = value
-						case .Interrupted:
+						case .interrupted:
 							signalInterrupted = true
-						case .Failed, .Completed:
+						case .failed, .completed:
 							break
 						}
 					}
@@ -620,9 +620,9 @@ class PropertySpec: QuickSpec {
 					var zippedProperty = Optional(property.zipWith(otherProperty))
 					zippedProperty!.producer.start { event in
 						switch event {
-						case let .Next(left, right):
+						case let .next(left, right):
 							result.append("\(left)\(right)")
-						case .Completed:
+						case .completed:
 							completed = true
 						default:
 							break
@@ -676,9 +676,9 @@ class PropertySpec: QuickSpec {
 						var transformedProperty = Optional(property.combinePrevious(initialPropertyValue))
 						transformedProperty!.producer.start { event in
 							switch event {
-							case let .Next(tuple):
+							case let .next(tuple):
 								result = tuple
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -757,9 +757,9 @@ class PropertySpec: QuickSpec {
 						var transformedProperty = Optional(property.skipRepeats())
 						transformedProperty!.producer.start { event in
 							switch event {
-							case .Next:
+							case .next:
 								counter += 1
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -824,9 +824,9 @@ class PropertySpec: QuickSpec {
 						var transformedProperty = Optional(property.uniqueValues())
 						transformedProperty!.producer.start { event in
 							switch event {
-							case .Next:
+							case .next:
 								counter += 1
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -849,7 +849,7 @@ class PropertySpec: QuickSpec {
 
 			describe("flattening") {
 				describe("flatten") {
-					describe("FlattenStrategy.Concat") {
+					describe("FlattenStrategy.concat") {
 						it("should concatenate the values as the inner property is replaced and deinitialized") {
 							var firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))
@@ -861,17 +861,17 @@ class PropertySpec: QuickSpec {
 							var errored = false
 							var completed = false
 
-							var flattenedProperty = Optional(outerProperty!.flatten(.Concat))
+							var flattenedProperty = Optional(outerProperty!.flatten(.concat))
 
 							flattenedProperty!.producer.start { event in
 								switch event {
-								case let .Next(value):
+								case let .next(value):
 									receivedValues.append(value)
-								case .Completed:
+								case .completed:
 									completed = true
-								case .Failed:
+								case .failed:
 									errored = true
-								case .Interrupted:
+								case .interrupted:
 									break
 								}
 							}
@@ -914,7 +914,7 @@ class PropertySpec: QuickSpec {
 						}
 					}
 
-					describe("FlattenStrategy.Merge") {
+					describe("FlattenStrategy.merge") {
 						it("should merge the values of all inner properties") {
 							var firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))
@@ -926,17 +926,17 @@ class PropertySpec: QuickSpec {
 							var errored = false
 							var completed = false
 
-							var flattenedProperty = Optional(outerProperty!.flatten(.Merge))
+							var flattenedProperty = Optional(outerProperty!.flatten(.merge))
 
 							flattenedProperty!.producer.start { event in
 								switch event {
-								case let .Next(value):
+								case let .next(value):
 									receivedValues.append(value)
-								case .Completed:
+								case .completed:
 									completed = true
-								case .Failed:
+								case .failed:
 									errored = true
-								case .Interrupted:
+								case .interrupted:
 									break
 								}
 							}
@@ -979,7 +979,7 @@ class PropertySpec: QuickSpec {
 						}
 					}
 
-					describe("FlattenStrategy.Latest") {
+					describe("FlattenStrategy.latest") {
 						it("should forward values from the latest inner property") {
 							let firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))
@@ -991,15 +991,15 @@ class PropertySpec: QuickSpec {
 							var errored = false
 							var completed = false
 
-							outerProperty!.flatten(.Latest).producer.start { event in
+							outerProperty!.flatten(.latest).producer.start { event in
 								switch event {
-								case let .Next(value):
+								case let .next(value):
 									receivedValues.append(value)
-								case .Completed:
+								case .completed:
 									completed = true
-								case .Failed:
+								case .failed:
 									errored = true
-								case .Interrupted:
+								case .interrupted:
 									break
 								}
 							}
@@ -1039,18 +1039,18 @@ class PropertySpec: QuickSpec {
 							weak var weakThirdProperty = thirdProperty
 
 							var outerProperty = Optional(MutableProperty(firstProperty!))
-							var flattened = Optional(outerProperty!.flatten(.Latest))
+							var flattened = Optional(outerProperty!.flatten(.latest))
 
 							var errored = false
 							var completed = false
 
 							flattened!.producer.start { event in
 								switch event {
-								case .Completed:
+								case .completed:
 									completed = true
-								case .Failed:
+								case .failed:
 									errored = true
-								case .Interrupted, .Next:
+								case .interrupted, .next:
 									break
 								}
 							}
@@ -1074,7 +1074,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				describe("flatMap") {
-					describe("PropertyFlattenStrategy.Latest") {
+					describe("PropertyFlattenStrategy.latest") {
 						it("should forward values from the latest inner transformed property") {
 							let firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))
@@ -1086,15 +1086,15 @@ class PropertySpec: QuickSpec {
 							var errored = false
 							var completed = false
 
-							outerProperty!.flatMap(.Latest) { $0.map { "\($0)" } }.producer.start { event in
+							outerProperty!.flatMap(.latest) { $0.map { "\($0)" } }.producer.start { event in
 								switch event {
-								case let .Next(value):
+								case let .next(value):
 									receivedValues.append(value)
-								case .Completed:
+								case .completed:
 									completed = true
-								case .Failed:
+								case .failed:
 									errored = true
-								case .Interrupted:
+								case .interrupted:
 									break
 								}
 							}

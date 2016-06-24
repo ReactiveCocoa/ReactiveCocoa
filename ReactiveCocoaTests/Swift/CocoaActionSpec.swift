@@ -23,9 +23,9 @@ class CocoaActionSpec: QuickSpec {
 			}
 		#elseif os(iOS)
 			it("should be compatible with UIKit") {
-				let control = UIControl(frame: CGRectZero)
-				control.addTarget(action.unsafeCocoaAction, action: CocoaAction.selector, forControlEvents: UIControlEvents.TouchDown)
-				control.sendActionsForControlEvents(UIControlEvents.TouchDown)
+				let control = UIControl(frame: .zero)
+				control.addTarget(action.unsafeCocoaAction, action: CocoaAction.selector, for: .touchDown)
+				control.sendActions(for: .touchDown)
 			}
 		#endif
 
@@ -34,7 +34,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_valuesForKeyPath("enabled", observer: nil)
+				.rac_values(forKeyPath: "enabled", observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))
@@ -53,7 +53,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_valuesForKeyPath("executing", observer: nil)
+				.rac_values(forKeyPath: "executing", observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))

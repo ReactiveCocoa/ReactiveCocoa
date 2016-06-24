@@ -48,9 +48,9 @@ class SignalSpec: QuickSpec {
 				
 				signal.observe { event in
 					switch event {
-					case let .Next(number):
+					case let .next(number):
 						fromSignal.append(number)
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -71,7 +71,7 @@ class SignalSpec: QuickSpec {
 				
 				let signal: Signal<AnyObject, TestError> = Signal { observer in
 					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
+						observer.sendFailed(TestError.default)
 					}
 					return disposable
 				}
@@ -146,9 +146,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case .Next, .Failed, .Completed:
+					case .next, .failed, .completed:
 						hasUnexpectedEventsEmitted = true
-					case .Interrupted:
+					case .interrupted:
 						signalInterrupted = true
 					}
 				}
@@ -167,9 +167,9 @@ class SignalSpec: QuickSpec {
 				
 				signal.observe { event in
 					switch event {
-					case let .Next(number):
+					case let .next(number):
 						fromSignal.append(number)
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -260,7 +260,7 @@ class SignalSpec: QuickSpec {
 				let test = {
 					let innerStr: NSMutableString = NSMutableString()
 					signal.observeNext { value in
-						innerStr.appendString("\(value)")
+						innerStr.append("\(value)")
 					}
 					testStr = innerStr
 				}
@@ -282,7 +282,7 @@ class SignalSpec: QuickSpec {
 				let test = {
 					let innerStr: NSMutableString = NSMutableString()
 					signal.observeNext { value in
-						innerStr.appendString("\(value)")
+						innerStr.append("\(value)")
 					}
 
 					testStr = innerStr
@@ -350,7 +350,7 @@ class SignalSpec: QuickSpec {
 
 				expect(error).to(beNil())
 
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				expect(error) == producerError
 			}
 		}
@@ -430,9 +430,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -463,9 +463,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -685,7 +685,7 @@ class SignalSpec: QuickSpec {
 				
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
 					default:
 						break
@@ -731,9 +731,9 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -795,9 +795,9 @@ class SignalSpec: QuickSpec {
 				.take(0)
 				.observe { event in
 					switch event {
-					case let .Next(number):
+					case let .next(number):
 						result.append(number)
-					case .Interrupted:
+					case .interrupted:
 						interrupted = true
 					default:
 						break
@@ -855,8 +855,8 @@ class SignalSpec: QuickSpec {
 				signal.observeFailed { error = $0 }
 
 				expect(error).to(beNil())
-				observer.sendFailed(.Default)
-				expect(error) == TestError.Default
+				observer.sendFailed(.default)
+				expect(error) == TestError.default
 			}
 
 			it("should collect an exact count of values") {
@@ -962,9 +962,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1032,9 +1032,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						lastValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1087,9 +1087,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1113,9 +1113,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1169,9 +1169,9 @@ class SignalSpec: QuickSpec {
 					.delay(10, onScheduler: testScheduler)
 					.observe { event in
 						switch event {
-						case let .Next(number):
+						case let .next(number):
 							result.append(number)
-						case .Completed:
+						case .completed:
 							completed = true
 						default:
 							break
@@ -1194,7 +1194,7 @@ class SignalSpec: QuickSpec {
 				let testScheduler = TestScheduler()
 				let signal: Signal<Int, TestError> = Signal { observer in
 					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
+						observer.sendFailed(TestError.default)
 					}
 					return nil
 				}
@@ -1270,9 +1270,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						values.append(value)
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1357,9 +1357,9 @@ class SignalSpec: QuickSpec {
 
 				signal.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						values.append(value)
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1577,9 +1577,9 @@ class SignalSpec: QuickSpec {
 
 				zipped.observe { event in
 					switch event {
-					case let .Next(left, right):
+					case let .next(left, right):
 						result.append("\(left)\(right)")
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1604,9 +1604,9 @@ class SignalSpec: QuickSpec {
 
 				zipped.observe { event in
 					switch event {
-					case let .Next(left, right):
+					case let .next(left, right):
 						result.append("\(left)\(right)")
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1630,9 +1630,9 @@ class SignalSpec: QuickSpec {
 
 				zipped.observe { event in
 					switch event {
-					case let .Next(left, right):
+					case let .next(left, right):
 						result.append("\(left)\(right)")
-					case .Completed:
+					case .completed:
 						completed = true
 					default:
 						break
@@ -1669,17 +1669,17 @@ class SignalSpec: QuickSpec {
 				expect(latestEvent).toNot(beNil())
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case let .Next(value):
+					case let .next(value):
 						expect(value) == 2
 					default:
 						fail()
 					}
 				}
 				
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				if let latestEvent = latestEvent {
 					switch latestEvent {
-					case .Failed:
+					case .failed:
 						()
 					default:
 						fail()
@@ -1705,10 +1705,10 @@ class SignalSpec: QuickSpec {
 				
 				expect(result).to(beEmpty())
 				
-				observer.sendNext(.Next(2))
+				observer.sendNext(.next(2))
 				expect(result) == [ 2 ]
 				
-				observer.sendNext(.Next(4))
+				observer.sendNext(.next(4))
 				expect(result) == [ 2, 4 ]
 			}
 
@@ -1718,7 +1718,7 @@ class SignalSpec: QuickSpec {
 				
 				expect(errored) == false
 				
-				observer.sendNext(.Failed(TestError.Default))
+				observer.sendNext(.failed(TestError.default))
 				expect(errored) == true
 			}
 
@@ -1727,7 +1727,7 @@ class SignalSpec: QuickSpec {
 				dematerialized.observeCompleted { completed = true }
 				
 				expect(completed) == false
-				observer.sendNext(IntEvent.Completed)
+				observer.sendNext(IntEvent.completed)
 				expect(completed) == true
 			}
 		}
@@ -1771,9 +1771,9 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				lastThree.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						result.append(value)
-					case .Failed:
+					case .failed:
 						errored = true
 					default:
 						break
@@ -1785,7 +1785,7 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(3)
 				expect(errored) == false
 				
-				observer.sendFailed(TestError.Default)
+				observer.sendFailed(TestError.default)
 				expect(errored) == true
 				expect(result).to(beEmpty())
 			}
@@ -1799,7 +1799,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseSignal, incomingObserver) = Signal<Int, TestError>.pipe()
-				signal = baseSignal.timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
+				signal = baseSignal.timeoutWithError(TestError.default, afterInterval: 2, onScheduler: testScheduler)
 				observer = incomingObserver
 			}
 
@@ -1808,9 +1808,9 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				signal.observe { event in
 					switch event {
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed:
+					case .failed:
 						errored = true
 					default:
 						break
@@ -1834,9 +1834,9 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				signal.observe { event in
 					switch event {
-					case .Completed:
+					case .completed:
 						completed = true
-					case .Failed:
+					case .failed:
 						errored = true
 					default:
 						break
@@ -1877,7 +1877,7 @@ class SignalSpec: QuickSpec {
 			it("should error if an attempt fails") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attempt { _ in
-					return .Failure(.Default)
+					return .Failure(.default)
 				}
 				
 				var error: TestError?
@@ -1886,7 +1886,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error) == TestError.Default
+				expect(error) == TestError.default
 			}
 		}
 		
@@ -1912,7 +1912,7 @@ class SignalSpec: QuickSpec {
 			it("should error if a mapping fails") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attemptMap { _ -> Result<Bool, TestError> in
-					return .Failure(.Default)
+					return .Failure(.default)
 				}
 				
 				var error: TestError?
@@ -1921,7 +1921,7 @@ class SignalSpec: QuickSpec {
 				}
 				
 				observer.sendNext(42)
-				expect(error) == TestError.Default
+				expect(error) == TestError.default
 			}
 		}
 		
@@ -2023,9 +2023,9 @@ class SignalSpec: QuickSpec {
 					combineLatest(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
-							case let .Next(value):
+							case let .next(value):
 								combinedValues = [value.0, value.1, value.2]
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -2041,9 +2041,9 @@ class SignalSpec: QuickSpec {
 					combineLatest([signalA, signalB, signalC])
 					.observe { event in
 						switch event {
-						case let .Next(values):
+						case let .next(values):
 							combinedValues = values
-						case .Completed:
+						case .completed:
 							completed = true
 						default:
 							break
@@ -2129,9 +2129,9 @@ class SignalSpec: QuickSpec {
 					zip(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
-							case let .Next(value):
+							case let .next(value):
 								zippedValues = [value.0, value.1, value.2]
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -2147,9 +2147,9 @@ class SignalSpec: QuickSpec {
 					zip([signalA, signalB, signalC])
 						.observe { event in
 							switch event {
-							case let .Next(values):
+							case let .next(values):
 								zippedValues = values
-							case .Completed:
+							case .completed:
 								completed = true
 							default:
 								break
@@ -2163,10 +2163,10 @@ class SignalSpec: QuickSpec {
 			describe("log events") {
 				it("should output the correct event without identifier") {
 					let expectations: [(String) -> Void] = [
-						{ event in expect(event) == "[] Next 1" },
-						{ event in expect(event) == "[] Completed" },
-						{ event in expect(event) == "[] Terminated" },
-						{ event in expect(event) == "[] Disposed" },
+						{ event in expect(event) == "[] next 1" },
+						{ event in expect(event) == "[] completed" },
+						{ event in expect(event) == "[] terminated" },
+						{ event in expect(event) == "[] disposed" },
 					]
 
 					let logger = TestLogger(expectations: expectations)
@@ -2182,10 +2182,10 @@ class SignalSpec: QuickSpec {
 				
 				it("should output the correct event with identifier") {
 					let expectations: [(String) -> Void] = [
-						{ event in expect(event) == "[test.rac] Next 1" },
-						{ event in expect(event) == "[test.rac] Failed Error1" },
-						{ event in expect(event) == "[test.rac] Terminated" },
-						{ event in expect(event) == "[test.rac] Disposed" },
+						{ event in expect(event) == "[test.rac] next 1" },
+						{ event in expect(event) == "[test.rac] failed error1" },
+						{ event in expect(event) == "[test.rac] terminated" },
+						{ event in expect(event) == "[test.rac] disposed" },
 					]
 
 					let logger = TestLogger(expectations: expectations)
@@ -2196,23 +2196,23 @@ class SignalSpec: QuickSpec {
 						.observe { _ in }
 					
 					observer.sendNext(1)
-					observer.sendFailed(.Error1)
+					observer.sendFailed(.error1)
 				}
 				
 				it("should only output the events specified in the `events` parameter") {
 					let expectations: [(String) -> Void] = [
-						{ event in expect(event) == "[test.rac] Failed Error1" },
+						{ event in expect(event) == "[test.rac] failed error1" },
 					]
 					
 					let logger = TestLogger(expectations: expectations)
 					
 					let (signal, observer) = Signal<Int, TestError>.pipe()
 					signal
-						.logEvents(identifier: "test.rac", events: [.Failed], logger: logger.logEvent)
+						.logEvents(identifier: "test.rac", events: [.failed], logger: logger.logEvent)
 						.observe { _ in }
 					
 					observer.sendNext(1)
-					observer.sendFailed(.Error1)
+					observer.sendFailed(.error1)
 				}
 			}
 		}

@@ -116,6 +116,8 @@
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      enableThreadSanitizer = "YES"
+      stopOnEveryThreadSanitizerIssue = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <MacroExpansion>

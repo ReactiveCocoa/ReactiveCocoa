@@ -14,20 +14,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D454807C1A957361009D7229"
-               BuildableName = "Result.framework"
-               BlueprintName = "Result-iOS"
-               ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "D047260B19E49F82006002AA"
                BuildableName = "ReactiveCocoa.framework"
                BlueprintName = "ReactiveCocoa-iOS"
@@ -76,6 +62,20 @@
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D454807C1A957361009D7229"
+               BuildableName = "Result.framework"
+               BlueprintName = "Result-iOS"
+               ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -83,7 +83,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      codeCoverageEnabled = "YES"
+      enableAddressSanitizer = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">

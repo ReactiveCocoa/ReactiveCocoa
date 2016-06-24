@@ -67,7 +67,7 @@ class ActionSpec: QuickSpec {
 
 				expect(receivedError).notTo(beNil())
 				if let error = receivedError {
-					let expectedError = ActionError<NSError>.NotEnabled
+					let expectedError = ActionError<NSError>.notEnabled
 					expect(error == expectedError) == true
 				}
 			}
@@ -127,7 +127,7 @@ class ActionSpec: QuickSpec {
 
 					expect(receivedError).notTo(beNil())
 					if let error = receivedError {
-						let expectedError = ActionError<NSError>.ProducerError(testError)
+						let expectedError = ActionError<NSError>.producerError(testError)
 						expect(error == expectedError) == true
 					}
 

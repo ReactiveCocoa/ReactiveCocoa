@@ -15,7 +15,7 @@ extension NotificationCenter {
 	/// terminate immediatelly with an Interrupted event. Otherwise, the producer
 	/// will not terminate naturally, so it must be explicitly disposed to avoid
 	/// leaks.
-	public func rac_notifications(_ name: Notification.Name, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {
+	public func rac_notifications(for name: Notification.Name, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {
 		// We're weakly capturing an optional reference here, which makes destructuring awkward.
 		let objectWasNil = (object == nil)
 		return SignalProducer { [weak object] observer, disposable in

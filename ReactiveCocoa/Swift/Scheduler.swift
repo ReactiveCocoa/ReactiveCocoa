@@ -136,8 +136,27 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// Initializes a scheduler that will target a new serial
 	/// queue with the given quality of service class.
 	@available(iOS 8, watchOS 2, OSX 10.10, *)
-	public convenience init(qos: DispatchQueueAttributes = DispatchQueueAttributes.qosDefault, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.init(internalQueue: DispatchQueue(label: name, attributes: [.serial, qos]))
+	public convenience init(qos: DispatchQoS = .default, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+
+		// TODO/FIXME [@liscio]: This seems really silly to have to implement in this manner, and I suspect that Dispatch either needs to be cleaned up to merge these concepts in some way, or we need to change the initialization API.
+		//
+		// In a nutshell, declaring the qos parameter as DispatchQueueAttributes would allow the caller to specify additional OptionSet values that get stashed into the queue attributes. Instead we just want to specify a specific QoS value which then gets translated into the attributes option flag.
+
+		let qosAttribute: DispatchQueueAttributes
+		switch qos {
+		case DispatchQoS.userInteractive:
+			qosAttribute = .qosUserInteractive
+		case DispatchQoS.userInitiated:
+			qosAttribute = .qosUserInitiated
+		case DispatchQoS.background:
+			qosAttribute = .qosBackground
+		case DispatchQoS.utility:
+			qosAttribute = .qosUtility
+		default:
+			qosAttribute = .qosDefault
+		}
+
+		self.init(internalQueue: DispatchQueue(label: name, attributes: [.serial, qosAttribute]))
 	}
 
 	@discardableResult

@@ -120,7 +120,7 @@ class SchedulerSpec: QuickSpec {
 		describe("QueueScheduler") {
 			it("should run enqueued actions on a global queue") {
 				var didRun = false
-				let scheduler = QueueScheduler(qos: .qosDefault)
+				let scheduler = QueueScheduler(qos: .default)
 				scheduler.schedule {
 					didRun = true
 					expect(Thread.isMainThread()) == false
@@ -133,7 +133,7 @@ class SchedulerSpec: QuickSpec {
 				var scheduler: QueueScheduler!
 
 				beforeEach {
-					scheduler = QueueScheduler(qos: .qosDefault)
+					scheduler = QueueScheduler(qos: .default)
 					scheduler.queue.suspend()
 				}
 

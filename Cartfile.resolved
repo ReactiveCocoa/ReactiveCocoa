@@ -1,4 +1,4 @@
-github "norio-nomura/Nimble" "770c11a29e06caec38cc85dba69e94ee50bd9a3a"
-github "sharplet/Quick" "92a3c65b4fe7644ab36757fa6f6a369c1d6a6e3a"
+github "norio-nomura/Nimble" "fd248426eb8692b4616c2b842fcb9a2579b964e8"
+github "norio-nomura/Quick" "d3980a8bbafb13a973cb3018490e6577ee8307fd"
 github "liscio/Result" "e96316e6afabd5e1f1389571babc3cfee5edb5b9"
 github "jspahrsummers/xcconfigs" "0.9"

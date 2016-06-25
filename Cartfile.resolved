@@ -1,4 +1,4 @@
-github "Quick/Nimble" "v4.0.1"
-github "Quick/Quick" "v0.9.2"
-github "antitypical/Result" "2.1.0"
+github "Quick/Nimble" "v4.1.0"
+github "sharplet/Quick" "92a3c65b4fe7644ab36757fa6f6a369c1d6a6e3a"
+github "antitypical/Result" "2.1.1"
 github "jspahrsummers/xcconfigs" "0.9"

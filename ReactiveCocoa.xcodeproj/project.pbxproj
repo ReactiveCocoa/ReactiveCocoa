@@ -2208,6 +2208,7 @@
 				TargetAttributes = {
 					7DFBED021CDB8C9500EE435B = {
 						CreatedOnToolsVersion = 7.3.1;
+						ProvisioningStyle = Automatic;
 					};
 					A9B315531B3940610001CB9C = {
 						CreatedOnToolsVersion = 7.0;
@@ -2217,14 +2218,17 @@
 					};
 					D04725F419E49ED7006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						ProvisioningStyle = Automatic;
 					};
 					D047260B19E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
 						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 					D047261519E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
 						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -2954,7 +2958,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2969,7 +2973,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2984,7 +2988,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2999,7 +3003,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3014,6 +3018,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3028,6 +3033,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3042,6 +3048,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3056,6 +3063,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3070,7 +3078,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3085,7 +3093,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3100,7 +3108,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3115,7 +3123,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3199,6 +3207,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3215,6 +3225,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3232,7 +3244,6 @@
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3247,7 +3258,6 @@
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3261,6 +3271,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3276,6 +3287,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3324,6 +3336,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3341,7 +3355,6 @@
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3355,6 +3368,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -3403,6 +3417,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -3420,7 +3436,6 @@
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3434,6 +3449,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

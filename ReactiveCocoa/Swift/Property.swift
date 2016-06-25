@@ -512,7 +512,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	@discardableResult
-	public func modify(action: @noescape (inout Value) throws -> Void) rethrows -> Value {
+	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
 			try action(&box.value)
 			observer.sendNext(box.value)

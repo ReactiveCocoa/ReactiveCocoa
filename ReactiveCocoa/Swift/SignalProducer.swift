@@ -201,7 +201,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// Upon success, the started signal will send the resulting value then
 	/// complete. Upon failure, the started signal will fail with the error that
 	/// occurred.
-	public static func attempt(operation: () -> Result<Value, Error>) -> SignalProducer {
+	public static func attempt(_ operation: () -> Result<Value, Error>) -> SignalProducer {
 		return self.init { observer, disposable in
 			operation().analysis(ifSuccess: { value in
 				observer.sendNext(value)
@@ -531,7 +531,7 @@ extension SignalProducerProtocol {
 	/// array may not have `count` values. Alternatively, if were not collected
 	/// any values will sent an empty array of values.
 	///
-	public func collect(_ count: Int) -> SignalProducer<[Value], Error> {
+	public func collect(count: Int) -> SignalProducer<[Value], Error> {
 		precondition(count > 0)
 		return lift { $0.collect(count: count) }
 	}
@@ -1099,7 +1099,7 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProduc
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
+public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
 	var generator = producers.makeIterator()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }
@@ -1183,7 +1183,7 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProducer<A, Erro
 
 /// Zips the values of all the given producers, in the manner described by
 /// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func zip<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(producers: S) -> SignalProducer<[Value], Error> {
+public func zip<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
 	var generator = producers.makeIterator()
 	if let first = generator.next() {
 		let initial = first.map { [$0] }

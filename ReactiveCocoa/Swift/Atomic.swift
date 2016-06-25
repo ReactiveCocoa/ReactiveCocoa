@@ -58,7 +58,7 @@ public final class Atomic<Value> {
 	///
 	/// Returns the old value.
 	@discardableResult
-	public func modify(action: @noescape (inout Value) throws -> Void) rethrows -> Value {
+	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
 			try action(&_value)
 			return value

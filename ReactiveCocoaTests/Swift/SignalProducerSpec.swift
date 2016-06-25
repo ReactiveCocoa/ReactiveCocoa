@@ -1729,8 +1729,8 @@ class SignalProducerSpec: QuickSpec {
 		describe("first") {
 			it("should start a signal then block on the first value") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let queue = DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial])
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: QueueScheduler(queue: queue)))
+				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
 
 				var result: Result<Int, NoError>?
 
@@ -1764,8 +1764,8 @@ class SignalProducerSpec: QuickSpec {
 		describe("single") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let queue = DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial])
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: QueueScheduler(queue: queue)))
+				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
 
 				var result: Result<Int, NoError>?
 
@@ -1802,8 +1802,8 @@ class SignalProducerSpec: QuickSpec {
 		describe("last") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let queue = DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial])
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: QueueScheduler(queue: queue)))
+				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
 
 				var result: Result<Int, NoError>?
 
@@ -1842,8 +1842,8 @@ class SignalProducerSpec: QuickSpec {
 		describe("wait") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let queue = DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial])
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: QueueScheduler(queue: queue)))
+				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
 
 				var result: Result<(), NoError>?
 
@@ -1889,7 +1889,7 @@ class SignalProducerSpec: QuickSpec {
 		describe("take") {
 			it("Should not start concat'ed producer if the first one sends a value when using take(1)") {
 				let scheduler: QueueScheduler
-				if #available(OSX 10.10, *) {
+				if #available(OSX 10.10, iOS 8.0, *) {
 					scheduler = QueueScheduler()
 				} else {
 					scheduler = QueueScheduler(queue: DispatchQueue.main)

@@ -247,7 +247,7 @@ scopedExample("`startWithInterrupted`") {
  */
 scopedExample("`lift`") {
     var counter = 0
-    let transform: Signal<Int, NoError> -> Signal<Int, NoError> = { signal in
+    let transform: (Signal<Int, NoError>) -> Signal<Int, NoError> = { signal in
         counter = 42
         return signal
     }
@@ -277,7 +277,7 @@ scopedExample("`map`") {
  */
 scopedExample("`mapError`") {
     SignalProducer<Int, NSError>(error: NSError(domain: "mapError", code: 42, userInfo: nil))
-        .mapError { Error.Example($0.description) }
+        .mapError { Error.example($0.description) }
         .startWithFailed { error in
             print(error)
         }
@@ -315,11 +315,11 @@ scopedExample("`take`") {
  */
 scopedExample("`observeOn`") {
     let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-    let completion = { print("is main thread? \(NSThread.currentThread().isMainThread)") }
+    let completion = { print("is main thread? \(Thread.current().isMainThread)") }
 
     if #available(OSX 10.10, *) {
     baseProducer
-        .observeOn(QueueScheduler(qos: QOS_CLASS_DEFAULT, name: "test"))
+        .observeOn(QueueScheduler(qos: .default, name: "test"))
         .startWithCompleted(completion)
     }
 
@@ -732,7 +732,7 @@ scopedExample("`replayLazily`") {
 }
 
 /*:
- ### `flatMap(.Latest)`
+ ### `flatMap(.latest)`
  Maps each event from `self` to a new producer, then flattens the
  resulting producers (into a producer of values), according to the
  semantics of the given strategy.
@@ -740,9 +740,9 @@ scopedExample("`replayLazily`") {
  If `self` or any of the created producers fail, the returned producer
  will forward that failure immediately.
  */
-scopedExample("`flatMap(.Latest)`") {
+scopedExample("`flatMap(.latest)`") {
     SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-        .flatMap(.Latest) { SignalProducer(value: $0 + 3) }
+        .flatMap(.latest) { SignalProducer(value: $0 + 3) }
         .startWithNext { value in
             print(value)
         }

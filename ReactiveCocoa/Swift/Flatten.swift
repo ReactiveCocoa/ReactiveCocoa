@@ -248,6 +248,15 @@ extension SignalProtocol where Value: SignalProtocol, Value.Error == NoError {
 	}
 }
 
+extension SignalProtocol where Value: Sequence, Error == NoError {
+	/// Flattens the `sequence` value sent by `signal` according to
+	/// the semantics of the given strategy.
+	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
+	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Iterator.Element, Error> {
+		return self.flatMap(strategy) { .init(values: $0) }
+	}
+}
+
 extension SignalProducerProtocol where Value: SignalProtocol, Error == Value.Error {
 	/// Flattens the inner signals sent upon `producer` (into a single producer of
 	/// values), according to the semantics of the given strategy.
@@ -311,6 +320,14 @@ extension SignalProducerProtocol where Value: SignalProtocol, Value.Error == NoE
 	}
 }
 
+extension SignalProducerProtocol where Value: Sequence, Error == NoError {
+	/// Flattens the `sequence` value sent by `producer` according to
+	/// the semantics of the given strategy.
+	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
+	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Iterator.Element, Error> {
+		return self.flatMap(strategy) { .init(values: $0) }
+	}
+}
 
 extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Error {
 	/// Returns a signal which sends all the values from producer signal emitted from

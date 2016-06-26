@@ -316,16 +316,19 @@ public final class TestScheduler: DateSchedulerType {
 		lock.lock()
 
 		assert(currentDate.compare(newDate) != .OrderedDescending)
-		_currentDate = newDate
 
 		while scheduledActions.count > 0 {
 			if newDate.compare(scheduledActions[0].date) == .OrderedAscending {
 				break
 			}
 
+			_currentDate = scheduledActions[0].date
+
 			let scheduledAction = scheduledActions.removeAtIndex(0)
 			scheduledAction.action()
 		}
+
+		_currentDate = newDate
 
 		lock.unlock()
 	}

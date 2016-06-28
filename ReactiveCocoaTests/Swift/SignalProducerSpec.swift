@@ -1770,20 +1770,21 @@ class SignalProducerSpec: QuickSpec {
 		describe("first") {
 			it("should start a signal then block on the first value") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
 
-				var result: Result<Int, NoError>?
+				let forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: forwardingScheduler))
 
-				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group) {
-					result = producer.first()
+				let observingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				var result: Int?
+
+				observingScheduler.schedule {
+					result = producer.first()?.value
 				}
+
 				expect(result).to(beNil())
 
 				observer.sendNext(1)
-				group.wait()
-				expect(result?.value) == 1
+				expect(result).toEventually(be(1), timeout: 5.0)
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -1805,23 +1806,24 @@ class SignalProducerSpec: QuickSpec {
 		describe("single") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
-				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: scheduler))
+				let forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let producer = SignalProducer(signal: _signal.delay(0.1, onScheduler: forwardingScheduler))
 
-				var result: Result<Int, NoError>?
+				let observingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				var result: Int?
 
-				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group) {
-					result = producer.single()
+				observingScheduler.schedule {
+					result = producer.single()?.value
 				}
 				expect(result).to(beNil())
 
 				observer.sendNext(1)
+
+				Thread.sleep(forTimeInterval: 3.0)
 				expect(result).to(beNil())
 
 				observer.sendCompleted()
-				group.wait()
-				expect(result?.value) == 1
+				expect(result).toEventually(be(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {

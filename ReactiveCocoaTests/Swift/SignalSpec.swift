@@ -1701,7 +1701,9 @@ class SignalSpec: QuickSpec {
 			
 			it("should send values for Next events") {
 				var result: [Int] = []
-				dematerialized.observeNext { result.append($0) }
+				dematerialized
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				expect(result).to(beEmpty())
 				
@@ -1744,7 +1746,9 @@ class SignalSpec: QuickSpec {
 
 			it("should send the last N values upon completion") {
 				var result: [Int] = []
-				lastThree.observeNext { result.append($0) }
+				lastThree
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				observer.sendNext(1)
 				observer.sendNext(2)
@@ -1758,7 +1762,9 @@ class SignalSpec: QuickSpec {
 
 			it("should send less than N values if not enough were received") {
 				var result: [Int] = []
-				lastThree.observeNext { result.append($0) }
+				lastThree
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				observer.sendNext(1)
 				observer.sendNext(2)
@@ -1864,9 +1870,11 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var current: Int?
-				signal.observeNext { value in
-					current = value
-				}
+				signal
+					.assumeNoErrors()
+					.observeNext { value in
+						current = value
+					}
 				
 				for value in 1...5 {
 					observer.sendNext(value)
@@ -1898,9 +1906,11 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var even: Bool?
-				signal.observeNext { value in
-					even = value
-				}
+				signal
+					.assumeNoErrors()
+					.observeNext { value in
+						even = value
+					}
 				
 				observer.sendNext(1)
 				expect(even) == false

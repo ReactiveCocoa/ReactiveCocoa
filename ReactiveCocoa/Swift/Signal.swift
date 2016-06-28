@@ -181,6 +181,11 @@ extension SignalType {
 		return observe(Observer(action))
 	}
 
+	@available(*, unavailable, message="This Signal may emit errors which must be handled explicitly, or observed using observeResult:")
+	public func observeNext(next: Value -> Void) -> Disposable? {
+		fatalError("Unavailable method")
+	}
+
 	/// Observes the Signal by invoking the given callback when
 	/// `next` or `failed` event are received.
 	///

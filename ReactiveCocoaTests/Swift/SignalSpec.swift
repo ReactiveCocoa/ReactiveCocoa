@@ -313,6 +313,26 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(1)
 				expect(values) == [1]
 			}
+
+			it("receives results") {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+
+				var results: [Result<Int, TestError>] = []
+				signal.observeResult { results.append($0) }
+
+				observer.sendNext(1)
+				observer.sendNext(2)
+				observer.sendNext(3)
+				observer.sendFailed(.Default)
+
+				observer.sendCompleted()
+
+				expect(results).to(haveCount(4))
+				expect(results[0].value) == 1
+				expect(results[1].value) == 2
+				expect(results[2].value) == 3
+				expect(results[3].error) == .Default
+			}
 		}
 
 		describe("map") {

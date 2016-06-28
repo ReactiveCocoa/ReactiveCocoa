@@ -181,6 +181,21 @@ extension SignalType {
 		return observe(Observer(action))
 	}
 
+	/// Observes the Signal by invoking the given callback when
+	/// `next` or `failed` event are received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeResult(result: (Result<Value, Error>) -> Void) -> Disposable? {
+		return observe(
+			Observer(
+				next: { result(.Success($0)) },
+				failed: { result(.Failure($0)) }
+			)
+		)
+	}
+
 	/// Observes the Signal by invoking the given callback when a `completed` event is
 	/// received.
 	///

@@ -362,16 +362,6 @@ extension SignalProducerType {
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when `next` events are
-	/// received.
-	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithNext(next: Value -> Void) -> Disposable {
-		return start(Observer(next: next))
-	}
-
-	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when a `completed` event is
 	/// received.
 	///
@@ -400,7 +390,21 @@ extension SignalProducerType {
 	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
+}
 
+extension SignalProducerType where Error == NoError {
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when `next` events are
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal, and prevent any future callbacks from being invoked.
+	public func startWithNext(next: Value -> Void) -> Disposable {
+		return start(Observer(next: next))
+	}
+}
+
+extension SignalProducerType {
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
 	///
 	/// In other words, this will create a new SignalProducer which will apply

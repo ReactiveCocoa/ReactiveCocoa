@@ -276,6 +276,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -295,6 +296,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -333,6 +335,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -352,6 +355,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -371,6 +375,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -409,6 +414,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatten(.Latest)
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -598,6 +604,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -617,6 +624,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -655,6 +663,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -674,6 +683,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -693,6 +703,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}
@@ -731,6 +742,7 @@ class FlattenSpec: QuickSpec {
 				var observed: Int? = nil
 				outer
 					.flatMap(.Latest) { _ in inner }
+					.assumeNoErrors()
 					.startWithNext { value in
 						observed = value
 					}

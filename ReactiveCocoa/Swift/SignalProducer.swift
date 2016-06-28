@@ -361,6 +361,21 @@ extension SignalProducerType {
 		return start(Observer(observerAction))
 	}
 
+	/// Creates a Signal from the producer, then adds an observer to
+	/// the Signal, which will invoke the given callback when `next` or `failed` 
+	/// events are received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal, and prevent any future callbacks from being invoked.
+	public func startWithResult(result: Result<Value, Error> -> Void) -> Disposable {
+		return start(
+			Observer(
+				next: { result(.Success($0)) },
+				failed: { result(.Failure($0)) }
+			)
+		)
+	}
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callback when a `completed` event is
 	/// received.

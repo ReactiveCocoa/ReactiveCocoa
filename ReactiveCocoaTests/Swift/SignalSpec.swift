@@ -81,12 +81,12 @@ class SignalSpec: QuickSpec {
 				signal.observeFailed { _ in errored = true }
 				
 				expect(errored) == false
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 				
 				testScheduler.run()
 				
 				expect(errored) == true
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 
 			it("should dispose of returned disposable upon completion") {
@@ -104,12 +104,12 @@ class SignalSpec: QuickSpec {
 				signal.observeCompleted { completed = true }
 				
 				expect(completed) == false
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 				
 				testScheduler.run()
 				
 				expect(completed) == true
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 
 			it("should dispose of returned disposable upon interrupted") {
@@ -128,12 +128,12 @@ class SignalSpec: QuickSpec {
 				}
 
 				expect(interrupted) == false
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 
 				testScheduler.run()
 
 				expect(interrupted) == true
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 		}
 
@@ -231,12 +231,12 @@ class SignalSpec: QuickSpec {
 					fromSignal.append(number)
 				}
 				
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 				expect(fromSignal).to(beEmpty())
 				
 				testScheduler.run()
 				
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 				expect(fromSignal) == [ 1, 2 ]
 			}
 
@@ -518,7 +518,7 @@ class SignalSpec: QuickSpec {
 		describe("skip") {
 			it("should skip initial values") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.skip(1)
+				let signal = baseSignal.skipFirst(1)
 
 				var lastValue: Int?
 				signal.observeNext { lastValue = $0 }
@@ -534,7 +534,7 @@ class SignalSpec: QuickSpec {
 
 			it("should not skip any values when 0") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.skip(0)
+				let signal = baseSignal.skipFirst(0)
 
 				var lastValue: Int?
 				signal.observeNext { lastValue = $0 }
@@ -758,7 +758,7 @@ class SignalSpec: QuickSpec {
 		describe("take") {
 			it("should take initial values") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.take(2)
+				let signal = baseSignal.takeFirst(2)
 
 				var lastValue: Int?
 				var completed = false
@@ -800,7 +800,7 @@ class SignalSpec: QuickSpec {
 				
 				var completed = false
 				
-				signal = signal.take(numbers.count)
+				signal = signal.takeFirst(numbers.count)
 				signal.observeCompleted { completed = true }
 				
 				expect(completed) == false
@@ -825,7 +825,7 @@ class SignalSpec: QuickSpec {
 				var interrupted = false
 
 				signal
-				.take(0)
+				.takeFirst(0)
 				.observe { event in
 					switch event {
 					case let .next(number):
@@ -895,7 +895,7 @@ class SignalSpec: QuickSpec {
 			it("should collect an exact count of values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect(count: 3)
+				let signal = original.collect(every: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -1169,7 +1169,7 @@ class SignalSpec: QuickSpec {
 				var result: [Int] = []
 				
 				signal
-					.observeOn(testScheduler)
+					.observe(on: testScheduler)
 					.observeNext { result.append($0) }
 				
 				observer.sendNext(1)
@@ -1188,7 +1188,7 @@ class SignalSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendNext(1)
 					}
-					testScheduler.scheduleAfter(5, action: {
+					testScheduler.schedule(delay: 5, action: {
 						observer.sendNext(2)
 						observer.sendCompleted()
 					})
@@ -1199,7 +1199,7 @@ class SignalSpec: QuickSpec {
 				var completed = false
 				
 				signal
-					.delay(10, onScheduler: testScheduler)
+					.delay(10, on: testScheduler)
 					.observe { event in
 						switch event {
 						case let .next(number):
@@ -1211,14 +1211,14 @@ class SignalSpec: QuickSpec {
 						}
 					}
 				
-				testScheduler.advanceByInterval(4) // send initial value
+				testScheduler.advanceBy(4) // send initial value
 				expect(result).to(beEmpty())
 				
-				testScheduler.advanceByInterval(10) // send second value and receive first
+				testScheduler.advanceBy(10) // send second value and receive first
 				expect(result) == [ 1 ]
 				expect(completed) == false
 				
-				testScheduler.advanceByInterval(10) // send second value and receive first
+				testScheduler.advanceBy(10) // send second value and receive first
 				expect(result) == [ 1, 2 ]
 				expect(completed) == true
 			}
@@ -1235,7 +1235,7 @@ class SignalSpec: QuickSpec {
 				var errored = false
 				
 				signal
-					.delay(10, onScheduler: testScheduler)
+					.delay(10, on: testScheduler)
 					.observeFailed { _ in errored = true }
 				
 				testScheduler.advance()
@@ -1254,7 +1254,7 @@ class SignalSpec: QuickSpec {
 				let (baseSignal, baseObserver) = Signal<Int, NoError>.pipe()
 				observer = baseObserver
 
-				signal = baseSignal.throttle(1, onScheduler: scheduler)
+				signal = baseSignal.throttle(1, on: scheduler)
 				expect(signal).notTo(beNil())
 			}
 
@@ -1276,10 +1276,10 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(values) == [ 0 ]
 
-				scheduler.advanceByInterval(1.5)
+				scheduler.advanceBy(1.5)
 				expect(values) == [ 0, 2 ]
 
-				scheduler.advanceByInterval(3)
+				scheduler.advanceBy(3)
 				expect(values) == [ 0, 2 ]
 
 				observer.sendNext(3)
@@ -1341,7 +1341,7 @@ class SignalSpec: QuickSpec {
 				let (baseSignal, baseObserver) = Signal<Int, NoError>.pipe()
 				observer = baseObserver
 
-				signal = baseSignal.debounce(1, onScheduler: scheduler)
+				signal = baseSignal.debounce(1, on: scheduler)
 				expect(signal).notTo(beNil())
 			}
 
@@ -1363,10 +1363,10 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(values) == []
 
-				scheduler.advanceByInterval(1.5)
+				scheduler.advanceBy(1.5)
 				expect(values) == [ 2 ]
 
-				scheduler.advanceByInterval(3)
+				scheduler.advanceBy(3)
 				expect(values) == [ 2 ]
 
 				observer.sendNext(3)
@@ -1425,7 +1425,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (signal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (sampler, incomingSamplerObserver) = Signal<String, NoError>.pipe()
-				sampledSignal = signal.sampleWith(sampler)
+				sampledSignal = signal.sample(with: sampler)
 				observer = incomingObserver
 				samplerObserver = incomingSamplerObserver
 			}
@@ -1478,7 +1478,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (signal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (sampler, incomingSamplerObserver) = Signal<(), NoError>.pipe()
-				sampledSignal = signal.sampleOn(sampler)
+				sampledSignal = signal.sample(on: sampler)
 				observer = incomingObserver
 				samplerObserver = incomingSamplerObserver
 			}
@@ -1531,7 +1531,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (signal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (otherSignal, incomingOtherObserver) = Signal<Double, NoError>.pipe()
-				combinedSignal = signal.combineLatestWith(otherSignal)
+				combinedSignal = signal.combineLatest(with: otherSignal)
 				observer = incomingObserver
 				otherObserver = incomingOtherObserver
 			}
@@ -1576,7 +1576,7 @@ class SignalSpec: QuickSpec {
 
 				leftObserver = incomingLeftObserver
 				rightObserver = incomingRightObserver
-				zipped = leftSignal.zipWith(rightSignal)
+				zipped = leftSignal.zip(with: rightSignal)
 			}
 
 			it("should combine pairs") {
@@ -1838,7 +1838,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseSignal, incomingObserver) = Signal<Int, TestError>.pipe()
-				signal = baseSignal.timeoutWithError(TestError.default, afterInterval: 2, onScheduler: testScheduler)
+				signal = baseSignal.timeout(failingWith: TestError.default, after: 2, on: testScheduler)
 				observer = incomingObserver
 			}
 
@@ -1856,7 +1856,7 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.scheduleAfter(1) {
+				testScheduler.schedule(delay: 1) {
 					observer.sendCompleted()
 				}
 
@@ -1882,7 +1882,7 @@ class SignalSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.scheduleAfter(3) {
+				testScheduler.schedule(delay: 3) {
 					observer.sendCompleted()
 				}
 
@@ -1978,7 +1978,7 @@ class SignalSpec: QuickSpec {
 				
 				let (signal, baseObserver) = Signal<Int, NoError>.pipe()
 				observer = baseObserver
-				signal.combinePrevious(initialValue).observeNext { latestValues = $0 }
+				signal.combinePrevious(initial: initialValue).observeNext { latestValues = $0 }
 			}
 			
 			it("should forward the latest value with previous value") {

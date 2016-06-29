@@ -211,15 +211,15 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				command.executionSignals.flatten().subscribeNext { results.append($0 as! Int) }
 				expect(results) == []
 
-				action = toAction(command: command)
+				action = bridgedAction(from: command)
 			}
 
 			it("should reflect the enabledness of the command") {
-				expect(action.enabled.value) == true
+				expect(action.isEnabled.value) == true
 
 				enabledSubject.sendNext(false)
 				expect(enabled).toEventually(beFalsy())
-				expect(action.enabled.value) == false
+				expect(action.isEnabled.value) == false
 			}
 
 			it("should execute the command once per start()") {
@@ -256,16 +256,16 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				results = []
 				enabledProperty = MutableProperty(true)
 
-				action = Action(enabledIf: enabledProperty) { input in
+				action = Action(enabling: enabledProperty) { input in
 					let inputNumber = input as! Int
 					return SignalProducer(value: "\(inputNumber + 1)")
 				}
 
-				expect(action.enabled.value) == true
+				expect(action.isEnabled.value) == true
 
 				action.values.observeNext { results.append($0) }
 
-				command = toRACCommand(action)
+				command = bridgedRACCommand(from: action)
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as! Bool }

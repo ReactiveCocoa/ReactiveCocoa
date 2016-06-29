@@ -569,9 +569,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed) == false
+					expect(bindingDisposable.isDisposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -582,7 +582,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 
@@ -618,7 +618,7 @@ class PropertySpec: QuickSpec {
 
 					observer.sendCompleted()
 
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 
 				it("should tear down the binding when the property deallocates") {
@@ -629,7 +629,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 			}
 
@@ -685,7 +685,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 

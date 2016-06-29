@@ -144,7 +144,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 						return nil
 					}
 
-					observers.removeValueForToken(token)
+					observers.remove(using: token)
 					return observers
 				}
 			}
@@ -300,7 +300,7 @@ extension SignalProtocol where Value: OptionalType {
 
 extension SignalProtocol {
 	/// Returns a signal that will yield the first `count` values from `self`
-	public func take(_ count: Int) -> Signal<Value, Error> {
+	public func takeFirst(_ count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		return Signal { observer in
@@ -386,7 +386,7 @@ extension SignalProtocol {
 	/// array may not have `count` values. Alternatively, if were not collected 
 	/// any values will sent an empty array of values.
 	///
-	public func collect(count: Int) -> Signal<[Value], Error> {
+	public func collect(every count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
 		return collect { values in values.count == count }
 	}
@@ -513,7 +513,7 @@ extension SignalProtocol {
 
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func observeOn(_ scheduler: SchedulerProtocol) -> Signal<Value, Error> {
+	public func observe(on scheduler: SchedulerProtocol) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				scheduler.schedule {
@@ -526,7 +526,7 @@ extension SignalProtocol {
 
 private final class CombineLatestState<Value> {
 	var latestValue: Value?
-	var completed = false
+	var isCompleted = false
 }
 
 extension SignalProtocol {
@@ -549,8 +549,8 @@ extension SignalProtocol {
 			case .completed:
 				lock.lock()
 
-				signalState.completed = true
-				if otherState.completed {
+				signalState.isCompleted = true
+				if otherState.isCompleted {
 					observer.sendCompleted()
 				}
 
@@ -568,7 +568,7 @@ extension SignalProtocol {
 	/// The returned signal will not send a value until both inputs have sent
 	/// at least one value each. If either signal is interrupted, the returned signal
 	/// will also be interrupted.
-	public func combineLatestWith<U>(_ otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
+	public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
 			let lock = Lock()
 			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
@@ -584,7 +584,7 @@ extension SignalProtocol {
 
 			let disposable = CompositeDisposable()
 			disposable += self.observeWithStates(signalState, otherState, lock, observer)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, observer)
+			disposable += other.observeWithStates(otherState, signalState, lock, observer)
 			
 			return disposable
 		}
@@ -594,7 +594,7 @@ extension SignalProtocol {
 	/// them on the given scheduler.
 	///
 	/// `Failed` and `Interrupted` events are always scheduled immediately.
-	public func delay(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
+	public func delay(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
@@ -607,7 +607,7 @@ extension SignalProtocol {
 
 				case .next, .completed:
 					let date = scheduler.currentDate.addingTimeInterval(interval)
-					scheduler.scheduleAfter(date) {
+					scheduler.schedule(after: date) {
 						observer.action(event)
 					}
 				}
@@ -617,7 +617,7 @@ extension SignalProtocol {
 
 	/// Returns a signal that will skip the first `count` values, then forward
 	/// everything afterward.
-	public func skip(_ count: Int) -> Signal<Value, Error> {
+	public func skipFirst(_ count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		if count == 0 {
@@ -728,8 +728,8 @@ extension SignalProtocol {
 
 private struct SampleState<Value> {
 	var latestValue: Value? = nil
-	var signalCompleted: Bool = false
-	var samplerCompleted: Bool = false
+	var isSignalCompleted: Bool = false
+	var isSamplerCompleted: Bool = false
 }
 
 extension SignalProtocol {
@@ -742,7 +742,7 @@ extension SignalProtocol {
 	/// Returns a signal that will send values from `self` and `sampler`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
-	public func sampleWith<T>(_ sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
+	public func sample<T>(with sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
 		return Signal { observer in
 			let state = Atomic(SampleState<Value>())
 			let disposable = CompositeDisposable()
@@ -760,11 +760,11 @@ extension SignalProtocol {
 				case .completed:
 					let oldState = state.modify { st in
 						var st = st
-						st.signalCompleted = true
+						st.isSignalCompleted = true
 						return st
 					}
 					
-					if oldState.samplerCompleted {
+					if oldState.isSamplerCompleted {
 						observer.sendCompleted()
 					}
 				case .interrupted:
@@ -781,11 +781,11 @@ extension SignalProtocol {
 				case .completed:
 					let oldState = state.modify { st in
 						var st = st
-						st.samplerCompleted = true
+						st.isSamplerCompleted = true
 						return st
 					}
 					
-					if oldState.signalCompleted {
+					if oldState.isSignalCompleted {
 						observer.sendCompleted()
 					}
 				case .interrupted:
@@ -808,8 +808,8 @@ extension SignalProtocol {
 	/// Returns a signal that will send values from `self`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
-	public func sampleOn(_ sampler: Signal<(), NoError>) -> Signal<Value, Error> {
-		return sampleWith(sampler)
+	public func sample(on sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+		return sample(with: sampler)
 			.map { $0.0 }
 	}
 
@@ -859,7 +859,7 @@ extension SignalProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
-	public func combinePrevious(_ initial: Value) -> Signal<(Value, Value), Error> {
+	public func combinePrevious(initial: Value) -> Signal<(Value, Value), Error> {
 		return scan((initial, initial)) { previousCombinedValues, newValue in
 			return (previousCombinedValues.1, newValue)
 		}
@@ -1038,7 +1038,7 @@ private struct ZipState<Left, Right> {
 extension SignalProtocol {
 	/// Zips elements of two signals into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input signals.
-	public func zipWith<U>(_ otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
+	public func zip<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
 			let state = Atomic(ZipState<Value, U>())
 			let disposable = CompositeDisposable()
@@ -1096,7 +1096,7 @@ extension SignalProtocol {
 				}
 			}
 
-			disposable += otherSignal.observe { event in
+			disposable += other.observe { event in
 				switch event {
 				case let .next(value):
 					state.modify { state in
@@ -1165,7 +1165,7 @@ extension SignalProtocol {
 	///
 	/// If the input signal terminates while a value is being throttled, that value
 	/// will be discarded and the returned signal will terminate immediately.
-	public func throttle(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
+	public func throttle(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
@@ -1194,7 +1194,7 @@ extension SignalProtocol {
 					return state
 				}
 
-				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
 					let previousState = state.modify { state in
 						var state = state
 
@@ -1225,16 +1225,16 @@ extension SignalProtocol {
 	///
 	/// If the input signal terminates while a value is being debounced, that value
 	/// will be discarded and the returned signal will terminate immediately.
-	public func debounce(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
+	public func debounce(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 		
 		return self
 			.materialize()
 			.flatMap(.latest) { event -> SignalProducer<Event<Value, Error>, NoError> in
 				if event.isTerminating {
-					return SignalProducer(value: event).observeOn(scheduler)
+					return SignalProducer(value: event).observe(on: scheduler)
 				} else {
-					return SignalProducer(value: event).delay(interval, onScheduler: scheduler)
+					return SignalProducer(value: event).delay(interval, on: scheduler)
 				}
 			}
 			.dematerialize()
@@ -1289,14 +1289,14 @@ extension SignalProtocol {
 	/// Combines the values of all the given signals, in the manner described by
 	/// `combineLatestWith`.
 	public static func combineLatest<B>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>) -> Signal<(Value, B), Error> {
-		return a.combineLatestWith(b)
+		return a.combineLatest(with: b)
 	}
 
 	/// Combines the values of all the given signals, in the manner described by
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(Value, B, C), Error> {
 		return combineLatest(a, b)
-			.combineLatestWith(c)
+			.combineLatest(with: c)
 			.map(repack)
 	}
 
@@ -1304,7 +1304,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(Value, B, C, D), Error> {
 		return combineLatest(a, b, c)
-			.combineLatestWith(d)
+			.combineLatest(with: d)
 			.map(repack)
 	}
 
@@ -1312,7 +1312,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(Value, B, C, D, E), Error> {
 		return combineLatest(a, b, c, d)
-			.combineLatestWith(e)
+			.combineLatest(with: e)
 			.map(repack)
 	}
 
@@ -1320,7 +1320,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(Value, B, C, D, E, F), Error> {
 		return combineLatest(a, b, c, d, e)
-			.combineLatestWith(f)
+			.combineLatest(with: f)
 			.map(repack)
 	}
 
@@ -1328,7 +1328,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(Value, B, C, D, E, F, G), Error> {
 		return combineLatest(a, b, c, d, e, f)
-			.combineLatestWith(g)
+			.combineLatest(with: g)
 			.map(repack)
 	}
 
@@ -1336,7 +1336,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(Value, B, C, D, E, F, G, H), Error> {
 		return combineLatest(a, b, c, d, e, f, g)
-			.combineLatestWith(h)
+			.combineLatest(with: h)
 			.map(repack)
 	}
 
@@ -1344,7 +1344,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H, I>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I), Error> {
 		return combineLatest(a, b, c, d, e, f, g, h)
-			.combineLatestWith(i)
+			.combineLatest(with: i)
 			.map(repack)
 	}
 
@@ -1352,7 +1352,7 @@ extension SignalProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H, I, J>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I, J), Error> {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
-			.combineLatestWith(j)
+			.combineLatest(with: j)
 			.map(repack)
 	}
 
@@ -1363,7 +1363,7 @@ extension SignalProtocol {
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
 			return IteratorSequence(generator).reduce(initial) { signal, next in
-				signal.combineLatestWith(next).map { $0.0 + [$0.1] }
+				signal.combineLatest(with: next).map { $0.0 + [$0.1] }
 			}
 		}
 		
@@ -1373,14 +1373,14 @@ extension SignalProtocol {
 	/// Zips the values of all the given signals, in the manner described by
 	/// `zipWith`.
 	public static func zip<B>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>) -> Signal<(Value, B), Error> {
-		return a.zipWith(b)
+		return a.zip(with: b)
 	}
 
 	/// Zips the values of all the given signals, in the manner described by
 	/// `zipWith`.
 	public static func zip<B, C>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(Value, B, C), Error> {
 		return zip(a, b)
-			.zipWith(c)
+			.zip(with: c)
 			.map(repack)
 	}
 
@@ -1388,7 +1388,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(Value, B, C, D), Error> {
 		return zip(a, b, c)
-			.zipWith(d)
+			.zip(with: d)
 			.map(repack)
 	}
 
@@ -1396,7 +1396,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(Value, B, C, D, E), Error> {
 		return zip(a, b, c, d)
-			.zipWith(e)
+			.zip(with: e)
 			.map(repack)
 	}
 
@@ -1404,7 +1404,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(Value, B, C, D, E, F), Error> {
 		return zip(a, b, c, d, e)
-			.zipWith(f)
+			.zip(with: f)
 			.map(repack)
 	}
 
@@ -1412,7 +1412,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(Value, B, C, D, E, F, G), Error> {
 		return zip(a, b, c, d, e, f)
-			.zipWith(g)
+			.zip(with: g)
 			.map(repack)
 	}
 
@@ -1420,7 +1420,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(Value, B, C, D, E, F, G, H), Error> {
 		return zip(a, b, c, d, e, f, g)
-			.zipWith(h)
+			.zip(with: h)
 			.map(repack)
 	}
 
@@ -1428,7 +1428,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H, I>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I), Error> {
 		return zip(a, b, c, d, e, f, g, h)
-			.zipWith(i)
+			.zip(with: i)
 			.map(repack)
 	}
 
@@ -1436,7 +1436,7 @@ extension SignalProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H, I, J>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I, J), Error> {
 		return zip(a, b, c, d, e, f, g, h, i)
-			.zipWith(j)
+			.zip(with: j)
 			.map(repack)
 	}
 
@@ -1447,7 +1447,7 @@ extension SignalProtocol {
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
 			return IteratorSequence(generator).reduce(initial) { signal, next in
-				signal.zipWith(next).map { $0.0 + [$0.1] }
+				signal.zip(with: next).map { $0.0 + [$0.1] }
 			}
 		}
 		
@@ -1461,14 +1461,14 @@ extension SignalProtocol {
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The signal
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-	public func timeoutWithError(_ error: Error, afterInterval interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
+	public func timeout(failingWith error: Error, after interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			let date = scheduler.currentDate.addingTimeInterval(interval)
 
-			disposable += scheduler.scheduleAfter(date) {
+			disposable += scheduler.schedule(after: date) {
 				observer.sendFailed(error)
 			}
 

@@ -84,5 +84,5 @@ public func <~ <S: SignalProducerProtocol where S.Value: _ObjectiveCBridgeable, 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`, automatically bridging values to Objective-C.
 @discardableResult
 public func <~ <Source: PropertyProtocol where Source.Value: _ObjectiveCBridgeable>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
+	return destinationProperty <~ sourceProperty.producer.map { $0._bridgeToObjectiveC() }
 }

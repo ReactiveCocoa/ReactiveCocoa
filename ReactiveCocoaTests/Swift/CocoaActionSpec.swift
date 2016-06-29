@@ -9,9 +9,9 @@ class CocoaActionSpec: QuickSpec {
 
 		beforeEach {
 			action = Action { value in SignalProducer(value: value + 1) }
-			expect(action.enabled.value) == true
+			expect(action.isEnabled.value) == true
 
-			expect(action.unsafeCocoaAction.enabled).toEventually(beTruthy())
+			expect(action.unsafeCocoaAction.isEnabled).toEventually(beTruthy())
 		}
 
 		#if os(OSX)
@@ -34,7 +34,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_values(forKeyPath: #keyPath(CocoaAction.enabled), observer: nil)
+				.rac_values(forKeyPath: #keyPath(CocoaAction.isEnabled), observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))
@@ -53,7 +53,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_values(forKeyPath: #keyPath(CocoaAction.executing), observer: nil)
+				.rac_values(forKeyPath: #keyPath(CocoaAction.isExecuting), observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))

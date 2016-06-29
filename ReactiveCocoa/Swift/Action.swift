@@ -31,21 +31,21 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	public let errors: Signal<Error, NoError>
 
 	/// Whether the action is currently executing.
-	public var executing: AnyProperty<Bool> {
-		return AnyProperty(_executing)
+	public var isExecuting: AnyProperty<Bool> {
+		return AnyProperty(_isExecuting)
 	}
 
-	private let _executing: MutableProperty<Bool> = MutableProperty(false)
+	private let _isExecuting: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
-	public var enabled: AnyProperty<Bool> {
-		return AnyProperty(_enabled)
+	public var isEnabled: AnyProperty<Bool> {
+		return AnyProperty(_isEnabled)
 	}
 
-	private let _enabled: MutableProperty<Bool> = MutableProperty(false)
+	private let _isEnabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
-	private let userEnabled: AnyProperty<Bool>
+	private let isUserEnabled: AnyProperty<Bool>
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
@@ -59,24 +59,24 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
-	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
+	public init<P: PropertyProtocol where P.Value == Bool>(enabling property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
-		userEnabled = AnyProperty(enabledIf)
+		isUserEnabled = AnyProperty(property)
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
 		values = events.map { $0.value }.ignoreNil()
 		errors = events.map { $0.error }.ignoreNil()
 
-		_enabled <~ enabledIf.producer
-			.combineLatestWith(_executing.producer)
+		_isEnabled <~ property.producer
+			.combineLatest(with: isExecuting.producer)
 			.map(Action.shouldBeEnabled)
 	}
 
 	/// Initializes an action that will be enabled by default, and create a
 	/// SignalProducer for each input.
 	public convenience init(_ execute: (Input) -> SignalProducer<Output, Error>) {
-		self.init(enabledIf: ConstantProperty(true), execute)
+		self.init(enabling: ConstantProperty(true), execute)
 	}
 
 	deinit {
@@ -87,21 +87,21 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// If the action is disabled when the returned SignalProducer is started,
-	/// the produced signal will send `ActionError.NotEnabled`, and nothing will
+	/// the produced signal will send `ActionError.disabled`, and nothing will
 	/// be sent upon `values` or `errors` for that particular signal.
 	public func apply(_ input: Input) -> SignalProducer<Output, ActionError<Error>> {
 		return SignalProducer { observer, disposable in
 			var startedExecuting = false
 
 			self.executingQueue.sync {
-				if self._enabled.value {
-					self._executing.value = true
+				if self._isEnabled.value {
+					self._isExecuting.value = true
 					startedExecuting = true
 				}
 			}
 
 			if !startedExecuting {
-				observer.sendFailed(.notEnabled)
+				observer.sendFailed(.disabled)
 				return
 			}
 
@@ -115,7 +115,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 			}
 
 			disposable += {
-				self._executing.value = false
+				self._isExecuting.value = false
 			}
 		}
 	}
@@ -130,7 +130,7 @@ public protocol ActionProtocol {
 	associatedtype Error: ErrorProtocol
 
 	/// Whether the action is currently enabled.
-	var enabled: AnyProperty<Bool> { get }
+	var isEnabled: AnyProperty<Bool> { get }
 
 	/// Extracts an action from the receiver.
 	var action: Action<Input, Output, Error> { get }
@@ -139,7 +139,7 @@ public protocol ActionProtocol {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// If the action is disabled when the returned SignalProducer is started,
-	/// the produced signal will send `ActionError.NotEnabled`, and nothing will
+	/// the produced signal will send `ActionError.disabled`, and nothing will
 	/// be sent upon `values` or `errors` for that particular signal.
 	func apply(_ input: Input) -> SignalProducer<Output, ActionError<Error>>
 }
@@ -155,7 +155,7 @@ extension Action: ActionProtocol {
 public enum ActionError<Error: ErrorProtocol>: ErrorProtocol {
 	/// The producer returned from apply() was started while the Action was
 	/// disabled.
-	case notEnabled
+	case disabled
 
 	/// The producer returned from apply() sent the given error.
 	case producerError(Error)
@@ -163,7 +163,7 @@ public enum ActionError<Error: ErrorProtocol>: ErrorProtocol {
 
 public func == <Error: Equatable>(lhs: ActionError<Error>, rhs: ActionError<Error>) -> Bool {
 	switch (lhs, rhs) {
-	case (.notEnabled, .notEnabled):
+	case (.disabled, .disabled):
 		return true
 
 	case let (.producerError(left), .producerError(right)):

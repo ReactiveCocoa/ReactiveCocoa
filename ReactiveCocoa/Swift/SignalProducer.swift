@@ -81,7 +81,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 			for value in values {
 				observer.sendNext(value)
 
-				if disposable.disposed {
+				if disposable.isDisposed {
 					break
 				}
 			}
@@ -127,7 +127,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
 	@available(*, deprecated, message:"Use properties instead. 'buffer' will be removed in RAC 5.0")
-	public static func buffer(_ capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
+	public static func buffer(upTo capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// Used as an atomic variable so we can remove observers without needing
@@ -164,7 +164,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 					replayBuffer.values = []
 					if replayValues.isEmpty {
 						if let replayToken = replayToken {
-							state.replayBuffers.removeValueForToken(replayToken)
+							state.replayBuffers.remove(using: replayToken)
 						}
 						token = state.observers?.insert(observer)
 					}
@@ -181,7 +181,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 				disposable += {
 					state.modify { state in
 						var state = state
-						state.observers?.removeValueForToken(token)
+						state.observers?.remove(using: token)
 						return state
 					}
 				}
@@ -193,7 +193,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 				var state = state
 
 				if let value = event.value {
-					state.addValue(value, upToCapacity: capacity)
+					state.add(value, upTo: capacity)
 				} else {
 					// Disconnect all observers and prevent future
 					// attachments.
@@ -233,7 +233,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
-	public func startWithSignal(_ setUp: @noescape (Signal<Value, Error>, Disposable) -> Void) {
+	public func startWithSignal(_ setup: @noescape (signal: Signal<Value, Error>, interrupter: Disposable) -> Void) {
 		let (signal, observer) = Signal<Value, Error>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
@@ -246,9 +246,9 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 			producerDisposable.dispose()
 		}
 
-		setUp(signal, cancelDisposable)
+		setup(signal: signal, interrupter: cancelDisposable)
 
-		if cancelDisposable.disposed {
+		if cancelDisposable.isDisposed {
 			return
 		}
 
@@ -291,7 +291,7 @@ private struct BufferState<Value, Error: ErrorProtocol> {
 
 	/// Appends a new value to the buffer, trimming it down to the given capacity
 	/// if necessary.
-	mutating func addValue(_ value: Value, upToCapacity capacity: Int) {
+	mutating func add(_ value: Value, upTo capacity: Int) {
 		precondition(capacity >= 0)
 
 		for buffer in replayBuffers {
@@ -327,9 +327,12 @@ public protocol SignalProducerProtocol {
 	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<Value, Error> { get }
 
+	/// Initialize a signal
+	init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void)
+
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
-	func startWithSignal(_ setUp: @noescape (Signal<Value, Error>, Disposable) -> Void)
+	func startWithSignal(_ setup: @noescape (signal: Signal<Value, Error>, interrupter: Disposable) -> Void)
 }
 
 extension SignalProducer: SignalProducerProtocol {
@@ -546,8 +549,8 @@ extension SignalProducerProtocol {
 
 	/// Returns a producer that will yield the first `count` values from the
 	/// input producer.
-	public func take(_ count: Int) -> SignalProducer<Value, Error> {
-		return lift { $0.take(count) }
+	public func takeFirst(_ count: Int) -> SignalProducer<Value, Error> {
+		return lift { $0.takeFirst(count) }
 	}
 
 	/// Returns a producer that will yield an array of values when `self` 
@@ -572,9 +575,9 @@ extension SignalProducerProtocol {
 	/// array may not have `count` values. Alternatively, if were not collected
 	/// any values will sent an empty array of values.
 	///
-	public func collect(count: Int) -> SignalProducer<[Value], Error> {
+	public func collect(every count: Int) -> SignalProducer<[Value], Error> {
 		precondition(count > 0)
-		return lift { $0.collect(count: count) }
+		return lift { $0.collect(every: count) }
 	}
 
 	/// Returns a producer that will yield an array of values based on a 
@@ -654,8 +657,8 @@ extension SignalProducerProtocol {
 
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func observeOn(_ scheduler: SchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.observeOn(scheduler) }
+	public func observe(on scheduler: SchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.observe(on: scheduler) }
 	}
 
 	/// Combines the latest value of the receiver with the latest value from
@@ -664,7 +667,7 @@ extension SignalProducerProtocol {
 	/// The returned producer will not send a value until both inputs have sent at
 	/// least one value each. If either producer is interrupted, the returned producer
 	/// will also be interrupted.
-	public func combineLatestWith<U>(_ otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
+	public func combineLatest<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
 		// This should be the implementation of this method:
 		// return liftRight(Signal.combineLatestWith)(otherProducer)
 		//
@@ -677,10 +680,10 @@ extension SignalProducerProtocol {
 			self.startWithSignal { signal, disposable in
 				outerDisposable.addDisposable(disposable)
 
-				otherProducer.startWithSignal { otherSignal, otherDisposable in
+				other.startWithSignal { otherSignal, otherDisposable in
 					outerDisposable.addDisposable(otherDisposable)
 
-					signal.combineLatestWith(otherSignal).observe(observer)
+					signal.combineLatest(with: otherSignal).observe(observer)
 				}
 			}
 		}
@@ -692,22 +695,22 @@ extension SignalProducerProtocol {
 	/// The returned producer will not send a value until both inputs have sent at
 	/// least one value each. If either input is interrupted, the returned producer
 	/// will also be interrupted.
-	public func combineLatestWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return lift(Signal.combineLatestWith)(otherSignal)
+	public func combineLatest<U>(with other: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
+		return lift(Signal.combineLatest(with:))(other)
 	}
 
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
 	/// `Failed` and `Interrupted` events are always scheduled immediately.
-	public func delay(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.delay(interval, onScheduler: scheduler) }
+	public func delay(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.delay(interval, on: scheduler) }
 	}
 
 	/// Returns a producer that will skip the first `count` values, then forward
 	/// everything afterward.
-	public func skip(_ count: Int) -> SignalProducer<Value, Error> {
-		return lift { $0.skip(count) }
+	public func skipFirst(_ count: Int) -> SignalProducer<Value, Error> {
+		return lift { $0.skipFirst(count) }
 	}
 
 	/// Treats all Events from the input producer as plain values, allowing them to be
@@ -731,8 +734,8 @@ extension SignalProducerProtocol {
 	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input producers have
 	/// completed, or interrupt if either input producer is interrupted.
-	public func sampleWith<T>(_ sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
-		return liftLeft(Signal.sampleWith)(sampler)
+	public func sample<T>(with sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return liftLeft(Signal.sample(with:))(sampler)
 	}
 	
 	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
@@ -744,8 +747,8 @@ extension SignalProducerProtocol {
 	/// Returns a producer that will send values from `self` and `sampler`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both inputs have
 	/// completed, or interrupt if either input is interrupted.
-	public func sampleWith<T>(_ sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
-		return lift(Signal.sampleWith)(sampler)
+	public func sample<T>(with sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
+		return lift(Signal.sample(with:))(sampler)
 	}
 
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
@@ -757,8 +760,8 @@ extension SignalProducerProtocol {
 	/// Returns a producer that will send values from `self`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input producers have
 	/// completed, or interrupt if either input producer is interrupted.
-	public func sampleOn(_ sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftLeft(Signal.sampleOn)(sampler)
+	public func sample(on sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+		return liftLeft(Signal.sample(on:))(sampler)
 	}
 
 	/// Forwards the latest value from `self` whenever `sampler` sends a Next
@@ -770,8 +773,8 @@ extension SignalProducerProtocol {
 	/// Returns a producer that will send values from `self`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both inputs have
 	/// completed, or interrupt if either input is interrupted.
-	public func sampleOn(_ sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.sampleOn)(sampler)
+	public func sample(on sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.sample(on:))(sampler)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
@@ -820,8 +823,8 @@ extension SignalProducerProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
-	public func combinePrevious(_ initial: Value) -> SignalProducer<(Value, Value), Error> {
-		return lift { $0.combinePrevious(initial) }
+	public func combinePrevious(initial: Value) -> SignalProducer<(Value, Value), Error> {
+		return lift { $0.combinePrevious(initial: initial) }
 	}
 
 	/// Like `scan`, but sends only the final value and then immediately completes.
@@ -886,14 +889,14 @@ extension SignalProducerProtocol {
 
 	/// Zips elements of two producers into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input producers.
-	public func zipWith<U>(_ otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return liftRight(Signal.zipWith)(otherProducer)
+	public func zip<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
+		return liftRight(Signal.zip(with:))(other)
 	}
 
 	/// Zips elements of this producer and a signal into pairs. The elements of 
 	/// any Nth pair are the Nth elements of the two.
-	public func zipWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return lift(Signal.zipWith)(otherSignal)
+	public func zip<U>(with other: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
+		return lift(Signal.zip(with:))(other)
 	}
 
 	/// Applies `operation` to values from `self` with `Success`ful results
@@ -916,8 +919,8 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` terminates while a value is being throttled, that value
 	/// will be discarded and the returned producer will terminate immediately.
-	public func throttle(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.throttle(interval, onScheduler: scheduler) }
+	public func throttle(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.throttle(interval, on: scheduler) }
 	}
 
 	/// Debounce values sent by the receiver, such that at least `interval`
@@ -929,8 +932,8 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` terminates while a value is being debounced, that value
 	/// will be discarded and the returned producer will terminate immediately.
-	public func debounce(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.debounce(interval, onScheduler: scheduler) }
+	public func debounce(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.debounce(interval, on: scheduler) }
 	}
 
 	/// Forwards events from `self` until `interval`. Then if producer isn't completed yet,
@@ -938,8 +941,8 @@ extension SignalProducerProtocol {
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The producer
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-	public func timeoutWithError(_ error: Error, afterInterval interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
+	public func timeout(failingWith error: Error, after interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.timeout(failingWith: error, after: interval, on: scheduler) }
 	}
 }
 
@@ -1005,10 +1008,11 @@ extension SignalProducerProtocol where Value: Hashable {
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
+@available(*, unavailable, message:"This method has been renamed to `SignalProducer<Date, NoError>.init(interval:on:)`.")
 public func timer(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol) -> SignalProducer<Date, NoError> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 	// at least 10% of the timer interval.
-	return timer(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
+	return SignalProducer<Date, NoError>(interval: interval, on: scheduler)
 }
 
 /// Creates a repeating timer of the given interval, sending updates on the
@@ -1016,15 +1020,9 @@ public func timer(_ interval: TimeInterval, onScheduler scheduler: DateScheduler
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
+@available(*, unavailable, message:"This method has been renamed to `SignalProducer<Date, NoError>.init(interval:on:leeway:)`.")
 public func timer(_ interval: TimeInterval, onScheduler scheduler: DateSchedulerProtocol, withLeeway leeway: TimeInterval) -> SignalProducer<Date, NoError> {
-	precondition(interval >= 0)
-	precondition(leeway >= 0)
-
-	return SignalProducer { observer, compositeDisposable in
-		compositeDisposable += scheduler.scheduleAfter(scheduler.currentDate.addingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
-			observer.sendNext(scheduler.currentDate)
-		}
-	}
+	return SignalProducer<Date, NoError>(interval: interval, on: scheduler, leeway: leeway)
 }
 
 extension SignalProducerProtocol {
@@ -1056,7 +1054,7 @@ extension SignalProducerProtocol {
 	///
 	/// Events may still be sent upon other schedulers—this merely affects where
 	/// the `start()` method is run.
-	public func startOn(_ scheduler: SchedulerProtocol) -> SignalProducer<Value, Error> {
+	public func start(on scheduler: SchedulerProtocol) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
 				self.startWithSignal { signal, signalDisposable in
@@ -1072,14 +1070,14 @@ extension SignalProducerProtocol {
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatestWith`.
 	public static func combineLatest<B>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(Value, B), Error> {
-		return a.combineLatestWith(b)
+		return a.combineLatest(with: b)
 	}
 
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(Value, B, C), Error> {
 		return combineLatest(a, b)
-			.combineLatestWith(c)
+			.combineLatest(with: c)
 			.map(repack)
 	}
 
@@ -1087,7 +1085,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(Value, B, C, D), Error> {
 		return combineLatest(a, b, c)
-			.combineLatestWith(d)
+			.combineLatest(with: d)
 			.map(repack)
 	}
 
@@ -1095,7 +1093,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(Value, B, C, D, E), Error> {
 		return combineLatest(a, b, c, d)
-			.combineLatestWith(e)
+			.combineLatest(with: e)
 			.map(repack)
 	}
 
@@ -1103,7 +1101,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(Value, B, C, D, E, F), Error> {
 		return combineLatest(a, b, c, d, e)
-			.combineLatestWith(f)
+			.combineLatest(with: f)
 			.map(repack)
 	}
 
@@ -1111,7 +1109,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(Value, B, C, D, E, F, G), Error> {
 		return combineLatest(a, b, c, d, e, f)
-			.combineLatestWith(g)
+			.combineLatest(with: g)
 			.map(repack)
 	}
 
@@ -1119,7 +1117,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H), Error> {
 		return combineLatest(a, b, c, d, e, f, g)
-			.combineLatestWith(h)
+			.combineLatest(with: h)
 			.map(repack)
 	}
 
@@ -1127,7 +1125,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H, I>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I), Error> {
 		return combineLatest(a, b, c, d, e, f, g, h)
-			.combineLatestWith(i)
+			.combineLatest(with: i)
 			.map(repack)
 	}
 
@@ -1135,7 +1133,7 @@ extension SignalProducerProtocol {
 	/// `combineLatestWith`.
 	public static func combineLatest<B, C, D, E, F, G, H, I, J>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I, J), Error> {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
-			.combineLatestWith(j)
+			.combineLatest(with: j)
 			.map(repack)
 	}
 
@@ -1146,7 +1144,7 @@ extension SignalProducerProtocol {
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
 			return IteratorSequence(generator).reduce(initial) { producer, next in
-				producer.combineLatestWith(next).map { $0.0 + [$0.1] }
+				producer.combineLatest(with: next).map { $0.0 + [$0.1] }
 			}
 		}
 		
@@ -1156,14 +1154,14 @@ extension SignalProducerProtocol {
 	/// Zips the values of all the given producers, in the manner described by
 	/// `zipWith`.
 	public static func zip<B>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(Value, B), Error> {
-		return a.zipWith(b)
+		return a.zip(with: b)
 	}
 
 	/// Zips the values of all the given producers, in the manner described by
 	/// `zipWith`.
 	public static func zip<B, C>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(Value, B, C), Error> {
 		return zip(a, b)
-			.zipWith(c)
+			.zip(with: c)
 			.map(repack)
 	}
 
@@ -1171,7 +1169,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(Value, B, C, D), Error> {
 		return zip(a, b, c)
-			.zipWith(d)
+			.zip(with: d)
 			.map(repack)
 	}
 
@@ -1179,7 +1177,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(Value, B, C, D, E), Error> {
 		return zip(a, b, c, d)
-			.zipWith(e)
+			.zip(with: e)
 			.map(repack)
 	}
 
@@ -1187,7 +1185,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(Value, B, C, D, E, F), Error> {
 		return zip(a, b, c, d, e)
-			.zipWith(f)
+			.zip(with: f)
 			.map(repack)
 	}
 
@@ -1195,7 +1193,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(Value, B, C, D, E, F, G), Error> {
 		return zip(a, b, c, d, e, f)
-			.zipWith(g)
+			.zip(with: g)
 			.map(repack)
 	}
 
@@ -1203,7 +1201,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H), Error> {
 		return zip(a, b, c, d, e, f, g)
-			.zipWith(h)
+			.zip(with: h)
 			.map(repack)
 	}
 
@@ -1211,7 +1209,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H, I>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I), Error> {
 		return zip(a, b, c, d, e, f, g, h)
-			.zipWith(i)
+			.zip(with: i)
 			.map(repack)
 	}
 
@@ -1219,7 +1217,7 @@ extension SignalProducerProtocol {
 	/// `zipWith`.
 	public static func zip<B, C, D, E, F, G, H, I, J>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I, J), Error> {
 		return zip(a, b, c, d, e, f, g, h, i)
-			.zipWith(j)
+			.zip(with: j)
 			.map(repack)
 	}
 
@@ -1230,7 +1228,7 @@ extension SignalProducerProtocol {
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
 			return IteratorSequence(generator).reduce(initial) { producer, next in
-				producer.zipWith(next).map { $0.0 + [$0.1] }
+				producer.zip(with: next).map { $0.0 + [$0.1] }
 			}
 		}
 
@@ -1278,14 +1276,14 @@ extension SignalProducerProtocol {
 	}
 
 	/// Ignores failures up to `count` times.
-	public func retry(_ count: Int) -> SignalProducer<Value, Error> {
+	public func retry(upTo count: Int) -> SignalProducer<Value, Error> {
 		precondition(count >= 0)
 
 		if count == 0 {
 			return producer
 		} else {
 			return flatMapError { _ in
-				self.retry(count - 1)
+				self.retry(upTo: count - 1)
 			}
 		}
 	}
@@ -1317,7 +1315,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for the first value.
 	public func first() -> Result<Value, Error>? {
-		return take(1).single()
+		return takeFirst(1).single()
 	}
 
 	/// Starts the producer, then blocks, waiting for events: Next and Completed.
@@ -1328,7 +1326,7 @@ extension SignalProducerProtocol {
 		let semaphore = DispatchSemaphore(value: 0)
 		var result: Result<Value, Error>?
 
-		take(2).start { event in
+		takeFirst(2).start { event in
 			switch event {
 			case let .next(value):
 				if result != nil {
@@ -1380,7 +1378,7 @@ extension SignalProducerProtocol {
 	/// a layer of caching in front of another `SignalProducer`.
 	///
 	/// This operator has the same semantics as `SignalProducer.buffer`.
-	public func replayLazily(_ capacity: Int) -> SignalProducer<Value, Error> {
+	public func replayLazily(upTo capacity: Int) -> SignalProducer<Value, Error> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		var producer: SignalProducer<Value, Error>?
@@ -1405,7 +1403,7 @@ extension SignalProducerProtocol {
 				(initializedProducer, initializedObserver) = (producer, producerObserver)
 				shouldStartUnderlyingProducer = false
 			} else {
-				let (producerTemp, observerTemp) = SignalProducer<Value, Error>.buffer(capacity)
+				let (producerTemp, observerTemp) = SignalProducer<Value, Error>.buffer(upTo: capacity)
 
 				(producer, producerObserver) = (producerTemp, observerTemp)
 				(initializedProducer, initializedObserver) = (producerTemp, observerTemp)
@@ -1434,5 +1432,36 @@ private final class DeallocationToken {
 
 	deinit {
 		observer.sendCompleted()
+	}
+}
+
+extension SignalProducerProtocol where Value == Date, Error == NoError {
+	/// Creates a repeating timer of the given interval, with a reasonable
+	/// default leeway, sending updates on the given scheduler.
+	///
+	/// This timer will never complete naturally, so all invocations of start() must
+	/// be disposed to avoid leaks.
+	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol) {
+		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+		// at least 10% of the timer interval.
+		self.init(interval: interval, on: scheduler, leeway: interval * 0.1)
+	}
+
+	/// Creates a repeating timer of the given interval, sending updates on the
+	/// given scheduler.
+	///
+	/// This timer will never complete naturally, so all invocations of start() must
+	/// be disposed to avoid leaks.
+	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol, leeway: TimeInterval) {
+		precondition(interval >= 0)
+		precondition(leeway >= 0)
+
+		self.init { observer, compositeDisposable in
+			compositeDisposable += scheduler.schedule(after: scheduler.currentDate.addingTimeInterval(interval),
+			                                          interval: interval,
+			                                          leeway: leeway) {
+				observer.sendNext(scheduler.currentDate)
+			}
+		}
 	}
 }

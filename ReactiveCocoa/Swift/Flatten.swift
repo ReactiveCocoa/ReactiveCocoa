@@ -416,7 +416,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	}
 
 	func enqueueSignalProducer(_ producer: SignalProducer<Value, Error>) {
-		if let d = disposable where d.disposed {
+		if let d = disposable where d.isDisposed {
 			return
 		}
 
@@ -437,7 +437,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	}
 
 	func dequeueSignalProducer() -> SignalProducer<Value, Error>? {
-		if let d = disposable where d.disposed {
+		if let d = disposable where d.isDisposed {
 			return nil
 		}
 

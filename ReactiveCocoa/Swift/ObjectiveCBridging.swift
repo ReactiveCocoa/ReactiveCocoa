@@ -19,12 +19,12 @@ extension RACScheduler: DateSchedulerProtocol {
 		return disposable as Disposable?
 	}
 
-	public func scheduleAfter(_ date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
-	public func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, withLeeway: TimeInterval, action: () -> Void) -> Disposable? {
-		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable? {
+		return self.after(date, repeatingEvery: interval, withLeeway: leeway, schedule: action)
 	}
 }
 
@@ -216,7 +216,7 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 
 extension ActionProtocol {
 	private var commandEnabled: RACSignal {
-		return self.enabled.producer
+		return self.isEnabled.producer
 			.map { $0 as NSNumber }
 			.toRACSignal()
 	}
@@ -227,7 +227,7 @@ extension ActionProtocol {
 /// Note that the returned Action will not necessarily be marked as
 /// executing when the command is. However, the reverse is always true:
 /// the RACCommand will always be marked as executing when the action is.
-public func toAction<Input>(command: RACCommand<Input>, file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
+public func bridgedAction<Input>(from command: RACCommand<Input>, file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
 	let command = command as! RACCommand<AnyObject>
 	let enabledProperty = MutableProperty(true)
 
@@ -235,7 +235,7 @@ public func toAction<Input>(command: RACCommand<Input>, file: String = #file, li
 		.map { $0 as! Bool }
 		.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
-	return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
+	return Action(enabling: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
 		let executionSignal = RACSignal.`defer` {
 			return command.execute(input)
 		}
@@ -249,7 +249,7 @@ public func toAction<Input>(command: RACCommand<Input>, file: String = #file, li
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func toRACCommand<Output: AnyObject, Error>(_ action: Action<AnyObject?, Output, Error>) -> RACCommand<AnyObject> {
+public func bridgedRACCommand<Output: AnyObject, Error>(from action: Action<AnyObject?, Output, Error>) -> RACCommand<AnyObject> {
 	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return action
 			.apply(input)
@@ -262,7 +262,7 @@ public func toRACCommand<Output: AnyObject, Error>(_ action: Action<AnyObject?, 
 /// Note that the returned command will not necessarily be marked as
 /// executing when the action is. However, the reverse is always true:
 /// the Action will always be marked as executing when the RACCommand is.
-public func toRACCommand<Output: AnyObject, Error>(_ action: Action<AnyObject?, Output?, Error>) -> RACCommand<AnyObject> {
+public func bridgedRACCommand<Output: AnyObject, Error>(from action: Action<AnyObject?, Output?, Error>) -> RACCommand<AnyObject> {
 	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return action
 			.apply(input)

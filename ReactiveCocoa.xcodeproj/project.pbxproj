@@ -2222,6 +2222,9 @@
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = GitHub;
 				TargetAttributes = {
+					57A4D1AF1BA13D7A00F7D4B1 = {
+						LastSwiftMigration = 0800;
+					};
 					7DFBED021CDB8C9500EE435B = {
 						CreatedOnToolsVersion = 7.3.1;
 					};

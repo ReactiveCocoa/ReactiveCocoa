@@ -130,57 +130,6 @@ final class SignalTests: XCTestCase {
         XCTAssert(values == [1, 2, 3])
     }
 
-    func testDebounceValues() {
-        let scheduler = TestScheduler()
-        let (signal, observer) = Signal<Int, NoError>.pipe()
-        var value = -1
-
-        signal
-            .debounce(1, onScheduler: scheduler)
-            .observeNext { value = $0 }
-
-        scheduler.schedule { observer.sendNext(1) }
-        scheduler.advance()
-        XCTAssertEqual(value, -1)
-
-        scheduler.advanceByInterval(1)
-        XCTAssertEqual(value, 1)
-
-        scheduler.schedule { observer.sendNext(2) }
-        scheduler.advance()
-        XCTAssertEqual(value, 1)
-
-        scheduler.schedule { observer.sendNext(3) }
-        scheduler.advance()
-        XCTAssertEqual(value, 1)
-
-        scheduler.advanceByInterval(1)
-        XCTAssertEqual(value, 3)
-    }
-
-    func testDebounceFailure() {
-        let scheduler = TestScheduler()
-        let (signal, observer) = Signal<Int, TestError>.pipe()
-        var value = -1
-        var failed = false
-
-        signal
-            .debounce(1, onScheduler: scheduler)
-            .observe(Observer(
-                next: { value = $0 },
-                failed: { _ in failed = true }
-            ))
-
-        scheduler.schedule { observer.sendNext(1) }
-        scheduler.advance()
-        XCTAssertEqual(value, -1)
-
-        scheduler.schedule { observer.sendFailed(.Default) }
-        scheduler.advance()
-        XCTAssertTrue(failed)
-        XCTAssertEqual(value, -1)
-    }
-
     func testMuteForValues() {
         let scheduler = TestScheduler()
         let (signal, observer) = Signal<Int, NoError>.pipe()

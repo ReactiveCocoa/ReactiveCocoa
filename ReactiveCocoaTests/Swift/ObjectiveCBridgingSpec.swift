@@ -58,15 +58,15 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				var subscriptions = 0
 
 				let racSignal = RACSignal.createSignal { subscriber in
-					subscriber!.sendNext(subscriptions)
-					subscriber!.sendCompleted()
+					subscriber.sendNext(subscriptions)
+					subscriber.sendCompleted()
 
 					subscriptions += 1
 
 					return nil
 				}
 
-				let producer = racSignal!.toSignalProducer().map { $0 as! Int }
+				let producer = racSignal.toSignalProducer().map { $0 as! Int }
 
 				expect((producer.single())?.value) == 0
 				expect((producer.single())?.value) == 1
@@ -77,7 +77,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let error = TestError.default as NSError
 
 				let racSignal = RACSignal.error(error)
-				let producer = racSignal!.toSignalProducer()
+				let producer = racSignal.toSignalProducer()
 				let result = producer.last()
 
 				expect(result?.error) == error
@@ -170,7 +170,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let producer = SignalProducer<AnyObject, TestError>(error: .error1)
 					let racSignal = producer.toRACSignal().materialize()
 
-					let event = racSignal!.first() as? RACEvent
+					let event = racSignal.first() as? RACEvent
 					expect(event?.error) == TestError.error1 as NSError
 				}
 				
@@ -178,7 +178,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let producer = SignalProducer<AnyObject, NSError>(error: testNSError)
 					let racSignal = producer.toRACSignal().materialize()
 					
-					let event = racSignal!.first() as? RACEvent
+					let event = racSignal.first() as? RACEvent
 					let userInfoValue = event?.error.userInfo[key] as? String
 					expect(userInfoValue) == userInfo[key]
 				}

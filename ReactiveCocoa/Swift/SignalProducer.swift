@@ -549,7 +549,7 @@ extension SignalProducerProtocol {
 
 	/// Returns a producer that will yield the first `count` values from the
 	/// input producer.
-	public func takeFirst(_ count: Int) -> SignalProducer<Value, Error> {
+	public func takeFirst(_ count: Int = 1) -> SignalProducer<Value, Error> {
 		return lift { $0.takeFirst(count) }
 	}
 
@@ -709,7 +709,7 @@ extension SignalProducerProtocol {
 
 	/// Returns a producer that will skip the first `count` values, then forward
 	/// everything afterward.
-	public func skipFirst(_ count: Int) -> SignalProducer<Value, Error> {
+	public func skipFirst(_ count: Int = 1) -> SignalProducer<Value, Error> {
 		return lift { $0.skipFirst(count) }
 	}
 
@@ -877,7 +877,7 @@ extension SignalProducerProtocol {
 
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned producer.
-	public func takeLast(_ count: Int) -> SignalProducer<Value, Error> {
+	public func takeLast(_ count: Int = 1) -> SignalProducer<Value, Error> {
 		return lift { $0.takeLast(count) }
 	}
 
@@ -1315,7 +1315,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for the first value.
 	public func first() -> Result<Value, Error>? {
-		return takeFirst(1).single()
+		return takeFirst().single()
 	}
 
 	/// Starts the producer, then blocks, waiting for events: Next and Completed.
@@ -1349,7 +1349,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for the last value.
 	public func last() -> Result<Value, Error>? {
-		return takeLast(1).single()
+		return takeLast().single()
 	}
 
 	/// Starts the producer, then blocks, waiting for completion.

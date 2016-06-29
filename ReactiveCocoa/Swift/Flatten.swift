@@ -333,7 +333,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		}
 	}
 
-	@discardableResult
 	private func observeConcat(_ observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable? = nil) -> Disposable? {
 		let state = ConcatState(observer: observer, disposable: disposable)
 
@@ -373,7 +372,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 		return SignalProducer<Value.Value, Error> { observer, disposable in
 			self.startWithSignal { signal, signalDisposable in
 				disposable += signalDisposable
-				signal.observeConcat(observer, disposable)
+				_ = signal.observeConcat(observer, disposable)
 			}
 		}
 	}
@@ -490,7 +489,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		}
 	}
 
-	@discardableResult
 	private func observeMerge(_ observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
 		let decrementInFlight = {
@@ -540,7 +538,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 			self.startWithSignal { signal, signalDisposable in
 				disposable.addDisposable(signalDisposable)
 
-				signal.observeMerge(relayObserver, disposable)
+				_ = signal.observeMerge(relayObserver, disposable)
 			}
 
 		}
@@ -603,7 +601,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		}
 	}
 
-	@discardableResult
 	private func observeSwitchToLatest(_ observer: Observer<Value.Value, Error>, _ latestInnerDisposable: SerialDisposable) -> Disposable? {
 		let state = Atomic(LatestState<Value, Error>())
 
@@ -866,7 +863,6 @@ extension SignalProtocol {
 		}
 	}
 
-	@discardableResult
 	private func observeFlatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ serialDisposable: SerialDisposable) -> Disposable? {
 		return self.observe { event in
 			switch event {
@@ -897,7 +893,7 @@ extension SignalProducerProtocol {
 			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable
 
-				signal.observeFlatMapError(handler, observer, serialDisposable)
+				_ = signal.observeFlatMapError(handler, observer, serialDisposable)
 			}
 		}
 	}

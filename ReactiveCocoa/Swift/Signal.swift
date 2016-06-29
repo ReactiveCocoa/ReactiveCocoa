@@ -134,7 +134,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				self?.atomicObservers.modify { observers in
+				_ = self?.atomicObservers.modify { observers in
 					observers?.removeValueForToken(token)
 				}
 			}

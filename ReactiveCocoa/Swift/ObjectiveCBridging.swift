@@ -53,7 +53,7 @@ private func defaultNSError(_ message: String, file: String, line: Int) -> NSErr
 extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
-	public func toSignalProducer(_ file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
+	public func toSignalProducer(file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
 		return SignalProducer { observer, disposable in
 			let next = { obj in
 				observer.sendNext(obj)
@@ -211,40 +211,36 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 
 // MARK: -
 
-extension RACCommand {
-	/// Creates an Action that will execute the receiver.
-	///
-	/// Note that the returned Action will not necessarily be marked as
-	/// executing when the command is. However, the reverse is always true:
-	/// the RACCommand will always be marked as executing when the action is.
-
-	/// FIXME: Compiler Segfault
-	/**
-	public func toAction(_ file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
-		fatalError()
-		let instance = self as! RACCommand<AnyObject>
-		let enabledProperty = MutableProperty(true)
-
-		enabledProperty <~ instance.enabled.toSignalProducer()
-			.map { $0 as! Bool }
-			.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
-
-		return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
-			let executionSignal = RACSignal.`defer` {
-				return instance.execute(input)
-			}
-
-			return executionSignal!.toSignalProducer(file, line: line)
-		}
-	}
-	**/
-}
+// FIXME: Reintroduce `RACCommand.toAction` when compiler no longer segfault
+//        on extensions to parameterized ObjC classes.
 
 extension ActionProtocol {
 	private var commandEnabled: RACSignal {
 		return self.enabled.producer
 			.map { $0 as NSNumber }
 			.toRACSignal()
+	}
+}
+
+/// Creates an Action that will execute the receiver.
+///
+/// Note that the returned Action will not necessarily be marked as
+/// executing when the command is. However, the reverse is always true:
+/// the RACCommand will always be marked as executing when the action is.
+public func toAction<Input>(command: RACCommand<Input>, file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
+	let command = command as! RACCommand<AnyObject>
+	let enabledProperty = MutableProperty(true)
+
+	enabledProperty <~ command.enabled.toSignalProducer()
+		.map { $0 as! Bool }
+		.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
+
+	return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
+		let executionSignal = RACSignal.`defer` {
+			return command.execute(input)
+		}
+
+		return executionSignal!.toSignalProducer(file: file, line: line)
 	}
 }
 

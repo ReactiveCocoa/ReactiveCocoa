@@ -15,6 +15,7 @@
 @protocol RACSubscriber;
 
 @interface RACSignal : RACStream
+NS_ASSUME_NONNULL_BEGIN
 
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.
@@ -44,10 +45,10 @@
 /// subscribes. Any side effects within the block will thus execute once for each
 /// subscription, not necessarily on one thread, and possibly even
 /// simultaneously!
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
++ (RACSignal *)createSignal:(RACDisposable * _Nullable (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 /// Returns a signal that immediately sends the given error.
-+ (RACSignal *)error:(NSError *)error;
++ (RACSignal *)error:(nullable NSError *)error;
 
 /// Returns a signal that never completes.
 + (RACSignal *)never;
@@ -87,7 +88,7 @@
 @interface RACSignal (RACStream)
 
 /// Returns a signal that immediately sends the given value and then completes.
-+ (RACSignal *)return:(id)value;
++ (RACSignal *)return:(nullable id)value;
 
 /// Returns a signal that immediately completes.
 + (RACSignal *)empty;
@@ -133,18 +134,18 @@
 /// Convenience method to subscribe to the `next` event.
 ///
 /// This corresponds to `IObserver<T>.OnNext` in Rx.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock;
 
 /// Convenience method to subscribe to the `next` and `completed` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock completed:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nonnull error))errorBlock completed:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to `error` events.
 ///
 /// This corresponds to the `IObserver<T>.OnError` in Rx.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)subscribeError:(void (^)(NSError * _Nonnull error))errorBlock;
 
 /// Convenience method to subscribe to `completed` events.
 ///
@@ -152,10 +153,10 @@
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nonnull error))errorBlock;
 
 /// Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)subscribeError:(void (^)(NSError * _Nonnull error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end
 
@@ -195,7 +196,7 @@
 ///
 /// Returns the first value received, or `defaultValue` if no value is received
 /// before the signal finishes or the method times out.
-- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
+- (nullable id)asynchronousFirstOrDefault:(nullable id)defaultValue success:(nullable BOOL *)success error:(NSError * _Nullable * _Nullable)error;
 
 /// Spins the main run loop for a short while, waiting for the receiver to complete.
 ///
@@ -206,14 +207,17 @@
 ///
 /// Returns whether the signal completed successfully before timing out. If NO,
 /// `error` will be set to any error that occurred.
-- (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error;
+- (BOOL)asynchronouslyWaitUntilCompleted:(NSError * _Nullable * _Nullable)error;
 
+NS_ASSUME_NONNULL_END
 @end
 
 @interface RACSignal (Unavailable)
+NS_ASSUME_NONNULL_BEGIN
 
 + (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
 
+NS_ASSUME_NONNULL_END
 @end

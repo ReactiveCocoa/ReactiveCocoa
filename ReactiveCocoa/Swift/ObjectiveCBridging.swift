@@ -123,11 +123,11 @@ extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyOb
 			let selfDisposable = self.start { event in
 				switch event {
 				case let .next(value):
-					subscriber!.sendNext(value.optional)
+					subscriber.sendNext(value.optional)
 				case let .failed(error):
-					subscriber!.sendError(error)
+					subscriber.sendError(error)
 				case .completed:
-					subscriber?.sendCompleted()
+					subscriber.sendCompleted()
 				case .interrupted:
 					break
 				}
@@ -185,11 +185,11 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 			let selfDisposable = self.observe { event in
 				switch event {
 				case let .next(value):
-					subscriber!.sendNext(value.optional)
+					subscriber.sendNext(value.optional)
 				case let .failed(error):
-					subscriber!.sendError(error)
+					subscriber.sendError(error)
 				case .completed:
-					subscriber?.sendCompleted()
+					subscriber.sendCompleted()
 				case .interrupted:
 					break
 				}
@@ -233,7 +233,7 @@ public func toAction<Input>(command: RACCommand<Input>, file: String = #file, li
 			return command.execute(input)
 		}
 
-		return executionSignal!.toSignalProducer(file: file, line: line)
+		return executionSignal.toSignalProducer(file: file, line: line)
 	}
 }
 

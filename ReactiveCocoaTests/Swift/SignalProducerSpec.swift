@@ -784,7 +784,7 @@ class SignalProducerSpec: QuickSpec {
 					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<(Int, Int), NoError> in
 						return { otherSignal in
 							counter += 1
-							return zip(signal, otherSignal)
+							return Signal.zip(signal, otherSignal)
 						}
 					}
 
@@ -804,7 +804,7 @@ class SignalProducerSpec: QuickSpec {
 
 					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<Int, NoError> in
 						return { otherSignal in
-							return zip(signal, otherSignal).map { first, second in first + second }
+							return Signal.zip(signal, otherSignal).map { first, second in first + second }
 						}
 					}
 
@@ -824,7 +824,7 @@ class SignalProducerSpec: QuickSpec {
 					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<(Int, Int), NoError> in
 						return { otherSignal in
 							counter += 1
-							return zip(signal, otherSignal)
+							return Signal.zip(signal, otherSignal)
 						}
 					}
 
@@ -846,7 +846,7 @@ class SignalProducerSpec: QuickSpec {
 
 					let transform = { (signal: Signal<Int, NoError>) -> (Signal<Int, NoError>) -> Signal<Int, NoError> in
 						return { otherSignal in
-							return zip(signal, otherSignal).map(+)
+							return Signal.zip(signal, otherSignal).map(+)
 						}
 					}
 
@@ -885,14 +885,14 @@ class SignalProducerSpec: QuickSpec {
 			}
 			
 			it("should combine the events to one array") {
-				let producer = combineLatest([producerA, producerB])
+				let producer = SignalProducer.combineLatest([producerA, producerB])
 				let result = producer.collect().single()
 				
 				expect(result?.value) == [[1, 4], [2, 4]]
 			}
 			
 			it("should zip the events to one array") {
-				let producer = zip([producerA, producerB])
+				let producer = SignalProducer.zip([producerA, producerB])
 				let result = producer.collect().single()
 				
 				expect(result?.value) == [[1, 3], [2, 4]]

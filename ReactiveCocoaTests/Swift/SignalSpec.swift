@@ -2063,7 +2063,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("tuple") {
 				beforeEach {
-					combineLatest(signalA, signalB, signalC)
+					Signal.combineLatest(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
 							case let .next(value):
@@ -2081,7 +2081,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("sequence") {
 				beforeEach {
-					combineLatest([signalA, signalB, signalC])
+					Signal.combineLatest([signalA, signalB, signalC])
 					.observe { event in
 						switch event {
 						case let .next(values):
@@ -2169,7 +2169,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("tuple") {
 				beforeEach {
-					zip(signalA, signalB, signalC)
+					Signal.zip(signalA, signalB, signalC)
 						.observe { event in
 							switch event {
 							case let .next(value):
@@ -2187,7 +2187,7 @@ class SignalSpec: QuickSpec {
 			
 			describe("sequence") {
 				beforeEach {
-					zip([signalA, signalB, signalC])
+					Signal.zip([signalA, signalB, signalC])
 						.observe { event in
 							switch event {
 							case let .next(values):

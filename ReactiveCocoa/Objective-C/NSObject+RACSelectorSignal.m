@@ -12,7 +12,6 @@
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACObjCRuntime.h"
 #import "RACSubject.h"
 #import "RACTuple.h"
 #import "NSObject+RACDescription.h"
@@ -295,7 +294,7 @@ static Class RACSwizzleClass(NSObject *self) {
 	Class subclass = objc_getClass(subclassName);
 
 	if (subclass == nil) {
-		subclass = [RACObjCRuntime createClass:subclassName inheritingFromClass:baseClass];
+		subclass = objc_allocateClassPair(baseClass, subclassName, 0);
 		if (subclass == nil) return nil;
 
 		RACSwizzleForwardInvocation(subclass);

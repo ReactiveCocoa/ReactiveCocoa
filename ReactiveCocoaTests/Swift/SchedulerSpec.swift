@@ -30,7 +30,7 @@ class SchedulerSpec: QuickSpec {
 				let group = DispatchGroup()
 
 				DispatchQueue.global().async(group: group, qos: DispatchQoS.userInteractive, execute: action)
-				group.wait(timeout: .distantFuture)
+				group.wait()
 			}
 
 			it("should run actions immediately when on the main thread") {

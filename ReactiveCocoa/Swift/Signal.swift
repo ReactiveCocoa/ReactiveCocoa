@@ -1287,14 +1287,12 @@ private struct ThrottleState<Value> {
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
 	return a.combineLatestWith(b)
 }
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
 	return combineLatest(a, b)
 		.combineLatestWith(c)
@@ -1303,7 +1301,6 @@ public func combineLatest<A, B, C, Error>(_ a: Signal<A, Error>, _ b: Signal<B, 
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
 	return combineLatest(a, b, c)
 		.combineLatestWith(d)
@@ -1312,7 +1309,6 @@ public func combineLatest<A, B, C, D, Error>(_ a: Signal<A, Error>, _ b: Signal<
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
 	return combineLatest(a, b, c, d)
 		.combineLatestWith(e)
@@ -1321,7 +1317,6 @@ public func combineLatest<A, B, C, D, E, Error>(_ a: Signal<A, Error>, _ b: Sign
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
 	return combineLatest(a, b, c, d, e)
 		.combineLatestWith(f)
@@ -1330,7 +1325,6 @@ public func combineLatest<A, B, C, D, E, F, Error>(_ a: Signal<A, Error>, _ b: S
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
 	return combineLatest(a, b, c, d, e, f)
 		.combineLatestWith(g)
@@ -1339,7 +1333,6 @@ public func combineLatest<A, B, C, D, E, F, G, Error>(_ a: Signal<A, Error>, _ b
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
 	return combineLatest(a, b, c, d, e, f, g)
 		.combineLatestWith(h)
@@ -1348,7 +1341,6 @@ public func combineLatest<A, B, C, D, E, F, G, H, Error>(_ a: Signal<A, Error>, 
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
 	return combineLatest(a, b, c, d, e, f, g, h)
 		.combineLatestWith(i)
@@ -1357,7 +1349,6 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(_ a: Signal<A, Error
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
 	return combineLatest(a, b, c, d, e, f, g, h, i)
 		.combineLatestWith(j)
@@ -1366,7 +1357,6 @@ public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(_ a: Signal<A, Er
 
 /// Combines the values of all the given signals, in the manner described by
 /// `combineLatestWith`. No events will be sent if the sequence is empty.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
 	var generator = signals.makeIterator()
 	if let first = generator.next() {
@@ -1381,14 +1371,12 @@ public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == 
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
 	return a.zipWith(b)
 }
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
 	return zip(a, b)
 		.zipWith(c)
@@ -1397,7 +1385,6 @@ public func zip<A, B, C, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ 
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
 	return zip(a, b, c)
 		.zipWith(d)
@@ -1406,7 +1393,6 @@ public func zip<A, B, C, D, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>,
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
 	return zip(a, b, c, d)
 		.zipWith(e)
@@ -1415,7 +1401,6 @@ public func zip<A, B, C, D, E, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Erro
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, F, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
 	return zip(a, b, c, d, e)
 		.zipWith(f)
@@ -1424,7 +1409,6 @@ public func zip<A, B, C, D, E, F, Error>(_ a: Signal<A, Error>, _ b: Signal<B, E
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, F, G, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
 	return zip(a, b, c, d, e, f)
 		.zipWith(g)
@@ -1433,7 +1417,6 @@ public func zip<A, B, C, D, E, F, G, Error>(_ a: Signal<A, Error>, _ b: Signal<B
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, F, G, H, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
 	return zip(a, b, c, d, e, f, g)
 		.zipWith(h)
@@ -1442,7 +1425,6 @@ public func zip<A, B, C, D, E, F, G, H, Error>(_ a: Signal<A, Error>, _ b: Signa
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, F, G, H, I, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
 	return zip(a, b, c, d, e, f, g, h)
 		.zipWith(i)
@@ -1451,7 +1433,6 @@ public func zip<A, B, C, D, E, F, G, H, I, Error>(_ a: Signal<A, Error>, _ b: Si
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<A, B, C, D, E, F, G, H, I, J, Error>(_ a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
 	return zip(a, b, c, d, e, f, g, h, i)
 		.zipWith(j)
@@ -1460,7 +1441,6 @@ public func zip<A, B, C, D, E, F, G, H, I, J, Error>(_ a: Signal<A, Error>, _ b:
 
 /// Zips the values of all the given signals, in the manner described by
 /// `zipWith`. No events will be sent if the sequence is empty.
-@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 public func zip<S: Sequence, Value, Error where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
 	var generator = signals.makeIterator()
 	if let first = generator.next() {

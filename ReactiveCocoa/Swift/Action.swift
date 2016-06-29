@@ -89,7 +89,6 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// If the action is disabled when the returned SignalProducer is started,
 	/// the produced signal will send `ActionError.NotEnabled`, and nothing will
 	/// be sent upon `values` or `errors` for that particular signal.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func apply(_ input: Input) -> SignalProducer<Output, ActionError<Error>> {
 		return SignalProducer { observer, disposable in
 			var startedExecuting = false

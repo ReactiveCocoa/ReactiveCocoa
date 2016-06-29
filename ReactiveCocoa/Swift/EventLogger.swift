@@ -36,7 +36,6 @@ public typealias EventLogger = (identifier: String, event: String, fileName: Str
 extension SignalProtocol {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func logEvents(identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
 		func log<T>(_ event: LoggingEvent.Signal) -> ((T) -> Void)? {
 			return event.logIfNeeded(events) { event in
@@ -58,7 +57,6 @@ extension SignalProtocol {
 extension SignalProducerProtocol {
 	/// Logs all events that the receiver sends.
 	/// By default, it will print to the standard output.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func logEvents(identifier: String = "", events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
 		func log<T>(_ event: LoggingEvent.SignalProducer) -> ((T) -> Void)? {
 			return event.logIfNeeded(events) { event in

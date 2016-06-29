@@ -265,7 +265,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				action.values.observeNext { results.append($0) }
 
-				command = bridgedRACCommand(from: action)
+				command = action.toRACCommand()
 				expect(command).notTo(beNil())
 
 				command.enabled.subscribeNext { enabled = $0 as! Bool }

@@ -10,9 +10,6 @@ script:
   - script/build
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:
-  allow_failures:
-    - xcode_scheme: ReactiveCocoa-iOS
-      osx_image: xcode8
   include:
     - xcode_scheme: ReactiveCocoa-Mac
       env:

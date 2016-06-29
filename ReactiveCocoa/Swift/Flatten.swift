@@ -40,7 +40,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		switch strategy {
 		case .merge:
@@ -64,7 +63,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == NoError {
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		return self
 			.promoteErrors(Value.Error.self)
@@ -78,7 +76,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == NoError, 
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		switch strategy {
 		case .merge:
@@ -102,7 +99,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Value.Error == NoE
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
@@ -117,7 +113,6 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		switch strategy {
 		case .merge:
@@ -141,7 +136,6 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == N
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		return self
 			.promoteErrors(Value.Error.self)
@@ -155,7 +149,6 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == N
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		switch strategy {
 		case .merge:
@@ -179,7 +172,6 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Value.Erro
 	///
 	/// `Interrupted` events on inner producers will be treated like `Completed`
 	/// events on inner producers.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
@@ -194,7 +186,6 @@ extension SignalProtocol where Value: SignalProtocol, Error == Value.Error {
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		return self
 			.map(SignalProducer.init)
@@ -211,7 +202,6 @@ extension SignalProtocol where Value: SignalProtocol, Error == NoError {
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		return self
 			.promoteErrors(Value.Error.self)
@@ -225,7 +215,6 @@ extension SignalProtocol where Value: SignalProtocol, Error == NoError, Value.Er
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Value.Error> {
 		return self
 			.map(SignalProducer.init)
@@ -242,7 +231,6 @@ extension SignalProtocol where Value: SignalProtocol, Value.Error == NoError {
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Value, Error> {
 		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
@@ -251,7 +239,6 @@ extension SignalProtocol where Value: SignalProtocol, Value.Error == NoError {
 extension SignalProtocol where Value: Sequence, Error == NoError {
 	/// Flattens the `sequence` value sent by `signal` according to
 	/// the semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> Signal<Value.Iterator.Element, Error> {
 		return self.flatMap(strategy) { .init(values: $0) }
 	}
@@ -266,7 +253,6 @@ extension SignalProducerProtocol where Value: SignalProtocol, Error == Value.Err
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		return self
 			.map(SignalProducer.init)
@@ -283,7 +269,6 @@ extension SignalProducerProtocol where Value: SignalProtocol, Error == NoError {
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		return self
 			.promoteErrors(Value.Error.self)
@@ -297,7 +282,6 @@ extension SignalProducerProtocol where Value: SignalProtocol, Error == NoError, 
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Value.Error> {
 		return self
 			.map(SignalProducer.init)
@@ -314,7 +298,6 @@ extension SignalProducerProtocol where Value: SignalProtocol, Value.Error == NoE
 	///
 	/// `Interrupted` events on inner signals will be treated like `Completed`
 	/// events on inner signals.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Value, Error> {
 		return self.flatMap(strategy) { $0.promoteErrors(Error.self) }
 	}
@@ -323,7 +306,6 @@ extension SignalProducerProtocol where Value: SignalProtocol, Value.Error == NoE
 extension SignalProducerProtocol where Value: Sequence, Error == NoError {
 	/// Flattens the `sequence` value sent by `producer` according to
 	/// the semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatten(_ strategy: FlattenStrategy) -> SignalProducer<Value.Iterator.Element, Error> {
 		return self.flatMap(strategy) { .init(values: $0) }
 	}
@@ -399,25 +381,21 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 
 extension SignalProducerProtocol {
 	/// `concat`s `next` onto `self`.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func concat(_ next: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
 		return SignalProducer<SignalProducer<Value, Error>, Error>(values: [ self.producer, next ]).flatten(.concat)
 	}
 	
 	/// `concat`s `value` onto `self`.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func concat(value: Value) -> SignalProducer<Value, Error> {
 		return self.concat(SignalProducer(value: value))
 	}
 	
 	/// `concat`s `self` onto initial `previous`.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func prefix<P: SignalProducerProtocol where P.Value == Value, P.Error == Error>(_ previous: P) -> SignalProducer<Value, Error> {
 		return previous.concat(self.producer)
 	}
 	
 	/// `concat`s `self` onto initial `value`.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func prefix(value: Value) -> SignalProducer<Value, Error> {
 		return self.prefix(SignalProducer(value: value))
 	}
@@ -572,7 +550,6 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 extension SignalProtocol {
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public static func merge<Seq: Sequence, S: SignalProtocol where S.Value == Value, S.Error == Error, Seq.Iterator.Element == S>(_ signals: Seq) -> Signal<Value, Error> {
 		let producer = SignalProducer<S, Error>(values: signals)
 		var result: Signal<Value, Error>!
@@ -586,7 +563,6 @@ extension SignalProtocol {
 	
 	/// Merges the given signals into a single `Signal` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public static func merge<S: SignalProtocol where S.Value == Value, S.Error == Error>(_ signals: S...) -> Signal<Value, Error> {
 		return Signal.merge(signals)
 	}
@@ -595,14 +571,12 @@ extension SignalProtocol {
 extension SignalProducerProtocol {
 	/// Merges the given producers into a single `SignalProducer` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public static func merge<Seq: Sequence, S: SignalProducerProtocol where S.Value == Value, S.Error == Error, Seq.Iterator.Element == S>(_ producers: Seq) -> SignalProducer<Value, Error> {
 		return SignalProducer(values: producers).flatten(.merge)
 	}
 	
 	/// Merges the given producers into a single `SignalProducer` that will emit all values
 	/// from each of them, and complete when all of them have completed.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public static func merge<S: SignalProducerProtocol where S.Value == Value, S.Error == Error>(_ producers: S...) -> SignalProducer<Value, Error> {
 		return SignalProducer.merge(producers)
 	}
@@ -733,7 +707,6 @@ extension SignalProtocol {
 	///
 	/// If `signal` or any of the created producers fail, the returned signal
 	/// will forward that failure immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, Error>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -744,7 +717,6 @@ extension SignalProtocol {
 	///
 	/// If `signal` fails, the returned signal will forward that failure
 	/// immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, NoError>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -755,7 +727,6 @@ extension SignalProtocol {
 	///
 	/// If `signal` or any of the created signals emit an error, the returned
 	/// signal will forward that error immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, Error>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -766,7 +737,6 @@ extension SignalProtocol {
 	///
 	/// If `signal` emits an error, the returned signal will forward that
 	/// error immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, NoError>) -> Signal<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -779,7 +749,6 @@ extension SignalProtocol where Error == NoError {
 	///
 	/// If any of the created signals emit an error, the returned signal
 	/// will forward that error immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U, E>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, E>) -> Signal<U, E> {
 		return map(transform).flatten(strategy)
 	}
@@ -787,7 +756,6 @@ extension SignalProtocol where Error == NoError {
 	/// Maps each event from `signal` to a new signal, then flattens the
 	/// resulting signals (into a signal of values), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, NoError>) -> Signal<U, NoError> {
 		return map(transform).flatten(strategy)
 	}
@@ -798,7 +766,6 @@ extension SignalProtocol where Error == NoError {
 	///
 	/// If any of the created signals emit an error, the returned signal
 	/// will forward that error immediately.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U, E>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, E>) -> Signal<U, E> {
 		return map(transform).flatten(strategy)
 	}
@@ -806,7 +773,6 @@ extension SignalProtocol where Error == NoError {
 	/// Maps each event from `signal` to a new signal, then flattens the
 	/// resulting signals (into a signal of values), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, NoError>) -> Signal<U, NoError> {
 		return map(transform).flatten(strategy)
 	}
@@ -819,7 +785,6 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` or any of the created producers fail, the returned producer
 	/// will forward that failure immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -830,7 +795,6 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` fails, the returned producer will forward that failure
 	/// immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, NoError>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -841,7 +805,6 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` or any of the created signals emit an error, the returned
 	/// producer will forward that error immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, Error>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -852,7 +815,6 @@ extension SignalProducerProtocol {
 	///
 	/// If `self` emits an error, the returned producer will forward that
 	/// error immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, NoError>) -> SignalProducer<U, Error> {
 		return map(transform).flatten(strategy)
 	}
@@ -865,7 +827,6 @@ extension SignalProducerProtocol where Error == NoError {
 	///
 	/// If any of the created producers fail, the returned producer will
 	/// forward that failure immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U, E>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, E>) -> SignalProducer<U, E> {
 		return map(transform).flatten(strategy)
 	}
@@ -873,7 +834,6 @@ extension SignalProducerProtocol where Error == NoError {
 	/// Maps each event from `self` to a new producer, then flattens the
 	/// resulting producers (into a producer of values), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> SignalProducer<U, NoError>) -> SignalProducer<U, NoError> {
 		return map(transform).flatten(strategy)
 	}
@@ -884,7 +844,6 @@ extension SignalProducerProtocol where Error == NoError {
 	///
 	/// If any of the created signals emit an error, the returned
 	/// producer will forward that error immediately.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U, E>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, E>) -> SignalProducer<U, E> {
 		return map(transform).flatten(strategy)
 	}
@@ -892,7 +851,6 @@ extension SignalProducerProtocol where Error == NoError {
 	/// Maps each event from `self` to a new producer, then flattens the
 	/// resulting signals (into a producer of values), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMap<U>(_ strategy: FlattenStrategy, transform: (Value) -> Signal<U, NoError>) -> SignalProducer<U, NoError> {
 		return map(transform).flatten(strategy)
 	}
@@ -902,7 +860,6 @@ extension SignalProducerProtocol where Error == NoError {
 extension SignalProtocol {
 	/// Catches any failure that may occur on the input signal, mapping to a new producer
 	/// that starts in its place.
-	@warn_unused_result(message:"Did you forget to call `observe` on the signal?")
 	public func flatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>) -> Signal<Value, F> {
 		return Signal { observer in
 			self.observeFlatMapError(handler, observer, SerialDisposable())
@@ -932,7 +889,6 @@ extension SignalProtocol {
 extension SignalProducerProtocol {
 	/// Catches any failure that may occur on the input producer, mapping to a new producer
 	/// that starts in its place.
-	@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 	public func flatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>) -> SignalProducer<Value, F> {
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()

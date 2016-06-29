@@ -37,13 +37,11 @@ public protocol MutablePropertyType: class, PropertyProtocol {
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
 		return { otherProperty in
 			return AnyProperty(self, otherProperty, transform: transform)
@@ -51,21 +49,18 @@ extension PropertyProtocol {
 	}
 
 	/// Maps the current value and all subsequent values to a new property.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func map<U>(_ transform: (Value) -> U) -> AnyProperty<U> {
 		return lift { $0.map(transform) }
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func combineLatestWith<P: PropertyProtocol>(_ other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.combineLatestWith)(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func zipWith<P: PropertyProtocol>(_ other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.zipWith)(other)
 	}
@@ -74,14 +69,12 @@ extension PropertyProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member of the first
 	/// tuple.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func combinePrevious(_ initial: Value) -> AnyProperty<(Value, Value)> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
@@ -90,7 +83,6 @@ extension PropertyProtocol {
 extension PropertyProtocol where Value: Equatable {
 	/// Forwards only those values from `self` which is not equal to the previous
 	/// value. The first value is always forwarded.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func skipRepeats() -> AnyProperty<Value> {
 		return lift { $0.skipRepeats() }
 	}
@@ -99,7 +91,6 @@ extension PropertyProtocol where Value: Equatable {
 extension PropertyProtocol where Value: PropertyProtocol {
 	/// Flattens the inner properties sent upon `self` (into a single property),
 	/// according to the semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
@@ -109,7 +100,6 @@ extension PropertyProtocol {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
@@ -118,7 +108,6 @@ extension PropertyProtocol {
 	/// all values that have been seen.
 	///
 	/// Note: This causes the identities to be retained to check for uniqueness.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> AnyProperty<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
@@ -131,7 +120,6 @@ extension PropertyProtocol where Value: Hashable {
 	/// Note: This causes the values to be retained to check for uniqueness. Providing
 	/// a function that returns a unique value for each sent value can help you reduce
 	/// the memory footprint.
-	@warn_unused_result(message:"Did you forget to use the composed property?")
 	public func uniqueValues() -> AnyProperty<Value> {
 		return lift { $0.uniqueValues() }
 	}
@@ -209,7 +197,6 @@ public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyP
 
 /// Combines the values of all the given producers, in the manner described by
 /// `combineLatest(with:)`. Returns nil if the sequence is empty.
-@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 public func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
 	var generator = properties.makeIterator()
 	if let first = generator.next() {
@@ -294,7 +281,6 @@ public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D
 
 /// Zips the values of all the given properties, in the manner described by
 /// `zip(with:)`. Returns nil if the sequence is empty.
-@warn_unused_result(message:"Did you forget to call `start` on the producer?")
 public func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
 	var generator = properties.makeIterator()
 	if let first = generator.next() {

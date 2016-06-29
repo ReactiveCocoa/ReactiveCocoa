@@ -185,8 +185,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 		}
 
-		/* [@cliscio] Disabled due to segfault in the RACCommand.toAction() implementation
-		describe("RACCommand.toAction") {
+		describe("toAction") {
 			var command: RACCommand<AnyObject>!
 			var results: [Int] = []
 
@@ -199,7 +198,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				enabledSubject = RACSubject()
 				results = []
 
-				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal! in
+				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal in
 					let inputNumber = input as! Int
 					return RACSignal.`return`(inputNumber + 1)
 				}
@@ -212,7 +211,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				command.executionSignals.flatten().subscribeNext { results.append($0 as! Int) }
 				expect(results) == []
 
-				action = command.toAction()
+				action = toAction(command: command)
 			}
 
 			it("should reflect the enabledness of the command") {
@@ -243,7 +242,6 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				expect(results).toEventually(equal([ 1, 1, 3, 1 ]))
 			}
 		}
-*/
 
 		describe("toRACCommand") {
 			var action: Action<AnyObject?, NSString, TestError>!

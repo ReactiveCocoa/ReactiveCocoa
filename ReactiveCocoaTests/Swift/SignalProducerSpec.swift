@@ -47,7 +47,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { signal, _ in
 					let object = NSObject()
 					objectRetainedByObserver = object
-					signal.observeNext { _ in object }
+					signal.observeNext { _ in _ = object }
 				}
 
 				expect(objectRetainedByObserver).toNot(beNil())
@@ -551,7 +551,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { signal, innerDisposable in
 					let object = NSObject()
 					objectRetainedByObserver = object
-					signal.observeNext { _ in object.description }
+					signal.observeNext { _ in _ = object.description }
 					disposable = innerDisposable
 				}
 
@@ -674,7 +674,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>.never
 					let object = NSObject()
 					objectRetainedByObserver = object
-					disposable = producer.startWithNext { _ in object }
+					disposable = producer.startWithNext { _ in _ = object }
 				}
 
 				test()

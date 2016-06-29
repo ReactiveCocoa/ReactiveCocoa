@@ -34,7 +34,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_values(forKeyPath: "enabled", observer: nil)
+				.rac_values(forKeyPath: #keyPath(CocoaAction.enabled), observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))
@@ -53,7 +53,7 @@ class CocoaActionSpec: QuickSpec {
 
 			let cocoaAction = action.unsafeCocoaAction
 			cocoaAction
-				.rac_values(forKeyPath: "executing", observer: nil)
+				.rac_values(forKeyPath: #keyPath(CocoaAction.executing), observer: nil)
 				.toSignalProducer()
 				.map { $0! as! Bool }
 				.start(Observer(next: { values.append($0) }))

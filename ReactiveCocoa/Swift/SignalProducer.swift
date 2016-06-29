@@ -1027,172 +1027,174 @@ extension SignalProducerProtocol {
 	}
 }
 
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	return a.combineLatestWith(b)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`.
-public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func combineLatest<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
-	var generator = producers.makeIterator()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return IteratorSequence(generator).reduce(initial) { producer, next in
-			producer.combineLatestWith(next).map { $0.0 + [$0.1] }
-		}
-	}
-	
-	return .empty
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(A, B), Error> {
-	return a.zipWith(b)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(A, B, C), Error> {
-	return zip(a, b)
-		.zipWith(c)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(A, B, C, D), Error> {
-	return zip(a, b, c)
-		.zipWith(d)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(A, B, C, D, E), Error> {
-	return zip(a, b, c, d)
-		.zipWith(e)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, F, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(A, B, C, D, E, F), Error> {
-	return zip(a, b, c, d, e)
-		.zipWith(f)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, F, G, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(A, B, C, D, E, F, G), Error> {
-	return zip(a, b, c, d, e, f)
-		.zipWith(g)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H), Error> {
-	return zip(a, b, c, d, e, f, g)
-		.zipWith(h)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I), Error> {
-	return zip(a, b, c, d, e, f, g, h)
-		.zipWith(i)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`.
-public func zip<A, B, C, D, E, F, G, H, I, J, Error>(_ a: SignalProducer<A, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return zip(a, b, c, d, e, f, g, h, i)
-		.zipWith(j)
-		.map(repack)
-}
-
-/// Zips the values of all the given producers, in the manner described by
-/// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-public func zip<S: Sequence, Value, Error where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
-	var generator = producers.makeIterator()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return IteratorSequence(generator).reduce(initial) { producer, next in
-			producer.zipWith(next).map { $0.0 + [$0.1] }
-		}
+extension SignalProducerProtocol {
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(Value, B), Error> {
+		return a.combineLatestWith(b)
 	}
 
-	return .empty
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(Value, B, C), Error> {
+		return combineLatest(a, b)
+			.combineLatestWith(c)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(Value, B, C, D), Error> {
+		return combineLatest(a, b, c)
+			.combineLatestWith(d)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(Value, B, C, D, E), Error> {
+		return combineLatest(a, b, c, d)
+			.combineLatestWith(e)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(Value, B, C, D, E, F), Error> {
+		return combineLatest(a, b, c, d, e)
+			.combineLatestWith(f)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(Value, B, C, D, E, F, G), Error> {
+		return combineLatest(a, b, c, d, e, f)
+			.combineLatestWith(g)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H), Error> {
+		return combineLatest(a, b, c, d, e, f, g)
+			.combineLatestWith(h)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H, I>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I), Error> {
+		return combineLatest(a, b, c, d, e, f, g, h)
+			.combineLatestWith(i)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H, I, J>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I, J), Error> {
+		return combineLatest(a, b, c, d, e, f, g, h, i)
+			.combineLatestWith(j)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
+	public static func combineLatest<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+		var generator = producers.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { producer, next in
+				producer.combineLatestWith(next).map { $0.0 + [$0.1] }
+			}
+		}
+		
+		return .empty
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>) -> SignalProducer<(Value, B), Error> {
+		return a.zipWith(b)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>) -> SignalProducer<(Value, B, C), Error> {
+		return zip(a, b)
+			.zipWith(c)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>) -> SignalProducer<(Value, B, C, D), Error> {
+		return zip(a, b, c)
+			.zipWith(d)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>) -> SignalProducer<(Value, B, C, D, E), Error> {
+		return zip(a, b, c, d)
+			.zipWith(e)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>) -> SignalProducer<(Value, B, C, D, E, F), Error> {
+		return zip(a, b, c, d, e)
+			.zipWith(f)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>) -> SignalProducer<(Value, B, C, D, E, F, G), Error> {
+		return zip(a, b, c, d, e, f)
+			.zipWith(g)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H), Error> {
+		return zip(a, b, c, d, e, f, g)
+			.zipWith(h)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H, I>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I), Error> {
+		return zip(a, b, c, d, e, f, g, h)
+			.zipWith(i)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H, I, J>(_ a: SignalProducer<Value, Error>, _ b: SignalProducer<B, Error>, _ c: SignalProducer<C, Error>, _ d: SignalProducer<D, Error>, _ e: SignalProducer<E, Error>, _ f: SignalProducer<F, Error>, _ g: SignalProducer<G, Error>, _ h: SignalProducer<H, Error>, _ i: SignalProducer<I, Error>, _ j: SignalProducer<J, Error>) -> SignalProducer<(Value, B, C, D, E, F, G, H, I, J), Error> {
+		return zip(a, b, c, d, e, f, g, h, i)
+			.zipWith(j)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given producers, in the manner described by
+	/// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
+	public static func zip<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+		var generator = producers.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { producer, next in
+				producer.zipWith(next).map { $0.0 + [$0.1] }
+			}
+		}
+
+		return .empty
+	}
 }
 
 extension SignalProducerProtocol {

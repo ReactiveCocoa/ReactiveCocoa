@@ -96,7 +96,7 @@ extension PropertyProtocol where Value: PropertyProtocol {
 	}
 }
 
-extension PropertyProtocol {
+extension AnyProperty {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
@@ -125,172 +125,174 @@ extension PropertyProtocol where Value: Hashable {
 	}
 }
 
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.combineLatestWith(b)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-public func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatest(with:)`. Returns nil if the sequence is empty.
-public func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
-	var generator = properties.makeIterator()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return IteratorSequence(generator).reduce(initial) { property, next in
-			property.combineLatestWith(next).map { $0.0 + [$0.1] }
-		}
+extension PropertyProtocol {
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+		return a.combineLatestWith(b)
 	}
 
-	return nil
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.zipWith(b)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
-	return zip(a, b)
-		.zipWith(c)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
-	return zip(a, b, c)
-		.zipWith(d)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
-	return zip(a, b, c, d)
-		.zipWith(e)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
-	return zip(a, b, c, d, e)
-		.zipWith(f)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
-	return zip(a, b, c, d, e, f)
-		.zipWith(g)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
-	return zip(a, b, c, d, e, f, g)
-		.zipWith(h)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
-	return zip(a, b, c, d, e, f, g, h)
-		.zipWith(i)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-public func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
-	return zip(a, b, c, d, e, f, g, h, i)
-		.zipWith(j)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`. Returns nil if the sequence is empty.
-public func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
-	var generator = properties.makeIterator()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return IteratorSequence(generator).reduce(initial) { property, next in
-			property.zipWith(next).map { $0.0 + [$0.1] }
-		}
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+		return combineLatest(a, b)
+			.combineLatestWith(c)
+			.map(repack)
 	}
 
-	return nil
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+		return combineLatest(a, b, c)
+			.combineLatestWith(d)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+		return combineLatest(a, b, c, d)
+			.combineLatestWith(e)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+		return combineLatest(a, b, c, d, e)
+			.combineLatestWith(f)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+		return combineLatest(a, b, c, d, e, f)
+			.combineLatestWith(g)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+		return combineLatest(a, b, c, d, e, f, g)
+			.combineLatestWith(h)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+		return combineLatest(a, b, c, d, e, f, g, h)
+			.combineLatestWith(i)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+		return combineLatest(a, b, c, d, e, f, g, h, i)
+			.combineLatestWith(j)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatest(with:)`. Returns nil if the sequence is empty.
+	public static func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+		var generator = properties.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { property, next in
+				property.combineLatestWith(next).map { $0.0 + [$0.1] }
+			}
+		}
+
+		return nil
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+		return a.zipWith(b)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+		return zip(a, b)
+			.zipWith(c)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+		return zip(a, b, c)
+			.zipWith(d)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+		return zip(a, b, c, d)
+			.zipWith(e)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+		return zip(a, b, c, d, e)
+			.zipWith(f)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+		return zip(a, b, c, d, e, f)
+			.zipWith(g)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+		return zip(a, b, c, d, e, f, g)
+			.zipWith(h)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+		return zip(a, b, c, d, e, f, g, h)
+			.zipWith(i)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+		return zip(a, b, c, d, e, f, g, h, i)
+			.zipWith(j)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`. Returns nil if the sequence is empty.
+	public static func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+		var generator = properties.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { property, next in
+				property.zipWith(next).map { $0.0 + [$0.1] }
+			}
+		}
+		
+		return nil
+	}
 }
 
 /// A read-only, type-erased view of a property.

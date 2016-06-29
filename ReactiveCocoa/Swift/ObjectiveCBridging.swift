@@ -215,7 +215,7 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 //        on extensions to parameterized ObjC classes.
 
 extension ActionProtocol {
-	private var commandEnabled: RACSignal {
+	private var isCommandEnabled: RACSignal {
 		return self.isEnabled.producer
 			.map { $0 as NSNumber }
 			.toRACSignal()
@@ -244,28 +244,62 @@ public func bridgedAction<Input>(from command: RACCommand<Input>, file: String =
 	}
 }
 
-/// Creates a RACCommand that will execute the action.
-///
-/// Note that the returned command will not necessarily be marked as
-/// executing when the action is. However, the reverse is always true:
-/// the Action will always be marked as executing when the RACCommand is.
-public func bridgedRACCommand<Output: AnyObject, Error>(from action: Action<AnyObject?, Output, Error>) -> RACCommand<AnyObject> {
-	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
-		return action
-			.apply(input)
-			.toRACSignal()
+extension ActionProtocol where Input: AnyObject, Output: AnyObject {
+	/// Creates a RACCommand that will execute the action.
+	///
+	/// Note that the returned command will not necessarily be marked as
+	/// executing when the action is. However, the reverse is always true:
+	/// the Action will always be marked as executing when the RACCommand is.
+	public func toRACCommand() -> RACCommand<Input> {
+		return RACCommand<Input>(enabled: action.isCommandEnabled) { input -> RACSignal in
+			return self
+				.apply(input!)
+				.toRACSignal()
+		}
 	}
 }
 
-/// Creates a RACCommand that will execute the action.
-///
-/// Note that the returned command will not necessarily be marked as
-/// executing when the action is. However, the reverse is always true:
-/// the Action will always be marked as executing when the RACCommand is.
-public func bridgedRACCommand<Output: AnyObject, Error>(from action: Action<AnyObject?, Output?, Error>) -> RACCommand<AnyObject> {
-	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
-		return action
-			.apply(input)
-			.toRACSignal()
+extension ActionProtocol where Input: OptionalType, Input.Wrapped: AnyObject, Output: AnyObject {
+	/// Creates a RACCommand that will execute the action.
+	///
+	/// Note that the returned command will not necessarily be marked as
+	/// executing when the action is. However, the reverse is always true:
+	/// the Action will always be marked as executing when the RACCommand is.
+	public func toRACCommand() -> RACCommand<Input.Wrapped> {
+		return RACCommand<Input.Wrapped>(enabled: action.isCommandEnabled) { input -> RACSignal in
+			return self
+				.apply(Input(reconstructing: input))
+				.toRACSignal()
+		}
+	}
+}
+
+extension ActionProtocol where Input: AnyObject, Output: OptionalType, Output.Wrapped: AnyObject {
+	/// Creates a RACCommand that will execute the action.
+	///
+	/// Note that the returned command will not necessarily be marked as
+	/// executing when the action is. However, the reverse is always true:
+	/// the Action will always be marked as executing when the RACCommand is.
+	public func toRACCommand() -> RACCommand<Input> {
+		return RACCommand<Input>(enabled: action.isCommandEnabled) { input -> RACSignal in
+			return self
+				.apply(input!)
+				.toRACSignal()
+		}
+	}
+}
+
+extension ActionProtocol where Input: OptionalType, Input.Wrapped: AnyObject, Output: OptionalType, Output.Wrapped: AnyObject {
+	/// Creates a RACCommand that will execute the action.
+	///
+	/// Note that the returned command will not necessarily be marked as
+	/// executing when the action is. However, the reverse is always true:
+	/// the Action will always be marked as executing when the RACCommand is.
+	public func toRACCommand() -> RACCommand<Input.Wrapped> {
+		return RACCommand<Input.Wrapped>(enabled: action.isCommandEnabled) { input -> RACSignal in
+			return self
+				.apply(Input(reconstructing: input))
+				.toRACSignal()
+		}
 	}
 }

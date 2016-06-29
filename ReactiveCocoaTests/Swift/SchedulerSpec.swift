@@ -156,7 +156,7 @@ class SchedulerSpec: QuickSpec {
 
 				it("should run enqueued actions after a given date") {
 					var didRun = false
-					scheduler.scheduleAfter(Date()) {
+					scheduler.schedule(after: Date()) {
 						didRun = true
 						expect(Thread.isMainThread()) == false
 					}
@@ -173,7 +173,7 @@ class SchedulerSpec: QuickSpec {
 					var count = 0
 					let timesToRun = 3
 
-					disposable.innerDisposable = scheduler.scheduleAfter(Date(), repeatingEvery: 0.01, withLeeway: 0) {
+					disposable.innerDisposable = scheduler.schedule(after: Date(), interval: 0.01, leeway: 0) {
 						expect(Thread.isMainThread()) == false
 
 						count += 1
@@ -229,13 +229,13 @@ class SchedulerSpec: QuickSpec {
 			it("should run actions when advanced past the target date") {
 				var string = ""
 
-				scheduler.scheduleAfter(15) { [weak scheduler] in
+				scheduler.schedule(delay: 15) { [weak scheduler] in
 					string += "bar"
 					expect(Thread.isMainThread()) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(15), within: dateComparisonDelta))
 				}
 
-				scheduler.scheduleAfter(5) { [weak scheduler] in
+				scheduler.schedule(delay: 5) { [weak scheduler] in
 					string += "foo"
 					expect(Thread.isMainThread()) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(5), within: dateComparisonDelta))
@@ -243,11 +243,11 @@ class SchedulerSpec: QuickSpec {
 
 				expect(string) == ""
 
-				scheduler.advanceByInterval(10)
+				scheduler.advanceBy(10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(10), within: TimeInterval(dateComparisonDelta)))
 				expect(string) == "foo"
 
-				scheduler.advanceByInterval(10)
+				scheduler.advanceBy(10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(20), within: dateComparisonDelta))
 				expect(string) == "foobar"
 			}
@@ -255,12 +255,12 @@ class SchedulerSpec: QuickSpec {
 			it("should run all remaining actions in order") {
 				var string = ""
 
-				scheduler.scheduleAfter(15) {
+				scheduler.schedule(delay: 15) {
 					string += "bar"
 					expect(Thread.isMainThread()) == true
 				}
 
-				scheduler.scheduleAfter(5) {
+				scheduler.schedule(delay: 5) {
 					string += "foo"
 					expect(Thread.isMainThread()) == true
 				}

@@ -5,8 +5,8 @@ import enum Result.NoError
 /// types, including generic types when boxed via `AnyObject`).
 private protocol ObjectiveCRepresentable {
 	associatedtype Value
-	static func extractValue(fromRepresentation representation: AnyObject) -> Value
-	static func represent(value: Value) -> AnyObject
+	static func extracting(from representation: AnyObject) -> Value
+	static func representing(_ value: Value) -> AnyObject
 }
 
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
@@ -19,8 +19,8 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (AnyObject) -> Value
-	private let represent: (Value) -> AnyObject
+	private let extractor: (from: AnyObject) -> Value
+	private let representation: (Value) -> AnyObject
 
 	private var property: MutableProperty<Value?>?
 
@@ -28,11 +28,11 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	/// Coding.
 	public var value: Value? {
 		get {
-			return object?.value(forKeyPath: keyPath).map(extractValue)
+			return object?.value(forKeyPath: keyPath).map(extractor)
 		}
 
 		set(newValue) {
-			object?.setValue(newValue.map(represent), forKeyPath: keyPath)
+			object?.setValue(newValue.map(representation), forKeyPath: keyPath)
 		}
 	}
 
@@ -56,8 +56,8 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 		self.object = object
 		self.keyPath = keyPath
 		self.property = MutableProperty(nil)
-		self.extractValue = Representatable.extractValue
-		self.represent = Representatable.represent
+		self.extractor = Representatable.extracting(from:)
+		self.representation = Representatable.representing
 
 		/// DynamicProperty stay alive as long as object is alive.
 		/// This is made possible by strong reference cycles.
@@ -67,7 +67,7 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 			.start { event in
 				switch event {
 				case let .next(newValue):
-					self.property?.value = newValue.map(self.extractValue)
+					self.property?.value = newValue.map(self.extractor)
 				case let .failed(error):
 					fatalError("Received unexpected error from KVO signal: \(error)")
 				case .interrupted, .completed:
@@ -101,25 +101,25 @@ extension DynamicProperty where Value: AnyObject {
 
 /// Represents values in Objective-C directly, via `AnyObject`.
 private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
-	static func extractValue(fromRepresentation representation: AnyObject) -> Value {
+	static func extracting(from representation: AnyObject) -> Value {
 		return representation as! Value
 	}
 
-	static func represent(value: Value) -> AnyObject {
+	static func representing(_ value: Value) -> AnyObject {
 		return value
 	}
 }
 
 /// Represents values in Objective-C indirectly, via bridging.
 private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresentable {
-	static func extractValue(fromRepresentation representation: AnyObject) -> Value {
+	static func extracting(from representation: AnyObject) -> Value {
 		let object = representation as! Value._ObjectiveCType
 		var result: Value?
 		Value._forceBridgeFromObjectiveC(object, result: &result)
 		return result!
 	}
 
-	static func represent(value: Value) -> AnyObject {
+	static func representing(_ value: Value) -> AnyObject {
 		return value._bridgeToObjectiveC()
 	}
 }

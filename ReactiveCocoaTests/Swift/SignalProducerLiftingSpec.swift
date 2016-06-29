@@ -182,7 +182,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("skip") {
 			it("should skip initial values") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.skip(1)
+				let producer = baseProducer.skipFirst(1)
 
 				var lastValue: Int?
 				producer.startWithNext { lastValue = $0 }
@@ -198,7 +198,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should not skip any values when 0") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.skip(0)
+				let producer = baseProducer.skipFirst(0)
 
 				var lastValue: Int?
 				producer.startWithNext { lastValue = $0 }
@@ -358,7 +358,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("take") {
 			it("should take initial values") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.take(2)
+				let producer = baseProducer.takeFirst(2)
 
 				var lastValue: Int?
 				var completed = false
@@ -403,7 +403,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var completed = false
 				
 				producer
-					.take(numbers.count)
+					.takeFirst(numbers.count)
 					.startWithCompleted { completed = true }
 				
 				expect(completed) == false
@@ -430,7 +430,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var interrupted = false
 
 				producer
-				.take(0)
+				.takeFirst(0)
 				.start { event in
 					switch event {
 					case let .next(number):
@@ -498,9 +498,9 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect an exact count of values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.buffer(upTo: 1)
 
-				let producer = original.collect(count: 3)
+				let producer = original.collect(every: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -529,7 +529,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect values until it matches a certain value") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.buffer(upTo: 1)
 
 				let producer = original.collect { _, next in next != 5 }
 
@@ -554,7 +554,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect values until it matches a certain condition on values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.buffer(upTo: 1)
 
 				let producer = original.collect { values in values.reduce(0, combine: +) == 10 }
 
@@ -775,7 +775,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var result: [Int] = []
 
 				producer
-					.observeOn(testScheduler)
+					.observe(on: testScheduler)
 					.startWithNext { result.append($0) }
 				
 				observer.sendNext(1)
@@ -794,7 +794,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendNext(1)
 					}
-					testScheduler.scheduleAfter(5, action: {
+					testScheduler.schedule(delay: 5, action: {
 						observer.sendNext(2)
 						observer.sendCompleted()
 					})
@@ -804,7 +804,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var completed = false
 				
 				producer
-					.delay(10, onScheduler: testScheduler)
+					.delay(10, on: testScheduler)
 					.start { event in
 						switch event {
 						case let .next(number):
@@ -816,14 +816,14 @@ class SignalProducerLiftingSpec: QuickSpec {
 						}
 					}
 				
-				testScheduler.advanceByInterval(4) // send initial value
+				testScheduler.advanceBy(4) // send initial value
 				expect(result).to(beEmpty())
 				
-				testScheduler.advanceByInterval(10) // send second value and receive first
+				testScheduler.advanceBy(10) // send second value and receive first
 				expect(result) == [ 1 ]
 				expect(completed) == false
 				
-				testScheduler.advanceByInterval(10) // send second value and receive first
+				testScheduler.advanceBy(10) // send second value and receive first
 				expect(result) == [ 1, 2 ]
 				expect(completed) == true
 			}
@@ -842,7 +842,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var errored = false
 				
 				producer
-					.delay(10, onScheduler: testScheduler)
+					.delay(10, on: testScheduler)
 					.startWithFailed { _ in errored = true }
 				
 				testScheduler.advance()
@@ -861,7 +861,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let (baseProducer, baseObserver) = SignalProducer<Int, NoError>.pipe()
 				observer = baseObserver
 
-				producer = baseProducer.throttle(1, onScheduler: scheduler)
+				producer = baseProducer.throttle(1, on: scheduler)
 			}
 
 			it("should send values on the given scheduler at no less than the interval") {
@@ -882,10 +882,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(values) == [ 0 ]
 
-				scheduler.advanceByInterval(1.5)
+				scheduler.advanceBy(1.5)
 				expect(values) == [ 0, 2 ]
 
-				scheduler.advanceByInterval(3)
+				scheduler.advanceBy(3)
 				expect(values) == [ 0, 2 ]
 
 				observer.sendNext(3)
@@ -940,7 +940,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (sampler, incomingSamplerObserver) = SignalProducer<String, NoError>.pipe()
-				sampledProducer = producer.sampleWith(sampler)
+				sampledProducer = producer.sample(with: sampler)
 				observer = incomingObserver
 				samplerObserver = incomingSamplerObserver
 			}
@@ -988,7 +988,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = SignalProducer<Int, NoError>(values: [1])
 				let sampler = SignalProducer<String, NoError>(value: "a")
 				
-				let result = producer.sampleWith(sampler)
+				let result = producer.sample(with: sampler)
 				
 				var valueReceived: String?
 				result.startWithNext { (left, right) in valueReceived = "\(left)\(right)" }
@@ -1005,7 +1005,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (sampler, incomingSamplerObserver) = SignalProducer<(), NoError>.pipe()
-				sampledProducer = producer.sampleOn(sampler)
+				sampledProducer = producer.sample(on: sampler)
 				observer = incomingObserver
 				samplerObserver = incomingSamplerObserver
 			}
@@ -1053,7 +1053,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let producer = SignalProducer<Int, NoError>(values: [1])
 				let sampler = SignalProducer<(), NoError>(value: ())
 				
-				let result = producer.sampleOn(sampler)
+				let result = producer.sample(on: sampler)
 				
 				var valueReceived: Int?
 				result.startWithNext { valueReceived = $0 }
@@ -1080,7 +1080,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				beforeEach {
 					let (producer, incomingObserver) = SignalProducer<Payload, NoError>.pipe()
 					let (sampler, _) = Signal<(), NoError>.pipe()
-					sampledProducer = producer.sampleOn(sampler)
+					sampledProducer = producer.sample(on: sampler)
 					observer = incomingObserver
 				}
 
@@ -1108,7 +1108,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (otherSignal, incomingOtherObserver) = SignalProducer<Double, NoError>.pipe()
-				combinedProducer = producer.combineLatestWith(otherSignal)
+				combinedProducer = producer.combineLatest(with: otherSignal)
 				observer = incomingObserver
 				otherObserver = incomingOtherObserver
 			}
@@ -1153,7 +1153,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				leftObserver = incomingLeftObserver
 				rightObserver = incomingRightObserver
-				zipped = leftProducer.zipWith(rightProducer)
+				zipped = leftProducer.zip(with: rightProducer)
 			}
 
 			it("should combine pairs") {
@@ -1352,7 +1352,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseProducer, incomingObserver) = SignalProducer<Int, TestError>.pipe()
-				producer = baseProducer.timeoutWithError(TestError.default, afterInterval: 2, onScheduler: testScheduler)
+				producer = baseProducer.timeout(failingWith: TestError.default, after: 2, on: testScheduler)
 				observer = incomingObserver
 			}
 
@@ -1370,7 +1370,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.scheduleAfter(1) {
+				testScheduler.schedule(delay: 1) {
 					observer.sendCompleted()
 				}
 
@@ -1396,7 +1396,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.scheduleAfter(3) {
+				testScheduler.schedule(delay: 3) {
 					observer.sendCompleted()
 				}
 
@@ -1488,7 +1488,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				let (signal, baseObserver) = SignalProducer<Int, NoError>.pipe()
 				observer = baseObserver
-				signal.combinePrevious(initialValue).startWithNext { latestValues = $0 }
+				signal.combinePrevious(initial: initialValue).startWithNext { latestValues = $0 }
 			}
 			
 			it("should forward the latest value with previous value") {

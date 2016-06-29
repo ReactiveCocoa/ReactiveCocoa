@@ -45,7 +45,7 @@ public struct Bag<Element> {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	public mutating func removeValueForToken(_ token: RemovalToken) {
+	public mutating func remove(using token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
 			for i in elements.indices.reversed() {

@@ -11,13 +11,13 @@ public final class CocoaAction: NSObject {
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var enabled: Bool = false
+	public private(set) var isEnabled: Bool = false
 	
 	/// Whether the action is executing.
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var executing: Bool = false
+	public private(set) var isExecuting: Bool = false
 	
 	private let _execute: (AnyObject?) -> Void
 	private let disposable = CompositeDisposable()
@@ -32,20 +32,20 @@ public final class CocoaAction: NSObject {
 		
 		super.init()
 		
-		disposable += action.enabled.producer
-			.observeOn(UIScheduler())
+		disposable += action.isEnabled.producer
+			.observe(on: UIScheduler())
 			.startWithNext { [weak self] value in
-				self?.willChangeValue(forKey: "enabled")
-				self?.enabled = value
-				self?.didChangeValue(forKey: "enabled")
+				self?.willChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
+				self?.isEnabled = value
+				self?.didChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
 		}
 		
-		disposable += action.executing.producer
-			.observeOn(UIScheduler())
+		disposable += action.isExecuting.producer
+			.observe(on: UIScheduler())
 			.startWithNext { [weak self] value in
-				self?.willChangeValue(forKey: "executing")
-				self?.executing = value
-				self?.didChangeValue(forKey: "executing")
+				self?.willChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
+				self?.isExecuting = value
+				self?.didChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
 		}
 	}
 	

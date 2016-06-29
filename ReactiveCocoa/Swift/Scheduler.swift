@@ -34,7 +34,7 @@ public protocol DateSchedulerProtocol: SchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	func scheduleAfter(_ date: Date, action: () -> Void) -> Disposable?
+	func schedule(after date: Date, action: () -> Void) -> Disposable?
 
 	/// Schedules a recurring action at the given interval, beginning at the
 	/// given start time.
@@ -42,7 +42,7 @@ public protocol DateSchedulerProtocol: SchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, withLeeway: TimeInterval, action: () -> Void) -> Disposable?
+	func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable?
 }
 
 /// A scheduler that performs all work synchronously.
@@ -82,7 +82,7 @@ public final class UIScheduler: SchedulerProtocol {
 	public func schedule(_ action: () -> Void) -> Disposable? {
 		let disposable = SimpleDisposable()
 		let actionAndDecrement = {
-			if !disposable.disposed {
+			if !disposable.isDisposed {
 				action()
 			}
 
@@ -167,7 +167,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		let d = SimpleDisposable()
 
 		queue.async {
-			if !d.disposed {
+			if !d.isDisposed {
 				action()
 			}
 		}
@@ -186,11 +186,11 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	}
 
 	@discardableResult
-	public func scheduleAfter(_ date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
 		queue.after(walltime: wallTimeWithDate(date)) {
-			if !d.disposed {
+			if !d.isDisposed {
 				action()
 			}
 		}
@@ -204,18 +204,18 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	public func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, action: () -> Void) -> Disposable? {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
-		return scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
+		return schedule(after: date, interval: interval, leeway: interval * 0.1, action: action)
 	}
 
 	@discardableResult
-	public func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, withLeeway leeway: TimeInterval, action: () -> Void) -> Disposable? {
-		precondition(repeatingEvery >= 0)
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable? {
+		precondition(interval >= 0)
 		precondition(leeway >= 0)
 
-		let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
+		let nsecInterval = interval * Double(NSEC_PER_SEC)
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
 
 		let timer = DispatchSource.timer(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: queue)
@@ -293,21 +293,21 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	public func scheduleAfter(_ interval: TimeInterval, action: () -> Void) -> Disposable? {
-		return scheduleAfter(currentDate.addingTimeInterval(interval), action: action)
+	public func schedule(delay: TimeInterval, action: () -> Void) -> Disposable? {
+		return schedule(after: currentDate.addingTimeInterval(delay), action: action)
 	}
 
 	@discardableResult
-	public func scheduleAfter(_ date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		return schedule(ScheduledAction(date: date, action: action))
 	}
 
-	private func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, disposable: SerialDisposable, action: () -> Void) {
-		precondition(repeatingEvery >= 0)
+	private func schedule(after date: Date, interval: TimeInterval, disposable: SerialDisposable, action: () -> Void) {
+		precondition(interval >= 0)
 
-		disposable.innerDisposable = scheduleAfter(date) { [unowned self] in
+		disposable.innerDisposable = schedule(after: date) { [unowned self] in
 			action()
-			self.scheduleAfter(date.addingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+			self.schedule(after: date.addingTimeInterval(interval), interval: interval, disposable: disposable, action: action)
 		}
 	}
 
@@ -317,14 +317,14 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	public func scheduleAfter(_ interval: TimeInterval, repeatingEvery: TimeInterval, withLeeway leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
-		return scheduleAfter(currentDate.addingTimeInterval(interval), repeatingEvery: repeatingEvery, withLeeway: leeway, action: action)
+	public func schedule(delay: TimeInterval, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
+		return schedule(after: currentDate.addingTimeInterval(delay), interval: interval, leeway: leeway, action: action)
 	}
 
 	@discardableResult
-	public func scheduleAfter(_ date: Date, repeatingEvery: TimeInterval, withLeeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
 		let disposable = SerialDisposable()
-		scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+		schedule(after: date, interval: interval, disposable: disposable, action: action)
 		return disposable
 	}
 
@@ -334,20 +334,20 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// This is intended to be used as a way to execute actions that have been
 	/// scheduled to run as soon as possible.
 	public func advance() {
-		advanceByInterval(DBL_EPSILON)
+		advanceBy(DBL_EPSILON)
 	}
 
 	/// Advances the virtualized clock by the given interval, dequeuing and
 	/// executing any actions along the way.
-	public func advanceByInterval(_ interval: TimeInterval) {
+	public func advanceBy(_ interval: TimeInterval) {
 		lock.lock()
-		advanceToDate(currentDate.addingTimeInterval(interval))
+		advanceTo(currentDate.addingTimeInterval(interval))
 		lock.unlock()
 	}
 
 	/// Advances the virtualized clock to the given future date, dequeuing and
 	/// executing any actions up until that point.
-	public func advanceToDate(_ newDate: Date) {
+	public func advanceTo(_ newDate: Date) {
 		lock.lock()
 
 		assert(currentDate.compare(newDate) != .orderedDescending)
@@ -371,6 +371,6 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Dequeues and executes all scheduled actions, leaving the scheduler's
 	/// date at `NSDate.distantFuture()`.
 	public func run() {
-		advanceToDate(Date.distantFuture)
+		advanceTo(Date.distantFuture)
 	}
 }

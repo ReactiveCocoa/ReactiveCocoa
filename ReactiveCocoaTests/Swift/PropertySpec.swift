@@ -536,7 +536,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				it("should forward the latest values from both inputs") {
-					let combinedProperty = property.combineLatestWith(otherProperty)
+					let combinedProperty = property.combineLatest(with: otherProperty)
 					var latest: (String, String)?
 					combinedProperty.signal.observeNext { latest = $0 }
 
@@ -557,7 +557,7 @@ class PropertySpec: QuickSpec {
 				it("should complete when the source properties are deinitialized") {
 					var completed = false
 
-					var combinedProperty = Optional(property.combineLatestWith(otherProperty))
+					var combinedProperty = Optional(property.combineLatest(with: otherProperty))
 					combinedProperty!.signal.observeCompleted { completed = true }
 
 					combinedProperty = nil
@@ -583,7 +583,7 @@ class PropertySpec: QuickSpec {
 				it("should combine pairs") {
 					var result: [String] = []
 
-					let zippedProperty = property.zipWith(otherProperty)
+					let zippedProperty = property.zip(with: otherProperty)
 					zippedProperty.producer.startWithNext { (left, right) in result.append("\(left)\(right)") }
 
 					let firstResult = [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
@@ -617,7 +617,7 @@ class PropertySpec: QuickSpec {
 					var result: [String] = []
 					var completed = false
 
-					var zippedProperty = Optional(property.zipWith(otherProperty))
+					var zippedProperty = Optional(property.zip(with: otherProperty))
 					zippedProperty!.producer.start { event in
 						switch event {
 						case let .next(left, right):
@@ -653,7 +653,7 @@ class PropertySpec: QuickSpec {
 
 				describe("combinePrevious") {
 					it("should pack the current value and the previous value a tuple") {
-						let transformedProperty = property.combinePrevious(initialPropertyValue)
+						let transformedProperty = property.combinePrevious(initial: initialPropertyValue)
 
 						expect(transformedProperty.value.0) == initialPropertyValue
 						expect(transformedProperty.value.1) == initialPropertyValue
@@ -673,7 +673,7 @@ class PropertySpec: QuickSpec {
 						var result: (String, String)?
 						var completed = false
 
-						var transformedProperty = Optional(property.combinePrevious(initialPropertyValue))
+						var transformedProperty = Optional(property.combinePrevious(initial: initialPropertyValue))
 						transformedProperty!.producer.start { event in
 							switch event {
 							case let .next(tuple):
@@ -1322,9 +1322,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed) == false
+					expect(bindingDisposable.isDisposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -1335,7 +1335,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 
@@ -1380,7 +1380,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 			}
 
@@ -1436,7 +1436,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 

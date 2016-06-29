@@ -71,7 +71,6 @@
 		57A4D1EA1BA13D7A00F7D4B1 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		57A4D1EB1BA13D7A00F7D4B1 /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648619EDA41200A782A9 /* RACKVOTrampoline.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		57A4D1EC1BA13D7A00F7D4B1 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648819EDA41200A782A9 /* RACMulticastConnection.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		57A4D1ED1BA13D7A00F7D4B1 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648B19EDA41200A782A9 /* RACObjCRuntime.m */; };
 		57A4D1EE1BA13D7A00F7D4B1 /* RACPassthroughSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		57A4D1EF1BA13D7A00F7D4B1 /* RACQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648F19EDA41200A782A9 /* RACQueueScheduler.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		57A4D1F01BA13D7A00F7D4B1 /* RACReplaySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037649219EDA41200A782A9 /* RACReplaySubject.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -283,7 +282,6 @@
 		A9B3158C1B3940750001CB9C /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		A9B3158D1B3940750001CB9C /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648619EDA41200A782A9 /* RACKVOTrampoline.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		A9B3158E1B3940750001CB9C /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648819EDA41200A782A9 /* RACMulticastConnection.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		A9B3158F1B3940750001CB9C /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648B19EDA41200A782A9 /* RACObjCRuntime.m */; };
 		A9B315901B3940750001CB9C /* RACPassthroughSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		A9B315911B3940750001CB9C /* RACQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648F19EDA41200A782A9 /* RACQueueScheduler.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		A9B315921B3940750001CB9C /* RACReplaySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = D037649219EDA41200A782A9 /* RACReplaySubject.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -559,8 +557,6 @@
 		D03765A319EDA41200A782A9 /* RACMulticastConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = D037648719EDA41200A782A9 /* RACMulticastConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D03765A419EDA41200A782A9 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648819EDA41200A782A9 /* RACMulticastConnection.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D03765A519EDA41200A782A9 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648819EDA41200A782A9 /* RACMulticastConnection.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		D03765AA19EDA41200A782A9 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648B19EDA41200A782A9 /* RACObjCRuntime.m */; };
-		D03765AB19EDA41200A782A9 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648B19EDA41200A782A9 /* RACObjCRuntime.m */; };
 		D03765AE19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D03765AF19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D03765B019EDA41200A782A9 /* RACQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = D037648E19EDA41200A782A9 /* RACQueueScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1024,8 +1020,6 @@
 		D037648719EDA41200A782A9 /* RACMulticastConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMulticastConnection.h; sourceTree = "<group>"; };
 		D037648819EDA41200A782A9 /* RACMulticastConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMulticastConnection.m; sourceTree = "<group>"; };
 		D037648919EDA41200A782A9 /* RACMulticastConnection+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACMulticastConnection+Private.h"; sourceTree = "<group>"; };
-		D037648A19EDA41200A782A9 /* RACObjCRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntime.h; sourceTree = "<group>"; };
-		D037648B19EDA41200A782A9 /* RACObjCRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObjCRuntime.m; sourceTree = "<group>"; };
 		D037648C19EDA41200A782A9 /* RACPassthroughSubscriber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPassthroughSubscriber.h; sourceTree = "<group>"; };
 		D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPassthroughSubscriber.m; sourceTree = "<group>"; };
 		D037648E19EDA41200A782A9 /* RACQueueScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACQueueScheduler.h; sourceTree = "<group>"; };
@@ -1429,8 +1423,6 @@
 				D037648719EDA41200A782A9 /* RACMulticastConnection.h */,
 				D037648819EDA41200A782A9 /* RACMulticastConnection.m */,
 				D037648919EDA41200A782A9 /* RACMulticastConnection+Private.h */,
-				D037648A19EDA41200A782A9 /* RACObjCRuntime.h */,
-				D037648B19EDA41200A782A9 /* RACObjCRuntime.m */,
 				D037648C19EDA41200A782A9 /* RACPassthroughSubscriber.h */,
 				D037648D19EDA41200A782A9 /* RACPassthroughSubscriber.m */,
 				D037648E19EDA41200A782A9 /* RACQueueScheduler.h */,
@@ -2400,7 +2392,6 @@
 				57A4D1EA1BA13D7A00F7D4B1 /* RACKVOProxy.m in Sources */,
 				57A4D1EB1BA13D7A00F7D4B1 /* RACKVOTrampoline.m in Sources */,
 				57A4D1EC1BA13D7A00F7D4B1 /* RACMulticastConnection.m in Sources */,
-				57A4D1ED1BA13D7A00F7D4B1 /* RACObjCRuntime.m in Sources */,
 				57A4D1EE1BA13D7A00F7D4B1 /* RACPassthroughSubscriber.m in Sources */,
 				57A4D1EF1BA13D7A00F7D4B1 /* RACQueueScheduler.m in Sources */,
 				57A4D1F01BA13D7A00F7D4B1 /* RACReplaySubject.m in Sources */,
@@ -2564,7 +2555,6 @@
 				A9B3158D1B3940750001CB9C /* RACKVOTrampoline.m in Sources */,
 				A9B3158E1B3940750001CB9C /* RACMulticastConnection.m in Sources */,
 				C7142DBE1CDEA194009F402D /* CocoaAction.swift in Sources */,
-				A9B3158F1B3940750001CB9C /* RACObjCRuntime.m in Sources */,
 				A9B315901B3940750001CB9C /* RACPassthroughSubscriber.m in Sources */,
 				A9B315911B3940750001CB9C /* RACQueueScheduler.m in Sources */,
 				A9B315921B3940750001CB9C /* RACReplaySubject.m in Sources */,
@@ -2643,7 +2633,6 @@
 				D85C652A1C0D84C7005A77AD /* Flatten.swift in Sources */,
 				D0C312CF19EF2A5800984962 /* Bag.swift in Sources */,
 				D037658019EDA41200A782A9 /* RACEmptySequence.m in Sources */,
-				D03765AA19EDA41200A782A9 /* RACObjCRuntime.m in Sources */,
 				D037654A19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
 				D037660E19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
 				D03765FE19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
@@ -2817,7 +2806,6 @@
 				D037650F19EDA41200A782A9 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D03765FB19EDA41200A782A9 /* RACSubscriptionScheduler.m in Sources */,
 				D037658119EDA41200A782A9 /* RACEmptySequence.m in Sources */,
-				D03765AB19EDA41200A782A9 /* RACObjCRuntime.m in Sources */,
 				D0C312E019EF2A5800984962 /* ObjectiveCBridging.swift in Sources */,
 				D037654B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
 				D037660F19EDA41200A782A9 /* RACUnarySequence.m in Sources */,

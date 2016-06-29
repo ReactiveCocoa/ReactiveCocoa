@@ -286,10 +286,10 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let signal = command.execute(0)
 
 				do {
-					try signal?.asynchronouslyWaitUntilCompleted()
+					try signal.asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1" ]
 
-					try signal?.asynchronouslyWaitUntilCompleted()
+					try signal.asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1" ]
 
 					try command.execute(2).asynchronouslyWaitUntilCompleted()

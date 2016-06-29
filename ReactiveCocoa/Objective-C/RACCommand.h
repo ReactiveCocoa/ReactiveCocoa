@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class RACSignal;
+NS_ASSUME_NONNULL_BEGIN
 
 /// The domain for errors originating within `RACCommand`.
 extern NSString * const RACCommandErrorDomain;
@@ -77,7 +78,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 @property (atomic, assign) BOOL allowsConcurrentExecution;
 
 /// Invokes -initWithEnabled:signalBlock: with a nil `enabledSignal`.
-- (id)initWithSignalBlock:(RACSignal * (^)(InputType input))signalBlock;
+- (id)initWithSignalBlock:(RACSignal * (^)(InputType _Nullable input))signalBlock;
 
 /// Initializes a command that is conditionally enabled.
 ///
@@ -92,7 +93,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 ///                 to a replay subject, sent on `executionSignals`, then
 ///                 subscribed to synchronously. Neither the block nor the
 ///                 returned signal may be nil.
-- (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(InputType input))signalBlock;
+- (id)initWithEnabled:(nullable RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(InputType _Nullable input))signalBlock;
 
 /// If the receiver is enabled, this method will:
 ///
@@ -107,11 +108,13 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 /// Returns the multicasted signal, after subscription. If the receiver is not
 /// enabled, returns a signal that will send an error with code
 /// RACCommandErrorNotEnabled.
-- (RACSignal *)execute:(InputType)input;
+- (RACSignal *)execute:(nullable InputType)input;
 
+NS_ASSUME_NONNULL_END
 @end
 
 @interface RACCommand (Unavailable)
+NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic, readonly) BOOL canExecute __attribute__((unavailable("Use the 'enabled' signal instead")));
 
@@ -120,4 +123,5 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal __attribute__((unavailable("Use -initWithEnabled:signalBlock: instead")));
 - (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((unavailable("Pass the signalBlock to -initWithSignalBlock: instead")));
 
+NS_ASSUME_NONNULL_END
 @end

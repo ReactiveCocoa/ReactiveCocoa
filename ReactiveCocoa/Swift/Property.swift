@@ -41,19 +41,19 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
-	
+
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
+	public init(initial: Value, followingBy producer: SignalProducer<Value, NoError>) {
+		let mutableProperty = MutableProperty(initial)
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
-	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
+	public init(initial: Value, followingBy signal: Signal<Value, NoError>) {
+		let mutableProperty = MutableProperty(initial)
 		mutableProperty <~ signal
 		self.init(mutableProperty)
 	}
@@ -66,7 +66,7 @@ extension PropertyProtocol {
 			disposable += ActionDisposable { _ = self }
 			disposable += self.producer.map(transform).start(observer)
 		}
-		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+		return AnyProperty(initial: transform(value), followingBy: mappedProducer)
 	}
 }
 

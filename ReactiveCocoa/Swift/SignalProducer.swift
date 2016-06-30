@@ -126,6 +126,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// After a terminating event has been added to the queue, the observer
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
+	@available(*, deprecated, message="Use properties instead. 'buffer' will be removed in RAC 5.0")
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 

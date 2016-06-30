@@ -46,16 +46,16 @@ class DisposableSpec: QuickSpec {
 			}
 
 			it("should ignore the addition of nil") {
-				disposable.addDisposable(nil)
+				disposable.add(nil)
 				return
 			}
 
 			it("should dispose of added disposables") {
 				let simpleDisposable = SimpleDisposable()
-				disposable.addDisposable(simpleDisposable)
+				disposable += simpleDisposable
 
 				var didDispose = false
-				disposable.addDisposable {
+				disposable += {
 					didDispose = true
 				}
 

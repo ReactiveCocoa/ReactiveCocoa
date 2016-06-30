@@ -659,7 +659,7 @@ extension SignalProtocol {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
-			_ = disposed.map(disposable.addDisposable)
+			_ = disposed.map(disposable.add)
 
 			disposable += signal.observe { receivedEvent in
 				event?(receivedEvent)
@@ -1121,7 +1121,7 @@ extension SignalProtocol {
 			let schedulerDisposable = SerialDisposable()
 
 			let disposable = CompositeDisposable()
-			disposable.addDisposable(schedulerDisposable)
+			disposable += schedulerDisposable
 
 			disposable += self.observe { event in
 				guard let value = event.value else {

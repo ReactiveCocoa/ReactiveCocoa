@@ -122,7 +122,7 @@ public final class CompositeDisposable: Disposable {
 	/// Adds the given disposable to the list, then returns a handle which can
 	/// be used to opaquely remove the disposable later (if desired).
 	@discardableResult
-	public func addDisposable(_ d: Disposable?) -> DisposableHandle {
+	public func add(_ d: Disposable?) -> DisposableHandle {
 		guard let d = d else {
 			return DisposableHandle.empty
 		}
@@ -143,8 +143,8 @@ public final class CompositeDisposable: Disposable {
 	}
 
 	/// Adds an ActionDisposable to the list.
-	public func addDisposable(_ action: () -> Void) -> DisposableHandle {
-		return addDisposable(ActionDisposable(action: action))
+	public func add(_ action: () -> Void) -> DisposableHandle {
+		return add(ActionDisposable(action: action))
 	}
 }
 
@@ -230,7 +230,7 @@ public final class SerialDisposable: Disposable {
 ///
 @discardableResult
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
-	return lhs.addDisposable(rhs)
+	return lhs.add(rhs)
 }
 
 /// Adds the right-hand-side `ActionDisposable` to the left-hand-side
@@ -240,5 +240,5 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 ///
 @discardableResult
 public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
-	return lhs.addDisposable(rhs)
+	return lhs.add(rhs)
 }

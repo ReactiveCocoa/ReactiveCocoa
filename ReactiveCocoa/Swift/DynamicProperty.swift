@@ -15,7 +15,7 @@ private protocol ObjectiveCRepresentable {
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-public final class DynamicProperty<Value>: MutablePropertyType {
+public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 

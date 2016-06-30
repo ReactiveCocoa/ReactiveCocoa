@@ -181,14 +181,24 @@ extension SignalType {
 		return observe(Observer(action))
 	}
 
-	/// Observes the Signal by invoking the given callback when `next` events are
-	/// received.
-	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callbacks. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	@available(*, deprecated, message="This Signal may emit errors which must be handled explicitly, or observed using observeResult:")
 	public func observeNext(next: Value -> Void) -> Disposable? {
 		return observe(Observer(next: next))
+	}
+
+	/// Observes the Signal by invoking the given callback when
+	/// `next` or `failed` event are received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callback. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeResult(result: (Result<Value, Error>) -> Void) -> Disposable? {
+		return observe(
+			Observer(
+				next: { result(.Success($0)) },
+				failed: { result(.Failure($0)) }
+			)
+		)
 	}
 
 	/// Observes the Signal by invoking the given callback when a `completed` event is
@@ -221,7 +231,21 @@ extension SignalType {
 	public func observeInterrupted(interrupted: () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
+}
 
+extension SignalType where Error == NoError {
+	/// Observes the Signal by invoking the given callback when `next` events are
+	/// received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callbacks. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	public func observeNext(next: Value -> Void) -> Disposable? {
+		return observe(Observer(next: next))
+	}
+}
+
+extension SignalType {
 	/// Maps each value in the signal to a new value.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func map<U>(transform: Value -> U) -> Signal<U, Error> {

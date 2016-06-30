@@ -90,9 +90,11 @@ class ActionSpec: QuickSpec {
 				it("should execute successfully") {
 					var receivedValue: String?
 
-					action.apply(0).startWithNext {
-						receivedValue = $0
-					}
+					action.apply(0)
+						.assumeNoErrors()
+						.startWithNext {
+							receivedValue = $0
+						}
 
 					expect(executionCount) == 1
 					expect(action.executing.value) == true

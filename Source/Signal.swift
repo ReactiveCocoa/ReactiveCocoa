@@ -77,22 +77,7 @@ extension SignalType {
             return disposable
         }
     }
-
-    /// Enforces that at least `interval` time passes before forwarding a value. If a
-    /// new value arrives, the previous one is dropped and the `interval` delay starts
-    /// again. Error events are immediately forwarded, even if there's a queued value.
-    ///
-    /// This operator is useful for scenarios like type-to-search where you want to
-    /// wait for a "lull" in typing before kicking off a search request.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
-        precondition(interval >= 0)
-
-        return flatMap(.Latest) {
-            SignalProducer(value: $0).delay(interval, onScheduler: scheduler)
-        }
-    }
-
+    
     /// Forwards a value and then mutes the signal by dropping all subsequent values
     /// for `interval` seconds. Once time elapses the next new value will be forwarded
     /// and repeat the muting process. Error events are immediately forwarded even while

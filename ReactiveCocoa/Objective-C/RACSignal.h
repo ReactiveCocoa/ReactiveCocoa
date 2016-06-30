@@ -140,12 +140,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock completed:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nonnull error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nullable error))errorBlock completed:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to `error` events.
 ///
 /// This corresponds to the `IObserver<T>.OnError` in Rx.
-- (RACDisposable *)subscribeError:(void (^)(NSError * _Nonnull error))errorBlock;
+- (RACDisposable *)subscribeError:(void (^)(NSError * _Nullable error))errorBlock;
 
 /// Convenience method to subscribe to `completed` events.
 ///
@@ -153,10 +153,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
 
 /// Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nonnull error))errorBlock;
+- (RACDisposable *)subscribeNext:(void (^)(id _Nullable x))nextBlock error:(void (^)(NSError * _Nullable error))errorBlock;
 
 /// Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)subscribeError:(void (^)(NSError * _Nonnull error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)subscribeError:(void (^)(NSError * _Nullable error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end
 
@@ -215,9 +215,9 @@ NS_ASSUME_NONNULL_END
 @interface RACSignal (Unavailable)
 NS_ASSUME_NONNULL_BEGIN
 
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)start:(id (^)(BOOL *success, NSError * _Nullable * _Nullable error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError * _Nullable * _Nullable error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
 
 NS_ASSUME_NONNULL_END
 @end

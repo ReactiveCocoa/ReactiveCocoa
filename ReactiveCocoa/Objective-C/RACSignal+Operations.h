@@ -720,8 +720,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((unavailable("Renamed to -setKeyPath:onObject:")));
 - (RACSignal *)ignoreElements __attribute__((unavailable("Renamed to -ignoreValues")));
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((unavailable("Renamed to -then:")));
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStart:reduce:")));
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStartFactory:reduce:")));
+- (RACSignal *)aggregateWithStart:(nullable id)start combine:(id _Nullable (^)(id _Nullable running, id _Nullable next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStart:reduce:")));
+- (RACSignal *)aggregateWithStartFactory:(id _Nullable (^)(void))startFactory combine:(id _Nullable (^)(id _Nullable running, id _Nullable next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStartFactory:reduce:")));
 - (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((unavailable("Use -flattenMap: or -subscribeNext: instead")));
 
 NS_ASSUME_NONNULL_END

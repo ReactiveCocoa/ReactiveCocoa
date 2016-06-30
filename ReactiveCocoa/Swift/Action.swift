@@ -32,14 +32,14 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 
 	/// Whether the action is currently executing.
 	public var isExecuting: AnyProperty<Bool> {
-		return AnyProperty(_isExecuting)
+		return AnyProperty(reflecting: _isExecuting)
 	}
 
 	private let _isExecuting: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
 	public var isEnabled: AnyProperty<Bool> {
-		return AnyProperty(_isEnabled)
+		return AnyProperty(reflecting: _isEnabled)
 	}
 
 	private let _isEnabled: MutableProperty<Bool> = MutableProperty(false)
@@ -61,7 +61,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// SignalProducer for each input.
 	public init<P: PropertyProtocol where P.Value == Bool>(enabling property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
-		isUserEnabled = AnyProperty(property)
+		isUserEnabled = AnyProperty(reflecting: property)
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 

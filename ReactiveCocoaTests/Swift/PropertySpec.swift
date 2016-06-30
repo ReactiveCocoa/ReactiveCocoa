@@ -300,7 +300,7 @@ class PropertySpec: QuickSpec {
 			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
-					let property = AnyProperty(constantProperty)
+					let property = AnyProperty(reflecting: constantProperty)
 
 					var sentValue: String?
 					var signalSentValue: String?
@@ -417,17 +417,15 @@ class PropertySpec: QuickSpec {
 
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer.never)
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: SignalProducer.never)
 
 					expect(property.value) == initialPropertyValue
 				}
 
 				it("should take on each value sent on the producer") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer(value: subsequentPropertyValue))
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: SignalProducer(value: subsequentPropertyValue))
 
 					expect(property.value) == subsequentPropertyValue
 				}
@@ -438,7 +436,8 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					var property = Optional(AnyProperty(initialValue: 1, producer: SignalProducer(signal: signal)))
+					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
+					                                              followingBy: SignalProducer(signal: signal))
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }
@@ -468,9 +467,8 @@ class PropertySpec: QuickSpec {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						signal: signal)
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: signal)
 
 					expect(property.value) == initialPropertyValue
 
@@ -486,7 +484,8 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					var property = Optional(AnyProperty(initialValue: 1, signal: signal))
+					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
+					                                              followingBy: signal)
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }

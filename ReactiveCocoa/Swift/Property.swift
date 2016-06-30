@@ -38,13 +38,13 @@ public protocol MutablePropertyProtocol: class, PropertyProtocol {
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
 	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		return AnyProperty(self, transform: transform)
+		return AnyProperty(sourcingFrom: self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
 	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
 		return { otherProperty in
-			return AnyProperty(self, otherProperty, transform: transform)
+			return AnyProperty(sourcingFrom: (self, otherProperty), transform: transform)
 		}
 	}
 
@@ -325,7 +325,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
+	public init<P: PropertyProtocol where P.Value == Value>(reflecting property: P) {
 		sources = AnyProperty.capturing(property)
 		disposable = nil
 		_value = { property.value }
@@ -333,33 +333,33 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		_signal = { property.signal }
 	}
 
-	/// Initializes a property that first takes on `initialValue`, then each value
+	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on a signal created by `producer`.
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: producer.prefix(value: initialValue),
+	public init(initial: Value, followingBy producer: SignalProducer<Value, NoError>) {
+		self.init(sourcingFrom: producer.prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property that first takes on `initialValue`, then each value
+	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on `signal`.
-	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		self.init(propertyProducer: SignalProducer(signal: signal).prefix(value: initialValue),
+	public init(initial: Value, followingBy signal: Signal<Value, NoError>) {
+		self.init(sourcingFrom: SignalProducer(signal: signal).prefix(value: initial),
 		          capturing: [])
 	}
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
-	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(property.producer),
+	private init<P: PropertyProtocol>(sourcingFrom property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
+		self.init(sourcingFrom: transform(property.producer),
 		          capturing: AnyProperty.capturing(property))
 	}
 
 	/// Initializes a property by applying the binary `SignalProducer` transform on
-	/// `property` and `anotherProperty`. The resulting property captures `property`
-	/// and `anotherProperty`.
-	private init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(firstProperty.producer)(secondProperty.producer),
-		          capturing: AnyProperty.capturing(firstProperty) + AnyProperty.capturing(secondProperty))
+	/// `properties.first` and `properties.second`. The resulting property captures
+	/// the two property sources.
+	private init<P1: PropertyProtocol, P2: PropertyProtocol>(sourcingFrom properties: (first: P1, second: P2), transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
+		self.init(sourcingFrom: transform(properties.first.producer)(properties.second.producer),
+		          capturing: AnyProperty.capturing(properties.first) + AnyProperty.capturing(properties.second))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
@@ -367,11 +367,11 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// If the producer fails its promise, a fatal error would be raised.
 	///
 	/// The producer and the signal of the created property would complete only
-	/// when the `propertyProducer` completes.
-	private init(propertyProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
+	/// when the `unsafeProducer` completes.
+	private init(sourcingFrom unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
 		var value: Value!
 
-		let observerDisposable = propertyProducer.start { event in
+		let observerDisposable = unsafeProducer.start { event in
 			switch event {
 			case let .next(newValue):
 				value = newValue
@@ -389,10 +389,10 @@ public struct AnyProperty<Value>: PropertyProtocol {
 			self.sources = sources
 
 			_value = { value }
-			_producer = { propertyProducer }
+			_producer = { unsafeProducer }
 			_signal = {
 				var extractedSignal: Signal<Value, NoError>!
-				propertyProducer.startWithSignal { signal, _ in extractedSignal = signal }
+				unsafeProducer.startWithSignal { signal, _ in extractedSignal = signal }
 				return extractedSignal
 			}
 		} else {

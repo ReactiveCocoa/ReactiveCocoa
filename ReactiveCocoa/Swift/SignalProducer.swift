@@ -361,9 +361,9 @@ extension SignalProducerType {
 		return start(Observer(observerAction))
 	}
 
-	@available(*, unavailable, message="This SignalProducer may emit errors which must be handled explicitly, or observed using startWithResult:")
+	@available(*, deprecated, message="This SignalProducer may emit errors which must be handled explicitly, or observed using startWithResult:")
 	public func startWithNext(next: Value -> Void) -> Disposable {
-		fatalError("Unavailable method")
+		return start(Observer(next: next))
 	}
 
 	/// Creates a Signal from the producer, then adds an observer to

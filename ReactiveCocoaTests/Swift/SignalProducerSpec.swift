@@ -702,6 +702,24 @@ class SignalProducerSpec: QuickSpec {
 					expect(values) == [1, 2, 3]
 				}
 
+				// TODO: remove when the method is marked unavailable.
+				it("receives next values with erroring signal") {
+					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
+
+					var values = [Int]()
+					producer.startWithNext { next in
+						values.append(next)
+					}
+
+					observer.sendNext(1)
+					observer.sendNext(2)
+					observer.sendNext(3)
+
+					observer.sendCompleted()
+
+					expect(values) == [1, 2, 3]
+				}
+
 				it("receives results") {
 					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
 

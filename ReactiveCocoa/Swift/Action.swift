@@ -106,7 +106,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 			}
 
 			self.executeClosure(input).startWithSignal { signal, signalDisposable in
-				disposable.addDisposable(signalDisposable)
+				disposable += signalDisposable
 
 				signal.observe { event in
 					observer.action(event.mapError(ActionError.producerError))

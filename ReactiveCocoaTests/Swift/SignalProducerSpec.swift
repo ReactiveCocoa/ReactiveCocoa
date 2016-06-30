@@ -36,7 +36,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = SignalProducer<Int, NoError> { observer, innerDisposable in
 					disposable = innerDisposable
 
-					innerDisposable.addDisposable {
+					innerDisposable += {
 						// This is necessary to keep the observer long enough to
 						// even test the memory management.
 						observer.sendNext(0)
@@ -61,7 +61,7 @@ class SignalProducerSpec: QuickSpec {
 				var observer: Signal<(), NoError>.Observer!
 
 				let producer = SignalProducer<(), NoError>() { incomingObserver, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					observer = incomingObserver
 				}
 
@@ -77,7 +77,7 @@ class SignalProducerSpec: QuickSpec {
 				var observer: Signal<(), TestError>.Observer!
 
 				let producer = SignalProducer<(), TestError>() { incomingObserver, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					observer = incomingObserver
 				}
 
@@ -93,7 +93,7 @@ class SignalProducerSpec: QuickSpec {
 				var observer: Signal<(), NoError>.Observer!
 
 				let producer = SignalProducer<(), NoError>() { incomingObserver, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					observer = incomingObserver
 				}
 
@@ -108,7 +108,7 @@ class SignalProducerSpec: QuickSpec {
 				let addedDisposable = SimpleDisposable()
 
 				let producer = SignalProducer<(), TestError>() { _, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					return
 				}
 
@@ -509,7 +509,7 @@ class SignalProducerSpec: QuickSpec {
 				var disposable: Disposable!
 
 				let producer = SignalProducer<Int, NoError>() { _, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					return
 				}
 
@@ -604,7 +604,7 @@ class SignalProducerSpec: QuickSpec {
 				var observer: Signal<Int, TestError>.Observer!
 
 				let producer = SignalProducer<Int, TestError>() { incomingObserver, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					observer = incomingObserver
 				}
 
@@ -620,7 +620,7 @@ class SignalProducerSpec: QuickSpec {
 				var observer: Signal<Int, TestError>.Observer!
 
 				let producer = SignalProducer<Int, TestError>() { incomingObserver, disposable in
-					disposable.addDisposable(addedDisposable)
+					disposable += addedDisposable
 					observer = incomingObserver
 				}
 
@@ -1488,7 +1488,7 @@ class SignalProducerSpec: QuickSpec {
 						let (outerProducer, outerObserver) = SignalProducer<SignalProducer<Int, NoError>, NoError>.pipe()
 
 						innerDisposable = SimpleDisposable()
-						let innerProducer = SignalProducer<Int, NoError> { $1.addDisposable(innerDisposable) }
+						let innerProducer = SignalProducer<Int, NoError> { $1.add(innerDisposable) }
 						
 						interrupted = false
 						let outerDisposable = outerProducer.flatten(strategy).startWithInterrupted {

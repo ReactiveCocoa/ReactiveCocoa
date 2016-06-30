@@ -444,7 +444,7 @@ extension SignalProducerProtocol {
 	public func lift<U, F>(_ transform: (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, innerDisposable in
-				outerDisposable.addDisposable(innerDisposable)
+				outerDisposable += innerDisposable
 
 				transform(signal).observe(observer)
 			}
@@ -472,10 +472,10 @@ extension SignalProducerProtocol {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
-					outerDisposable.addDisposable(disposable)
+					outerDisposable.add(disposable)
 
 					otherProducer.startWithSignal { otherSignal, otherDisposable in
-						outerDisposable.addDisposable(otherDisposable)
+						outerDisposable += otherDisposable
 
 						transform(signal)(otherSignal).observe(observer)
 					}
@@ -492,10 +492,10 @@ extension SignalProducerProtocol {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				otherProducer.startWithSignal { otherSignal, otherDisposable in
-					outerDisposable.addDisposable(otherDisposable)
+					outerDisposable += otherDisposable
 					
 					self.startWithSignal { signal, disposable in
-						outerDisposable.addDisposable(disposable)
+						outerDisposable.add(disposable)
 
 						transform(signal)(otherSignal).observe(observer)
 					}
@@ -678,10 +678,10 @@ extension SignalProducerProtocol {
 
 		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, disposable in
-				outerDisposable.addDisposable(disposable)
+				outerDisposable.add(disposable)
 
 				other.startWithSignal { otherSignal, otherDisposable in
-					outerDisposable.addDisposable(otherDisposable)
+					outerDisposable += otherDisposable
 
 					signal.combineLatest(with: otherSignal).observe(observer)
 				}
@@ -790,10 +790,10 @@ extension SignalProducerProtocol {
 
 		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, disposable in
-				outerDisposable.addDisposable(disposable)
+				outerDisposable.add(disposable)
 
 				trigger.startWithSignal { triggerSignal, triggerDisposable in
-					outerDisposable.addDisposable(triggerDisposable)
+					outerDisposable += triggerDisposable
 
 					signal.takeUntil(triggerSignal).observe(observer)
 				}
@@ -1058,7 +1058,7 @@ extension SignalProducerProtocol {
 		return SignalProducer { observer, compositeDisposable in
 			compositeDisposable += scheduler.schedule {
 				self.startWithSignal { signal, signalDisposable in
-					compositeDisposable.addDisposable(signalDisposable)
+					compositeDisposable += signalDisposable
 					signal.observe(observer)
 				}
 			}
@@ -1250,7 +1250,7 @@ extension SignalProducerProtocol {
 
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
-			disposable.addDisposable(serialDisposable)
+			disposable += serialDisposable
 
 			func iterate(_ current: Int) {
 				self.startWithSignal { signal, signalDisposable in
@@ -1295,7 +1295,7 @@ extension SignalProducerProtocol {
 	public func then<U>(_ replacement: SignalProducer<U, Error>) -> SignalProducer<U, Error> {
 		return SignalProducer<U, Error> { observer, observerDisposable in
 			self.startWithSignal { signal, signalDisposable in
-				observerDisposable.addDisposable(signalDisposable)
+				observerDisposable += signalDisposable
 
 				signal.observe { event in
 					switch event {

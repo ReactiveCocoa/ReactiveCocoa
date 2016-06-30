@@ -459,7 +459,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(_ signalProducer: SignalProducer<Value, Error>) {
 		signalProducer.startWithSignal { signal, disposable in
-			let handle = self.disposable?.addDisposable(disposable) ?? nil
+			let handle = self.disposable?.add(disposable) ?? nil
 
 			signal.observe { event in
 				switch event {
@@ -507,7 +507,7 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 			case let .next(producer):
 				producer.startWithSignal { innerSignal, innerDisposable in
 					inFlight.modify { $0 + 1 }
-					let handle = disposable.addDisposable(innerDisposable)
+					let handle = disposable.add(innerDisposable)
 
 					innerSignal.observe { event in
 						switch event {
@@ -540,7 +540,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 	private func merge() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { relayObserver, disposable in
 			self.startWithSignal { signal, signalDisposable in
-				disposable.addDisposable(signalDisposable)
+				disposable += signalDisposable
 
 				_ = signal.observeMerge(relayObserver, disposable)
 			}
@@ -694,7 +694,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 	private func switchToLatest() -> SignalProducer<Value.Value, Error> {
 		return SignalProducer<Value.Value, Error> { observer, disposable in
 			let latestInnerDisposable = SerialDisposable()
-			disposable.addDisposable(latestInnerDisposable)
+			disposable += latestInnerDisposable
 
 			self.startWithSignal { signal, signalDisposable in
 				disposable += signalDisposable
@@ -903,7 +903,7 @@ extension SignalProducerProtocol {
 	public func flatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>) -> SignalProducer<Value, F> {
 		return SignalProducer { observer, disposable in
 			let serialDisposable = SerialDisposable()
-			disposable.addDisposable(serialDisposable)
+			disposable += serialDisposable
 
 			self.startWithSignal { signal, signalDisposable in
 				serialDisposable.innerDisposable = signalDisposable

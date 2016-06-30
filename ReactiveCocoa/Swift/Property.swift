@@ -325,7 +325,7 @@ public struct Property<Value>: PropertyProtocol {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyProtocol where P.Value == Value>(reflecting property: P) {
+	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = Property.capturing(property)
 		disposable = nil
 		_value = { property.value }
@@ -335,7 +335,7 @@ public struct Property<Value>: PropertyProtocol {
 
 	/// Initializes a constant property.
 	/// Its producer and signal would complete immediately at initialization.
-	public init(_ value: Value) {
+	public init(constant value: Value) {
 		sources = []
 		disposable = nil
 		_value = { value }

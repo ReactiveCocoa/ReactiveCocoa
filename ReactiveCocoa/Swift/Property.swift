@@ -97,7 +97,6 @@ public protocol MutablePropertyProtocol: class, PropertyProtocol {
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyProtocol {
-
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to

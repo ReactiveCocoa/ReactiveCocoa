@@ -54,7 +54,7 @@ extension RACSignal {
 	/// Creates a SignalProducer which will subscribe to the receiver once for
 	/// each invocation of start().
 	public func toSignalProducer(file: String = #file, line: Int = #line) -> SignalProducer<AnyObject?, NSError> {
-		return SignalProducer { observer, disposable in
+		return SignalProducer { observer, disposalTrigger in
 			let next = { obj in
 				observer.sendNext(obj)
 			}
@@ -67,7 +67,10 @@ extension RACSignal {
 				observer.sendCompleted()
 			}
 
-			disposable += self.subscribeNext(next, error: failed, completed: completed)
+			let disposable = self.subscribeNext(next, error: failed, completed: completed)
+			disposalTrigger.observeCompleted {
+				disposable.dispose()
+			}
 		}
 	}
 }
@@ -120,7 +123,7 @@ extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyOb
 		// which causes an NSError's UserInfo dictionary to get discarded
 		// during a cast from ErrorType to NSError in a generic function
 		return RACSignal.createSignal { subscriber in
-			let selfDisposable = self.start { event in
+			let interrupter = self.start { event in
 				switch event {
 				case let .next(value):
 					subscriber.sendNext(value.optional)
@@ -134,7 +137,7 @@ extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyOb
 			}
 
 			return RACDisposable {
-				selfDisposable.dispose()
+				interrupter.interrupt()
 			}
 		}
 	}
@@ -182,7 +185,7 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 		// which causes an NSError's UserInfo dictionary to get discarded
 		// during a cast from ErrorType to NSError in a generic function
 		return RACSignal.createSignal { subscriber in
-			let selfDisposable = self.observe { event in
+			self.observe { event in
 				switch event {
 				case let .next(value):
 					subscriber.sendNext(value.optional)
@@ -195,9 +198,7 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Er
 				}
 			}
 
-			return RACDisposable {
-				selfDisposable?.dispose()
-			}
+			return nil
 		}
 	}
 }

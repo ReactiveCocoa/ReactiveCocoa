@@ -22,17 +22,16 @@ class FlattenSpec: QuickSpec {
 		func describeSignalFlattenDisposal(_ flattenStrategy: FlattenStrategy, name: String) {
 			describe(name) {
 				var pipe: Pipe!
-				var disposable: Disposable?
 
 				beforeEach {
 					pipe = Signal.pipe()
-					disposable = pipe.signal
+					pipe.signal
 						.flatten(flattenStrategy)
 						.observe { _ in }
 				}
 
 				afterEach {
-					disposable?.dispose()
+					pipe?.observer.sendCompleted()
 				}
 
 				context("disposal") {
@@ -40,8 +39,8 @@ class FlattenSpec: QuickSpec {
 
 					beforeEach {
 						disposed = false
-						pipe.observer.sendNext(SignalProducer<Int, TestError> { _, disposable in
-							disposable += ActionDisposable {
+						pipe.observer.sendNext(SignalProducer<Int, TestError> { _, disposalTrigger in
+							disposalTrigger.observeCompleted {
 								disposed = true
 							}
 						})
@@ -76,15 +75,15 @@ class FlattenSpec: QuickSpec {
 				it("disposes original signal when result signal interrupted") {
 					var disposed = false
 
-					let disposable = SignalProducer<SignalProducer<(), NoError>, NoError> { _, disposable in
-						disposable += ActionDisposable {
+					let interrupter = SignalProducer<SignalProducer<(), NoError>, NoError> { _, disposalTrigger in
+						disposalTrigger.observeCompleted {
 							disposed = true
 						}
 					}
 						.flatten(flattenStrategy)
 						.start()
 
-					disposable.dispose()
+					interrupter.interrupt()
 					expect(disposed) == true
 				}
 			}

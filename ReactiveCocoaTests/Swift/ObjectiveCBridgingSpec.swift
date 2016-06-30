@@ -284,16 +284,27 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				let signal = command.execute(0)
 
 				do {
+					expect(enabled) == true
 					try signal.asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1" ]
+				} catch let e {
+					XCTFail("Error: \(e)")
+				}
 
+				do {
+					expect(enabled) == true
 					try signal.asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1" ]
+				} catch let e {
+					XCTFail("Error: \(e)")
+				}
 
+				do {
+					expect(enabled) == true
 					try command.execute(2).asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1", "3" ]
-				} catch {
-					XCTFail("Failed to wait for completion")
+				} catch let e {
+					XCTFail("Error: \(e)")
 				}
 			}
 		}

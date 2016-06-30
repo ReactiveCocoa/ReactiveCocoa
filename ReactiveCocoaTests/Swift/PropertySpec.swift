@@ -300,7 +300,7 @@ class PropertySpec: QuickSpec {
 			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
-					let property = AnyProperty(reflecting: constantProperty)
+					let property = AnyProperty(constantProperty)
 
 					var sentValue: String?
 					var signalSentValue: String?

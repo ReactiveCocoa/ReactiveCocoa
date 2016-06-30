@@ -325,7 +325,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyProtocol where P.Value == Value>(reflecting property: P) {
+	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = AnyProperty.capturing(property)
 		disposable = nil
 		_value = { property.value }

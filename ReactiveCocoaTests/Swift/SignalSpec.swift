@@ -313,6 +313,39 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(1)
 				expect(values) == [1]
 			}
+
+			//  TODO: remove when the method is marked unavailable
+			it("receives next values with erroring signal") {
+				var values = [Int]()
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+
+				signal.observeNext { next in
+					values.append(next)
+				}
+
+				observer.sendNext(1)
+				expect(values) == [1]
+			}
+
+			it("receives results") {
+				let (signal, observer) = Signal<Int, TestError>.pipe()
+
+				var results: [Result<Int, TestError>] = []
+				signal.observeResult { results.append($0) }
+
+				observer.sendNext(1)
+				observer.sendNext(2)
+				observer.sendNext(3)
+				observer.sendFailed(.Default)
+
+				observer.sendCompleted()
+
+				expect(results).to(haveCount(4))
+				expect(results[0].value) == 1
+				expect(results[1].value) == 2
+				expect(results[2].value) == 3
+				expect(results[3].error) == .Default
+			}
 		}
 
 		describe("map") {
@@ -1701,7 +1734,9 @@ class SignalSpec: QuickSpec {
 			
 			it("should send values for Next events") {
 				var result: [Int] = []
-				dematerialized.observeNext { result.append($0) }
+				dematerialized
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				expect(result).to(beEmpty())
 				
@@ -1744,7 +1779,9 @@ class SignalSpec: QuickSpec {
 
 			it("should send the last N values upon completion") {
 				var result: [Int] = []
-				lastThree.observeNext { result.append($0) }
+				lastThree
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				observer.sendNext(1)
 				observer.sendNext(2)
@@ -1758,7 +1795,9 @@ class SignalSpec: QuickSpec {
 
 			it("should send less than N values if not enough were received") {
 				var result: [Int] = []
-				lastThree.observeNext { result.append($0) }
+				lastThree
+					.assumeNoErrors()
+					.observeNext { result.append($0) }
 				
 				observer.sendNext(1)
 				observer.sendNext(2)
@@ -1864,9 +1903,11 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var current: Int?
-				signal.observeNext { value in
-					current = value
-				}
+				signal
+					.assumeNoErrors()
+					.observeNext { value in
+						current = value
+					}
 				
 				for value in 1...5 {
 					observer.sendNext(value)
@@ -1898,9 +1939,11 @@ class SignalSpec: QuickSpec {
 				}
 				
 				var even: Bool?
-				signal.observeNext { value in
-					even = value
-				}
+				signal
+					.assumeNoErrors()
+					.observeNext { value in
+						even = value
+					}
 				
 				observer.sendNext(1)
 				expect(even) == false

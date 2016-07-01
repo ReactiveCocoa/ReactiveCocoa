@@ -126,6 +126,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// After a terminating event has been added to the queue, the observer
 	/// will not add any further events. This _does not_ count against the
 	/// value capacity so no buffered values will be dropped on termination.
+	@available(*, deprecated, message="Use properties instead. 'buffer' will be removed in RAC 5.0")
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
@@ -360,14 +361,24 @@ extension SignalProducerType {
 		return start(Observer(observerAction))
 	}
 
-	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when `next` events are
-	/// received.
+	@available(*, deprecated, message="This SignalProducer may emit errors which must be handled explicitly, or observed using startWithResult:")
+	public func startWithNext(next: Value -> Void) -> Disposable {
+		return start(Observer(next: next))
+	}
+
+	/// Creates a Signal from the producer, then adds an observer to
+	/// the Signal, which will invoke the given callback when `next` or `failed` 
+	/// events are received.
 	///
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
-	public func startWithNext(next: Value -> Void) -> Disposable {
-		return start(Observer(next: next))
+	public func startWithResult(result: Result<Value, Error> -> Void) -> Disposable {
+		return start(
+			Observer(
+				next: { result(.Success($0)) },
+				failed: { result(.Failure($0)) }
+			)
+		)
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -399,7 +410,21 @@ extension SignalProducerType {
 	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
+}
 
+extension SignalProducerType where Error == NoError {
+	/// Creates a Signal from the producer, then adds exactly one observer to
+	/// the Signal, which will invoke the given callback when `next` events are
+	/// received.
+	///
+	/// Returns a Disposable which can be used to interrupt the work associated
+	/// with the Signal, and prevent any future callbacks from being invoked.
+	public func startWithNext(next: Value -> Void) -> Disposable {
+		return start(Observer(next: next))
+	}
+}
+
+extension SignalProducerType {
 	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
 	///
 	/// In other words, this will create a new SignalProducer which will apply

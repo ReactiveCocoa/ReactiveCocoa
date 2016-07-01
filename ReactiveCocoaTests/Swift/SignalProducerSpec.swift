@@ -701,6 +701,44 @@ class SignalProducerSpec: QuickSpec {
 
 					expect(values) == [1, 2, 3]
 				}
+
+				// TODO: remove when the method is marked unavailable.
+				it("receives next values with erroring signal") {
+					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
+
+					var values = [Int]()
+					producer.startWithNext { next in
+						values.append(next)
+					}
+
+					observer.sendNext(1)
+					observer.sendNext(2)
+					observer.sendNext(3)
+
+					observer.sendCompleted()
+
+					expect(values) == [1, 2, 3]
+				}
+
+				it("receives results") {
+					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
+
+					var results: [Result<Int, TestError>] = []
+					producer.startWithResult { results.append($0) }
+
+					observer.sendNext(1)
+					observer.sendNext(2)
+					observer.sendNext(3)
+					observer.sendFailed(.Default)
+
+					observer.sendCompleted()
+
+					expect(results).to(haveCount(4))
+					expect(results[0].value) == 1
+					expect(results[1].value) == 2
+					expect(results[2].value) == 3
+					expect(results[3].error) == .Default
+				}
 			}
 		}
 
@@ -1934,7 +1972,10 @@ class SignalProducerSpec: QuickSpec {
 				it("emits new values") {
 					var last: Int?
 
-					replayedProducer.startWithNext { last = $0 }
+					replayedProducer
+						.assumeNoErrors()
+						.startWithNext { last = $0 }
+					
 					expect(last).to(beNil())
 
 					observer.sendNext(1)
@@ -1966,6 +2007,7 @@ class SignalProducerSpec: QuickSpec {
 					var last: Int?
 
 					replayedProducer
+						.assumeNoErrors()
 						.startWithNext { last = $0 }
 					expect(last) == 1
 				}
@@ -1997,6 +2039,7 @@ class SignalProducerSpec: QuickSpec {
 					var values: [Int] = []
 
 					disposable = replayedProducer
+						.assumeNoErrors()
 						.startWithNext { values.append($0) }
 					expect(values) == [ 3, 4 ]
 
@@ -2007,6 +2050,7 @@ class SignalProducerSpec: QuickSpec {
 					values = []
 
 					replayedProducer
+						.assumeNoErrors()
 						.startWithNext { values.append($0) }
 					expect(values) == [ 4, 5 ]
 				}
@@ -2191,7 +2235,9 @@ class SignalProducerSpec: QuickSpec {
 					let logger = TestLogger(expectations: expectations)
 					
 					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
-					producer.logEvents(logger: logger.logEvent).startWithNext { _ in }
+					producer
+						.logEvents(logger: logger.logEvent)
+						.start()
 					
 					observer.sendNext(1)
 					observer.sendCompleted()

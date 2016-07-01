@@ -667,8 +667,8 @@ scopedExample("`retry`") {
             }
         }
         .retry(1)
-        .startWithNext { value in
-            print(value)
+        .startWithResult { result in
+            print(result)
         }
 }
 
@@ -755,7 +755,7 @@ scopedExample("`flatMap(.Latest)`") {
  */
 scopedExample("`flatMapError`") {
     SignalProducer<Int, NSError>(error: NSError(domain: "flatMapError", code: 42, userInfo: nil))
-        .flatMapError { SignalProducer<Int, NSError>(value: $0.code) }
+        .flatMapError { SignalProducer<Int, NoError>(value: $0.code) }
         .startWithNext { value in
             print(value)
         }

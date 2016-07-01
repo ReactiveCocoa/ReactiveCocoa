@@ -905,14 +905,14 @@ extension SignalProtocol {
 		}
 	}
 
-	private func observeFlatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ producerDisposalTrigger: Signal<(), NoError>? = nil) {
+	private func observeFlatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, producerDisposing trigger: Signal<(), NoError>? = nil) {
 		return self.observe { event in
 			switch event {
 			case let .next(value):
 				observer.sendNext(value)
 			case let .failed(error):
 				handler(error).startWithSignal { signal, interrupter in
-					producerDisposalTrigger?.observeTerminated(interrupter)
+					trigger?.observeTerminated(interrupter)
 					signal.observe(observer)
 				}
 			case .completed:
@@ -930,7 +930,8 @@ extension SignalProducerProtocol {
 	public func flatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>) -> SignalProducer<Value, F> {
 		return SignalProducer { observer, disposalTrigger in
 			self.startWithSignal { signal, interrupter in
-				signal.observeFlatMapError(handler, observer, disposalTrigger)
+				disposalTrigger.observeTerminated(interrupter)
+				signal.observeFlatMapError(handler, observer, producerDisposing: disposalTrigger)
 			}
 		}
 	}

@@ -22,9 +22,8 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 
 	/// Initializes a SignalProducer that will emit the same events as the given signal.
 	///
-	/// If the Disposable returned from start() is disposed or a terminating
-	/// event is sent to the observer, the given signal will be
-	/// disposed.
+	/// If the `Interrupter` returned by starting the producer is triggered, the produced
+	/// signal would be automatically detached from `signal`.
 	public init<S: SignalProtocol where S.Value == Value, S.Error == Error>(signal: S) {
 		self.init { observer, disposalTrigger in
 			signal.observe(until: disposalTrigger, observer: observer)
@@ -37,10 +36,10 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// The events that the closure puts into the given observer will become
 	/// the events sent by the started Signal to its observers.
 	///
-	/// If the Disposable returned from start() is disposed or a terminating
-	/// event is sent to the observer, the given CompositeDisposable will be
-	/// disposed, at which point work should be interrupted and any temporary
-	/// resources cleaned up.
+	/// If the `Interrupter` returned by starting the producer is triggered,
+	/// or a terminating event is sent upon `observer`, a `.completed` event
+	/// would be sent upon `disposalTrigger`, at which point work should be
+	/// interrupted and any temporary resources cleaned up.
 	public init(_ startHandler: (observer: Signal<Value, Error>.Observer, disposalTrigger: Signal<(), NoError>) -> Void) {
 		self.startHandler = startHandler
 	}
@@ -335,7 +334,7 @@ extension SignalProducerProtocol {
 	/// Creates a Signal from the producer, then attaches the given observer to
 	/// the Signal as an observer.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
+	/// Returns an `Interrupter` which can be used to interrupt the work associated
 	/// with the signal and immediately send an `Interrupted` event.
 	@discardableResult
 	public func start(_ observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Interrupter {
@@ -356,7 +355,7 @@ extension SignalProducerProtocol {
 	/// the Signal, which will invoke the given callback when `next` events are
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
+	/// Returns an `Interrupter` which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	@discardableResult
 	public func startWithNext(_ next: (Value) -> Void) -> Interrupter {
@@ -367,7 +366,7 @@ extension SignalProducerProtocol {
 	/// the Signal, which will invoke the given callback when a `completed` event is
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
+	/// Returns an `Interrupter` which can be used to interrupt the work associated
 	/// with the Signal.
 	@discardableResult
 	public func startWithCompleted(_ completed: () -> Void) -> Interrupter {
@@ -378,7 +377,7 @@ extension SignalProducerProtocol {
 	/// the Signal, which will invoke the given callback when a `failed` event is
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
+	/// Returns an `Interrupter` which can be used to interrupt the work associated
 	/// with the Signal.
 	@discardableResult
 	public func startWithFailed(_ failed: (Error) -> Void) -> Interrupter {
@@ -389,7 +388,7 @@ extension SignalProducerProtocol {
 	/// the Signal, which will invoke the given callback when an `interrupted` event is
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
+	/// Returns an `Interrupter` which can be used to interrupt the work associated
 	/// with the Signal.
 	@discardableResult
 	public func startWithInterrupted(_ interrupted: () -> Void) -> Interrupter {
@@ -1374,7 +1373,7 @@ extension SignalProducerProtocol where Value == Date, Error == NoError {
 	/// default leeway, sending updates on the given scheduler.
 	///
 	/// This timer will never complete naturally, so all invocations of start() must
-	/// be disposed to avoid leaks.
+	/// be interrupted to avoid leaks.
 	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol) {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
@@ -1385,7 +1384,7 @@ extension SignalProducerProtocol where Value == Date, Error == NoError {
 	/// given scheduler.
 	///
 	/// This timer will never complete naturally, so all invocations of start() must
-	/// be disposed to avoid leaks.
+	/// be interrupted to avoid leaks.
 	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol, leeway: TimeInterval) {
 		precondition(interval >= 0)
 		precondition(leeway >= 0)

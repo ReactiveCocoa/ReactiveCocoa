@@ -26,10 +26,6 @@ public final class Signal<Value, Error: ErrorProtocol> {
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
-	///
-	/// The disposable returned from the closure will be automatically disposed
-	/// if a terminating event is sent to the observer. The Signal itself will
-	/// remain alive until the observer is released.
 	public init(_ generator: @noescape (Observer) throws -> Void) rethrows {
 
 		/// Used to ensure that events are serialized during delivery to observers.

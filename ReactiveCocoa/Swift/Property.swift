@@ -371,7 +371,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	private init(sourcingFrom unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
 		var value: Value!
 
-		let observerDisposable = unsafeProducer.start { event in
+		let interrupter = unsafeProducer.start { event in
 			switch event {
 			case let .next(newValue):
 				value = newValue
@@ -385,7 +385,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		}
 
 		if value != nil {
-			disposable = ScopedDisposable(observerDisposable)
+			disposable = ScopedDisposable(ActionDisposable { interrupter.dispose() })
 			self.sources = sources
 
 			_value = { value }
@@ -464,11 +464,11 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [box, weak self] producerObserver, producerDisposable in
+		return SignalProducer { [box, weak self] producerObserver, disposalTrigger in
 			if let strongSelf = self {
 				strongSelf.withValue { value in
 					producerObserver.sendNext(value)
-					producerDisposable += strongSelf.signal.observe(producerObserver)
+					strongSelf.signal.takeUntil(disposalTrigger).observe(producerObserver)
 				}
 			} else {
 				/// As the setter would have been deinitialized with the property,
@@ -545,25 +545,25 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-@discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-	disposable += property.producer.startWithCompleted {
-		disposable.dispose()
-	}
+public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) {
+	let termination = Signal<(), NoError>.pipe()
 
-	disposable += signal.observe { [weak property] event in
+	let observer = Observer<P.Value, NoError> { [weak property] event in
 		switch event {
 		case let .next(value):
 			property?.value = value
 		case .completed:
-			disposable.dispose()
+			termination.observer.sendCompleted()
 		case .failed, .interrupted:
 			break
 		}
 	}
 
-	return disposable
+	property.signal.observeCompleted {
+		termination.observer.sendCompleted()
+	}
+
+	signal.observe(until: termination.signal, observer: observer)
 }
 
 /// Creates a signal from the given producer, which will be immediately bound to
@@ -574,22 +574,14 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 /// or when the created signal sends a `Completed` event.
 @discardableResult
 public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-
-	producer.startWithSignal { signal, signalDisposable in
+	return producer.startWithSignal { signal, interrupter in
 		property <~ signal
-		disposable += signalDisposable
-
-		disposable += property.producer.startWithCompleted {
-			disposable.dispose()
-		}
+		return interrupter
 	}
-
-	return disposable
 }
 
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) {
 	return property <~ signal.optionalize()
 }
 

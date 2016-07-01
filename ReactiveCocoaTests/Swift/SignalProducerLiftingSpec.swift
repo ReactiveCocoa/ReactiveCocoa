@@ -384,7 +384,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(lastValue) == 2
 				expect(completed) == true
 			}
-			
+
 			it("should complete immediately after taking given number of values") {
 				let numbers = [ 1, 2, 4, 4, 5 ]
 				let testScheduler = TestScheduler()
@@ -587,6 +587,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			var lastValue: Int? = nil
 			var completed: Bool = false
+			var hasUnexpectedEvents: Bool = false
 
 			beforeEach {
 				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.pipe()
@@ -598,6 +599,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				lastValue = nil
 				completed = false
+				hasUnexpectedEvents = false
 
 				producer.start { event in
 					switch event {
@@ -606,7 +608,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					case .completed:
 						completed = true
 					case .failed, .interrupted:
-						break
+						hasUnexpectedEvents = true
 					}
 				}
 			}
@@ -623,6 +625,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(completed) == false
 				triggerObserver.sendNext(())
 				expect(completed) == true
+				expect(hasUnexpectedEvents) == false
 			}
 
 			it("should take values until the trigger completes") {
@@ -637,6 +640,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(completed) == false
 				triggerObserver.sendCompleted()
 				expect(completed) == true
+				expect(hasUnexpectedEvents) == false
 			}
 
 			it("should complete if the trigger fires immediately") {
@@ -647,6 +651,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 				expect(completed) == true
 				expect(lastValue).to(beNil())
+				expect(hasUnexpectedEvents) == false
 			}
 		}
 
@@ -1087,14 +1092,14 @@ class SignalProducerLiftingSpec: QuickSpec {
 				it("should free payload when interrupted after complete of incoming producer") {
 					var payloadFreed = false
 
-					let disposable = sampledProducer.start()
+					let interrupter = sampledProducer.start()
 
 					observer.sendNext(Payload { payloadFreed = true })
 					observer.sendCompleted()
 
 					expect(payloadFreed) == false
 
-					disposable.dispose()
+					interrupter.dispose()
 					expect(payloadFreed) == true
 				}
 			}

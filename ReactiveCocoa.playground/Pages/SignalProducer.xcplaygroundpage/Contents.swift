@@ -224,16 +224,16 @@ scopedExample("`startWithFailed`") {
  the Signal, which will invoke the given callback when an `interrupted` event 
  is received.
  
- Returns a Disposable which can be used to interrupt the work associated
+ Returns an `Interrupter` which can be used to interrupt the work associated
  with the Signal.
  */
 scopedExample("`startWithInterrupted`") {
-    let disposable = SignalProducer<Int, NoError>.never
+    let interrupter = SignalProducer<Int, NoError>.never
         .startWithInterrupted {
             print("interrupted called")
         }
     
-    disposable.dispose()
+    interrupter.dispose()
 }
 
 

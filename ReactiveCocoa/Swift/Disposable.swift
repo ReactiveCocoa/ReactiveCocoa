@@ -32,6 +32,30 @@ public final class SimpleDisposable: Disposable {
 }
 
 /// A disposable that will run an action upon disposal.
+public final class MutableActionDisposable: Disposable {
+	private let action: Atomic<(() -> Void)?>
+
+	public var isDisposed: Bool {
+		return action.value == nil
+	}
+
+	public static func make(initial: () -> Void) -> (disposable: MutableActionDisposable, setter: (() -> Void) -> Void) {
+		let disposable = self.init(initial)
+		return (disposable, { disposable.action.value = $0 })
+	}
+
+	/// Initializes the disposable to run the given action upon disposal.
+	private init(_ action: () -> Void) {
+		self.action = Atomic(action)
+	}
+
+	public func dispose() {
+		let oldAction = action.swap(nil)
+		oldAction?()
+	}
+}
+
+/// A disposable that will run an action upon disposal.
 public final class ActionDisposable: Disposable {
 	private let action: Atomic<(() -> Void)?>
 

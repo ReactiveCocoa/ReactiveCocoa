@@ -90,7 +90,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// the produced signal will send `ActionError.disabled`, and nothing will
 	/// be sent upon `values` or `errors` for that particular signal.
 	public func apply(_ input: Input) -> SignalProducer<Output, ActionError<Error>> {
-		return SignalProducer { observer, disposable in
+		return SignalProducer { observer, disposalTrigger in
 			var startedExecuting = false
 
 			self.executingQueue.sync {
@@ -105,8 +105,8 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 				return
 			}
 
-			self.executeClosure(input).startWithSignal { signal, signalDisposable in
-				disposable += signalDisposable
+			self.executeClosure(input).startWithSignal { signal, interrupter in
+				disposalTrigger.observeTerminated(interrupter)
 
 				signal.observe { event in
 					observer.action(event.mapError(ActionError.producerError))
@@ -114,7 +114,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 				}
 			}
 
-			disposable += {
+			disposalTrigger.observeTerminated {
 				self._isExecuting.value = false
 			}
 		}

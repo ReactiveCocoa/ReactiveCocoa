@@ -498,7 +498,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect an exact count of values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
 				let producer = original.collect(count: 3)
 
@@ -529,7 +529,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect values until it matches a certain value") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
 				let producer = original.collect { _, next in next != 5 }
 
@@ -554,7 +554,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			}
 
 			it("should collect values until it matches a certain condition on values") {
-				let (original, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
 				let producer = original.collect { values in values.reduce(0, combine: +) == 10 }
 

@@ -335,7 +335,7 @@ public struct Property<Value>: PropertyProtocol {
 
 	/// Initializes a constant property.
 	/// Its producer and signal would complete immediately at initialization.
-	public init(constant value: Value) {
+	public init(value: Value) {
 		sources = []
 		disposable = nil
 		_value = { value }

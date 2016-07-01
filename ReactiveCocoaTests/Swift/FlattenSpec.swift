@@ -83,7 +83,7 @@ class FlattenSpec: QuickSpec {
 						.flatten(flattenStrategy)
 						.start()
 
-					interrupter.interrupt()
+					interrupter.dispose()
 					expect(disposed) == true
 				}
 			}

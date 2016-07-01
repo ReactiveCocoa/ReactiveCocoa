@@ -43,11 +43,11 @@ class SignalProducerSpec: QuickSpec {
 					}
 				}
 			
-				var interrupter: Interrupter!
+				var interrupter: Disposable!
 
 				weak var objectRetainedByObserver: NSObject?
-				producer.startWithSignal { signal, innerInterrupter in
-					interrupter = innerInterrupter
+				producer.startWithSignal { signal, innerDisposable in
+					interrupter = innerDisposable
 
 					let object = NSObject()
 					objectRetainedByObserver = object
@@ -56,7 +56,7 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(objectRetainedByObserver).toNot(beNil())
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(objectRetainedByObserver).to(beNil())
 				expect(trigger.hasTerminated) == true
 			}
@@ -120,7 +120,7 @@ class SignalProducerSpec: QuickSpec {
 				let startDisposable = producer.start()
 				expect(isDisposed) == false
 
-				startDisposable.interrupt()
+				startDisposable.dispose()
 				expect(isDisposed) == true
 			}
 		}
@@ -511,7 +511,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should dispose of added disposables if disposed") {
 				var isDisposed = false
-				var interrupter: Interrupter!
+				var interrupter: Disposable!
 
 				let producer = SignalProducer<Int, NoError>() { _, disposalTrigger in
 					disposalTrigger.observeCompleted { isDisposed = true }
@@ -524,13 +524,13 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(isDisposed) == false
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(isDisposed) == true
 			}
 
 			it("should send interrupted if disposed") {
 				var interrupted = false
-				var interrupter: Interrupter!
+				var interrupter: Disposable!
 
 				SignalProducer<Int, NoError>(value: 42)
 					.start(on: TestScheduler())
@@ -544,25 +544,25 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(interrupted) == false
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(interrupted) == true
 			}
 
 			it("should release signal observers if disposed") {
 				weak var objectRetainedByObserver: NSObject?
-				var interrupter: Interrupter!
+				var interrupter: Disposable!
 
 				let producer = SignalProducer<Int, NoError>.never
-				producer.startWithSignal { signal, innerInterrupter in
+				producer.startWithSignal { signal, innerDisposable in
 					let object = NSObject()
 					objectRetainedByObserver = object
 					signal.observeNext { _ in _ = object.description }
-					interrupter = innerInterrupter
+					interrupter = innerDisposable
 				}
 
 				expect(objectRetainedByObserver).toNot(beNil())
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(objectRetainedByObserver).to(beNil())
 			}
 
@@ -580,7 +580,7 @@ class SignalProducerSpec: QuickSpec {
 						expect(started) == false
 						expect(value).to(beNil())
 
-						interrupter.interrupt()
+						interrupter.dispose()
 					}
 
 				expect(started) == false
@@ -598,7 +598,7 @@ class SignalProducerSpec: QuickSpec {
 							interrupted = true
 						}
 
-						interrupter.interrupt()
+						interrupter.dispose()
 					}
 
 				expect(interrupted) == true
@@ -668,13 +668,13 @@ class SignalProducerSpec: QuickSpec {
 
 				expect(interrupted) == false
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(interrupted) == true
 			}
 
 			it("should release observer when disposed") {
 				weak var objectRetainedByObserver: NSObject?
-				var interrupter: Interrupter!
+				var interrupter: Disposable!
 				let test = {
 					let producer = SignalProducer<Int, NoError>.never
 					let object = NSObject()
@@ -685,7 +685,7 @@ class SignalProducerSpec: QuickSpec {
 				test()
 				expect(objectRetainedByObserver).toNot(beNil())
 
-				interrupter.interrupt()
+				interrupter.dispose()
 				expect(objectRetainedByObserver).to(beNil())
 			}
 
@@ -904,7 +904,7 @@ class SignalProducerSpec: QuickSpec {
 				producer.startWithSignal { signal, interrupter in
 					weakSignal = signal
 					scheduler.schedule {
-						interrupter.interrupt()
+						interrupter.dispose()
 					}
 				}
 
@@ -965,7 +965,7 @@ class SignalProducerSpec: QuickSpec {
 				let disposable = producer.start()
 
 				expect(disposed) == false
-				disposable.interrupt()
+				disposable.dispose()
 				expect(disposed) == true
 			}
 		}
@@ -1051,7 +1051,7 @@ class SignalProducerSpec: QuickSpec {
 					.startWithInterrupted { interrupted = true }
 
 				baseObserver.sendFailed(.default)
-				disposable.interrupt()
+				disposable.dispose()
 
 				expect(interrupted) == true
 				expect(disposed) == true
@@ -1461,12 +1461,12 @@ class SignalProducerSpec: QuickSpec {
 						}
 						
 						interrupted = false
-						let outerInterrupter = outerProducer.flatten(strategy).startWithInterrupted {
+						let outerDisposable = outerProducer.flatten(strategy).startWithInterrupted {
 							interrupted = true
 						}
 
 						completeOuter = outerObserver.sendCompleted
-						disposeOuter = outerInterrupter.interrupt
+						disposeOuter = outerDisposable.dispose
 
 						outerObserver.sendNext(innerProducer)
 					}
@@ -1885,16 +1885,16 @@ class SignalProducerSpec: QuickSpec {
 					upstreamDisposalTrigger = disposalTrigger
 				}
 
-				var downstreamInterrupter: Interrupter!
+				var downstreamDisposable: Disposable!
 				producer
 					.observe(on: TestScheduler())
-					.startWithSignal { signal, innerInterrupter in
-						downstreamInterrupter = innerInterrupter
+					.startWithSignal { signal, innerDisposable in
+						downstreamDisposable = innerDisposable
 					}
 				
 				expect(upstreamDisposalTrigger.hasTerminated) == false
 				
-				downstreamInterrupter.interrupt()
+				downstreamDisposable.dispose()
 				expect(upstreamDisposalTrigger.hasTerminated) == true
 			}
 		}
@@ -1968,7 +1968,7 @@ class SignalProducerSpec: QuickSpec {
 						.start()
 
 					observer.sendNext(1)
-					disposable.interrupt()
+					disposable.dispose()
 
 					var last: Int?
 
@@ -1982,7 +1982,7 @@ class SignalProducerSpec: QuickSpec {
 						.start()
 
 					observer.sendFailed(.default)
-					disposable.interrupt()
+					disposable.dispose()
 
 					var error: TestError?
 
@@ -1999,7 +1999,7 @@ class SignalProducerSpec: QuickSpec {
 					observer.sendNext(2)
 					observer.sendNext(3)
 					observer.sendNext(4)
-					disposable.interrupt()
+					disposable.dispose()
 
 					var values: [Int] = []
 
@@ -2010,7 +2010,7 @@ class SignalProducerSpec: QuickSpec {
 					observer.sendNext(5)
 					expect(values) == [ 3, 4, 5 ]
 
-					disposable.interrupt()
+					disposable.dispose()
 					values = []
 
 					replayedProducer
@@ -2063,9 +2063,9 @@ class SignalProducerSpec: QuickSpec {
 						.replayLazily(upTo: 1)
 
 					expect(startedTimes) == 0
-					replayedProducer.start().interrupt()
+					replayedProducer.start().dispose()
 					expect(startedTimes) == 1
-					replayedProducer.start().interrupt()
+					replayedProducer.start().dispose()
 					expect(startedTimes) == 1
 				}
 
@@ -2102,7 +2102,7 @@ class SignalProducerSpec: QuickSpec {
 					let disposable = replayedProducer.start()
 					expect(disposed) == false
 
-					disposable.interrupt()
+					disposable.dispose()
 					expect(disposed) == false
 				}
 				
@@ -2122,10 +2122,10 @@ class SignalProducerSpec: QuickSpec {
 					replayedProducer = nil
 					expect(disposed) == false
 
-					disposable1?.interrupt()
+					disposable1?.dispose()
 					expect(disposed) == false
 					
-					disposable2?.interrupt()
+					disposable2?.dispose()
 					expect(disposed) == true
 				}
 
@@ -2141,7 +2141,7 @@ class SignalProducerSpec: QuickSpec {
 					let disposable = replayedProducer?.start()
 					expect(disposed) == false
 
-					disposable?.interrupt()
+					disposable?.dispose()
 					expect(disposed) == false
 
 					replayedProducer = nil
@@ -2174,7 +2174,7 @@ class SignalProducerSpec: QuickSpec {
 					let disposable = replayedProducer
 						.start()
 					
-					disposable.interrupt()
+					disposable.dispose()
 					expect(deinitValues) == 0
 					
 					producer = nil

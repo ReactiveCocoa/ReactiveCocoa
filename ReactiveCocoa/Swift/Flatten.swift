@@ -403,7 +403,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	/// The active producer, if any, and the producers waiting to be started.
 	let queuedSignalProducers: Atomic<[SignalProducer<Value, Error>]> = Atomic([])
 
-	var currentProducerInterrupter: Interrupter?
+	var currentProducerDisposable: Disposable?
 
 	init(observer: Signal<Value, Error>.Observer) {
 		self.observer = observer
@@ -441,12 +441,12 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(_ signalProducer: SignalProducer<Value, Error>) {
 		signalProducer.startWithSignal { signal, interrupter in
-			currentProducerInterrupter = interrupter
+			currentProducerDisposable = interrupter
 
 			signal.observe { event in
 				switch event {
 				case .completed, .interrupted:
-					self.currentProducerInterrupter = nil
+					self.currentProducerDisposable = nil
 
 					if let nextSignalProducer = self.dequeueSignalProducer() {
 						self.startNextSignalProducer(nextSignalProducer)
@@ -470,13 +470,13 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 			observer.sendInterrupted()
 		}
 
-		currentProducerInterrupter?.interrupt()
+		currentProducerDisposable?.dispose()
 	}
 
 	func enqueueCompletionProducer() {
 		enqueueSignalProducer(SignalProducer.empty.on(completed: {
 			self.observer.sendCompleted()
-			self.currentProducerInterrupter?.interrupt()
+			self.currentProducerDisposable?.dispose()
 		}))
 	}
 }
@@ -493,12 +493,12 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	private func observeMerge(_ observer: Observer<Value.Value, Error>, producerDisposing trigger: Signal<(), NoError>? = nil) {
 		let inFlight = Atomic(1)
 
-		let interrupters = Atomic<Bag<Interrupter>?>(Bag())
+		let interrupters = Atomic<Bag<Disposable>?>(Bag())
 
 		func cleanup() {
 			let observers = interrupters.swap(nil)
 			observers?.forEach { interrupter in
-				interrupter.interrupt()
+				interrupter.dispose()
 			}
 		}
 
@@ -621,13 +621,13 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		let state = Atomic(LatestState<Value, Error>())
 
 		func cleanup() {
-			var interrupter: Interrupter?
+			var interrupter: Disposable?
 
 			state.modify { latestState in
 				swap(&interrupter, &latestState.interrupter)
 			}
 
-			interrupter?.interrupt()
+			interrupter?.dispose()
 		}
 
 		trigger?.observeCompleted(cleanup)
@@ -636,18 +636,18 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 			switch event {
 			case let .next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, interrupter in
-					var oldInterrupter: Interrupter?
+					var oldDisposable: Disposable?
 
 					state.modify { state in
 						// When we replace the disposable below, this prevents the
 						// generated Interrupted event from doing any work.
 						state.replacingInnerSignal = true
 
-						oldInterrupter = interrupter
-						swap(&state.interrupter, &oldInterrupter)
+						oldDisposable = interrupter
+						swap(&state.interrupter, &oldDisposable)
 					}
 
-					oldInterrupter?.interrupt()
+					oldDisposable?.dispose()
 
 					state.modify { state in
 						state.replacingInnerSignal = false
@@ -735,7 +735,7 @@ private struct LatestState<Value, Error: ErrorProtocol> {
 	var innerSignalComplete: Bool = true
 	
 	var replacingInnerSignal: Bool = false
-	var interrupter: Interrupter?
+	var interrupter: Disposable?
 }
 
 

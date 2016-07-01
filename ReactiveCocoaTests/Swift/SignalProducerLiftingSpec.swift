@@ -1099,7 +1099,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 					expect(payloadFreed) == false
 
-					interrupter.interrupt()
+					interrupter.dispose()
 					expect(payloadFreed) == true
 				}
 			}

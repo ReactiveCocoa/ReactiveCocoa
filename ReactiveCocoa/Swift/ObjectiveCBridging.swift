@@ -137,7 +137,7 @@ extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyOb
 			}
 
 			return RACDisposable {
-				interrupter.interrupt()
+				interrupter.dispose()
 			}
 		}
 	}

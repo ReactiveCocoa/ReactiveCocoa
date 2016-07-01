@@ -261,9 +261,9 @@ extension SignalProtocol {
 
 	/// Observes the Signal by invoking the given interrupter when terminating events
 	/// are received.
-	public func observeTerminated(_ interruptor: Interrupter) {
+	public func observeTerminated(_ disposable: Disposable) {
 		observeTerminated {
-			interruptor.interrupt()
+			disposable.dispose()
 		}
 	}
 

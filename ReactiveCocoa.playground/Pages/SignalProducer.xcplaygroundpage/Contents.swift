@@ -233,7 +233,7 @@ scopedExample("`startWithInterrupted`") {
             print("interrupted called")
         }
     
-    interrupter.interrupt()
+    interrupter.dispose()
 }
 
 

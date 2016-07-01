@@ -1358,7 +1358,7 @@ class PropertySpec: QuickSpec {
 					let mutableProperty = MutableProperty(initialPropertyValue)
 					let interrupter = mutableProperty <~ signalProducer
 
-					interrupter.interrupt()
+					interrupter.dispose()
 					// TODO: Assert binding was torn down?
 				}
 
@@ -1413,7 +1413,7 @@ class PropertySpec: QuickSpec {
 					let destinationProperty = MutableProperty("")
 
 					let interrupter = destinationProperty <~ sourceProperty.producer
-					interrupter.interrupt()
+					interrupter.dispose()
 
 					sourceProperty.value = subsequentPropertyValue
 

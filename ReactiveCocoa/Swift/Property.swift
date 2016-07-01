@@ -385,7 +385,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		}
 
 		if value != nil {
-			disposable = ScopedDisposable(ActionDisposable { interrupter.interrupt() })
+			disposable = ScopedDisposable(ActionDisposable { interrupter.dispose() })
 			self.sources = sources
 
 			_value = { value }
@@ -573,7 +573,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 @discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Interrupter {
+public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	return producer.startWithSignal { signal, interrupter in
 		property <~ signal
 		return interrupter
@@ -586,12 +586,12 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S
 }
 
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Interrupter {
+public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
 }
 
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Interrupter {
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
 
@@ -600,6 +600,6 @@ public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol w
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Interrupter {
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

@@ -29,7 +29,7 @@ class FoundationExtensionsSpec: QuickSpec {
 				expect(notif?.name) == "rac_notifications_test" as Notification.Name
 
 				notif = nil
-				interrupter.interrupt()
+				interrupter.dispose()
 
 				center.post(name: Notification.Name("rac_notifications_test"), object: nil)
 				expect(notif).to(beNil())
@@ -46,7 +46,7 @@ class FoundationExtensionsSpec: QuickSpec {
 				}
 				expect(interrupted) == true
 
-				interrupter.interrupt()
+				interrupter.dispose()
 			}
 
 		}

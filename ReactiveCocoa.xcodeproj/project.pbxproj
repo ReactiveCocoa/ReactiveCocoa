@@ -2219,21 +2219,27 @@
 					};
 					7DFBED021CDB8C9500EE435B = {
 						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 0800;
 					};
 					A9B315531B3940610001CB9C = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					D04725E919E49ED7006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0800;
 					};
 					D04725F419E49ED7006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0800;
 					};
 					D047260B19E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0800;
 					};
 					D047261519E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -2963,7 +2969,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2978,7 +2983,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2993,7 +2997,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3008,7 +3011,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3079,7 +3081,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3094,7 +3095,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3109,7 +3109,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3124,7 +3123,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3242,8 +3240,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3256,8 +3252,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3348,8 +3342,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
@@ -3426,8 +3418,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;

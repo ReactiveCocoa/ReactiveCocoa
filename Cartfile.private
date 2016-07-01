@@ -1,3 +1,3 @@
-github "jspahrsummers/xcconfigs" ~> 0.9
+github "jspahrsummers/xcconfigs" "1ef9763"
 github "sharplet/Quick" "xcode-8"
 github "Quick/Nimble" ~> 4.1

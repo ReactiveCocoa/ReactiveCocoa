@@ -295,7 +295,26 @@ extension PropertyProtocol {
 	}
 }
 
-/// A read-only, type-erased view of a property.
+/// A read-only property that can be observed for its changes over time. There are
+/// three categories of read-only property:
+///
+/// # Constant property
+/// Created by `Property(value:)`, the producer and signal of a constant
+/// property would complete immediately when it is initialized.
+///
+/// # Existential property
+/// Created by `Property(_:)`, an existential property passes through the
+/// behavior of the wrapped property.
+///
+/// # Composed property
+/// Created by either the compositional operators in `PropertyProtocol`, or
+/// `Property(initial:followingBy:)`, a composed property presents a
+/// composed view of its source, which can be a set of properties,
+/// a producer, or a signal.
+///
+/// A composed property respects the lifetime of its source rather than its own.
+/// In other words, its producer and signal can outlive the property itself, if
+/// its source outlives it too.
 public struct Property<Value>: PropertyProtocol {
 	private let sources: [Any]
 	private let disposable: Disposable?
@@ -309,22 +328,20 @@ public struct Property<Value>: PropertyProtocol {
 		return _value()
 	}
 
-	/// A producer for Signals that will send the wrapped property's current value,
-	/// followed by all changes over time, then complete when the wrapped property has
-	/// deinitialized.
+	/// A producer that sends the property's current value, followed by all changes
+	/// over time.
 	public var producer: SignalProducer<Value, NoError> {
 		return _producer()
 	}
 
-	/// A signal that will send the wrapped property's changes over time, then complete
-	/// when the wrapped property has deinitialized.
+	/// A signal that sends the property's changes over time.
 	///
 	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
 
-	/// Initializes a property as a read-only view of the given property.
+	/// Initializes a constant property.
 	public init(value: Value) {
 		sources = []
 		disposable = nil
@@ -333,7 +350,7 @@ public struct Property<Value>: PropertyProtocol {
 		_signal = { Signal<Value, NoError>.empty }
 	}
 
-	/// Initializes a property as a read-only view of the given property.
+	/// Initializes an existential property which wraps the given property.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = Property.capture(property)
 		disposable = nil
@@ -342,36 +359,36 @@ public struct Property<Value>: PropertyProtocol {
 		_signal = { property.signal }
 	}
 
-	/// Initializes a property that first takes on `initial`, then each value
+	/// Initializes a composed property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initial: Value, then producer: SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: producer.prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property that first takes on `initial`, then each value
+	/// Initializes a composed property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
 	public init(initial: Value, then signal: Signal<Value, NoError>) {
 		self.init(unsafeProducer: SignalProducer(signal: signal).prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property by applying the unary `SignalProducer` transform on
+	/// Initializes a composed property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
 	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
 		          capturing: Property.capture(property))
 	}
 
-	/// Initializes a property by applying the binary `SignalProducer` transform on
-	/// `firstProperty` and `secondProperty`. The resulting property captures
-	/// the two property sources.
+	/// Initializes a composed property by applying the binary `SignalProducer` transform on
+	/// `property` and `anotherProperty`. The resulting property captures `property`
+	/// and `anotherProperty`.
 	private init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: Property.capture(firstProperty) + Property.capture(secondProperty))
 	}
 
-	/// Initializes a property from a producer that promises to send at least one
+	/// Initializes a composed property from a producer that promises to send at least one
 	/// value synchronously in its start handler before sending any subsequent event.
 	/// If the producer fails its promise, a fatal error would be raised.
 	///

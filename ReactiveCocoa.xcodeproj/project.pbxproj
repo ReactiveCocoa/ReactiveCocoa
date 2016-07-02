@@ -150,9 +150,7 @@
 		53990C441D282490007C84EB /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53990C451D282490007C84EB /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53990C461D282490007C84EB /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		53990C471D282490007C84EB /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53990C571D28261C007C84EB /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
-		53990C581D282626007C84EB /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53990BF71D282481007C84EB /* ReactiveSwift.framework */; };
 		53990C5B1D2829A7007C84EB /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		53990C5C1D2829A7007C84EB /* RACCompoundDisposableProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D037646A19EDA41200A782A9 /* RACCompoundDisposableProvider.d */; };
 		53990C5D1D2829A7007C84EB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03764A319EDA41200A782A9 /* RACSignalProvider.d */; };
@@ -170,6 +168,46 @@
 		53990C881D2829A7007C84EB /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
 		53990C891D2829A7007C84EB /* EventLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B647B1CD52E23003F2376 /* EventLogger.swift */; };
 		53990CB51D2829A7007C84EB /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
+		53990D0C1D28405A007C84EB /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
+		53990D0E1D28405A007C84EB /* RACCompoundDisposableProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D037646A19EDA41200A782A9 /* RACCompoundDisposableProvider.d */; };
+		53990D101D28405A007C84EB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03764A319EDA41200A782A9 /* RACSignalProvider.d */; };
+		53990D111D28405A007C84EB /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BE19EF2A5800984962 /* Disposable.swift */; };
+		53990D121D28405A007C84EB /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
+		53990D141D28405A007C84EB /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C819EF2A5800984962 /* Scheduler.swift */; };
+		53990D151D28405A007C84EB /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
+		53990D161D28405A007C84EB /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B01A69A2AC00AD8286 /* Property.swift */; };
+		53990D171D28405A007C84EB /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
+		53990D181D28405A007C84EB /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
+		53990D191D28405A007C84EB /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
+		53990D1A1D28405A007C84EB /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
+		53990D1B1D28405A007C84EB /* TupleExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00004081A46864E000E7D41 /* TupleExtensions.swift */; };
+		53990D221D28405A007C84EB /* Flatten.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C65291C0D84C7005A77AD /* Flatten.swift */; };
+		53990D411D28405A007C84EB /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC7DBB1BBF010C00A2AE92 /* Observer.swift */; };
+		53990D461D28405A007C84EB /* EventLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B647B1CD52E23003F2376 /* EventLogger.swift */; };
+		53990D711D28405A007C84EB /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
+		53990DBB1D28405D007C84EB /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D021671C1A6CD50500987861 /* ActionSpec.swift */; };
+		53990DBC1D28405D007C84EB /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EE19EF2A7700984962 /* AtomicSpec.swift */; };
+		53990DBD1D28405D007C84EB /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
+		53990DBE1D28405D007C84EB /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F019EF2A7700984962 /* DisposableSpec.swift */; };
+		53990DC11D28405D007C84EB /* PropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */; };
+		53990DC21D28405D007C84EB /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F219EF2A7700984962 /* SchedulerSpec.swift */; };
+		53990DC31D28405D007C84EB /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
+		53990DC41D28405D007C84EB /* SignalProducerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260A1A72E6C500D33B74 /* SignalProducerSpec.swift */; };
+		53990DC51D28405D007C84EB /* SignalProducerLiftingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8024DB11B2E1BB0005E6B9A /* SignalProducerLiftingSpec.swift */; };
+		53990DC61D28405D007C84EB /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A226071A72E0E900D33B74 /* SignalSpec.swift */; };
+		53990DC71D28405D007C84EB /* FlattenSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6F284F1C52626B001879D2 /* FlattenSpec.swift */; };
+		53990DC81D28405D007C84EB /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
+		53990DC91D28405D007C84EB /* TestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B64731CD38B2B003F2376 /* TestLogger.swift */; };
+		53990DE01D28405D007C84EB /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		53990DF81D28405D007C84EB /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
+		53990DF91D28405D007C84EB /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
+		53990DFE1D28405D007C84EB /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		53990DFF1D28405D007C84EB /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		53990E001D28405D007C84EB /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		53990E011D28405D007C84EB /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		53990E1E1D284551007C84EB /* ReactiveSwift.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		539ADA2A1D2846C3008F0B68 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53990DB51D28405A007C84EB /* ReactiveSwift.framework */; };
+		53FD788B1D2848F5009BD329 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53990BF71D282481007C84EB /* ReactiveSwift.framework */; };
 		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		579504341BB8A34300A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		57A4D1B11BA13D7A00F7D4B1 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
@@ -1016,6 +1054,13 @@
 			remoteGlobalIDString = 53990B381D282481007C84EB;
 			remoteInfo = "ReactiveSwift-iOS";
 		};
+		53990DB91D28405D007C84EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 57A4D1AF1BA13D7A00F7D4B1;
+			remoteInfo = "ReactiveCocoa-tvOS";
+		};
 		7DFBED091CDB8C9500EE435B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D04725E119E49ED7006002AA /* Project object */;
@@ -1046,10 +1091,24 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				53990E1E1D284551007C84EB /* ReactiveSwift.framework in Copy Frameworks */,
 				53990C441D282490007C84EB /* Result.framework in Copy Frameworks */,
 				53990C451D282490007C84EB /* Nimble.framework in Copy Frameworks */,
 				53990C461D282490007C84EB /* Quick.framework in Copy Frameworks */,
-				53990C471D282490007C84EB /* ReactiveCocoa.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DFD1D28405D007C84EB /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				53990DFE1D28405D007C84EB /* Result.framework in Copy Frameworks */,
+				53990DFF1D28405D007C84EB /* Nimble.framework in Copy Frameworks */,
+				53990E001D28405D007C84EB /* Quick.framework in Copy Frameworks */,
+				53990E011D28405D007C84EB /* ReactiveCocoa.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1096,7 +1155,8 @@
 		53990BF71D282481007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		53990CF01D2829A7007C84EB /* ReactiveCocoa-watchOS copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "ReactiveCocoa-watchOS copy-Info.plist"; path = "/Users/eimantas/Development/ReactiveCocoa/ReactiveCocoa-watchOS copy-Info.plist"; sourceTree = "<absolute>"; };
+		53990DB51D28405A007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -1460,7 +1520,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53990C581D282626007C84EB /* ReactiveSwift.framework in Frameworks */,
+				53FD788B1D2848F5009BD329 /* ReactiveSwift.framework in Frameworks */,
 				53990C3E1D282490007C84EB /* Nimble.framework in Frameworks */,
 				53990C3F1D282490007C84EB /* Quick.framework in Frameworks */,
 				53990C571D28261C007C84EB /* Result.framework in Frameworks */,
@@ -1472,6 +1532,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				53990CB51D2829A7007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990D701D28405A007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990D711D28405A007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DF71D28405D007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				539ADA2A1D2846C3008F0B68 /* ReactiveSwift.framework in Frameworks */,
+				53990DF81D28405D007C84EB /* Nimble.framework in Frameworks */,
+				53990DF91D28405D007C84EB /* Quick.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1881,7 +1959,6 @@
 				D04725F919E49ED7006002AA /* ReactiveCocoaTests */,
 				D047262519E49FE8006002AA /* Configuration */,
 				D04725EB19E49ED7006002AA /* Products */,
-				53990CF01D2829A7007C84EB /* ReactiveCocoa-watchOS copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
@@ -1901,6 +1978,8 @@
 				53990BF71D282481007C84EB /* ReactiveSwift.framework */,
 				53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */,
 				53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */,
+				53990DB51D28405A007C84EB /* ReactiveSwift.framework */,
+				53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2435,7 +2514,6 @@
 			buildPhases = (
 				530F8B791D0DB70B00009C2C /* Sources */,
 				530F8B7A1D0DB70B00009C2C /* Frameworks */,
-				530F8B7B1D0DB70B00009C2C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -2498,6 +2576,40 @@
 			productName = ReactiveCocoa;
 			productReference = 53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		53990D0A1D28405A007C84EB /* ReactiveSwift-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990DB01D28405A007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOS" */;
+			buildPhases = (
+				53990D0B1D28405A007C84EB /* Sources */,
+				53990D701D28405A007C84EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveSwift-tvOS";
+			productName = ReactiveCocoa;
+			productReference = 53990DB51D28405A007C84EB /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		53990DB71D28405D007C84EB /* ReactiveSwift-tvOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990E021D28405D007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOSTests" */;
+			buildPhases = (
+				53990DBA1D28405D007C84EB /* Sources */,
+				53990DF71D28405D007C84EB /* Frameworks */,
+				53990DFD1D28405D007C84EB /* Copy Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				53990DB81D28405D007C84EB /* PBXTargetDependency */,
+			);
+			name = "ReactiveSwift-tvOSTests";
+			productName = "ReactiveCocoa-tvOSTests";
+			productReference = 53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */ = {
 			isa = PBXNativeTarget;
@@ -2687,19 +2799,14 @@
 				53990B381D282481007C84EB /* ReactiveSwift-iOS */,
 				53990BF91D282490007C84EB /* ReactiveSwift-iOSTests */,
 				53990C591D2829A7007C84EB /* ReactiveSwift-watchOS */,
+				53990D0A1D28405A007C84EB /* ReactiveSwift-tvOS */,
+				53990DB71D28405D007C84EB /* ReactiveSwift-tvOSTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		530F8B721D0DB70B00009C2C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		530F8B7B1D0DB70B00009C2C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2872,6 +2979,50 @@
 				53990C6F1D2829A7007C84EB /* Flatten.swift in Sources */,
 				53990C881D2829A7007C84EB /* Observer.swift in Sources */,
 				53990C891D2829A7007C84EB /* EventLogger.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990D0B1D28405A007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990D0C1D28405A007C84EB /* Optional.swift in Sources */,
+				53990D0E1D28405A007C84EB /* RACCompoundDisposableProvider.d in Sources */,
+				53990D101D28405A007C84EB /* RACSignalProvider.d in Sources */,
+				53990D111D28405A007C84EB /* Disposable.swift in Sources */,
+				53990D121D28405A007C84EB /* Event.swift in Sources */,
+				53990D141D28405A007C84EB /* Scheduler.swift in Sources */,
+				53990D151D28405A007C84EB /* Action.swift in Sources */,
+				53990D161D28405A007C84EB /* Property.swift in Sources */,
+				53990D171D28405A007C84EB /* Signal.swift in Sources */,
+				53990D181D28405A007C84EB /* SignalProducer.swift in Sources */,
+				53990D191D28405A007C84EB /* Atomic.swift in Sources */,
+				53990D1A1D28405A007C84EB /* Bag.swift in Sources */,
+				53990D1B1D28405A007C84EB /* TupleExtensions.swift in Sources */,
+				53990D221D28405A007C84EB /* Flatten.swift in Sources */,
+				53990D411D28405A007C84EB /* Observer.swift in Sources */,
+				53990D461D28405A007C84EB /* EventLogger.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DBA1D28405D007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990DBB1D28405D007C84EB /* ActionSpec.swift in Sources */,
+				53990DBC1D28405D007C84EB /* AtomicSpec.swift in Sources */,
+				53990DBD1D28405D007C84EB /* BagSpec.swift in Sources */,
+				53990DBE1D28405D007C84EB /* DisposableSpec.swift in Sources */,
+				53990DC11D28405D007C84EB /* PropertySpec.swift in Sources */,
+				53990DC21D28405D007C84EB /* SchedulerSpec.swift in Sources */,
+				53990DC31D28405D007C84EB /* SignalLifetimeSpec.swift in Sources */,
+				53990DC41D28405D007C84EB /* SignalProducerSpec.swift in Sources */,
+				53990DC51D28405D007C84EB /* SignalProducerLiftingSpec.swift in Sources */,
+				53990DC61D28405D007C84EB /* SignalSpec.swift in Sources */,
+				53990DC71D28405D007C84EB /* FlattenSpec.swift in Sources */,
+				53990DC81D28405D007C84EB /* TestError.swift in Sources */,
+				53990DC91D28405D007C84EB /* TestLogger.swift in Sources */,
+				53990DE01D28405D007C84EB /* SignalProducerNimbleMatchers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3512,6 +3663,11 @@
 			target = 53990B381D282481007C84EB /* ReactiveSwift-iOS */;
 			targetProxy = 53990C551D282612007C84EB /* PBXContainerItemProxy */;
 		};
+		53990DB81D28405D007C84EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */;
+			targetProxy = 53990DB91D28405D007C84EB /* PBXContainerItemProxy */;
+		};
 		7DFBED0A1CDB8C9500EE435B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */;
@@ -3641,6 +3797,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
 				PRODUCT_NAME = ReactiveSwift;
 				SDKROOT = macosx;
@@ -4092,7 +4249,7 @@
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
 				);
-				INFOPLIST_FILE = "ReactiveCocoa-watchOS copy-Info.plist";
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_NAME = ReactiveSwift;
 			};
@@ -4109,7 +4266,8 @@
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
 				);
-				INFOPLIST_FILE = "ReactiveCocoa-watchOS copy-Info.plist";
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_NAME = ReactiveSwift;
 			};
 			name = Test;
@@ -4125,7 +4283,7 @@
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
 				);
-				INFOPLIST_FILE = "ReactiveCocoa-watchOS copy-Info.plist";
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
 				PRODUCT_NAME = ReactiveSwift;
 			};
@@ -4142,9 +4300,133 @@
 					"$(inherited)",
 					"DTRACE_PROBES_DISABLED=1",
 				);
-				INFOPLIST_FILE = "ReactiveCocoa-watchOS copy-Info.plist";
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
 				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
+		53990DB11D28405A007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Debug;
+		};
+		53990DB21D28405A007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Test;
+		};
+		53990DB31D28405A007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Release;
+		};
+		53990DB41D28405A007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
+		53990E031D28405D007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		53990E041D28405D007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Test;
+		};
+		53990E051D28405D007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		53990E061D28405D007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;
 		};
@@ -4681,6 +4963,28 @@
 				53990CEC1D2829A7007C84EB /* Test */,
 				53990CED1D2829A7007C84EB /* Release */,
 				53990CEE1D2829A7007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990DB01D28405A007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990DB11D28405A007C84EB /* Debug */,
+				53990DB21D28405A007C84EB /* Test */,
+				53990DB31D28405A007C84EB /* Release */,
+				53990DB41D28405A007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990E021D28405D007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990E031D28405D007C84EB /* Debug */,
+				53990E041D28405D007C84EB /* Test */,
+				53990E051D28405D007C84EB /* Release */,
+				53990E061D28405D007C84EB /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

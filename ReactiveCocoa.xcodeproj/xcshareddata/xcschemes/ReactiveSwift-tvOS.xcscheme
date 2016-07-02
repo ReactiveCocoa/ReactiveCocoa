@@ -14,9 +14,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "53990C591D2829A7007C84EB"
+               BlueprintIdentifier = "53990D0A1D28405A007C84EB"
                BuildableName = "ReactiveSwift.framework"
-               BlueprintName = "ReactiveSwift-watchOS"
+               BlueprintName = "ReactiveSwift-tvOS"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "53990DB71D28405D007C84EB"
+               BuildableName = "ReactiveSwift-tvOSTests.xctest"
+               BlueprintName = "ReactiveSwift-tvOSTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,7 +42,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "53990DB71D28405D007C84EB"
+               BuildableName = "ReactiveSwift-tvOSTests.xctest"
+               BlueprintName = "ReactiveSwift-tvOSTests"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "53990D0A1D28405A007C84EB"
+            BuildableName = "ReactiveSwift.framework"
+            BlueprintName = "ReactiveSwift-tvOS"
+            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -45,9 +78,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53990C591D2829A7007C84EB"
+            BlueprintIdentifier = "53990D0A1D28405A007C84EB"
             BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-watchOS"
+            BlueprintName = "ReactiveSwift-tvOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +96,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53990C591D2829A7007C84EB"
+            BlueprintIdentifier = "53990D0A1D28405A007C84EB"
             BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-watchOS"
+            BlueprintName = "ReactiveSwift-tvOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

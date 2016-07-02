@@ -11,7 +11,7 @@
 		02D2602B1C1D6DB8003ACC61 /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
-		530F8B7E1D0DB70B00009C2C /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */; };
+		530F8B7E1D0DB70B00009C2C /* ReactiveSwift-Mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 530F8B741D0DB70B00009C2C /* ReactiveSwift-Mac.framework */; };
 		530F8B8F1D0DB76F00009C2C /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		530F8B901D0DB76F00009C2C /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
 		530F8B911D0DB76F00009C2C /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BE19EF2A5800984962 /* Disposable.swift */; };
@@ -943,8 +943,8 @@
 		02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalLifetimeSpec.swift; sourceTree = "<group>"; };
 		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
-		530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		530F8B7D1D0DB70B00009C2C /* ReactiveSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		530F8B741D0DB70B00009C2C /* ReactiveSwift-Mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "ReactiveSwift-Mac.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-MacTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530F8BAE1D0DB7F600009C2C /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Checkouts/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
 		530F8BB01D0DB7FC00009C2C /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Checkouts/Quick/build/Debug/Quick.framework; sourceTree = "<group>"; };
 		530F8BB41D0DBC3200009C2C /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicPropertySpec.swift; sourceTree = "<group>"; };
@@ -1295,7 +1295,7 @@
 				530F8BB21D0DB80200009C2C /* Result.framework in Frameworks */,
 				530F8BB11D0DB7FC00009C2C /* Quick.framework in Frameworks */,
 				530F8BAF1D0DB7F600009C2C /* Nimble.framework in Frameworks */,
-				530F8B7E1D0DB70B00009C2C /* ReactiveSwift.framework in Frameworks */,
+				530F8B7E1D0DB70B00009C2C /* ReactiveSwift-Mac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1719,8 +1719,8 @@
 				A9B315541B3940610001CB9C /* ReactiveCocoa.framework */,
 				57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */,
 				7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */,
-				530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */,
-				530F8B7D1D0DB70B00009C2C /* ReactiveSwiftTests.xctest */,
+				530F8B741D0DB70B00009C2C /* ReactiveSwift-Mac.framework */,
+				530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2154,9 +2154,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		530F8B731D0DB70B00009C2C /* ReactiveSwift */ = {
+		530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift" */;
+			buildConfigurationList = 530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-Mac" */;
 			buildPhases = (
 				530F8B6F1D0DB70B00009C2C /* Sources */,
 				530F8B701D0DB70B00009C2C /* Frameworks */,
@@ -2167,14 +2167,14 @@
 			);
 			dependencies = (
 			);
-			name = ReactiveSwift;
+			name = "ReactiveSwift-Mac";
 			productName = ReactiveSwift;
-			productReference = 530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */;
+			productReference = 530F8B741D0DB70B00009C2C /* ReactiveSwift-Mac.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		530F8B7C1D0DB70B00009C2C /* ReactiveSwiftTests */ = {
+		530F8B7C1D0DB70B00009C2C /* ReactiveSwift-MacTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwiftTests" */;
+			buildConfigurationList = 530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-MacTests" */;
 			buildPhases = (
 				530F8B791D0DB70B00009C2C /* Sources */,
 				530F8B7A1D0DB70B00009C2C /* Frameworks */,
@@ -2185,9 +2185,9 @@
 			dependencies = (
 				530F8B801D0DB70B00009C2C /* PBXTargetDependency */,
 			);
-			name = ReactiveSwiftTests;
+			name = "ReactiveSwift-MacTests";
 			productName = ReactiveSwiftTests;
-			productReference = 530F8B7D1D0DB70B00009C2C /* ReactiveSwiftTests.xctest */;
+			productReference = 530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */ = {
@@ -2373,8 +2373,8 @@
 				A9B315531B3940610001CB9C /* ReactiveCocoa-watchOS */,
 				57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */,
 				7DFBED021CDB8C9500EE435B /* ReactiveCocoa-tvOSTests */,
-				530F8B731D0DB70B00009C2C /* ReactiveSwift */,
-				530F8B7C1D0DB70B00009C2C /* ReactiveSwiftTests */,
+				530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */,
+				530F8B7C1D0DB70B00009C2C /* ReactiveSwift-MacTests */,
 			);
 		};
 /* End PBXProject section */
@@ -3120,7 +3120,7 @@
 /* Begin PBXTargetDependency section */
 		530F8B801D0DB70B00009C2C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 530F8B731D0DB70B00009C2C /* ReactiveSwift */;
+			target = 530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */;
 			targetProxy = 530F8B7F1D0DB70B00009C2C /* PBXContainerItemProxy */;
 		};
 		7DFBED0A1CDB8C9500EE435B /* PBXTargetDependency */ = {
@@ -4053,7 +4053,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift" */ = {
+		530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-Mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				530F8B851D0DB70B00009C2C /* Debug */,
@@ -4064,7 +4064,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwiftTests" */ = {
+		530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-MacTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				530F8B891D0DB70B00009C2C /* Debug */,

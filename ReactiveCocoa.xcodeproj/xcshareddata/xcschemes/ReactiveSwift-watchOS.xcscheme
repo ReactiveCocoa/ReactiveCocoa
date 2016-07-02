@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
-               BuildableName = "ReactiveSwift.framework"
-               BlueprintName = "ReactiveSwift-Mac"
+               BlueprintIdentifier = "53990C591D2829A7007C84EB"
+               BuildableName = "ReactiveSwift-watchOS.framework"
+               BlueprintName = "ReactiveSwift-watchOS"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,26 +28,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "530F8B7C1D0DB70B00009C2C"
-               BuildableName = "ReactiveSwift-MacTests.xctest"
-               BlueprintName = "ReactiveSwift-MacTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
-            BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -64,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
-            BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
+            BlueprintIdentifier = "53990C591D2829A7007C84EB"
+            BuildableName = "ReactiveSwift-watchOS.framework"
+            BlueprintName = "ReactiveSwift-watchOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -82,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
-            BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
+            BlueprintIdentifier = "53990C591D2829A7007C84EB"
+            BuildableName = "ReactiveSwift-watchOS.framework"
+            BlueprintName = "ReactiveSwift-watchOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

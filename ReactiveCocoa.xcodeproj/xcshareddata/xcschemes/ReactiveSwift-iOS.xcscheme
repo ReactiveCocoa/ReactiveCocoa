@@ -14,9 +14,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
+               BlueprintIdentifier = "53990B381D282481007C84EB"
                BuildableName = "ReactiveSwift.framework"
-               BlueprintName = "ReactiveSwift-Mac"
+               BlueprintName = "ReactiveSwift-iOS"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "53990BF91D282490007C84EB"
+               BuildableName = "ReactiveSwift-iOSTests.xctest"
+               BlueprintName = "ReactiveSwift-iOSTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,23 +42,13 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "530F8B7C1D0DB70B00009C2C"
-               BuildableName = "ReactiveSwift-MacTests.xctest"
-               BlueprintName = "ReactiveSwift-MacTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
+            BlueprintIdentifier = "53990B381D282481007C84EB"
             BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
+            BlueprintName = "ReactiveSwift-iOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,9 +68,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
+            BlueprintIdentifier = "53990B381D282481007C84EB"
             BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
+            BlueprintName = "ReactiveSwift-iOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -82,9 +86,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "530F8B731D0DB70B00009C2C"
+            BlueprintIdentifier = "53990B381D282481007C84EB"
             BuildableName = "ReactiveSwift.framework"
-            BlueprintName = "ReactiveSwift-Mac"
+            BlueprintName = "ReactiveSwift-iOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

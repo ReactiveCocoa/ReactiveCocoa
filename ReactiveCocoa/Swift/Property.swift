@@ -37,31 +37,31 @@ public protocol MutablePropertyProtocol: class, PropertyProtocol {
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> AnyProperty<U> {
-		return AnyProperty(self, transform: transform)
+	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
+		return Property(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
+	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> Property<U> {
 		return { otherProperty in
-			return AnyProperty(self, otherProperty, transform: transform)
+			return Property(self, otherProperty, transform: transform)
 		}
 	}
 
 	/// Maps the current value and all subsequent values to a new property.
-	public func map<U>(_ transform: (Value) -> U) -> AnyProperty<U> {
+	public func map<U>(_ transform: Value -> U) -> Property<U> {
 		return lift { $0.map(transform) }
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
-	public func combineLatest<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
-		return lift(SignalProducer.combineLatest(with:))(other)
+	public func combineLatestWith<P: PropertyType>(_ other: P) -> Property<(Value, P.Value)> {
+		return lift(SignalProducer.combineLatestWith)(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
-	public func zip<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
+	public func zip<P: PropertyProtocol>(with other: P) -> Property<(Value, P.Value)> {
 		return lift(SignalProducer.zip(with:))(other)
 	}
 
@@ -69,13 +69,13 @@ extension PropertyProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member of the first
 	/// tuple.
-	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
+	public func combinePrevious(_ initial: Value) -> Property<(Value, Value)> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
-	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
+	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> Property<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 }
@@ -83,7 +83,7 @@ extension PropertyProtocol {
 extension PropertyProtocol where Value: Equatable {
 	/// Forwards only those values from `self` which is not equal to the previous
 	/// value. The first value is always forwarded.
-	public func skipRepeats() -> AnyProperty<Value> {
+	public func skipRepeats() -> Property<Value> {
 		return lift { $0.skipRepeats() }
 	}
 }
@@ -91,7 +91,7 @@ extension PropertyProtocol where Value: Equatable {
 extension PropertyProtocol where Value: PropertyProtocol {
 	/// Flattens the inner properties sent upon `self` (into a single property),
 	/// according to the semantics of the given strategy.
-	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
+	public func flatten(_ strategy: FlattenStrategy) -> Property<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
 }
@@ -100,7 +100,7 @@ extension PropertyProtocol {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
-	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
+	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: Value -> P) -> Property<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
@@ -108,7 +108,7 @@ extension PropertyProtocol {
 	/// all values that have been seen.
 	///
 	/// Note: This causes the identities to be retained to check for uniqueness.
-	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> AnyProperty<Value> {
+	public func uniqueValues<Identity: Hashable>(_ transform: Value -> Identity) -> Property<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
 }
@@ -120,7 +120,7 @@ extension PropertyProtocol where Value: Hashable {
 	/// Note: This causes the values to be retained to check for uniqueness. Providing
 	/// a function that returns a unique value for each sent value can help you reduce
 	/// the memory footprint.
-	public func uniqueValues() -> AnyProperty<Value> {
+	public func uniqueValues() -> Property<Value> {
 		return lift { $0.uniqueValues() }
 	}
 }
@@ -296,7 +296,7 @@ extension PropertyProtocol {
 }
 
 /// A read-only, type-erased view of a property.
-public struct AnyProperty<Value>: PropertyProtocol {
+public struct Property<Value>: PropertyProtocol {
 	private let sources: [Any]
 	private let disposable: Disposable?
 
@@ -325,8 +325,17 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
+	public init(value: Value) {
+		sources = []
+		disposable = nil
+		_value = { value }
+		_producer = { SignalProducer(value: value) }
+		_signal = { Signal<Value, NoError>.empty }
+	}
+
+	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
-		sources = AnyProperty.capture(property)
+		sources = Property.capture(property)
 		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
@@ -351,7 +360,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// `property`. The resulting property captures `property`.
 	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
-		          capturing: AnyProperty.capture(property))
+		          capturing: Property.capture(property))
 	}
 
 	/// Initializes a property by applying the binary `SignalProducer` transform on
@@ -359,7 +368,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// the two property sources.
 	private init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
-		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
+		          capturing: Property.capture(firstProperty) + Property.capture(secondProperty))
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
@@ -400,30 +409,15 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		}
 	}
 
-	/// Check if `property` is an `AnyProperty` and has already captured its sources
+	/// Check if `property` is an `Property` and has already captured its sources
 	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
 	/// which captures `property`.
 	private static func capture<P: PropertyProtocol>(_ property: P) -> [Any] {
-		if let property = property as? AnyProperty<P.Value> {
+		if let property = property as? Property<P.Value> {
 			return property.sources
 		} else {
 			return [property]
 		}
-	}
-}
-
-/// A property that never changes.
-public struct ConstantProperty<Value>: PropertyProtocol {
-
-	public let value: Value
-	public let producer: SignalProducer<Value, NoError>
-	public let signal: Signal<Value, NoError>
-
-	/// Initializes the property to have the given value.
-	public init(_ value: Value) {
-		self.value = value
-		self.producer = SignalProducer(value: value)
-		self.signal = .empty
 	}
 }
 

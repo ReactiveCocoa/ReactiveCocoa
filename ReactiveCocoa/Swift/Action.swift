@@ -31,21 +31,21 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	public let errors: Signal<Error, NoError>
 
 	/// Whether the action is currently executing.
-	public var isExecuting: AnyProperty<Bool> {
-		return AnyProperty(_isExecuting)
+	public var isExecuting: Property<Bool> {
+		return Property(_executing)
 	}
 
 	private let _isExecuting: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
-	public var isEnabled: AnyProperty<Bool> {
+	public var isEnabled: Property<Bool> {
 		return AnyProperty(_isEnabled)
 	}
 
 	private let _isEnabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
-	private let isUserEnabled: AnyProperty<Bool>
+	private let isUserEnabled: Property<Bool>
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
@@ -61,7 +61,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// SignalProducer for each input.
 	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
-		isUserEnabled = AnyProperty(property)
+		isUserEnabled = Property(property)
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
@@ -76,7 +76,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// Initializes an action that will be enabled by default, and create a
 	/// SignalProducer for each input.
 	public convenience init(_ execute: (Input) -> SignalProducer<Output, Error>) {
-		self.init(enabledIf: ConstantProperty(true), execute)
+		self.init(enabledIf: Property(value: true), execute)
 	}
 
 	deinit {

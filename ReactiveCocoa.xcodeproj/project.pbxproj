@@ -46,6 +46,8 @@
 		530F8BB31D0DBBEB00009C2C /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		530F8BB51D0DBC3200009C2C /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530F8BB41D0DBC3200009C2C /* DynamicPropertySpec.swift */; };
 		530F8BB71D0DBED200009C2C /* RACDynamicPropertySuperclass.m in Sources */ = {isa = PBXBuildFile; fileRef = D43F279F1A9F7E8A00C1AD76 /* RACDynamicPropertySuperclass.m */; };
+		5332070E1D2979D200587DAC /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5332070D1D2979D200587DAC /* Quick.framework */; };
+		533207101D2979D600587DAC /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5332070F1D2979D600587DAC /* Nimble.framework */; };
 		53990B3B1D282481007C84EB /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
 		53990B421D282481007C84EB /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		53990B441D282481007C84EB /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BE19EF2A5800984962 /* Disposable.swift */; };
@@ -145,11 +147,7 @@
 		53990C251D282490007C84EB /* FlattenSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6F284F1C52626B001879D2 /* FlattenSpec.swift */; };
 		53990C371D282490007C84EB /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		53990C3C1D282490007C84EB /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
-		53990C3E1D282490007C84EB /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
-		53990C3F1D282490007C84EB /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
 		53990C441D282490007C84EB /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		53990C451D282490007C84EB /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		53990C461D282490007C84EB /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53990C571D28261C007C84EB /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		53990C5B1D2829A7007C84EB /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		53990C5C1D2829A7007C84EB /* RACCompoundDisposableProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D037646A19EDA41200A782A9 /* RACCompoundDisposableProvider.d */; };
@@ -1093,8 +1091,6 @@
 			files = (
 				53990E1E1D284551007C84EB /* ReactiveSwift.framework in Copy Frameworks */,
 				53990C441D282490007C84EB /* Result.framework in Copy Frameworks */,
-				53990C451D282490007C84EB /* Nimble.framework in Copy Frameworks */,
-				53990C461D282490007C84EB /* Quick.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1152,6 +1148,8 @@
 		530F8BAE1D0DB7F600009C2C /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Checkouts/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
 		530F8BB01D0DB7FC00009C2C /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Checkouts/Quick/build/Debug/Quick.framework; sourceTree = "<group>"; };
 		530F8BB41D0DBC3200009C2C /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicPropertySpec.swift; sourceTree = "<group>"; };
+		5332070D1D2979D200587DAC /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "../DerivedData/ReactiveCocoa-hgxgehojwapajxgdaexixhamtqan/Build/Products/Debug-iphonesimulator/Quick.framework"; sourceTree = "<group>"; };
+		5332070F1D2979D600587DAC /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "Carthage/Checkouts/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
 		53990BF71D282481007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1520,9 +1518,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				533207101D2979D600587DAC /* Nimble.framework in Frameworks */,
+				5332070E1D2979D200587DAC /* Quick.framework in Frameworks */,
 				53FD788B1D2848F5009BD329 /* ReactiveSwift.framework in Frameworks */,
-				53990C3E1D282490007C84EB /* Nimble.framework in Frameworks */,
-				53990C3F1D282490007C84EB /* Quick.framework in Frameworks */,
 				53990C571D28261C007C84EB /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1953,6 +1951,8 @@
 		D04725E019E49ED7006002AA = {
 			isa = PBXGroup;
 			children = (
+				5332070F1D2979D600587DAC /* Nimble.framework */,
+				5332070D1D2979D200587DAC /* Quick.framework */,
 				530F8BB01D0DB7FC00009C2C /* Quick.framework */,
 				530F8BAE1D0DB7F600009C2C /* Nimble.framework */,
 				D04725EC19E49ED7006002AA /* ReactiveCocoa */,
@@ -4189,9 +4189,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -4203,9 +4205,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Test;
@@ -4217,9 +4221,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -4231,9 +4237,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;

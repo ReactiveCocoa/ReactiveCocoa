@@ -3,8 +3,6 @@ import enum Result.NoError
 
 #if REACTIVE_SWIFT
 import ReactiveSwift
-#else
-import ReactiveCocoa
 #endif
 
 

@@ -198,7 +198,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				enabledSubject = RACSubject()
 				results = []
 
-				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal! in
+				command = RACCommand(enabled: enabledSubject) { (input: AnyObject?) -> RACSignal in
 					let inputNumber = input as! Int
 					return RACSignal.`return`(inputNumber + 1)
 				}

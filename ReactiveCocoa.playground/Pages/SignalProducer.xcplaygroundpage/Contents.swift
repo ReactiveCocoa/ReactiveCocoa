@@ -102,51 +102,6 @@ scopedExample("`never`") {
 }
 
 /*:
- ### `buffer`
- Creates a queue for events that replays them when new signals are
- created from the returned producer.
- 
- When values are put into the returned observer (observer), they will be
- added to an internal buffer. If the buffer is already at capacity,
- the earliest (oldest) value will be dropped to make room for the new
- value.
- 
- Signals created from the returned producer will stay alive until a
- terminating event is added to the queue. If the queue does not contain
- such an event when the Signal is started, all values sent to the
- returned observer will be automatically forwarded to the Signal’s
- observers until a terminating event is received.
- 
- After a terminating event has been added to the queue, the observer
- will not add any further events. This _does not_ count against the
- value capacity so no buffered values will be dropped on termination.
- */
-scopedExample("`buffer`") {
-    let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
-    
-    observer.sendNext(1)
-    observer.sendNext(2)
-    observer.sendNext(3)
-    
-    var values: [Int] = []
-    
-    producer.start { event in
-        switch event {
-        case let .Next(value):
-            values.append(value)
-        default:
-            break
-        }
-    }
-    
-    print(values)
-    
-    observer.sendNext(4)
-    
-    print(values)
-}
-
-/*:
  ### `startWithSignal`
  Creates a Signal from the producer, passes it into the given closure,
  then starts sending events on the Signal when the closure has returned.

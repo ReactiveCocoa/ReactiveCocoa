@@ -35,13 +35,15 @@ class UILabelTests: XCTestCase {
         let label = UILabel(frame: CGRectZero)
         label.text = ""
         
-        let (pipeSignal, observer) = Signal<String, NoError>.pipe()
+        let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
         label.rex_text <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
         XCTAssertEqual(label.text, firstChange)
         observer.sendNext(secondChange)
         XCTAssertEqual(label.text, secondChange)
+        observer.sendNext(nil)
+        XCTAssertNil(label.text)
     }
     
     func testAttributedTextPropertyDoesntCreateRetainCycle() {

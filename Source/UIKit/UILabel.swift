@@ -11,8 +11,8 @@ import UIKit
 
 extension UILabel {
     /// Wraps a label's `text` value in a bindable property.
-    public var rex_text: MutableProperty<String> {
-        return associatedProperty(self, keyPath: "text")
+    public var rex_text: MutableProperty<String?> {
+        return associatedProperty(self, key: &attributedTextKey, initial: { $0.text }, setter: { $0.text = $1 })
     }
     
     /// Wraps a label's `attributedText` value in a bindable property.
@@ -26,5 +26,6 @@ extension UILabel {
     }
 }
 
+private var textKey: UInt8 = 0
 private var attributedTextKey: UInt8 = 0
 private var textColorKey: UInt8 = 0

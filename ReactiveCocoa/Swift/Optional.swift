@@ -11,6 +11,8 @@ public protocol OptionalType {
 	/// The type contained in the otpional.
 	associatedtype Wrapped
 
+	init(reconstructing value: Wrapped?)
+
 	/// Extracts an optional from the receiver.
 	var optional: Wrapped? { get }
 }
@@ -18,5 +20,9 @@ public protocol OptionalType {
 extension Optional: OptionalType {
 	public var optional: Wrapped? {
 		return self
+	}
+
+	public init(reconstructing value: Wrapped?) {
+		self = value
 	}
 }

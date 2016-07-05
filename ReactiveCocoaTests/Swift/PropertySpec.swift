@@ -32,9 +32,9 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.signal.observe { event in
 					switch event {
-					case .Interrupted:
+					case .interrupted:
 						signalInterrupted = true
-					case .Next, .Failed, .Completed:
+					case .next, .failed, .completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}
@@ -51,11 +51,11 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						sentValue = value
-					case .Completed:
+					case .completed:
 						signalCompleted = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -165,11 +165,11 @@ class PropertySpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						producerCompleted = true
-					case .Interrupted, .Failed:
+					case .interrupted, .failed:
 						hasUnanticipatedEvent = true
 					}
 				}
@@ -293,7 +293,7 @@ class PropertySpec: QuickSpec {
 		}
 
 		describe("AnyProperty") {
-			describe("from a PropertyType") {
+			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
 					let property = AnyProperty(constantProperty)
@@ -305,22 +305,22 @@ class PropertySpec: QuickSpec {
 
 					property.producer.start { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							sentValue = value
-						case .Completed:
+						case .completed:
 							producerCompleted = true
-						case .Failed, .Interrupted:
+						case .failed, .interrupted:
 							break
 						}
 					}
 
 					property.signal.observe { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							signalSentValue = value
-						case .Interrupted:
+						case .interrupted:
 							signalInterrupted = true
-						case .Failed, .Completed:
+						case .failed, .completed:
 							break
 						}
 					}
@@ -334,18 +334,16 @@ class PropertySpec: QuickSpec {
 			
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer.never)
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: SignalProducer.never)
+
 					expect(property.value) == initialPropertyValue
 				}
 				
 				it("should take on each value sent on the producer") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer(value: subsequentPropertyValue))
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: SignalProducer(value: subsequentPropertyValue))
+
 					expect(property.value) == subsequentPropertyValue
 				}
 			}
@@ -354,10 +352,9 @@ class PropertySpec: QuickSpec {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						signal: signal)
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           followingBy: signal)
+
 					expect(property.value) == initialPropertyValue
 					
 					observer.sendNext(subsequentPropertyValue)
@@ -569,9 +566,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed) == false
+					expect(bindingDisposable.isDisposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -582,7 +579,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 
@@ -618,7 +615,7 @@ class PropertySpec: QuickSpec {
 
 					observer.sendCompleted()
 
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 
 				it("should tear down the binding when the property deallocates") {
@@ -629,7 +626,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 			}
 
@@ -685,7 +682,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 

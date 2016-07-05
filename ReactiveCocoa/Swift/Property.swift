@@ -2,7 +2,7 @@ import Foundation
 import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
-public protocol PropertyType {
+public protocol PropertyProtocol {
 	associatedtype Value
 
 	/// The current value of the property.
@@ -17,8 +17,7 @@ public protocol PropertyType {
 }
 
 /// A read-only property that allows observation of its changes.
-public struct AnyProperty<Value>: PropertyType {
-
+public struct AnyProperty<Value>: PropertyProtocol {
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
 	private let _signal: () -> Signal<Value, NoError>
@@ -37,42 +36,42 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 	
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyType where P.Value == Value>(_ property: P) {
+	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
-	
+
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
+	public init(initial: Value, followingBy producer: SignalProducer<Value, NoError>) {
+		let mutableProperty = MutableProperty(initial)
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
 	
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
-	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		let mutableProperty = MutableProperty(initialValue)
+	public init(initial: Value, followingBy signal: Signal<Value, NoError>) {
+		let mutableProperty = MutableProperty(initial)
 		mutableProperty <~ signal
 		self.init(mutableProperty)
 	}
 }
 
-extension PropertyType {
+extension PropertyProtocol {
 	/// Maps the current value and all subsequent values to a new value.
-	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+	public func map<U>(transform: (Value) -> U) -> AnyProperty<U> {
 		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
-			disposable += ActionDisposable { self }
+			disposable += ActionDisposable { _ = self }
 			disposable += self.producer.map(transform).start(observer)
 		}
-		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+		return AnyProperty(initial: transform(value), followingBy: mappedProducer)
 	}
 }
 
 /// A property that never changes.
-public struct ConstantProperty<Value>: PropertyType {
+public struct ConstantProperty<Value>: PropertyProtocol {
 
 	public let value: Value
 	public let producer: SignalProducer<Value, NoError>
@@ -90,28 +89,27 @@ public struct ConstantProperty<Value>: PropertyType {
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
+public protocol MutablePropertyProtocol: class, PropertyProtocol {
 	var value: Value { get set }
 }
 
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
-public final class MutableProperty<Value>: MutablePropertyType {
-
+public final class MutableProperty<Value>: MutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
-	private let lock: NSRecursiveLock
+	private let lock: RecursiveLock
 
 	/// The getter of the underlying storage, which may outlive the property
 	/// if a returned producer is being retained.
 	private let getter: () -> Value
 
 	/// The setter of the underlying storage.
-	private let setter: Value -> Void
+	private let setter: (Value) -> Void
 
 	/// The current value of the property.
 	///
@@ -123,7 +121,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 
 		set {
-			swap(newValue)
+			_ = swap(newValue)
 		}
 	}
 
@@ -154,7 +152,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	public init(_ initialValue: Value) {
 		var value = initialValue
 
-		lock = NSRecursiveLock()
+		lock = RecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
 		getter = { value }
@@ -166,14 +164,15 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
+	public func swap(_ newValue: Value) -> Value {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+	@discardableResult
+	public func modify(_ action: @noescape (Value) throws -> Value) rethrows -> Value {
 		return try withValue { value in
 			let newValue = try action(value)
 			setter(newValue)
@@ -186,7 +185,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+	@discardableResult
+	public func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
 
@@ -210,7 +210,8 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
 		disposable.dispose()
@@ -218,11 +219,11 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 
 	disposable += signal.observe { [weak property] event in
 		switch event {
-		case let .Next(value):
+		case let .next(value):
 			property?.value = value
-		case .Completed:
+		case .completed:
 			disposable.dispose()
-		case .Failed, .Interrupted:
+		case .failed, .interrupted:
 			break
 		}
 	}
@@ -237,7 +238,8 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
 	producer
@@ -259,6 +261,7 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
-public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+@discardableResult
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

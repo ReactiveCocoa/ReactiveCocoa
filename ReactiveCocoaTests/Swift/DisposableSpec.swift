@@ -15,10 +15,10 @@ class DisposableSpec: QuickSpec {
 		describe("SimpleDisposable") {
 			it("should set disposed to true") {
 				let disposable = SimpleDisposable()
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 
 				disposable.dispose()
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 		}
 
@@ -30,11 +30,11 @@ class DisposableSpec: QuickSpec {
 				}
 
 				expect(didDispose) == false
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 
 				disposable.dispose()
 				expect(didDispose) == true
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 		}
 
@@ -46,27 +46,27 @@ class DisposableSpec: QuickSpec {
 			}
 
 			it("should ignore the addition of nil") {
-				disposable.addDisposable(nil)
+				disposable.add(nil)
 				return
 			}
 
 			it("should dispose of added disposables") {
 				let simpleDisposable = SimpleDisposable()
-				disposable.addDisposable(simpleDisposable)
+				disposable += simpleDisposable
 
 				var didDispose = false
-				disposable.addDisposable {
+				disposable += {
 					didDispose = true
 				}
 
-				expect(simpleDisposable.disposed) == false
+				expect(simpleDisposable.isDisposed) == false
 				expect(didDispose) == false
-				expect(disposable.disposed) == false
+				expect(disposable.isDisposed) == false
 
 				disposable.dispose()
-				expect(simpleDisposable.disposed) == true
+				expect(simpleDisposable.isDisposed) == true
 				expect(didDispose) == true
-				expect(disposable.disposed) == true
+				expect(disposable.isDisposed) == true
 			}
 
 			it("should not dispose of removed disposables") {
@@ -76,10 +76,10 @@ class DisposableSpec: QuickSpec {
 				// We should be allowed to call this any number of times.
 				handle.remove()
 				handle.remove()
-				expect(simpleDisposable.disposed) == false
+				expect(simpleDisposable.isDisposed) == false
 
 				disposable.dispose()
-				expect(simpleDisposable.disposed) == false
+				expect(simpleDisposable.isDisposed) == false
 			}
 		}
 
@@ -89,14 +89,14 @@ class DisposableSpec: QuickSpec {
 
 				func runScoped() {
 					let scopedDisposable = ScopedDisposable(simpleDisposable)
-					expect(simpleDisposable.disposed) == false
-					expect(scopedDisposable.disposed) == false
+					expect(simpleDisposable.isDisposed) == false
+					expect(scopedDisposable.isDisposed) == false
 				}
 
-				expect(simpleDisposable.disposed) == false
+				expect(simpleDisposable.isDisposed) == false
 
 				runScoped()
-				expect(simpleDisposable.disposed) == true
+				expect(simpleDisposable.isDisposed) == true
 			}
 		}
 
@@ -112,13 +112,13 @@ class DisposableSpec: QuickSpec {
 				disposable.innerDisposable = simpleDisposable
 
 				expect(disposable.innerDisposable).notTo(beNil())
-				expect(simpleDisposable.disposed) == false
-				expect(disposable.disposed) == false
+				expect(simpleDisposable.isDisposed) == false
+				expect(disposable.isDisposed) == false
 
 				disposable.dispose()
 				expect(disposable.innerDisposable).to(beNil())
-				expect(simpleDisposable.disposed) == true
-				expect(disposable.disposed) == true
+				expect(simpleDisposable.isDisposed) == true
+				expect(disposable.isDisposed) == true
 			}
 
 			it("should dispose of the previous disposable when swapping innerDisposable") {
@@ -126,17 +126,17 @@ class DisposableSpec: QuickSpec {
 				let newDisposable = SimpleDisposable()
 
 				disposable.innerDisposable = oldDisposable
-				expect(oldDisposable.disposed) == false
-				expect(newDisposable.disposed) == false
+				expect(oldDisposable.isDisposed) == false
+				expect(newDisposable.isDisposed) == false
 
 				disposable.innerDisposable = newDisposable
-				expect(oldDisposable.disposed) == true
-				expect(newDisposable.disposed) == false
-				expect(disposable.disposed) == false
+				expect(oldDisposable.isDisposed) == true
+				expect(newDisposable.isDisposed) == false
+				expect(disposable.isDisposed) == false
 
 				disposable.innerDisposable = nil
-				expect(newDisposable.disposed) == true
-				expect(disposable.disposed) == false
+				expect(newDisposable.isDisposed) == true
+				expect(disposable.isDisposed) == false
 			}
 		}
 	}

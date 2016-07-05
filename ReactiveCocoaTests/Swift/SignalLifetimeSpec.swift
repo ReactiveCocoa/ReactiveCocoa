@@ -49,7 +49,7 @@ class SignalLifetimeSpec: QuickSpec {
 			it("should deallocate after erroring") {
 				weak var signal: Signal<AnyObject, TestError>? = Signal { observer in
 					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
+						observer.sendFailed(TestError.default)
 					}
 					return nil
 				}
@@ -129,7 +129,7 @@ class SignalLifetimeSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
-						observer.sendFailed(TestError.Default)
+						observer.sendFailed(TestError.default)
 					}
 				}
 				test()
@@ -267,14 +267,14 @@ class SignalLifetimeSpec: QuickSpec {
 				observer.sendNext(2)
 				expectTokenNotDeallocated()
 
-				observer.sendFailed(.Default)
+				observer.sendFailed(.default)
 				expectTokenDeallocated()
 			}
 		}
 	}
 }
 
-private extension SignalType {
+private extension SignalProtocol {
 	func testTransform() -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe(observer.action)

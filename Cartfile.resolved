@@ -1,4 +1,4 @@
-github "Quick/Nimble" "v4.0.1"
-github "Quick/Quick" "v0.9.2"
-github "antitypical/Result" "2.1.0"
+github "norio-nomura/Nimble" "fd248426eb8692b4616c2b842fcb9a2579b964e8"
+github "norio-nomura/Quick" "d3980a8bbafb13a973cb3018490e6577ee8307fd"
+github "liscio/Result" "e96316e6afabd5e1f1389571babc3cfee5edb5b9"
 github "jspahrsummers/xcconfigs" "0.9"

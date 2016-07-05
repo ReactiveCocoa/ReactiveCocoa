@@ -1,10 +1,10 @@
 import Foundation
 
-public func scopedExample(exampleDescription: String, _ action: () -> Void) {
+public func scopedExample(_ exampleDescription: String, _ action: () -> Void) {
 	print("\n--- \(exampleDescription) ---\n")
 	action()
 }
 
-public enum Error: ErrorType {
-	case Example(String)
+public enum Error: ErrorProtocol {
+	case example(String)
 }

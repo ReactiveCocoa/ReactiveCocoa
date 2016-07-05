@@ -6,28 +6,28 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-/// Represents something that can be “disposed,” usually associated with freeing
+/// Represents something that can be “isDisposed,” usually associated with freeing
 /// resources or canceling work.
 public protocol Disposable: class {
-	/// Whether this disposable has been disposed already.
-	var disposed: Bool { get }
+	/// Whether this disposable has been isDisposed already.
+	var isDisposed: Bool { get }
 
 	func dispose()
 }
 
-/// A disposable that only flips `disposed` upon disposal, and performs no other
+/// A disposable that only flips `isDisposed` upon disposal, and performs no other
 /// work.
 public final class SimpleDisposable: Disposable {
-	private let _disposed = Atomic(false)
+	private let _isDisposed = Atomic(false)
 
-	public var disposed: Bool {
-		return _disposed.value
+	public var isDisposed: Bool {
+		return _isDisposed.value
 	}
 
 	public init() {}
 
 	public func dispose() {
-		_disposed.value = true
+		_isDisposed.value = true
 	}
 }
 
@@ -35,7 +35,7 @@ public final class SimpleDisposable: Disposable {
 public final class ActionDisposable: Disposable {
 	private let action: Atomic<(() -> Void)?>
 
-	public var disposed: Bool {
+	public var isDisposed: Bool {
 		return action.value == nil
 	}
 
@@ -77,25 +77,25 @@ public final class CompositeDisposable: Disposable {
 		/// that are no longer needed.
 		public func remove() {
 			if let token = bagToken.swap(nil) {
-				disposable?.disposables.modify { bag in
+				_ = disposable?.disposables.modify { bag in
 					guard var bag = bag else {
 						return nil
 					}
 
-					bag.removeValueForToken(token)
+					bag.remove(using: token)
 					return bag
 				}
 			}
 		}
 	}
 
-	public var disposed: Bool {
+	public var isDisposed: Bool {
 		return disposables.value == nil
 	}
 
 	/// Initializes a CompositeDisposable containing the given sequence of
 	/// disposables.
-	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
+	public init<S: Sequence where S.Iterator.Element == Disposable>(_ disposables: S) {
 		var bag: Bag<Disposable> = Bag()
 
 		for disposable in disposables {
@@ -107,7 +107,7 @@ public final class CompositeDisposable: Disposable {
 	
 	/// Initializes a CompositeDisposable containing the given sequence of
 	/// disposables.
-	public convenience init<S: SequenceType where S.Generator.Element == Disposable?>(_ disposables: S) {
+	public convenience init<S: Sequence where S.Iterator.Element == Disposable?>(_ disposables: S) {
 		self.init(disposables.flatMap { $0 })
 	}
 
@@ -118,7 +118,7 @@ public final class CompositeDisposable: Disposable {
 
 	public func dispose() {
 		if let ds = disposables.swap(nil) {
-			for d in ds.reverse() {
+			for d in ds.reversed() {
 				d.dispose()
 			}
 		}
@@ -126,7 +126,8 @@ public final class CompositeDisposable: Disposable {
 
 	/// Adds the given disposable to the list, then returns a handle which can
 	/// be used to opaquely remove the disposable later (if desired).
-	public func addDisposable(d: Disposable?) -> DisposableHandle {
+	@discardableResult
+	public func add(_ d: Disposable?) -> DisposableHandle {
 		guard let d = d else {
 			return DisposableHandle.empty
 		}
@@ -152,20 +153,20 @@ public final class CompositeDisposable: Disposable {
 	}
 
 	/// Adds an ActionDisposable to the list.
-	public func addDisposable(action: () -> Void) -> DisposableHandle {
-		return addDisposable(ActionDisposable(action: action))
+	public func add(_ action: () -> Void) -> DisposableHandle {
+		return add(ActionDisposable(action: action))
 	}
 }
 
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
 public final class ScopedDisposable: Disposable {
-	/// The disposable which will be disposed when the ScopedDisposable
+	/// The disposable which will be isDisposed when the ScopedDisposable
 	/// deinitializes.
 	public let innerDisposable: Disposable
 
-	public var disposed: Bool {
-		return innerDisposable.disposed
+	public var isDisposed: Bool {
+		return innerDisposable.isDisposed
 	}
 
 	/// Initializes the receiver to dispose of the argument upon
@@ -187,19 +188,19 @@ public final class ScopedDisposable: Disposable {
 public final class SerialDisposable: Disposable {
 	private struct State {
 		var innerDisposable: Disposable? = nil
-		var disposed = false
+		var isDisposed = false
 	}
 
 	private let state = Atomic(State())
 
-	public var disposed: Bool {
-		return state.value.disposed
+	public var isDisposed: Bool {
+		return state.value.isDisposed
 	}
 
 	/// The inner disposable to dispose of.
 	///
 	/// Whenever this property is set (even to the same value!), the previous
-	/// disposable is automatically disposed.
+	/// disposable is automatically isDisposed.
 	public var innerDisposable: Disposable? {
 		get {
 			return state.value.innerDisposable
@@ -213,20 +214,20 @@ public final class SerialDisposable: Disposable {
 			}
 
 			oldState.innerDisposable?.dispose()
-			if oldState.disposed {
+			if oldState.isDisposed {
 				d?.dispose()
 			}
 		}
 	}
 
 	/// Initializes the receiver to dispose of the argument when the
-	/// SerialDisposable is disposed.
+	/// SerialDisposable is isDisposed.
 	public init(_ disposable: Disposable? = nil) {
 		innerDisposable = disposable
 	}
 
 	public func dispose() {
-		let orig = state.swap(State(innerDisposable: nil, disposed: true))
+		let orig = state.swap(State(innerDisposable: nil, isDisposed: true))
 		orig.innerDisposable?.dispose()
 	}
 }
@@ -239,8 +240,9 @@ public final class SerialDisposable: Disposable {
 ///         .map    { ... }
 ///         .start(observer)
 ///
+@discardableResult
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
-	return lhs.addDisposable(rhs)
+	return lhs.add(rhs)
 }
 
 /// Adds the right-hand-side `ActionDisposable` to the left-hand-side
@@ -248,6 +250,7 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 ///
 ///     disposable += { ... }
 ///
+@discardableResult
 public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
-	return lhs.addDisposable(rhs)
+	return lhs.add(rhs)
 }

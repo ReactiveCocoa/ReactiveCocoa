@@ -5,8 +5,8 @@ import enum Result.NoError
 public protocol PropertyType {
 	associatedtype Value
 
-	/// The current value of the property.
-	var value: Value { get }
+	/// The atomic value of the property.
+	var atomic: AnyAtomic<Value> { get }
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time.
@@ -16,16 +16,32 @@ public protocol PropertyType {
 	var signal: Signal<Value, NoError> { get }
 }
 
+public extension PropertyType {
+	/// Atomically performs an arbitrary action using the current value of the
+	/// property.
+	///
+	/// Returns the result of the action.
+	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+		return try self.atomic.withValue(action)
+	}
+}
+
+public extension PropertyType {
+	/// The current value of the property.
+	var value: Value {
+		return self.withValue { $0 }
+	}
+}
+
 /// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyType {
 
-	private let _value: () -> Value
+	private let _atomic: () -> AnyAtomic<Value>
 	private let _producer: () -> SignalProducer<Value, NoError>
 	private let _signal: () -> Signal<Value, NoError>
 
-
-	public var value: Value {
-		return _value()
+	public var atomic: AnyAtomic<Value> {
+		return _atomic()
 	}
 
 	public var producer: SignalProducer<Value, NoError> {
@@ -35,10 +51,10 @@ public struct AnyProperty<Value>: PropertyType {
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
-	
+
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		_value = { property.value }
+		_atomic = { property.atomic }
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
@@ -63,24 +79,25 @@ public struct AnyProperty<Value>: PropertyType {
 extension PropertyType {
 	/// Maps the current value and all subsequent values to a new value.
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
-		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
-			disposable += ActionDisposable { self }
-			disposable += self.producer.map(transform).start(observer)
+		return self.withValue { value in
+			let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
+				disposable += ActionDisposable { self }
+				disposable += self.producer.map(transform).start(observer)
+				return AnyProperty(initialValue: transform(value), producer: mappedProducer)
+			}
 		}
-		return AnyProperty(initialValue: transform(value), producer: mappedProducer)
-	}
 }
 
 /// A property that never changes.
 public struct ConstantProperty<Value>: PropertyType {
 
-	public let value: Value
+	public let atomic: AnyAtomic<Value>
 	public let producer: SignalProducer<Value, NoError>
 	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
 	public init(_ value: Value) {
-		self.value = value
+		self.atomic = AnyAtomic(value: value)
 		self.producer = SignalProducer(value: value)
 		self.signal = .empty
 	}
@@ -104,14 +121,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
-	private let lock: NSRecursiveLock
-
-	/// The getter of the underlying storage, which may outlive the property
-	/// if a returned producer is being retained.
-	private let getter: () -> Value
-
-	/// The setter of the underlying storage.
-	private let setter: Value -> Void
+	private var _value: Atomic<Value>
 
 	/// The current value of the property.
 	///
@@ -127,6 +137,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 	}
 
+	public var atomic: AnyAtomic<Value> {
+		return AnyAtomic(atomic: _value)
+	}
+
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
 	public let signal: Signal<Value, NoError>
@@ -135,7 +149,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
+		return SignalProducer { [_value, weak self] producerObserver, producerDisposable in
 			if let strongSelf = self {
 				strongSelf.withValue { value in
 					producerObserver.sendNext(value)
@@ -144,7 +158,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 			} else {
 				/// As the setter would have been deinitialized with the property,
 				/// the underlying storage would be immutable, and locking is no longer necessary.
-				producerObserver.sendNext(getter())
+				producerObserver.sendNext(_value.value)
 				producerObserver.sendCompleted()
 			}
 		}
@@ -152,14 +166,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
-		var value = initialValue
-
-		lock = NSRecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
-
-		getter = { value }
-		setter = { newValue in value = newValue }
-
+		_value = Atomic(initialValue, mutex: RecursiveLock("org.reactivecocoa.ReactiveCocoa.MutableProperty"))
 		(signal, observer) = Signal.pipe()
 	}
 
@@ -174,23 +181,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// Returns the old value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
-		return try withValue { value in
-			let newValue = try action(value)
-			setter(newValue)
-			observer.sendNext(newValue)
-			return value
-		}
-	}
-
-	/// Atomically performs an arbitrary action using the current value of the
-	/// variable.
-	///
-	/// Returns the result of the action.
-	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
-		lock.lock()
-		defer { lock.unlock() }
-
-		return try action(getter())
+		return try _value.modify(action, completion: observer.sendNext)
 	}
 
 	deinit {

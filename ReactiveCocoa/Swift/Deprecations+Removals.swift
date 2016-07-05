@@ -17,6 +17,6 @@ extension SignalProducer {
 extension SignalProducerType {
 	@available(*, unavailable, message="This SignalProducer may emit errors which must be handled explicitly, or observed using startWithResult:")
 	public func startWithNext(next: Value -> Void) -> Disposable {
-		return start(Observer(next: next))
+		fatalError()
 	}
 }

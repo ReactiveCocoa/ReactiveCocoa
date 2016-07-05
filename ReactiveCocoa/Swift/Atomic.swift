@@ -35,22 +35,22 @@ public final class PosixThreadMutex: MutexType {
 	
 	public init() {
 		let result = pthread_mutex_init(&mutex, nil)
-		assert(result == 0, "Failed to initialize mutex with error \(result).")
+		precondition(result == 0, "Failed to initialize mutex with error \(result).")
 	}
 	
 	deinit {
 		let result = pthread_mutex_destroy(&mutex)
-		assert(result == 0, "Failed to destroy mutex with error \(result).")
+		precondition(result == 0, "Failed to destroy mutex with error \(result).")
 	}
 	
 	public func lock() {
 		let result = pthread_mutex_lock(&mutex)
-		assert(result == 0, "Failed to lock \(self) with error \(result).")
+		precondition(result == 0, "Failed to lock \(self) with error \(result).")
 	}
 	
 	public func unlock() {
 		let result = pthread_mutex_unlock(&mutex)
-		assert(result == 0, "Failed to unlock \(self) with error \(result).")
+		precondition(result == 0, "Failed to unlock \(self) with error \(result).")
 	}
 }
 

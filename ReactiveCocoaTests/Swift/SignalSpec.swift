@@ -314,19 +314,6 @@ class SignalSpec: QuickSpec {
 				expect(values) == [1]
 			}
 
-			//  TODO: remove when the method is marked unavailable
-			it("receives next values with erroring signal") {
-				var values = [Int]()
-				let (signal, observer) = Signal<Int, TestError>.pipe()
-
-				signal.observeNext { next in
-					values.append(next)
-				}
-
-				observer.sendNext(1)
-				expect(values) == [1]
-			}
-
 			it("receives results") {
 				let (signal, observer) = Signal<Int, TestError>.pipe()
 

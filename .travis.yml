@@ -9,10 +9,6 @@ env:
 
 git:
   submodules: false
-before_install:
-  - curl -OlL "https://github.com/Carthage/Carthage/releases/download/0.11/Carthage.pkg"
-  - sudo installer -pkg "Carthage.pkg" -target /
-  - rm "Carthage.pkg"
 
 script:
   - set -o pipefail

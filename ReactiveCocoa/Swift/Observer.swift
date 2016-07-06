@@ -7,7 +7,7 @@
 //
 
 /// A protocol for type-constrained extensions of `Observer`.
-public protocol ObserverType {
+public protocol ObserverProtocol {
 	associatedtype Value
 	associatedtype Error: ErrorProtocol
 
@@ -54,7 +54,7 @@ public struct Observer<Value, Error: ErrorProtocol> {
 	}
 }
 
-extension Observer: ObserverType {
+extension Observer: ObserverProtocol {
 	/// Puts a `Next` event into the given observer.
 	public func sendNext(_ value: Value) {
 		action(.next(value))

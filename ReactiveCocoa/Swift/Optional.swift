@@ -7,7 +7,7 @@
 //
 
 /// An optional protocol for use in type constraints.
-public protocol OptionalType {
+public protocol OptionalProtocol {
 	/// The type contained in the otpional.
 	associatedtype Wrapped
 
@@ -17,7 +17,7 @@ public protocol OptionalType {
 	var optional: Wrapped? { get }
 }
 
-extension Optional: OptionalType {
+extension Optional: OptionalProtocol {
 	public var optional: Wrapped? {
 		return self
 	}

@@ -274,7 +274,7 @@ extension SignalProtocol {
 	}
 }
 
-extension SignalProtocol where Value: OptionalType {
+extension SignalProtocol where Value: OptionalProtocol {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	public func ignoreNil() -> Signal<Value.Wrapped, Error> {

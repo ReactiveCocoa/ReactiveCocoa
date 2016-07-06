@@ -89,7 +89,7 @@ extension SignalProducerProtocol where Value: AnyObject {
 	}
 }
 
-extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyObject {
+extension SignalProducerProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject {
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
@@ -113,7 +113,7 @@ extension SignalProducerProtocol where Value: AnyObject, Error: NSError {
 	}
 }
 
-extension SignalProducerProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Error: NSError {
+extension SignalProducerProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will start() the producer once for each
 	/// subscription.
 	///
@@ -165,7 +165,7 @@ extension SignalProtocol where Value: AnyObject, Error: NSError {
 	}
 }
 
-extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject {
+extension SignalProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject {
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// Any `Interrupted` event will be silently discarded.
@@ -176,7 +176,7 @@ extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject {
 	}
 }
 
-extension SignalProtocol where Value: OptionalType, Value.Wrapped: AnyObject, Error: NSError {
+extension SignalProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject, Error: NSError {
 	/// Creates a RACSignal that will observe the given signal.
 	///
 	/// Any `Interrupted` event will be silently discarded.
@@ -255,7 +255,7 @@ extension ActionProtocol where Input: AnyObject, Output: AnyObject {
 	}
 }
 
-extension ActionProtocol where Input: OptionalType, Input.Wrapped: AnyObject, Output: AnyObject {
+extension ActionProtocol where Input: OptionalProtocol, Input.Wrapped: AnyObject, Output: AnyObject {
 	/// Creates a RACCommand that will execute the action.
 	///
 	/// Note that the returned command will not necessarily be marked as
@@ -270,7 +270,7 @@ extension ActionProtocol where Input: OptionalType, Input.Wrapped: AnyObject, Ou
 	}
 }
 
-extension ActionProtocol where Input: AnyObject, Output: OptionalType, Output.Wrapped: AnyObject {
+extension ActionProtocol where Input: AnyObject, Output: OptionalProtocol, Output.Wrapped: AnyObject {
 	/// Creates a RACCommand that will execute the action.
 	///
 	/// Note that the returned command will not necessarily be marked as
@@ -285,7 +285,7 @@ extension ActionProtocol where Input: AnyObject, Output: OptionalType, Output.Wr
 	}
 }
 
-extension ActionProtocol where Input: OptionalType, Input.Wrapped: AnyObject, Output: OptionalType, Output.Wrapped: AnyObject {
+extension ActionProtocol where Input: OptionalProtocol, Input.Wrapped: AnyObject, Output: OptionalProtocol, Output.Wrapped: AnyObject {
 	/// Creates a RACCommand that will execute the action.
 	///
 	/// Note that the returned command will not necessarily be marked as

@@ -788,7 +788,7 @@ extension SignalProducerProtocol {
 	}
 }
 
-extension SignalProducerProtocol where Value: OptionalType {
+extension SignalProducerProtocol where Value: OptionalProtocol {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
 	public func ignoreNil() -> SignalProducer<Value.Wrapped, Error> {

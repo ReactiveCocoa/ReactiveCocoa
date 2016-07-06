@@ -1,7 +1,8 @@
 # Rex [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 Extensions for [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) that may not fit in the core framework.
 
-New development targets RAC 4/Swift 2/Xcode 7. For RAC 3 support [see the 0.5 release](https://github.com/neilpa/Rex/releases/tag/v0.5.0).
+New development targets RAC 4/Swift 2/Xcode 7. For RAC 3 support [see the 0.5 
+release](https://github.com/RACCommunity/Rex/releases/tag/v0.5.0).
 
 ## Signal
 All `Signal` operators are available for `SignaProducer`s too via explicit `lift`ing.
@@ -54,7 +55,7 @@ Flexible way to bind `CocoaAction` to the press of button. In addition the butto
 
 ```swift
 let downloadAction = Action<UIButton, NSData, NSError> { _ in
-    let url = NSURL(string: "https://github.com/neilpa/Rex/archive/master.zip")
+    let url = NSURL(string: "https://github.com/RACCommunity/Rex/archive/master.zip")
     let request = NSURLRequest(URL: url!)
     return NSURLSession.sharedSession().rac_dataWithRequest(request).map { $0.0 }
 }

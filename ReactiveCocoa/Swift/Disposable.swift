@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-/// Represents something that can be “isDisposed,” usually associated with freeing
+/// Represents something that can be “disposed”, usually associated with freeing
 /// resources or canceling work.
 public protocol Disposable: class {
-	/// Whether this disposable has been isDisposed already.
+	/// Whether this disposable has been disposed already.
 	var isDisposed: Bool { get }
 
 	func dispose()
@@ -151,7 +151,7 @@ public final class CompositeDisposable: Disposable {
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
 public final class ScopedDisposable: Disposable {
-	/// The disposable which will be isDisposed when the ScopedDisposable
+	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
 	public let innerDisposable: Disposable
 
@@ -190,7 +190,7 @@ public final class SerialDisposable: Disposable {
 	/// The inner disposable to dispose of.
 	///
 	/// Whenever this property is set (even to the same value!), the previous
-	/// disposable is automatically isDisposed.
+	/// disposable is automatically disposed.
 	public var innerDisposable: Disposable? {
 		get {
 			return state.value.innerDisposable
@@ -209,7 +209,7 @@ public final class SerialDisposable: Disposable {
 	}
 
 	/// Initializes the receiver to dispose of the argument when the
-	/// SerialDisposable is isDisposed.
+	/// SerialDisposable is disposed.
 	public init(_ disposable: Disposable? = nil) {
 		innerDisposable = disposable
 	}

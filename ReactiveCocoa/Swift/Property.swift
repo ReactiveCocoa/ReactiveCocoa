@@ -20,6 +20,13 @@ public protocol PropertyType: class {
 	/// completes when the property has deinitialized, or has no further
 	/// change.
 	var changes: SignalProducer<Value, NoError> { get }
+
+	/// The property sources to be captured.
+	///
+	/// By default, it returns `self` for all implementations except
+	/// `Property`, which would returns its ultimate sources so as to allow
+	/// intermediate properties to deinitialize after a composition.
+	var sources: [Any] { get }
 }
 
 /// Represents an observable property that can be mutated directly.
@@ -36,6 +43,11 @@ public protocol MutablePropertyType: PropertyType {
 /// A transformed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyType {
+	public var sources: [Any] {
+		/// Generally, only `Property` would have non-`self` sources to be captured.
+		return [self]
+	}
+
 	/// Lifts a unary SignalProducer operator to operate upon PropertyType instead.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
@@ -325,9 +337,8 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 	return nil
 }
 
-/// A read-only, type-erased view of a property.
 public class AnyProperty<Value>: PropertyType {
-	private let sources: [Any]
+	public let sources: [Any]
 	private let disposable: Disposable?
 
 	private let _value: () -> Value
@@ -356,7 +367,7 @@ public class AnyProperty<Value>: PropertyType {
 
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
-		sources = AnyProperty.capture(property)
+		sources = property.sources
 		disposable = nil
 		_value = { property.value }
 		_values = { property.values }
@@ -381,7 +392,7 @@ public class AnyProperty<Value>: PropertyType {
 	/// `property`. The resulting property captures `property`.
 	private convenience init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(property.values),
-		          capturing: AnyProperty.capture(property))
+		          capturing: property.sources)
 	}
 
 	/// Initializes a property by applying the binary `SignalProducer` transform on
@@ -389,7 +400,7 @@ public class AnyProperty<Value>: PropertyType {
 	/// and `anotherProperty`.
 	private convenience init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(firstProperty.values)(secondProperty.values),
-		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
+		          capturing: firstProperty.sources + secondProperty.sources)
 	}
 
 	/// Initializes a property from a producer that promises to send at least one
@@ -426,17 +437,6 @@ public class AnyProperty<Value>: PropertyType {
 
 	deinit {
 		disposable?.dispose()
-	}
-
-	/// Check if `property` is an `AnyProperty` and has already captured its sources
-	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
-	/// which captures `property`.
-	private static func capture<P: PropertyType>(property: P) -> [Any] {
-		if let property = property as? AnyProperty<P.Value> {
-			return property.sources
-		} else {
-			return [property]
-		}
 	}
 }
 

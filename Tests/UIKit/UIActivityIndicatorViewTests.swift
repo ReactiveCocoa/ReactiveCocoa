@@ -19,7 +19,7 @@ class UIActivityIndicatorTests: XCTestCase {
         super.tearDown()
     }
 
-    func testRexAnimatingProperty() {
+    func testAnimatingProperty() {
         let indicatorView = UIActivityIndicatorView(frame: CGRectZero)
         _activityIndicatorView = indicatorView
         
@@ -27,18 +27,8 @@ class UIActivityIndicatorTests: XCTestCase {
         indicatorView.rex_animating <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(indicatorView.animating)
-        observer.sendNext(false)
-        XCTAssertFalse(indicatorView.animating)
-    }
-
-    func testAnimatingProperty() {
-        let indicatorView = UIActivityIndicatorView(frame: CGRectZero)
-
-        indicatorView.animating = true
         XCTAssertTrue(indicatorView.isAnimating())
-
-        indicatorView.animating = false
+        observer.sendNext(false)
         XCTAssertFalse(indicatorView.isAnimating())
     }
 }

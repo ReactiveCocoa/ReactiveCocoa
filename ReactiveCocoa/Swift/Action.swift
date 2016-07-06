@@ -59,7 +59,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
-	public init<P: PropertyProtocol where P.Value == Bool>(enabling property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
+	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
 		isUserEnabled = AnyProperty(property)
 
@@ -76,7 +76,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	/// Initializes an action that will be enabled by default, and create a
 	/// SignalProducer for each input.
 	public convenience init(_ execute: (Input) -> SignalProducer<Output, Error>) {
-		self.init(enabling: ConstantProperty(true), execute)
+		self.init(enabledIf: ConstantProperty(true), execute)
 	}
 
 	deinit {

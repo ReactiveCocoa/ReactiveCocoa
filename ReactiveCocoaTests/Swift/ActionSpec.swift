@@ -31,7 +31,7 @@ class ActionSpec: QuickSpec {
 				enabled = MutableProperty(false)
 
 				scheduler = TestScheduler()
-				action = Action(enabling: enabled) { number in
+				action = Action(enabledIf: enabled) { number in
 					return SignalProducer { observer, disposable in
 						executionCount += 1
 

@@ -256,7 +256,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				results = []
 				enabledProperty = MutableProperty(true)
 
-				action = Action(enabling: enabledProperty) { input in
+				action = Action(enabledIf: enabledProperty) { input in
 					let inputNumber = input as! Int
 					return SignalProducer(value: "\(inputNumber + 1)")
 				}

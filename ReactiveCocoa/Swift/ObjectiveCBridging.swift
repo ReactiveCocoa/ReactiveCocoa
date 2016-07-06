@@ -231,7 +231,7 @@ public func bridgedAction<Input>(from command: RACCommand<Input>, file: String =
 		.map { $0 as! Bool }
 		.flatMapError { _ in SignalProducer<Bool, NoError>(value: false) }
 
-	return Action(enabling: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
+	return Action(enabledIf: enabledProperty) { input -> SignalProducer<AnyObject?, NSError> in
 		let executionSignal = RACSignal.`defer` {
 			return command.execute(input)
 		}

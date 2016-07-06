@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		4238D5961B4D5950008534C0 /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4238D5951B4D5950008534C0 /* NSTextField.swift */; };
+		45CED46F1D27C1E300788BDC /* UIActivityIndicatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46D1D27C1D400788BDC /* UIActivityIndicatorViewTests.swift */; };
+		45CED4701D27C1E400788BDC /* UIActivityIndicatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46D1D27C1D400788BDC /* UIActivityIndicatorViewTests.swift */; };
+		45CED4711D27C1EB00788BDC /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */; };
+		45CED4721D27C1EC00788BDC /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */; };
 		5B7F81E31D0842AD0014B06D /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */; };
 		5B7F81E41D0842B50014B06D /* UISegmentedControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882F1D071639000B888F /* UISegmentedControlTests.swift */; };
 		7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */; };
@@ -204,6 +208,8 @@
 
 /* Begin PBXFileReference section */
 		4238D5951B4D5950008534C0 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = NSTextField.swift; path = AppKit/NSTextField.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
+		45CED46D1D27C1D400788BDC /* UIActivityIndicatorViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorViewTests.swift; sourceTree = "<group>"; };
 		5173EBC51B625A2600C9B48E /* UIBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UIBarItem.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UIBarButtonItem.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISegmentedControl.swift; sourceTree = "<group>"; };
@@ -441,6 +447,7 @@
 		D86FFBD31B34B0E2001A89B3 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */,
 				5173EBC71B625A6800C9B48E /* UIBarButtonItem.swift */,
 				5173EBC51B625A2600C9B48E /* UIBarItem.swift */,
 				D86FFBDC1B34B691001A89B3 /* UIButton.swift */,
@@ -486,6 +493,7 @@
 		D8F073131B861B110047D546 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				45CED46D1D27C1D400788BDC /* UIActivityIndicatorViewTests.swift */,
 				8295FD8B1B873748007C9000 /* UIBarButtonItemTests.swift */,
 				8295FD881B873490007C9000 /* UIButtonTests.swift */,
 				7DCF5B351CC80E8E004AEE75 /* UICollectionReusableViewTests.swift */,
@@ -861,6 +869,7 @@
 				D86FFBD61B34B116001A89B3 /* UIControl.swift in Sources */,
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
 				D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */,
+				45CED4711D27C1EB00788BDC /* UIActivityIndicatorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,6 +878,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6933BEA1CD9C335006F7CE7 /* UIProgressViewTests.swift in Sources */,
+				45CED46F1D27C1E300788BDC /* UIActivityIndicatorViewTests.swift in Sources */,
 				CC02C18B1CCA704F0025CC04 /* ActionTests.swift in Sources */,
 				7DC325801CC6FD2100746D88 /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				8289A2E11BD7EF1F0097FB60 /* UIImageViewTests.swift in Sources */,
@@ -934,6 +944,7 @@
 				D8715DC81C211553005F4191 /* UIButton.swift in Sources */,
 				D8715DC71C211553005F4191 /* UIBarItem.swift in Sources */,
 				D8715DC11C2112D6005F4191 /* NSUserDefaults.swift in Sources */,
+				45CED4721D27C1EC00788BDC /* UIActivityIndicatorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -956,6 +967,7 @@
 				D8715DE41C211643005F4191 /* UIImageViewTests.swift in Sources */,
 				D8715DE31C211643005F4191 /* UILabelTests.swift in Sources */,
 				D8715DE01C211643005F4191 /* UIBarButtonItemTests.swift in Sources */,
+				45CED4701D27C1E400788BDC /* UIActivityIndicatorViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

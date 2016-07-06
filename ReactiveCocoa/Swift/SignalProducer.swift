@@ -1255,37 +1255,6 @@ private final class DeallocationToken {
 	}
 }
 
-extension SignalProducerProtocol where Value == Date, Error == NoError {
-	/// Creates a repeating timer of the given interval, with a reasonable
-	/// default leeway, sending updates on the given scheduler.
-	///
-	/// This timer will never complete naturally, so all invocations of start() must
-	/// be disposed to avoid leaks.
-	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol) {
-		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
-		// at least 10% of the timer interval.
-		self.init(interval: interval, on: scheduler, leeway: interval * 0.1)
-	}
-
-	/// Creates a repeating timer of the given interval, sending updates on the
-	/// given scheduler.
-	///
-	/// This timer will never complete naturally, so all invocations of start() must
-	/// be disposed to avoid leaks.
-	public init(interval: TimeInterval, on scheduler: DateSchedulerProtocol, leeway: TimeInterval) {
-		precondition(interval >= 0)
-		precondition(leeway >= 0)
-
-		self.init { observer, compositeDisposable in
-			compositeDisposable += scheduler.schedule(after: scheduler.currentDate.addingTimeInterval(interval),
-			                                          interval: interval,
-			                                          leeway: leeway) {
-				observer.sendNext(scheduler.currentDate)
-			}
-		}
-	}
-}
-
 extension SignalProducer {
 	private static func bufferingProducer(upTo capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
@@ -1404,5 +1373,33 @@ private struct BufferState<Value, Error: ErrorProtocol> {
 		if overflow > 0 {
 			values.removeSubrange(0..<overflow)
 		}
+	}
+}
+
+/// Creates a repeating timer of the given interval, with a reasonable
+/// default leeway, sending updates on the given scheduler.
+///
+/// This timer will never complete naturally, so all invocations of start() must
+/// be disposed to avoid leaks.
+public func timer(interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Date, NoError> {
+	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+	// at least 10% of the timer interval.
+	return timer(interval: interval, on: scheduler, leeway: interval * 0.1)
+}
+
+/// Creates a repeating timer of the given interval, sending updates on the
+/// given scheduler.
+///
+/// This timer will never complete naturally, so all invocations of start() must
+/// be disposed to avoid leaks.
+public func timer(interval: TimeInterval, on scheduler: DateSchedulerProtocol, leeway: TimeInterval) -> SignalProducer<Date, NoError> {
+	precondition(interval >= 0)
+	precondition(leeway >= 0)
+
+	return SignalProducer { observer, compositeDisposable in
+		compositeDisposable += scheduler.schedule(after: scheduler.currentDate.addingTimeInterval(interval),
+		                                          interval: interval,
+		                                          leeway: leeway,
+		                                          action: { observer.sendNext(scheduler.currentDate) })
 	}
 }

@@ -699,7 +699,7 @@ class SignalProducerSpec: QuickSpec {
 		describe("timer") {
 			it("should send the current date at the given interval") {
 				let scheduler = TestScheduler()
-				let producer = SignalProducer<Date, NoError>(interval: 1, on: scheduler, leeway: 0)
+				let producer = timer(interval: 1, on: scheduler, leeway: 0)
 
 				let startDate = scheduler.currentDate
 				let tick1 = startDate.addingTimeInterval(1)
@@ -727,7 +727,7 @@ class SignalProducerSpec: QuickSpec {
 
 			it("should release the signal when disposed") {
 				let scheduler = TestScheduler()
-				let producer = SignalProducer<Date, NoError>(interval: 1, on: scheduler, leeway: 0)
+				let producer = timer(interval: 1, on: scheduler, leeway: 0)
 
 				weak var weakSignal: Signal<Date, NoError>?
 				producer.startWithSignal { signal, disposable in
@@ -819,7 +819,7 @@ class SignalProducerSpec: QuickSpec {
 				let startScheduler = TestScheduler()
 				let testScheduler = TestScheduler()
 
-				let producer = SignalProducer<Date, NoError>(interval: 2, on: testScheduler, leeway: 0)
+				let producer = timer(interval: 2, on: testScheduler, leeway: 0)
 
 				var next: NSDate?
 				producer.start(on: startScheduler).startWithNext { next = $0 }

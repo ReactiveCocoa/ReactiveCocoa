@@ -63,13 +63,12 @@ extension UIViewController {
             host.dismissViewControllerAnimated(unwrapped.animated, completion: unwrapped.completion)
         }
         
-        let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter)
-        
-        property <~ rac_signalForSelector(#selector(UIViewController.dismissViewControllerAnimated(_:completion:)))
-            .takeUntilBlock { _ in property.value != nil }
-            .rex_toTriggerSignal()
-            .map { _ in return nil }
-
+        let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter) { property in
+            property <~ self.rac_signalForSelector(#selector(UIViewController.dismissViewControllerAnimated(_:completion:)))
+                .takeUntilBlock { _ in property.value != nil }
+                .rex_toTriggerSignal()
+                .map { _ in return nil }
+        }
         
         return property
     }

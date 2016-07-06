@@ -30,8 +30,7 @@ class UIDatePickerTests: XCTestCase {
         XCTAssertEqual(picker.date, date)
     }
 
-    // FIXME Can this actually be made to work inside XCTest?
-    func _testUpdatePropertyFromPicker() {
+    func testUpdatePropertyFromPicker() {
         let expectation = self.expectationWithDescription("Expected rex_date to send an event when picker's date value is changed by a UI event")
         defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
         

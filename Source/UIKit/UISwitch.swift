@@ -11,17 +11,8 @@ import UIKit
 
 extension UISwitch {
 
-    /// Wraps a switch's `on` state in a bindable property.
+    /// Wraps a switch's `on` value in a bindable property.
     public var rex_on: MutableProperty<Bool> {
-
-        let property = associatedProperty(self, key: &onKey, initial: { $0.on }, setter: { $0.on = $1 })
-
-        property <~ rex_controlEvents(.ValueChanged)
-            .filterMap { ($0 as? UISwitch)?.on }
-
-        return property
+        return UIControl.rex_value(self, getter: { $0.on }, setter: { $0.on = $1 })
     }
-    
 }
-
-private var onKey: UInt8 = 0

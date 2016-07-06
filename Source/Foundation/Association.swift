@@ -50,9 +50,11 @@ public func associatedProperty<T: AnyObject>(host: AnyObject, keyPath: StaticStr
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
 @warn_unused_result(message="Did you forget to use the property?")
-public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointer<()>, @noescape initial: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+public func associatedProperty<Host: AnyObject, T>(host: Host, key: UnsafePointer<()>, @noescape initial: Host -> T, setter: (Host, T) -> (), @noescape setUp: MutableProperty<T> -> () = { _ in }) -> MutableProperty<T> {
     return associatedObject(host, key: key) { host in
         let property = MutableProperty(initial(host))
+
+        setUp(property)
 
         property.producer.startWithNext { [weak host] next in
             if let host = host {

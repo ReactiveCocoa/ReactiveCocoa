@@ -11,6 +11,7 @@ import UIKit
 import enum Result.NoError
 
 extension UIControl {
+
 #if os(iOS)
     /// Creates a producer for the sender whenever a specified control event is triggered.
     @warn_unused_result(message="Did you forget to use the property?")
@@ -19,6 +20,21 @@ extension UIControl {
             .toSignalProducer()
             .map { $0 as? UIControl }
             .flatMapError { _ in SignalProducer(value: nil) }
+    }
+
+    /// Creates a bindable property to wrap a control's value.
+    /// 
+    /// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged` 
+    /// events to detect changes and keep the value up-to-date.
+    //
+    @warn_unused_result(message="Did you forget to use the property?")
+    class func rex_value<Host: UIControl, T>(host: Host, getter: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+        return associatedProperty(host, key: &valueChangedKey, initial: getter, setter: setter) { property in
+            property <~
+                host.rex_controlEvents([.ValueChanged, .EditingChanged])
+                    .filterMap { $0 as? Host }
+                    .filterMap(getter)
+        }
     }
 #endif
 
@@ -41,3 +57,4 @@ extension UIControl {
 private var enabledKey: UInt8 = 0
 private var selectedKey: UInt8 = 0
 private var highlightedKey: UInt8 = 0
+private var valueChangedKey: UInt8 = 0

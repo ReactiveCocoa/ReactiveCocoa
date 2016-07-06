@@ -13,15 +13,19 @@ import Result
 class UISwitchTests: XCTestCase {
     
     func testOnProperty() {
-        let s = UISwitch(frame: CGRectZero)
-        s.on = false
+        let `switch` = UISwitch(frame: CGRectZero)
+        `switch`.on = false
 
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        s.rex_on <~ SignalProducer(signal: pipeSignal)
+        `switch`.rex_on <~ SignalProducer(signal: pipeSignal)
 
         observer.sendNext(true)
-        XCTAssertTrue(s.on)
+        XCTAssertTrue(`switch`.on)
         observer.sendNext(false)
-        XCTAssertFalse(s.on)
+        XCTAssertFalse(`switch`.on)
+
+        `switch`.on = true
+        `switch`.sendActionsForControlEvents(.ValueChanged)
+        XCTAssertTrue(`switch`.rex_on.value)
     }
 }

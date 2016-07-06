@@ -418,14 +418,14 @@ class PropertySpec: QuickSpec {
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
 					let property = AnyProperty(initial: initialPropertyValue,
-					                           followingBy: SignalProducer.never)
+					                           producer: SignalProducer.never)
 
 					expect(property.value) == initialPropertyValue
 				}
 
 				it("should take on each value sent on the producer") {
 					let property = AnyProperty(initial: initialPropertyValue,
-					                           followingBy: SignalProducer(value: subsequentPropertyValue))
+					                           producer: SignalProducer(value: subsequentPropertyValue))
 
 					expect(property.value) == subsequentPropertyValue
 				}
@@ -437,7 +437,7 @@ class PropertySpec: QuickSpec {
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
 					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
-					                                              followingBy: SignalProducer(signal: signal))
+					                                              producer: SignalProducer(signal: signal))
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }
@@ -468,7 +468,7 @@ class PropertySpec: QuickSpec {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
 					let property = AnyProperty(initial: initialPropertyValue,
-					                           followingBy: signal)
+					                           signal: signal)
 
 					expect(property.value) == initialPropertyValue
 
@@ -485,7 +485,7 @@ class PropertySpec: QuickSpec {
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
 					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
-					                                              followingBy: signal)
+					                                              signal: signal)
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }

@@ -247,191 +247,6 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("SignalProducer.buffer") {
-			it("should replay buffered events when started, then forward events as added") {
-				let (producer, observer) = SignalProducer<Int, NSError>.buffer(upTo: Int.max)
-
-				observer.sendNext(1)
-				observer.sendNext(2)
-				observer.sendNext(3)
-
-				var values: [Int] = []
-				var completed = false
-				producer.start { event in
-					switch event {
-					case let .next(value):
-						values.append(value)
-					case .completed:
-						completed = true
-					default:
-						break
-					}
-				}
-
-				expect(values) == [1, 2, 3]
-				expect(completed) == false
-
-				observer.sendNext(4)
-				observer.sendNext(5)
-
-				expect(values) == [1, 2, 3, 4, 5]
-				expect(completed) == false
-
-				observer.sendCompleted()
-
-				expect(values) == [1, 2, 3, 4, 5]
-				expect(completed) == true
-			}
-
-			it("should drop earliest events to maintain the capacity") {
-				let (producer, observer) = SignalProducer<Int, TestError>.buffer(upTo: 1)
-
-				observer.sendNext(1)
-				observer.sendNext(2)
-
-				var values: [Int] = []
-				var error: TestError?
-				producer.start { event in
-					switch event {
-					case let .next(value):
-						values.append(value)
-					case let .failed(err):
-						error = err
-					default:
-						break
-					}
-				}
-				
-				expect(values) == [2]
-				expect(error).to(beNil())
-
-				observer.sendNext(3)
-				observer.sendNext(4)
-
-				expect(values) == [2, 3, 4]
-				expect(error).to(beNil())
-
-				observer.sendFailed(.default)
-
-				expect(values) == [2, 3, 4]
-				expect(error) == TestError.default
-			}
-			
-			it("should always replay termination event") {
-				let (producer, observer) = SignalProducer<Int, TestError>.buffer(upTo: 0)
-				var completed = false
-				
-				observer.sendCompleted()
-				
-				producer.startWithCompleted {
-					completed = true
-				}
-				
-				expect(completed) == true
-			}
-			
-			it("should replay values after being terminated") {
-				let (producer, observer) = SignalProducer<Int, TestError>.buffer(upTo: 1)
-				var value: Int?
-				var completed = false
-				
-				observer.sendNext(123)
-				observer.sendCompleted()
-				
-				producer.start { event in
-					switch event {
-					case let .next(val):
-						value = val
-					case .completed:
-						completed = true
-					default:
-						break
-					}
-				}
-				
-				expect(value) == 123
-				expect(completed) == true
-			}
-
-			it("should not deadlock when started while sending") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(upTo: Int.max)
-
-				observer.sendNext(1)
-				observer.sendNext(2)
-				observer.sendNext(3)
-
-				var values: [Int] = []
-				producer.startWithCompleted {
-					values = []
-
-					producer.startWithNext { value in
-						values.append(value)
-					}
-				}
-
-				observer.sendCompleted()
-				expect(values) == [ 1, 2, 3 ]
-			}
-
-			it("should not deadlock in pair when started while sending") {
-				let (producer1, observer1) = SignalProducer<String, NoError>.buffer(upTo: Int.max)
-				let (producer2, observer2) = SignalProducer<String, NoError>.buffer(upTo: Int.max)
-
-				observer1.sendNext("A")
-				observer1.sendNext("B")
-				observer2.sendNext("1")
-				observer2.sendNext("2")
-
-				var valuePairs: [String] = []
-				producer1.startWithCompleted {
-					producer2.startWithCompleted {
-						valuePairs = []
-						producer1.startWithNext { value1 in
-							producer2.startWithNext { value2 in
-								valuePairs.append(value1 + value2)
-							}
-						}
-					}
-				}
-
-				observer1.sendCompleted()
-				observer2.sendCompleted()
-				expect(valuePairs) == [ "A1", "A2", "B1", "B2" ]
-			}
-
-			it("should buffer values before sending recursively to new observers") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(upTo: Int.max)
-
-				var values: [Int] = []
-				var lastBufferedValues: [Int] = []
-
-				producer.startWithNext { newValue in
-					values.append(newValue)
-
-					var bufferedValues: [Int] = []
-					
-					producer.startWithNext { bufferedValue in
-						bufferedValues.append(bufferedValue)
-					}
-
-					expect(bufferedValues) == values
-					lastBufferedValues = bufferedValues
-				}
-
-				observer.sendNext(1)
-				expect(values) == [ 1 ]
-				expect(lastBufferedValues) == values
-
-				observer.sendNext(2)
-				expect(values) == [ 1, 2 ]
-				expect(lastBufferedValues) == values
-
-				observer.sendNext(3)
-				expect(values) == [ 1, 2, 3 ]
-				expect(lastBufferedValues) == values
-			}
-		}
-
 		describe("trailing closure") {
 			it("receives next values") {
 				let (producer, observer) = SignalProducer<Int, NoError>.pipe()
@@ -700,6 +515,26 @@ class SignalProducerSpec: QuickSpec {
 					observer.sendCompleted()
 
 					expect(values) == [1, 2, 3]
+				}
+
+				it("receives results") {
+					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
+
+					var results: [Result<Int, TestError>] = []
+					producer.startWithResult { results.append($0) }
+
+					observer.sendNext(1)
+					observer.sendNext(2)
+					observer.sendNext(3)
+					observer.sendFailed(.default)
+
+					observer.sendCompleted()
+
+					expect(results).to(haveCount(4))
+					expect(results[0].value) == 1
+					expect(results[1].value) == 2
+					expect(results[2].value) == 3
+					expect(results[3].error) == .default
 				}
 			}
 		}
@@ -1933,7 +1768,10 @@ class SignalProducerSpec: QuickSpec {
 				it("emits new values") {
 					var last: Int?
 
-					replayedProducer.startWithNext { last = $0 }
+					replayedProducer
+						.assumeNoErrors()
+						.startWithNext { last = $0 }
+					
 					expect(last).to(beNil())
 
 					observer.sendNext(1)
@@ -1965,6 +1803,7 @@ class SignalProducerSpec: QuickSpec {
 					var last: Int?
 
 					replayedProducer
+						.assumeNoErrors()
 						.startWithNext { last = $0 }
 					expect(last) == 1
 				}
@@ -1996,6 +1835,7 @@ class SignalProducerSpec: QuickSpec {
 					var values: [Int] = []
 
 					disposable = replayedProducer
+						.assumeNoErrors()
 						.startWithNext { values.append($0) }
 					expect(values) == [ 3, 4 ]
 
@@ -2006,6 +1846,7 @@ class SignalProducerSpec: QuickSpec {
 					values = []
 
 					replayedProducer
+						.assumeNoErrors()
 						.startWithNext { values.append($0) }
 					expect(values) == [ 4, 5 ]
 				}
@@ -2190,7 +2031,9 @@ class SignalProducerSpec: QuickSpec {
 					let logger = TestLogger(expectations: expectations)
 					
 					let (producer, observer) = SignalProducer<Int, TestError>.pipe()
-					producer.logEvents(logger: logger.logEvent).startWithNext { _ in }
+					producer
+						.logEvents(logger: logger.logEvent)
+						.start()
 					
 					observer.sendNext(1)
 					observer.sendCompleted()

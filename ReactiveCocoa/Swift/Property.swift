@@ -576,14 +576,16 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
-	producer.startWithSignal { signal, signalDisposable in
-		property <~ signal
-		disposable += signalDisposable
+	producer
+		.on(completed: { disposable.dispose() })
+		.startWithSignal { signal, signalDisposable in
+			disposable += property <~ signal
+			disposable += signalDisposable
 
-		disposable += property.producer.startWithCompleted {
-			disposable.dispose()
+			disposable += property.producer.startWithCompleted {
+				disposable.dispose()
+			}
 		}
-	}
 
 	return disposable
 }

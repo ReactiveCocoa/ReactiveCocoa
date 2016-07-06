@@ -36,7 +36,7 @@ class SchedulerSpec: QuickSpec {
 			it("should run actions immediately when on the main thread") {
 				let scheduler = UIScheduler()
 				var values: [Int] = []
-				expect(Thread.isMainThread()) == true
+				expect(Thread.isMainThread) == true
 
 				scheduler.schedule {
 					values.append(0)
@@ -61,7 +61,7 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(Thread.isMainThread()) == true
+						expect(Thread.isMainThread) == true
 						values.append(0)
 					}
 
@@ -73,12 +73,12 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(Thread.isMainThread()) == true
+						expect(Thread.isMainThread) == true
 						values.append(1)
 					}
 
 					scheduler.schedule {
-						expect(Thread.isMainThread()) == true
+						expect(Thread.isMainThread) == true
 						values.append(2)
 					}
 
@@ -95,7 +95,7 @@ class SchedulerSpec: QuickSpec {
 
 				dispatchSyncInBackground {
 					scheduler.schedule {
-						expect(Thread.isMainThread()) == true
+						expect(Thread.isMainThread) == true
 						values.append(0)
 					}
 
@@ -103,12 +103,12 @@ class SchedulerSpec: QuickSpec {
 				}
 
 				scheduler.schedule {
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 					values.append(1)
 				}
 
 				scheduler.schedule {
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 					values.append(2)
 				}
 
@@ -124,7 +124,7 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.schedule {
 					didRun = true
-					expect(Thread.isMainThread()) == false
+					expect(Thread.isMainThread) == false
 				}
 
 				expect{didRun}.toEventually(beTruthy())
@@ -143,7 +143,7 @@ class SchedulerSpec: QuickSpec {
 
 					for _ in 0..<5 {
 						scheduler.schedule {
-							expect(Thread.isMainThread()) == false
+							expect(Thread.isMainThread) == false
 							value += 1
 						}
 					}
@@ -158,7 +158,7 @@ class SchedulerSpec: QuickSpec {
 					var didRun = false
 					scheduler.schedule(after: Date()) {
 						didRun = true
-						expect(Thread.isMainThread()) == false
+						expect(Thread.isMainThread) == false
 					}
 
 					expect(didRun) == false
@@ -174,7 +174,7 @@ class SchedulerSpec: QuickSpec {
 					let timesToRun = 3
 
 					disposable.innerDisposable = scheduler.schedule(after: Date(), interval: 0.01, leeway: 0) {
-						expect(Thread.isMainThread()) == false
+						expect(Thread.isMainThread) == false
 
 						count += 1
 
@@ -210,12 +210,12 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.schedule {
 					string += "foo"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 				}
 
 				scheduler.schedule {
 					string += "bar"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 				}
 
 				expect(string) == ""
@@ -231,13 +231,13 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.schedule(delay: 15) { [weak scheduler] in
 					string += "bar"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(15), within: dateComparisonDelta))
 				}
 
 				scheduler.schedule(delay: 5) { [weak scheduler] in
 					string += "foo"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(5), within: dateComparisonDelta))
 				}
 
@@ -257,23 +257,23 @@ class SchedulerSpec: QuickSpec {
 
 				scheduler.schedule(delay: 15) {
 					string += "bar"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 				}
 
 				scheduler.schedule(delay: 5) {
 					string += "foo"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 				}
 
 				scheduler.schedule {
 					string += "fuzzbuzz"
-					expect(Thread.isMainThread()) == true
+					expect(Thread.isMainThread) == true
 				}
 
 				expect(string) == ""
 
 				scheduler.run()
-				expect(scheduler.currentDate) == NSDate.distantFuture()
+				expect(scheduler.currentDate) == NSDate.distantFuture
 				expect(string) == "fuzzbuzzfoobar"
 			}
 		}

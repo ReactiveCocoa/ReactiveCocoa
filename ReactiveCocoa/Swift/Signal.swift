@@ -174,15 +174,20 @@ extension SignalProtocol {
 		return observe(Observer(action))
 	}
 
-	/// Observes the Signal by invoking the given callback when `next` events are
-	/// received.
+	/// Observes the Signal by invoking the given callback when
+	/// `next` or `failed` event are received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callbacks. Disposing of the Disposable will have no effect on the Signal
+	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
 	@discardableResult
-	public func observeNext(_ next: (Value) -> Void) -> Disposable? {
-		return observe(Observer(next: next))
+	public func observeResult(_ result: (Result<Value, Error>) -> Void) -> Disposable? {
+		return observe(
+			Observer(
+				next: { result(.Success($0)) },
+				failed: { result(.Failure($0)) }
+			)
+		)
 	}
 
 	/// Observes the Signal by invoking the given callback when a `completed` event is
@@ -218,7 +223,22 @@ extension SignalProtocol {
 	public func observeInterrupted(_ interrupted: () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
+}
 
+extension SignalProtocol where Error == NoError {
+	/// Observes the Signal by invoking the given callback when `next` events are
+	/// received.
+	///
+	/// Returns a Disposable which can be used to stop the invocation of the
+	/// callbacks. Disposing of the Disposable will have no effect on the Signal
+	/// itself.
+	@discardableResult
+	public func observeNext(next: (Value) -> Void) -> Disposable? {
+		return observe(Observer(next: next))
+	}
+}
+
+extension SignalProtocol {
 	/// Maps each value in the signal to a new value.
 	public func map<U>(_ transform: (Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in

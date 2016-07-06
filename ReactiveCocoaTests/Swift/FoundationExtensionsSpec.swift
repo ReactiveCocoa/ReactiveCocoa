@@ -14,7 +14,7 @@ import ReactiveCocoa
 class FoundationExtensionsSpec: QuickSpec {
 	override func spec() {
 		describe("NSNotificationCenter.rac_notifications") {
-			let center = NotificationCenter.default()
+			let center = NotificationCenter.default
 
 			it("should send notifications on the producer") {
 				let producer = center.rac_notifications(for: "rac_notifications_test" as Notification.Name)

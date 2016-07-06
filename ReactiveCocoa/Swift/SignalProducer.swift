@@ -66,10 +66,10 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// then complete, or immediately fail, depending on the given Result.
 	public init(result: Result<Value, Error>) {
 		switch result {
-		case let .Success(value):
+		case let .success(value):
 			self.init(value: value)
 
-		case let .Failure(error):
+		case let .failure(error):
 			self.init(error: error)
 		}
 	}
@@ -224,8 +224,8 @@ extension SignalProducerProtocol {
 	public func startWithResult(_ result: (Result<Value, Error>) -> Void) -> Disposable {
 		return start(
 			Observer(
-				next: { result(.Success($0)) },
-				failed: { result(.Failure($0)) }
+				next: { result(.success($0)) },
+				failed: { result(.failure($0)) }
 			)
 		)
 	}
@@ -1154,9 +1154,9 @@ extension SignalProducerProtocol {
 					result = nil
 					return
 				}
-				result = .Success(value)
+				result = .success(value)
 			case let .failed(error):
-				result = .Failure(error)
+				result = .failure(error)
 				semaphore.signal()
 			case .completed, .interrupted:
 				semaphore.signal()
@@ -1174,7 +1174,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for completion.
 	public func wait() -> Result<(), Error> {
-		return then(SignalProducer<(), Error>(value: ())).last() ?? .Success(())
+		return then(SignalProducer<(), Error>(value: ())).last() ?? .success(())
 	}
 
 	/// Creates a new `SignalProducer` that will multicast values emitted by

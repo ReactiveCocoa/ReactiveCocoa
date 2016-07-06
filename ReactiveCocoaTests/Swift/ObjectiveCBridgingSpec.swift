@@ -157,7 +157,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 							subscriptions += 1
 						}
 
-						return .Success(subscriptions)
+						return .success(subscriptions)
 					}
 					let racSignal = producer.toRACSignal()
 

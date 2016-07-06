@@ -184,8 +184,8 @@ extension SignalProtocol {
 	public func observeResult(_ result: (Result<Value, Error>) -> Void) -> Disposable? {
 		return observe(
 			Observer(
-				next: { result(.Success($0)) },
-				failed: { result(.Failure($0)) }
+				next: { result(.success($0)) },
+				failed: { result(.failure($0)) }
 			)
 		)
 	}

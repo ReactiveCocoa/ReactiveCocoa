@@ -1886,7 +1886,7 @@ class SignalSpec: QuickSpec {
 			it("should forward original values upon success") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attempt { _ in
-					return .Success()
+					return .success()
 				}
 				
 				var current: Int?
@@ -1905,7 +1905,7 @@ class SignalSpec: QuickSpec {
 			it("should error if an attempt fails") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attempt { _ in
-					return .Failure(.default)
+					return .failure(.default)
 				}
 				
 				var error: TestError?
@@ -1922,7 +1922,7 @@ class SignalSpec: QuickSpec {
 			it("should forward mapped values upon success") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attemptMap { num -> Result<Bool, TestError> in
-					return .Success(num % 2 == 0)
+					return .success(num % 2 == 0)
 				}
 				
 				var even: Bool?
@@ -1942,7 +1942,7 @@ class SignalSpec: QuickSpec {
 			it("should error if a mapping fails") {
 				let (baseSignal, observer) = Signal<Int, TestError>.pipe()
 				let signal = baseSignal.attemptMap { _ -> Result<Bool, TestError> in
-					return .Failure(.default)
+					return .failure(.default)
 				}
 				
 				var error: TestError?

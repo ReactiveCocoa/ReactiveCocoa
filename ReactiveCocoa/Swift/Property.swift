@@ -2,7 +2,10 @@ import Foundation
 import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
-public protocol PropertyType {
+///
+/// Only classes can conform to this protocol, because having a signal
+/// for changes over time implies the origin must have a unique identity.
+public protocol PropertyType: class {
 	associatedtype Value
 
 	/// The current value of the property.
@@ -20,10 +23,7 @@ public protocol PropertyType {
 }
 
 /// Represents an observable property that can be mutated directly.
-///
-/// Only classes can conform to this protocol, because instances must support
-/// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
+public protocol MutablePropertyType: PropertyType {
 	/// The current value of the property.
 	var value: Value { get set }
 }
@@ -326,7 +326,7 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 }
 
 /// A read-only, type-erased view of a property.
-public struct AnyProperty<Value>: PropertyType {
+public class AnyProperty<Value>: PropertyType {
 	private let sources: [Any]
 	private let disposable: Disposable?
 
@@ -365,21 +365,21 @@ public struct AnyProperty<Value>: PropertyType {
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on a signal created by `producer`.
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
+	public convenience init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: producer.prefix(value: initialValue),
 		          capturing: [])
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
 	/// sent on `signal`.
-	public init(initialValue: Value, signal: Signal<Value, NoError>) {
+	public convenience init(initialValue: Value, signal: Signal<Value, NoError>) {
 		self.init(propertyProducer: SignalProducer(signal: signal).prefix(value: initialValue),
 		          capturing: [])
 	}
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
-	private init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
+	private convenience init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(property.values),
 		          capturing: AnyProperty.capture(property))
 	}
@@ -387,7 +387,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property by applying the binary `SignalProducer` transform on
 	/// `property` and `anotherProperty`. The resulting property captures `property`
 	/// and `anotherProperty`.
-	private init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
+	private convenience init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
 		self.init(propertyProducer: transform(firstProperty.values)(secondProperty.values),
 		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
@@ -398,10 +398,10 @@ public struct AnyProperty<Value>: PropertyType {
 	///
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
-	private init(propertyProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
+	private init(propertyProducer: SignalProducer<Value, NoError>, capturing propertySources: [Any]) {
 		var value: Value!
 
-		let observerDisposable = propertyProducer.start { event in
+		disposable = propertyProducer.start { event in
 			switch event {
 			case let .Next(newValue):
 				value = newValue
@@ -414,16 +414,18 @@ public struct AnyProperty<Value>: PropertyType {
 			}
 		}
 
-		if value != nil {
-			disposable = ScopedDisposable(observerDisposable)
-			self.sources = sources
-
-			_value = { value }
-			_values = { propertyProducer }
-			_changes = { propertyProducer.skip(1) }
-		} else {
+		guard value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
+
+		sources = propertySources
+		_value = { value }
+		_values = { propertyProducer }
+		_changes = { propertyProducer.skip(1) }
+	}
+
+	deinit {
+		disposable?.dispose()
 	}
 
 	/// Check if `property` is an `AnyProperty` and has already captured its sources
@@ -439,8 +441,7 @@ public struct AnyProperty<Value>: PropertyType {
 }
 
 /// A property that never changes.
-public struct ConstantProperty<Value>: PropertyType {
-
+public class ConstantProperty<Value>: PropertyType {
 	public let value: Value
 	public let values: SignalProducer<Value, NoError>
 	public let changes: SignalProducer<Value, NoError>

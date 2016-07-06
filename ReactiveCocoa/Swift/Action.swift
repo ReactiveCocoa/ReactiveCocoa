@@ -109,7 +109,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 				disposable += signalDisposable
 
 				signal.observe { event in
-					observer.action(event.mapError(ActionError.producerError))
+					observer.action(event.mapError(ActionError.producerFailed))
 					self.eventsObserver.sendNext(event)
 				}
 			}
@@ -158,7 +158,7 @@ public enum ActionError<Error: ErrorProtocol>: ErrorProtocol {
 	case disabled
 
 	/// The producer returned from apply() sent the given error.
-	case producerError(Error)
+	case producerFailed(Error)
 }
 
 public func == <Error: Equatable>(lhs: ActionError<Error>, rhs: ActionError<Error>) -> Bool {
@@ -166,7 +166,7 @@ public func == <Error: Equatable>(lhs: ActionError<Error>, rhs: ActionError<Erro
 	case (.disabled, .disabled):
 		return true
 
-	case let (.producerError(left), .producerError(right)):
+	case let (.producerFailed(left), .producerFailed(right)):
 		return left == right
 
 	default:

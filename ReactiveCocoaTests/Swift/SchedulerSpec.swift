@@ -229,13 +229,13 @@ class SchedulerSpec: QuickSpec {
 			it("should run actions when advanced past the target date") {
 				var string = ""
 
-				scheduler.schedule(delay: 15) { [weak scheduler] in
+				scheduler.schedule(after: 15) { [weak scheduler] in
 					string += "bar"
 					expect(Thread.isMainThread) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(15), within: dateComparisonDelta))
 				}
 
-				scheduler.schedule(delay: 5) { [weak scheduler] in
+				scheduler.schedule(after: 5) { [weak scheduler] in
 					string += "foo"
 					expect(Thread.isMainThread) == true
 					expect(scheduler?.currentDate).to(beCloseTo(startDate.addingTimeInterval(5), within: dateComparisonDelta))
@@ -243,11 +243,11 @@ class SchedulerSpec: QuickSpec {
 
 				expect(string) == ""
 
-				scheduler.advanceBy(10)
+				scheduler.advance(by: 10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(10), within: TimeInterval(dateComparisonDelta)))
 				expect(string) == "foo"
 
-				scheduler.advanceBy(10)
+				scheduler.advance(by: 10)
 				expect(scheduler.currentDate).to(beCloseTo(startDate.addingTimeInterval(20), within: dateComparisonDelta))
 				expect(string) == "foobar"
 			}
@@ -255,12 +255,12 @@ class SchedulerSpec: QuickSpec {
 			it("should run all remaining actions in order") {
 				var string = ""
 
-				scheduler.schedule(delay: 15) {
+				scheduler.schedule(after: 15) {
 					string += "bar"
 					expect(Thread.isMainThread) == true
 				}
 
-				scheduler.schedule(delay: 5) {
+				scheduler.schedule(after: 5) {
 					string += "foo"
 					expect(Thread.isMainThread) == true
 				}

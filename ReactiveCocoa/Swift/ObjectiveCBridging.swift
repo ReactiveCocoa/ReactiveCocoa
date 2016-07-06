@@ -14,15 +14,18 @@ extension RACScheduler: DateSchedulerProtocol {
 		return Date()
 	}
 
+	@discardableResult
 	public func schedule(_ action: () -> Void) -> Disposable? {
 		let disposable: RACDisposable = self.schedule(action) // Call the Objective-C implementation
 		return disposable as Disposable?
 	}
 
+	@discardableResult
 	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
+	@discardableResult
 	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: interval, withLeeway: leeway, schedule: action)
 	}

@@ -63,9 +63,10 @@ public final class ImmediateScheduler: SchedulerProtocol {
 /// will always be preserved.
 public final class UIScheduler: SchedulerProtocol {
 	private static let dispatchSpecificKey = DispatchSpecificKey<UInt8>()
+	private static let dispatchSpecificValue = UInt8.max
 	private static var __once: () = {
 			DispatchQueue.main.setSpecific(key: UIScheduler.dispatchSpecificKey,
-			                               value: UInt8.max)
+			                               value: dispatchSpecificValue)
 	}()
 
 	private var queueLength: Int32 = 0
@@ -93,7 +94,7 @@ public final class UIScheduler: SchedulerProtocol {
 
 		// If we're already running on the main queue, and there isn't work
 		// already enqueued, we can skip scheduling and just execute directly.
-		if queued == 1 && DispatchQueue.getSpecific(key: UIScheduler.dispatchSpecificKey) == UInt8.max {
+		if queued == 1 && DispatchQueue.getSpecific(key: UIScheduler.dispatchSpecificKey) == UIScheduler.dispatchSpecificValue {
 			actionAndDecrement()
 		} else {
 			DispatchQueue.main.async(execute: actionAndDecrement)
@@ -105,42 +106,27 @@ public final class UIScheduler: SchedulerProtocol {
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerProtocol {
-	internal let queue: DispatchQueue
-	
-	internal init(internalQueue: DispatchQueue) {
-		queue = internalQueue
-	}
-	
-	/// Initializes a scheduler that will target the given queue with its work.
-	///
-	/// Even if the queue is concurrent, all work items enqueued with the
-	/// QueueScheduler will be serial with respect to each other.
-	///
-  	/// - warning: Obsoleted in OS X 10.11
-	@available(OSX, deprecated:10.10, obsoleted:10.11, message:"Use init(qos:, name:) instead.")
-	@available(iOS, deprecated:8.0, obsoleted:9.0, message:"Use init(qos:, name:) instead.")
-	public convenience init(queue: DispatchQueue, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.init(internalQueue: DispatchQueue(label: name, attributes: DispatchQueueAttributes.serial))
-		self.queue.setTarget(queue: queue)
-	}
-
 	/// A singleton QueueScheduler that always targets the main thread's GCD
 	/// queue.
 	///
 	/// Unlike UIScheduler, this scheduler supports scheduling for a future
 	/// date, and will always schedule asynchronously (even if already running
 	/// on the main thread).
-	public static let mainQueueScheduler = QueueScheduler(internalQueue: DispatchQueue.main)
-	
+	public static let main = QueueScheduler(internalQueue: DispatchQueue.main)
+
 	public var currentDate: Date {
 		return Date()
 	}
 
+	internal let queue: DispatchQueue
+	
+	internal init(internalQueue: DispatchQueue) {
+		queue = internalQueue
+	}
+
 	/// Initializes a scheduler that will target a new serial
 	/// queue with the given quality of service class.
-	@available(iOS 8, watchOS 2, OSX 10.10, *)
 	public convenience init(qos: DispatchQoS = .default, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-
 		// TODO/FIXME [@liscio]: This seems really silly to have to implement in this manner, and I suspect that Dispatch either needs to be cleaned up to merge these concepts in some way, or we need to change the initialization API.
 		//
 		// In a nutshell, declaring the qos parameter as DispatchQueueAttributes would allow the caller to specify additional OptionSet values that get stashed into the queue attributes. Instead we just want to specify a specific QoS value which then gets translated into the attributes option flag.
@@ -175,8 +161,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		return d
 	}
 
-	private func wallTimeWithDate(_ date: Date) -> DispatchWallTime {
-
+	private func wallTime(with date: Date) -> DispatchWallTime {
 		let (seconds, frac) = modf(date.timeIntervalSince1970)
 
 		let nsec: Double = frac * Double(NSEC_PER_SEC)
@@ -189,7 +174,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
-		queue.after(walltime: wallTimeWithDate(date)) {
+		queue.after(walltime: wallTime(with: date)) {
 			if !d.isDisposed {
 				action()
 			}
@@ -219,7 +204,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
 
 		let timer = DispatchSource.timer(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: queue)
-		timer.scheduleRepeating(wallDeadline: wallTimeWithDate(date),
+		timer.scheduleRepeating(wallDeadline: wallTime(with: date),
 		                        interval: .nanoseconds(Int(nsecInterval)),
 		                        leeway: .nanoseconds(Int(nsecLeeway)))
 		timer.setEventHandler(handler: action)
@@ -293,7 +278,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	public func schedule(delay: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after delay: TimeInterval, action: () -> Void) -> Disposable? {
 		return schedule(after: currentDate.addingTimeInterval(delay), action: action)
 	}
 
@@ -317,7 +302,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	@discardableResult
-	public func schedule(delay: TimeInterval, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
+	public func schedule(after delay: TimeInterval, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
 		return schedule(after: currentDate.addingTimeInterval(delay), interval: interval, leeway: leeway, action: action)
 	}
 
@@ -334,20 +319,20 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// This is intended to be used as a way to execute actions that have been
 	/// scheduled to run as soon as possible.
 	public func advance() {
-		advanceBy(DBL_EPSILON)
+		advance(by: DBL_EPSILON)
 	}
 
 	/// Advances the virtualized clock by the given interval, dequeuing and
 	/// executing any actions along the way.
-	public func advanceBy(_ interval: TimeInterval) {
+	public func advance(by interval: TimeInterval) {
 		lock.lock()
-		advanceTo(currentDate.addingTimeInterval(interval))
+		advance(to: currentDate.addingTimeInterval(interval))
 		lock.unlock()
 	}
 
 	/// Advances the virtualized clock to the given future date, dequeuing and
 	/// executing any actions up until that point.
-	public func advanceTo(_ newDate: Date) {
+	public func advance(to newDate: Date) {
 		lock.lock()
 
 		assert(currentDate.compare(newDate) != .orderedDescending)
@@ -371,6 +356,6 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// Dequeues and executes all scheduled actions, leaving the scheduler's
 	/// date at `NSDate.distantFuture()`.
 	public func run() {
-		advanceTo(Date.distantFuture)
+		advance(to: Date.distantFuture)
 	}
 }

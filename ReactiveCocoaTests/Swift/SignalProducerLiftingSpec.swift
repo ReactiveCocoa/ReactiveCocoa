@@ -794,10 +794,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendNext(1)
 					}
-					testScheduler.schedule(delay: 5, action: {
+					testScheduler.schedule(after: 5) {
 						observer.sendNext(2)
 						observer.sendCompleted()
-					})
+					}
 				}
 				
 				var result: [Int] = []
@@ -816,14 +816,14 @@ class SignalProducerLiftingSpec: QuickSpec {
 						}
 					}
 				
-				testScheduler.advanceBy(4) // send initial value
+				testScheduler.advance(by: 4) // send initial value
 				expect(result).to(beEmpty())
 				
-				testScheduler.advanceBy(10) // send second value and receive first
+				testScheduler.advance(by: 10) // send second value and receive first
 				expect(result) == [ 1 ]
 				expect(completed) == false
 				
-				testScheduler.advanceBy(10) // send second value and receive first
+				testScheduler.advance(by: 10) // send second value and receive first
 				expect(result) == [ 1, 2 ]
 				expect(completed) == true
 			}
@@ -882,10 +882,10 @@ class SignalProducerLiftingSpec: QuickSpec {
 				observer.sendNext(2)
 				expect(values) == [ 0 ]
 
-				scheduler.advanceBy(1.5)
+				scheduler.advance(by: 1.5)
 				expect(values) == [ 0, 2 ]
 
-				scheduler.advanceBy(3)
+				scheduler.advance(by: 3)
 				expect(values) == [ 0, 2 ]
 
 				observer.sendNext(3)
@@ -1376,7 +1376,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.schedule(delay: 1) {
+				testScheduler.schedule(after: 1) {
 					observer.sendCompleted()
 				}
 
@@ -1402,7 +1402,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 					}
 				}
 
-				testScheduler.schedule(delay: 3) {
+				testScheduler.schedule(after: 3) {
 					observer.sendCompleted()
 				}
 

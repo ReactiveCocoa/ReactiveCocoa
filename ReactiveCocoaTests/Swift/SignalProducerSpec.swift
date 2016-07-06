@@ -709,19 +709,19 @@ class SignalProducerSpec: QuickSpec {
 				var dates: [NSDate] = []
 				producer.startWithNext { dates.append($0) }
 
-				scheduler.advanceBy(0.9)
+				scheduler.advance(by: 0.9)
 				expect(dates) == []
 
-				scheduler.advanceBy(1)
+				scheduler.advance(by: 1)
 				expect(dates) == [tick1]
 
 				scheduler.advance()
 				expect(dates) == [tick1]
 
-				scheduler.advanceBy(0.2)
+				scheduler.advance(by: 0.2)
 				expect(dates) == [tick1, tick2]
 
-				scheduler.advanceBy(1)
+				scheduler.advance(by: 1)
 				expect(dates) == [tick1, tick2, tick3]
 			}
 
@@ -824,13 +824,13 @@ class SignalProducerSpec: QuickSpec {
 				var next: NSDate?
 				producer.start(on: startScheduler).startWithNext { next = $0 }
 
-				startScheduler.advanceBy(2)
+				startScheduler.advance(by: 2)
 				expect(next).to(beNil())
 
-				testScheduler.advanceBy(1)
+				testScheduler.advance(by: 1)
 				expect(next).to(beNil())
 
-				testScheduler.advanceBy(1)
+				testScheduler.advance(by: 1)
 				expect(next) == testScheduler.currentDate
 			}
 		}

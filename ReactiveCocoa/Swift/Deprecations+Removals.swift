@@ -65,10 +65,10 @@ extension ActionProtocol {
 
 extension CocoaAction {
 	@available(*, unavailable, renamed:"isEnabled")
-	public var enabled: Bool { fatalError() }
+	@nonobjc public var enabled: Bool { fatalError() }
 
 	@available(*, unavailable, renamed:"isExecuting")
-	public var executing: Bool { fatalError() }
+	@nonobjc public var executing: Bool { fatalError() }
 }
 
 // Renamed Enum cases

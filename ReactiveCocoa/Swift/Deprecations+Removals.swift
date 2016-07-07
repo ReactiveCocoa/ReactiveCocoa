@@ -170,13 +170,13 @@ extension SignalProducerProtocol {
 	public func startOn(_ scheduler: UIScheduler) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"combineLatest(with:)")
-	public func combineLatestWith<U>(_ otherSignal: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
+	public func combineLatestWith<U>(_ otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"combineLatest(with:)")
 	public func combineLatestWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"zip(with:)")
-	public func zipWith<U>(_ otherSignal: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
+	public func zipWith<U>(_ otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"zip(with:)")
 	public func zipWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }

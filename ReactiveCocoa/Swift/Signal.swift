@@ -370,7 +370,7 @@ extension SignalProtocol {
 	/// array may not have `count` values. Alternatively, if were not collected 
 	/// any values will sent an empty array of values.
 	///
-	public func collect(every count: Int) -> Signal<[Value], Error> {
+	public func collect(count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
 		return collect { values in values.count == count }
 	}
@@ -793,7 +793,7 @@ extension SignalProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
-	public func takeUntil(_ trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func take<U>(until trigger: Signal<U, NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			disposable += self.observe(observer)
@@ -815,7 +815,7 @@ extension SignalProtocol {
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed event, at which point the returned signal behaves exactly like
 	/// `signal`.
-	public func skipUntil(_ trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func skip<U>(until trigger: Signal<U, NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = SerialDisposable()
 			
@@ -909,7 +909,7 @@ extension SignalProtocol {
 
 	/// Does not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `signal`.
-	public func skipWhile(_ predicate: (Value) -> Bool) -> Signal<Value, Error> {
+	public func skip(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			var shouldSkip = true
 
@@ -928,14 +928,14 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Forwards events from `self` until `replacement` begins sending events.
+	/// Forwards events from `self` until `signal` begins sending events.
 	///
 	/// Returns a signal which passes through `Next`, `Failed`, and `Interrupted`
 	/// events from `signal` until `replacement` sends an event, at which point the
 	/// returned signal will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
-	public func takeUntilReplacement(_ replacement: Signal<Value, Error>) -> Signal<Value, Error> {
+	public func take(untilReplacement signal: Signal<Value, Error>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
@@ -950,7 +950,7 @@ extension SignalProtocol {
 			}
 
 			disposable += signalDisposable
-			disposable += replacement.observe { event in
+			disposable += signal.observe { event in
 				signalDisposable?.dispose()
 				observer.action(event)
 			}
@@ -991,7 +991,7 @@ extension SignalProtocol {
 
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned signal will complete.
-	public func takeWhile(_ predicate: (Value) -> Bool) -> Signal<Value, Error> {
+	public func take(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				if let value = event.value where !predicate(value) {
@@ -1422,7 +1422,7 @@ extension SignalProtocol {
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The signal
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-	public func timeout(failingWith error: Error, after interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
+	public func timeout(after interval: TimeInterval, raising error: Error, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in

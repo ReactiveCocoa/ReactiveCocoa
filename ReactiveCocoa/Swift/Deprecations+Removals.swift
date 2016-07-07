@@ -1,3 +1,5 @@
+import enum Result.NoError
+
 // MARK: Deprecated APIs
 
 extension QueueScheduler {
@@ -132,6 +134,24 @@ extension SignalProtocol {
 	@available(*, unavailable, renamed:"zip(with:)")
 	public func zipWith<S: SignalProtocol>(_ otherSignal: S) -> Signal<(Value, S.Value), Error> { fatalError() }
 
+	@available(*, unavailable, renamed:"take(until:)")
+	public func takeUntil(_ trigger: Signal<(), NoError>) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(untilReplacement:)")
+	public func takeUntilReplacement(_ replacement: Signal<Value, Error>) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(until:)")
+	public func skipUntil(_ trigger: Signal<(), NoError>) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(while:)")
+	public func skipWhile(_ predicate: (Value) -> Bool) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(while:)")
+	public func takeWhile(_ predicate: (Value) -> Bool) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"timeout(after:raising:on:)")
+	public func timeoutWithError(_ error: Error, afterInterval: TimeInterval, onScheduler: SchedulerProtocol) -> Signal<Value, Error> { fatalError() }
+
 	@available(*, unavailable, message: "This Signal may emit errors which must be handled explicitly, or observed using `observeResult(_:)`")
 	public func observeNext(next: (Value) -> Void) -> Disposable? { fatalError() }
 }
@@ -150,10 +170,43 @@ extension SignalProducerProtocol {
 	public func startOn(_ scheduler: UIScheduler) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"combineLatest(with:)")
-	public func combineLatestWith<S: SignalProducerProtocol>(_ otherSignal: S) -> SignalProducer<(Value, S.Value), Error> { fatalError() }
+	public func combineLatestWith<U>(_ otherSignal: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"combineLatest(with:)")
+	public func combineLatestWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"zip(with:)")
-	public func zipWith<S: SignalProducerProtocol>(_ otherSignal: S) -> SignalProducer<(Value, S.Value), Error> { fatalError() }
+	public func zipWith<U>(_ otherSignal: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"zip(with:)")
+	public func zipWith<U>(_ otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(until:)")
+	public func takeUntil(_ trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(until:)")
+	public func takeUntil(_ trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(untilReplacement:)")
+	public func takeUntilReplacement(_ replacement: Signal<Value, Error>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(untilReplacement:)")
+	public func takeUntilReplacement(_ replacement: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(until:)")
+	public func skipUntil(_ trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(until:)")
+	public func skipUntil(_ trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(while:)")
+	public func skipWhile(_ predicate: (Value) -> Bool) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"take(while:)")
+	public func takeWhile(_ predicate: (Value) -> Bool) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"timeout(after:raising:on:)")
+	public func timeoutWithError(_ error: Error, afterInterval: TimeInterval, onScheduler: SchedulerProtocol) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, message:"This SignalProducer may emit errors which must be handled explicitly, or observed using `startWithResult(_:)`.")
 	public func startWithNext(next: (Value) -> Void) -> Disposable { fatalError() }

@@ -655,7 +655,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
 
-				signal = baseSignal.skipWhile { $0 < 2 }
+				signal = baseSignal.skip { $0 < 2 }
 				observer = incomingObserver
 				lastValue = nil
 
@@ -697,7 +697,7 @@ class SignalSpec: QuickSpec {
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (triggerSignal, incomingTriggerObserver) = Signal<(), NoError>.pipe()
 				
-				signal = baseSignal.skipUntil(triggerSignal)
+				signal = baseSignal.skip(until: triggerSignal)
 				observer = incomingObserver
 				triggerObserver = incomingTriggerObserver
 				
@@ -882,7 +882,7 @@ class SignalSpec: QuickSpec {
 			it("should collect an exact count of values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect(every: 3)
+				let signal = original.collect(count: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -973,7 +973,7 @@ class SignalSpec: QuickSpec {
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (triggerSignal, incomingTriggerObserver) = Signal<(), NoError>.pipe()
 
-				signal = baseSignal.takeUntil(triggerSignal)
+				signal = baseSignal.take(until: triggerSignal)
 				observer = incomingObserver
 				triggerObserver = incomingTriggerObserver
 
@@ -1043,7 +1043,7 @@ class SignalSpec: QuickSpec {
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
 				let (replacementSignal, incomingReplacementObserver) = Signal<Int, NoError>.pipe()
 
-				signal = baseSignal.takeUntilReplacement(replacementSignal)
+				signal = baseSignal.take(untilReplacement: replacementSignal)
 				observer = incomingObserver
 				replacementObserver = incomingReplacementObserver
 
@@ -1097,7 +1097,7 @@ class SignalSpec: QuickSpec {
 
 			beforeEach {
 				let (baseSignal, incomingObserver) = Signal<Int, NoError>.pipe()
-				signal = baseSignal.takeWhile { $0 <= 4 }
+				signal = baseSignal.take { $0 <= 4 }
 				observer = incomingObserver
 			}
 
@@ -1825,7 +1825,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseSignal, incomingObserver) = Signal<Int, TestError>.pipe()
-				signal = baseSignal.timeout(failingWith: TestError.default, after: 2, on: testScheduler)
+				signal = baseSignal.timeout(after: 2, raising: TestError.default, on: testScheduler)
 				observer = incomingObserver
 			}
 

@@ -268,7 +268,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
 
-				producer = baseProducer.skipWhile { $0 < 2 }
+				producer = baseProducer.skip { $0 < 2 }
 				observer = incomingObserver
 				lastValue = nil
 
@@ -310,7 +310,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (triggerProducer, incomingTriggerObserver) = SignalProducer<(), NoError>.pipe()
 
-				producer = baseProducer.skipUntil(triggerProducer)
+				producer = baseProducer.skip(until: triggerProducer)
 				observer = baseIncomingObserver
 				triggerObserver = incomingTriggerObserver
 				
@@ -500,7 +500,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should collect an exact count of values") {
 				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
-				let producer = original.collect(every: 3)
+				let producer = original.collect(count: 3)
 
 				var observedValues: [[Int]] = []
 
@@ -592,7 +592,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let (baseProducer, baseIncomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (triggerProducer, incomingTriggerObserver) = SignalProducer<(), NoError>.pipe()
 
-				producer = baseProducer.takeUntil(triggerProducer)
+				producer = baseProducer.take(until: triggerProducer)
 				observer = baseIncomingObserver
 				triggerObserver = incomingTriggerObserver
 
@@ -662,7 +662,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
 				let (replacementProducer, incomingReplacementObserver) = SignalProducer<Int, NoError>.pipe()
 
-				producer = baseProducer.takeUntilReplacement(replacementProducer)
+				producer = baseProducer.take(untilReplacement: replacementProducer)
 				observer = incomingObserver
 				replacementObserver = incomingReplacementObserver
 
@@ -716,7 +716,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			beforeEach {
 				let (baseProducer, incomingObserver) = SignalProducer<Int, NoError>.pipe()
-				producer = baseProducer.takeWhile { $0 <= 4 }
+				producer = baseProducer.take { $0 <= 4 }
 				observer = incomingObserver
 			}
 
@@ -1358,7 +1358,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				testScheduler = TestScheduler()
 				let (baseProducer, incomingObserver) = SignalProducer<Int, TestError>.pipe()
-				producer = baseProducer.timeout(failingWith: TestError.default, after: 2, on: testScheduler)
+				producer = baseProducer.timeout(after: 2, raising: TestError.default, on: testScheduler)
 				observer = incomingObserver
 			}
 

@@ -417,9 +417,9 @@ extension SignalProducerProtocol {
 	/// array may not have `count` values. Alternatively, if were not collected
 	/// any values will sent an empty array of values.
 	///
-	public func collect(every count: Int) -> SignalProducer<[Value], Error> {
+	public func collect(count: Int) -> SignalProducer<[Value], Error> {
 		precondition(count > 0)
-		return lift { $0.collect(every: count) }
+		return lift { $0.collect(count: count) }
 	}
 
 	/// Returns a producer that will yield an array of values based on a 
@@ -621,7 +621,7 @@ extension SignalProducerProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
-	public func takeUntil(_ trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
+	public func take<U>(until trigger: SignalProducer<U, NoError>) -> SignalProducer<Value, Error> {
 		// This should be the implementation of this method:
 		// return liftRight(Signal.takeUntil)(trigger)
 		//
@@ -637,7 +637,7 @@ extension SignalProducerProtocol {
 				trigger.startWithSignal { triggerSignal, triggerDisposable in
 					outerDisposable += triggerDisposable
 
-					signal.takeUntil(triggerSignal).observe(observer)
+					signal.take(until: triggerSignal).observe(observer)
 				}
 			}
 		}
@@ -645,20 +645,20 @@ extension SignalProducerProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
-	public func takeUntil(_ trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.takeUntil)(trigger)
+	public func take<U>(until trigger: Signal<U, NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.take(until:))(trigger)
 	}
 
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed, at which point the returned signal behaves exactly like `signal`.
-	public func skipUntil(_ trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
-		return liftRight(Signal.skipUntil)(trigger)
+	public func skip<U>(until trigger: SignalProducer<U, NoError>) -> SignalProducer<Value, Error> {
+		return liftRight(Signal.skip(until:))(trigger)
 	}
 	
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed, at which point the returned signal behaves exactly like `signal`.
-	public func skipUntil(_ trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
-		return lift(Signal.skipUntil)(trigger)
+	public func skip<U>(until trigger: Signal<U, NoError>) -> SignalProducer<Value, Error> {
+		return lift(Signal.skip(until:))(trigger)
 	}
 	
 	/// Forwards events from `self` with history: values of the returned producer
@@ -691,8 +691,8 @@ extension SignalProducerProtocol {
 
 	/// Does not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `self`.
-	public func skipWhile(_ predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
-		return lift { $0.skipWhile(predicate) }
+	public func skip(while predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
+		return lift { $0.skip(while: predicate) }
 	}
 
 	/// Forwards events from `self` until `replacement` begins sending events.
@@ -702,8 +702,8 @@ extension SignalProducerProtocol {
 	/// returned producer will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
-	public func takeUntilReplacement(_ replacement: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
-		return liftRight(Signal.takeUntilReplacement)(replacement)
+	public func take(untilReplacement signal: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
+		return liftRight(Signal.take(untilReplacement:))(signal)
 	}
 
 	/// Forwards events from `self` until `replacement` begins sending events.
@@ -713,8 +713,8 @@ extension SignalProducerProtocol {
 	/// returned producer will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
-	public func takeUntilReplacement(_ replacement: Signal<Value, Error>) -> SignalProducer<Value, Error> {
-		return lift(Signal.takeUntilReplacement)(replacement)
+	public func take(untilReplacement signal: Signal<Value, Error>) -> SignalProducer<Value, Error> {
+		return lift(Signal.take(untilReplacement:))(signal)
 	}
 
 	/// Waits until `self` completes and then forwards the final `count` values
@@ -725,8 +725,8 @@ extension SignalProducerProtocol {
 
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned producer will complete.
-	public func takeWhile(_ predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
-		return lift { $0.takeWhile(predicate) }
+	public func take(while predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
+		return lift { $0.take(while: predicate) }
 	}
 
 	/// Zips elements of two producers into pairs. The elements of any Nth pair
@@ -783,8 +783,8 @@ extension SignalProducerProtocol {
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The producer
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-	public func timeout(failingWith error: Error, after interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-		return lift { $0.timeout(failingWith: error, after: interval, on: scheduler) }
+	public func timeout(after interval: TimeInterval, raising error: Error, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
+		return lift { $0.timeout(after: interval, raising: error, on: scheduler) }
 	}
 }
 
@@ -1240,7 +1240,7 @@ extension SignalProducerProtocol {
 			}
 
 			if shouldStartUnderlyingProducer {
-				self.takeUntil(token!.deallocSignal)
+				self.take(until: token!.deallocSignal)
 					.start(initializedObserver)
 			}
 		}

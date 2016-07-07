@@ -8,7 +8,9 @@ public protocol PropertyProtocol {
 	/// The current value of the property.
 	var value: Value { get }
 
-	/// A producer for signals that sends the property's current value,
+	/// The values producer of the property.
+	///
+	/// It produces a signal that sends the property's current value,
 	/// followed by all changes over time. It completes when the property
 	/// has deinitialized, or has no further change.
 	var producer: SignalProducer<Value, NoError> { get }
@@ -295,10 +297,9 @@ extension PropertyProtocol {
 	}
 }
 
-/// A read-only, type-erased view of a property.
+/// A read-only property that allows observation of its changes.
 public struct AnyProperty<Value>: PropertyProtocol {
 	private let sources: [Any]
-	private let disposable: Disposable?
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -326,8 +327,8 @@ public struct AnyProperty<Value>: PropertyProtocol {
 
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
-		sources = AnyProperty.capture(property)
-		disposable = nil
+		sources = [property]
+
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -367,37 +368,65 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// If the producer fails its promise, a fatal error would be raised.
 	///
 	/// The producer and the signal of the created property would complete only
-	/// when the `unsafeProducer` completes.
-	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
-		var value: Value!
 
-		let observerDisposable = unsafeProducer.start { event in
+	/// when the `propertyProducer` completes.
+	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing propertySources: [Any]) {
+		// The relay would be indirectly retained by `AnyProperty` and also every produced
+		/// signal from this relay through `scopedDisposable`.
+
+		// A disposable that holds a reference to the relay, and the observer disposable
+		// used for interrupting the started `propertyProducer`.
+		let relayDisposable = CompositeDisposable()
+
+		// A disposable that wraps the `relayDisposable`. All the consumers of the relay
+		// would retain this disposable, so that when all parties go out of scope, the
+		// started `propertyProducer` can be interrupted.
+		let scopedDisposable = ScopedDisposable(relayDisposable)
+		sources = propertySources + [scopedDisposable]
+
+		let relay = MutableProperty<Value?>(nil)
+		relayDisposable += { _ = relay }
+
+		relayDisposable += unsafeProducer.start { [weak relay] event in
 			switch event {
 			case let .next(newValue):
-				value = newValue
+				relay?.value = newValue
 
 			case .completed, .interrupted:
-				break
+				relayDisposable.dispose()
 
 			case let .failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
 
-		if value != nil {
-			disposable = ScopedDisposable(observerDisposable)
-			self.sources = sources
-
-			_value = { value }
-			_producer = { unsafeProducer }
-			_signal = {
-				var extractedSignal: Signal<Value, NoError>!
-				unsafeProducer.startWithSignal { signal, _ in extractedSignal = signal }
-				return extractedSignal
-			}
-		} else {
+		guard relay.value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
+
+		func prepareRelayProducer(_ producer: SignalProducer<Value?, NoError>) -> SignalProducer<Value, NoError> {
+			return SignalProducer { observer, producerDisposable in
+				producer.startWithSignal { signal, signalDisposable in
+					producerDisposable += signalDisposable
+					prepareRelaySignal(signal).observe(observer)
+				}
+			}
+		}
+
+		func prepareRelaySignal(_ signal: Signal<Value?, NoError>) -> Signal<Value, NoError> {
+			return Signal { observer in
+				let signalDisposable = CompositeDisposable()
+				signalDisposable += { _ = scopedDisposable }
+				signalDisposable += signal.observe { event in
+					observer.action(event.map { $0! })
+				}
+				return signalDisposable
+			}
+		}
+
+		_value = { relay.value! }
+		_producer = { prepareRelayProducer(relay.producer) }
+		_signal = { prepareRelaySignal(relay.signal) }
 	}
 
 	/// Check if `property` is an `AnyProperty` and has already captured its sources

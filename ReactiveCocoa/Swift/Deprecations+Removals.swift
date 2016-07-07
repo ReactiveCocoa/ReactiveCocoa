@@ -137,10 +137,10 @@ extension SignalProtocol {
 }
 
 extension SignalProducerProtocol {
-	@available(*, unavailable, renamed:"skipFirst(_:)")
+	@available(*, unavailable, renamed:"takeFirst(_:)")
 	public func take(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
 
-	@available(*, unavailable, renamed:"takeFirst(_:)")
+	@available(*, unavailable, renamed:"skipFirst(_:)")
 	public func skip(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"observe(on:)")

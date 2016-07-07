@@ -9,10 +9,6 @@ env:
 
 git:
   submodules: false
-before_install:
-  - curl -OlL "https://github.com/Carthage/Carthage/releases/download/0.11/Carthage.pkg"
-  - sudo installer -pkg "Carthage.pkg" -target /
-  - rm "Carthage.pkg"
 
 script:
   - set -o pipefail
@@ -25,3 +21,15 @@ script:
 
 notifications:
   email: false
+before_deploy:
+  - carthage build --no-skip-current
+  - carthage archive Rex
+deploy:
+  provider: releases
+  api_key:
+    secure: lNuRUOxMrw2YSsibAAK+8GH35KfvgheiyBGsqD7Rqwjzf3orhTmNbWeRt38YiUxzmNZSzhQdcglwJnw9ymXuGyynOwWxRPbQnX0KE+fTIyoyZrxIwxkqyU6aGzgi1bGa/URKU83pDZsBrfPeLa89w5PYZ8UVPVs+alD796WTjNoXFhxvj4cZtT65Pqk4usSgq3l6GRGzVDmaOgiiDT509LdTi+x+BjRuQcP2wvxCKWGWtaR4COo+PH96mQ/vcykL97zyxScWOBRbVq5YEeqHC/OHV7kXMLRK6X0SBcpB8otV9ObxN76zqZjpxQ59/g0WN4bUogd5VYT11dxjSAQDNAtS/H0iHcw6ojDuAobQbD1W4Um6tHBPaT4ZVXDack8J2gSa2DhiFBt198XRSEWFczff5LevxFJaDwqLwEj5qtB6bkdvarsaZdlUzaPfmBfEjmLQdQmiEe82xYb+VcZK0SlgbNulvSt8J2FpLRcVQSs7Ef75zMKQECtxJCsOhSFGT+1Zal2YEk70HFdbkNE0DS57AX0hmgDFF0WhK1ZzpBgy432Hyo71srAJMyalMfF1zuc5kHSssezQ30p7ZdegDnkvbt0lhjGFgUlbKIoLS9e21uo3i96XZQagL5k/mZPxaq1hf1bsH+ow+Jcg3X7b8RJRqniHxASyffdzHYbmfyE=
+  file: Rex.framework.zip
+  skip_cleanup: true
+  on:
+    repo: RACCommunity/Rex
+    tags: true

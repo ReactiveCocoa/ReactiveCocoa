@@ -11,21 +11,24 @@ public protocol PropertyType: class {
 	/// The current value of the property.
 	var value: Value { get }
 
-	/// A producer for signals that sends the property's current value,
+	/// The values producer of the property.
+	///
+	/// It produces a signal that sends the property's current value,
 	/// followed by all changes over time. It completes when the property
 	/// has deinitialized, or has no further change.
 	var values: SignalProducer<Value, NoError> { get }
 
-	/// A producer that will send the property's changes over time. It
+	/// The change producer of the property.
+	///
+	/// It produces a signal that sends the property's changes over time. It
 	/// completes when the property has deinitialized, or has no further
 	/// change.
 	var changes: SignalProducer<Value, NoError> { get }
 
 	/// The property sources to be captured.
 	///
-	/// By default, it returns `self` for all implementations except
-	/// `Property`, which would returns its ultimate sources so as to allow
-	/// intermediate properties to deinitialize after a composition.
+	/// A default implementation is provided for this requirement, and it is
+	/// intended to be overriden by only `AnyProperty`.
 	var sources: [AnyObject] { get }
 }
 
@@ -337,13 +340,14 @@ public func zip<S: SequenceType where S.Generator.Element: PropertyType>(propert
 	return nil
 }
 
+/// A read-only property that allows observation of its changes.
 public class AnyProperty<Value>: PropertyType {
-	public let sources: [Any]
-	private let disposable: Disposable?
+	public let sources: [AnyObject]
 
 	private let _value: () -> Value
-	private let _values: () -> SignalProducer<Value, NoError>
-	private let _changes: () -> SignalProducer<Value, NoError>
+	private let _values: SignalProducer<Value, NoError>
+	private let _changes: SignalProducer<Value, NoError>
+
 
 	/// The current value of the property.
 	public var value: Value {
@@ -354,7 +358,7 @@ public class AnyProperty<Value>: PropertyType {
 	/// followed by all changes over time, then complete when the wrapped property has
 	/// deinitialized.
 	public var values: SignalProducer<Value, NoError> {
-		return _values()
+		return _values
 	}
 
 	/// A signal that will send the wrapped property's changes over time, then complete
@@ -362,16 +366,15 @@ public class AnyProperty<Value>: PropertyType {
 	///
 	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var changes: SignalProducer<Value, NoError> {
-		return _changes()
+		return _changes
 	}
 
 	/// Initializes a property as a read-only view of the given property.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		sources = property.sources
-		disposable = nil
 		_value = { property.value }
-		_values = { property.values }
-		_changes = { property.changes }
+		_values = property.values
+		_changes = property.changes
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -410,33 +413,54 @@ public class AnyProperty<Value>: PropertyType {
 	/// The producer and the signal of the created property would complete only
 	/// when the `propertyProducer` completes.
 	private init(propertyProducer: SignalProducer<Value, NoError>, capturing propertySources: [AnyObject]) {
-		var value: Value!
+		// The relay would be indirectly retained by `AnyProperty` and also every produced
+		/// signal from this relay through `scopedDisposable`.
 
-		disposable = propertyProducer.start { event in
+		// A disposable that holds a reference to the relay, and the observer disposable
+		// used for interrupting the started `propertyProducer`.
+		let relayDisposable = CompositeDisposable()
+
+		// A disposable that wraps the `relayDisposable`. All the consumers of the relay
+		// would retain this disposable, so that when all parties go out of scope, the
+		// started `propertyProducer` can be interrupted.
+		let scopedDisposable = ScopedDisposable(relayDisposable)
+		sources = propertySources + [scopedDisposable]
+
+		let relay = MutableProperty<Value?>(nil)
+		relayDisposable += { _ = relay }
+
+		relayDisposable += propertyProducer.start { [weak relay] event in
 			switch event {
 			case let .Next(newValue):
-				value = newValue
+				relay?.value = newValue
 
 			case .Completed, .Interrupted:
-				break
+				relayDisposable.dispose()
 
 			case let .Failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
 
-		guard value != nil else {
+		guard relay.value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
 
-		sources = propertySources
-		_value = { value }
-		_values = { propertyProducer }
-		_changes = { propertyProducer.skip(1) }
-	}
+		func prepareRelayProducer(producer: SignalProducer<Value?, NoError>) -> SignalProducer<Value, NoError> {
+			return SignalProducer { observer, producerDisposable in
+				producer.startWithSignal { signal, signalDisposable in
+					producerDisposable += { _ = scopedDisposable }
+					producerDisposable += signalDisposable
+					producerDisposable += signal.observe { event in
+						observer.action(event.map { $0! })
+					}
+				}
+			}
+		}
 
-	deinit {
-		disposable?.dispose()
+		_value = { relay.value! }
+		_values = prepareRelayProducer(relay.values)
+		_changes = prepareRelayProducer(relay.changes)
 	}
 }
 
@@ -450,7 +474,7 @@ public class ConstantProperty<Value>: PropertyType {
 	public init(_ value: Value) {
 		self.value = value
 		self.values = SignalProducer(value: value)
-		self.changes = .empty
+		self.changes = .interrupted
 	}
 }
 

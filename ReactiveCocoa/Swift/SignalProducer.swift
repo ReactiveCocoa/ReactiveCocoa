@@ -104,6 +104,14 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 	}
 
+	/// A producer for a Signal that will immediately interrupt without sending
+	/// any values.
+	public static var interrupted: SignalProducer {
+		return self.init { observer, disposable in
+			observer.sendInterrupted()
+		}
+	}
+
 	/// A producer for a Signal that never sends any events to its observers.
 	public static var never: SignalProducer {
 		return self.init { _ in return }

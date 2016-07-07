@@ -229,7 +229,7 @@ extension RACCommand {
 
 extension ActionType {
 	private var commandEnabled: RACSignal {
-		return self.enabled.producer
+		return self.enabled.values
 			.map { $0 as NSNumber }
 			.toRACSignal()
 	}

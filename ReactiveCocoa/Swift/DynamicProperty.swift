@@ -42,12 +42,12 @@ public final class DynamicProperty<Value>: MutablePropertyType {
 	///
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
-	public var producer: SignalProducer<Value?, NoError> {
-		return property?.producer ?? .empty
+	public var values: SignalProducer<Value?, NoError> {
+		return property?.values ?? .empty
 	}
 
-	public var signal: Signal<Value?, NoError> {
-		return property?.signal ?? .empty
+	public var changes: SignalProducer<Value?, NoError> {
+		return property?.values.skip(1) ?? .empty
 	}
 
 	/// Initializes a property that will observe and set the given key path of

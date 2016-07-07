@@ -11,12 +11,12 @@ public protocol PropertyType {
 	/// A producer for signals that sends the property's current value,
 	/// followed by all changes over time. It completes when the property
 	/// has deinitialized, or has no further change.
-	var producer: SignalProducer<Value, NoError> { get }
+	var values: SignalProducer<Value, NoError> { get }
 
-	/// A signal that will send the property's changes over time. It
+	/// A producer that will send the property's changes over time. It
 	/// completes when the property has deinitialized, or has no further
 	/// change.
-	var signal: Signal<Value, NoError> { get }
+	var changes: SignalProducer<Value, NoError> { get }
 }
 
 /// Represents an observable property that can be mutated directly.
@@ -101,7 +101,7 @@ extension PropertyType where Value: PropertyType {
 	/// according to the semantics of the given strategy.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func flatten(strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
-		return lift { $0.flatMap(strategy) { $0.producer } }
+		return lift { $0.flatMap(strategy) { $0.values } }
 	}
 }
 
@@ -111,7 +111,7 @@ extension PropertyType {
 	/// semantics of the given strategy.
 	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func flatMap<P: PropertyType>(strategy: FlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
-		return lift { $0.flatMap(strategy) { transform($0).producer } }
+		return lift { $0.flatMap(strategy) { transform($0).values } }
 	}
 
 	/// Forwards only those values from `self` that have unique identities across the set of
@@ -331,8 +331,8 @@ public struct AnyProperty<Value>: PropertyType {
 	private let disposable: Disposable?
 
 	private let _value: () -> Value
-	private let _producer: () -> SignalProducer<Value, NoError>
-	private let _signal: () -> Signal<Value, NoError>
+	private let _values: () -> SignalProducer<Value, NoError>
+	private let _changes: () -> SignalProducer<Value, NoError>
 
 	/// The current value of the property.
 	public var value: Value {
@@ -342,16 +342,16 @@ public struct AnyProperty<Value>: PropertyType {
 	/// A producer for Signals that will send the wrapped property's current value,
 	/// followed by all changes over time, then complete when the wrapped property has
 	/// deinitialized.
-	public var producer: SignalProducer<Value, NoError> {
-		return _producer()
+	public var values: SignalProducer<Value, NoError> {
+		return _values()
 	}
 
 	/// A signal that will send the wrapped property's changes over time, then complete
 	/// when the wrapped property has deinitialized.
 	///
 	/// It is strongly discouraged to use `signal` on any transformed property.
-	public var signal: Signal<Value, NoError> {
-		return _signal()
+	public var changes: SignalProducer<Value, NoError> {
+		return _changes()
 	}
 
 	/// Initializes a property as a read-only view of the given property.
@@ -359,8 +359,8 @@ public struct AnyProperty<Value>: PropertyType {
 		sources = AnyProperty.capture(property)
 		disposable = nil
 		_value = { property.value }
-		_producer = { property.producer }
-		_signal = { property.signal }
+		_values = { property.values }
+		_changes = { property.changes }
 	}
 
 	/// Initializes a property that first takes on `initialValue`, then each value
@@ -380,7 +380,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
 	private init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(property.producer),
+		self.init(propertyProducer: transform(property.values),
 		          capturing: AnyProperty.capture(property))
 	}
 
@@ -388,7 +388,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// `property` and `anotherProperty`. The resulting property captures `property`
 	/// and `anotherProperty`.
 	private init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(firstProperty.producer)(secondProperty.producer),
+		self.init(propertyProducer: transform(firstProperty.values)(secondProperty.values),
 		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
 
@@ -419,12 +419,8 @@ public struct AnyProperty<Value>: PropertyType {
 			self.sources = sources
 
 			_value = { value }
-			_producer = { propertyProducer }
-			_signal = {
-				var extractedSignal: Signal<Value, NoError>!
-				propertyProducer.startWithSignal { signal, _ in extractedSignal = signal }
-				return extractedSignal
-			}
+			_values = { propertyProducer }
+			_changes = { propertyProducer.skip(1) }
 		} else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
@@ -446,14 +442,14 @@ public struct AnyProperty<Value>: PropertyType {
 public struct ConstantProperty<Value>: PropertyType {
 
 	public let value: Value
-	public let producer: SignalProducer<Value, NoError>
-	public let signal: Signal<Value, NoError>
+	public let values: SignalProducer<Value, NoError>
+	public let changes: SignalProducer<Value, NoError>
 
 	/// Initializes the property to have the given value.
 	public init(_ value: Value) {
 		self.value = value
-		self.producer = SignalProducer(value: value)
-		self.signal = .empty
+		self.values = SignalProducer(value: value)
+		self.changes = .empty
 	}
 }
 
@@ -488,12 +484,12 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
-	public let signal: Signal<Value, NoError>
+	private let signal: Signal<Value, NoError>
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public var producer: SignalProducer<Value, NoError> {
+	public var values: SignalProducer<Value, NoError> {
 		return SignalProducer { [box, weak self] producerObserver, producerDisposable in
 			if let strongSelf = self {
 				strongSelf.withValue { value in
@@ -507,6 +503,12 @@ public final class MutableProperty<Value>: MutablePropertyType {
 				producerObserver.sendCompleted()
 			}
 		}
+	}
+
+	/// A producer that will send the property's changes over time,
+	/// then complete when the property has deinitialized.
+	public var changes: SignalProducer<Value, NoError> {
+		return SignalProducer(signal: signal)
 	}
 
 	/// Initializes the property with the given value to start.
@@ -574,7 +576,7 @@ infix operator <~ {
 /// or when the signal sends a `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
-	disposable += property.producer.startWithCompleted {
+	disposable += property.values.startWithCompleted {
 		disposable.dispose()
 	}
 
@@ -607,7 +609,7 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 			disposable += property <~ signal
 			disposable += signalDisposable
 
-			disposable += property.producer.startWithCompleted {
+			disposable += property.values.startWithCompleted {
 				disposable.dispose()
 			}
 		}
@@ -624,7 +626,7 @@ public func <~ <P: MutablePropertyType, S: SignalProducerType where P.Value == S
 }
 
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
+	return destinationProperty <~ sourceProperty.values
 }
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
@@ -632,5 +634,5 @@ public func <~ <Destination: MutablePropertyType, Source: PropertyType where Des
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
+	return destinationProperty <~ sourceProperty.values
 }

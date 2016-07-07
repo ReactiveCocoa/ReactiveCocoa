@@ -68,8 +68,8 @@ public final class Action<Input, Output, Error: ErrorType> {
 		values = events.map { $0.value }.ignoreNil()
 		errors = events.map { $0.error }.ignoreNil()
 
-		_enabled <~ enabledIf.producer
-			.combineLatestWith(_executing.producer)
+		_enabled <~ enabledIf.values
+			.combineLatestWith(_executing.values)
 			.map(Action.shouldBeEnabled)
 	}
 

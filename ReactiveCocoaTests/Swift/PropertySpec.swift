@@ -613,6 +613,35 @@ class PropertySpec: QuickSpec {
 					expect(result) == finalResult
 				}
 
+				it("should be consistent between its cached value and its values producer") {
+					var firstResult: String!
+					var secondResult: String!
+
+					let zippedProperty = property.zipWith(otherProperty)
+					zippedProperty.values.startWithNext { (left, right) in firstResult = left + right }
+
+					func getValue() -> String {
+						return zippedProperty.value.0 + zippedProperty.value.1
+					}
+
+					expect(getValue()) == initialPropertyValue + initialOtherPropertyValue
+					expect(firstResult) == initialPropertyValue + initialOtherPropertyValue
+
+					property.value = subsequentPropertyValue
+					expect(getValue()) == initialPropertyValue + initialOtherPropertyValue
+					expect(firstResult) == initialPropertyValue + initialOtherPropertyValue
+
+					// It should still be the tuple with initial property values,
+					// since `otherProperty` isn't changed yet.
+					zippedProperty.values.startWithNext { (left, right) in secondResult = left + right }
+					expect(secondResult) == initialPropertyValue + initialOtherPropertyValue
+
+					otherProperty.value = subsequentOtherPropertyValue
+					expect(getValue()) == subsequentPropertyValue + subsequentOtherPropertyValue
+					expect(firstResult) == subsequentPropertyValue + subsequentOtherPropertyValue
+					expect(secondResult) == subsequentPropertyValue + subsequentOtherPropertyValue
+				}
+
 				it("should complete its producer only when the source properties are deinitialized") {
 					var result: [String] = []
 					var completed = false

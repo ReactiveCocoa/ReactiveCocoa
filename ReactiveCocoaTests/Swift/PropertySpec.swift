@@ -31,19 +31,19 @@ class PropertySpec: QuickSpec {
 			it("should yield a changes producer that completes without emitting any value.") {
 				let constantProperty = ConstantProperty(initialPropertyValue)
 
-				var isChangesCompleted = false
+				var isChangesInterrupted = false
 				var hasUnexpectedEventsEmitted = false
 
 				constantProperty.changes.start { event in
 					switch event {
-					case .Completed:
-						isChangesCompleted = true
-					case .Next, .Failed, .Interrupted:
+					case .Interrupted:
+						isChangesInterrupted = true
+					case .Next, .Failed, .Completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}
 
-				expect(isChangesCompleted) == true
+				expect(isChangesInterrupted) == true
 				expect(hasUnexpectedEventsEmitted) == false
 			}
 
@@ -305,7 +305,7 @@ class PropertySpec: QuickSpec {
 					var sentValue: String?
 					var changesSentValue: String?
 					var valuesCompleted = false
-					var changesCompleted = false
+					var changesInterrupted = false
 
 					property.values.start { event in
 						switch event {
@@ -322,9 +322,9 @@ class PropertySpec: QuickSpec {
 						switch event {
 						case let .Next(value):
 							changesSentValue = value
-						case .Completed:
-							changesCompleted = true
-						case .Failed, .Interrupted:
+						case .Interrupted:
+							changesInterrupted = true
+						case .Failed, .Completed:
 							break
 						}
 					}
@@ -332,7 +332,7 @@ class PropertySpec: QuickSpec {
 					expect(sentValue) == initialPropertyValue
 					expect(changesSentValue).to(beNil())
 					expect(valuesCompleted) == true
-					expect(changesCompleted) == true
+					expect(changesInterrupted) == true
 				}
 
 				describe("transformed properties") {
@@ -458,9 +458,9 @@ class PropertySpec: QuickSpec {
 					expect(isValuesCompleted) == true
 					expect(isChangesCompleted) == true
 
-					isChangesCompleted = false
-					propertyChangesProducer.startWithCompleted { isChangesCompleted = true }
-					expect(isChangesCompleted) == true
+					var isChangesInterrupted = false
+					propertyChangesProducer.startWithInterrupted { isChangesInterrupted = true }
+					expect(isChangesInterrupted) == true
 				}
 			}
 
@@ -506,9 +506,9 @@ class PropertySpec: QuickSpec {
 					expect(isValuesCompleted) == true
 					expect(changesCompleted) == true
 
-					changesCompleted = false
-					propertyChanges.startWithCompleted { changesCompleted = true }
-					expect(changesCompleted) == true
+					var isChangesInterrupted = false
+					propertyChanges.startWithInterrupted { isChangesInterrupted = true }
+					expect(isChangesInterrupted) == true
 				}
 			}
 		}

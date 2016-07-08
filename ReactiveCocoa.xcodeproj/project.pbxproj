@@ -3173,7 +3173,6 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
@@ -3188,7 +3187,6 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
@@ -3205,7 +3203,6 @@
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -3221,7 +3218,6 @@
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -3309,7 +3305,6 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
@@ -3326,7 +3321,6 @@
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};
@@ -3386,7 +3380,6 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;
@@ -3403,7 +3396,6 @@
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Test;
 		};

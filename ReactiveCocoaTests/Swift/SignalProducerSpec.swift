@@ -2253,7 +2253,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer(values: [producer1, producer2])
 						.flatten(.Merge)
 
-					expect(producer is SignalProducer<Int, NoError>).to(beTrue())
+					expect(producer is SignalProducer<Int, NoError>) == true
 				}
 			}
 		}

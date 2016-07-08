@@ -385,7 +385,7 @@ extension SignalProducerProtocol {
 	}
 	
 	/// `concat`s `value` onto `self`.
-	public func concat(_ value: Value) -> SignalProducer<Value, Error> {
+	public func concat(value: Value) -> SignalProducer<Value, Error> {
 		return self.concat(SignalProducer(value: value))
 	}
 	
@@ -395,7 +395,7 @@ extension SignalProducerProtocol {
 	}
 	
 	/// `concat`s `self` onto initial `value`.
-	public func prefix(_ value: Value) -> SignalProducer<Value, Error> {
+	public func prefix(value: Value) -> SignalProducer<Value, Error> {
 		return self.prefix(SignalProducer(value: value))
 	}
 }

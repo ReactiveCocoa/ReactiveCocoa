@@ -899,7 +899,7 @@ class FlattenSpec: QuickSpec {
 			it("should emit initial value") {
 				let (signal, observer) = SignalProducer<Int, NoError>.pipe()
 
-				let mergedSignals = signal.prefix(0)
+				let mergedSignals = signal.prefix(value: 0)
 
 				var lastValue: Int?
 				mergedSignals.startWithNext { lastValue = $0 }
@@ -941,7 +941,7 @@ class FlattenSpec: QuickSpec {
 			it("should emit final value") {
 				let (signal, observer) = SignalProducer<Int, NoError>.pipe()
 				
-				let mergedSignals = signal.concat(4)
+				let mergedSignals = signal.concat(value: 4)
 				
 				var lastValue: Int?
 				mergedSignals.startWithNext { lastValue = $0 }

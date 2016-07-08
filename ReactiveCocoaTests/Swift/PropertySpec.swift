@@ -358,6 +358,8 @@ class PropertySpec: QuickSpec {
 
 						var firstMappedProperty = Optional(property!.map { $0 + 1 })
 						var secondMappedProperty = Optional(firstMappedProperty!.map { $0 + 2 })
+
+						// Suppress the "written to but never read" warning on `secondMappedProperty`.
 						_ = secondMappedProperty
 
 						property = nil

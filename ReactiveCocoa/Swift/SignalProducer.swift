@@ -272,7 +272,7 @@ extension SignalProducerProtocol where Error == NoError {
 	/// Returns a Disposable which can be used to interrupt the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	@discardableResult
-	public func startWithNext(next: (Value) -> Void) -> Disposable {
+	public func startWithNext(_ next: (Value) -> Void) -> Disposable {
 		return start(Observer(next: next))
 	}
 }

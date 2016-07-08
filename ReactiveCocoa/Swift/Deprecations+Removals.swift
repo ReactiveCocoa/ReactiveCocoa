@@ -153,7 +153,7 @@ extension SignalProtocol {
 	public func timeoutWithError(_ error: Error, afterInterval: TimeInterval, onScheduler: SchedulerProtocol) -> Signal<Value, Error> { fatalError() }
 
 	@available(*, unavailable, message: "This Signal may emit errors which must be handled explicitly, or observed using `observeResult(_:)`")
-	public func observeNext(next: (Value) -> Void) -> Disposable? { fatalError() }
+	public func observeNext(_ next: (Value) -> Void) -> Disposable? { fatalError() }
 }
 
 extension SignalProducerProtocol {
@@ -209,12 +209,12 @@ extension SignalProducerProtocol {
 	public func timeoutWithError(_ error: Error, afterInterval: TimeInterval, onScheduler: SchedulerProtocol) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, message:"This SignalProducer may emit errors which must be handled explicitly, or observed using `startWithResult(_:)`.")
-	public func startWithNext(next: (Value) -> Void) -> Disposable { fatalError() }
+	public func startWithNext(_ next: (Value) -> Void) -> Disposable { fatalError() }
 }
 
 extension SignalProducer {
 	@available(*, unavailable, message:"Use properties instead. `buffer(_:)` is removed in RAC 5.0.")
-	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) { fatalError() }
+	public static func buffer(_ capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) { fatalError() }
 }
 
 extension PropertyProtocol {

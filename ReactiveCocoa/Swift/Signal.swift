@@ -233,7 +233,7 @@ extension SignalProtocol where Error == NoError {
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
 	@discardableResult
-	public func observeNext(next: (Value) -> Void) -> Disposable? {
+	public func observeNext(_ next: (Value) -> Void) -> Disposable? {
 		return observe(Observer(next: next))
 	}
 }

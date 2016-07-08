@@ -336,14 +336,14 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on a signal created by `producer`.
 	public init(initial: Value, producer: SignalProducer<Value, NoError>) {
-		self.init(unsafeProducer: producer.prefix(value: initial),
+		self.init(unsafeProducer: producer.prefix(initial),
 		          capturing: [])
 	}
 
 	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on `signal`.
 	public init(initial: Value, signal: Signal<Value, NoError>) {
-		self.init(unsafeProducer: SignalProducer(signal: signal).prefix(value: initial),
+		self.init(unsafeProducer: SignalProducer(signal: signal).prefix(initial),
 		          capturing: [])
 	}
 

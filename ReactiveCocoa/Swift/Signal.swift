@@ -284,7 +284,7 @@ extension SignalProtocol where Value: OptionalProtocol {
 
 extension SignalProtocol {
 	/// Returns a signal that will yield the first `count` values from `self`
-	public func takeFirst(_ count: Int = 1) -> Signal<Value, Error> {
+	public func take(first count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		return Signal { observer in
@@ -601,7 +601,7 @@ extension SignalProtocol {
 
 	/// Returns a signal that will skip the first `count` values, then forward
 	/// everything afterward.
-	public func skipFirst(_ count: Int = 1) -> Signal<Value, Error> {
+	public func skip(first count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		if count == 0 {
@@ -849,7 +849,7 @@ extension SignalProtocol {
 		// We'll do that by sending `initial` on the output signal (before taking
 		// the last value).
 		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal<U, Error>.pipe()
-		let outputSignal = scannedSignalWithInitialValue.takeLast()
+		let outputSignal = scannedSignalWithInitialValue.take(last: 1)
 
 		// Now that we've got takeLast() listening to the piped signal, send that initial value.
 		outputSignalObserver.sendNext(initial)
@@ -961,7 +961,7 @@ extension SignalProtocol {
 
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned signal.
-	public func takeLast(_ count: Int = 1) -> Signal<Value, Error> {
+	public func take(last count: Int) -> Signal<Value, Error> {
 		return Signal { observer in
 			var buffer: [Value] = []
 			buffer.reserveCapacity(count)

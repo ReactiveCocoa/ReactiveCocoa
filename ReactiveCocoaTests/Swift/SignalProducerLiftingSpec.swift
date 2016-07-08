@@ -182,7 +182,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("skip") {
 			it("should skip initial values") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.skipFirst(1)
+				let producer = baseProducer.skip(first: 1)
 
 				var lastValue: Int?
 				producer.startWithNext { lastValue = $0 }
@@ -198,7 +198,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 			it("should not skip any values when 0") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.skipFirst(0)
+				let producer = baseProducer.skip(first: 0)
 
 				var lastValue: Int?
 				producer.startWithNext { lastValue = $0 }
@@ -358,7 +358,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 		describe("take") {
 			it("should take initial values") {
 				let (baseProducer, observer) = SignalProducer<Int, NoError>.pipe()
-				let producer = baseProducer.takeFirst(2)
+				let producer = baseProducer.take(first: 2)
 
 				var lastValue: Int?
 				var completed = false
@@ -403,7 +403,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var completed = false
 				
 				producer
-					.takeFirst(numbers.count)
+					.take(first: numbers.count)
 					.startWithCompleted { completed = true }
 				
 				expect(completed) == false
@@ -430,7 +430,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				var interrupted = false
 
 				producer
-				.takeFirst(0)
+				.take(first: 0)
 				.start { event in
 					switch event {
 					case let .next(number):
@@ -1294,7 +1294,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			beforeEach {
 				let (producer, incomingObserver) = SignalProducer<Int, TestError>.pipe()
 				observer = incomingObserver
-				lastThree = producer.takeLast(3)
+				lastThree = producer.take(last: 3)
 			}
 			
 			it("should send the last N values upon completion") {

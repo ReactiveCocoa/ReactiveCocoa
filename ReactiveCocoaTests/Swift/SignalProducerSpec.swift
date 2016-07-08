@@ -1173,7 +1173,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>(value: 1)
 						.flatMap(.latest) { _ in SignalProducer(value: 10) }
 
-					let result = producer.takeFirst(1).last()
+					let result = producer.take(first: 1).last()
 					expect(result?.value) == 10
 				}
 			}
@@ -1442,7 +1442,7 @@ class SignalProducerSpec: QuickSpec {
 				let original = SignalProducer<Int, NoError>(value: 1)
 				let producer = original.times(Int.max)
 
-				let result = producer.takeFirst(1).single()
+				let result = producer.take(first: 1).single()
 				expect(result?.value) == 1
 			}
 		}
@@ -1743,7 +1743,7 @@ class SignalProducerSpec: QuickSpec {
 					handler.sendCompleted()
 				}
 
-				let result = producer1.concat(producer2).takeFirst(1).collect().first()
+				let result = producer1.concat(producer2).take(first: 1).collect().first()
 
 				expect(result?.value) == [1]
 				expect(started) == false

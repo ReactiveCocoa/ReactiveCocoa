@@ -119,10 +119,13 @@ extension CompositeDisposable {
 }
 
 extension SignalProtocol {
-	@available(*, unavailable, renamed:"takeFirst(_:)")
+	@available(*, unavailable, renamed:"take(first:)")
 	public func take(_ count: Int) -> Signal<Value, Error> { fatalError() }
 
-	@available(*, unavailable, renamed:"skipFirst(_:)")
+	@available(*, unavailable, renamed:"take(last:)")
+	public func takeLast(_ count: Int) -> Signal<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(first:)")
 	public func skip(_ count: Int) -> Signal<Value, Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"observe(on:)")
@@ -157,10 +160,13 @@ extension SignalProtocol {
 }
 
 extension SignalProducerProtocol {
-	@available(*, unavailable, renamed:"takeFirst(_:)")
+	@available(*, unavailable, renamed:"take(first:)")
 	public func take(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
 
-	@available(*, unavailable, renamed:"skipFirst(_:)")
+	@available(*, unavailable, renamed:"take(last:)")
+	public func takeLast(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
+
+	@available(*, unavailable, renamed:"skip(first:)")
 	public func skip(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
 
 	@available(*, unavailable, renamed:"observe(on:)")

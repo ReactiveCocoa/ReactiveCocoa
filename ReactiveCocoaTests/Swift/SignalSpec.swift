@@ -505,7 +505,7 @@ class SignalSpec: QuickSpec {
 		describe("skip") {
 			it("should skip initial values") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.skipFirst(1)
+				let signal = baseSignal.skip(first: 1)
 
 				var lastValue: Int?
 				signal.observeNext { lastValue = $0 }
@@ -521,7 +521,7 @@ class SignalSpec: QuickSpec {
 
 			it("should not skip any values when 0") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.skipFirst(0)
+				let signal = baseSignal.skip(first: 0)
 
 				var lastValue: Int?
 				signal.observeNext { lastValue = $0 }
@@ -745,7 +745,7 @@ class SignalSpec: QuickSpec {
 		describe("take") {
 			it("should take initial values") {
 				let (baseSignal, observer) = Signal<Int, NoError>.pipe()
-				let signal = baseSignal.takeFirst(2)
+				let signal = baseSignal.take(first: 2)
 
 				var lastValue: Int?
 				var completed = false
@@ -787,7 +787,7 @@ class SignalSpec: QuickSpec {
 				
 				var completed = false
 				
-				signal = signal.takeFirst(numbers.count)
+				signal = signal.take(first: numbers.count)
 				signal.observeCompleted { completed = true }
 				
 				expect(completed) == false
@@ -812,7 +812,7 @@ class SignalSpec: QuickSpec {
 				var interrupted = false
 
 				signal
-				.takeFirst(0)
+				.take(first: 0)
 				.observe { event in
 					switch event {
 					case let .next(number):
@@ -1761,7 +1761,7 @@ class SignalSpec: QuickSpec {
 			beforeEach {
 				let (signal, incomingObserver) = Signal<Int, TestError>.pipe()
 				observer = incomingObserver
-				lastThree = signal.takeLast(3)
+				lastThree = signal.take(last: 3)
 			}
 
 			it("should send the last N values upon completion") {

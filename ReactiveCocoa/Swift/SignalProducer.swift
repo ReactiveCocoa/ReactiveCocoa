@@ -391,8 +391,8 @@ extension SignalProducerProtocol {
 
 	/// Returns a producer that will yield the first `count` values from the
 	/// input producer.
-	public func takeFirst(_ count: Int = 1) -> SignalProducer<Value, Error> {
-		return lift { $0.takeFirst(count) }
+	public func take(first count: Int) -> SignalProducer<Value, Error> {
+		return lift { $0.take(first: count) }
 	}
 
 	/// Returns a producer that will yield an array of values when `self` 
@@ -551,8 +551,8 @@ extension SignalProducerProtocol {
 
 	/// Returns a producer that will skip the first `count` values, then forward
 	/// everything afterward.
-	public func skipFirst(_ count: Int = 1) -> SignalProducer<Value, Error> {
-		return lift { $0.skipFirst(count) }
+	public func skip(first count: Int) -> SignalProducer<Value, Error> {
+		return lift { $0.skip(first: count) }
 	}
 
 	/// Treats all Events from the input producer as plain values, allowing them to be
@@ -719,8 +719,8 @@ extension SignalProducerProtocol {
 
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned producer.
-	public func takeLast(_ count: Int = 1) -> SignalProducer<Value, Error> {
-		return lift { $0.takeLast(count) }
+	public func take(last count: Int) -> SignalProducer<Value, Error> {
+		return lift { $0.take(last: count) }
 	}
 
 	/// Forwards any values from `self` until `predicate` returns false,
@@ -1135,7 +1135,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for the first value.
 	public func first() -> Result<Value, Error>? {
-		return takeFirst().single()
+		return take(first: 1).single()
 	}
 
 	/// Starts the producer, then blocks, waiting for events: Next and Completed.
@@ -1146,7 +1146,7 @@ extension SignalProducerProtocol {
 		let semaphore = DispatchSemaphore(value: 0)
 		var result: Result<Value, Error>?
 
-		takeFirst(2).start { event in
+		take(first: 2).start { event in
 			switch event {
 			case let .next(value):
 				if result != nil {
@@ -1169,7 +1169,7 @@ extension SignalProducerProtocol {
 
 	/// Starts the producer, then blocks, waiting for the last value.
 	public func last() -> Result<Value, Error>? {
-		return takeLast().single()
+		return take(last: 1).single()
 	}
 
 	/// Starts the producer, then blocks, waiting for completion.

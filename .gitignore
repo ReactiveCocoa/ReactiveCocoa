@@ -13,5 +13,6 @@ build/*
 xcuserdata
 profile
 *.moved-aside
+PlaygroundUtility.remap
 
 Carthage/Build

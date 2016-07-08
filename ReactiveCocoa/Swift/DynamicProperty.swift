@@ -27,6 +27,10 @@ import enum Result.NoError
 		}
 	}
 
+	public var atomic: AnyAtomic<Value> {
+		return self.property?.atomic ?? AnyAtomic(value: nil)
+	}
+	
 	/// A producer that will create a Key-Value Observer for the given object,
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.

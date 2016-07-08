@@ -621,7 +621,7 @@ extension SignalProducerProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
-	public func take<U>(until trigger: SignalProducer<U, NoError>) -> SignalProducer<Value, Error> {
+	public func take(until trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		// This should be the implementation of this method:
 		// return liftRight(Signal.takeUntil)(trigger)
 		//
@@ -645,19 +645,19 @@ extension SignalProducerProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
-	public func take<U>(until trigger: Signal<U, NoError>) -> SignalProducer<Value, Error> {
+	public func take(until trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.take(until:))(trigger)
 	}
 
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed, at which point the returned signal behaves exactly like `signal`.
-	public func skip<U>(until trigger: SignalProducer<U, NoError>) -> SignalProducer<Value, Error> {
+	public func skip(until trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return liftRight(Signal.skip(until:))(trigger)
 	}
 	
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed, at which point the returned signal behaves exactly like `signal`.
-	public func skip<U>(until trigger: Signal<U, NoError>) -> SignalProducer<Value, Error> {
+	public func skip(until trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.skip(until:))(trigger)
 	}
 	

@@ -793,7 +793,7 @@ extension SignalProtocol {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
-	public func take<U>(until trigger: Signal<U, NoError>) -> Signal<Value, Error> {
+	public func take(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			disposable += self.observe(observer)
@@ -815,7 +815,7 @@ extension SignalProtocol {
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed event, at which point the returned signal behaves exactly like
 	/// `signal`.
-	public func skip<U>(until trigger: Signal<U, NoError>) -> Signal<Value, Error> {
+	public func skip(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = SerialDisposable()
 			

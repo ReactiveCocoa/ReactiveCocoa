@@ -31,11 +31,9 @@
 @implementation TestObject
 
 - (instancetype)init {
-	if ( !(self = [super init]) ) {
-		return nil;
+	if ((self = [super init])) {
+		pthread_mutex_init(&_mutex, nil);
 	}
-
-	pthread_mutex_init(&_mutex, nil);
 
 	return self;
 }

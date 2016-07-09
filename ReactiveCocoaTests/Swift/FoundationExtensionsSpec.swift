@@ -11,33 +11,38 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
+extension Notification.Name {
+	static let racFirst = Notification.Name(rawValue: "rac_notifications_test")
+	static let racAnother = Notification.Name(rawValue: "rac_notifications_another")
+}
+
 class FoundationExtensionsSpec: QuickSpec {
 	override func spec() {
 		describe("NSNotificationCenter.rac_notifications") {
 			let center = NotificationCenter.default
 
 			it("should send notifications on the producer") {
-				let producer = center.rac_notifications(for: "rac_notifications_test" as Notification.Name)
+				let producer = center.rac_notifications(forName: .racFirst)
 
-				var notif: NSNotification? = nil
+				var notif: Notification? = nil
 				let disposable = producer.startWithNext { notif = $0 }
 
-				center.post(name: "some_other_notification" as Notification.Name, object: nil)
+				center.post(name: .racAnother, object: nil)
 				expect(notif).to(beNil())
 
-				center.post(name: "rac_notifications_test" as Notification.Name, object: nil)
-				expect(notif?.name) == "rac_notifications_test" as Notification.Name
+				center.post(name: .racFirst, object: nil)
+				expect(notif?.name) == .racFirst
 
 				notif = nil
 				disposable.dispose()
 
-				center.post(name: Notification.Name("rac_notifications_test"), object: nil)
+				center.post(name: .racFirst, object: nil)
 				expect(notif).to(beNil())
 			}
 
 			it("should send Interrupted when the observed object is freed") {
 				var observedObject: AnyObject? = NSObject()
-				let producer = center.rac_notifications(for: Notification.Name(""), object: observedObject)
+				let producer = center.rac_notifications(forName: nil, object: observedObject)
 				observedObject = nil
 
 				var interrupted = false

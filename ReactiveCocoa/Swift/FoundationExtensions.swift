@@ -15,7 +15,7 @@ extension NotificationCenter {
 	/// terminate immediatelly with an Interrupted event. Otherwise, the producer
 	/// will not terminate naturally, so it must be explicitly disposed to avoid
 	/// leaks.
-	public func rac_notifications(for name: Notification.Name?, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {
+	public func rac_notifications(forName name: Notification.Name?, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {
 		// We're weakly capturing an optional reference here, which makes destructuring awkward.
 		let objectWasNil = (object == nil)
 		return SignalProducer { [weak object] observer, disposable in
@@ -40,7 +40,7 @@ private let defaultSessionError = NSError(domain: "org.reactivecocoa.ReactiveCoc
 extension URLSession {
 	/// Returns a producer that will execute the given request once for each
 	/// invocation of start().
-	public func rac_dataWithRequest(_ request: URLRequest) -> SignalProducer<(Data, URLResponse), NSError> {
+	public func rac_data(with request: URLRequest) -> SignalProducer<(Data, URLResponse), NSError> {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTask(with: request) { data, response, error in
 				if let data = data, response = response {

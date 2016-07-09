@@ -203,13 +203,13 @@ scopedExample("`ignoreNil`") {
 }
 
 /*:
- ### `takeFirst`
+ ### `take(first:)`
  Returns a signal that will yield the first `count` values from `self`
  */
-scopedExample("`takeFirst`") {
+scopedExample("`take(first:)`") {
     let (signal, observer) = Signal<Int, NoError>.pipe()
     let subscriber = Observer<Int, NoError>(next: { print("Subscriber received \($0)") } )
-    let takeSignal = signal.takeFirst(2)
+    let takeSignal = signal.take(first: 2)
 
     takeSignal.observe(subscriber)
     observer.sendNext(1)

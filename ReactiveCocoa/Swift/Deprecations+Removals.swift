@@ -232,10 +232,10 @@ extension PropertyProtocol {
 }
 
 extension AnyProperty {
-	@available(*, unavailable, renamed:"AnyProperty(initial:producer:)")
+	@available(*, unavailable, renamed:"AnyProperty(initial:then:)")
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) { fatalError() }
 
-	@available(*, unavailable, renamed:"AnyProperty(initial:signal:)")
+	@available(*, unavailable, renamed:"AnyProperty(initial:then:)")
 	public init(initialValue: Value, signal: Signal<Value, NoError>) { fatalError() }
 }
 

@@ -2243,6 +2243,19 @@ class SignalProducerSpec: QuickSpec {
 					observer.sendCompleted()
 				}
 			}
+
+			describe("init(values) ambiguity") {
+				it("should not be a SignalProducer<SignalProducer<Int, NoError>, NoError>") {
+
+					let producer1: SignalProducer<Int, NoError> = SignalProducer.empty
+					let producer2: SignalProducer<Int, NoError> = SignalProducer.empty
+
+					let producer = SignalProducer(values: [producer1, producer2])
+						.flatten(.Merge)
+
+					expect(producer is SignalProducer<Int, NoError>) == true
+				}
+			}
 		}
 	}
 }

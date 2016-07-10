@@ -230,3 +230,27 @@ extension PropertyProtocol {
 	@available(*, unavailable, renamed:"zip(with:)")
 	public func zipWith<P: PropertyProtocol>(_ otherProperty: P) -> AnyProperty<(Value, P.Value)> { fatalError() }
 }
+
+extension AnyProperty {
+	@available(*, unavailable, renamed:"AnyProperty(initial:producer:)")
+	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) { fatalError() }
+
+	@available(*, unavailable, renamed:"AnyProperty(initial:signal:)")
+	public init(initialValue: Value, signal: Signal<Value, NoError>) { fatalError() }
+}
+
+extension DateSchedulerProtocol {
+	@available(*, unavailable, renamed:"schedule(after:action:)")
+	func scheduleAfter(date: Date, _ action: () -> Void) -> Disposable? { fatalError() }
+
+	@available(*, unavailable, renamed:"schedule(after:interval:leeway:)")
+	func scheduleAfter(date: Date, repeatingEvery: TimeInterval, withLeeway: TimeInterval, action: () -> Void) -> Disposable? { fatalError() }
+}
+
+extension TestScheduler {
+	@available(*, unavailable, renamed:"advanced(by:)")
+	public func advanceByInterval(_ interval: TimeInterval) { fatalError() }
+
+	@available(*, unavailable, renamed:"advanced(to:)")
+	public func advanceToDate(_ date: Date) { fatalError() }
+}

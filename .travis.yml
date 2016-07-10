@@ -31,6 +31,12 @@ matrix:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
         - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current
+      env:
+        - JOB=CARTHAGE
     - xcode_scheme: ReactiveCocoa-Mac
       osx_image: xcode8
       env:
@@ -56,6 +62,13 @@ matrix:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
         - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current
+      osx_image: xcode8
+      env:
+        - JOB=CARTHAGE
 notifications:
   email: false
   slack:

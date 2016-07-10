@@ -13,7 +13,7 @@ extension UITextField {
     
     /// Wraps a textField's `text` value in a bindable property.
     public var rex_text: MutableProperty<String?> {
-        let getter: UITextField -> String? = { $0.text }
+        let getter: (UITextField) -> String? = { $0.text }
         let setter: (UITextField, String?) -> () = { $0.text = $1 }
 #if os(iOS)
         return UIControl.rex_value(self, getter: getter, setter: setter)

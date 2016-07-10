@@ -9,24 +9,23 @@
 import ReactiveCocoa
 import enum Result.NoError
 
-extension SignalType {
+extension SignalProtocol {
 
     /// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
     /// forwared on the returned signal.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func filterMap<U>(transform: Value -> U?) -> Signal<U, Error> {
+    public func filterMap<U>(_ transform: (Value) -> U?) -> Signal<U, Error> {
         return Signal<U, Error> { observer in
             return self.observe { event in
                 switch event {
-                case let .Next(value):
+                case let .next(value):
                     if let mapped = transform(value) {
                         observer.sendNext(mapped)
                     }
-                case let .Failed(error):
+                case let .failed(error):
                     observer.sendFailed(error)
-                case .Completed:
+                case .completed:
                     observer.sendCompleted()
-                case .Interrupted:
+                case .interrupted:
                     observer.sendInterrupted()
                 }
             }
@@ -35,20 +34,19 @@ extension SignalType {
 
     /// Returns a signal that drops `Error` sending `replacement` terminal event
     /// instead, defaulting to `Completed`.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func ignoreError(replacement replacement: Event<Value, NoError> = .Completed) -> Signal<Value, NoError> {
+    public func ignoreError(replacement: Event<Value, NoError> = .completed) -> Signal<Value, NoError> {
         precondition(replacement.isTerminating)
 
         return Signal<Value, NoError> { observer in
             return self.observe { event in
                 switch event {
-                case let .Next(value):
+                case let .next(value):
                     observer.sendNext(value)
-                case .Failed:
+                case .failed:
                     observer.action(replacement)
-                case .Completed:
+                case .completed:
                     observer.sendCompleted()
-                case .Interrupted:
+                case .interrupted:
                     observer.sendInterrupted()
                 }
             }
@@ -60,16 +58,15 @@ extension SignalType {
     ///
     /// If the interval is 0, the timeout will be scheduled immediately. The signal
     /// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func timeoutAfter(interval: NSTimeInterval, withEvent event: Event<Value, Error>, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+    public func timeout(after interval: TimeInterval, with event: Event<Value, Error>, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
         precondition(interval >= 0)
         precondition(event.isTerminating)
 
         return Signal { observer in
             let disposable = CompositeDisposable()
 
-            let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-            disposable += scheduler.scheduleAfter(date) {
+            let date = scheduler.currentDate.addingTimeInterval(interval)
+            disposable += scheduler.schedule(after: date) {
                 observer.action(event)
             }
 
@@ -85,16 +82,15 @@ extension SignalType {
     ///
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func muteFor(interval: NSTimeInterval, clock: DateSchedulerType) -> Signal<Value, Error> {
+    public func muteFor(_ interval: TimeInterval, clock: DateSchedulerProtocol) -> Signal<Value, Error> {
         precondition(interval > 0)
 
         var expires = clock.currentDate
         return filter { _ in
             let now = clock.currentDate
 
-            if expires.compare(now) != .OrderedDescending {
-                expires = now.dateByAddingTimeInterval(interval)
+            if expires.compare(now) != .orderedDescending {
+                expires = now.addingTimeInterval(interval)
                 return true
             }
             return false
@@ -102,20 +98,19 @@ extension SignalType {
     }
 }
 
-extension SignalType where Value: SequenceType {
+extension SignalProtocol where Value: Sequence {
     /// Returns a signal that flattens sequences of elements. The inverse of `collect`.
-    @warn_unused_result(message="Did you forget to call `observe` on the signal?")
-    public func uncollect() -> Signal<Value.Generator.Element, Error> {
-        return Signal<Value.Generator.Element, Error> { observer in
+    public func uncollect() -> Signal<Value.Iterator.Element, Error> {
+        return Signal<Value.Iterator.Element, Error> { observer in
             return self.observe { event in
                 switch event {
-                case let .Next(sequence):
+                case let .next(sequence):
                     sequence.forEach { observer.sendNext($0) }
-                case let .Failed(error):
+                case let .failed(error):
                     observer.sendFailed(error)
-                case .Completed:
+                case .completed:
                     observer.sendCompleted()
-                case .Interrupted:
+                case .interrupted:
                     observer.sendInterrupted()
                 }
             }

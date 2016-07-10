@@ -16,7 +16,7 @@ extension UILabel {
     }
     
     /// Wraps a label's `attributedText` value in a bindable property.
-    public var rex_attributedText: MutableProperty<NSAttributedString?> {
+    public var rex_attributedText: MutableProperty<AttributedString?> {
         return associatedProperty(self, key: &attributedTextKey, initial: { $0.attributedText }, setter: { $0.attributedText = $1 })
     }
 

@@ -1,1 +1,1 @@
-github "ReactiveCocoa/ReactiveCocoa" ~> 4.2.1
+github "ReactiveCocoa/ReactiveCocoa" "RAC5-swift3"

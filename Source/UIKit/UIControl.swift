@@ -14,9 +14,8 @@ extension UIControl {
 
 #if os(iOS)
     /// Creates a producer for the sender whenever a specified control event is triggered.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func rex_controlEvents(events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
-        return rac_signalForControlEvents(events)
+    public func rex_controlEvents(_ events: UIControlEvents) -> SignalProducer<UIControl?, NoError> {
+        return rac_signal(for: events)
             .toSignalProducer()
             .map { $0 as? UIControl }
             .flatMapError { _ in SignalProducer(value: nil) }
@@ -27,11 +26,10 @@ extension UIControl {
     /// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged` 
     /// events to detect changes and keep the value up-to-date.
     //
-    @warn_unused_result(message="Did you forget to use the property?")
-    class func rex_value<Host: UIControl, T>(host: Host, getter: Host -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+    class func rex_value<Host: UIControl, T>(_ host: Host, getter: (Host) -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
         return associatedProperty(host, key: &valueChangedKey, initial: getter, setter: setter) { property in
             property <~
-                host.rex_controlEvents([.ValueChanged, .EditingChanged])
+                host.rex_controlEvents([.valueChanged, .editingChanged])
                     .filterMap { $0 as? Host }
                     .filterMap(getter)
         }
@@ -40,17 +38,17 @@ extension UIControl {
 
     /// Wraps a control's `enabled` state in a bindable property.
     public var rex_enabled: MutableProperty<Bool> {
-        return associatedProperty(self, key: &enabledKey, initial: { $0.enabled }, setter: { $0.enabled = $1 })
+        return associatedProperty(self, key: &enabledKey, initial: { $0.isEnabled }, setter: { $0.isEnabled = $1 })
     }
     
     /// Wraps a control's `selected` state in a bindable property.
     public var rex_selected: MutableProperty<Bool> {
-        return associatedProperty(self, key: &selectedKey, initial: { $0.selected }, setter: { $0.selected = $1 })
+        return associatedProperty(self, key: &selectedKey, initial: { $0.isSelected }, setter: { $0.isSelected = $1 })
     }
     
     /// Wraps a control's `highlighted` state in a bindable property.
     public var rex_highlighted: MutableProperty<Bool> {
-        return associatedProperty(self, key: &highlightedKey, initial: { $0.highlighted }, setter: { $0.highlighted = $1 })
+        return associatedProperty(self, key: &highlightedKey, initial: { $0.isHighlighted }, setter: { $0.isHighlighted = $1 })
     }
 }
 

@@ -9,21 +9,20 @@
 import ReactiveCocoa
 import enum Result.NoError
 
-extension NSUserDefaults {
+extension UserDefaults {
     /// Sends value of `key` whenever it changes. Attempts to filter out repeats
     /// by casting to NSObject and checking for equality. If the values aren't
     /// convertible this will generate events whenever _any_ value in NSUserDefaults
     /// changes.
-    @warn_unused_result(message="Did you forget to call `start` on the producer?")
-    public func rex_valueForKey(key: String) -> SignalProducer<AnyObject?, NoError> {
-        let center = NSNotificationCenter.defaultCenter()
-        let initial = objectForKey(key)
+    public func rex_valueForKey(_ key: String) -> SignalProducer<AnyObject?, NoError> {
+        let center = NotificationCenter.default
+        let initial = object(forKey: key)
 
-        let changes = center.rac_notifications(NSUserDefaultsDidChangeNotification)
+        let changes = center.rac_notifications(forName: UserDefaults.didChangeNotification)
             .map { _ in
                 // The notification doesn't provide what changed so we have to look
                 // it up every time
-                self.objectForKey(key)
+                self.object(forKey: key)
             }
 
         return SignalProducer<AnyObject?, NoError>(value: initial)

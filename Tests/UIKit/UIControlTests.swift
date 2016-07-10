@@ -21,72 +21,72 @@ class UIControlTests: XCTestCase {
     }
     
     func testEnabledPropertyDoesntCreateRetainCycle() {
-        let control = UIControl(frame: CGRectZero)
+        let control = UIControl(frame: CGRect.zero)
         _control = control
         
         control.rex_enabled <~ SignalProducer(value: false)
-        XCTAssert(_control?.enabled == false)
+        XCTAssert(_control?.isEnabled == false)
     }
     
     func testSelectedPropertyDoesntCreateRetainCycle() {
-        let control = UIControl(frame: CGRectZero)
+        let control = UIControl(frame: CGRect.zero)
         _control = control
         
         control.rex_selected <~ SignalProducer(value: true)
-        XCTAssert(_control?.selected == true)
+        XCTAssert(_control?.isSelected == true)
     }
     
     func testHighlightedPropertyDoesntCreateRetainCycle() {
-        let control = UIControl(frame: CGRectZero)
+        let control = UIControl(frame: CGRect.zero)
         _control = control
         
         control.rex_highlighted <~ SignalProducer(value: true)
-        XCTAssert(_control?.highlighted == true)
+        XCTAssert(_control?.isHighlighted == true)
     }
     
     func testEnabledProperty () {
-        let control = UIControl(frame: CGRectZero)
-        control.enabled = false
+        let control = UIControl(frame: CGRect.zero)
+        control.isEnabled = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_enabled <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(control.enabled)
+        XCTAssertTrue(control.isEnabled)
         observer.sendNext(false)
-        XCTAssertFalse(control.enabled)
+        XCTAssertFalse(control.isEnabled)
     }
     
     func testSelectedProperty() {
-        let control = UIControl(frame: CGRectZero)
-        control.selected = false
+        let control = UIControl(frame: CGRect.zero)
+        control.isSelected = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_selected <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(control.selected)
+        XCTAssertTrue(control.isSelected)
         observer.sendNext(false)
-        XCTAssertFalse(control.selected)
+        XCTAssertFalse(control.isSelected)
     }
     
     func testHighlightedProperty() {
-        let control = UIControl(frame: CGRectZero)
-        control.highlighted = false
+        let control = UIControl(frame: CGRect.zero)
+        control.isHighlighted = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_highlighted <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(control.highlighted)
+        XCTAssertTrue(control.isHighlighted)
         observer.sendNext(false)
-        XCTAssertFalse(control.highlighted)
+        XCTAssertFalse(control.isHighlighted)
     }
     
     func testEnabledAndSelectedProperty() {
-        let control = UIControl(frame: CGRectZero)
-        control.selected = false
-        control.enabled = false
+        let control = UIControl(frame: CGRect.zero)
+        control.isSelected = false
+        control.isEnabled = false
         
         let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
         let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
@@ -95,13 +95,13 @@ class UIControlTests: XCTestCase {
         
         observerSelected.sendNext(true)
         observerEnabled.sendNext(true)
-        XCTAssertTrue(control.enabled)
-        XCTAssertTrue(control.selected)
+        XCTAssertTrue(control.isEnabled)
+        XCTAssertTrue(control.isSelected)
         observerSelected.sendNext(false)
-        XCTAssertTrue(control.enabled)
-        XCTAssertFalse(control.selected)
+        XCTAssertTrue(control.isEnabled)
+        XCTAssertFalse(control.isSelected)
         observerEnabled.sendNext(false)
-        XCTAssertFalse(control.enabled)
-        XCTAssertFalse(control.selected)
+        XCTAssertFalse(control.isEnabled)
+        XCTAssertFalse(control.isSelected)
     }
 }

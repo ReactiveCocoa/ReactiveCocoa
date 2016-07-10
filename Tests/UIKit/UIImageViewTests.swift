@@ -21,7 +21,7 @@ class UIImageViewTests: XCTestCase {
     }
     
     func testImagePropertyDoesntCreateRetainCycle() {
-        let imageView = UIImageView(frame: CGRectZero)
+        let imageView = UIImageView(frame: CGRect.zero)
         _imageView = imageView
         
         let image = UIImage()
@@ -31,7 +31,7 @@ class UIImageViewTests: XCTestCase {
     }
     
     func testHighlightedImagePropertyDoesntCreateRetainCycle() {
-        let imageView = UIImageView(frame: CGRectZero)
+        let imageView = UIImageView(frame: CGRect.zero)
         _imageView = imageView
         
         let image = UIImage()
@@ -41,7 +41,7 @@ class UIImageViewTests: XCTestCase {
     }
     
     func testImageProperty() {
-        let imageView = UIImageView(frame: CGRectZero)
+        let imageView = UIImageView(frame: CGRect.zero)
         
         let firstChange = UIImage()
         let secondChange = UIImage()
@@ -56,7 +56,7 @@ class UIImageViewTests: XCTestCase {
     }
     
     func testHighlightedImageProperty() {
-        let imageView = UIImageView(frame: CGRectZero)
+        let imageView = UIImageView(frame: CGRect.zero)
         
         let firstChange = UIImage()
         let secondChange = UIImage()

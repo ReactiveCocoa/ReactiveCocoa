@@ -13,12 +13,12 @@ import enum Result.NoError
 
 extension UIButton {
     static func button() -> UIButton {
-        let button = UIButton(type: UIButtonType.Custom)
+        let button = UIButton(type: UIButtonType.custom)
         return button;
     }
     
-    override public func sendAction(action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
-        target?.performSelector(action, withObject: nil)
+    override public func sendAction(_ action: Selector, to target: AnyObject?, for event: UIEvent?) {
+        target?.perform(action, with: nil)
     }
 }
 
@@ -32,15 +32,15 @@ class UIButtonTests: XCTestCase {
     }
     
     func testEnabledPropertyDoesntCreateRetainCycle() {
-        let button = UIButton(frame: CGRectZero)
+        let button = UIButton(frame: CGRect.zero)
         _button = button
         
         button.rex_enabled <~ SignalProducer(value: false)
-        XCTAssert(_button?.enabled == false)
+        XCTAssert(_button?.isEnabled == false)
     }
 
     func testPressedPropertyDoesntCreateRetainCycle() {
-        let button = UIButton(frame: CGRectZero)
+        let button = UIButton(frame: CGRect.zero)
         _button = button
 
         let action = Action<(),(),NoError> {
@@ -50,37 +50,37 @@ class UIButtonTests: XCTestCase {
     }
 
     func testTitlePropertyDoesntCreateRetainCycle() {
-        let button = UIButton(frame: CGRectZero)
+        let button = UIButton(frame: CGRect.zero)
         _button = button
 
         button.rex_title <~ SignalProducer(value: "button")
-        XCTAssert(_button?.titleForState(.Normal) == "button")
+        XCTAssert(_button?.title(for: UIControlState()) == "button")
     }
     
     func testTitleProperty() {
         let firstTitle = "First title"
         let secondTitle = "Second title"
-        let button = UIButton(frame: CGRectZero)
+        let button = UIButton(frame: CGRect.zero)
         let (pipeSignal, observer) = Signal<String, NoError>.pipe()
         button.rex_title <~ SignalProducer(signal: pipeSignal)
-        button.setTitle("", forState: .Selected)
-        button.setTitle("", forState: .Highlighted)
+        button.setTitle("", for: .selected)
+        button.setTitle("", for: .highlighted)
         
         observer.sendNext(firstTitle)
-        XCTAssertEqual(button.titleForState(.Normal), firstTitle)
-        XCTAssertEqual(button.titleForState(.Highlighted), "")
-        XCTAssertEqual(button.titleForState(.Selected), "")
+        XCTAssertEqual(button.title(for: UIControlState()), firstTitle)
+        XCTAssertEqual(button.title(for: .highlighted), "")
+        XCTAssertEqual(button.title(for: .selected), "")
         
         observer.sendNext(secondTitle)
-        XCTAssertEqual(button.titleForState(.Normal), secondTitle)
-        XCTAssertEqual(button.titleForState(.Highlighted), "")
-        XCTAssertEqual(button.titleForState(.Selected), "")
+        XCTAssertEqual(button.title(for: UIControlState()), secondTitle)
+        XCTAssertEqual(button.title(for: .highlighted), "")
+        XCTAssertEqual(button.title(for: .selected), "")
     }
     
     func testPressedProperty() {
-        let button = UIButton(frame: CGRectZero)
-        button.enabled = true
-        button.userInteractionEnabled = true
+        let button = UIButton(frame: CGRect.zero)
+        button.isEnabled = true
+        button.isUserInteractionEnabled = true
 
         let passed = MutableProperty(false)
         let action = Action<(), Bool, NoError> { _ in
@@ -90,7 +90,7 @@ class UIButtonTests: XCTestCase {
         passed <~ SignalProducer(signal: action.values)
         button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
         
-        button.sendActionsForControlEvents(.TouchUpInside)
+        button.sendActions(for: .touchUpInside)
         
         
         XCTAssertTrue(passed.value)

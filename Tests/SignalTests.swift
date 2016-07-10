@@ -47,7 +47,7 @@ final class SignalTests: XCTestCase {
         observer.sendNext(1)
         XCTAssertFalse(completed)
 
-        observer.sendFailed(.Default)
+        observer.sendFailed(.default)
         XCTAssertTrue(completed)
     }
 
@@ -56,13 +56,13 @@ final class SignalTests: XCTestCase {
         var interrupted = false
 
         signal
-            .ignoreError(replacement: .Interrupted)
+            .ignoreError(replacement: .interrupted)
             .observeInterrupted { interrupted = true }
 
         observer.sendNext(1)
         XCTAssertFalse(interrupted)
 
-        observer.sendFailed(.Default)
+        observer.sendFailed(.default)
         XCTAssertTrue(interrupted)
     }
 
@@ -73,13 +73,13 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .timeout(after: 2, with: .interrupted, on: scheduler)
             .observe(Observer(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             ))
 
-        scheduler.scheduleAfter(1) { observer.sendCompleted() }
+        scheduler.schedule(after: 1) { observer.sendCompleted() }
 
         XCTAssertFalse(interrupted)
         XCTAssertFalse(completed)
@@ -96,13 +96,13 @@ final class SignalTests: XCTestCase {
         var completed = false
 
         signal
-            .timeoutAfter(2, withEvent: .Interrupted, onScheduler: scheduler)
+            .timeout(after: 2, with: .interrupted, on: scheduler)
             .observe(Observer(
                 completed: { completed = true },
                 interrupted: { interrupted = true }
             ))
 
-        scheduler.scheduleAfter(3) { observer.sendCompleted() }
+        scheduler.schedule(after: 3) { observer.sendCompleted() }
 
         XCTAssertFalse(interrupted)
         XCTAssertFalse(completed)
@@ -152,7 +152,7 @@ final class SignalTests: XCTestCase {
         scheduler.advance()
         XCTAssertEqual(value, 1)
 
-        scheduler.advanceByInterval(1)
+        scheduler.advance(by: 1)
         XCTAssertEqual(value, 1)
 
         scheduler.schedule { observer.sendNext(5) }
@@ -179,13 +179,13 @@ final class SignalTests: XCTestCase {
         XCTAssertEqual(value, 1)
 
         scheduler.schedule { observer.sendNext(2) }
-        scheduler.schedule { observer.sendFailed(.Default) }
+        scheduler.schedule { observer.sendFailed(.default) }
         scheduler.advance()
         XCTAssertTrue(failed)
         XCTAssertEqual(value, 1)
     }
 }
 
-enum TestError: ErrorType {
-    case Default
+enum TestError: ErrorProtocol {
+    case `default`
 }

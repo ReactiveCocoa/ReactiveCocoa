@@ -20,16 +20,16 @@ class UICollectionReusableViewTests: XCTestCase {
         cell.rex_hidden <~
             hiddenProperty
                 .producer
-                .takeUntil(cell.rex_prepareForReuse)
+                .take(until: cell.rex_prepareForReuse)
 
-        XCTAssertFalse(cell.hidden)
+        XCTAssertFalse(cell.isHidden)
 
         hiddenProperty <~ SignalProducer(value: true)
-        XCTAssertTrue(cell.hidden)
+        XCTAssertTrue(cell.isHidden)
 
         cell.prepareForReuse()
 
         hiddenProperty <~ SignalProducer(value: false)
-        XCTAssertTrue(cell.hidden)
+        XCTAssertTrue(cell.isHidden)
     }
 }

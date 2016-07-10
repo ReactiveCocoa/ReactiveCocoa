@@ -20,7 +20,7 @@ class UIProgressViewTests: XCTestCase {
     }
     
     func testProgressPropertyDoesntCreateRetainCycle() {
-        let progressView = UIProgressView(frame: CGRectZero)
+        let progressView = UIProgressView(frame: CGRect.zero)
         _progressView = progressView
         
         progressView.rex_progress <~ SignalProducer(value: 0.5)
@@ -31,7 +31,7 @@ class UIProgressViewTests: XCTestCase {
         let firstChange: Float = 0.5
         let secondChange: Float = 0.0
         
-        let progressView = UIProgressView(frame: CGRectZero)
+        let progressView = UIProgressView(frame: CGRect.zero)
         progressView.progress = 1.0
         
         let (pipeSignal, observer) = Signal<Float, NoError>.pipe()

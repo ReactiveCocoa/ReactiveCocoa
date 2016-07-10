@@ -21,7 +21,7 @@ class UILabelTests: XCTestCase {
     }
 
     func testTextPropertyDoesntCreateRetainCycle() {
-        let label = UILabel(frame: CGRectZero)
+        let label = UILabel(frame: CGRect.zero)
         _label = label
 
         label.rex_text <~ SignalProducer(value: "Test")
@@ -32,7 +32,7 @@ class UILabelTests: XCTestCase {
         let firstChange = "first"
         let secondChange = "second"
         
-        let label = UILabel(frame: CGRectZero)
+        let label = UILabel(frame: CGRect.zero)
         label.text = ""
         
         let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
@@ -47,21 +47,21 @@ class UILabelTests: XCTestCase {
     }
     
     func testAttributedTextPropertyDoesntCreateRetainCycle() {
-        let label = UILabel(frame: CGRectZero)
+        let label = UILabel(frame: CGRect.zero)
         _label = label
         
-        label.rex_attributedText <~ SignalProducer(value: NSAttributedString(string: "Test"))
+        label.rex_attributedText <~ SignalProducer(value: AttributedString(string: "Test"))
         XCTAssert(_label?.attributedText?.string == "Test")
     }
     
     func testAttributedTextProperty() {
-        let firstChange = NSAttributedString(string: "first")
-        let secondChange = NSAttributedString(string: "second")
+        let firstChange = AttributedString(string: "first")
+        let secondChange = AttributedString(string: "second")
         
-        let label = UILabel(frame: CGRectZero)
-        label.attributedText = NSAttributedString(string: "")
+        let label = UILabel(frame: CGRect.zero)
+        label.attributedText = AttributedString(string: "")
         
-        let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+        let (pipeSignal, observer) = Signal<AttributedString?, NoError>.pipe()
         label.rex_attributedText <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
@@ -71,13 +71,13 @@ class UILabelTests: XCTestCase {
     }
     
     func testTextColorProperty() {
-        let firstChange = UIColor.redColor()
-        let secondChange = UIColor.blackColor()
+        let firstChange = UIColor.red()
+        let secondChange = UIColor.black()
         
-        let label = UILabel(frame: CGRectZero)
+        let label = UILabel(frame: CGRect.zero)
 
         let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
-        label.textColor = UIColor.blackColor()
+        label.textColor = UIColor.black()
         label.rex_textColor <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)

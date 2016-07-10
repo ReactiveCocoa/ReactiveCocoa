@@ -25,13 +25,13 @@ final class NSObjectTests: XCTestCase {
     
     func testObjectsWillBeDeallocatedSignal() {
         
-        let expectation = self.expectationWithDescription("Expected timer to send `completed` event when object deallocates")
-        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        let expectation = self.expectation(withDescription: "Expected timer to send `completed` event when object deallocates")
+        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
         
         let object = Object()
 
-        timer(1, onScheduler: QueueScheduler(name: "test.queue"))
-            .takeUntil(object.rex_willDealloc)
+        timer(interval: 1, on: QueueScheduler(name: "test.queue"))
+            .take(until: object.rex_willDealloc)
             .startWithCompleted {
                 expectation.fulfill()
         }

@@ -20,16 +20,16 @@ class UITableViewHeaderFooterViewTests: XCTestCase {
         header.rex_hidden <~
             hiddenProperty
                 .producer
-                .takeUntil(header.rex_prepareForReuse)
+                .take(until: header.rex_prepareForReuse)
 
-        XCTAssertFalse(header.hidden)
+        XCTAssertFalse(header.isHidden)
 
         hiddenProperty <~ SignalProducer(value: true)
-        XCTAssertTrue(header.hidden)
+        XCTAssertTrue(header.isHidden)
 
         header.prepareForReuse()
 
         hiddenProperty <~ SignalProducer(value: false)
-        XCTAssertTrue(header.hidden)
+        XCTAssertTrue(header.isHidden)
     }
 }

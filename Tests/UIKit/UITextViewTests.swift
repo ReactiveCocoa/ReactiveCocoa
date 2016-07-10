@@ -13,10 +13,10 @@ import XCTest
 class UITextViewTests: XCTestCase {
     
     func testTextProperty() {
-        let expectation = self.expectationWithDescription("Expected `rex_text`'s value to equal to the textViews's text")
-        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        let expectation = self.expectation(withDescription: "Expected `rex_text`'s value to equal to the textViews's text")
+        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
         
-        let textView = UITextView(frame: CGRectZero)
+        let textView = UITextView(frame: CGRect.zero)
         textView.text = "Test"
         
         textView.rex_text.startWithNext { text in
@@ -24,6 +24,6 @@ class UITextViewTests: XCTestCase {
             expectation.fulfill()
         }
         
-        NSNotificationCenter.defaultCenter().postNotificationName(UITextViewTextDidChangeNotification, object: textView)
+        NotificationCenter.default.post(name: NSNotification.Name.UITextViewTextDidChange, object: textView)
     }
 }

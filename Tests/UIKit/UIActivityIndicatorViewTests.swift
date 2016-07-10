@@ -20,7 +20,7 @@ class UIActivityIndicatorTests: XCTestCase {
     }
 
     func testAnimatingProperty() {
-        let indicatorView = UIActivityIndicatorView(frame: CGRectZero)
+        let indicatorView = UIActivityIndicatorView(frame: CGRect.zero)
         _activityIndicatorView = indicatorView
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()

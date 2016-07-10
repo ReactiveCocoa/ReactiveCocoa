@@ -21,7 +21,7 @@ class UIViewTests: XCTestCase {
     }
     
     func testAlphaPropertyDoesntCreateRetainCycle() {
-        let view = UIView(frame: CGRectZero)
+        let view = UIView(frame: CGRect.zero)
         _view = view
         
         view.rex_alpha <~ SignalProducer(value: 0.5)
@@ -29,28 +29,28 @@ class UIViewTests: XCTestCase {
     }
     
     func testHiddenPropertyDoesntCreateRetainCycle() {
-        let view = UIView(frame: CGRectZero)
+        let view = UIView(frame: CGRect.zero)
         _view = view
         
         view.rex_hidden <~ SignalProducer(value: true)
-        XCTAssert(_view?.hidden == true)
+        XCTAssert(_view?.isHidden == true)
     }
     
     func testHiddenProperty() {
-        let view = UIView(frame: CGRectZero)
-        view.hidden = true
+        let view = UIView(frame: CGRect.zero)
+        view.isHidden = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         view.rex_hidden <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(view.hidden)
+        XCTAssertTrue(view.isHidden)
         observer.sendNext(false)
-        XCTAssertFalse(view.hidden)
+        XCTAssertFalse(view.isHidden)
     }
     
     func testAlphaProperty() {
-        let view = UIView(frame: CGRectZero)
+        let view = UIView(frame: CGRect.zero)
         view.alpha = 0.0
         
         let firstChange = CGFloat(0.5)
@@ -66,15 +66,15 @@ class UIViewTests: XCTestCase {
     }
     
     func testUserInteractionEnabledProperty() {
-        let view = UIView(frame: CGRectZero)
-        view.userInteractionEnabled = true
+        let view = UIView(frame: CGRect.zero)
+        view.isUserInteractionEnabled = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         view.rex_userInteractionEnabled <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(true)
-        XCTAssertTrue(view.userInteractionEnabled)
+        XCTAssertTrue(view.isUserInteractionEnabled)
         observer.sendNext(false)
-        XCTAssertFalse(view.userInteractionEnabled)
+        XCTAssertFalse(view.isUserInteractionEnabled)
     }
 }

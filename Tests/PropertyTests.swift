@@ -32,7 +32,7 @@ final class PropertyTests: XCTestCase {
         XCTAssertTrue(current!)
 
         let (signal, pipe) = Signal<Bool, NoError>.pipe()
-        let and2 = and.and(AnyProperty(initialValue: false, signal: signal))
+        let and2 = and.and(AnyProperty(initial: false, then: signal))
         and2.producer.startWithNext { current = $0 }
 
         XCTAssertFalse(and2.value)
@@ -62,7 +62,7 @@ final class PropertyTests: XCTestCase {
         XCTAssertFalse(current!)
 
         let (signal, pipe) = Signal<Bool, NoError>.pipe()
-        let or2 = or.or(AnyProperty(initialValue: true, signal: signal))
+        let or2 = or.or(AnyProperty(initial: true, then: signal))
         or2.producer.startWithNext { current = $0 }
 
         XCTAssertTrue(or2.value)

@@ -70,7 +70,7 @@ extension PropertyProtocol {
 	/// is the current value. `initial` is supplied as the first member of the first
 	/// tuple.
 	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
-		return lift { $0.combinePrevious(initial: initial) }
+		return lift { $0.combinePrevious(initial) }
 	}
 
 	/// Forwards only those values from `self` which do not pass `isRepeat` with

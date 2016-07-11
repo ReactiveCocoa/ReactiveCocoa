@@ -1965,7 +1965,7 @@ class SignalSpec: QuickSpec {
 				
 				let (signal, baseObserver) = Signal<Int, NoError>.pipe()
 				observer = baseObserver
-				signal.combinePrevious(initial: initialValue).observeNext { latestValues = $0 }
+				signal.combinePrevious(initialValue).observeNext { latestValues = $0 }
 			}
 			
 			it("should forward the latest value with previous value") {

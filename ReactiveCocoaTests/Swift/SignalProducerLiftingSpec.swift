@@ -1498,7 +1498,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				
 				let (signal, baseObserver) = SignalProducer<Int, NoError>.pipe()
 				observer = baseObserver
-				signal.combinePrevious(initial: initialValue).startWithNext { latestValues = $0 }
+				signal.combinePrevious(initialValue).startWithNext { latestValues = $0 }
 			}
 			
 			it("should forward the latest value with previous value") {

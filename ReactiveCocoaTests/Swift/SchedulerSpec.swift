@@ -29,7 +29,7 @@ class SchedulerSpec: QuickSpec {
 			func dispatchSyncInBackground(_ action: () -> Void) {
 				let group = DispatchGroup()
 
-				DispatchQueue.global().async(group: group, qos: DispatchQoS.userInteractive, execute: action)
+				DispatchQueue.global().async(group: group, execute: action)
 				group.wait()
 			}
 
@@ -120,7 +120,13 @@ class SchedulerSpec: QuickSpec {
 		describe("QueueScheduler") {
 			it("should run enqueued actions on a global queue") {
 				var didRun = false
-				let scheduler = QueueScheduler(qos: .default)
+
+				let scheduler: QueueScheduler
+				if #available(OSX 10.10, *) {
+					scheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+				} else {
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
 
 				scheduler.schedule {
 					didRun = true
@@ -134,7 +140,11 @@ class SchedulerSpec: QuickSpec {
 				var scheduler: QueueScheduler!
 
 				beforeEach {
-					scheduler = QueueScheduler(qos: .default)
+					if #available(OSX 10.10, *) {
+						scheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					} else {
+						scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					}
 					scheduler.queue.suspend()
 				}
 

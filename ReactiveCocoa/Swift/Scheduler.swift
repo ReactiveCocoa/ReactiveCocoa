@@ -124,8 +124,21 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		queue = internalQueue
 	}
 
+	/// Initializes a scheduler that will target the given queue with its work.
+	///
+	/// Even if the queue is concurrent, all work items enqueued with the
+	/// QueueScheduler will be serial with respect to each other.
+	///
+	/// - warning: Obsoleted in OS X 10.11
+	@available(OSX, deprecated:10.10, obsoleted:10.11, message:"Use init(qos:, name:) instead")
+	@available(iOS, deprecated:8.0, obsoleted:9.0, message:"Use init(qos:, name:) instead.")
+	public convenience init(queue: DispatchQueue, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
+		self.init(internalQueue: DispatchQueue(label: name, attributes: [.serial], target: queue))
+	}
+
 	/// Initializes a scheduler that will target a new serial
 	/// queue with the given quality of service class.
+	@available(OSX 10.10, *)
 	public convenience init(qos: DispatchQoS = .default, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
 		// TODO/FIXME [@liscio]: This seems really silly to have to implement in this manner, and I suspect that Dispatch either needs to be cleaned up to merge these concepts in some way, or we need to change the initialization API.
 		//

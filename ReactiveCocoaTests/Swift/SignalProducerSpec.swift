@@ -1568,10 +1568,24 @@ class SignalProducerSpec: QuickSpec {
 			it("should start a signal then block on the first value") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
 
-				let forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let forwardingScheduler: QueueScheduler
+
+				if #available(OSX 10.10, *) {
+					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+				} else {
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
+
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
 
-				let observingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let observingScheduler: QueueScheduler
+
+				if #available(OSX 10.10, *) {
+					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+				} else {
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
+
 				var result: Int?
 
 				observingScheduler.schedule {
@@ -1603,10 +1617,24 @@ class SignalProducerSpec: QuickSpec {
 		describe("single") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let forwardingScheduler: QueueScheduler
+
+				if #available(OSX 10.10, *) {
+					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+				} else {
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
+
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
 
-				let observingScheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let observingScheduler: QueueScheduler
+
+				if #available(OSX 10.10, *) {
+					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+				} else {
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
+
 				var result: Int?
 
 				observingScheduler.schedule {
@@ -1642,13 +1670,19 @@ class SignalProducerSpec: QuickSpec {
 		describe("last") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let scheduler: QueueScheduler
+
+				if #available(*, OSX 10.10) {
+					scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				} else {
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<Int, NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, qos: .default, flags: []) {
+				DispatchQueue.global().async(group: group, flags: []) {
 					result = producer.last()
 				}
 				expect(result).to(beNil())
@@ -1682,13 +1716,18 @@ class SignalProducerSpec: QuickSpec {
 		describe("wait") {
 			it("should start a signal then block until completion") {
 				let (_signal, observer) = Signal<Int, NoError>.pipe()
-				let scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				let scheduler: QueueScheduler
+				if #available(*, OSX 10.10) {
+					scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				} else {
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<(), NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, qos: .default, flags: []) {
+				DispatchQueue.global().async(group: group, flags: []) {
 					result = producer.wait()
 				}
 				expect(result).to(beNil())
@@ -1728,7 +1767,12 @@ class SignalProducerSpec: QuickSpec {
 
 		describe("take") {
 			it("Should not start concat'ed producer if the first one sends a value when using take(1)") {
-				let scheduler = QueueScheduler()
+				let scheduler: QueueScheduler
+				if #available(OSX 10.10, *) {
+					scheduler = QueueScheduler(name: "\(#file):\(#line)")
+				} else {
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+				}
 
 				// Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
 				let producer1 = SignalProducer<Int, NoError>() { handler, _ in

@@ -1,17 +1,5 @@
 import enum Result.NoError
 
-// MARK: Deprecated APIs
-
-extension QueueScheduler {
-	/// - warning: Obsoleted in OS X 10.11
-	@available(OSX, deprecated:10.10, obsoleted:10.11, message:"Use init(qos:, name:) instead.")
-	@available(iOS, deprecated:8.0, obsoleted:9.0, message:"Use init(qos:, name:) instead.")
-	public convenience init(queue: DispatchQueue, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.init(internalQueue: DispatchQueue(label: name, attributes: DispatchQueueAttributes.serial))
-		self.queue.setTarget(queue: queue)
-	}
-}
-
 // MARK: Removed Types and APIs in ReactiveCocoa 5.0.
 
 // Renamed Protocols

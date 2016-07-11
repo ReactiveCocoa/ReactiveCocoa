@@ -16,7 +16,7 @@ final class NSObjectTests: XCTestCase {
         let object = Object()
         var value: String = ""
 
-        object.rex_producerForKeyPath("string").startWithNext { value = $0 }
+        object.rex_producer(forKeyPath: "string").startWithNext { value = $0 }
         XCTAssertEqual(value, "foo")
 
         object.string = "bar"

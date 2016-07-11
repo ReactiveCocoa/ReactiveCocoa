@@ -35,7 +35,7 @@ extension UIViewController {
         return triggerForSelector(#selector(UIViewController.viewWillAppear(_:)))
     }
     
-    private func triggerForSelector(_ selector: Selector) -> Signal<(), NoError>  {
+    private func trigger(for selector: Selector) -> Signal<(), NoError>  {
         return self
             .rac_signal(for: selector)
             .rex_toTriggerSignal()

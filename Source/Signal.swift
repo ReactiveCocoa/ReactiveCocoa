@@ -82,7 +82,7 @@ extension SignalProtocol {
     ///
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
-    public func muteFor(_ interval: TimeInterval, clock: DateSchedulerProtocol) -> Signal<Value, Error> {
+    public func mute(for interval: TimeInterval, clock: DateSchedulerProtocol) -> Signal<Value, Error> {
         precondition(interval > 0)
 
         var expires = clock.currentDate

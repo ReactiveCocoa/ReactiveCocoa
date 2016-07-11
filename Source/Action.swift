@@ -43,11 +43,11 @@ extension CocoaAction {
 
     /// Creates a producer for the `enabled` state of a CocoaAction.
     public var rex_enabledProducer: SignalProducer<Bool, NoError> {
-        return rex_producerForKeyPath("enabled")
+        return rex_producer(forKeyPath: #keyPath(CocoaAction.isEnabled))
     }
 
     /// Creates a producer for the `executing` state of a CocoaAction.
     public var rex_executingProducer: SignalProducer<Bool, NoError> {
-        return rex_producerForKeyPath("executing")
+        return rex_producer(forKeyPath: #keyPath(CocoaAction.isExecuting))
     }
 }

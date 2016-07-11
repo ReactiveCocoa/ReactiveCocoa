@@ -85,7 +85,7 @@ extension SignalProducerProtocol {
     /// This operator could be used to coalesce multiple notifications in a short time
     /// frame by only showing the first one.
     public func mute(for interval: TimeInterval, clock: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
-        return lift { $0.muteFor(interval, clock: clock) }
+        return lift { $0.mute(for: interval, clock: clock) }
     }
 
     /// Delays the start of the producer by `interval` on the provided scheduler.

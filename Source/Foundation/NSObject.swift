@@ -15,7 +15,7 @@ extension NSObject {
     ///
     /// Swift classes deriving `NSObject` must declare properties as `dynamic` for
     /// them to work with KVO. However, this is not recommended practice.
-    public func rex_producerForKeyPath<T>(_ keyPath: String) -> SignalProducer<T, NoError> {
+    public func rex_producer<T>(forKeyPath keyPath: String) -> SignalProducer<T, NoError> {
         return self.rac_values(forKeyPath: keyPath, observer: nil)
             .toSignalProducer()
             .map { $0 as! T }

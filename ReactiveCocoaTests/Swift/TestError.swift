@@ -10,16 +10,16 @@ import ReactiveCocoa
 import Result
 
 enum TestError: Int {
-	case Default = 0
-	case Error1 = 1
-	case Error2 = 2
+	case `default` = 0
+	case error1 = 1
+	case error2 = 2
 }
 
-extension TestError: ErrorType {
+extension TestError: ErrorProtocol {
 }
 
 
-internal extension SignalProducerType {
+internal extension SignalProducerProtocol {
 	/// Halts if an error is emitted in the receiver signal.
 	/// This is useful in tests to be able to just use `startWithNext`
 	/// in cases where we know that an error won't be emitted.
@@ -28,7 +28,7 @@ internal extension SignalProducerType {
 	}
 }
 
-internal extension SignalType {
+internal extension SignalProtocol {
 	/// Halts if an error is emitted in the receiver signal.
 	/// This is useful in tests to be able to just use `startWithNext`
 	/// in cases where we know that an error won't be emitted.

@@ -35,17 +35,17 @@ class BagSpec: QuickSpec {
 			let b = bag.insert("bar")
 			let c = bag.insert("buzz")
 
-			bag.removeValueForToken(b)
+			bag.remove(using: b)
 			expect(bag).to(contain("foo"))
 			expect(bag).toNot(contain("bar"))
 			expect(bag).to(contain("buzz"))
 
-			bag.removeValueForToken(a)
+			bag.remove(using: a)
 			expect(bag).toNot(contain("foo"))
 			expect(bag).toNot(contain("bar"))
 			expect(bag).to(contain("buzz"))
 
-			bag.removeValueForToken(c)
+			bag.remove(using: c)
 			expect(bag).toNot(contain("foo"))
 			expect(bag).toNot(contain("bar"))
 			expect(bag).toNot(contain("buzz"))

@@ -11,20 +11,20 @@ public final class CocoaAction: NSObject {
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var enabled: Bool = false
+	public private(set) var isEnabled: Bool = false
 	
 	/// Whether the action is executing.
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var executing: Bool = false
+	public private(set) var isExecuting: Bool = false
 	
-	private let _execute: AnyObject? -> Void
+	private let _execute: (AnyObject?) -> Void
 	private let disposable = CompositeDisposable()
 	
 	/// Initializes a Cocoa action that will invoke the given Action by
 	/// transforming the object given to execute().
-	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: AnyObject? -> Input) {
+	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: (AnyObject?) -> Input) {
 		_execute = { input in
 			let producer = action.apply(inputTransform(input))
 			producer.start()
@@ -32,20 +32,20 @@ public final class CocoaAction: NSObject {
 		
 		super.init()
 		
-		disposable += action.enabled.producer
-			.observeOn(UIScheduler())
+		disposable += action.isEnabled.producer
+			.observe(on: UIScheduler())
 			.startWithNext { [weak self] value in
-				self?.willChangeValueForKey("enabled")
-				self?.enabled = value
-				self?.didChangeValueForKey("enabled")
+				self?.willChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
+				self?.isEnabled = value
+				self?.didChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
 		}
 		
-		disposable += action.executing.producer
-			.observeOn(UIScheduler())
+		disposable += action.isExecuting.producer
+			.observe(on: UIScheduler())
 			.startWithNext { [weak self] value in
-				self?.willChangeValueForKey("executing")
-				self?.executing = value
-				self?.didChangeValueForKey("executing")
+				self?.willChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
+				self?.isExecuting = value
+				self?.didChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
 		}
 	}
 	
@@ -61,11 +61,11 @@ public final class CocoaAction: NSObject {
 	
 	/// Attempts to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
-	@IBAction public func execute(input: AnyObject?) {
+	@IBAction public func execute(_ input: AnyObject?) {
 		_execute(input)
 	}
 	
-	public override class func automaticallyNotifiesObserversForKey(key: String) -> Bool {
+	public override class func automaticallyNotifiesObservers(forKey key: String) -> Bool {
 		return false
 	}
 }

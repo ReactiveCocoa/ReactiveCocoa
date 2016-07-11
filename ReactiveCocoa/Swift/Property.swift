@@ -2,7 +2,7 @@ import Foundation
 import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
-public protocol PropertyType {
+public protocol PropertyProtocol {
 	associatedtype Value
 
 	/// The current value of the property.
@@ -23,7 +23,7 @@ public protocol PropertyType {
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public protocol MutablePropertyType: class, PropertyType {
+public protocol MutablePropertyProtocol: class, PropertyProtocol {
 	/// The current value of the property.
 	var value: Value { get set }
 }
@@ -35,82 +35,72 @@ public protocol MutablePropertyType: class, PropertyType {
 ///
 /// A transformed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
-extension PropertyType {
-	/// Lifts a unary SignalProducer operator to operate upon PropertyType instead.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	private func lift<U>(@noescape transform: SignalProducer<Value, NoError> -> SignalProducer<U, NoError>) -> AnyProperty<U> {
+extension PropertyProtocol {
+	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
+	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(self, transform: transform)
 	}
 
-	/// Lifts a binary SignalProducer operator to operate upon PropertyType instead.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	private func lift<P: PropertyType, U>(transform: SignalProducer<Value, NoError> -> SignalProducer<P.Value, NoError> -> SignalProducer<U, NoError>) -> P -> AnyProperty<U> {
+	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
+	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
 		return { otherProperty in
 			return AnyProperty(self, otherProperty, transform: transform)
 		}
 	}
 
 	/// Maps the current value and all subsequent values to a new property.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
+	public func map<U>(_ transform: (Value) -> U) -> AnyProperty<U> {
 		return lift { $0.map(transform) }
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func combineLatestWith<P: PropertyType>(other: P) -> AnyProperty<(Value, P.Value)> {
-		return lift(SignalProducer.combineLatestWith)(other)
+	public func combineLatest<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
+		return lift(SignalProducer.combineLatest(with:))(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func zipWith<P: PropertyType>(other: P) -> AnyProperty<(Value, P.Value)> {
-		return lift(SignalProducer.zipWith)(other)
+	public func zip<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
+		return lift(SignalProducer.zip(with:))(other)
 	}
 
 	/// Forwards events from `self` with history: values of the returned property
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member of the first
 	/// tuple.
-	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
+	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 }
 
-extension PropertyType where Value: Equatable {
+extension PropertyProtocol where Value: Equatable {
 	/// Forwards only those values from `self` which is not equal to the previous
 	/// value. The first value is always forwarded.
-	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func skipRepeats() -> AnyProperty<Value> {
 		return lift { $0.skipRepeats() }
 	}
 }
 
-extension PropertyType where Value: PropertyType {
+extension PropertyProtocol where Value: PropertyProtocol {
 	/// Flattens the inner properties sent upon `self` (into a single property),
 	/// according to the semantics of the given strategy.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flatten(strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
+	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
 }
 
-extension PropertyType {
+extension PropertyProtocol {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func flatMap<P: PropertyType>(strategy: FlattenStrategy, transform: Value -> P) -> AnyProperty<P.Value> {
+	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
@@ -118,215 +108,195 @@ extension PropertyType {
 	/// all values that have been seen.
 	///
 	/// Note: This causes the identities to be retained to check for uniqueness.
-	@warn_unused_result(message="Did you forget to use the composed property?")
-	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> AnyProperty<Value> {
+	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> AnyProperty<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
 }
 
-extension PropertyType where Value: Hashable {
+extension PropertyProtocol where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
 	/// Note: This causes the values to be retained to check for uniqueness. Providing
 	/// a function that returns a unique value for each sent value can help you reduce
 	/// the memory footprint.
-	@warn_unused_result(message="Did you forget to use the composed property?")
 	public func uniqueValues() -> AnyProperty<Value> {
 		return lift { $0.uniqueValues() }
 	}
 }
 
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.combineLatestWith(b)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
-}
-
-/// Combines the values of all the given properties, in the manner described by
-/// `combineLatest(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func combineLatest<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
-}
-
-/// Combines the values of all the given producers, in the manner described by
-/// `combineLatest(with:)`. Returns nil if the sequence is empty.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func combineLatest<S: SequenceType where S.Generator.Element: PropertyType>(properties: S) -> AnyProperty<[S.Generator.Element.Value]>? {
-	var generator = properties.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { property, next in
-			property.combineLatestWith(next).map { $0.0 + [$0.1] }
-		}
+extension PropertyProtocol {
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+		return a.combineLatest(with: b)
 	}
 
-	return nil
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType>(a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
-	return a.zipWith(b)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType>(a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
-	return zip(a, b)
-		.zipWith(c)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType>(a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
-	return zip(a, b, c)
-		.zipWith(d)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
-	return zip(a, b, c, d)
-		.zipWith(e)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
-	return zip(a, b, c, d, e)
-		.zipWith(f)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
-	return zip(a, b, c, d, e, f)
-		.zipWith(g)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
-	return zip(a, b, c, d, e, f, g)
-		.zipWith(h)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
-	return zip(a, b, c, d, e, f, g, h)
-		.zipWith(i)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`.
-@warn_unused_result(message="Did you forget to use the property?")
-public func zip<A: PropertyType, B: PropertyType, C: PropertyType, D: PropertyType, E: PropertyType, F: PropertyType, G: PropertyType, H: PropertyType, I: PropertyType, J: PropertyType>(a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
-	return zip(a, b, c, d, e, f, g, h, i)
-		.zipWith(j)
-		.map(repack)
-}
-
-/// Zips the values of all the given properties, in the manner described by
-/// `zip(with:)`. Returns nil if the sequence is empty.
-@warn_unused_result(message="Did you forget to call `start` on the producer?")
-public func zip<S: SequenceType where S.Generator.Element: PropertyType>(properties: S) -> AnyProperty<[S.Generator.Element.Value]>? {
-	var generator = properties.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { property, next in
-			property.zipWith(next).map { $0.0 + [$0.1] }
-		}
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+		return combineLatest(a, b)
+			.combineLatest(with: c)
+			.map(repack)
 	}
 
-	return nil
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+		return combineLatest(a, b, c)
+			.combineLatest(with: d)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+		return combineLatest(a, b, c, d)
+			.combineLatest(with: e)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+		return combineLatest(a, b, c, d, e)
+			.combineLatest(with: f)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+		return combineLatest(a, b, c, d, e, f)
+			.combineLatest(with: g)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+		return combineLatest(a, b, c, d, e, f, g)
+			.combineLatest(with: h)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+		return combineLatest(a, b, c, d, e, f, g, h)
+			.combineLatest(with: i)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given properties, in the manner described by
+	/// `combineLatest(with:)`.
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+		return combineLatest(a, b, c, d, e, f, g, h, i)
+			.combineLatest(with: j)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given producers, in the manner described by
+	/// `combineLatest(with:)`. Returns nil if the sequence is empty.
+	public static func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+		var generator = properties.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { property, next in
+				property.combineLatest(with: next).map { $0.0 + [$0.1] }
+			}
+		}
+
+		return nil
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+		return a.zip(with: b)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+		return zip(a, b)
+			.zip(with: c)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+		return zip(a, b, c)
+			.zip(with: d)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+		return zip(a, b, c, d)
+			.zip(with: e)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+		return zip(a, b, c, d, e)
+			.zip(with: f)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+		return zip(a, b, c, d, e, f)
+			.zip(with: g)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+		return zip(a, b, c, d, e, f, g)
+			.zip(with: h)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+		return zip(a, b, c, d, e, f, g, h)
+			.zip(with: i)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`.
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+		return zip(a, b, c, d, e, f, g, h, i)
+			.zip(with: j)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given properties, in the manner described by
+	/// `zip(with:)`. Returns nil if the sequence is empty.
+	public static func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+		var generator = properties.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { property, next in
+				property.zip(with: next).map { $0.0 + [$0.1] }
+			}
+		}
+		
+		return nil
+	}
 }
 
 /// A read-only, type-erased view of a property.
-public struct AnyProperty<Value>: PropertyType {
+public struct AnyProperty<Value>: PropertyProtocol {
 	private let sources: [Any]
 	private let disposable: Disposable?
 
@@ -355,7 +325,7 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyType where P.Value == Value>(_ property: P) {
+	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = AnyProperty.capture(property)
 		disposable = nil
 		_value = { property.value }
@@ -363,32 +333,32 @@ public struct AnyProperty<Value>: PropertyType {
 		_signal = { property.signal }
 	}
 
-	/// Initializes a property that first takes on `initialValue`, then each value
+	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on a signal created by `producer`.
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: producer.prefix(value: initialValue),
+	public init(initial: Value, then producer: SignalProducer<Value, NoError>) {
+		self.init(unsafeProducer: producer.prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property that first takes on `initialValue`, then each value
+	/// Initializes a property that first takes on `initial`, then each value
 	/// sent on `signal`.
-	public init(initialValue: Value, signal: Signal<Value, NoError>) {
-		self.init(propertyProducer: SignalProducer(signal: signal).prefix(value: initialValue),
+	public init(initial: Value, then signal: Signal<Value, NoError>) {
+		self.init(unsafeProducer: SignalProducer(signal: signal).prefix(value: initial),
 		          capturing: [])
 	}
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
-	private init<P: PropertyType>(_ property: P, @noescape transform: SignalProducer<P.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(property.producer),
+	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
+		self.init(unsafeProducer: transform(property.producer),
 		          capturing: AnyProperty.capture(property))
 	}
 
 	/// Initializes a property by applying the binary `SignalProducer` transform on
-	/// `property` and `anotherProperty`. The resulting property captures `property`
-	/// and `anotherProperty`.
-	private init<P1: PropertyType, P2: PropertyType>(_ firstProperty: P1, _ secondProperty: P2, @noescape transform: SignalProducer<P1.Value, NoError> -> SignalProducer<P2.Value, NoError> -> SignalProducer<Value, NoError>) {
-		self.init(propertyProducer: transform(firstProperty.producer)(secondProperty.producer),
+	/// `firstProperty` and `secondProperty`. The resulting property captures
+	/// the two property sources.
+	private init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
+		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
 
@@ -397,19 +367,19 @@ public struct AnyProperty<Value>: PropertyType {
 	/// If the producer fails its promise, a fatal error would be raised.
 	///
 	/// The producer and the signal of the created property would complete only
-	/// when the `propertyProducer` completes.
-	private init(propertyProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
+	/// when the `unsafeProducer` completes.
+	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
 		var value: Value!
 
-		let observerDisposable = propertyProducer.start { event in
+		let observerDisposable = unsafeProducer.start { event in
 			switch event {
-			case let .Next(newValue):
+			case let .next(newValue):
 				value = newValue
 
-			case .Completed, .Interrupted:
+			case .completed, .interrupted:
 				break
 
-			case let .Failed(error):
+			case let .failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
@@ -419,10 +389,10 @@ public struct AnyProperty<Value>: PropertyType {
 			self.sources = sources
 
 			_value = { value }
-			_producer = { propertyProducer }
+			_producer = { unsafeProducer }
 			_signal = {
 				var extractedSignal: Signal<Value, NoError>!
-				propertyProducer.startWithSignal { signal, _ in extractedSignal = signal }
+				unsafeProducer.startWithSignal { signal, _ in extractedSignal = signal }
 				return extractedSignal
 			}
 		} else {
@@ -433,7 +403,7 @@ public struct AnyProperty<Value>: PropertyType {
 	/// Check if `property` is an `AnyProperty` and has already captured its sources
 	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
 	/// which captures `property`.
-	private static func capture<P: PropertyType>(property: P) -> [Any] {
+	private static func capture<P: PropertyProtocol>(_ property: P) -> [Any] {
 		if let property = property as? AnyProperty<P.Value> {
 			return property.sources
 		} else {
@@ -443,7 +413,7 @@ public struct AnyProperty<Value>: PropertyType {
 }
 
 /// A property that never changes.
-public struct ConstantProperty<Value>: PropertyType {
+public struct ConstantProperty<Value>: PropertyProtocol {
 
 	public let value: Value
 	public let producer: SignalProducer<Value, NoError>
@@ -460,13 +430,13 @@ public struct ConstantProperty<Value>: PropertyType {
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
-public final class MutableProperty<Value>: MutablePropertyType {
+public final class MutableProperty<Value>: MutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
 	/// `value`. Note that recursive sets will still deadlock because the
 	/// underlying producer prevents sending recursive events.
-	private let lock: NSRecursiveLock
+	private let lock: RecursiveLock
 
 	/// The box of the underlying storage, which may outlive the property
 	/// if a returned producer is being retained.
@@ -511,7 +481,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Initializes the property with the given value to start.
 	public init(_ initialValue: Value) {
-		lock = NSRecursiveLock()
+		lock = RecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
 
 		box = Box(initialValue)
@@ -521,14 +491,16 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
+	@discardableResult
+	public func swap(_ newValue: Value) -> Value {
 		return modify { $0 = newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(@noescape action: (inout Value) throws -> Void) rethrows -> Value {
+	@discardableResult
+	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
 			try action(&box.value)
 			observer.sendNext(box.value)
@@ -540,7 +512,8 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+	@discardableResult
+	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
 
@@ -572,7 +545,8 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
 		disposable.dispose()
@@ -580,11 +554,11 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 
 	disposable += signal.observe { [weak property] event in
 		switch event {
-		case let .Next(value):
+		case let .next(value):
 			property?.value = value
-		case .Completed:
+		case .completed:
 			disposable.dispose()
-		case .Failed, .Interrupted:
+		case .failed, .interrupted:
 			break
 		}
 	}
@@ -598,7 +572,8 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
 	producer
@@ -615,15 +590,18 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 	return disposable
 }
 
-public func <~ <P: MutablePropertyType, S: SignalType where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
 }
 
-public func <~ <P: MutablePropertyType, S: SignalProducerType where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
+@discardableResult
+public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
 }
 
-public func <~ <Destination: MutablePropertyType, Source: PropertyType where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+@discardableResult
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
 
@@ -631,6 +609,7 @@ public func <~ <Destination: MutablePropertyType, Source: PropertyType where Des
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
-public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+@discardableResult
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

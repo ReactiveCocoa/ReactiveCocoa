@@ -26,14 +26,6 @@ extension Data {
 extension NSData {
     /// Read the data at the URL, sending the result or an error.
     public static func rex_data(contentsOf url: URL, options: NSData.ReadingOptions = []) -> SignalProducer<NSData, NSError> {
-        return SignalProducer<NSData, NSError> { observer, disposable in
-            do {
-                let data = try NSData(contentsOf: url, options: options)
-                observer.sendNext(data)
-                observer.sendCompleted()
-            } catch {
-                observer.sendFailed(error as NSError)
-            }
-        }
+        return Data.rex_data(contentsOf: url, options: options).map { $0 as NSData }
     }
 }

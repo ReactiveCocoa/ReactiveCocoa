@@ -10,8 +10,6 @@ script:
   - script/build
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:
-  allow_failures:
-    - xcode_scheme: ReactiveCocoa-iOS
   include:
     - xcode_scheme: ReactiveCocoa-Mac
       env:
@@ -34,6 +32,12 @@ matrix:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
         - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current
+      env:
+        - JOB=CARTHAGE
 notifications:
   email: false
   slack:

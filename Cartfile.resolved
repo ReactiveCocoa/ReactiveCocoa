@@ -1,4 +1,4 @@
-github "andersio/Nimble" "dfb8b9f8197f9d362e97325dc673b65ffbfc0532"
-github "andersio/Quick" "d3fc1e82bae458e1ffd2f2323ce10a787bf5c69b"
+github "norio-nomura/Nimble" "caf48b8f50fe509cd24360915d6e2415224a59e2"
+github "norio-nomura/Quick" "a72c211aa79069de25d10103262acf4974ddf80c"
 github "antitypical/Result" "7d9c3ac21f22aaece85d37a0fc55ebd1eddf4df4"
 github "jspahrsummers/xcconfigs" "0.9"

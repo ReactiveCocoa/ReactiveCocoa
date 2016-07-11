@@ -304,15 +304,14 @@ scopedExample("`observe(on:)`") {
 Returns a producer that will yield an array of values until it completes.
 */
 scopedExample("`collect`") {
-	let producer = SignalProducer<Int, NoError> { observer, disposable in
+	SignalProducer<Int, NoError> { observer, disposable in
 		observer.sendNext(1)
 		observer.sendNext(2)
 		observer.sendNext(3)
 		observer.sendNext(4)
 		observer.sendCompleted()
 	}
-
-	producer.collect()
+		.collect()
 		.startWithNext { value in
 			print(value)
 		}
@@ -323,15 +322,14 @@ scopedExample("`collect`") {
 Returns a producer that will yield an array of values until it reaches a certain count.
 */
 scopedExample("`collect(count:)`") {
-	let producer = SignalProducer<Int, NoError> { observer, disposable in
+	SignalProducer<Int, NoError> { observer, disposable in
 		observer.sendNext(1)
 		observer.sendNext(2)
 		observer.sendNext(3)
 		observer.sendNext(4)
 		observer.sendCompleted()
 	}
-
-	producer.collect(count: 2)
+		.collect(count: 2)
 		.startWithNext { value in
 			print(value)
 		}
@@ -347,15 +345,14 @@ array may not match `predicate`. Alternatively, if were not collected any
 values will sent an empty array of values.
 */
 scopedExample("`collect(_:)` matching values inclusively") {
-	let producer = SignalProducer<Int, NoError> { observer, disposable in
+	SignalProducer<Int, NoError> { observer, disposable in
 		observer.sendNext(1)
 		observer.sendNext(2)
 		observer.sendNext(3)
 		observer.sendNext(4)
 		observer.sendCompleted()
 	}
-
-	producer.collect { values in values.reduce(0, combine: +) == 3 }
+		.collect { values in values.reduce(0, combine: +) == 3 }
 		.startWithNext { value in
 			print(value)
 		}
@@ -371,15 +368,14 @@ array may not match `predicate`. Alternatively, if were not collected any
 values will sent an empty array of values.
 */
 scopedExample("`collect(_:)` matching values exclusively") {
-	let producer = SignalProducer<Int, NoError> { observer, disposable in
+	SignalProducer<Int, NoError> { observer, disposable in
 		observer.sendNext(1)
 		observer.sendNext(2)
 		observer.sendNext(3)
 		observer.sendNext(4)
 		observer.sendCompleted()
 	}
-
-	producer.collect { values, next in next == 3 }
+		.collect { values, next in next == 3 }
 		.startWithNext { value in
 			print(value)
 		}
@@ -411,9 +407,7 @@ Returns a producer that will skip the first `count` values, then forward
 everything afterward.
 */
 scopedExample("`skip(first:)`") {
-	let producer1 = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-
-	producer1
+	SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
 		.skip(first: 2)
 		.startWithNext { value in
 			print(value)
@@ -559,11 +553,11 @@ scopedExample("`take(untilReplacement:)`") {
 		incomingReplacementObserver.sendNext(42)
 	}
 
-	let producer = baseProducer.take(untilReplacement: replacementSignal)
-
-	producer.startWithNext { value in
-		print(value)
-	}
+	baseProducer
+		.take(untilReplacement: replacementSignal)
+		.startWithNext { value in
+			print(value)
+		}
 }
 
 /*:
@@ -620,7 +614,7 @@ scopedExample("`times`") {
 	SignalProducer<(), NoError> { observer, disposable in
 		counter += 1
 		observer.sendCompleted()
-		}
+	}
 		.times(42)
 		.start()
 
@@ -634,7 +628,7 @@ Ignores failures up to `count` times.
 scopedExample("`retry(upTo:)`") {
 	var tries = 0
 
-	let producer = SignalProducer<Int, NSError> { observer, disposable in
+	SignalProducer<Int, NSError> { observer, disposable in
 		if tries == 0 {
 			tries += 1
 			observer.sendFailed(NSError(domain: "retry", code: 0, userInfo: nil))
@@ -643,8 +637,7 @@ scopedExample("`retry(upTo:)`") {
 			observer.sendCompleted()
 		}
 	}
-
-	producer.retry(upTo: 1)
+		.retry(upTo: 1)
 		.startWithResult { result in
 			print(result)
 		}

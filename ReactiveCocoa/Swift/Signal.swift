@@ -837,7 +837,7 @@ extension SignalProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
-	public func combinePrevious(initial: Value) -> Signal<(Value, Value), Error> {
+	public func combinePrevious(_ initial: Value) -> Signal<(Value, Value), Error> {
 		return scan((initial, initial)) { previousCombinedValues, newValue in
 			return (previousCombinedValues.1, newValue)
 		}

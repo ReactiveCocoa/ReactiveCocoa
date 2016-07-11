@@ -665,8 +665,8 @@ extension SignalProducerProtocol {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
-	public func combinePrevious(initial: Value) -> SignalProducer<(Value, Value), Error> {
-		return lift { $0.combinePrevious(initial: initial) }
+	public func combinePrevious(_ initial: Value) -> SignalProducer<(Value, Value), Error> {
+		return lift { $0.combinePrevious(initial) }
 	}
 
 	/// Like `scan`, but sends only the final value and then immediately completes.

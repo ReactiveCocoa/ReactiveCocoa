@@ -11,7 +11,7 @@ import enum Result.NoError
 
 private var lifetimeKey: UInt8 = 0
 
-extension NSObject {
+extension NSObject: LifetimeProviding {
 	/// Returns a lifetime that ends when the receiver is deallocated.
 	@nonobjc public var lifetime: Signal<(), NoError> {
 		objc_sync_enter(self)

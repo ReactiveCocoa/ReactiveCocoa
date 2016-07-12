@@ -32,14 +32,14 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 
 	/// Whether the action is currently executing.
 	public var isExecuting: Property<Bool> {
-		return Property(_executing)
+		return Property(_isExecuting)
 	}
 
 	private let _isExecuting: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
 	public var isEnabled: Property<Bool> {
-		return AnyProperty(_isEnabled)
+		return Property(_isEnabled)
 	}
 
 	private let _isEnabled: MutableProperty<Bool> = MutableProperty(false)
@@ -130,7 +130,7 @@ public protocol ActionProtocol {
 	associatedtype Error: ErrorProtocol
 
 	/// Whether the action is currently enabled.
-	var isEnabled: AnyProperty<Bool> { get }
+	var isEnabled: Property<Bool> { get }
 
 	/// Extracts an action from the receiver.
 	var action: Action<Input, Output, Error> { get }

@@ -12,7 +12,18 @@ import enum Result.NoError
 private var lifetimeKey: UInt8 = 0
 
 extension NSObject: LifetimeProviding {
-	/// Returns a lifetime that ends when the receiver is deallocated.
+	/// An interruptible observation to the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
+	@nonobjc public var lifetimeProducer: SignalProducer<(), NoError> {
+		return SignalProducer(signal: lifetime)
+	}
+
+	/// A signal representing the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
 	@nonobjc public var lifetime: Signal<(), NoError> {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }

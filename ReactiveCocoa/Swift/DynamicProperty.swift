@@ -22,8 +22,6 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private let extractValue: (from: AnyObject) -> Value
 	private let represent: (Value) -> AnyObject
 
-	private var property: MutableProperty<Value?>?
-
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: Value? {
@@ -43,37 +41,38 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
-		return property?.producer ?? .empty
+		return object.map { object in
+			return SignalProducer { [keyPath = self.keyPath, extractValue = self.extractValue]
+				observer, disposable in
+				let proxy = KeyValueObserver(object: object, keyPath: keyPath) { value in
+					observer.sendNext(value.map(extractValue))
+				}
+
+				object.lifetime.observeCompleted {
+					observer.sendCompleted()
+				}
+
+				disposable += proxy.disposable
+			}
+		} ?? .empty
 	}
 
-	public var signal: Signal<Value?, NoError> {
-		return property?.signal ?? .empty
-	}
+	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
+		var signal: Signal<Value, NoError>!
+		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
+		return signal
+	}()
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
 	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
-		self.property = MutableProperty(nil)
+
 		self.extractValue = Representatable.extract(from:)
 		self.represent = Representatable.represent
 
-		/// DynamicProperty stay alive as long as object is alive.
-		/// This is made possible by strong reference cycles.
-
-		object?.rac_values(forKeyPath: keyPath, observer: nil)?
-			.toSignalProducer()
-			.start { event in
-				switch event {
-				case let .next(newValue):
-					self.property?.value = newValue.map(self.extractValue)
-				case let .failed(error):
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .interrupted, .completed:
-					self.property = nil
-				}
-			}
+		_ = object?.lifetime.observeCompleted { _ = self }
 	}
 }
 
@@ -123,3 +122,34 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 		return value._bridgeToObjectiveC()
 	}
 }
+
+private final class KeyValueObserver: NSObject {
+	let action: (AnyObject?) -> Void
+	unowned(unsafe) let object: NSObject
+	var disposable: ActionDisposable?
+
+	init(object: NSObject, keyPath: String, action: (AnyObject?) -> Void) {
+		self.action = action
+		self.object = object
+		super.init()
+
+		object.addObserver(self,
+		                   forKeyPath: keyPath,
+		                   options: [.initial, .new],
+		                   context: kvoProxyContext)
+
+		disposable = ActionDisposable {
+			self.object.removeObserver(self,
+			                           forKeyPath: keyPath,
+			                           context: kvoProxyContext)
+		}
+	}
+
+	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+		if context == kvoProxyContext {
+			action(change![.newKey])
+		}
+	}
+}
+
+private var kvoProxyContext = UnsafeMutablePointer<Void>(allocatingCapacity: 1)

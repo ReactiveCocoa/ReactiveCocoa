@@ -5,57 +5,22 @@ import Result
 
 final class LifetimeSpec: QuickSpec {
 	override func spec() {
-		describe("take within") {
-			it("completes a signal when the lifetime ends") {
-				let (signal, observer) = Signal<Int, NoError>.pipe()
-				let object = MutableReference(TestObject())
-
-				let output = signal.takeWithin(object.value!.lifetime)
-
-				var results: [Int] = []
-				output.observeNext { results.append($0) }
-
-				observer.sendNext(1)
-				observer.sendNext(2)
-				object.value = nil
-				observer.sendNext(3)
-
-				expect(results) == [1, 2]
-			}
-
-			it("completes a signal producer when the lifetime ends") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
-				let object = MutableReference(TestObject())
-
-				let output = producer.takeWithin(object.value!.lifetime)
-
-				var results: [Int] = []
-				output.startWithNext { results.append($0) }
-
-				observer.sendNext(1)
-				observer.sendNext(2)
-				object.value = nil
-				observer.sendNext(3)
-
-				expect(results) == [1, 2]
-			}
-		}
-
 		describe("NSObject lifetime") {
 			it("ends when the object is deallocated") {
 				let object = MutableReference(TestObject())
 
 				var events: [String] = []
 
-				object.value!.lifetime.ended.observe { event in
+				let lifetime = object.value!.lifetime
+				lifetime.observe { event in
 					switch event {
-					case .Next:
+					case .next:
 						events.append("next")
-					case .Completed:
+					case .completed:
 						events.append("completed")
-					case .Failed:
+					case .failed:
 						events.append("failed")
-					case .Interrupted:
+					case .interrupted:
 						events.append("interrupted")
 					}
 				}
@@ -63,6 +28,10 @@ final class LifetimeSpec: QuickSpec {
 				object.value = nil
 
 				expect(events) == ["completed"]
+
+				var isInterrupted = false
+				lifetime.observeInterrupted { isInterrupted = true }
+				expect(isInterrupted) == true
 			}
 		}
 	}
@@ -75,6 +44,4 @@ private final class MutableReference<Value: AnyObject> {
 	}
 }
 
-private final class TestObject {
-	let lifetime = Lifetime()
-}
+private final class TestObject: NSObject {}

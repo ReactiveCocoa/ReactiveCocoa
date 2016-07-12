@@ -1,36 +1,19 @@
 import enum Result.NoError
 
-/// Provides a signal that completes when the lifetime object is deinitialized.
-///
-/// When assigned to a property of another object, provides a hook to
-/// observe when that object goes out of scope.
-public final class Lifetime {
-	/// A signal that sends a Completed event when the lifetime ends.
-	public let ended: Signal<(), NoError>
-
-	private let endedObserver: Observer<(), NoError>
-
-	public init() {
-		(ended, endedObserver) = Signal.pipe()
-	}
-
-	deinit {
-		endedObserver.sendCompleted()
-	}
+/// Describes the ability of an object to notify others of its deinitialization.
+/// Proxy objects may pass through the lifetime of its underlying object.
+public protocol LifetimeProviding: class {
+	/// Interruptible observation of lifetime.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
+	var lifetime: Signal<(), NoError> { get }
 }
 
-private var lifetimeKey: UInt8 = 0
+internal final class DeallocationToken {
+	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
 
-extension NSObject {
-	/// Returns a lifetime that ends when the receiver is deallocated.
-	@nonobjc public var lifetime: Lifetime {
-		if let lifetime = objc_getAssociatedObject(self, &lifetimeKey) as! Lifetime? {
-			return lifetime
-		}
-
-		let lifetime = Lifetime()
-		objc_setAssociatedObject(self, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN)
-
-		return lifetime
+	deinit {
+		observer.sendCompleted()
 	}
 }

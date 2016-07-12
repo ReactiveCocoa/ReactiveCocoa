@@ -793,9 +793,8 @@ extension SignalProtocol {
 
 	/// Forwards events from `self` until `lifetime` ends, at which point the
 	/// returned signal will complete.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeWithin(lifetime: Lifetime) -> Signal<Value, Error> {
-		return takeUntil(lifetime.ended)
+	public func take<U: LifetimeProviding>(untilEnding object: U) -> Signal<Value, Error> {
+		return take(until: object.lifetime)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed

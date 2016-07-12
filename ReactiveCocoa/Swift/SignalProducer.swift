@@ -621,9 +621,8 @@ extension SignalProducerProtocol {
 
 	/// Forwards events from `self` until `lifetime` ends, at which point the
 	/// returned producer will complete.
-	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func takeWithin(lifetime: Lifetime) -> SignalProducer<Value, Error> {
-		return takeUntil(lifetime.ended)
+	public func take<U: LifetimeProviding>(untilEnding object: U) -> SignalProducer<Value, Error> {
+		return take(until: object.lifetime)
 	}
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
@@ -1251,14 +1250,6 @@ extension SignalProducerProtocol {
 					.start(initializedObserver)
 			}
 		}
-	}
-}
-
-private final class DeallocationToken {
-	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
-
-	deinit {
-		observer.sendCompleted()
 	}
 }
 

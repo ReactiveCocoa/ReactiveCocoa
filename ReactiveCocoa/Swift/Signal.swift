@@ -791,6 +791,13 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned signal will complete.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func takeWithin(lifetime: Lifetime) -> Signal<Value, Error> {
+		return takeUntil(lifetime.ended)
+	}
+
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
 	public func take(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
@@ -811,7 +818,7 @@ extension SignalProtocol {
 			return disposable
 		}
 	}
-	
+
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed event, at which point the returned signal behaves exactly like
 	/// `signal`.

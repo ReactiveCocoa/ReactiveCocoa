@@ -619,6 +619,13 @@ extension SignalProducerProtocol {
 		return lift(Signal.sample(on:))(sampler)
 	}
 
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned producer will complete.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func takeWithin(lifetime: Lifetime) -> SignalProducer<Value, Error> {
+		return takeUntil(lifetime.ended)
+	}
+
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
 	public func take(until trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {

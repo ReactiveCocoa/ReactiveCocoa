@@ -289,7 +289,7 @@ scheduler they originally arrived upon.
 */
 scopedExample("`observe(on:)`") {
 	let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-	let completion = { print("is main thread? \(Thread.current().isMainThread)") }
+	let completion = { print("is main thread? \(Thread.current.isMainThread)") }
 
 	baseProducer
 		.observe(on: QueueScheduler(qos: .default, name: "test"))
@@ -459,15 +459,15 @@ scopedExample("`sample(on:)`") {
 }
 
 /*:
-### `combinePrevious(initial:)`
+### `combinePrevious`
 Forwards events from `self` with history: values of the returned producer
 are a tuple whose first member is the previous value and whose second member
 is the current value. `initial` is supplied as the first member when `self`
 sends its first value.
 */
-scopedExample("`combinePrevious(initial:)`") {
+scopedExample("`combinePrevious`") {
 	SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4 ])
-		.combinePrevious(initial: 42)
+		.combinePrevious(42)
 		.startWithNext { value in
 			print("\(value)")
 		}

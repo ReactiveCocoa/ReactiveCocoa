@@ -15,16 +15,18 @@ private protocol ObjectiveCRepresentable {
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-public final class DynamicProperty<Value>: MutablePropertyProtocol {
+public final class DynamicProperty<Wrapped>: MutablePropertyProtocol {
+	public typealias Value = Wrapped?
+
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (from: AnyObject) -> Value
-	private let represent: (Value) -> AnyObject
+	private let extractValue: (from: AnyObject) -> Wrapped
+	private let represent: (Wrapped) -> AnyObject
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
-	public var value: Value? {
+	public var value: Wrapped? {
 		get {
 			return object?.value(forKeyPath: keyPath).map(extractValue)
 		}
@@ -40,7 +42,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///
 	/// By definition, this only works if the object given to init() is
 	/// KVO-compliant. Most UI controls are not!
-	public var producer: SignalProducer<Value?, NoError> {
+	public var producer: SignalProducer<Wrapped?, NoError> {
 		return object.map { object in
 			return SignalProducer { [keyPath = self.keyPath, extractValue = self.extractValue]
 				observer, disposable in
@@ -57,7 +59,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 		} ?? .empty
 	}
 
-	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
+	public lazy var signal: Signal<Wrapped?, NoError> = { [unowned self] in
 		var signal: Signal<Value, NoError>!
 		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
 		return signal
@@ -65,7 +67,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. `object` must support weak references!
-	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
+	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Wrapped>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
 
@@ -76,7 +78,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	}
 }
 
-extension DynamicProperty where Value: _ObjectiveCBridgeable {
+extension DynamicProperty where Wrapped: _ObjectiveCBridgeable {
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, where `Value` is a value type that is bridgeable
 	/// to Objective-C.
@@ -87,7 +89,7 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	}
 }
 
-extension DynamicProperty where Value: AnyObject {
+extension DynamicProperty where Wrapped: AnyObject {
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, where `Value` is a reference type that can be
 	/// represented directly in Objective-C via `AnyObject`.

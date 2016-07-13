@@ -428,70 +428,79 @@ private final class CollectState<Value> {
 
 
 extension SignalType {
-
-	/// Returns a signal that will yield an array of values when `self` completes.
+	/// Collect all values sent by the signal then forward them as a single
+	/// array and complete.
 	///
-	/// - Note: When `self` completes without collecting any value, it will send
-	/// an empty array of values.
+	/// - note: When `self` completes without collecting any value, it will send
+	///         an empty array of values.
 	///
+	/// - returns: A signal that will yield an array of values when `self`
+	///            completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect() -> Signal<[Value], Error> {
 		return collect { _,_ in false }
 	}
 
-	/// Returns a signal that will yield an array of values until it reaches a
-	/// certain count.
+	/// Collect at most `count` values from `self`, forward them as a single
+	/// array and complete.
 	///
-	/// When the count is reached the array is sent and the signal starts over
-	/// yielding a new array of values.
+	/// - precondition: `count` should be greater than zero.
 	///
-	/// - Precondition: `count` should be greater than zero.
+	/// - note: When the count is reached the array is sent and the signal
+	///         starts over yielding a new array of values.
 	///
-	/// - Note: When `self` completes any remaining values will be sent, the last
-	/// array may not have `count` values. Alternatively, if were not collected
-	/// any values will sent an empty array of values.
+	/// - note: When `self` completes any remaining values will be sent, the
+	///         last array may not have `count` values. Alternatively, if were
+	///         not collected any values will sent an empty array of values.
 	///
+	/// - returns: A signal that collects at most `count` values from `self`,
+	///            forwards them as a single array and completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect(count count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
 		return collect { values in values.count == count }
 	}
 
-	/// Returns a signal that will yield an array of values based on a predicate
-	/// which matches the values collected.
+	/// Collect values that pass the given predicate then forward them as a
+	/// single array and complete.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent
-	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The most recent value (`next`) is included in
-	/// `values` and will be the end of the current array of values if the
-	/// predicate returns `true`.
+	/// - note: When `self` completes any remaining values will be sent, the
+	///         last array may not match `predicate`. Alternatively, if were not
+	///         collected any values will sent an empty array of values.
 	///
-	/// - Note: When `self` completes any remaining values will be sent, the last
-	/// array may not match `predicate`. Alternatively, if were not collected any
-	/// values will sent an empty array of values.
+	/// ````
+	/// let (signal, observer) = Signal<Int, NoError>.pipe()
 	///
-	/// #### Example
+	/// signal
+	///     .collect { values in values.reduce(0, combine: +) == 8 }
+	///     .observeNext { print($0) }
 	///
-	///     let (signal, observer) = Signal<Int, NoError>.pipe()
+	/// observer.sendNext(1)
+	/// observer.sendNext(3)
+	/// observer.sendNext(4)
+	/// observer.sendNext(7)
+	/// observer.sendNext(1)
+	/// observer.sendNext(5)
+	/// observer.sendNext(6)
+	/// observer.sendCompleted()
 	///
-	///     signal
-	///         .collect { values in values.reduce(0, combine: +) == 8 }
-	///         .observeNext { print($0) }
+	/// // Output:
+	/// // [1, 3, 4]
+	/// // [7, 1]
+	/// // [5, 6]
+	/// ````
 	///
-	///     observer.sendNext(1)
-	///     observer.sendNext(3)
-	///     observer.sendNext(4)
-	///     observer.sendNext(7)
-	///     observer.sendNext(1)
-	///     observer.sendNext(5)
-	///     observer.sendNext(6)
-	///     observer.sendCompleted()
+	/// - parameters:
+	///   - predicate: Predicate to match when values should be sent (returning
+	///                `true`) or alternatively when they should be collected
+	///                (where it should return `false`). The most recent value
+	///                (`next`) is included in `values` and will be the end of
+	///                the current array of values if the predicate returns
+	///                `true`.
 	///
-	///     // Output:
-	///     // [1, 3, 4]
-	///     // [7, 1]
-	///     // [5, 6]
-	///
+	/// - returns: A signal that collects values passing the predicate and, when
+	///            `self` completes, forwards them as a single array and
+	///            complets.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect(predicate: (values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
@@ -519,39 +528,46 @@ extension SignalType {
 		}
 	}
 
-	/// Returns a signal that will yield an array of values based on a predicate
-	/// which matches the values collected and the next value.
+	/// Repeatedly collects an array of values up to a matching `Next` value.
+	/// Then forwards them as single array and waits for next events.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent
-	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The most recent value (`next`) is not included
-	/// in `values` and will be the start of the next array of values if the
-	/// predicate returns `true`.
+	/// - note: When `self` completes any remaining values will be sent, the
+	///         last array may not match `predicate`. Alternatively, if no
+	///         values were collected an empty array will be sent.
 	///
-	/// - Note: When `self` completes any remaining values will be sent, the last
-	/// array may not match `predicate`. Alternatively, if were not collected any
-	/// values will sent an empty array of values.
+	/// ````
+	/// let (signal, observer) = Signal<Int, NoError>.pipe()
 	///
-	/// #### Example
+	/// signal
+	///     .collect { values, next in next == 7 }
+	///     .observeNext { print($0) }
 	///
-	///     let (signal, observer) = Signal<Int, NoError>.pipe()
+	/// observer.sendNext(1)
+	/// observer.sendNext(1)
+	/// observer.sendNext(7)
+	/// observer.sendNext(7)
+	/// observer.sendNext(5)
+	/// observer.sendNext(6)
+	/// observer.sendCompleted()
 	///
-	///     signal
-	///         .collect { values, next in next == 7 }
-	///         .observeNext { print($0) }
+	/// // Output:
+	/// // [1, 1]
+	/// // [7]
+	/// // [7, 5, 6]
+	/// ````
 	///
-	///     observer.sendNext(1)
-	///     observer.sendNext(1)
-	///     observer.sendNext(7)
-	///     observer.sendNext(7)
-	///     observer.sendNext(5)
-	///     observer.sendNext(6)
-	///     observer.sendCompleted()
 	///
-	///     // Output:
-	///     // [1, 1]
-	///     // [7]
-	///     // [7, 5, 6]
+	/// - parameters:
+	///   - predicate: Predicate to match when values should be sent (returning
+	///                `true`) or alternatively when they should be collected
+	///                (where it should return `false`). The most recent value
+	///                (`next`) is not included in `values` and will be the
+	///                start of the next array of values if the predicate
+	///                returns `true`.
+	///
+	/// - returns: A signal that will yield an array of values based on a
+	///            predicate which matches the values collected and the next
+	///            value.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
@@ -581,6 +597,11 @@ extension SignalType {
 
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
+	///
+	/// - parameters:
+	///   - scheduler: A scheduler to deliver events on.
+	///
+	/// - returns: A signal that will yield `self` values on provided scheduler.
 	public func observeOn(scheduler: SchedulerType) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in

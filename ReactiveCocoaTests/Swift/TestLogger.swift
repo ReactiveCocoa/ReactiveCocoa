@@ -7,7 +7,6 @@
 //
 
 import Foundation
-@testable
 
 #if REACTIVE_SWIFT
 import ReactiveSwift

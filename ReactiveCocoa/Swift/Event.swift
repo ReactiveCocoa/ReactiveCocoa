@@ -130,7 +130,7 @@ extension Event: CustomStringConvertible {
 
 /// Event protocol for constraining signal extensions
 public protocol EventType {
-	// The value type of an event.
+	/// The value type of an event.
 	associatedtype Value
 	/// The error type of an event. If errors aren't possible then `NoError` can be used.
 	associatedtype Error: ErrorType

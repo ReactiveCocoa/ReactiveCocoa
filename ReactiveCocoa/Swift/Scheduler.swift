@@ -101,7 +101,7 @@ public final class UIScheduler: SchedulerType {
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateSchedulerType {
-	public let queue: dispatch_queue_t
+	internal let queue: dispatch_queue_t
 	
 	internal init(internalQueue: dispatch_queue_t) {
 		queue = internalQueue

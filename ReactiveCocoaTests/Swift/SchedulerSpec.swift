@@ -9,11 +9,11 @@
 import Foundation
 import Nimble
 import Quick
-@testable
+
 #if REACTIVE_SWIFT
-import ReactiveSwift
+@testable import ReactiveSwift
 #else
-import ReactiveCocoa
+@testable import ReactiveCocoa
 #endif
 
 class SchedulerSpec: QuickSpec {

@@ -20,7 +20,7 @@ public final class Atomic<Value> {
 		}
 	
 		set(newValue) {
-			modify { _ in newValue }
+			swap(newValue)
 		}
 	}
 	
@@ -49,16 +49,18 @@ public final class Atomic<Value> {
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	public func swap(newValue: Value) -> Value {
-		return modify { _ in newValue }
+	@discardableResult
+	public func swap(_ newValue: Value) -> Value {
+		return modify { $0 = newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
+	@discardableResult
+	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
-			_value = try action(value)
+			try action(&_value)
 			return value
 		}
 	}
@@ -67,7 +69,8 @@ public final class Atomic<Value> {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
+	@discardableResult
+	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
 		lock()
 		defer { unlock() }
 

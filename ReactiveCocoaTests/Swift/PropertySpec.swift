@@ -15,6 +15,10 @@ private let initialPropertyValue = "InitialValue"
 private let subsequentPropertyValue = "SubsequentValue"
 private let finalPropertyValue = "FinalValue"
 
+private let initialOtherPropertyValue = "InitialOtherValue"
+private let subsequentOtherPropertyValue = "SubsequentOtherValue"
+private let finalOtherPropertyValue = "FinalOtherValue"
+
 class PropertySpec: QuickSpec {
 	override func spec() {
 		describe("ConstantProperty") {
@@ -32,9 +36,9 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.signal.observe { event in
 					switch event {
-					case .Interrupted:
+					case .interrupted:
 						signalInterrupted = true
-					case .Next, .Failed, .Completed:
+					case .next, .failed, .completed:
 						hasUnexpectedEventsEmitted = true
 					}
 				}
@@ -51,11 +55,11 @@ class PropertySpec: QuickSpec {
 
 				constantProperty.producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						sentValue = value
-					case .Completed:
+					case .completed:
 						signalCompleted = true
-					case .Failed, .Interrupted:
+					case .failed, .interrupted:
 						break
 					}
 				}
@@ -165,11 +169,11 @@ class PropertySpec: QuickSpec {
 
 				producer.start { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						latestValue = value
-					case .Completed:
+					case .completed:
 						producerCompleted = true
-					case .Interrupted, .Failed:
+					case .interrupted, .failed:
 						hasUnanticipatedEvent = true
 					}
 				}
@@ -182,7 +186,7 @@ class PropertySpec: QuickSpec {
 			it("should modify the value atomically") {
 				let property = MutableProperty(initialPropertyValue)
 
-				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+				expect(property.modify({ $0 = subsequentPropertyValue })) == initialPropertyValue
 				expect(property.value) == subsequentPropertyValue
 			}
 
@@ -195,7 +199,7 @@ class PropertySpec: QuickSpec {
 				}
 
 				expect(value) == initialPropertyValue
-				expect(property.modify({ _ in subsequentPropertyValue })) == initialPropertyValue
+				expect(property.modify({ $0 = subsequentPropertyValue })) == initialPropertyValue
 
 				expect(property.value) == subsequentPropertyValue
 				expect(value) == subsequentPropertyValue
@@ -293,7 +297,7 @@ class PropertySpec: QuickSpec {
 		}
 
 		describe("AnyProperty") {
-			describe("from a PropertyType") {
+			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
 					let constantProperty = ConstantProperty(initialPropertyValue)
 					let property = AnyProperty(constantProperty)
@@ -305,22 +309,22 @@ class PropertySpec: QuickSpec {
 
 					property.producer.start { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							sentValue = value
-						case .Completed:
+						case .completed:
 							producerCompleted = true
-						case .Failed, .Interrupted:
+						case .failed, .interrupted:
 							break
 						}
 					}
 
 					property.signal.observe { event in
 						switch event {
-						case let .Next(value):
+						case let .next(value):
 							signalSentValue = value
-						case .Interrupted:
+						case .interrupted:
 							signalInterrupted = true
-						case .Failed, .Completed:
+						case .failed, .completed:
 							break
 						}
 					}
@@ -330,46 +334,804 @@ class PropertySpec: QuickSpec {
 					expect(producerCompleted) == true
 					expect(signalInterrupted) == true
 				}
+
+				describe("transformed properties") {
+					it("should have the latest value available before sending any value") {
+						var latestValue: Int!
+
+						let property = MutableProperty(1)
+						let mappedProperty = property.map { $0 + 1 }
+						mappedProperty.producer.startWithNext { _ in latestValue = mappedProperty.value }
+
+						expect(latestValue) == 2
+
+						property.value = 2
+						expect(latestValue) == 3
+
+						property.value = 3
+						expect(latestValue) == 4
+					}
+
+					it("should retain its source property") {
+						var property = Optional(MutableProperty(1))
+						weak var weakProperty = property
+
+						var firstMappedProperty = Optional(property!.map { $0 + 1 })
+						var secondMappedProperty = Optional(firstMappedProperty!.map { $0 + 2 })
+
+						// Suppress the "written to but never read" warning on `secondMappedProperty`.
+						_ = secondMappedProperty
+
+						property = nil
+						expect(weakProperty).toNot(beNil())
+
+						firstMappedProperty = nil
+						expect(weakProperty).toNot(beNil())
+
+						secondMappedProperty = nil
+						expect(weakProperty).to(beNil())
+					}
+
+					it("should transform property from a property that has a terminated producer") {
+						let property = ConstantProperty(1)
+						let transformedProperty = property.map { $0 + 1 }
+
+						expect(transformedProperty.value) == 2
+					}
+
+					describe("signal lifetime and producer lifetime") {
+						it("should return a producer and a signal which respect the lifetime of the source property instead of the read-only view itself") {
+							var signalCompleted = 0
+							var producerCompleted = 0
+
+							var property = Optional(MutableProperty(1))
+							var firstMappedProperty = Optional(property!.map { $0 + 1 })
+							var secondMappedProperty = Optional(firstMappedProperty!.map { $0 + 2 })
+							var thirdMappedProperty = Optional(secondMappedProperty!.map { $0 + 2 })
+
+							firstMappedProperty!.signal.observeCompleted { signalCompleted += 1	}
+							secondMappedProperty!.signal.observeCompleted { signalCompleted += 1	}
+							thirdMappedProperty!.signal.observeCompleted { signalCompleted += 1	}
+
+							firstMappedProperty!.producer.startWithCompleted { producerCompleted += 1	}
+							secondMappedProperty!.producer.startWithCompleted { producerCompleted += 1	}
+							thirdMappedProperty!.producer.startWithCompleted { producerCompleted += 1	}
+
+							firstMappedProperty = nil
+							expect(signalCompleted) == 0
+							expect(producerCompleted) == 0
+
+							secondMappedProperty = nil
+							expect(signalCompleted) == 0
+							expect(producerCompleted) == 0
+
+							property = nil
+							expect(signalCompleted) == 0
+							expect(producerCompleted) == 0
+
+							thirdMappedProperty = nil
+							expect(signalCompleted) == 3
+							expect(producerCompleted) == 3
+						}
+					}
+				}
 			}
-			
+
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer.never)
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           then: SignalProducer.never)
+
 					expect(property.value) == initialPropertyValue
 				}
-				
+
 				it("should take on each value sent on the producer") {
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						producer: SignalProducer(value: subsequentPropertyValue))
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           then: SignalProducer(value: subsequentPropertyValue))
+
 					expect(property.value) == subsequentPropertyValue
 				}
+
+				it("should return a producer and a signal that respect the lifetime of its ultimate source") {
+					var signalCompleted = false
+					var producerCompleted = false
+					var signalInterrupted = false
+
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
+					                                              then: SignalProducer(signal: signal))
+					let propertySignal = property!.signal
+
+					propertySignal.observeCompleted { signalCompleted = true }
+					property!.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property!.value) == 1
+
+					observer.sendNext(2)
+					expect(property!.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					property = nil
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					observer.sendCompleted()
+					expect(producerCompleted) == true
+					expect(signalCompleted) == true
+
+					propertySignal.observeInterrupted { signalInterrupted = true }
+					expect(signalInterrupted) == true
+				}
 			}
-			
+
 			describe("from a value and Signal") {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = AnyProperty(
-						initialValue: initialPropertyValue,
-						signal: signal)
-					
+					let property = AnyProperty(initial: initialPropertyValue,
+					                           then: signal)
+
 					expect(property.value) == initialPropertyValue
-					
+
 					observer.sendNext(subsequentPropertyValue)
-					
+
 					expect(property.value) == subsequentPropertyValue
+				}
+
+
+				it("should return a producer and a signal that respect the lifetime of its ultimate source") {
+					var signalCompleted = false
+					var producerCompleted = false
+					var signalInterrupted = false
+
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
+					                                              then: signal)
+					let propertySignal = property!.signal
+
+					propertySignal.observeCompleted { signalCompleted = true }
+					property!.producer.startWithCompleted { producerCompleted = true }
+
+					expect(property!.value) == 1
+
+					observer.sendNext(2)
+					expect(property!.value) == 2
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					property = nil
+					expect(producerCompleted) == false
+					expect(signalCompleted) == false
+
+					observer.sendCompleted()
+					expect(producerCompleted) == true
+					expect(signalCompleted) == true
+
+					propertySignal.observeInterrupted { signalInterrupted = true }
+					expect(signalInterrupted) == true
+				}
+			}
+		}
+
+		describe("PropertyProtocol") {
+			describe("map") {
+				it("should transform the current value and all subsequent values") {
+					let property = MutableProperty(1)
+					let mappedProperty = property
+						.map { $0 + 1 }
+					expect(mappedProperty.value) == 2
+
+					property.value = 2
+					expect(mappedProperty.value) == 3
+				}
+			}
+
+			describe("combineLatest") {
+				var property: MutableProperty<String>!
+				var otherProperty: MutableProperty<String>!
+
+				beforeEach {
+					property = MutableProperty(initialPropertyValue)
+					otherProperty = MutableProperty(initialOtherPropertyValue)
+				}
+
+				it("should forward the latest values from both inputs") {
+					let combinedProperty = property.combineLatest(with: otherProperty)
+					var latest: (String, String)?
+					combinedProperty.signal.observeNext { latest = $0 }
+
+					property.value = subsequentPropertyValue
+					expect(latest?.0) == subsequentPropertyValue
+					expect(latest?.1) == initialOtherPropertyValue
+
+					// is there a better way to test tuples?
+					otherProperty.value = subsequentOtherPropertyValue
+					expect(latest?.0) == subsequentPropertyValue
+					expect(latest?.1) == subsequentOtherPropertyValue
+
+					property.value = finalPropertyValue
+					expect(latest?.0) == finalPropertyValue
+					expect(latest?.1) == subsequentOtherPropertyValue
+				}
+
+				it("should complete when the source properties are deinitialized") {
+					var completed = false
+
+					var combinedProperty = Optional(property.combineLatest(with: otherProperty))
+					combinedProperty!.signal.observeCompleted { completed = true }
+
+					combinedProperty = nil
+					expect(completed) == false
+
+					property = nil
+					expect(completed) == false
+
+					otherProperty = nil
+					expect(completed) == true
+				}
+			}
+
+			describe("zip") {
+				var property: MutableProperty<String>!
+				var otherProperty: MutableProperty<String>!
+
+				beforeEach {
+					property = MutableProperty(initialPropertyValue)
+					otherProperty = MutableProperty(initialOtherPropertyValue)
+				}
+
+				it("should combine pairs") {
+					var result: [String] = []
+
+					let zippedProperty = property.zip(with: otherProperty)
+					zippedProperty.producer.startWithNext { (left, right) in result.append("\(left)\(right)") }
+
+					let firstResult = [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+					let secondResult = firstResult + [ "\(subsequentPropertyValue)\(subsequentOtherPropertyValue)" ]
+					let thirdResult = secondResult + [ "\(finalPropertyValue)\(finalOtherPropertyValue)" ]
+					let finalResult = thirdResult + [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					expect(result) == firstResult
+
+					property.value = subsequentPropertyValue
+					expect(result) == firstResult
+
+					otherProperty.value = subsequentOtherPropertyValue
+					expect(result) == secondResult
+
+					property.value = finalPropertyValue
+					otherProperty.value = finalOtherPropertyValue
+					expect(result) == thirdResult
+
+					property.value = initialPropertyValue
+					expect(result) == thirdResult
+
+					property.value = subsequentPropertyValue
+					expect(result) == thirdResult
+
+					otherProperty.value = initialOtherPropertyValue
+					expect(result) == finalResult
+				}
+
+				it("should complete its producer only when the source properties are deinitialized") {
+					var result: [String] = []
+					var completed = false
+
+					var zippedProperty = Optional(property.zip(with: otherProperty))
+					zippedProperty!.producer.start { event in
+						switch event {
+						case let .next(left, right):
+							result.append("\(left)\(right)")
+						case .completed:
+							completed = true
+						default:
+							break
+						}
+					}
+
+					expect(completed) == false
+					expect(result) == [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					property.value = subsequentPropertyValue
+					expect(result) == [ "\(initialPropertyValue)\(initialOtherPropertyValue)" ]
+
+					zippedProperty = nil
+					expect(completed) == false
+
+					property = nil
+					otherProperty = nil
+					expect(completed) == true
+				}
+			}
+
+			describe("unary operators") {
+				var property: MutableProperty<String>!
+
+				beforeEach {
+					property = MutableProperty(initialPropertyValue)
+				}
+
+				describe("combinePrevious") {
+					it("should pack the current value and the previous value a tuple") {
+						let transformedProperty = property.combinePrevious(initial: initialPropertyValue)
+
+						expect(transformedProperty.value.0) == initialPropertyValue
+						expect(transformedProperty.value.1) == initialPropertyValue
+
+						property.value = subsequentPropertyValue
+
+						expect(transformedProperty.value.0) == initialPropertyValue
+						expect(transformedProperty.value.1) == subsequentPropertyValue
+
+						property.value = finalPropertyValue
+
+						expect(transformedProperty.value.0) == subsequentPropertyValue
+						expect(transformedProperty.value.1) == finalPropertyValue
+					}
+
+					it("should complete its producer only when the source property is deinitialized") {
+						var result: (String, String)?
+						var completed = false
+
+						var transformedProperty = Optional(property.combinePrevious(initial: initialPropertyValue))
+						transformedProperty!.producer.start { event in
+							switch event {
+							case let .next(tuple):
+								result = tuple
+							case .completed:
+								completed = true
+							default:
+								break
+							}
+						}
+
+						expect(result?.0) == initialPropertyValue
+						expect(result?.1) == initialPropertyValue
+
+						property.value = subsequentPropertyValue
+
+						expect(result?.0) == initialPropertyValue
+						expect(result?.1) == subsequentPropertyValue
+
+						transformedProperty = nil
+						expect(completed) == false
+
+						property = nil
+						expect(completed) == true
+					}
+				}
+
+				describe("skipRepeats") {
+					it("should not emit events for subsequent equatable values that are the same as the current value") {
+						let transformedProperty = property.skipRepeats()
+
+						var counter = 0
+						transformedProperty.signal.observeNext { _ in
+							counter += 1
+						}
+
+						property.value = initialPropertyValue
+						property.value = initialPropertyValue
+						property.value = initialPropertyValue
+
+						expect(counter) == 0
+
+						property.value = subsequentPropertyValue
+						property.value = subsequentPropertyValue
+						property.value = subsequentPropertyValue
+
+						expect(counter) == 1
+
+						property.value = finalPropertyValue
+						property.value = initialPropertyValue
+						property.value = subsequentPropertyValue
+
+						expect(counter) == 4
+					}
+
+					it("should not emit events for subsequent values that are regarded as the same as the current value by the supplied closure") {
+						var counter = 0
+						let transformedProperty = property.skipRepeats { _, newValue in newValue == initialPropertyValue }
+
+						transformedProperty.signal.observeNext { _ in
+							counter += 1
+						}
+
+						property.value = initialPropertyValue
+						expect(counter) == 0
+
+						property.value = subsequentPropertyValue
+						expect(counter) == 1
+
+						property.value = finalPropertyValue
+						expect(counter) == 2
+
+						property.value = initialPropertyValue
+						expect(counter) == 2
+					}
+
+					it("should complete its producer only when the source property is deinitialized") {
+						var counter = 0
+						var completed = false
+
+						var transformedProperty = Optional(property.skipRepeats())
+						transformedProperty!.producer.start { event in
+							switch event {
+							case .next:
+								counter += 1
+							case .completed:
+								completed = true
+							default:
+								break
+							}
+						}
+
+						expect(counter) == 1
+
+						property.value = initialPropertyValue
+						expect(counter) == 1
+
+						transformedProperty = nil
+						expect(completed) == false
+
+						property = nil
+						expect(completed) == true
+					}
+				}
+
+				describe("uniqueValues") {
+					it("should emit hashable values that have not been emited before") {
+						let transformedProperty = property.uniqueValues()
+
+						var counter = 0
+						transformedProperty.signal.observeNext { _ in
+							counter += 1
+						}
+
+						property.value = initialPropertyValue
+						expect(counter) == 0
+
+						property.value = subsequentPropertyValue
+						property.value = subsequentPropertyValue
+
+						expect(counter) == 1
+
+						property.value = finalPropertyValue
+						property.value = initialPropertyValue
+						property.value = subsequentPropertyValue
+
+						expect(counter) == 2
+					}
+
+					it("should emit only the values of which the computed identity have not been captured before") {
+						let transformedProperty = property.uniqueValues { _ in 0 }
+
+						var counter = 0
+						transformedProperty.signal.observeNext { _ in
+							counter += 1
+						}
+
+						property.value = initialPropertyValue
+						property.value = subsequentPropertyValue
+						property.value = finalPropertyValue
+						expect(counter) == 0
+					}
+
+					it("should complete its producer only when the source property is deinitialized") {
+						var counter = 0
+						var completed = false
+
+						var transformedProperty = Optional(property.uniqueValues())
+						transformedProperty!.producer.start { event in
+							switch event {
+							case .next:
+								counter += 1
+							case .completed:
+								completed = true
+							default:
+								break
+							}
+						}
+
+						expect(counter) == 1
+
+						property.value = initialPropertyValue
+						expect(counter) == 1
+
+						transformedProperty = nil
+						expect(completed) == false
+
+						property = nil
+						expect(completed) == true
+					}
+				}
+			}
+
+			describe("flattening") {
+				describe("flatten") {
+					describe("FlattenStrategy.concat") {
+						it("should concatenate the values as the inner property is replaced and deinitialized") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
+
+							var flattenedProperty = Optional(outerProperty!.flatten(.concat))
+
+							flattenedProperty!.producer.start { event in
+								switch event {
+								case let .next(value):
+									receivedValues.append(value)
+								case .completed:
+									completed = true
+								case .failed:
+									errored = true
+								case .interrupted:
+									break
+								}
+							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0 ]
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							thirdProperty!.value = 22
+
+							expect(receivedValues) == [ 0 ]
+							expect(completed) == false
+
+							firstProperty = nil
+
+							expect(receivedValues) == [ 0, 12 ]
+							expect(completed) == false
+
+							secondProperty = nil
+
+							expect(receivedValues) == [ 0, 12, 22 ]
+							expect(completed) == false
+
+							outerProperty = nil
+							expect(completed) == false
+
+							thirdProperty = nil
+							expect(completed) == false
+
+							flattenedProperty = nil
+							expect(completed) == true
+							expect(errored) == false
+						}
+					}
+
+					describe("FlattenStrategy.merge") {
+						it("should merge the values of all inner properties") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
+
+							var flattenedProperty = Optional(outerProperty!.flatten(.merge))
+
+							flattenedProperty!.producer.start { event in
+								switch event {
+								case let .next(value):
+									receivedValues.append(value)
+								case .completed:
+									completed = true
+								case .failed:
+									errored = true
+								case .interrupted:
+									break
+								}
+							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21 ]
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							thirdProperty!.value = 22
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							firstProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							secondProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 12, 22 ]
+							expect(completed) == false
+
+							outerProperty = nil
+							expect(completed) == false
+
+							thirdProperty = nil
+							expect(completed) == false
+
+							flattenedProperty = nil
+							expect(completed) == true
+							expect(errored) == false
+						}
+					}
+
+					describe("FlattenStrategy.latest") {
+						it("should forward values from the latest inner property") {
+							let firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [Int] = []
+							var errored = false
+							var completed = false
+
+							outerProperty!.flatten(.latest).producer.start { event in
+								switch event {
+								case let .next(value):
+									receivedValues.append(value)
+								case .completed:
+									completed = true
+								case .failed:
+									errored = true
+								case .interrupted:
+									break
+								}
+							}
+
+							expect(receivedValues) == [ 0 ]
+
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21 ]
+							expect(errored) == false
+							expect(completed) == false
+
+							secondProperty!.value = 12
+							secondProperty = nil
+							thirdProperty!.value = 22
+							thirdProperty = nil
+
+							expect(receivedValues) == [ 0, 10, 11, 20, 21, 22 ]
+							expect(errored) == false
+							expect(completed) == false
+
+							outerProperty = nil
+							expect(errored) == false
+							expect(completed) == true
+						}
+
+						it("should release the old properties when switched or deallocated") {
+							var firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							weak var weakFirstProperty = firstProperty
+							weak var weakSecondProperty = secondProperty
+							weak var weakThirdProperty = thirdProperty
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+							var flattened = Optional(outerProperty!.flatten(.latest))
+
+							var errored = false
+							var completed = false
+
+							flattened!.producer.start { event in
+								switch event {
+								case .completed:
+									completed = true
+								case .failed:
+									errored = true
+								case .interrupted, .next:
+									break
+								}
+							}
+
+							firstProperty = nil
+							outerProperty!.value = secondProperty!
+							expect(weakFirstProperty).to(beNil())
+
+							secondProperty = nil
+							outerProperty!.value = thirdProperty!
+							expect(weakSecondProperty).to(beNil())
+
+							thirdProperty = nil
+							outerProperty = nil
+							flattened = nil
+							expect(weakThirdProperty).to(beNil())
+							expect(errored) == false
+							expect(completed) == true
+						}
+					}
+				}
+
+				describe("flatMap") {
+					describe("PropertyFlattenStrategy.latest") {
+						it("should forward values from the latest inner transformed property") {
+							let firstProperty = Optional(MutableProperty(0))
+							var secondProperty = Optional(MutableProperty(10))
+							var thirdProperty = Optional(MutableProperty(20))
+
+							var outerProperty = Optional(MutableProperty(firstProperty!))
+
+							var receivedValues: [String] = []
+							var errored = false
+							var completed = false
+
+							outerProperty!.flatMap(.latest) { $0.map { "\($0)" } }.producer.start { event in
+								switch event {
+								case let .next(value):
+									receivedValues.append(value)
+								case .completed:
+									completed = true
+								case .failed:
+									errored = true
+								case .interrupted:
+									break
+								}
+							}
+							
+							expect(receivedValues) == [ "0" ]
+							
+							outerProperty!.value = secondProperty!
+							secondProperty!.value = 11
+							outerProperty!.value = thirdProperty!
+							thirdProperty!.value = 21
+							
+							expect(receivedValues) == [ "0", "10", "11", "20", "21" ]
+							expect(errored) == false
+							expect(completed) == false
+							
+							secondProperty!.value = 12
+							secondProperty = nil
+							thirdProperty!.value = 22
+							thirdProperty = nil
+							
+							expect(receivedValues) == [ "0", "10", "11", "20", "21", "22" ]
+							expect(errored) == false
+							expect(completed) == false
+							
+							outerProperty = nil
+							expect(errored) == false
+							expect(completed) == true
+						}
+					}
 				}
 			}
 		}
 
 		describe("DynamicProperty") {
 			var object: ObservableObject!
-			var property: DynamicProperty!
+			var property: DynamicProperty<Int>!
 
 			let propertyValue: () -> Int? = {
 				if let value: AnyObject = property?.value {
@@ -383,7 +1145,7 @@ class PropertySpec: QuickSpec {
 				object = ObservableObject()
 				expect(object.rac_value) == 0
 
-				property = DynamicProperty(object: object, keyPath: "rac_value")
+				property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -407,7 +1169,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -423,7 +1185,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == [ 0 ]
@@ -439,7 +1201,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -455,7 +1217,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value as! Int)
+					values.append(value!)
 				}
 
 				expect(values) == []
@@ -473,7 +1235,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.producer.startWithCompleted {
 						completed = true
@@ -494,7 +1256,7 @@ class PropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 
 					property.signal.observeCompleted {
 						completed = true
@@ -510,7 +1272,7 @@ class PropertySpec: QuickSpec {
 			}
 
 			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty? = property
+				weak var dynamicProperty: DynamicProperty<Int>? = property
 				
 				property = nil
 				expect(dynamicProperty).toNot(beNil())
@@ -518,19 +1280,11 @@ class PropertySpec: QuickSpec {
 				object = nil
 				expect(dynamicProperty).to(beNil())
 			}
-		}
 
-		describe("map") {
-			it("should transform the current value and all subsequent values") {
-				let property = MutableProperty(1)
-				let mappedProperty = property
-					.map { $0 + 1 }
-					.map { $0 + 2 }
-
-				expect(mappedProperty.value) == 4
-
-				property.value = 2
-				expect(mappedProperty.value) == 5
+			it("should support un-bridged reference types") {
+				let dynamicProperty = DynamicProperty<UnbridgedObject>(object: object, keyPath: "rac_reference")
+				dynamicProperty.value = UnbridgedObject("foo")
+				expect(object.rac_reference.value) == "foo"
 			}
 		}
 
@@ -569,9 +1323,9 @@ class PropertySpec: QuickSpec {
 					
 					let bindingDisposable = mutableProperty <~ signal
 					
-					expect(bindingDisposable.disposed) == false
+					expect(bindingDisposable.isDisposed) == false
 					observer.sendCompleted()
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 				
 				it("should tear down the binding when the property deallocates") {
@@ -582,7 +1336,7 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = mutableProperty! <~ signal
 
 					mutableProperty = nil
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 
@@ -618,7 +1372,7 @@ class PropertySpec: QuickSpec {
 
 					observer.sendCompleted()
 
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 
 				it("should tear down the binding when the property deallocates") {
@@ -629,7 +1383,7 @@ class PropertySpec: QuickSpec {
 					let disposable = mutableProperty! <~ signalProducer
 
 					mutableProperty = nil
-					expect(disposable.disposed) == true
+					expect(disposable.isDisposed) == true
 				}
 			}
 
@@ -685,19 +1439,19 @@ class PropertySpec: QuickSpec {
 					let bindingDisposable = destinationProperty! <~ sourceProperty.producer
 					destinationProperty = nil
 
-					expect(bindingDisposable.disposed) == true
+					expect(bindingDisposable.isDisposed) == true
 				}
 			}
 
 			describe("to a dynamic property") {
 				var object: ObservableObject!
-				var property: DynamicProperty!
+				var property: DynamicProperty<Int>!
 
 				beforeEach {
 					object = ObservableObject()
 					expect(object.rac_value) == 0
 
-					property = DynamicProperty(object: object, keyPath: "rac_value")
+					property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
 				}
 
 				afterEach {
@@ -729,4 +1483,12 @@ class PropertySpec: QuickSpec {
 
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+}
+
+private class UnbridgedObject: NSObject {
+	let value: String
+	init(_ value: String) {
+		self.value = value
+	}
 }

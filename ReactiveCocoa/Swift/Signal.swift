@@ -15,7 +15,7 @@ import Result
 ///
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated.
-public final class Signal<Value, Error: ErrorType> {
+public final class Signal<Value, Error: ErrorProtocol> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
@@ -26,10 +26,10 @@ public final class Signal<Value, Error: ErrorType> {
 	/// The disposable returned from the closure will be automatically disposed
 	/// if a terminating event is sent to the observer. The Signal itself will
 	/// remain alive until the observer is released.
-	public init(@noescape _ generator: Observer -> Disposable?) {
+	public init(_ generator: @noescape (Observer) -> Disposable?) {
 
 		/// Used to ensure that events are serialized during delivery to observers.
-		let sendLock = NSLock()
+		let sendLock = Lock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
 		let generatorDisposable = SerialDisposable()
@@ -38,7 +38,7 @@ public final class Signal<Value, Error: ErrorType> {
 		let interrupted = Atomic(false)
 
 		let observer = Observer { event in
-			if case .Interrupted = event {
+			if case .interrupted = event {
 				// Normally we disallow recursive events, but
 				// Interrupted is kind of a special snowflake, since it
 				// can inadvertently be sent by downstream consumers.
@@ -48,7 +48,7 @@ public final class Signal<Value, Error: ErrorType> {
 				// we'll wait to deliver it.
 				interrupted.value = true
 
-				if sendLock.tryLock() {
+				if sendLock.try() {
 					self.interrupt()
 					sendLock.unlock()
 
@@ -125,26 +125,17 @@ public final class Signal<Value, Error: ErrorType> {
 	///
 	/// Returns a Disposable which can be used to disconnect the observer. Disposing
 	/// of the Disposable will have no effect on the Signal itself.
-	public func observe(observer: Observer) -> Disposable? {
+	@discardableResult
+	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
-			guard var observers = observers else {
-				return nil
-			}
-
-			token = observers.insert(observer)
-			return observers
+			token = observers?.insert(observer)
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				self?.atomicObservers.modify { observers in
-					guard var observers = observers else {
-						return nil
-					}
-
-					observers.removeValueForToken(token)
-					return observers
+				_ = self?.atomicObservers.modify { observers in
+					observers?.remove(using: token)
 				}
 			}
 		} else {
@@ -154,36 +145,33 @@ public final class Signal<Value, Error: ErrorType> {
 	}
 }
 
-public protocol SignalType {
+public protocol SignalProtocol {
 	/// The type of values being sent on the signal.
 	associatedtype Value
 	/// The type of error that can occur on the signal. If errors aren't possible
 	/// then `NoError` can be used.
-	associatedtype Error: ErrorType
+	associatedtype Error: ErrorProtocol
 
 	/// Extracts a signal from the receiver.
 	var signal: Signal<Value, Error> { get }
 
 	/// Observes the Signal by sending any future events to the given observer.
-	func observe(observer: Signal<Value, Error>.Observer) -> Disposable?
+	@discardableResult
+	func observe(_ observer: Signal<Value, Error>.Observer) -> Disposable?
 }
 
-extension Signal: SignalType {
+extension Signal: SignalProtocol {
 	public var signal: Signal {
 		return self
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Convenience override for observe(_:) to allow trailing-closure style
 	/// invocations.
-	public func observe(action: Signal<Value, Error>.Observer.Action) -> Disposable? {
+	@discardableResult
+	public func observe(_ action: Signal<Value, Error>.Observer.Action) -> Disposable? {
 		return observe(Observer(action))
-	}
-
-	@available(*, deprecated, message="This Signal may emit errors which must be handled explicitly, or observed using observeResult:")
-	public func observeNext(next: Value -> Void) -> Disposable? {
-		return observe(Observer(next: next))
 	}
 
 	/// Observes the Signal by invoking the given callback when
@@ -192,11 +180,12 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeResult(result: (Result<Value, Error>) -> Void) -> Disposable? {
+	@discardableResult
+	public func observeResult(_ result: (Result<Value, Error>) -> Void) -> Disposable? {
 		return observe(
 			Observer(
-				next: { result(.Success($0)) },
-				failed: { result(.Failure($0)) }
+				next: { result(.success($0)) },
+				failed: { result(.failure($0)) }
 			)
 		)
 	}
@@ -207,7 +196,8 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeCompleted(completed: () -> Void) -> Disposable? {
+	@discardableResult
+	public func observeCompleted(_ completed: () -> Void) -> Disposable? {
 		return observe(Observer(completed: completed))
 	}
 	
@@ -217,7 +207,8 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeFailed(error: Error -> Void) -> Disposable? {
+	@discardableResult
+	public func observeFailed(_ error: (Error) -> Void) -> Disposable? {
 		return observe(Observer(failed: error))
 	}
 	
@@ -228,27 +219,28 @@ extension SignalType {
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeInterrupted(interrupted: () -> Void) -> Disposable? {
+	@discardableResult
+	public func observeInterrupted(_ interrupted: () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
 }
 
-extension SignalType where Error == NoError {
+extension SignalProtocol where Error == NoError {
 	/// Observes the Signal by invoking the given callback when `next` events are
 	/// received.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
 	/// callbacks. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
-	public func observeNext(next: Value -> Void) -> Disposable? {
+	@discardableResult
+	public func observeNext(_ next: (Value) -> Void) -> Disposable? {
 		return observe(Observer(next: next))
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Maps each value in the signal to a new value.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func map<U>(transform: Value -> U) -> Signal<U, Error> {
+	public func map<U>(_ transform: (Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				observer.action(event.map(transform))
@@ -257,8 +249,7 @@ extension SignalType {
 	}
 
 	/// Maps errors in the signal to a new error.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func mapError<F>(transform: Error -> F) -> Signal<Value, F> {
+	public func mapError<F>(_ transform: (Error) -> F) -> Signal<Value, F> {
 		return Signal { observer in
 			return self.observe { event in
 				observer.action(event.mapError(transform))
@@ -267,8 +258,7 @@ extension SignalType {
 	}
 
 	/// Preserves only the values of the signal that pass the given predicate.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {
+	public func filter(_ predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { (event: Event<Value, Error>) -> Void in
 				guard let value = event.value else {
@@ -284,19 +274,17 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Value: OptionalType {
+extension SignalProtocol where Value: OptionalProtocol {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func ignoreNil() -> Signal<Value.Wrapped, Error> {
 		return filter { $0.optional != nil }.map { $0.optional! }
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Returns a signal that will yield the first `count` values from `self`
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func take(count: Int) -> Signal<Value, Error> {
+	public func take(first count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		return Signal { observer in
@@ -332,7 +320,7 @@ private final class CollectState<Value> {
 	var values: [Value] = []
 
 	/// Collects a new value.
-	func append(value: Value) {
+	func append(_ value: Value) {
 		values.append(value)
 	}
 
@@ -354,19 +342,18 @@ private final class CollectState<Value> {
 		// Minor optimization to avoid consecutive allocations. Can
 		// be useful for sequences of regular or similar size and to
 		// track if any value was ever collected.
-		values.removeAll(keepCapacity: true)
+		values.removeAll(keepingCapacity: true)
 	}
 }
 
 
-extension SignalType {
+extension SignalProtocol {
 
 	/// Returns a signal that will yield an array of values when `self` completes.
 	///
 	/// - Note: When `self` completes without collecting any value, it will send
 	/// an empty array of values.
 	///
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func collect() -> Signal<[Value], Error> {
 		return collect { _,_ in false }
 	}
@@ -383,8 +370,7 @@ extension SignalType {
 	/// array may not have `count` values. Alternatively, if were not collected 
 	/// any values will sent an empty array of values.
 	///
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(count count: Int) -> Signal<[Value], Error> {
+	public func collect(count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
 		return collect { values in values.count == count }
 	}
@@ -424,27 +410,26 @@ extension SignalType {
 	///     // [7, 1]
 	///     // [5, 6]
 	///
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(predicate: (values: [Value]) -> Bool) -> Signal<[Value], Error> {
+	public func collect(_ predicate: (values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
 
 			return self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					state.append(value)
 					if predicate(values: state.values) {
 						observer.sendNext(state.values)
 						state.flush()
 					}
-				case .Completed:
+				case .completed:
 					if !state.isEmpty {
 						observer.sendNext(state.values)
 					}
 					observer.sendCompleted()
-				case let .Failed(error):
+				case let .failed(error):
 					observer.sendFailed(error)
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
@@ -484,27 +469,26 @@ extension SignalType {
 	///     // [1, 1]
 	///     // [7]
 	///     // [7, 5, 6]
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
+	public func collect(_ predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
 
 			return self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					if predicate(values: state.values, next: value) {
 						observer.sendNext(state.values)
 						state.flush()
 					}
 					state.append(value)
-				case .Completed:
+				case .completed:
 					if !state.isEmpty {
 						observer.sendNext(state.values)
 					}
 					observer.sendCompleted()
-				case let .Failed(error):
+				case let .failed(error):
 					observer.sendFailed(error)
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
@@ -513,7 +497,7 @@ extension SignalType {
 
 	/// Forwards all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func observeOn(scheduler: SchedulerType) -> Signal<Value, Error> {
+	public func observe(on scheduler: SchedulerProtocol) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				scheduler.schedule {
@@ -526,14 +510,14 @@ extension SignalType {
 
 private final class CombineLatestState<Value> {
 	var latestValue: Value?
-	var completed = false
+	var isCompleted = false
 }
 
-extension SignalType {
-	private func observeWithStates<U>(signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
+extension SignalProtocol {
+	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: Lock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
 		return self.observe { event in
 			switch event {
-			case let .Next(value):
+			case let .next(value):
 				lock.lock()
 
 				signalState.latestValue = value
@@ -543,20 +527,20 @@ extension SignalType {
 
 				lock.unlock()
 
-			case let .Failed(error):
+			case let .failed(error):
 				observer.sendFailed(error)
 
-			case .Completed:
+			case .completed:
 				lock.lock()
 
-				signalState.completed = true
-				if otherState.completed {
+				signalState.isCompleted = true
+				if otherState.isCompleted {
 					observer.sendCompleted()
 				}
 
 				lock.unlock()
 
-			case .Interrupted:
+			case .interrupted:
 				observer.sendInterrupted()
 			}
 		}
@@ -568,10 +552,9 @@ extension SignalType {
 	/// The returned signal will not send a value until both inputs have sent
 	/// at least one value each. If either signal is interrupted, the returned signal
 	/// will also be interrupted.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
+	public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
-			let lock = NSLock()
+			let lock = Lock()
 			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
 
 			let signalState = CombineLatestState<Value>()
@@ -585,7 +568,7 @@ extension SignalType {
 
 			let disposable = CompositeDisposable()
 			disposable += self.observeWithStates(signalState, otherState, lock, observer)
-			disposable += otherSignal.observeWithStates(otherState, signalState, lock, observer)
+			disposable += other.observeWithStates(otherState, signalState, lock, observer)
 			
 			return disposable
 		}
@@ -595,21 +578,20 @@ extension SignalType {
 	/// them on the given scheduler.
 	///
 	/// `Failed` and `Interrupted` events are always scheduled immediately.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+	public func delay(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
-				case .Failed, .Interrupted:
+				case .failed, .interrupted:
 					scheduler.schedule {
 						observer.action(event)
 					}
 
-				case .Next, .Completed:
-					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-					scheduler.scheduleAfter(date) {
+				case .next, .completed:
+					let date = scheduler.currentDate.addingTimeInterval(interval)
+					scheduler.schedule(after: date) {
 						observer.action(event)
 					}
 				}
@@ -619,8 +601,7 @@ extension SignalType {
 
 	/// Returns a signal that will skip the first `count` values, then forward
 	/// everything afterward.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skip(count: Int) -> Signal<Value, Error> {
+	public func skip(first count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		if count == 0 {
@@ -631,7 +612,7 @@ extension SignalType {
 			var skipped = 0
 
 			return self.observe { event in
-				if case .Next = event where skipped < count {
+				if case .next = event where skipped < count {
 					skipped += 1
 				} else {
 					observer.action(event)
@@ -648,20 +629,19 @@ extension SignalType {
 	/// When a Completed or Failed event is received, the resulting signal will send
 	/// the Event itself and then complete. When an Interrupted event is received,
 	/// the resulting signal will send the Event itself and then interrupt.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func materialize() -> Signal<Event<Value, Error>, NoError> {
 		return Signal { observer in
 			return self.observe { event in
 				observer.sendNext(event)
 
 				switch event {
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 
-				case .Completed, .Failed:
+				case .completed, .failed:
 					observer.sendCompleted()
 
-				case .Next:
+				case .next:
 					break
 				}
 			}
@@ -669,24 +649,23 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Value: EventType, Error == NoError {
+extension SignalProtocol where Value: EventProtocol, Error == NoError {
 	/// The inverse of materialize(), this will translate a signal of `Event`
 	/// _values_ into a signal of those events themselves.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func dematerialize() -> Signal<Value.Value, Value.Error> {
 		return Signal<Value.Value, Value.Error> { observer in
 			return self.observe { event in
 				switch event {
-				case let .Next(innerEvent):
+				case let .next(innerEvent):
 					observer.action(innerEvent.event)
 
-				case .Failed:
+				case .failed:
 					fatalError("NoError is impossible to construct")
 
-				case .Completed:
+				case .completed:
 					observer.sendCompleted()
 
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
@@ -694,29 +673,28 @@ extension SignalType where Value: EventType, Error == NoError {
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Injects side effects to be performed upon the specified signal events.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func on(event event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> Signal<Value, Error> {
+	public func on(event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
-			_ = disposed.map(disposable.addDisposable)
+			_ = disposed.map(disposable.add)
 
 			disposable += signal.observe { receivedEvent in
 				event?(receivedEvent)
 
 				switch receivedEvent {
-				case let .Next(value):
+				case let .next(value):
 					next?(value)
 
-				case let .Failed(error):
+				case let .failed(error):
 					failed?(error)
 
-				case .Completed:
+				case .completed:
 					completed?()
 
-				case .Interrupted:
+				case .interrupted:
 					interrupted?()
 				}
 
@@ -734,11 +712,11 @@ extension SignalType {
 
 private struct SampleState<Value> {
 	var latestValue: Value? = nil
-	var signalCompleted: Bool = false
-	var samplerCompleted: Bool = false
+	var isSignalCompleted: Bool = false
+	var isSamplerCompleted: Bool = false
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
 	/// only when`sampler` sends a Next event.
 	///
@@ -748,56 +726,49 @@ extension SignalType {
 	/// Returns a signal that will send values from `self` and `sampler`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func sampleWith<T>(sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
+	public func sample<T>(with sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
 		return Signal { observer in
 			let state = Atomic(SampleState<Value>())
 			let disposable = CompositeDisposable()
 
 			disposable += self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					state.modify { st in
-						var st = st
 						st.latestValue = value
-						return st
 					}
-				case let .Failed(error):
+				case let .failed(error):
 					observer.sendFailed(error)
-				case .Completed:
+				case .completed:
 					let oldState = state.modify { st in
-						var st = st
-						st.signalCompleted = true
-						return st
+						st.isSignalCompleted = true
 					}
 					
-					if oldState.samplerCompleted {
+					if oldState.isSamplerCompleted {
 						observer.sendCompleted()
 					}
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
 			
 			disposable += sampler.observe { event in
 				switch event {
-				case .Next(let samplerValue):
+				case .next(let samplerValue):
 					if let value = state.value.latestValue {
 						observer.sendNext((value, samplerValue))
 					}
-				case .Completed:
+				case .completed:
 					let oldState = state.modify { st in
-						var st = st
-						st.samplerCompleted = true
-						return st
+						st.isSamplerCompleted = true
 					}
 					
-					if oldState.signalCompleted {
+					if oldState.isSignalCompleted {
 						observer.sendCompleted()
 					}
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
-				case .Failed:
+				case .failed:
 					break
 				}
 			}
@@ -815,9 +786,8 @@ extension SignalType {
 	/// Returns a signal that will send values from `self`, sampled (possibly
 	/// multiple times) by `sampler`, then complete once both input signals have
 	/// completed, or interrupt if either input signal is interrupted.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
-		return sampleWith(sampler)
+	public func sample(on sampler: Signal<(), NoError>) -> Signal<Value, Error> {
+		return sample(with: sampler)
 			.map { $0.0 }
 	}
 
@@ -830,18 +800,17 @@ extension SignalType {
 
 	/// Forwards events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned signal will complete.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func take(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 			disposable += self.observe(observer)
 
 			disposable += trigger.observe { event in
 				switch event {
-				case .Next, .Completed:
+				case .next, .completed:
 					observer.sendCompleted()
 
-				case .Failed, .Interrupted:
+				case .failed, .interrupted:
 					break
 				}
 			}
@@ -853,17 +822,16 @@ extension SignalType {
 	/// Does not forward any values from `self` until `trigger` sends a Next or
 	/// Completed event, at which point the returned signal behaves exactly like
 	/// `signal`.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
+	public func skip(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = SerialDisposable()
 			
 			disposable.innerDisposable = trigger.observe { event in
 				switch event {
-				case .Next, .Completed:
+				case .next, .completed:
 					disposable.innerDisposable = self.observe(observer)
 					
-				case .Failed, .Interrupted:
+				case .failed, .interrupted:
 					break
 				}
 			}
@@ -876,21 +844,19 @@ extension SignalType {
 	/// are a tuple whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func combinePrevious(initial: Value) -> Signal<(Value, Value), Error> {
+	public func combinePrevious(_ initial: Value) -> Signal<(Value, Value), Error> {
 		return scan((initial, initial)) { previousCombinedValues, newValue in
 			return (previousCombinedValues.1, newValue)
 		}
 	}
 
 	/// Like `scan`, but sends only the final value and then immediately completes.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
+	public func reduce<U>(_ initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before taking
 		// the last value).
 		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal<U, Error>.pipe()
-		let outputSignal = scannedSignalWithInitialValue.takeLast(1)
+		let outputSignal = scannedSignalWithInitialValue.take(last: 1)
 
 		// Now that we've got takeLast() listening to the piped signal, send that initial value.
 		outputSignalObserver.sendNext(initial)
@@ -906,8 +872,7 @@ extension SignalType {
 	/// that emitted value as the second argument. The result is emitted from the
 	/// signal returned from `scan`. That result is then passed to `combine` as the
 	/// first argument when the next value is emitted, and so on.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func scan<U>(initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
+	public func scan<U>(_ initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in
 			var accumulator = initial
 
@@ -921,20 +886,18 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Value: Equatable {
+extension SignalProtocol where Value: Equatable {
 	/// Forwards only those values from `self` which are not duplicates of the
 	/// immedately preceding value. The first value is always forwarded.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats() -> Signal<Value, Error> {
 		return skipRepeats(==)
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Forwards only those values from `self` which do not pass `isRepeat` with
 	/// respect to the previous value. The first value is always forwarded.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
+	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
 		return self
 			.scan((nil, false)) { (accumulated: (Value?, Bool), next: Value) -> (value: Value?, repeated: Bool) in
 				switch accumulated.0 {
@@ -953,50 +916,48 @@ extension SignalType {
 
 	/// Does not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `signal`.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func skipWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
+	public func skip(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			var shouldSkip = true
 
 			return self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					shouldSkip = shouldSkip && predicate(value)
 					if !shouldSkip {
 						fallthrough
 					}
 
-				case .Failed, .Completed, .Interrupted:
+				case .failed, .completed, .interrupted:
 					observer.action(event)
 				}
 			}
 		}
 	}
 
-	/// Forwards events from `self` until `replacement` begins sending events.
+	/// Forwards events from `self` until `signal` begins sending events.
 	///
 	/// Returns a signal which passes through `Next`, `Failed`, and `Interrupted`
 	/// events from `signal` until `replacement` sends an event, at which point the
 	/// returned signal will send that event and switch to passing through events
 	/// from `replacement` instead, regardless of whether `self` has sent events
 	/// already.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeUntilReplacement(replacement: Signal<Value, Error>) -> Signal<Value, Error> {
+	public func take(untilReplacement signal: Signal<Value, Error>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
 			let signalDisposable = self.observe { event in
 				switch event {
-				case .Completed:
+				case .completed:
 					break
 
-				case .Next, .Failed, .Interrupted:
+				case .next, .failed, .interrupted:
 					observer.action(event)
 				}
 			}
 
 			disposable += signalDisposable
-			disposable += replacement.observe { event in
+			disposable += signal.observe { event in
 				signalDisposable?.dispose()
 				observer.action(event)
 			}
@@ -1007,29 +968,28 @@ extension SignalType {
 
 	/// Waits until `self` completes and then forwards the final `count` values
 	/// on the returned signal.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeLast(count: Int) -> Signal<Value, Error> {
+	public func take(last count: Int) -> Signal<Value, Error> {
 		return Signal { observer in
 			var buffer: [Value] = []
 			buffer.reserveCapacity(count)
 
 			return self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					// To avoid exceeding the reserved capacity of the buffer, we remove then add.
 					// Remove elements until we have room to add one more.
 					while (buffer.count + 1) > count {
-						buffer.removeAtIndex(0)
+						buffer.remove(at: 0)
 					}
 					
 					buffer.append(value)
-				case let .Failed(error):
+				case let .failed(error):
 					observer.sendFailed(error)
-				case .Completed:
+				case .completed:
 					buffer.forEach(observer.sendNext)
 					
 					observer.sendCompleted()
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
@@ -1038,8 +998,7 @@ extension SignalType {
 
 	/// Forwards any values from `self` until `predicate` returns false,
 	/// at which point the returned signal will complete.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
+	public func take(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				if let value = event.value where !predicate(value) {
@@ -1061,11 +1020,10 @@ private struct ZipState<Left, Right> {
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Zips elements of two signals into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input signals.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func zipWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
+	public func zip<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
 			let state = Atomic(ZipState<Value, U>())
 			let disposable = CompositeDisposable()
@@ -1077,13 +1035,11 @@ extension SignalType {
 				state.modify { state in
 					guard !state.values.left.isEmpty && !state.values.right.isEmpty else {
 						isFinished = state.isFinished
-						return state
+						return
 					}
 
-					var state = state
 					tuple = (state.values.left.removeFirst(), state.values.right.removeFirst())
 					isFinished = state.isFinished
-					return state
 				}
 
 				if let tuple = tuple {
@@ -1100,50 +1056,42 @@ extension SignalType {
 
 			disposable += self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					state.modify { state in
-						var state = state
 						state.values.left.append(value)
-						return state
 					}
 					
 					flush()
-				case let .Failed(error):
+				case let .failed(error):
 					onFailed(error)
-				case .Completed:
+				case .completed:
 					state.modify { state in
-						var state = state
 						state.isCompleted.left = true
-						return state
 					}
 					
 					flush()
-				case .Interrupted:
+				case .interrupted:
 					onInterrupted()
 				}
 			}
 
-			disposable += otherSignal.observe { event in
+			disposable += other.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					state.modify { state in
-						var state = state
 						state.values.right.append(value)
-						return state
 					}
 					
 					flush()
-				case let .Failed(error):
+				case let .failed(error):
 					onFailed(error)
-				case .Completed:
+				case .completed:
 					state.modify { state in
-						var state = state
 						state.isCompleted.right = true
-						return state
 					}
 					
 					flush()
-				case .Interrupted:
+				case .interrupted:
 					onInterrupted()
 				}
 			}
@@ -1154,8 +1102,7 @@ extension SignalType {
 
 	/// Applies `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func attempt(operation: Value -> Result<(), Error>) -> Signal<Value, Error> {
+	public func attempt(_ operation: (Value) -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
 			return operation(value).map {
 				return value
@@ -1165,21 +1112,20 @@ extension SignalType {
 
 	/// Applies `operation` to values from `self` with `Success`ful results mapped
 	/// on the returned signal and `Failure`s sent as `Failed` events.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> Signal<U, Error> {
+	public func attemptMap<U>(_ operation: (Value) -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
 			self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					operation(value).analysis(
 						ifSuccess: observer.sendNext,
 						ifFailure: observer.sendFailed
 					)
-				case let .Failed(error):
+				case let .failed(error):
 					observer.sendFailed(error)
-				case .Completed:
+				case .completed:
 					observer.sendCompleted()
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}
@@ -1194,8 +1140,7 @@ extension SignalType {
 	///
 	/// If the input signal terminates while a value is being throttled, that value
 	/// will be discarded and the returned signal will terminate immediately.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+	public func throttle(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
@@ -1203,7 +1148,7 @@ extension SignalType {
 			let schedulerDisposable = SerialDisposable()
 
 			let disposable = CompositeDisposable()
-			disposable.addDisposable(schedulerDisposable)
+			disposable += schedulerDisposable
 
 			disposable += self.observe { event in
 				guard let value = event.value else {
@@ -1213,27 +1158,20 @@ extension SignalType {
 					return
 				}
 
-				var scheduleDate: NSDate!
+				var scheduleDate: Date!
 				state.modify { state in
-					var state = state
 					state.pendingValue = value
 
-					let proposedScheduleDate = state.previousDate?.dateByAddingTimeInterval(interval) ?? scheduler.currentDate
-					scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
-
-					return state
+					let proposedScheduleDate = state.previousDate?.addingTimeInterval(interval) ?? scheduler.currentDate
+					scheduleDate = (proposedScheduleDate as NSDate).laterDate(scheduler.currentDate)
 				}
 
-				schedulerDisposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
 					let previousState = state.modify { state in
-						var state = state
-
 						if state.pendingValue != nil {
 							state.pendingValue = nil
 							state.previousDate = scheduleDate
 						}
-
-						return state
 					}
 					
 					if let pendingValue = previousState.pendingValue {
@@ -1255,44 +1193,42 @@ extension SignalType {
 	///
 	/// If the input signal terminates while a value is being debounced, that value
 	/// will be discarded and the returned signal will terminate immediately.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+	public func debounce(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 		
 		return self
 			.materialize()
-			.flatMap(.Latest) { event -> SignalProducer<Event<Value, Error>, NoError> in
+			.flatMap(.latest) { event -> SignalProducer<Event<Value, Error>, NoError> in
 				if event.isTerminating {
-					return SignalProducer(value: event).observeOn(scheduler)
+					return SignalProducer(value: event).observe(on: scheduler)
 				} else {
-					return SignalProducer(value: event).delay(interval, onScheduler: scheduler)
+					return SignalProducer(value: event).delay(interval, on: scheduler)
 				}
 			}
 			.dematerialize()
 	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Forwards only those values from `self` that have unique identities across the set of
 	/// all values that have been seen.
 	///
 	/// Note: This causes the identities to be retained to check for uniqueness.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> Signal<Value, Error> {
+	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> Signal<Value, Error> {
 		return Signal { observer in
 			var seenValues: Set<Identity> = []
 			
 			return self
 				.observe { event in
 					switch event {
-					case let .Next(value):
+					case let .next(value):
 						let identity = transform(value)
 						if !seenValues.contains(identity) {
 							seenValues.insert(identity)
 							fallthrough
 						}
 						
-					case .Failed, .Completed, .Interrupted:
+					case .failed, .completed, .interrupted:
 						observer.action(event)
 					}
 				}
@@ -1300,227 +1236,207 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Value: Hashable {
+extension SignalProtocol where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
 	/// Note: This causes the values to be retained to check for uniqueness. Providing
 	/// a function that returns a unique value for each sent value can help you reduce
 	/// the memory footprint.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues() -> Signal<Value, Error> {
 		return uniqueValues { $0 }
 	}
 }
 
 private struct ThrottleState<Value> {
-	var previousDate: NSDate? = nil
+	var previousDate: Date? = nil
 	var pendingValue: Value? = nil
 }
 
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
-	return a.combineLatestWith(b)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return combineLatest(a, b)
-		.combineLatestWith(c)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return combineLatest(a, b, c)
-		.combineLatestWith(d)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return combineLatest(a, b, c, d)
-		.combineLatestWith(e)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return combineLatest(a, b, c, d, e)
-		.combineLatestWith(f)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return combineLatest(a, b, c, d, e, f)
-		.combineLatestWith(g)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return combineLatest(a, b, c, d, e, f, g)
-		.combineLatestWith(h)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h)
-		.combineLatestWith(i)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return combineLatest(a, b, c, d, e, f, g, h, i)
-		.combineLatestWith(j)
-		.map(repack)
-}
-
-/// Combines the values of all the given signals, in the manner described by
-/// `combineLatestWith`. No events will be sent if the sequence is empty.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func combineLatest<S: SequenceType, Value, Error where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<[Value], Error> {
-	var generator = signals.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { signal, next in
-			signal.combineLatestWith(next).map { $0.0 + [$0.1] }
-		}
+extension SignalProtocol {
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>) -> Signal<(Value, B), Error> {
+		return a.combineLatest(with: b)
 	}
-	
-	return .never
-}
 
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
-	return a.zipWith(b)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(A, B, C), Error> {
-	return zip(a, b)
-		.zipWith(c)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(A, B, C, D), Error> {
-	return zip(a, b, c)
-		.zipWith(d)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(A, B, C, D, E), Error> {
-	return zip(a, b, c, d)
-		.zipWith(e)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, F, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(A, B, C, D, E, F), Error> {
-	return zip(a, b, c, d, e)
-		.zipWith(f)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, F, G, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(A, B, C, D, E, F, G), Error> {
-	return zip(a, b, c, d, e, f)
-		.zipWith(g)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, F, G, H, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(A, B, C, D, E, F, G, H), Error> {
-	return zip(a, b, c, d, e, f, g)
-		.zipWith(h)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, F, G, H, I, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(A, B, C, D, E, F, G, H, I), Error> {
-	return zip(a, b, c, d, e, f, g, h)
-		.zipWith(i)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<A, B, C, D, E, F, G, H, I, J, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(A, B, C, D, E, F, G, H, I, J), Error> {
-	return zip(a, b, c, d, e, f, g, h, i)
-		.zipWith(j)
-		.map(repack)
-}
-
-/// Zips the values of all the given signals, in the manner described by
-/// `zipWith`. No events will be sent if the sequence is empty.
-@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-public func zip<S: SequenceType, Value, Error where S.Generator.Element == Signal<Value, Error>>(signals: S) -> Signal<[Value], Error> {
-	var generator = signals.generate()
-	if let first = generator.next() {
-		let initial = first.map { [$0] }
-		return GeneratorSequence(generator).reduce(initial) { signal, next in
-			signal.zipWith(next).map { $0.0 + [$0.1] }
-		}
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(Value, B, C), Error> {
+		return combineLatest(a, b)
+			.combineLatest(with: c)
+			.map(repack)
 	}
-	
-	return .never
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(Value, B, C, D), Error> {
+		return combineLatest(a, b, c)
+			.combineLatest(with: d)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(Value, B, C, D, E), Error> {
+		return combineLatest(a, b, c, d)
+			.combineLatest(with: e)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(Value, B, C, D, E, F), Error> {
+		return combineLatest(a, b, c, d, e)
+			.combineLatest(with: f)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(Value, B, C, D, E, F, G), Error> {
+		return combineLatest(a, b, c, d, e, f)
+			.combineLatest(with: g)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(Value, B, C, D, E, F, G, H), Error> {
+		return combineLatest(a, b, c, d, e, f, g)
+			.combineLatest(with: h)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H, I>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I), Error> {
+		return combineLatest(a, b, c, d, e, f, g, h)
+			.combineLatest(with: i)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`.
+	public static func combineLatest<B, C, D, E, F, G, H, I, J>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I, J), Error> {
+		return combineLatest(a, b, c, d, e, f, g, h, i)
+			.combineLatest(with: j)
+			.map(repack)
+	}
+
+	/// Combines the values of all the given signals, in the manner described by
+	/// `combineLatestWith`. No events will be sent if the sequence is empty.
+	public static func combineLatest<S: Sequence where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
+		var generator = signals.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { signal, next in
+				signal.combineLatest(with: next).map { $0.0 + [$0.1] }
+			}
+		}
+		
+		return .never
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>) -> Signal<(Value, B), Error> {
+		return a.zip(with: b)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>) -> Signal<(Value, B, C), Error> {
+		return zip(a, b)
+			.zip(with: c)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>) -> Signal<(Value, B, C, D), Error> {
+		return zip(a, b, c)
+			.zip(with: d)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>) -> Signal<(Value, B, C, D, E), Error> {
+		return zip(a, b, c, d)
+			.zip(with: e)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>) -> Signal<(Value, B, C, D, E, F), Error> {
+		return zip(a, b, c, d, e)
+			.zip(with: f)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>) -> Signal<(Value, B, C, D, E, F, G), Error> {
+		return zip(a, b, c, d, e, f)
+			.zip(with: g)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>) -> Signal<(Value, B, C, D, E, F, G, H), Error> {
+		return zip(a, b, c, d, e, f, g)
+			.zip(with: h)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H, I>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I), Error> {
+		return zip(a, b, c, d, e, f, g, h)
+			.zip(with: i)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`.
+	public static func zip<B, C, D, E, F, G, H, I, J>(_ a: Signal<Value, Error>, _ b: Signal<B, Error>, _ c: Signal<C, Error>, _ d: Signal<D, Error>, _ e: Signal<E, Error>, _ f: Signal<F, Error>, _ g: Signal<G, Error>, _ h: Signal<H, Error>, _ i: Signal<I, Error>, _ j: Signal<J, Error>) -> Signal<(Value, B, C, D, E, F, G, H, I, J), Error> {
+		return zip(a, b, c, d, e, f, g, h, i)
+			.zip(with: j)
+			.map(repack)
+	}
+
+	/// Zips the values of all the given signals, in the manner described by
+	/// `zipWith`. No events will be sent if the sequence is empty.
+	public static func zip<S: Sequence where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
+		var generator = signals.makeIterator()
+		if let first = generator.next() {
+			let initial = first.map { [$0] }
+			return IteratorSequence(generator).reduce(initial) { signal, next in
+				signal.zip(with: next).map { $0.0 + [$0.1] }
+			}
+		}
+		
+		return .never
+	}
 }
 
-extension SignalType {
+extension SignalProtocol {
 	/// Forwards events from `self` until `interval`. Then if signal isn't completed yet,
 	/// fails with `error` on `scheduler`.
 	///
 	/// If the interval is 0, the timeout will be scheduled immediately. The signal
 	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func timeoutWithError(error: Error, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
+	public func timeout(after interval: TimeInterval, raising error: Error, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
 
 		return Signal { observer in
 			let disposable = CompositeDisposable()
-			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+			let date = scheduler.currentDate.addingTimeInterval(interval)
 
-			disposable += scheduler.scheduleAfter(date) {
+			disposable += scheduler.schedule(after: date) {
 				observer.sendFailed(error)
 			}
 
@@ -1530,24 +1446,23 @@ extension SignalType {
 	}
 }
 
-extension SignalType where Error == NoError {
+extension SignalProtocol where Error == NoError {
 	/// Promotes a signal that does not generate failures into one that can.
 	///
 	/// This does not actually cause failures to be generated for the given signal,
 	/// but makes it easier to combine with other signals that may fail; for
 	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
-	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
-	public func promoteErrors<F: ErrorType>(_: F.Type) -> Signal<Value, F> {
+	public func promoteErrors<F: ErrorProtocol>(_: F.Type) -> Signal<Value, F> {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
-				case let .Next(value):
+				case let .next(value):
 					observer.sendNext(value)
-				case .Failed:
+				case .failed:
 					fatalError("NoError is impossible to construct")
-				case .Completed:
+				case .completed:
 					observer.sendCompleted()
-				case .Interrupted:
+				case .interrupted:
 					observer.sendInterrupted()
 				}
 			}

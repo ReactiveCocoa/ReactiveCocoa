@@ -34,27 +34,9 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform mac
+        - carthage build --no-skip-current
       env:
-        - JOB=CARTHAGE_MACOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform ios
-      env:
-        - JOB=CARTHAGE_IOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform tvos
-      env:
-        - JOB=CARTHAGE_TVOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform watchos
-      env:
-        - JOB=CARTHAGE_WATCHOS
+        - JOB=CARTHAGE
     - xcode_scheme: ReactiveCocoa-Mac
       osx_image: xcode8
       env:
@@ -83,31 +65,10 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform mac
+        - carthage build --no-skip-current
       osx_image: xcode8
       env:
-        - JOB=CARTHAGE_MACOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform ios
-      osx_image: xcode8
-      env:
-        - JOB=CARTHAGE_IOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform tvos
-      osx_image: xcode8
-      env:
-        - JOB=CARTHAGE_TVOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform watchos
-      osx_image: xcode8
-      env:
-        - JOB=CARTHAGE_WATCHOS
+        - JOB=CARTHAGE
 notifications:
   email: false
   slack:

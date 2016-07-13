@@ -654,9 +654,17 @@ extension SignalType {
 	/// Combines the latest value of the receiver with the latest value from
 	/// the given signal.
 	///
-	/// The returned signal will not send a value until both inputs have sent
-	/// at least one value each. If either signal is interrupted, the returned signal
-	/// will also be interrupted.
+	/// - note: The returned signal will not send a value until both inputs have
+	///         sent at least one value each.
+	///
+	/// - note: If either signal is interrupted, the returned signal will also 
+	///         be interrupted.
+	///
+	/// - parameters:
+	///   - otherSignal: A signal to combine `self`'s value with.
+	///
+	/// - returns: A signal that will yield a tuple containing values of `self`
+	///            and given signal.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
@@ -683,7 +691,15 @@ extension SignalType {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// `Failed` and `Interrupted` events are always scheduled immediately.
+	/// - note: `Failed` and `Interrupted` events are always scheduled 
+	///         immediately.
+	///
+	/// - parameters:
+	///   - interval: Interval to delay `Next` and `Completed` events by.
+	///   - scheduler: A scheduler to deliver delayed events on.
+	///
+	/// - returns: A signal that will delay `Next` and `Completed` events and
+	///            will yield them on given scheduler.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -706,8 +722,13 @@ extension SignalType {
 		}
 	}
 
-	/// Returns a signal that will skip the first `count` values, then forward
-	/// everything afterward.
+	/// Skip first `count` number of values then act as usual.
+	///
+	/// - parameters:
+	///   - count: A number of values to skip.
+	///
+	/// - returns:  Returns a signal that will skip the first `count` values, 
+	///             then forward everything afterward.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skip(count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
@@ -729,14 +750,17 @@ extension SignalType {
 		}
 	}
 
-	/// Treats all Events from `self` as plain values, allowing them to be manipulated
-	/// just like any other value.
+	/// Treat all Events from `self` as plain values, allowing them to be 
+	/// manipulated just like any other value.
 	///
-	/// In other words, this brings Events “into the monad.”
+	/// In other words, this brings Events “into the monad”.
 	///
-	/// When a Completed or Failed event is received, the resulting signal will send
-	/// the Event itself and then complete. When an Interrupted event is received,
-	/// the resulting signal will send the Event itself and then interrupt.
+	/// - note: When a Completed or Failed event is received, the resulting 
+	///         signal will send the Event itself and then complete. When an 
+	///         Interrupted event is received, the resulting signal will send 
+	///         the Event itself and then interrupt.
+	///
+	/// - returns: A signal that sends events as its values.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func materialize() -> Signal<Event<Value, Error>, NoError> {
 		return Signal { observer in
@@ -759,8 +783,10 @@ extension SignalType {
 }
 
 extension SignalType where Value: EventType, Error == NoError {
-	/// The inverse of materialize(), this will translate a signal of `Event`
-	/// _values_ into a signal of those events themselves.
+	/// Translate a signal of `Event` _values_ into a signal of those events
+	/// themselves.
+	///
+	/// - returns: A signal that sends values carried by `self` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func dematerialize() -> Signal<Value.Value, Value.Error> {
 		return Signal<Value.Value, Value.Error> { observer in

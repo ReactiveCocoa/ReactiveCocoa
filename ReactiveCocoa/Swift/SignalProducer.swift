@@ -619,9 +619,9 @@ extension SignalProducerProtocol {
 		return lift(Signal.sample(on:))(sampler)
 	}
 
-	/// Forwards events from `self` until `object` deinitializes, at which point the
-	/// returned producer will complete.
-	public func take<U: LifetimeProviding>(withinLifetime object: U) -> SignalProducer<Value, Error> {
+	/// Forwards events from `self` within the lifetime of `object`, and the
+	/// returned producer will complete when `object` deinitializes.
+	public func take<U: LifetimeProviding>(withinLifetimeOf object: U) -> SignalProducer<Value, Error> {
 		return take(until: object.lifetimeProducer)
 	}
 

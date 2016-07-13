@@ -11,7 +11,7 @@ final class LifetimeSpec: QuickSpec {
 				var object: NSObject? = NSObject()
 				var values = [Int]()
 
-				signal.take(withinLifetime: object!)
+				signal.take(withinLifetimeOf: object!)
 					.observeNext { value in values.append(value) }
 
 				observer.sendNext(1)
@@ -33,7 +33,7 @@ final class LifetimeSpec: QuickSpec {
 				var object: NSObject? = NSObject()
 				var values = [Int]()
 
-				producer.take(withinLifetime: object!)
+				producer.take(withinLifetimeOf: object!)
 					.startWithNext { value in values.append(value) }
 
 				observer.sendNext(1)

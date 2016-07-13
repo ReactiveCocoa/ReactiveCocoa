@@ -791,9 +791,9 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
-	/// Forwards events from `self` until `lifetime` ends, at which point the
-	/// returned signal will complete.
-	public func take<U: LifetimeProviding>(withinLifetime object: U) -> Signal<Value, Error> {
+	/// Forwards events from `self` within the lifetime of `object`, and the
+	/// returned signal will complete when `object` deinitializes.
+	public func take<U: LifetimeProviding>(withinLifetimeOf object: U) -> Signal<Value, Error> {
 		return take(until: object.lifetime)
 	}
 

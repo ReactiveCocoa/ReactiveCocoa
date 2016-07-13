@@ -2,8 +2,9 @@ import Foundation
 import Result
 
 /// A push-driven stream that sends Events over time, parameterized by the type
-/// of values being sent (`Value`) and the type of failure that can occur (`Error`).
-/// If no failures should be possible, NoError can be specified for `Error`.
+/// of values being sent (`Value`) and the type of failure that can occur
+/// (`Error`). If no failures should be possible, NoError can be specified for
+/// `Error`.
 ///
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the
@@ -23,12 +24,17 @@ public final class Signal<Value, Error: ErrorType> {
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
 	///
-	/// The disposable returned from the closure will be automatically disposed
-	/// if a terminating event is sent to the observer. The Signal itself will
-	/// remain alive until the observer is released.
+	/// - parameters:
+	///   - generator: A closure that accepts an implicitly created observer
+	///                that will act as an event emitter for the signal.
+	///
+	/// - note: The disposable returned from the closure will be automatically
+	///         disposed if a terminating event is sent to the observer. The
+	///         Signal itself will remain alive until the observer is released.
 	public init(@noescape _ generator: Observer -> Disposable?) {
 
-		/// Used to ensure that events are serialized during delivery to observers.
+		/// Used to ensure that events are serialized during delivery to
+		/// observers.
 		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
@@ -39,13 +45,13 @@ public final class Signal<Value, Error: ErrorType> {
 
 		let observer = Observer { event in
 			if case .Interrupted = event {
-				// Normally we disallow recursive events, but
-				// Interrupted is kind of a special snowflake, since it
-				// can inadvertently be sent by downstream consumers.
+				// Normally we disallow recursive events, but Interrupted is
+				// kind of a special snowflake, since it can inadvertently be
+				// sent by downstream consumers.
 				//
 				// So we'll flag Interrupted events specially, and if it
-				// happened to occur while we're sending something else,
-				// we'll wait to deliver it.
+				// happened to occur while we're sending something else,  we'll
+				// wait to deliver it.
 				interrupted.value = true
 
 				if sendLock.tryLock() {
@@ -71,8 +77,8 @@ public final class Signal<Value, Error: ErrorType> {
 					sendLock.unlock()
 
 					if event.isTerminating || shouldInterrupt {
-						// Dispose only after notifying observers, so disposal logic
-						// is consistently the last thing to run.
+						// Dispose only after notifying observers, so disposal
+						// logic is consistently the last thing to run.
 						generatorDisposable.dispose()
 					}
 				}
@@ -98,8 +104,10 @@ public final class Signal<Value, Error: ErrorType> {
 	/// Creates a Signal that will be controlled by sending events to the given
 	/// observer.
 	///
-	/// The Signal will remain alive until a terminating event is sent to the
-	/// observer.
+	/// - note: The Signal will remain alive until a terminating event is sent
+	///         to the observer.
+	///
+	/// - returns: A tuple made of signal and observer.
 	public static func pipe() -> (Signal, Observer) {
 		var observer: Observer!
 		let signal = self.init { innerObserver in
@@ -119,12 +127,17 @@ public final class Signal<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Observes the Signal by sending any future events to the given observer. If
-	/// the Signal has already terminated, the observer will immediately receive an
-	/// `Interrupted` event.
+	/// Observes the Signal by sending any future events to the given observer.
 	///
-	/// Returns a Disposable which can be used to disconnect the observer. Disposing
-	/// of the Disposable will have no effect on the Signal itself.
+	/// - note: If the Signal has already terminated, the observer will
+	///         immediately receive an `Interrupted` event.
+	///
+	/// - parameters:
+	///   - observer: An observer to forward the events to.
+	///
+	/// - returns: An optional `Disposable` which can be used to disconnect the
+	///            observer. Disposing of the Disposable will have no effect on
+	///            the Signal itself.
 	public func observe(observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		atomicObservers.modify { observers in
@@ -157,8 +170,8 @@ public final class Signal<Value, Error: ErrorType> {
 public protocol SignalType {
 	/// The type of values being sent on the signal.
 	associatedtype Value
-	/// The type of error that can occur on the signal. If errors aren't possible
-	/// then `NoError` can be used.
+	/// The type of error that can occur on the signal. If errors aren't
+	/// possible then `NoError` can be used.
 	associatedtype Error: ErrorType
 
 	/// Extracts a signal from the receiver.
@@ -177,6 +190,13 @@ extension Signal: SignalType {
 extension SignalType {
 	/// Convenience override for observe(_:) to allow trailing-closure style
 	/// invocations.
+	///
+	/// - parameters:
+	///   - action: A closure that will accept an event of the signal
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observe(action: Signal<Value, Error>.Observer.Action) -> Disposable? {
 		return observe(Observer(action))
 	}
@@ -186,12 +206,17 @@ extension SignalType {
 		return observe(Observer(next: next))
 	}
 
-	/// Observes the Signal by invoking the given callback when
-	/// `next` or `failed` event are received.
+	/// Observes the Signal by invoking the given callback when `next` or
+	/// `failed` event are received.
 	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callback. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	/// - parameters:
+	///   - result: A closure that accepts instance of `Result<Value, Error>`
+	///             enum that contains either a `Success(Value)` or
+	///             `Failure<Error>` case.
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observeResult(result: (Result<Value, Error>) -> Void) -> Disposable? {
 		return observe(
 			Observer(
@@ -201,33 +226,45 @@ extension SignalType {
 		)
 	}
 
-	/// Observes the Signal by invoking the given callback when a `completed` event is
-	/// received.
+	/// Observes the Signal by invoking the given callback when a `completed`
+	/// event is received.
 	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callback. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	/// - parameters:
+	///   - completed: A closure that is called when `Completed` event is
+	///                received.
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observeCompleted(completed: () -> Void) -> Disposable? {
 		return observe(Observer(completed: completed))
 	}
 	
-	/// Observes the Signal by invoking the given callback when a `failed` event is
-	/// received.
+	/// Observes the Signal by invoking the given callback when a `failed` event
+	/// is received.
 	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callback. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	/// - parameters:
+	///   - error: A closure that is called when `Failed` event is received. It
+	///            accepts an error parameter.
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observeFailed(error: Error -> Void) -> Disposable? {
 		return observe(Observer(failed: error))
 	}
 	
-	/// Observes the Signal by invoking the given callback when an `interrupted` event is
-	/// received. If the Signal has already terminated, the callback will be invoked
-	/// immediately.
+	/// Observes the Signal by invoking the given callback when an `interrupted`
+	/// event is received. If the Signal has already terminated, the callback
+	/// will be invoked immediately.
 	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callback. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	/// - parameters:
+	///   - interrupted: A closure that is invoked when `Interrupted` event is
+	///                  received
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observeInterrupted(interrupted: () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
@@ -237,9 +274,12 @@ extension SignalType where Error == NoError {
 	/// Observes the Signal by invoking the given callback when `next` events are
 	/// received.
 	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callbacks. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
+	/// - parameters:
+	///   - next: A closure that accepts a value when `Next` event is received.
+	///
+	/// - returns: An optional `Disposable` which can be used to stop the
+	///            invocation of the callback. Disposing of the Disposable will
+	///            have no effect on the Signal itself.
 	public func observeNext(next: Value -> Void) -> Disposable? {
 		return observe(Observer(next: next))
 	}
@@ -247,6 +287,12 @@ extension SignalType where Error == NoError {
 
 extension SignalType {
 	/// Maps each value in the signal to a new value.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value from the `Next` event and
+	///                returns a new value.
+	///
+	/// - returns: A signal that will send new values.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func map<U>(transform: Value -> U) -> Signal<U, Error> {
 		return Signal { observer in
@@ -257,6 +303,12 @@ extension SignalType {
 	}
 
 	/// Maps errors in the signal to a new error.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts current error object and returns
+	///                a new type of error object.
+	///
+	/// - returns: A signal that will send new type of errors.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func mapError<F>(transform: Error -> F) -> Signal<Value, F> {
 		return Signal { observer in
@@ -267,6 +319,13 @@ extension SignalType {
 	}
 
 	/// Preserves only the values of the signal that pass the given predicate.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts value and returns `Bool` denoting
+	///                whether value has passed the test.
+	///
+	/// - returns: A signal that will send only the values passing the given
+	///            predicate.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func filter(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -287,6 +346,8 @@ extension SignalType {
 extension SignalType where Value: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
+	///
+	/// - returns: A signal that sends only non-nil values.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func ignoreNil() -> Signal<Value.Wrapped, Error> {
 		return filter { $0.optional != nil }.map { $0.optional! }
@@ -294,7 +355,14 @@ extension SignalType where Value: OptionalType {
 }
 
 extension SignalType {
-	/// Returns a signal that will yield the first `count` values from `self`
+	/// Operator that takes up to `n` values from the signal and then completes.
+	///
+	/// - precondition: `count` must be non-negative number.
+	///
+	/// - parameters:
+	///   - count: A number of values to take from the signal.
+	///
+	/// - returns: A signal that will yield the first `count` values from `self`
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func take(count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
@@ -338,13 +406,13 @@ private final class CollectState<Value> {
 
 	/// Check if there are any items remaining.
 	///
-	/// - Note: This method also checks if there weren't collected any values 
-	/// and, in that case, it means an empty array should be sent as the result
-	/// of collect.
+	/// - note: This method also checks if there weren't collected any values
+	///         and, in that case, it means an empty array should be sent as the
+	///         result of collect.
 	var isEmpty: Bool {
-		/// We use capacity being zero to determine if we haven't collected any 
-		/// value since we're keeping the capacity of the array to avoid 
-		/// unnecessary and expensive allocations). This also guarantees 
+		/// We use capacity being zero to determine if we haven't collected any
+		/// value since we're keeping the capacity of the array to avoid
+		/// unnecessary and expensive allocations). This also guarantees
 		/// retro-compatibility around the original `collect()` operator.
 		return values.isEmpty && values.capacity > 0
 	}
@@ -371,16 +439,16 @@ extension SignalType {
 		return collect { _,_ in false }
 	}
 
-	/// Returns a signal that will yield an array of values until it reaches a 
+	/// Returns a signal that will yield an array of values until it reaches a
 	/// certain count.
 	///
-	/// When the count is reached the array is sent and the signal starts over 
+	/// When the count is reached the array is sent and the signal starts over
 	/// yielding a new array of values.
 	///
 	/// - Precondition: `count` should be greater than zero.
 	///
 	/// - Note: When `self` completes any remaining values will be sent, the last
-	/// array may not have `count` values. Alternatively, if were not collected 
+	/// array may not have `count` values. Alternatively, if were not collected
 	/// any values will sent an empty array of values.
 	///
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -394,12 +462,12 @@ extension SignalType {
 	///
 	/// - parameter predicate: Predicate to match when values should be sent
 	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The most recent value (`next`) is included in 
+	/// it should return `false`). The most recent value (`next`) is included in
 	/// `values` and will be the end of the current array of values if the
 	/// predicate returns `true`.
 	///
 	/// - Note: When `self` completes any remaining values will be sent, the last
-	/// array may not match `predicate`. Alternatively, if were not collected any 
+	/// array may not match `predicate`. Alternatively, if were not collected any
 	/// values will sent an empty array of values.
 	///
 	/// #### Example
@@ -454,7 +522,7 @@ extension SignalType {
 	/// Returns a signal that will yield an array of values based on a predicate
 	/// which matches the values collected and the next value.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent 
+	/// - parameter predicate: Predicate to match when values should be sent
 	/// (returning `true`) or alternatively when they should be collected (where
 	/// it should return `false`). The most recent value (`next`) is not included
 	/// in `values` and will be the start of the next array of values if the

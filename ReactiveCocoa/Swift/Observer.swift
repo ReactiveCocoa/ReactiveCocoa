@@ -45,9 +45,9 @@ public struct Observer<Value, Error: ErrorType> {
 	/// - parameters:
 	///   - failed: Optional closure that accepts an `Error` parameter when a
 	///             `Failed` event is observed.
-	///	  - completed: Optional closure executed when a `Completed` event is
+	///   - completed: Optional closure executed when a `Completed` event is
 	///                observed.
-	///	  - interruped: Optional closure executed when an `Interrupted` event is
+	///   - interruped: Optional closure executed when an `Interrupted` event is
 	///                 observed.
 	///   - next: Optional closure executed when a `Next` event is observed.
 	public init(failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (Value -> Void)? = nil) {

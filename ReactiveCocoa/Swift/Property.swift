@@ -35,7 +35,7 @@ public protocol MutablePropertyProtocol: class, PropertyProtocol {
 /// The producer and the signal of transformed properties would complete
 /// only when its source properties have deinitialized.
 ///
-/// A transformed property would retain its ultimate source, but not
+/// A composed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
@@ -319,8 +319,6 @@ public struct AnyProperty<Value>: PropertyProtocol {
 
 	/// A signal that will send the wrapped property's changes over time, then complete
 	/// when the wrapped property has deinitialized.
-	///
-	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
@@ -368,25 +366,36 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// If the producer fails its promise, a fatal error would be raised.
 	///
 	/// The producer and the signal of the created property would complete only
-
 	/// when the `propertyProducer` completes.
 	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing propertySources: [Any]) {
-		// The relay would be indirectly retained by `AnyProperty` and also every produced
-		/// signal from this relay through `scopedDisposable`.
-
-		// A disposable that holds a reference to the relay, and the observer disposable
-		// used for interrupting the started `propertyProducer`.
-		let relayDisposable = CompositeDisposable()
-
-		// A disposable that wraps the `relayDisposable`. All the consumers of the relay
-		// would retain this disposable, so that when all parties go out of scope, the
-		// started `propertyProducer` can be interrupted.
-		let scopedDisposable = ScopedDisposable(relayDisposable)
-		sources = propertySources + [scopedDisposable]
-
+		// A relay that provides a single source of truth for this composed
+		// property.
 		let relay = MutableProperty<Value?>(nil)
+
+		// A disposable that causes the relay to emit a `completed` event.
+		//
+		// It is disposed of when the upstream emits a terminating event, or
+		// when `scopeDisposable` is released by the last consumer.
+		let relayDisposable = CompositeDisposable()
 		relayDisposable += { _ = relay }
 
+		// A disposable that tracks the active consumers of the relay.
+		//
+		// This property, its lazily initialized signal and its producer
+		// would retain this disposable to keep the relay alive.
+		//
+		// When the last consumer releases this disposable, the wrapped
+		// `relayDisposable` would be disposed of to clean up all resources.
+		//
+		// Note that it is possible of `relayDisposable` to be disposed of
+		// ahead of this disposable, in the case of an upstream terminating
+		// event.
+		let scopedDisposable = ScopedDisposable(relayDisposable)
+
+		// Records the sources of this property.
+		sources = propertySources + [scopedDisposable]
+
+		// Starts forwarding values from the upstream to the relay.
 		relayDisposable += unsafeProducer.start { [weak relay] event in
 			switch event {
 			case let .next(newValue):
@@ -427,7 +436,10 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		_value = { relay.value! }
 		_producer = { prepareRelayProducer(relay.producer) }
 
-		// Lazily initializes and shares the signal of a composed property.
+		// Lazily initializes the signal of this composed property.
+		//
+		// The created signal would retain `scopedDisposable` to keep the relay alive,
+		// thus inevitably binding the relay to the lifetime of the upstream for good.
 		let atomicSignal = Atomic<Signal<Value, NoError>?>(nil)
 		_signal = {
 			var signal: Signal<Value, NoError>!

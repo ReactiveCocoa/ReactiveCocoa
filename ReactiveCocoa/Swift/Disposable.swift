@@ -77,7 +77,7 @@ public final class CompositeDisposable: Disposable {
 
 		/// Removes the pointed-to disposable from its CompositeDisposable.
 		///
-		/// - note: This is useful to minimize memory growth, by removing 
+		/// - note: This is useful to minimize memory growth, by removing
 		///         disposables that are no longer needed.
 		public func remove() {
 			if let token = bagToken.swap(nil) {
@@ -274,6 +274,9 @@ public final class SerialDisposable: Disposable {
 /// - parameters:
 ///   - lhs: Disposable to add to.
 ///   - rhs: Disposable to add.
+///
+/// - returns: An instance of `DisposableHandle` that can be used to opaquely
+///            remove the disposable later (if desired).
 public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)
 }
@@ -288,6 +291,9 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 /// - parameters:
 ///   - lhs: Disposable to add to.
 ///   - rhs: Closure to add as a disposable.
+///
+/// - returns: An instance of `DisposableHandle` that can be used to opaquely
+///            remove the disposable later (if desired).
 public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
 	return lhs.addDisposable(rhs)
 }

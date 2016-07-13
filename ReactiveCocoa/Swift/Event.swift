@@ -47,6 +47,9 @@ public enum Event<Value, Error: ErrorType> {
 	///        a new value
 	///
 	/// - important: The closure is called only on `Next` type events.
+	///
+	/// - returns: An event with function applied to a value in case `self` is a
+	///            `.Next` type of event.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
@@ -70,6 +73,9 @@ public enum Event<Value, Error: ErrorType> {
 	///        a new error object
 	///
 	/// - important: The closure is called only on `Failed` type event.
+	///
+	/// - returns: An event with function applied to an error object in case
+	///            `self` is a `.Failed` type of event.
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):

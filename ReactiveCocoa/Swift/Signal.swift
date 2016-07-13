@@ -657,7 +657,7 @@ extension SignalType {
 	/// - note: The returned signal will not send a value until both inputs have
 	///         sent at least one value each.
 	///
-	/// - note: If either signal is interrupted, the returned signal will also 
+	/// - note: If either signal is interrupted, the returned signal will also
 	///         be interrupted.
 	///
 	/// - parameters:
@@ -691,7 +691,7 @@ extension SignalType {
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// - note: `Failed` and `Interrupted` events are always scheduled 
+	/// - note: `Failed` and `Interrupted` events are always scheduled
 	///         immediately.
 	///
 	/// - parameters:
@@ -750,14 +750,14 @@ extension SignalType {
 		}
 	}
 
-	/// Treat all Events from `self` as plain values, allowing them to be 
+	/// Treat all Events from `self` as plain values, allowing them to be
 	/// manipulated just like any other value.
 	///
 	/// In other words, this brings Events “into the monad”.
 	///
-	/// - note: When a Completed or Failed event is received, the resulting 
-	///         signal will send the Event itself and then complete. When an 
-	///         Interrupted event is received, the resulting signal will send 
+	/// - note: When a Completed or Failed event is received, the resulting
+	///         signal will send the Event itself and then complete. When an
+	///         Interrupted event is received, the resulting signal will send
 	///         the Event itself and then interrupt.
 	///
 	/// - returns: A signal that sends events as its values.
@@ -811,6 +811,19 @@ extension SignalType where Value: EventType, Error == NoError {
 
 extension SignalType {
 	/// Injects side effects to be performed upon the specified signal events.
+	///
+	/// - parameters:
+	///   - event: A closure that accepts an event and is invoked on every
+	///            received event.
+	///   - failed: A closure that accepts error object and is invoked for
+	///             `Failed` event.
+	///   - completed: A closure that is invoked for `Completed` event.
+	///   - interrupted: A closure that is invoked for `Interrupted` event.
+	///   - terminated: A closure that is invoked for any terminating event.
+	///   - disposed: Unused.
+	///   - next: A closure that accepts a value from `Next` event.
+	///
+	/// - returns: A signal with attached side-effects for given event cases.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func on(event event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -854,15 +867,20 @@ private struct SampleState<Value> {
 }
 
 extension SignalType {
-	/// Forwards the latest value from `self` with the value from `sampler` as a tuple,
-	/// only when`sampler` sends a Next event.
+	/// Forwards the latest value from `self` with the value from `sampler` as a
+	/// tuple, only when`sampler` sends a `Next` event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`, 
+	///         nothing happens.
 	///
-	/// Returns a signal that will send values from `self` and `sampler`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both input signals have
-	/// completed, or interrupt if either input signal is interrupted.
+	/// - parameters:
+	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///              from self.
+	///
+	/// - returns: A signal that will send values from `self` and `sampler`, 
+	///            sampled (possibly multiple times) by `sampler`, then complete
+	///            once both input signals have completed, or interrupt if
+	///            either input signal is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func sampleWith<T>(sampler: Signal<T, NoError>) -> Signal<(Value, T), Error> {
 		return Signal { observer in
@@ -921,23 +939,35 @@ extension SignalType {
 		}
 	}
 	
-	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// Forwards the latest value from `self` whenever `sampler` sends a `Next`
 	/// event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`, 
+	///         nothing happens.
 	///
-	/// Returns a signal that will send values from `self`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both input signals have
-	/// completed, or interrupt if either input signal is interrupted.
+	/// - parameters:
+	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///              from `self`.
+	///
+	/// - returns: A signal that will send values from `self`, sampled (possibly
+	///            multiple times) by `sampler`, then complete once both input
+	///            signals have completed, or interrupt if either input signal
+	///            is interrupted.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> Signal<Value, Error> {
 		return sampleWith(sampler)
 			.map { $0.0 }
 	}
 
-	/// Forwards events from `self` until `trigger` sends a Next or Completed
-	/// event, at which point the returned signal will complete.
+	/// Forwards events from `self` until `trigger` sends a `Next` or
+	/// `Completed` event, at which point the returned signal will complete.
+	///
+	/// - parameters:
+	///   - trigger: A signal whose `Next` or `Completed` events will stop the
+	///              delivery of `Next` events from `self`.
+	///
+	/// - returns: A signal that will deliver events until `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func takeUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -958,9 +988,16 @@ extension SignalType {
 		}
 	}
 	
-	/// Does not forward any values from `self` until `trigger` sends a Next or
-	/// Completed event, at which point the returned signal behaves exactly like
-	/// `signal`.
+	/// Do not forward any values from `self` until `trigger` sends a `Next` or
+	/// `Completed` event, at which point the returned signal behaves exactly
+	/// like `signal`.
+	///
+	/// - parameters:
+	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///              deliver of events on `self`.
+	///
+	/// - returns: A signal that will deliver events once the `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipUntil(trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -980,8 +1017,8 @@ extension SignalType {
 		}
 	}
 
-	/// Forwards events from `self` with history: values of the returned signal
-	/// are a tuple whose first member is the previous value and whose second member
+	/// Forward events from `self` with history: values of the returned signal
+	/// are a tuples whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
@@ -1009,7 +1046,7 @@ extension SignalType {
 		return outputSignal
 	}
 
-	/// Aggregates `selfs`'s values into a single combined value. When `self` emits
+	/// Aggregates `self`'s values into a single combined value. When `self` emits
 	/// its first value, `combine` is invoked with `initial` as the first argument and
 	/// that emitted value as the second argument. The result is emitted from the
 	/// signal returned from `scan`. That result is then passed to `combine` as the

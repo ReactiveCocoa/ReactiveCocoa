@@ -1021,6 +1021,13 @@ extension SignalType {
 	/// are a tuples whose first member is the previous value and whose second member
 	/// is the current value. `initial` is supplied as the first member when `self`
 	/// sends its first value.
+	///
+	/// - parameters:
+	///   - initial: A value that will be combined with the first value sent by
+	///              `self`.
+	///
+	/// - returns: A signal that sends tuples that contain previous and current
+	///            sent values of `self`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func combinePrevious(initial: Value) -> Signal<(Value, Value), Error> {
 		return scan((initial, initial)) { previousCombinedValues, newValue in
@@ -1046,11 +1053,20 @@ extension SignalType {
 		return outputSignal
 	}
 
-	/// Aggregates `self`'s values into a single combined value. When `self` emits
-	/// its first value, `combine` is invoked with `initial` as the first argument and
-	/// that emitted value as the second argument. The result is emitted from the
-	/// signal returned from `scan`. That result is then passed to `combine` as the
-	/// first argument when the next value is emitted, and so on.
+	/// Aggregate values into a single combined value. When `self` emits its
+	/// first value, `combine` is invoked with `initial` as the first argument
+	/// and that emitted value as the second argument. The result is emitted
+	/// from the signal returned from `scan`. That result is then passed to
+	/// `combine` as the first argument when the next value is emitted, and so
+	/// on.
+	///
+	/// - parameters:
+	///   - initial: Initial value for the accumulator.
+	///   - combine: A closure that accepts accumulator and sent value of
+	///              `self`.
+	///
+	/// - returns: A signal that sends accumulated value each time `self` emits
+	///            own value.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func scan<U>(initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in
@@ -1067,8 +1083,12 @@ extension SignalType {
 }
 
 extension SignalType where Value: Equatable {
-	/// Forwards only those values from `self` which are not duplicates of the
-	/// immedately preceding value. The first value is always forwarded.
+	/// Forward only those values from `self` which are not duplicates of the
+	/// immedately preceding value. 
+	///
+	/// - note: The first value is always forwarded.
+	///
+	/// - returns: A signal that does not send two equal values sequentially.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats() -> Signal<Value, Error> {
 		return skipRepeats(==)
@@ -1076,8 +1096,18 @@ extension SignalType where Value: Equatable {
 }
 
 extension SignalType {
-	/// Forwards only those values from `self` which do not pass `isRepeat` with
-	/// respect to the previous value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value. 
+	///
+	/// - note: The first value is always forwarded.
+	///
+	/// - parameters:
+	///   - isRepeate: A closure that accepts previous and current values of
+	///                `self` and returns `Bool` whether these values are
+	///                repeating.
+	///
+	/// - returns: A signal that forwards only those values that fail given
+	///            `isRepeat` predicate.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
 		return self
@@ -1096,8 +1126,14 @@ extension SignalType {
 			.ignoreNil()
 	}
 
-	/// Does not forward any values from `self` until `predicate` returns false,
+	/// Do not forward any values from `self` until `predicate` returns false,
 	/// at which point the returned signal behaves exactly like `signal`.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts a value and returns whether `self`
+	///                should still not forward that value to a `signal`.
+	///
+	/// - returns: A signal that sends only forwarded values from `self`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skipWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -1118,13 +1154,18 @@ extension SignalType {
 		}
 	}
 
-	/// Forwards events from `self` until `replacement` begins sending events.
+	/// Forward events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a signal which passes through `Next`, `Failed`, and `Interrupted`
-	/// events from `signal` until `replacement` sends an event, at which point the
-	/// returned signal will send that event and switch to passing through events
-	/// from `replacement` instead, regardless of whether `self` has sent events
-	/// already.
+	/// - parameters:
+	///   - replacement: A signal to wait to wait for values from and start
+	///                  sending them as a replacement to `self`'s values.
+	///
+	/// - returns: A signal which passes through `Next`, `Failed`, and
+	///            `Interrupted` events from `self` until `replacement` sends
+	///            an event, at which point the returned signal will send that
+	///            event and switch to passing through events from `replacement`
+	///            instead, regardless of whether `self` has sent events
+	///            already.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func takeUntilReplacement(replacement: Signal<Value, Error>) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -1150,8 +1191,14 @@ extension SignalType {
 		}
 	}
 
-	/// Waits until `self` completes and then forwards the final `count` values
+	/// Wait until `self` completes and then forward the final `count` values
 	/// on the returned signal.
+	///
+	/// - parameters:
+	///   - count: Number of last events to send after `self` completes.
+	///
+	/// - returns: A signal that receives up to `count` values from `self`
+	///            after `self` completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func takeLast(count: Int) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -1161,8 +1208,9 @@ extension SignalType {
 			return self.observe { event in
 				switch event {
 				case let .Next(value):
-					// To avoid exceeding the reserved capacity of the buffer, we remove then add.
-					// Remove elements until we have room to add one more.
+					// To avoid exceeding the reserved capacity of the buffer, 
+					// we remove then add. Remove elements until we have room to 
+					// add one more.
 					while (buffer.count + 1) > count {
 						buffer.removeAtIndex(0)
 					}
@@ -1181,8 +1229,16 @@ extension SignalType {
 		}
 	}
 
-	/// Forwards any values from `self` until `predicate` returns false,
-	/// at which point the returned signal will complete.
+	/// Forward any values from `self` until `predicate` returns false, at
+	/// which point the returned signal will complete.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts value and returns `Bool` value
+	///                whether `self` should forward it to `signal` and continue
+	///                sending other events.
+	///
+	/// - returns: A `signal` that sends events until the values sent by `self`
+	///            pass the given `predicate`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in

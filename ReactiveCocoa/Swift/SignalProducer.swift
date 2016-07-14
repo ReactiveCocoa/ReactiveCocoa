@@ -3,15 +3,15 @@ import Result
 
 /// A SignalProducer creates Signals that can produce values of type `Value` 
 /// and/or fail with errors of type `Error`. If no failure should be possible, 
-/// NoError can be specified for `Error`.
+/// `NoError` can be specified for `Error`.
 ///
 /// SignalProducers can be used to represent operations or tasks, like network
-/// requests, where each invocation of start() will create a new underlying
+/// requests, where each invocation of `start()` will create a new underlying
 /// operation. This ensures that consumers will receive the results, versus a
 /// plain Signal, where the results might be sent before any observers are
 /// attached.
 ///
-/// Because of the behavior of start(), different Signals created from the
+/// Because of the behavior of `start()`, different Signals created from the
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
@@ -20,11 +20,14 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
 
-	/// Initializes a SignalProducer that will emit the same events as the given
-	/// signal.
+	/// Initializes a `SignalProducer` that will emit the same events as the
+	/// given signal.
 	///
-	/// If the Disposable returned from start() is disposed or a terminating
+	/// If the Disposable returned from `start()` is disposed or a terminating
 	/// event is sent to the observer, the given signal will be disposed.
+	///
+	/// - parameters:
+	///   - signal: A signal to observe after starting the producer.
 	public init<S: SignalType where S.Value == Value, S.Error == Error>(signal: S) {
 		self.init { observer, disposable in
 			disposable += signal.observe(observer)
@@ -32,21 +35,28 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	}
 
 	/// Initializes a SignalProducer that will invoke the given closure once for
-	/// each invocation of start().
+	/// each invocation of `start()`.
 	///
 	/// The events that the closure puts into the given observer will become
-	/// the events sent by the started Signal to its observers.
+	/// the events sent by the started `Signal` to its observers.
 	///
-	/// If the Disposable returned from start() is disposed or a terminating
-	/// event is sent to the observer, the given CompositeDisposable will be
-	/// disposed, at which point work should be interrupted and any temporary
-	/// resources cleaned up.
+	/// - note: If the `Disposable` returned from `start()` is disposed or a 
+	///         terminating event is sent to the observer, the given 
+	///         `CompositeDisposable` will be disposed, at which point work 
+	///         should be interrupted and any temporary resources cleaned up.
+	///
+	/// - parameters:
+	///   - startHandler: A closure that accepts observer and a disposable.
 	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
 		self.startHandler = startHandler
 	}
 
-	/// Creates a producer for a Signal that will immediately send one value
+	/// Creates a producer for a `Signal` that will immediately send one value
 	/// then complete.
+	///
+	/// - parameters:
+	///   - value: A value that should be sent by the `Signal` in a `Next`
+	///            event.
 	public init(value: Value) {
 		self.init { observer, disposable in
 			observer.sendNext(value)
@@ -54,8 +64,12 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Creates a producer for a Signal that will immediately fail with the
+	/// Creates a producer for a `Signal` that will immediately fail with the
 	/// given error.
+	///
+	/// - parameters:
+	///   - error: An error that should be sent by the `Signal` in a `Failed`
+	///            event.
 	public init(error: Error) {
 		self.init { observer, disposable in
 			observer.sendFailed(error)
@@ -64,6 +78,11 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 	/// Creates a producer for a Signal that will immediately send one value
 	/// then complete, or immediately fail, depending on the given Result.
+	///
+	/// - parameters:
+	///   - result: A `Result` instance that will send either `Next` event if
+	///             `result` is `Success`ful or `Failed` event if `result` is a
+	///             `Failure`.
 	public init(result: Result<Value, Error>) {
 		switch result {
 		case let .Success(value):
@@ -76,6 +95,10 @@ public struct SignalProducer<Value, Error: ErrorType> {
 
 	/// Creates a producer for a Signal that will immediately send the values
 	/// from the given sequence, then complete.
+	///
+	/// - parameters:
+	///   - values: A sequence of values that a `Signal` will send as separate
+	///             `Next` events and then complete.
 	public init<S: SequenceType where S.Generator.Element == Value>(values: S) {
 		self.init { observer, disposable in
 			for value in values {
@@ -92,6 +115,11 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	
 	/// Creates a producer for a Signal that will immediately send the values
 	/// from the given sequence, then complete.
+	///
+	/// - parameters:
+	///   - first: First value for the `Signal` to send.
+	///   - second: Second value for the `Signal` to send.
+	///   - tail: Rest of the values to be sent by the `Signal`.
 	public init(values first: Value, _ second: Value, _ tail: Value...) {
 		self.init(values: [ first, second ] + tail)
 	}
@@ -109,7 +137,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		return self.init { _ in return }
 	}
 
-	/// Creates a queue for events that replays them when new signals are
+	/// Create a queue for events that replays them when new signals are
 	/// created from the returned producer.
 	///
 	/// When values are put into the returned observer (observer), they will be
@@ -122,9 +150,18 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// returned observer will be automatically forwarded to the Signal’s
 	/// observers until a terminating event is received.
 	///
-	/// After a terminating event has been added to the queue, the observer
-	/// will not add any further events. This _does not_ count against the
-	/// value capacity so no buffered values will be dropped on termination.
+	/// - note: After a terminating event has been added to the queue, the 
+	///         observer will not add any further events. This _does not_ count
+	///         against the value capacity so no buffered values will be dropped
+	///         on termination.
+	///
+	/// - precondition: `capacity` must be non-negative integer.
+	///
+	/// - parameters:
+	///   - capacity: Maximum number of values to buffer.
+	///
+	/// - returns: A tuple of `SignalProducer` to replay values from and
+	///            an `observer` to put replayable values to.
 	@available(*, deprecated, message="Use properties instead. 'buffer' will be removed in RAC 5.0")
 	public static func buffer(capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
@@ -209,12 +246,19 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		return (producer, bufferingObserver)
 	}
 
-	/// Creates a SignalProducer that will attempt the given operation once for
-	/// each invocation of start().
+	/// Create a `SignalProducer` that will attempt the given operation once for
+	/// each invocation of `start()`.
 	///
 	/// Upon success, the started signal will send the resulting value then
 	/// complete. Upon failure, the started signal will fail with the error that
 	/// occurred.
+	///
+	/// - parameters:
+	///   - operation: A closure that returns instance of `Result`.
+	///
+	/// - returns: A `SignalProducer` that will forward `Success`ful `result` as
+	///            `Next` event and then complete or `Failed` event if `result`
+	///            is a `Failure`.
 	public static func attempt(operation: () -> Result<Value, Error>) -> SignalProducer {
 		return self.init { observer, disposable in
 			operation().analysis(ifSuccess: { value in
@@ -226,12 +270,15 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Creates a Signal from the producer, passes it into the given closure,
-	/// then starts sending events on the Signal when the closure has returned.
+	/// Create a Signal from the producer, pass it into the given closure,
+	/// then start sending events on the Signal when the closure has returned.
 	///
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
 	/// `Interrupted` event.
+	///
+	/// - parameters:
+	///   - setUp: A closure that accepts a `signal` and `disposable`.
 	public func startWithSignal(@noescape setUp: (Signal<Value, Error>, Disposable) -> Void) {
 		let (signal, observer) = Signal<Value, Error>.pipe()
 
@@ -239,7 +286,8 @@ public struct SignalProducer<Value, Error: ErrorType> {
 		// upstream producers.
 		let producerDisposable = CompositeDisposable()
 
-		// Directly disposed of when start() or startWithSignal() is disposed.
+		// Directly disposed of when `start()` or `startWithSignal()` is
+		// disposed.
 		let cancelDisposable = ActionDisposable {
 			observer.sendInterrupted()
 			producerDisposable.dispose()
@@ -338,11 +386,15 @@ extension SignalProducer: SignalProducerType {
 }
 
 extension SignalProducerType {
-	/// Creates a Signal from the producer, then attaches the given observer to
-	/// the Signal as an observer.
+	/// Create a Signal from the producer, then attach the given observer to
+	/// the `Signal` as an observer.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the signal and immediately send an `Interrupted` event.
+	/// - parameters:
+	///   - observer: An observer to attach to produced signal.
+	///
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the signal and immediately send an
+	///            `Interrupted` event.
 	public func start(observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Disposable {
 		var disposable: Disposable!
 
@@ -356,6 +408,14 @@ extension SignalProducerType {
 
 	/// Convenience override for start(_:) to allow trailing-closure style
 	/// invocations.
+	///
+	/// - parameters:
+	///   - observerAction: A closure that accepts `Event` sent by the produced
+	///                     signal.
+	///
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the signal and immediately send an
+	///            `Interrupted` event.
 	public func start(observerAction: Signal<Value, Error>.Observer.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
@@ -365,12 +425,17 @@ extension SignalProducerType {
 		return start(Observer(next: next))
 	}
 
-	/// Creates a Signal from the producer, then adds an observer to the Signal,
-	/// which will invoke the given callback when `next` or `failed` events are
+	/// Create a Signal from the producer, then add an observer to the `Signal`,
+	/// which will invoke the given callback when `Next` or `Failed` events are
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal, and prevent any future callbacks from being invoked.
+	/// - parameters:
+	///   - result: A closure that accepts a `result` that contains a `Success`
+	///             case for `Next` events or `Failure` case for `Failed` event.
+	///
+	/// - returns:  A Disposable which can be used to interrupt the work
+	///             associated with the Signal, and prevent any future callbacks
+	///             from being invoked.
 	public func startWithResult(result: Result<Value, Error> -> Void) -> Disposable {
 		return start(
 			Observer(
@@ -380,12 +445,16 @@ extension SignalProducerType {
 		)
 	}
 
-	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when a `completed`
-	/// event is received.
+	/// Create a Signal from the producer, then add exactly one observer to the
+	/// Signal, which will invoke the given callback when a `Completed` event is
+	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal.
+	/// - parameters:
+	///   - completed: A closure that will be envoked when produced signal sends
+	///                `Completed` event.
+	///
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the signal
 	public func startWithCompleted(completed: () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
@@ -394,8 +463,8 @@ extension SignalProducerType {
 	/// the Signal, which will invoke the given callback when a `failed` event
 	/// is received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal.
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the signal
 	public func startWithFailed(failed: Error -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
@@ -404,8 +473,8 @@ extension SignalProducerType {
 	/// the Signal, which will invoke the given callback when an `interrupted`
 	/// event is received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal.
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the signal
 	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
@@ -428,7 +497,7 @@ extension SignalProducerType {
 	///
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ created Signal, just as if the
-	/// operator had been applied to each Signal yielded from start().
+	/// operator had been applied to each Signal yielded from `start()`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F>(transform: Signal<Value, Error> -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
@@ -445,7 +514,7 @@ extension SignalProducerType {
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
-	/// yielded from start().
+	/// yielded from `start()`.
 	///
 	/// Note: starting the returned producer will start the receiver of the
 	/// operator, which may not be adviseable for some operators.
@@ -502,7 +571,7 @@ extension SignalProducerType {
 	/// In other words, this will create a new SignalProducer which will apply
 	/// the given Signal operator to _every_ Signal created from the two
 	/// producers, just as if the operator had been applied to each Signal
-	/// yielded from start().
+	/// yielded from `start()`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
 		return { otherSignal in
@@ -1053,8 +1122,8 @@ extension SignalProducerType where Value: Hashable {
 /// Creates a repeating timer of the given interval, with a reasonable default
 /// leeway, sending updates on the given scheduler.
 ///
-/// This timer will never complete naturally, so all invocations of start() must
-/// be disposed to avoid leaks.
+/// This timer will never complete naturally, so all invocations of `start()`
+/// must be disposed to avoid leaks.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<NSDate, NoError> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
@@ -1065,8 +1134,8 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 /// Creates a repeating timer of the given interval, sending updates on the
 /// given scheduler.
 ///
-/// This timer will never complete naturally, so all invocations of start() must
-/// be disposed to avoid leaks.
+/// This timer will never complete naturally, so all invocations of `start()`
+/// must be disposed to avoid leaks.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate, NoError> {
 	precondition(interval >= 0)

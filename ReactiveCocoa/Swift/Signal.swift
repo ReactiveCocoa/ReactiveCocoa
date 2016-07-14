@@ -1263,8 +1263,13 @@ private struct ZipState<Left, Right> {
 }
 
 extension SignalType {
-	/// Zips elements of two signals into pairs. The elements of any Nth pair
+	/// Zip elements of two signals into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input signals.
+	///
+	/// - parameters:
+	///   - otherSignal: A signal to zip values with.
+	///
+	/// - returns: A signal that sends tuples of `self` and `otherSignal`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func zipWith<U>(otherSignal: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
@@ -1353,8 +1358,14 @@ extension SignalType {
 		}
 	}
 
-	/// Applies `operation` to values from `self` with `Success`ful results
+	/// Apply `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.
+	///
+	/// - parameters:
+	///   - operation: A closure that accepts a value and returns a `Result`.
+	///
+	/// - returns: A signal that receives `Success`ful `Result` as `Next` event
+	///            and `Failure` as `Failed` event.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attempt(operation: Value -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
@@ -1364,8 +1375,15 @@ extension SignalType {
 		}
 	}
 
-	/// Applies `operation` to values from `self` with `Success`ful results mapped
+	/// Apply `operation` to values from `self` with `Success`ful results mapped
 	/// on the returned signal and `Failure`s sent as `Failed` events.
+	///
+	/// - parameters:
+	///   - operation: A closure that accepts a value and returns a result of
+	///                a mapped value as `Success`.
+	///
+	/// - returns: A signal that sends mapped values from `self` if returned
+	///            `Result` is `Success`ful, `Failed` events otherwise.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
@@ -1390,11 +1408,19 @@ extension SignalType {
 	/// Throttle values sent by the receiver, so that at least `interval`
 	/// seconds pass between each, then forwards them on the given scheduler.
 	///
-	/// If multiple values are received before the interval has elapsed, the
-	/// latest value is the one that will be passed on.
+	/// - note: If multiple values are received before the interval has elapsed,
+	///         the latest value is the one that will be passed on.
 	///
-	/// If the input signal terminates while a value is being throttled, that value
-	/// will be discarded and the returned signal will terminate immediately.
+	/// - note: If the input signal terminates while a value is being throttled,
+	///         that value will be discarded and the returned signal will 
+	///         terminate immediately.
+	///
+	/// - parameters:
+	///   - interval: Number of seconds to wait between sent values.
+	///   - scheduler: A scheduler to deliver events on.
+	///
+	/// - returns: A signal that sends values at least `interval` seconds 
+	///            appart on a given scheduler.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -1449,13 +1475,21 @@ extension SignalType {
 
 	/// Debounce values sent by the receiver, such that at least `interval`
 	/// seconds pass after the receiver has last sent a value, then
-	/// forwards the latest value on the given scheduler.
+	/// forward the latest value on the given scheduler.
 	///
-	/// If multiple values are received before the interval has elapsed, the
-	/// latest value is the one that will be passed on.
+	/// - note: If multiple values are received before the interval has elapsed, 
+	///         the latest value is the one that will be passed on.
 	///
-	/// If the input signal terminates while a value is being debounced, that value
-	/// will be discarded and the returned signal will terminate immediately.
+	/// - note: If the input signal terminates while a value is being debounced, 
+	///         that value will be discarded and the returned signal will 
+	///         terminate immediately.
+	///
+	/// - parameters:
+	///   - interval: A number of seconds to wait before sending a value.
+	///   - scheduler: A scheduler to send values on.
+	///
+	/// - returns: A signal that sends values that are sent from `self` at least
+	///            `interval` seconds apart.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -1474,10 +1508,17 @@ extension SignalType {
 }
 
 extension SignalType {
-	/// Forwards only those values from `self` that have unique identities across the set of
-	/// all values that have been seen.
+	/// Forward only those values from `self` that have unique identities across
+	/// the set of all values that have been seen.
 	///
-	/// Note: This causes the identities to be retained to check for uniqueness.
+	/// - note: This causes the identities to be retained to check for 
+	///         uniqueness.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value and returns identity 
+	///                value.
+	///
+	/// - returns: A signal that sends unique values during its lifetime.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> Signal<Value, Error> {
 		return Signal { observer in
@@ -1502,12 +1543,14 @@ extension SignalType {
 }
 
 extension SignalType where Value: Hashable {
-	/// Forwards only those values from `self` that are unique across the set of
+	/// Forward only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
-	/// Note: This causes the values to be retained to check for uniqueness. Providing
-	/// a function that returns a unique value for each sent value can help you reduce
-	/// the memory footprint.
+	/// - note: This causes the values to be retained to check for uniqueness. 
+	///         Providing a function that returns a unique value for each sent 
+	///         value can help you reduce the memory footprint.
+	///
+	/// - returns: A signal that sends unique values during its lifetime.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues() -> Signal<Value, Error> {
 		return uniqueValues { $0 }
@@ -1519,7 +1562,7 @@ private struct ThrottleState<Value> {
 	var pendingValue: Value? = nil
 }
 
-/// Combines the values of all the given signals, in the manner described by
+/// Combine the values of all the given signals, in the manner described by
 /// `combineLatestWith`.
 @warn_unused_result(message="Did you forget to call `observe` on the signal?")
 public func combineLatest<A, B, Error>(a: Signal<A, Error>, _ b: Signal<B, Error>) -> Signal<(A, B), Error> {
@@ -1708,11 +1751,22 @@ public func zip<S: SequenceType, Value, Error where S.Generator.Element == Signa
 }
 
 extension SignalType {
-	/// Forwards events from `self` until `interval`. Then if signal isn't completed yet,
-	/// fails with `error` on `scheduler`.
+	/// Forward events from `self` until `interval`. Then if signal isn't 
+	/// completed yet, fails with `error` on `scheduler`.
 	///
-	/// If the interval is 0, the timeout will be scheduled immediately. The signal
-	/// must complete synchronously (or on a faster scheduler) to avoid the timeout.
+	/// - note: If the interval is 0, the timeout will be scheduled immediately. 
+	///         The signal must complete synchronously (or on a faster 
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - error: Error to send with `Failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A signal that sends events for at most `interval` seconds,
+	///            then, if not `Completed` - send `error` with `Failed` event
+	///            on `scheduler`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func timeoutWithError(error: Error, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -1732,11 +1786,17 @@ extension SignalType {
 }
 
 extension SignalType where Error == NoError {
-	/// Promotes a signal that does not generate failures into one that can.
+	/// Promote a signal that does not generate failures into one that can.
 	///
-	/// This does not actually cause failures to be generated for the given signal,
-	/// but makes it easier to combine with other signals that may fail; for
-	/// example, with operators like `combineLatestWith`, `zipWith`, `flatten`, etc.
+	/// - note: This does not actually cause failures to be generated for the
+	///         given signal, but makes it easier to combine with other signals
+	///         that may fail; for example, with operators like 
+	///         `combineLatestWith`, `zipWith`, `flatten`, etc.
+	///
+	/// - parameters:
+	///   - _ An `ErrorType`.
+	///
+	/// - returns: A signal that has an instantiatable `ErrorType`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func promoteErrors<F: ErrorType>(_: F.Type) -> Signal<Value, F> {
 		return Signal { observer in

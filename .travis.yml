@@ -41,7 +41,7 @@ matrix:
       osx_image: xcode8
       env:
         - XCODE_SDK=macosx
-        - XCODE_ACTION="build-for-testing test-without-building"
+        - XCODE_ACTION="build test"
         - XCODE_DESTINATION="arch=x86_64"
         - TOOLCHAINS="com.apple.dt.toolchain.Swift_2_3"
     - xcode_scheme: ReactiveCocoa-iOS

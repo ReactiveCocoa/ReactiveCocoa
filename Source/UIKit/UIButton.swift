@@ -20,7 +20,7 @@ extension UIButton {
             let property = MutableProperty(initial)
 
             property.producer
-                .combinePrevious(initial: initial)
+                .combinePrevious(initial)
                 .startWithNext { [weak host] previous, next in
                     host?.removeTarget(previous, action: CocoaAction.selector, for: .touchUpInside)
                     host?.addTarget(next, action: CocoaAction.selector, for: .touchUpInside)

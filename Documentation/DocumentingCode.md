@@ -82,3 +82,50 @@ init(withBar bar: Bar = Bar.defaultBar()) {
 ///   - bar: Instance of `Bar`.
 /// - returns: Something claustrophobic.
 ```
+
+- Use code voice to highlight symbols in descriptions, parameter definitions, return statments and elsewhere.
+
+```
+/// DO:
+/// Create instance of `Foo` by passing it `Bar`.
+///
+/// - parameters:
+///   - bar: Instance of `Bar`.
+/// ...
+/// DON'T:
+/// Create instance of Foo by passing it Bar.
+///
+/// - parameters:
+///   - bar: Instance of Bar.
+
+- The `precondition`, `parameters` and `return` delimiters should come last in that order in the markup block before the method's signature.
+
+```
+/// DO:
+/// Create instance of `Foo` by passing it `Bar`.
+///
+/// - note: The `foo` is not retained by the receiver.
+///
+/// - parameters:
+///   - foo: Instance of `Foo`.
+init(foo: Foo) {
+/* ... */
+/// DON'T
+/// Create counter that will count down from `number`.
+///
+/// - parameters:
+///   - number: Number to count down from.
+///
+/// - precondition: `number` must be non-negative.
+init(count: Int)
+```
+
+- Use first person's active voice in present simple tense.
+
+```
+/// DO:
+/// Do something magic and return pixie dust from `self`.
+///
+/// DON'T:
+/// Does something magic and returns pixie dust from `self`.
+```

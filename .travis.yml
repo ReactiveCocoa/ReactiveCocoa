@@ -20,12 +20,12 @@ matrix:
     - xcode_scheme: ReactiveCocoa-iOS
       env:
         - XCODE_SDK=iphonesimulator
-        - XCODE_ACTION=test
+        - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
     - xcode_scheme: ReactiveCocoa-tvOS
       env:
         - XCODE_SDK=appletvsimulator
-        - XCODE_ACTION=test
+        - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
     - xcode_scheme: ReactiveCocoa-watchOS
       env:

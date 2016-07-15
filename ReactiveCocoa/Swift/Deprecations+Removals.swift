@@ -15,7 +15,7 @@ public enum SignalProducerType {}
 @available(*, unavailable, renamed:"ObservableProperty")
 public enum PropertyType {}
 
-@available(*, unavailable, renamed:"ObservableVariableProperty")
+@available(*, unavailable, renamed:"SourceProperty")
 public enum MutablePropertyType {}
 
 @available(*, unavailable, renamed:"ObserverProtocol")

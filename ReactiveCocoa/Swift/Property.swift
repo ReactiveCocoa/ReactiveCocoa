@@ -34,7 +34,7 @@ public protocol BindableProperty: class {
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public typealias SourcingProperty = protocol<ObservableProperty, BindableProperty>
+public typealias SourceProperty = protocol<ObservableProperty, BindableProperty>
 
 /// Protocol composition operators
 ///
@@ -438,7 +438,7 @@ public struct ConstantProperty<Value>: ObservableProperty {
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
-public final class MutableProperty<Value>: SourcingProperty {
+public final class MutableProperty<Value>: SourceProperty {
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
@@ -554,7 +554,7 @@ infix operator <~ {
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
 @discardableResult
-public func <~ <P: SourcingProperty>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
+public func <~ <P: SourceProperty>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
 		disposable.dispose()
@@ -581,7 +581,7 @@ public func <~ <P: SourcingProperty>(property: P, signal: Signal<P.Value, NoErro
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 @discardableResult
-public func <~ <P: SourcingProperty>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
+public func <~ <P: SourceProperty>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
 	producer
@@ -599,17 +599,17 @@ public func <~ <P: SourcingProperty>(property: P, producer: SignalProducer<P.Val
 }
 
 @discardableResult
-public func <~ <P: SourcingProperty, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+public func <~ <P: SourceProperty, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
 }
 
 @discardableResult
-public func <~ <P: SourcingProperty, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
+public func <~ <P: SourceProperty, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
 }
 
 @discardableResult
-public func <~ <Destination: SourcingProperty, Source: ObservableProperty where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: SourceProperty, Source: ObservableProperty where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
 
@@ -618,6 +618,6 @@ public func <~ <Destination: SourcingProperty, Source: ObservableProperty where 
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 @discardableResult
-public func <~ <Destination: SourcingProperty, Source: ObservableProperty where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: SourceProperty, Source: ObservableProperty where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

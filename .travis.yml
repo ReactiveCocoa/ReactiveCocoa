@@ -20,12 +20,12 @@ matrix:
     - xcode_scheme: ReactiveCocoa-iOS
       env:
         - XCODE_SDK=iphonesimulator
-        - XCODE_ACTION=test
+        - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
     - xcode_scheme: ReactiveCocoa-tvOS
       env:
         - XCODE_SDK=appletvsimulator
-        - XCODE_ACTION=test
+        - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
     - xcode_scheme: ReactiveCocoa-watchOS
       env:
@@ -35,27 +35,9 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform mac
+        - carthage build --no-skip-current
       env:
-       - JOB=CARTHAGE_MACOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform ios
-      env:
-        - JOB=CARTHAGE_IOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform tvos
-      env:
-        - JOB=CARTHAGE_TVOS
-    - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform watchos
-      env:
-        - JOB=CARTHAGE_WATCHOS
+        - JOB=CARTHAGE
 notifications:
   email: false
   slack:

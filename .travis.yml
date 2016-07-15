@@ -15,18 +15,60 @@ matrix:
       env:
         - XCODE_SDK=macosx
         - XCODE_ACTION="build test"
+        - XCODE_DESTINATION="arch=x86_64"
     - xcode_scheme: ReactiveCocoa-iOS
       env:
         - XCODE_SDK=iphonesimulator
         - XCODE_ACTION=test
+        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
     - xcode_scheme: ReactiveCocoa-tvOS
       env:
         - XCODE_SDK=appletvsimulator
         - XCODE_ACTION=test
+        - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
     - xcode_scheme: ReactiveCocoa-watchOS
       env:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
+        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current
+      env:
+        - JOB=CARTHAGE
+    - xcode_scheme: ReactiveCocoa-Mac
+      osx_image: xcode8
+      env:
+        - XCODE_SDK=macosx
+        - XCODE_ACTION="build test"
+        - XCODE_DESTINATION="arch=x86_64"
+        - TOOLCHAINS="com.apple.dt.toolchain.Swift_2_3"
+    - xcode_scheme: ReactiveCocoa-iOS
+      osx_image: xcode8
+      env:
+        - XCODE_SDK=iphonesimulator
+        - XCODE_ACTION="build-for-testing test-without-building"
+        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
+    - xcode_scheme: ReactiveCocoa-tvOS
+      osx_image: xcode8
+      env:
+        - XCODE_SDK=appletvsimulator
+        - XCODE_ACTION="build-for-testing test-without-building"
+        - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
+    - xcode_scheme: ReactiveCocoa-watchOS
+      osx_image: xcode8
+      env:
+        - XCODE_SDK=watchsimulator
+        - XCODE_ACTION=build
+        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current
+      osx_image: xcode8
+      env:
+        - JOB=CARTHAGE
 notifications:
   email: false
   slack:

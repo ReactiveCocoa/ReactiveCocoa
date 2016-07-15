@@ -2,7 +2,7 @@ import Foundation
 import enum Result.NoError
 
 /// Represents a property that allows observation of its changes.
-public protocol PropertyProtocol {
+public protocol ObservableProperty {
 	associatedtype Value
 
 	/// The current value of the property.
@@ -19,14 +19,22 @@ public protocol PropertyProtocol {
 	var signal: Signal<Value, NoError> { get }
 }
 
+/// Represents an property that can be mutated directly.
+///
+/// Only classes can conform to this protocol, because instances must support
+/// weak references (and value types currently do not).
+public protocol VariableProperty: class {
+	associatedtype Value
+
+	/// The current value of the property.
+	var value: Value { get set }
+}
+
 /// Represents an observable property that can be mutated directly.
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public protocol MutablePropertyProtocol: class, PropertyProtocol {
-	/// The current value of the property.
-	var value: Value { get set }
-}
+public typealias ObservableVariableProperty = protocol<ObservableProperty, VariableProperty>
 
 /// Protocol composition operators
 ///
@@ -35,14 +43,14 @@ public protocol MutablePropertyProtocol: class, PropertyProtocol {
 ///
 /// A transformed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
-extension PropertyProtocol {
-	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
+extension ObservableProperty {
+	/// Lifts a unary SignalProducer operator to operate upon ObservableProperty instead.
 	private func lift<U>( _ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> AnyProperty<U> {
 		return AnyProperty(self, transform: transform)
 	}
 
-	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
+	/// Lifts a binary SignalProducer operator to operate upon ObservableProperty instead.
+	private func lift<P: ObservableProperty, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> AnyProperty<U> {
 		return { otherProperty in
 			return AnyProperty(self, otherProperty, transform: transform)
 		}
@@ -55,13 +63,13 @@ extension PropertyProtocol {
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
-	public func combineLatest<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
+	public func combineLatest<P: ObservableProperty>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.combineLatest(with:))(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
-	public func zip<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
+	public func zip<P: ObservableProperty>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.zip(with:))(other)
 	}
 
@@ -80,7 +88,7 @@ extension PropertyProtocol {
 	}
 }
 
-extension PropertyProtocol where Value: Equatable {
+extension ObservableProperty where Value: Equatable {
 	/// Forwards only those values from `self` which is not equal to the previous
 	/// value. The first value is always forwarded.
 	public func skipRepeats() -> AnyProperty<Value> {
@@ -88,7 +96,7 @@ extension PropertyProtocol where Value: Equatable {
 	}
 }
 
-extension PropertyProtocol where Value: PropertyProtocol {
+extension ObservableProperty where Value: ObservableProperty {
 	/// Flattens the inner properties sent upon `self` (into a single property),
 	/// according to the semantics of the given strategy.
 	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
@@ -96,11 +104,11 @@ extension PropertyProtocol where Value: PropertyProtocol {
 	}
 }
 
-extension PropertyProtocol {
+extension ObservableProperty {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
-	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
+	public func flatMap<P: ObservableProperty>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
@@ -113,7 +121,7 @@ extension PropertyProtocol {
 	}
 }
 
-extension PropertyProtocol where Value: Hashable {
+extension ObservableProperty where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
@@ -125,16 +133,16 @@ extension PropertyProtocol where Value: Hashable {
 	}
 }
 
-extension PropertyProtocol {
+extension ObservableProperty {
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
 		return a.combineLatest(with: b)
 	}
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 		return combineLatest(a, b)
 			.combineLatest(with: c)
 			.map(repack)
@@ -142,7 +150,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 		return combineLatest(a, b, c)
 			.combineLatest(with: d)
 			.map(repack)
@@ -150,7 +158,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 		return combineLatest(a, b, c, d)
 			.combineLatest(with: e)
 			.map(repack)
@@ -158,7 +166,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 		return combineLatest(a, b, c, d, e)
 			.combineLatest(with: f)
 			.map(repack)
@@ -166,7 +174,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 		return combineLatest(a, b, c, d, e, f)
 			.combineLatest(with: g)
 			.map(repack)
@@ -174,7 +182,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 		return combineLatest(a, b, c, d, e, f, g)
 			.combineLatest(with: h)
 			.map(repack)
@@ -182,7 +190,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h)
 			.combineLatest(with: i)
 			.map(repack)
@@ -190,7 +198,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described by
 	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty, J: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
 			.combineLatest(with: j)
 			.map(repack)
@@ -198,7 +206,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatest(with:)`. Returns nil if the sequence is empty.
-	public static func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+	public static func combineLatest<S: Sequence where S.Iterator.Element: ObservableProperty>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
 		var generator = properties.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -212,13 +220,13 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
 		return a.zip(with: b)
 	}
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 		return zip(a, b)
 			.zip(with: c)
 			.map(repack)
@@ -226,7 +234,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 		return zip(a, b, c)
 			.zip(with: d)
 			.map(repack)
@@ -234,7 +242,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 		return zip(a, b, c, d)
 			.zip(with: e)
 			.map(repack)
@@ -242,7 +250,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 		return zip(a, b, c, d, e)
 			.zip(with: f)
 			.map(repack)
@@ -250,7 +258,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 		return zip(a, b, c, d, e, f)
 			.zip(with: g)
 			.map(repack)
@@ -258,7 +266,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 		return zip(a, b, c, d, e, f, g)
 			.zip(with: h)
 			.map(repack)
@@ -266,7 +274,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 		return zip(a, b, c, d, e, f, g, h)
 			.zip(with: i)
 			.map(repack)
@@ -274,7 +282,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	public static func zip<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty, J: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 		return zip(a, b, c, d, e, f, g, h, i)
 			.zip(with: j)
 			.map(repack)
@@ -282,7 +290,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`. Returns nil if the sequence is empty.
-	public static func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
+	public static func zip<S: Sequence where S.Iterator.Element: ObservableProperty>(_ properties: S) -> AnyProperty<[S.Iterator.Element.Value]>? {
 		var generator = properties.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -296,7 +304,7 @@ extension PropertyProtocol {
 }
 
 /// A read-only, type-erased view of a property.
-public struct AnyProperty<Value>: PropertyProtocol {
+public struct AnyProperty<Value>: ObservableProperty {
 	private let sources: [Any]
 	private let disposable: Disposable?
 
@@ -325,7 +333,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	}
 
 	/// Initializes a property as a read-only view of the given property.
-	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
+	public init<P: ObservableProperty where P.Value == Value>(_ property: P) {
 		sources = AnyProperty.capture(property)
 		disposable = nil
 		_value = { property.value }
@@ -349,7 +357,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 
 	/// Initializes a property by applying the unary `SignalProducer` transform on
 	/// `property`. The resulting property captures `property`.
-	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
+	private init<P: ObservableProperty>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
 		          capturing: AnyProperty.capture(property))
 	}
@@ -357,7 +365,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// Initializes a property by applying the binary `SignalProducer` transform on
 	/// `firstProperty` and `secondProperty`. The resulting property captures
 	/// the two property sources.
-	private init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
+	private init<P1: ObservableProperty, P2: ObservableProperty>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
@@ -403,7 +411,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	/// Check if `property` is an `AnyProperty` and has already captured its sources
 	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
 	/// which captures `property`.
-	private static func capture<P: PropertyProtocol>(_ property: P) -> [Any] {
+	private static func capture<P: ObservableProperty>(_ property: P) -> [Any] {
 		if let property = property as? AnyProperty<P.Value> {
 			return property.sources
 		} else {
@@ -413,7 +421,7 @@ public struct AnyProperty<Value>: PropertyProtocol {
 }
 
 /// A property that never changes.
-public struct ConstantProperty<Value>: PropertyProtocol {
+public struct ConstantProperty<Value>: ObservableProperty {
 
 	public let value: Value
 	public let producer: SignalProducer<Value, NoError>
@@ -430,7 +438,7 @@ public struct ConstantProperty<Value>: PropertyProtocol {
 /// A mutable property of type `Value` that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.
-public final class MutableProperty<Value>: MutablePropertyProtocol {
+public final class MutableProperty<Value>: ObservableVariableProperty {
 	private let observer: Signal<Value, NoError>.Observer
 
 	/// Need a recursive lock around `value` to allow recursive access to
@@ -546,7 +554,7 @@ infix operator <~ {
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
 @discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
+public func <~ <P: ObservableVariableProperty>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
 		disposable.dispose()
@@ -573,7 +581,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
 @discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
+public func <~ <P: ObservableVariableProperty>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
 	producer
@@ -591,17 +599,17 @@ public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProduce
 }
 
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+public func <~ <P: ObservableVariableProperty, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
 }
 
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
+public func <~ <P: ObservableVariableProperty, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
 }
 
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: ObservableVariableProperty, Source: ObservableProperty where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
 
@@ -610,6 +618,6 @@ public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol w
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: ObservableVariableProperty, Source: ObservableProperty where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

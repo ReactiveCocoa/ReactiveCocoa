@@ -59,7 +59,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
-	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
+	public init<P: ObservableProperty where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
 		isUserEnabled = AnyProperty(property)
 

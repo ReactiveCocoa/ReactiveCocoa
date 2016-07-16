@@ -124,8 +124,8 @@ init(count: Int)
 
 ```
 /// DO:
-/// Do something magic and return pixie dust from `self`.
+/// Do something magical and return pixie dust from `self`.
 ///
 /// DON'T:
-/// Does something magic and returns pixie dust from `self`.
+/// Does something magical and returns pixie dust from `self`.
 ```

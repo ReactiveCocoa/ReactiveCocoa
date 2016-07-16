@@ -11,16 +11,16 @@ public protocol ObserverType {
 	associatedtype Value
 	associatedtype Error: ErrorType
 
-	/// Puts a `Next` event into the given observer.
+	/// Puts a `Next` event into `self`.
 	func sendNext(value: Value)
 
-	/// Puts a `Failed` event into the given observer.
+	/// Puts a `Failed` event into `self`.
 	func sendFailed(error: Error)
 
-	/// Puts a `Completed` event into the given observer.
+	/// Puts a `Completed` event into `self`.
 	func sendCompleted()
 
-	/// Puts an `Interrupted` event into the given observer.
+	/// Puts an `Interrupted` event into `self`.
 	func sendInterrupted()
 }
 
@@ -32,7 +32,8 @@ public struct Observer<Value, Error: ErrorType> {
 	/// An action that will be performed upon arrival of the event.
 	public let action: Action
 
-	/// Initializer that accepts a closure accepting an event for the observer.
+	/// An initializer that accepts a closure accepting an event for the 
+	/// observer.
 	///
 	/// - parameters:
 	///   - action: A closure to lift over received event.
@@ -40,7 +41,7 @@ public struct Observer<Value, Error: ErrorType> {
 		self.action = action
 	}
 
-	/// Initializer that accepts closures for different event types.
+	/// An initializer that accepts closures for different event types.
 	///
 	/// - parameters:
 	///   - failed: Optional closure that accepts an `Error` parameter when a
@@ -70,7 +71,7 @@ public struct Observer<Value, Error: ErrorType> {
 }
 
 extension Observer: ObserverType {
-	/// Puts a `Next` event into the given observer.
+	/// Puts a `Next` event into `self`.
 	///
 	/// - parameters:
 	///   - value: A value sent with the `Next` event.
@@ -78,7 +79,7 @@ extension Observer: ObserverType {
 		action(.Next(value))
 	}
 
-	/// Puts a `Failed` event into the given observer.
+	/// Puts a `Failed` event into `self`.
 	///
 	/// - parameters:
 	///   - error: An error object sent with `Failed` event.
@@ -86,12 +87,12 @@ extension Observer: ObserverType {
 		action(.Failed(error))
 	}
 
-	/// Puts a `Completed` event into the given observer.
+	/// Puts a `Completed` event into `self`.
 	public func sendCompleted() {
 		action(.Completed)
 	}
 
-	/// Puts an `Interrupted` event into the given observer.
+	/// Puts an `Interrupted` event into `self`.
 	public func sendInterrupted() {
 		action(.Interrupted)
 	}

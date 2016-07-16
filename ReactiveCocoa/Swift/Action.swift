@@ -96,14 +96,14 @@ public final class Action<Input, Output, Error: ErrorType> {
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.
 	///
-	/// - parameters:
-	///   - input: A value that will be passed to the closure creating the signal
-	///            producer.
-	///
 	/// - note: If the action is disabled when the returned SignalProducer is
 	///         started, the produced signal will send `ActionError.NotEnabled`,
 	///         and nothing will be sent upon `values` or `errors` for that
 	///         particular signal.
+	///
+	/// - parameters:
+	///   - input: A value that will be passed to the closure creating the signal
+	///            producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func apply(input: Input) -> SignalProducer<Output, ActionError<Error>> {
 		return SignalProducer { observer, disposable in
@@ -155,14 +155,14 @@ public protocol ActionType {
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.
 	///
-	/// - parameters:
-	///   - input: A value that will be passed to the closure creating the signal
-	///            producer.
-	///
 	/// - note: If the action is disabled when the returned SignalProducer is
 	///         started, the produced signal will send `ActionError.NotEnabled`,
 	///         and nothing will be sent upon `values` or `errors` for that
 	///         particular signal.
+	///
+	/// - parameters:
+	///   - input: A value that will be passed to the closure creating the signal
+	///            producer.
 	func apply(input: Input) -> SignalProducer<Output, ActionError<Error>>
 }
 

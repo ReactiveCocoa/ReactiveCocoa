@@ -40,16 +40,15 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given closure over the event's value.
-	///
-	/// - parameters:
-	///   - f: A closure that accepts a value and returns
-	///        a new value
+	/// Lift the given closure over the event's value.
 	///
 	/// - important: The closure is called only on `Next` type events.
 	///
+	/// - parameters:
+	///   - f: A closure that accepts a value and returns a new value
+	///
 	/// - returns: An event with function applied to a value in case `self` is a
-	///            `.Next` type of event.
+	///            `Next` type of event.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
@@ -66,13 +65,13 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given closure over the event's error.
+	/// Lift the given closure over the event's error.
+	///
+	/// - important: The closure is called only on `Failed` type event.
 	///
 	/// - parameters:
 	///   - f: A closure that accepts an error object and returns
 	///        a new error object
-	///
-	/// - important: The closure is called only on `Failed` type event.
 	///
 	/// - returns: An event with function applied to an error object in case
 	///            `self` is a `.Failed` type of event.
@@ -92,7 +91,7 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Unwraps the contained `Next` value.
+	/// Unwrap the contained `Next` value.
 	public var value: Value? {
 		if case let .Next(value) = self {
 			return value
@@ -101,7 +100,7 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Unwraps the contained `Error` value.
+	/// Unwrap the contained `Error` value.
 	public var error: Error? {
 		if case let .Failed(error) = self {
 			return error

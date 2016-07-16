@@ -25,16 +25,16 @@ public final class CocoaAction: NSObject {
 	/// Initializes a Cocoa action that will invoke the given Action by
 	/// transforming the object given to execute().
 	///
+	/// - note: You must cast the passed in object to the control type you need
+	///         since there is no way to know where this cocoa action will be
+	///         added as a target.
+	///
 	/// - parameters:
 	///   - action: Executable action.
 	///   - inputTransform: Closure that accepts the UI control performing the
 	///                     action and returns a value (e.g. 
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
-	///
-	/// - note: You must cast the passed in object to the control type you need
-	///         since there is no way to know where this cocoa action will be
-	///         added as a target.
 	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: AnyObject? -> Input) {
 		_execute = { input in
 			let producer = action.apply(inputTransform(input))

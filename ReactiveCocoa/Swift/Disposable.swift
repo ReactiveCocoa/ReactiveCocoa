@@ -40,7 +40,7 @@ public final class ActionDisposable: Disposable {
 		return action.value == nil
 	}
 
-	/// Initializes the disposable to run the given action upon disposal.
+	/// Initialize the disposable to run the given action upon disposal.
 	///
 	/// - parameters:
 	///   - action: A closure to run when calling `dispose()`.
@@ -75,7 +75,7 @@ public final class CompositeDisposable: Disposable {
 			self.disposable = disposable
 		}
 
-		/// Removes the pointed-to disposable from its CompositeDisposable.
+		/// Remove the pointed-to disposable from its `CompositeDisposable`.
 		///
 		/// - note: This is useful to minimize memory growth, by removing
 		///         disposables that are no longer needed.
@@ -97,7 +97,7 @@ public final class CompositeDisposable: Disposable {
 		return disposables.value == nil
 	}
 
-	/// Initializes a `CompositeDisposable` containing the given sequence of
+	/// Initialize a `CompositeDisposable` containing the given sequence of
 	/// disposables.
 	///
 	/// - parameters:
@@ -113,7 +113,7 @@ public final class CompositeDisposable: Disposable {
 		self.disposables = Atomic(bag)
 	}
 	
-	/// Initializes a `CompositeDisposable` containing the given sequence of
+	/// Initialize a `CompositeDisposable` containing the given sequence of
 	/// disposables.
 	///
 	/// - parameters:
@@ -136,7 +136,7 @@ public final class CompositeDisposable: Disposable {
 		}
 	}
 
-	/// Adds the given disposable to the list, then returns a handle which can
+	/// Add the given disposable to the list, then return a handle which can
 	/// be used to opaquely remove the disposable later (if desired).
 	///
 	/// - parameters:
@@ -169,7 +169,7 @@ public final class CompositeDisposable: Disposable {
 		}
 	}
 
-	/// Adds an ActionDisposable to the list.
+	/// Add an ActionDisposable to the list.
 	///
 	/// - parameters:
 	///   - action: A closure that will be invoked when `dispose()` is called.
@@ -192,7 +192,7 @@ public final class ScopedDisposable: Disposable {
 		return innerDisposable.disposed
 	}
 
-	/// Initializes the receiver to dispose of the argument upon
+	/// Initialize the receiver to dispose of the argument upon
 	/// deinitialization.
 	///
 	/// - parameters:

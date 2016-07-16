@@ -44,11 +44,11 @@ import enum Result.NoError
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object.
 	///
+	/// - important: `object` must support weak references!
+	///
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	///
-	/// - important: `object` must support weak references!
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath

@@ -16,22 +16,22 @@ extension RACScheduler: DateSchedulerType {
 		return NSDate()
 	}
 
-	/// Schedules an action for immediate execution.
+	/// Schedule an action for immediate execution.
+	///
+	/// - note: This method calls the Objective-C implementation of `schedule:`
+	///         method.
 	///
 	/// - parameters:
 	///   - action: Closure to perform.
 	///
 	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
-	///
-	/// - note: This method calls the Objective-C implementation of `schedule:`
-	///         method.
 	public func schedule(action: () -> Void) -> Disposable? {
 		let disposable: RACDisposable = self.schedule(action) // Call the Objective-C implementation
 		return disposable as Disposable?
 	}
 
-	/// Schedules an action for execution at or after the given date.
+	/// Schedule an action for execution at or after the given date.
 	///
 	/// - parameters:
 	///   - date: Starting date.
@@ -43,7 +43,7 @@ extension RACScheduler: DateSchedulerType {
 		return self.after(date, schedule: action)
 	}
 
-	/// Schedules a recurring action at the given interval, beginning at the
+	/// Schedule a recurring action at the given interval, beginning at the
 	/// given start time.
 	///
 	/// - parameters:
@@ -60,7 +60,7 @@ extension RACScheduler: DateSchedulerType {
 }
 
 extension ImmediateScheduler {
-	/// Creates `RACScheduler` that performs actions instantly.
+	/// Create `RACScheduler` that performs actions instantly.
 	///
 	/// - returns: `RACScheduler` that instantly performs actions.
 	public func toRACScheduler() -> RACScheduler {
@@ -69,7 +69,7 @@ extension ImmediateScheduler {
 }
 
 extension UIScheduler {
-	/// Creates `RACScheduler` for `UIScheduler`
+	/// Create `RACScheduler` for `UIScheduler`
 	///
 	/// - returns: `RACScheduler` instance that queues events on main thread.
 	public func toRACScheduler() -> RACScheduler {
@@ -78,9 +78,9 @@ extension UIScheduler {
 }
 
 extension QueueScheduler {
-	/// Creates `RACScheduler` backed with own queue
+	/// Create `RACScheduler` backed with own queue
 	///
-	/// - returns: Instance `RACScheduler` that queues events on 
+	/// - returns: Instance `RACScheduler` that queues events on
 	///            `QueueScheduler`'s queue.
 	public func toRACScheduler() -> RACScheduler {
 		return RACTargetQueueScheduler(name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.toRACScheduler()", targetQueue: queue)
@@ -92,8 +92,8 @@ private func defaultNSError(message: String, file: String, line: Int) -> NSError
 }
 
 extension RACSignal {
-	/// Creates a SignalProducer which will subscribe to the receiver once for
-	/// each invocation of start().
+	/// Create a `SignalProducer` which will subscribe to the receiver once for
+	/// each invocation of `start()`.
 	///
 	/// - parameters:
 	///   - file: Current file name.
@@ -120,7 +120,7 @@ extension RACSignal {
 }
 
 extension SignalType {
-	/// Turns each value into an Optional.
+	/// Turn each value into an Optional.
 	private func optionalize() -> Signal<Value?, Error> {
 		return signal.map(Optional.init)
 	}
@@ -129,12 +129,12 @@ extension SignalType {
 // MARK: - toRACSignal
 
 extension SignalProducerType where Value: AnyObject {
-	/// Creates a RACSignal that will start() the producer once for each
+	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`.
-	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.lift { $0.optionalize() }
@@ -143,12 +143,12 @@ extension SignalProducerType where Value: AnyObject {
 }
 
 extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject {
-	/// Creates a RACSignal that will start() the producer once for each
+	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`.
-	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.mapError { $0 as NSError }
@@ -157,12 +157,12 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 }
 
 extension SignalProducerType where Value: AnyObject, Error: NSError {
-	/// Creates a RACSignal that will start() the producer once for each
+	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`.
-	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.lift { $0.optionalize() }
@@ -171,12 +171,12 @@ extension SignalProducerType where Value: AnyObject, Error: NSError {
 }
 
 extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject, Error: NSError {
-	/// Creates a RACSignal that will start() the producer once for each
+	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - returns: `RACSignal` instantiated from `self`.
-	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for
 		// rdar://22708537 which causes an NSError's UserInfo dictionary to get
@@ -204,11 +204,11 @@ extension SignalProducerType where Value: OptionalType, Value.Wrapped: AnyObject
 }
 
 extension SignalType where Value: AnyObject {
-	/// Creates a RACSignal that will observe the given signal.
-	///
-	/// - returns: `RACSignal` instantiated from `self`.
+	/// Create a `RACSignal` that will observe the given signal.
 	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.optionalize()
@@ -217,11 +217,11 @@ extension SignalType where Value: AnyObject {
 }
 
 extension SignalType where Value: AnyObject, Error: NSError {
-	/// Creates a RACSignal that will observe the given signal.
-	///
-	/// - returns: `RACSignal` instantiated from `self`.
+	/// Create a `RACSignal` that will observe the given signal.
 	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.optionalize()
@@ -230,11 +230,11 @@ extension SignalType where Value: AnyObject, Error: NSError {
 }
 
 extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
-	/// Creates a RACSignal that will observe the given signal.
-	///
-	/// - returns: `RACSignal` instantiated from `self`.
+	/// Create a `RACSignal` that will observe the given signal.
 	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		return self
 			.mapError { $0 as NSError }
@@ -243,11 +243,11 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject {
 }
 
 extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject, Error: NSError {
-	/// Creates a RACSignal that will observe the given signal.
-	///
-	/// - returns: `RACSignal` instantiated from `self`.
+	/// Create a `RACSignal` that will observe the given signal.
 	///
 	/// - note: Any `Interrupted` events will be silently discarded.
+	///
+	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
 		// This special casing of `Error: NSError` is a workaround for
 		// rdar://22708537 which causes an NSError's UserInfo dictionary to get
@@ -279,16 +279,16 @@ extension SignalType where Value: OptionalType, Value.Wrapped: AnyObject, Error:
 extension RACCommand {
 	/// Creates an Action that will execute the receiver.
 	///
+	/// - note: The returned Action will not necessarily be marked as executing
+	///         when the command is. However, the reverse is always true: the
+	///         RACCommand will always be marked as executing when the action
+	///         is.
+	///
 	/// - parameters:
 	///   - file: Current file name.
 	///   - line: Current line in file.
 	///
 	/// - returns: Action created from `self`.
-	///
-	/// - note: The returned Action will not necessarily be marked as executing
-	///         when the command is. However, the reverse is always true: the
-	///         RACCommand will always be marked as executing when the action
-	///         is.
 	public func toAction(file: String = #file, line: Int = #line) -> Action<AnyObject?, AnyObject?, NSError> {
 		let enabledProperty = MutableProperty(true)
 
@@ -314,13 +314,13 @@ extension ActionType {
 	}
 }
 
-/// Creates a RACCommand that will execute the action.
-///
-/// - returns: `RACCommand` with bound action.
+/// Create a `RACCommand` that will execute the action.
 ///
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.
+///
+/// - returns: `RACCommand` with bound action.
 public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Output, Error>) -> RACCommand {
 	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return action
@@ -331,11 +331,11 @@ public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Ou
 
 /// Creates a RACCommand that will execute the action.
 ///
-/// - returns: `RACCommand` with bound action.
-///
 /// - note: The returned command will not necessarily be marked as executing
 ///         when the action is. However, the reverse is always true: the Action
 ///         will always be marked as executing when the RACCommand is.
+///
+/// - returns: `RACCommand` with bound action.
 public func toRACCommand<Output: AnyObject, Error>(action: Action<AnyObject?, Output?, Error>) -> RACCommand {
 	return RACCommand(enabled: action.commandEnabled) { input -> RACSignal in
 		return action

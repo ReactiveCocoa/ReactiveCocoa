@@ -77,8 +77,8 @@ extension Observer: ObserverProtocol {
 }
 
 extension ObserverProtocol {
-	/// Creates an observer that pass through events to `self`, and
-	/// invokes the given action upon receiving a terminating event.
+	/// Create an observer which forwards events to `self`, and
+	/// invoke the given action upon receiving a terminating event.
 	public func on(terminated: (() -> Void)? = nil) -> Observer<Value, Error> {
 		return Observer { event in
 			switch event {

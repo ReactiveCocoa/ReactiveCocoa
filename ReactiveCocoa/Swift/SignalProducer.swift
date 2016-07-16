@@ -40,9 +40,9 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// The events that the closure puts into the given observer will become
 	/// the events sent by the started `Signal` to its observers.
 	///
-	/// - note: If the `Disposable` returned from `start()` is disposed or a 
-	///         terminating event is sent to the observer, the given 
-	///         `CompositeDisposable` will be disposed, at which point work 
+	/// - note: If the `Disposable` returned from `start()` is disposed or a
+	///         terminating event is sent to the observer, the given
+	///         `CompositeDisposable` will be disposed, at which point work
 	///         should be interrupted and any temporary resources cleaned up.
 	///
 	/// - parameters:
@@ -150,7 +150,7 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	/// returned observer will be automatically forwarded to the Signal’s
 	/// observers until a terminating event is received.
 	///
-	/// - note: After a terminating event has been added to the queue, the 
+	/// - note: After a terminating event has been added to the queue, the
 	///         observer will not add any further events. This _does not_ count
 	///         against the value capacity so no buffered values will be dropped
 	///         on termination.
@@ -454,7 +454,7 @@ extension SignalProducerType {
 	///                `Completed` event.
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal
+	///            associated with the signal.
 	public func startWithCompleted(completed: () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
@@ -463,41 +463,58 @@ extension SignalProducerType {
 	/// the Signal, which will invoke the given callback when a `failed` event
 	/// is received.
 	///
+	/// - parameters:
+	///   - failed: A closure that accepts an error object.
+	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal
+	///            associated with the signal.
 	public func startWithFailed(failed: Error -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
 	
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when an `interrupted`
+	/// the Signal, which will invoke the given callback when an `Interrupted`
 	/// event is received.
 	///
+	/// - parameters:
+	///   - interrupted: A closure that is invoked when `Interrupted` event is
+	///                  received.
+	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal
+	///            associated with the signal.
 	public func startWithInterrupted(interrupted: () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
 }
 
 extension SignalProducerType where Error == NoError {
-	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when `next` events are
+	/// Create a Signal from the producer, then add exactly one observer to
+	/// the Signal, which will invoke the given callback when `Next` events are
 	/// received.
 	///
-	/// Returns a Disposable which can be used to interrupt the work associated
-	/// with the Signal, and prevent any future callbacks from being invoked.
+	/// - parameters:
+	///   - next: A closure that accepts a value carried by `Next` event.
+	///
+	/// - returns: A `Disposable` which can be used to interrupt the work
+	///            associated with the Signal, and prevent any future callbacks
+	///            from being invoked.
 	public func startWithNext(next: Value -> Void) -> Disposable {
 		return start(Observer(next: next))
 	}
 }
 
 extension SignalProducerType {
-	/// Lifts an unary Signal operator to operate upon SignalProducers instead.
+	/// Lift an unary Signal operator to operate upon SignalProducers instead.
 	///
-	/// In other words, this will create a new SignalProducer which will apply
-	/// the given Signal operator to _every_ created Signal, just as if the
-	/// operator had been applied to each Signal yielded from `start()`.
+	/// In other words, this will create a new `SignalProducer` which will apply
+	/// the given `Signal` operator to _every_ created `Signal`, just as if the
+	/// operator had been applied to each `Signal` yielded from `start()`.
+	///
+	/// - parameters:
+	///   - transform: An unary operator to lift.
+	///
+	/// - returns: A signal producer that applies signal's operator to every
+	///            created signal.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F>(transform: Signal<Value, Error> -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
@@ -509,15 +526,20 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Lifts a binary Signal operator to operate upon SignalProducers instead.
+	/// Lift a binary Signal operator to operate upon SignalProducers instead.
 	///
-	/// In other words, this will create a new SignalProducer which will apply
-	/// the given Signal operator to _every_ Signal created from the two
-	/// producers, just as if the operator had been applied to each Signal
+	/// In other words, this will create a new `SignalProducer` which will apply
+	/// the given `Signal` operator to _every_ `Signal` created from the two
+	/// producers, just as if the operator had been applied to each `Signal`
 	/// yielded from `start()`.
 	///
-	/// Note: starting the returned producer will start the receiver of the
-	/// operator, which may not be adviseable for some operators.
+	/// - note: starting the returned producer will start the receiver of the
+	///         operator, which may not be adviseable for some operators.
+	///
+	/// - parameters:
+	///   - transform: A binary operator to lift.
+	///
+	/// - returns: A binary operator that operates on two signal producers.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> SignalProducer<U, F> -> SignalProducer<V, G> {
 		return liftRight(transform)
@@ -565,20 +587,27 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Lifts a binary Signal operator to operate upon a Signal and a
+	/// Lift a binary Signal operator to operate upon a Signal and a
 	/// SignalProducer instead.
 	///
-	/// In other words, this will create a new SignalProducer which will apply
-	/// the given Signal operator to _every_ Signal created from the two
-	/// producers, just as if the operator had been applied to each Signal
+	/// In other words, this will create a new `SignalProducer` which will apply
+	/// the given `Signal` operator to _every_ `Signal` created from the two
+	/// producers, just as if the operator had been applied to each `Signal`
 	/// yielded from `start()`.
+	///
+	/// - parameters:
+	///   - transform: A binary operator to lift.
+	///
+	/// - returns: A binary operator that works on `Signal` and returns
+	///            `SignalProducer`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func lift<U, F, V, G>(transform: Signal<Value, Error> -> Signal<U, F> -> Signal<V, G>) -> Signal<U, F> -> SignalProducer<V, G> {
 		return { otherSignal in
 			return SignalProducer { observer, outerDisposable in
 				let (wrapperSignal, otherSignalObserver) = Signal<U, F>.pipe()
 
-				// Avoid memory leak caused by the direct use of the given signal.
+				// Avoid memory leak caused by the direct use of the given
+				// signal.
 				//
 				// See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2758
 				// for the details.
@@ -595,148 +624,206 @@ extension SignalProducerType {
 		}
 	}
 	
-	/// Maps each value in the producer to a new value.
+	/// Map each value in the producer to a new value.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value and returns a different
+	///                value.
+	///
+	/// - returns: A signal producer that, when started, will send a mapped
+	///            value of `self.`
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func map<U>(transform: Value -> U) -> SignalProducer<U, Error> {
 		return lift { $0.map(transform) }
 	}
 
-	/// Maps errors in the producer to a new error.
+	/// Map errors in the producer to a new error.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts an error object and returns a
+	///                different error.
+	///
+	/// - returns: A producer that emits errors of new type.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func mapError<F>(transform: Error -> F) -> SignalProducer<Value, F> {
 		return lift { $0.mapError(transform) }
 	}
 
-	/// Preserves only the values of the producer that pass the given predicate.
+	/// Preserve only the values of the producer that pass the given predicate.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts value and returns `Bool` denoting
+	///                whether value has passed the test.
+	///
+	/// - returns: A producer that, when started, will send only the values
+	///            passing the given predicate.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func filter(predicate: Value -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.filter(predicate) }
 	}
 
-	/// Returns a producer that will yield the first `count` values from the
-	/// input producer.
+	/// Yield the first `count` values from the input producer.
+	///
+	/// - precondition: `count` must be non-negative number.
+	///
+	/// - parameters:
+	///   - count: A number of values to take from the signal.
+	///
+	/// - returns: A producer that, when started, will yield the first `count`
+	///            values from `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func take(count: Int) -> SignalProducer<Value, Error> {
 		return lift { $0.take(count) }
 	}
 
-	/// Returns a producer that will yield an array of values when `self` 
-	/// completes.
+	/// Yield an array of values when `self` completes.
 	///
-	/// - Note: When `self` completes without collecting any value, it will sent
-	/// an empty array of values.
+	/// - note: When `self` completes without collecting any value, it will send
+	///         an empty array of values.
+	///
+	/// - returns: A producer that, when started, will yield an array of values
+	///            when `self` completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect() -> SignalProducer<[Value], Error> {
 		return lift { $0.collect() }
 	}
 
-	/// Returns a producer that will yield an array of values until it reaches a
-	/// certain count.
+	/// Yield an array of values until it reaches a certain count.
 	///
-	/// When the count is reached the array is sent and the producer starts over
-	/// yielding a new array of values.
+	/// - precondition: `count` should be greater than zero.
 	///
-	/// - Precondition: `count` should be greater than zero.
+	/// - note: When the count is reached the array is sent and the signal
+	///         starts over yielding a new array of values.
 	///
-	/// - Note: When `self` completes any remaining values will be sent, the
-	/// last array may not have `count` values. Alternatively, if were not
-	/// collected any values will sent an empty array of values.
+	/// - note: When `self` completes any remaining values will be sent, the
+	///         last array may not have `count` values. Alternatively, if were
+	///         not collected any values will sent an empty array of values.
+	///
+	/// - returns: A producer that, when started, collects at most `count`
+	///            values from `self`, forwards them as a single array and
+	///            completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect(count count: Int) -> SignalProducer<[Value], Error> {
 		precondition(count > 0)
 		return lift { $0.collect(count: count) }
 	}
 
-	/// Returns a producer that will yield an array of values based on a
-	/// predicate which matches the values collected.
+	/// Yield an array of values based on a predicate which matches the values
+	/// collected.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent
-	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The most recent value (`next`) is included in
-	/// `values` and will be the end of the current array of values if the
-	/// predicate returns `true`.
-	///
-	/// - Note: When `self` completes any remaining values will be sent, the
+	/// - note: When `self` completes any remaining values will be sent, the
 	///         last array may not match `predicate`. Alternatively, if were not
 	///         collected any values will sent an empty array of values.
 	///
-	/// #### Example
+	/// ````
+	/// let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 	///
-	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	/// producer
+	///     .collect { values in values.reduce(0, combine: +) == 8 }
+	///     .startWithNext { print($0) }
 	///
-	///     producer
-	///         .collect { values in values.reduce(0, combine: +) == 8 }
-	///         .startWithNext { print($0) }
+	/// observer.sendNext(1)
+	/// observer.sendNext(3)
+	/// observer.sendNext(4)
+	/// observer.sendNext(7)
+	/// observer.sendNext(1)
+	/// observer.sendNext(5)
+	/// observer.sendNext(6)
+	/// observer.sendCompleted()
 	///
-	///     observer.sendNext(1)
-	///     observer.sendNext(3)
-	///     observer.sendNext(4)
-	///     observer.sendNext(7)
-	///     observer.sendNext(1)
-	///     observer.sendNext(5)
-	///     observer.sendNext(6)
-	///     observer.sendCompleted()
+	/// // Output:
+	/// // [1, 3, 4]
+	/// // [7, 1]
+	/// // [5, 6]
+	/// ````
 	///
-	///     // Output:
-	///     // [1, 3, 4]
-	///     // [7, 1]
-	///     // [5, 6]
+	/// - parameters:
+	///   - predicate: Predicate to match when values should be sent (returning
+	///                `true`) or alternatively when they should be collected
+	///                (where it should return `false`). The most recent value
+	///                (`next`) is included in `values` and will be the end of
+	///                the current array of values if the predicate returns
+	///                `true`.
+	///
+	/// - returns: A producer that, when started, collects values passing the
+	///            predicate and, when `self` completes, forwards them as a
+	///            single array and complets.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect(predicate: (values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
-	/// Returns a producer that will yield an array of values based on a
-	/// predicate which matches the values collected and the next value.
+	/// Yield an array of values based on a predicate which matches the values
+	/// collected and the next value.
 	///
-	/// - parameter predicate: Predicate to match when values should be sent
-	/// (returning `true`) or alternatively when they should be collected (where
-	/// it should return `false`). The most recent value (`next`) is not
-	/// included in `values` and will be the start of the next array of values
-	/// if the predicate returns `true`.
+	/// - note: When `self` completes any remaining values will be sent, the
+	///         last array may not match `predicate`. Alternatively, if no
+	///         values were collected an empty array will be sent.
 	///
-	/// - Note: When `self` completes any remaining values will be sent, the
-	///         last array may not match `predicate`. Alternatively, if were not
-	///         collected any values will sent an empty array of values.
+	/// ````
+	/// let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
 	///
-	/// #### Example
+	/// producer
+	///     .collect { values, next in next == 7 }
+	///     .startWithNext { print($0) }
 	///
-	///     let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+	/// observer.sendNext(1)
+	/// observer.sendNext(1)
+	/// observer.sendNext(7)
+	/// observer.sendNext(7)
+	/// observer.sendNext(5)
+	/// observer.sendNext(6)
+	/// observer.sendCompleted()
 	///
-	///     producer
-	///         .collect { values, next in next == 7 }
-	///         .startWithNext { print($0) }
+	/// // Output:
+	/// // [1, 1]
+	/// // [7]
+	/// // [7, 5, 6]
+	/// ````
 	///
-	///     observer.sendNext(1)
-	///     observer.sendNext(1)
-	///     observer.sendNext(7)
-	///     observer.sendNext(7)
-	///     observer.sendNext(5)
-	///     observer.sendNext(6)
-	///     observer.sendCompleted()
+	/// - parameters:
+	///   - predicate: Predicate to match when values should be sent (returning
+	///                `true`) or alternatively when they should be collected
+	///                (where it should return `false`). The most recent value
+	///                (`next`) is not included in `values` and will be the
+	///                start of the next array of values if the predicate
+	///                returns `true`.
 	///
-	///     // Output:
-	///     // [1, 1]
-	///     // [7]
-	///     // [7, 5, 6]
+	/// - returns: A signal that will yield an array of values based on a
+	///            predicate which matches the values collected and the next
+	///            value.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func collect(predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
-	/// Forwards all events onto the given scheduler, instead of whichever
+	/// Forward all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
+	///
+	/// - parameters:
+	///   - scheduler: A scheduler to deliver events on.
+	///
+	/// - returns: A producer that, when started, will yield `self` values on
+	///            provided scheduler.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func observeOn(scheduler: SchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.observeOn(scheduler) }
 	}
 
-	/// Combines the latest value of the receiver with the latest value from
-	/// the given producer.
+	/// Combine the latest value of the receiver with the latest value from the
+	/// given producer.
 	///
-	/// The returned producer will not send a value until both inputs have sent
-	/// at least one value each. If either producer is interrupted, the returned
-	/// producer will also be interrupted.
+	/// - note: The returned producer will not send a value until both inputs 
+	///         have sent at least one value each. 
+	///
+	/// - note: If either producer is interrupted, the returned producer will
+	///         also be interrupted.
+	///
+	/// - parameters:
+	///   - otherProducer: A producer to combine `self`'s value with.
+	///
+	/// - returns: A producer that, when started, will yield a tuple containing
+	///            values of `self` and given producer.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
 		// This should be the implementation of this method:
@@ -760,28 +847,49 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Combines the latest value of the receiver with the latest value from
+	/// Combine the latest value of the receiver with the latest value from
 	/// the given signal.
 	///
-	/// The returned producer will not send a value until both inputs have sent
-	/// at least one value each. If either input is interrupted, the returned
-	/// producer will also be interrupted.
+	/// - note: The returned producer will not send a value until both inputs
+	///         have sent at least one value each. 
+	///
+	/// - note: If either input is interrupted, the returned producer will also
+	///         be interrupted.
+	///
+	/// - parameters:
+	///   - otherSignal: A signal to combine `self`'s value with.
+	///
+	/// - returns: A producer that, when started, will yield a tuple containing
+	///            values of `self` and given signal.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
 		return lift(Signal.combineLatestWith)(otherSignal)
 	}
 
-	/// Delays `Next` and `Completed` events by the given interval, forwarding
+	/// Delay `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// `Failed` and `Interrupted` events are always scheduled immediately.
+	/// - note: `Failed` and `Interrupted` events are always scheduled
+	///         immediately.
+	///
+	/// - parameters:
+	///   - interval: Interval to delay `Next` and `Completed` events by.
+	///   - scheduler: A scheduler to deliver delayed events on.
+	///
+	/// - returns: A producer that, when started, will delay `Next` and
+	///            `Completed` events and will yield them on given scheduler.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.delay(interval, onScheduler: scheduler) }
 	}
 
-	/// Returns a producer that will skip the first `count` values, then forward
-	/// everything afterward.
+	/// Skip the first `count` values, then forward everything afterward.
+	///
+	/// - parameters:
+	///   - count: A number of values to skip.
+	///
+	/// - returns:  A producer that, when started, will skip the first `count`
+	///             values, then forward everything afterward.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skip(count: Int) -> SignalProducer<Value, Error> {
 		return lift { $0.skip(count) }
@@ -792,74 +900,103 @@ extension SignalProducerType {
 	///
 	/// In other words, this brings Events “into the monad.”
 	///
-	/// When a Completed or Failed event is received, the resulting producer
-	/// will send the Event itself and then complete. When an Interrupted event
-	/// is received, the resulting producer will send the Event itself and then
-	/// interrupt.
+	/// - note: When a Completed or Failed event is received, the resulting
+	///         producer will send the Event itself and then complete. When an
+	///         `Interrupted` event is received, the resulting producer will
+	///         send the `Event` itself and then interrupt.
+	///
+	/// - returns: A producer that sends events as its values.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func materialize() -> SignalProducer<Event<Value, Error>, NoError> {
 		return lift { $0.materialize() }
 	}
 
-	/// Forwards the latest value from `self` with the value from `sampler` as a
-	/// tuple, only when `sampler` sends a Next event.
+	/// Forward the latest value from `self` with the value from `sampler` as a
+	/// tuple, only when `sampler` sends a `Next` event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`,
+	///         nothing happens.
 	///
-	/// Returns a producer that will send values from `self` and `sampler`, 
-	/// sampled (possibly multiple times) by `sampler`, then complete once both
-	/// input producers have completed, or interrupt if either input producer is
-	/// interrupted.
+	/// - parameters:
+	///   - sampler: A producer that will trigger the delivery of `Next` event
+	///              from `self`.
+	///
+	/// - returns: A producer that will send values from `self` and `sampler`,
+	///            sampled (possibly multiple times) by `sampler`, then complete
+	///            once both input producers have completed, or interrupt if
+	///            either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleWith<T>(sampler: SignalProducer<T, NoError>) -> SignalProducer<(Value, T), Error> {
 		return liftLeft(Signal.sampleWith)(sampler)
 	}
 	
-	/// Forwards the latest value from `self` with the value from `sampler` as a
-	/// tuple, only when `sampler` sends a Next event.
+	/// Forward the latest value from `self` with the value from `sampler` as a
+	/// tuple, only when `sampler` sends a `Next` event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`,
+	///         nothing happens.
 	///
-	/// Returns a producer that will send values from `self` and `sampler`,
-	/// sampled (possibly multiple times) by `sampler`, then complete once both
-	/// inputs have completed, or interrupt if either input is interrupted.
+	/// - parameters:
+	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///              from `self`.
+	///
+	/// - returns: A producer that, when started, will send values from `self`
+	///            and `sampler`, sampled (possibly multiple times) by
+	///            `sampler`, then complete once both input producers have
+	///            completed, or interrupt if either input producer is
+	///            interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleWith<T>(sampler: Signal<T, NoError>) -> SignalProducer<(Value, T), Error> {
 		return lift(Signal.sampleWith)(sampler)
 	}
 
-	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
 	/// event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`,
+	///         nothing happens.
 	///
-	/// Returns a producer that will send values from `self`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both input producers
-	/// have completed, or interrupt if either input producer is interrupted.
+	/// - parameters:
+	///   - sampler: A producer that will trigger the delivery of `Next` event
+	///              from `self`.
+	///
+	/// - returns: A producer that, when started, will send values from `self`,
+	///            sampled (possibly multiple times) by `sampler`, then complete
+	///            once both input producers have completed, or interrupt if
+	///            either input producer is interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return liftLeft(Signal.sampleOn)(sampler)
 	}
 
-	/// Forwards the latest value from `self` whenever `sampler` sends a Next
+	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
 	/// event.
 	///
-	/// If `sampler` fires before a value has been observed on `self`, nothing
-	/// happens.
+	/// - note: If `sampler` fires before a value has been observed on `self`,
+	///         nothing happens.
 	///
-	/// Returns a producer that will send values from `self`, sampled (possibly
-	/// multiple times) by `sampler`, then complete once both inputs have
-	/// completed, or interrupt if either input is interrupted.
+	/// - parameters:
+	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///              deliver of events on `self`.
+	///
+	/// - returns: A producer that will send values from `self`, sampled
+	///            (possibly multiple times) by `sampler`, then complete once 
+	///            both inputs have completed, or interrupt if either input is
+	///            interrupted.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func sampleOn(sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sampleOn)(sampler)
 	}
 
-	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// Forward events from `self` until `trigger` sends a `Next` or `Completed`
 	/// event, at which point the returned producer will complete.
+	///
+	/// - parameters:
+	///   - trigger: A producer whose `Next` or `Completed` events will stop the
+	///              delivery of `Next` events from `self`.
+	///
+	/// - returns: A producer that will deliver events until `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		// This should be the implementation of this method:
@@ -885,77 +1022,135 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Forwards events from `self` until `trigger` sends a Next or Completed
+	/// Forward events from `self` until `trigger` sends a Next or Completed
 	/// event, at which point the returned producer will complete.
+	///
+	/// - parameters:
+	///   - trigger: A signal whose `Next` or `Completed` events will stop the
+	///              delivery of `Next` events from `self`.
+	///
+	/// - returns: A producer that will deliver events until `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntil(trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.takeUntil)(trigger)
 	}
 
-	/// Does not forward any values from `self` until `trigger` sends a `Next`
-	/// or `Completed`, at which point the returned signal behaves exactly like
-	/// `signal`.
+	/// Do not forward any values from `self` until `trigger` sends a `Next`
+	/// or `Completed`, at which point the returned producer behaves exactly
+	/// like `producer`.
+	///
+	/// - parameters:
+	///   - trigger: A producer whose `Next` or `Completed` events will start
+	///              the deliver of events on `self`.
+	///
+	/// - returns: A producer that will deliver events once the `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skipUntil(trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return liftRight(Signal.skipUntil)(trigger)
 	}
 	
-	/// Does not forward any values from `self` until `trigger` sends a `Next`
+	/// Do not forward any values from `self` until `trigger` sends a `Next`
 	/// or `Completed`, at which point the returned signal behaves exactly like
 	/// `signal`.
+	///
+	/// - parameters:
+	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///              deliver of events on `self`.
+	///
+	/// - returns: A producer that will deliver events once the `trigger` sends
+	///            `Next` or `Completed` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skipUntil(trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.skipUntil)(trigger)
 	}
 	
-	/// Forwards events from `self` with history: values of the returned
-	/// producer are a tuple whose first member is the previous value and whose
-	/// second member is the current value. `initial` is supplied as the first
-	/// member when `self` sends its first value.
+	/// Forward events from `self` with history: values of the returned producer
+	/// are a tuple whose first member is the previous value and whose second
+	/// member is the current value. `initial` is supplied as the first member
+	/// when `self` sends its first value.
+	///
+	/// - parameters:
+	///   - initial: A value that will be combined with the first value sent by
+	///              `self`.
+	///
+	/// - returns: A producer that sends tuples that contain previous and
+	///            current sent values of `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combinePrevious(initial: Value) -> SignalProducer<(Value, Value), Error> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
-	/// Like `scan`, but sends only the final value and then immediately
-	/// completes.
+	/// Send only the final value and then immediately completes.
+	///
+	/// - parameters:
+	///   - initial: Initial value for the accumulator.
+	///   - combine: A closure that accepts accumulator and sent value of
+	///              `self`.
+	///
+	/// - returns: A producer that sends accumulated value after `self`
+	///             completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.reduce(initial, combine) }
 	}
 
-	/// Aggregates `self`'s values into a single combined value. When `self`
+	/// Aggregate `self`'s values into a single combined value. When `self`
 	/// emits its first value, `combine` is invoked with `initial` as the first
 	/// argument and that emitted value as the second argument. The result is
 	/// emitted from the producer returned from `scan`. That result is then
 	/// passed to `combine` as the first argument when the next value is
 	/// emitted, and so on.
+	///
+	/// - parameters:
+	///   - initial: Initial value for the accumulator.
+	///   - combine: A closure that accepts accumulator and sent value of
+	///              `self`.
+	///
+	/// - returns: A producer that sends accumulated value each time `self`
+	///            emits own value.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func scan<U>(initial: U, _ combine: (U, Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.scan(initial, combine) }
 	}
 
-	/// Forwards only those values from `self` which do not pass `isRepeat` with
-	/// respect to the previous value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value.
+	///
+	/// - note: The first value is always forwarded.
+	///
+	/// - returns: A producer that does not send two equal values sequentially.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skipRepeats(isRepeat: (Value, Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 
-	/// Does not forward any values from `self` until `predicate` returns false,
-	/// at which point the returned signal behaves exactly like `self`.
+	/// Do not forward any values from `self` until `predicate` returns false,
+	/// at which point the returned producer behaves exactly like `self`.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts a value and returns whether `self`
+	///                should still not forward that value to a `producer`.
+	///
+	/// - returns: A producer that sends only forwarded values from `self`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skipWhile(predicate: Value -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.skipWhile(predicate) }
 	}
 
-	/// Forwards events from `self` until `replacement` begins sending events.
+	/// Forward events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a producer which passes through `Next`, `Failed`, and
-	/// `Interrupted` events from `self` until `replacement` sends an event, at
-	/// which point the returned producer will send that event and switch to
-	/// passing through events from `replacement` instead, regardless of whether
-	/// `self` has sent events already.
+	/// - parameters:
+	///   - replacement: A producer to wait to wait for values from and start
+	///                  sending them as a replacement to `self`'s values.
+	///
+	/// - returns: A producer which passes through `Next`, `Failed`, and
+	///            `Interrupted` events from `self` until `replacement` sends an 
+	///            event, at which point the returned producer will send that
+	///            event and switch to passing through events from `replacement` 
+	///            instead, regardless of whether `self` has sent events
+	///            already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntilReplacement(replacement: SignalProducer<Value, Error>) -> SignalProducer<Value, Error> {
 		return liftRight(Signal.takeUntilReplacement)(replacement)
@@ -963,54 +1158,96 @@ extension SignalProducerType {
 
 	/// Forwards events from `self` until `replacement` begins sending events.
 	///
-	/// Returns a producer which passes through `Next`, `Error`, and
-	/// `Interrupted` events from `self` until `replacement` sends an event, at
-	/// which point the returned producer will send that event and switch to
-	/// passing through events from `replacement` instead, regardless of whether
-	/// `self` has sent events already.
+	/// - parameters:
+	///   - replacement: A signal to wait to wait for values from and start
+	///                  sending them as a replacement to `self`'s values.
+	///
+	/// - returns: A producer which passes through `Next`, `Failed`, and
+	///            `Interrupted` events from `self` until `replacement` sends an
+	///            event, at which point the returned producer will send that
+	///            event and switch to passing through events from `replacement`
+	///            instead, regardless of whether `self` has sent events
+	///            already.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeUntilReplacement(replacement: Signal<Value, Error>) -> SignalProducer<Value, Error> {
 		return lift(Signal.takeUntilReplacement)(replacement)
 	}
 
-	/// Waits until `self` completes and then forwards the final `count` values
+	/// Wait until `self` completes and then forward the final `count` values
 	/// on the returned producer.
+	///
+	/// - parameters:
+	///   - count: Number of last events to send after `self` completes.
+	///
+	/// - returns: A producer that receives up to `count` values from `self`
+	///            after `self` completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeLast(count: Int) -> SignalProducer<Value, Error> {
 		return lift { $0.takeLast(count) }
 	}
 
-	/// Forwards any values from `self` until `predicate` returns false,
-	/// at which point the returned producer will complete.
+	/// Forward any values from `self` until `predicate` returns false, at which
+	/// point the returned producer will complete.
+	///
+	/// - parameters:
+	///   - predicate: A closure that accepts value and returns `Bool` value
+	///                whether `self` should forward it to `signal` and continue
+	///                sending other events.
+	///
+	/// - returns: A producer that sends events until the values sent by `self`
+	///            pass the given `predicate`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func takeWhile(predicate: Value -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.takeWhile(predicate) }
 	}
 
-	/// Zips elements of two producers into pairs. The elements of any Nth pair
+	/// Zip elements of two producers into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input producers.
+	///
+	/// - parameters:
+	///   - otherProducer: A producer to zip values with.
+	///
+	/// - returns: A producer that sends tuples of `self` and `otherProducer`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
 		return liftRight(Signal.zipWith)(otherProducer)
 	}
 
-	/// Zips elements of this producer and a signal into pairs. The elements of
+	/// Zip elements of this producer and a signal into pairs. The elements of
 	/// any Nth pair are the Nth elements of the two.
+	///
+	/// - parameters:
+	///   - otherSignal: A signal to zip values with.
+	///
+	/// - returns: A producer that sends tuples of `self` and `otherSignal`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherSignal: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
 		return lift(Signal.zipWith)(otherSignal)
 	}
 
-	/// Applies `operation` to values from `self` with `Success`ful results
+	/// Apply `operation` to values from `self` with `Success`ful results
 	/// forwarded on the returned producer and `Failure`s sent as `Failed`
 	/// events.
+	///
+	/// - parameters:
+	///   - operation: A closure that accepts a value and returns a `Result`.
+	///
+	/// - returns: A producer that receives `Success`ful `Result` as `Next`
+	///            event and `Failure` as `Failed` event.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func attempt(operation: Value -> Result<(), Error>) -> SignalProducer<Value, Error> {
 		return lift { $0.attempt(operation) }
 	}
 
-	/// Applies `operation` to values from `self` with `Success`ful results
+	/// Apply `operation` to values from `self` with `Success`ful results
 	/// mapped on the returned producer and `Failure`s sent as `Failed` events.
+	///
+	/// - parameters:
+	///   - operation: A closure that accepts a value and returns a result of
+	///                a mapped value as `Success`.
+	///
+	/// - returns: A producer that sends mapped values from `self` if returned
+	///            `Result` is `Success`ful, `Failed` events otherwise.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func attemptMap<U>(operation: Value -> Result<U, Error>) -> SignalProducer<U, Error> {
 		return lift { $0.attemptMap(operation) }
@@ -1019,36 +1256,62 @@ extension SignalProducerType {
 	/// Throttle values sent by the receiver, so that at least `interval`
 	/// seconds pass between each, then forwards them on the given scheduler.
 	///
-	/// If multiple values are received before the interval has elapsed, the
-	/// latest value is the one that will be passed on.
+	/// - note: If multiple values are received before the interval has elapsed,
+	///         the latest value is the one that will be passed on.
 	///
-	/// If `self` terminates while a value is being throttled, that value will
-	/// be discarded and the returned producer will terminate immediately.
+	/// - norw: If `self` terminates while a value is being throttled, that
+	///         value will be discarded and the returned producer will terminate
+	///         immediately.
+	///
+	/// - parameters:
+	///   - interval: Number of seconds to wait between sent values.
+	///   - scheduler: A scheduler to deliver events on.
+	///
+	/// - returns: A producer that sends values at least `interval` seconds
+	///            appart on a given scheduler.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.throttle(interval, onScheduler: scheduler) }
 	}
 
 	/// Debounce values sent by the receiver, such that at least `interval`
-	/// seconds pass after the receiver has last sent a value, then forwards the
-	/// latest value on the given scheduler.
+	/// seconds pass after the receiver has last sent a value, then
+	/// forward the latest value on the given scheduler.
 	///
-	/// If multiple values are received before the interval has elapsed, the
-	/// latest value is the one that will be passed on.
+	/// - note: If multiple values are received before the interval has elapsed,
+	///         the latest value is the one that will be passed on.
 	///
-	/// If `self` terminates while a value is being debounced, that value will
-	/// be discarded and the returned producer will terminate immediately.
+	/// - note: If `self` terminates while a value is being debounced,
+	///         that value will be discarded and the returned producer will
+	///         terminate immediately.
+	///
+	/// - parameters:
+	///   - interval: A number of seconds to wait before sending a value.
+	///   - scheduler: A scheduler to send values on.
+	///
+	/// - returns: A producer that sends values that are sent from `self` at
+	///            least `interval` seconds apart.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func debounce(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.debounce(interval, onScheduler: scheduler) }
 	}
 
-	/// Forwards events from `self` until `interval`. Then if producer isn't
+	/// Forward events from `self` until `interval`. Then if producer isn't
 	/// completed yet, fails with `error` on `scheduler`.
 	///
-	/// If the interval is 0, the timeout will be scheduled immediately. The
-	/// producer must complete synchronously (or on a faster scheduler) to avoid
-	/// the timeout.
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The producer must complete synchronously (or on a faster 
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - error: Error to send with `Failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A producer that sends events for at most `interval` seconds,
+	///            then, if not `Completed` - sends `error` with `Failed` event
+	///            on `scheduler`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func timeoutWithError(error: Error, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<Value, Error> {
 		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
@@ -1058,6 +1321,8 @@ extension SignalProducerType {
 extension SignalProducerType where Value: OptionalType {
 	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
 	/// values are dropped.
+	///
+	/// - returns: A producer that sends only non-nil values.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func ignoreNil() -> SignalProducer<Value.Wrapped, Error> {
 		return lift { $0.ignoreNil() }
@@ -1065,8 +1330,10 @@ extension SignalProducerType where Value: OptionalType {
 }
 
 extension SignalProducerType where Value: EventType, Error == NoError {
-	/// The inverse of materialize(), this will translate a signal of `Event`
-	/// _values_ into a signal of those events themselves.
+	/// The inverse of materialize(), this will translate a producer of `Event`
+	/// _values_ into a producer of those events themselves.
+	///
+	/// - returns: A producer that sends values carried by `self` events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func dematerialize() -> SignalProducer<Value.Value, Value.Error> {
 		return lift { $0.dematerialize() }
@@ -1074,12 +1341,17 @@ extension SignalProducerType where Value: EventType, Error == NoError {
 }
 
 extension SignalProducerType where Error == NoError {
-	/// Promotes a producer that does not generate failures into one that can.
+	/// Promote a producer that does not generate failures into one that can.
 	///
-	/// This does not actually cause failers to be generated for the given
-	/// producer, but makes it easier to combine with other producers that may
-	/// fail; for example, with operators like `combineLatestWith`, `zipWith`, 
-	/// `flatten`, etc.
+	/// - note: This does not actually cause failers to be generated for the
+	///         given producer, but makes it easier to combine with other
+	///         producers that may fail; for example, with operators like
+	///         `combineLatestWith`, `zipWith`, `flatten`, etc.
+	///
+	/// - parameters:
+	///   - _ An `ErrorType`.
+	///
+	/// - returns: A producer that has an instantiatable `ErrorType`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func promoteErrors<F: ErrorType>(_: F.Type) -> SignalProducer<Value, F> {
 		return lift { $0.promoteErrors(F) }
@@ -1087,8 +1359,12 @@ extension SignalProducerType where Error == NoError {
 }
 
 extension SignalProducerType where Value: Equatable {
-	/// Forwards only those values from `self` which are not duplicates of the
-	/// immedately preceding value. The first value is always forwarded.
+	/// Forward only those values from `self` which are not duplicates of the
+	/// immedately preceding value.
+	///
+	/// - note: The first value is always forwarded.
+	///
+	/// - returns: A producer that does not send two equal values sequentially.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func skipRepeats() -> SignalProducer<Value, Error> {
 		return lift { $0.skipRepeats() }
@@ -1096,10 +1372,17 @@ extension SignalProducerType where Value: Equatable {
 }
 
 extension SignalProducerType {
-	/// Forwards only those values from `self` that have unique identities
-	/// across the set of all values that have been seen.
+	/// Forward only those values from `self` that have unique identities across
+	/// the set of all values that have been seen.
 	///
-	/// Note: This causes the identities to be retained to check for uniqueness.
+	/// - note: This causes the identities to be retained to check for 
+	///         uniqueness.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value and returns identity
+	///                value.
+	///
+	/// - returns: A producer that sends unique values during its lifetime.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func uniqueValues<Identity: Hashable>(transform: Value -> Identity) -> SignalProducer<Value, Error> {
 		return lift { $0.uniqueValues(transform) }
@@ -1107,23 +1390,33 @@ extension SignalProducerType {
 }
 
 extension SignalProducerType where Value: Hashable {
-	/// Forwards only those values from `self` that are unique across the set of
+	/// Forward only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
-	/// Note: This causes the values to be retained to check for uniqueness. 
-	/// Providing a function that returns a unique value for each sent value can
-	/// help you reduce the memory footprint.
+	/// - note: This causes the values to be retained to check for uniqueness.
+	///         Providing a function that returns a unique value for each sent
+	///         value can help you reduce the memory footprint.
+	///
+	/// - returns: A producer that sends unique values during its lifetime.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func uniqueValues() -> SignalProducer<Value, Error> {
 		return lift { $0.uniqueValues() }
 	}
 }
 
-/// Creates a repeating timer of the given interval, with a reasonable default
+/// Create a repeating timer of the given interval, with a reasonable default
 /// leeway, sending updates on the given scheduler.
 ///
-/// This timer will never complete naturally, so all invocations of `start()`
-/// must be disposed to avoid leaks.
+/// - note: This timer will never complete naturally, so all invocations of
+///         `start()` must be disposed to avoid leaks.
+///
+/// - precondition: Interval must be non-negative number.
+///
+/// - parameters:
+///   - interval: An interval between invocations.
+///   - scheduler: A scheduler to deliver events on.
+///
+/// - returns: A producer that sends `NSDate` values every `interval` seconds.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<NSDate, NoError> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
@@ -1134,8 +1427,20 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 /// Creates a repeating timer of the given interval, sending updates on the
 /// given scheduler.
 ///
-/// This timer will never complete naturally, so all invocations of `start()`
-/// must be disposed to avoid leaks.
+/// - note: This timer will never complete naturally, so all invocations of
+///         `start()` must be disposed to avoid leaks.
+///
+/// - precondition: Interval must be non-negative number.
+///
+/// - precondition: Leeway must be non-negative number.
+///
+/// - parameters:
+///   - interval: An interval between invocations.
+///   - scheduler: A scheduler to deliver events on.
+///   - leeway: Interval leeway. Apple's "Power Efficiency Guide for Mac Apps"
+///             recommends a leeway of at least 10% of the timer interval.
+///
+/// - returns: A producer that sends `NSDate` values every `interval` seconds.
 @warn_unused_result(message="Did you forget to call `start` on the producer?")
 public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate, NoError> {
 	precondition(interval >= 0)
@@ -1149,7 +1454,21 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 }
 
 extension SignalProducerType {
-	/// Injects side effects to be performed upon the specified signal events.
+	/// Injects side effects to be performed upon the specified producer events.
+	///
+	/// - parameters:
+	///   - started: A closrure that is invoked when producer is started.
+	///   - event: A closure that accepts an event and is invoked on every
+	///            received event.
+	///   - failed: A closure that accepts error object and is invoked for
+	///             `Failed` event.
+	///   - completed: A closure that is invoked for `Completed` event.
+	///   - interrupted: A closure that is invoked for `Interrupted` event.
+	///   - terminated: A closure that is invoked for any terminating event.
+	///   - disposed: A closure added as disposable when signal completes.
+	///   - next: A closure that accepts a value from `Next` event.
+	///
+	/// - returns: A producer with attached side-effects for given event cases.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func on(started started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
@@ -1171,13 +1490,19 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Starts the returned signal on the given Scheduler.
+	/// Start the returned producer on the given `Scheduler`.
 	///
-	/// This implies that any side effects embedded in the producer will be
-	/// performed on the given scheduler as well.
+	/// - note: This implies that any side effects embedded in the producer will
+	///         be performed on the given scheduler as well.
 	///
-	/// Events may still be sent upon other schedulers—this merely affects where
-	/// the `start()` method is run.
+	/// - note: Events may still be sent upon other schedulers — this merely
+	///         affects where the `start()` method is run.
+	///
+	/// - parameters:
+	///   - scheduler: A scheduler to deliver events on.
+	///
+	/// - returns: A producer that will deliver events on given `scheduler` when
+	///            started.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func startOn(scheduler: SchedulerType) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
@@ -1381,8 +1706,20 @@ public func zip<S: SequenceType, Value, Error where S.Generator.Element == Signa
 }
 
 extension SignalProducerType {
-	/// Repeats `self` a total of `count` times. Repeating `1` times results in
-	/// an equivalent signal producer.
+	/// Repeat `self` a total of `count` times. In other words, start producer
+	/// `count` number of times, each one after previously started producer
+	/// completes.
+	///
+	/// - note: Repeating `1` time results in an equivalent signal producer.
+	///
+	/// - note: Repeating `0` times results in a producer that instantly
+	///         completes.
+	///
+	/// - parameters:
+	///   - count: Number of repetitions.
+	///
+	/// - returns: A signal producer start sequentially starts `self` after
+	///            previously started producer completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func times(count: Int) -> SignalProducer<Value, Error> {
 		precondition(count >= 0)
@@ -1420,7 +1757,14 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Ignores failures up to `count` times.
+	/// Ignore failures up to `count` times.
+	///
+	/// - precondition: `count` must be non-negative integer.
+	///
+	/// - parameters:
+	///   - count: Number of retries.
+	///
+	/// - returns: A signal producer that restarts up to `count` times.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func retry(count: Int) -> SignalProducer<Value, Error> {
 		precondition(count >= 0)
@@ -1434,11 +1778,18 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Waits for completion of `producer`, *then* forwards all events from
-	/// `replacement`. Any failure or interruption sent from `producer` is
+	/// Wait for completion of `self`, *then* forward all events from
+	/// `replacement`. Any failure or interruption sent from `self` is
 	/// forwarded immediately, in which case `replacement` will not be started,
-	/// and none of its events will be be forwarded. All values sent from
-	/// `producer` are ignored.
+	/// and none of its events will be be forwarded. 
+	///
+	/// - note: All values sent from `self` are ignored.
+	///
+	/// - parameters:
+	///   - replacement: A producer to start when `self` completes.
+	///
+	/// - returns: A producer that sends events from `self` and then from
+	///            `replacement` when `self` completes.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func then<U>(replacement: SignalProducer<U, Error>) -> SignalProducer<U, Error> {
 		return SignalProducer<U, Error> { observer, observerDisposable in
@@ -1461,17 +1812,28 @@ extension SignalProducerType {
 		}
 	}
 
-	/// Starts the producer, then blocks, waiting for the first value.
+	/// Start the producer, then block, waiting for the first value.
+	///
+	/// When a single value or error is sent, the returned `Result` will
+	/// represent those cases. However, when no values are sent, `nil` will be
+	/// returned.
+	///
+	/// - returns: Result when single `Next` or `Failed` event is received.
+	///            `nil` when no events are received.
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func first() -> Result<Value, Error>? {
 		return take(1).single()
 	}
 
-	/// Starts the producer, then blocks, waiting for events: Next and
+	/// Start the producer, then block, waiting for events: Next and
 	/// Completed.
+	///
 	/// When a single value or error is sent, the returned `Result` will
 	/// represent those cases. However, when no values are sent, or when more
 	/// than one value is sent, `nil` will be returned.
+	///
+	/// - returns: Result when single `Next` or `Failed` event is received. 
+	///            `nil` when 0 or more than 1 events are received.
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func single() -> Result<Value, Error>? {
 		let semaphore = dispatch_semaphore_create(0)
@@ -1498,13 +1860,26 @@ extension SignalProducerType {
 		return result
 	}
 
-	/// Starts the producer, then blocks, waiting for the last value.
+	/// Start the producer, then block, waiting for the last value.
+	///
+	/// When a single value or error is sent, the returned `Result` will
+	/// represent those cases. However, when no values are sent, `nil` will be
+	/// returned.
+	///
+	/// - returns: Result when single `Next` or `Failed` event is received.
+	///            `nil` when no events are received.
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func last() -> Result<Value, Error>? {
 		return takeLast(1).single()
 	}
 
 	/// Starts the producer, then blocks, waiting for completion.
+	///
+	/// When a completion or error is sent, the returned `Result` will represent
+	/// those cases.
+	///
+	/// - returns: Result when single `Completion` or `Failed` event is 
+	///            received.
 	@warn_unused_result(message="Did you forget to check the result?")
 	public func wait() -> Result<(), Error> {
 		return then(SignalProducer<(), Error>(value: ())).last() ?? .Success(())
@@ -1525,14 +1900,21 @@ extension SignalProducerType {
 	/// this operator, will guarantee at compile time that there's always a
 	/// buffered value. This operator is not recommended in most cases, as it
 	/// will introduce an implicit relationship between the original client and
-	/// the rest, so consider alternatives like `PropertyType`, 
-	/// `SignalProducer.buffer`, or representing your stream using a `Signal`
-	/// instead.
+	/// the rest, so consider alternatives like `PropertyType`, or representing
+	/// your stream using a `Signal` instead.
 	///
 	/// This operator is only recommended when you absolutely need to introduce
 	/// a layer of caching in front of another `SignalProducer`.
 	///
-	/// This operator has the same semantics as `SignalProducer.buffer`.
+	/// - note: This operator has the same semantics as `SignalProducer.buffer`.
+	///
+	/// - precondtion: `capacity` must be non-negative integer.
+	///
+	/// - parameters:
+	///   - capcity: Number of values to hold.
+	///
+	/// - returns: A caching producer that will hold up to last `capacity`
+	///            values.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func replayLazily(capacity: Int) -> SignalProducer<Value, Error> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")

@@ -11,7 +11,7 @@ public protocol ObserverProtocol {
 	associatedtype Value
 	associatedtype Error: ErrorProtocol
 
-	/// Puts an event into the given observer.
+	/// The wrapped action of `self`.
 	var action: (Event<Value, Error>) -> Void { get }
 
 	/// Puts a `Next` event into the given observer.

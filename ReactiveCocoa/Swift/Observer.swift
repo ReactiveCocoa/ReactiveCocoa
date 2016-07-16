@@ -11,6 +11,9 @@ public protocol ObserverProtocol {
 	associatedtype Value
 	associatedtype Error: ErrorProtocol
 
+	/// Puts an event into the given observer.
+	var action: (Event<Value, Error>) -> Void { get }
+
 	/// Puts a `Next` event into the given observer.
 	func sendNext(_ value: Value)
 
@@ -77,26 +80,22 @@ extension Observer: ObserverProtocol {
 }
 
 extension ObserverProtocol {
-	/// Create an observer which forwards events to `self`, and
-	/// invoke the given action upon receiving a terminating event.
+	/// Create an observer which invokes the given closures upon
+	/// the specified circumstances.
+	///
+	/// - parameters:
+	///   - terminated: An optional closure which would be invoked when a
+	///                 terminating event is received.
 	public func on(terminated: (() -> Void)? = nil) -> Observer<Value, Error> {
 		return Observer { event in
 			switch event {
 			case let .next(value):
 				self.sendNext(value)
-				return
 
-			case let .failed(error):
-				self.sendFailed(error)
-
-			case .completed:
-				self.sendCompleted()
-
-			case .interrupted:
-				self.sendInterrupted()
+			case .completed, .failed, .interrupted:
+				self.action(event)
+				terminated?()
 			}
-
-			terminated?()
 		}
 	}
 }

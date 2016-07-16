@@ -561,23 +561,10 @@ extension SignalProtocol {
 			let otherState = CombineLatestState<U>()
 
 			let disposable = CompositeDisposable()
+			let observer = observer.on(terminated: disposable.dispose)
+
 			let wrappedObserver = Observer<(), Error> { event in
-				switch event {
-				case .next:
-					observer.sendNext((signalState.latestValue!, otherState.latestValue!))
-
-				case .completed:
-					observer.sendCompleted()
-					disposable.dispose()
-
-				case .interrupted:
-					observer.sendInterrupted()
-					disposable.dispose()
-
-				case let .failed(error):
-					observer.sendFailed(error)
-					disposable.dispose()
-				}
+				observer.action(event.map { _ in (signalState.latestValue!, otherState.latestValue!) })
 			}
 
 			disposable += self.observeWithStates(signalState, otherState, lock, wrappedObserver)

@@ -322,14 +322,13 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	/// The returned signal completes only when `signal` and all producers
 	/// emitted from `signal` complete.
 	private func concat() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { relayObserver in
+		return Signal<Value.Value, Error> { observer in
 			let disposable = CompositeDisposable()
 			let relayDisposable = CompositeDisposable()
+			let relayObserver = observer.on(terminated: disposable.dispose)
 
 			disposable += relayDisposable
 			disposable += self.observeConcat(relayObserver, relayDisposable)
-
-			return disposable
 		}
 	}
 
@@ -478,14 +477,13 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	/// Merges a `signal` of SignalProducers down into a single signal, biased toward the producer
 	/// added earlier. Returns a Signal that will forward events from the inner producers as they arrive.
 	private func merge() -> Signal<Value.Value, Error> {
-		return Signal<Value.Value, Error> { relayObserver in
+		return Signal<Value.Value, Error> { observer in
 			let disposable = CompositeDisposable()
 			let relayDisposable = CompositeDisposable()
+			let relayObserver = observer.on(terminated: disposable.dispose)
 
 			disposable += relayDisposable
 			disposable += self.observeMerge(relayObserver, relayDisposable)
-
-			return disposable
 		}
 	}
 
@@ -593,11 +591,10 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		return Signal<Value.Value, Error> { observer in
 			let composite = CompositeDisposable()
 			let serial = SerialDisposable()
+			let relayObserver = observer.on(terminated: composite.dispose)
 
 			composite += serial
-			composite += self.observeSwitchToLatest(observer, serial)
-
-			return composite
+			composite += self.observeSwitchToLatest(relayObserver, serial)
 		}
 	}
 
@@ -863,8 +860,11 @@ extension SignalProtocol {
 		}
 	}
 
-	private func observeFlatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ serialDisposable: SerialDisposable) -> Disposable? {
-		return self.observe { event in
+	private func observeFlatMapError<F>(_ handler: (Error) -> SignalProducer<Value, F>, _ observer: Observer<Value, F>, _ serialDisposable: SerialDisposable) {
+		var disposable: Disposable?
+		let observer = observer.on(terminated: disposable?.dispose)
+
+		disposable = self.observe { event in
 			switch event {
 			case let .next(value):
 				observer.sendNext(value)

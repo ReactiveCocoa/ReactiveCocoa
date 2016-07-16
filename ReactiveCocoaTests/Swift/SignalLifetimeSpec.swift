@@ -21,14 +21,14 @@ class SignalLifetimeSpec: QuickSpec {
 			}
 
 			it("should deallocate") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }
+				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in }
 
 				expect(signal).to(beNil())
 			}
 
 			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in }
 					return signal
 				}()
 				expect(signal).to(beNil())
@@ -37,7 +37,7 @@ class SignalLifetimeSpec: QuickSpec {
 			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }
+					let signal: Signal<AnyObject, NoError> = Signal { _ in }
 					disposable = signal.observe(Observer())
 					return signal
 				}()
@@ -51,7 +51,6 @@ class SignalLifetimeSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendFailed(TestError.default)
 					}
-					return nil
 				}
 
 				var errored = false
@@ -72,7 +71,6 @@ class SignalLifetimeSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendCompleted()
 					}
-					return nil
 				}
 
 				var completed = false
@@ -93,8 +91,6 @@ class SignalLifetimeSpec: QuickSpec {
 					testScheduler.schedule {
 						observer.sendInterrupted()
 					}
-
-					return nil
 				}
 
 				var interrupted = false
@@ -184,14 +180,14 @@ class SignalLifetimeSpec: QuickSpec {
 
 		describe("testTransform") {
 			it("should deallocate") {
-				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }.testTransform()
+				weak var signal: Signal<AnyObject, NoError>? = Signal { _ in }.testTransform()
 
 				expect(signal).to(beNil())
 			}
 
 			it("should deallocate even if it has an observer") {
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.testTransform()
+					let signal: Signal<AnyObject, NoError> = Signal { _ in }.testTransform()
 					signal.observe(Observer())
 					return signal
 				}()
@@ -201,7 +197,7 @@ class SignalLifetimeSpec: QuickSpec {
 			it("should deallocate even if it has an observer with retained disposable") {
 				var disposable: Disposable? = nil
 				weak var signal: Signal<AnyObject, NoError>? = {
-					let signal: Signal<AnyObject, NoError> = Signal { _ in nil }.testTransform()
+					let signal: Signal<AnyObject, NoError> = Signal { _ in }.testTransform()
 					disposable = signal.observe(Observer())
 					return signal
 				}()

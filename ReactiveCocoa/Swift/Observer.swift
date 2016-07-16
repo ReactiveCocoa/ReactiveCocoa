@@ -75,3 +75,28 @@ extension Observer: ObserverProtocol {
 		action(.interrupted)
 	}
 }
+
+extension ObserverProtocol {
+	/// Creates an observer that pass through events to `self`, and
+	/// invokes the given action upon receiving a terminating event.
+	public func on(terminated: (() -> Void)? = nil) -> Observer<Value, Error> {
+		return Observer { event in
+			switch event {
+			case let .next(value):
+				self.sendNext(value)
+				return
+
+			case let .failed(error):
+				self.sendFailed(error)
+
+			case .completed:
+				self.sendCompleted()
+
+			case .interrupted:
+				self.sendInterrupted()
+			}
+
+			terminated?()
+		}
+	}
+}

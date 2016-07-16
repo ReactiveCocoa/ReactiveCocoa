@@ -92,8 +92,8 @@ public struct SignalProducer<Value, Error: ErrorType> {
 	
 	/// Creates a producer for a Signal that will immediately send the values
 	/// from the given sequence, then complete.
-	public init(values: Value...) {
-		self.init(values: values)
+	public init(values first: Value, _ second: Value, _ tail: Value...) {
+		self.init(values: [ first, second ] + tail)
 	}
 
 	/// A producer for a Signal that will immediately complete without sending

@@ -21,16 +21,16 @@ public final class Signal<Value, Error: ErrorType> {
 
 	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
 
-	/// Initializes a Signal that will immediately invoke the given generator,
+	/// Initialize a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
-	///
-	/// - parameters:
-	///   - generator: A closure that accepts an implicitly created observer
-	///                that will act as an event emitter for the signal.
 	///
 	/// - note: The disposable returned from the closure will be automatically
 	///         disposed if a terminating event is sent to the observer. The
 	///         Signal itself will remain alive until the observer is released.
+	///
+	/// - parameters:
+	///   - generator: A closure that accepts an implicitly created observer
+	///                that will act as an event emitter for the signal.
 	public init(@noescape _ generator: Observer -> Disposable?) {
 
 		/// Used to ensure that events are serialized during delivery to
@@ -101,7 +101,7 @@ public final class Signal<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Creates a Signal that will be controlled by sending events to the given
+	/// Create a Signal that will be controlled by sending events to the given
 	/// observer.
 	///
 	/// - note: The Signal will remain alive until a terminating event is sent
@@ -127,7 +127,7 @@ public final class Signal<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Observes the Signal by sending any future events to the given observer.
+	/// Observe the Signal by sending any future events to the given observer.
 	///
 	/// - note: If the Signal has already terminated, the observer will
 	///         immediately receive an `Interrupted` event.
@@ -206,7 +206,7 @@ extension SignalType {
 		return observe(Observer(next: next))
 	}
 
-	/// Observes the Signal by invoking the given callback when `next` or
+	/// Observe the `Signal` by invoking the given callback when `next` or
 	/// `failed` event are received.
 	///
 	/// - parameters:
@@ -226,7 +226,7 @@ extension SignalType {
 		)
 	}
 
-	/// Observes the Signal by invoking the given callback when a `completed`
+	/// Observe the `Signal` by invoking the given callback when a `completed`
 	/// event is received.
 	///
 	/// - parameters:
@@ -240,8 +240,8 @@ extension SignalType {
 		return observe(Observer(completed: completed))
 	}
 	
-	/// Observes the Signal by invoking the given callback when a `failed` event
-	/// is received.
+	/// Observe the `Signal` by invoking the given callback when a `failed` 
+	/// event is received.
 	///
 	/// - parameters:
 	///   - error: A closure that is called when `Failed` event is received. It
@@ -254,9 +254,9 @@ extension SignalType {
 		return observe(Observer(failed: error))
 	}
 	
-	/// Observes the Signal by invoking the given callback when an `interrupted`
-	/// event is received. If the Signal has already terminated, the callback
-	/// will be invoked immediately.
+	/// Observe the `Signal` by invoking the given callback when an 
+	/// `interrupted` event is received. If the Signal has already terminated, 
+	/// the callback will be invoked immediately.
 	///
 	/// - parameters:
 	///   - interrupted: A closure that is invoked when `Interrupted` event is
@@ -271,7 +271,7 @@ extension SignalType {
 }
 
 extension SignalType where Error == NoError {
-	/// Observes the Signal by invoking the given callback when `next` events are
+	/// Observe the Signal by invoking the given callback when `next` events are
 	/// received.
 	///
 	/// - parameters:
@@ -286,7 +286,7 @@ extension SignalType where Error == NoError {
 }
 
 extension SignalType {
-	/// Maps each value in the signal to a new value.
+	/// Map each value in the signal to a new value.
 	///
 	/// - parameters:
 	///   - transform: A closure that accepts a value from the `Next` event and
@@ -302,7 +302,7 @@ extension SignalType {
 		}
 	}
 
-	/// Maps errors in the signal to a new error.
+	/// Map errors in the signal to a new error.
 	///
 	/// - parameters:
 	///   - transform: A closure that accepts current error object and returns
@@ -318,7 +318,7 @@ extension SignalType {
 		}
 	}
 
-	/// Preserves only the values of the signal that pass the given predicate.
+	/// Preserve only the values of the signal that pass the given predicate.
 	///
 	/// - parameters:
 	///   - predicate: A closure that accepts value and returns `Bool` denoting
@@ -344,7 +344,7 @@ extension SignalType {
 }
 
 extension SignalType where Value: OptionalType {
-	/// Unwraps non-`nil` values and forwards them on the returned signal, `nil`
+	/// Unwrap non-`nil` values and forward them on the returned signal, `nil`
 	/// values are dropped.
 	///
 	/// - returns: A signal that sends only non-nil values.
@@ -355,7 +355,7 @@ extension SignalType where Value: OptionalType {
 }
 
 extension SignalType {
-	/// Operator that takes up to `n` values from the signal and then completes.
+	/// Take up to `n` values from the signal and then complete.
 	///
 	/// - precondition: `count` must be non-negative number.
 	///
@@ -444,14 +444,14 @@ extension SignalType {
 	/// Collect at most `count` values from `self`, forward them as a single
 	/// array and complete.
 	///
-	/// - precondition: `count` should be greater than zero.
-	///
 	/// - note: When the count is reached the array is sent and the signal
 	///         starts over yielding a new array of values.
 	///
 	/// - note: When `self` completes any remaining values will be sent, the
 	///         last array may not have `count` values. Alternatively, if were
 	///         not collected any values will sent an empty array of values.
+	///
+	/// - precondition: `count` should be greater than zero.
 	///
 	/// - returns: A signal that collects at most `count` values from `self`,
 	///            forwards them as a single array and completes.
@@ -528,8 +528,8 @@ extension SignalType {
 		}
 	}
 
-	/// Repeatedly collects an array of values up to a matching `Next` value.
-	/// Then forwards them as single array and waits for next events.
+	/// Repeatedly collect an array of values up to a matching `Next` value.
+	/// Then forward them as single array and wait for next events.
 	///
 	/// - note: When `self` completes any remaining values will be sent, the
 	///         last array may not match `predicate`. Alternatively, if no
@@ -555,7 +555,6 @@ extension SignalType {
 	/// // [7]
 	/// // [7, 5, 6]
 	/// ````
-	///
 	///
 	/// - parameters:
 	///   - predicate: Predicate to match when values should be sent (returning
@@ -595,7 +594,7 @@ extension SignalType {
 		}
 	}
 
-	/// Forwards all events onto the given scheduler, instead of whichever
+	/// Forward all events onto the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
 	///
 	/// - parameters:
@@ -651,8 +650,8 @@ extension SignalType {
 		}
 	}
 
-	/// Combines the latest value of the receiver with the latest value from
-	/// the given signal.
+	/// Combine the latest value of the receiver with the latest value from the
+	/// given signal.
 	///
 	/// - note: The returned signal will not send a value until both inputs have
 	///         sent at least one value each.
@@ -688,7 +687,7 @@ extension SignalType {
 		}
 	}
 
-	/// Delays `Next` and `Completed` events by the given interval, forwarding
+	/// Delay `Next` and `Completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
 	/// - note: `Failed` and `Interrupted` events are always scheduled
@@ -727,8 +726,8 @@ extension SignalType {
 	/// - parameters:
 	///   - count: A number of values to skip.
 	///
-	/// - returns:  Returns a signal that will skip the first `count` values, 
-	///             then forward everything afterward.
+	/// - returns:  A signal that will skip the first `count` values, then
+	///             forward everything afterward.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func skip(count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
@@ -810,7 +809,7 @@ extension SignalType where Value: EventType, Error == NoError {
 }
 
 extension SignalType {
-	/// Injects side effects to be performed upon the specified signal events.
+	/// Inject side effects to be performed upon the specified signal events.
 	///
 	/// - parameters:
 	///   - event: A closure that accepts an event and is invoked on every
@@ -820,7 +819,7 @@ extension SignalType {
 	///   - completed: A closure that is invoked for `Completed` event.
 	///   - interrupted: A closure that is invoked for `Interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
-	///   - disposed: Unused.
+	///   - disposed: A closure added as disposable when signal completes.
 	///   - next: A closure that accepts a value from `Next` event.
 	///
 	/// - returns: A signal with attached side-effects for given event cases.
@@ -867,7 +866,7 @@ private struct SampleState<Value> {
 }
 
 extension SignalType {
-	/// Forwards the latest value from `self` with the value from `sampler` as a
+	/// Forward the latest value from `self` with the value from `sampler` as a
 	/// tuple, only when`sampler` sends a `Next` event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`, 
@@ -875,7 +874,7 @@ extension SignalType {
 	///
 	/// - parameters:
 	///   - sampler: A signal that will trigger the delivery of `Next` event
-	///              from self.
+	///              from `self`.
 	///
 	/// - returns: A signal that will send values from `self` and `sampler`, 
 	///            sampled (possibly multiple times) by `sampler`, then complete
@@ -939,7 +938,7 @@ extension SignalType {
 		}
 	}
 	
-	/// Forwards the latest value from `self` whenever `sampler` sends a `Next`
+	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
 	/// event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`, 
@@ -959,7 +958,7 @@ extension SignalType {
 			.map { $0.0 }
 	}
 
-	/// Forwards events from `self` until `trigger` sends a `Next` or
+	/// Forward events from `self` until `trigger` sends a `Next` or
 	/// `Completed` event, at which point the returned signal will complete.
 	///
 	/// - parameters:
@@ -1035,16 +1034,24 @@ extension SignalType {
 		}
 	}
 
-	/// Like `scan`, but sends only the final value and then immediately completes.
+	/// Send only the final value and then immediately completes.
+    ///
+    /// - parameters:
+    ///   - initial: Initial value for the accumulator.
+    ///   - combine: A closure that accepts accumulator and sent value of
+    ///              `self`.
+    ///
+    /// - returns: A signal that sends accumulated value after `self` completes.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
 		// We need to handle the special case in which `signal` sends no values.
-		// We'll do that by sending `initial` on the output signal (before taking
-		// the last value).
+		// We'll do that by sending `initial` on the output signal (before
+		// taking the last value).
 		let (scannedSignalWithInitialValue, outputSignalObserver) = Signal<U, Error>.pipe()
 		let outputSignal = scannedSignalWithInitialValue.takeLast(1)
 
-		// Now that we've got takeLast() listening to the piped signal, send that initial value.
+		// Now that we've got takeLast() listening to the piped signal, send
+        // that initial value.
 		outputSignalObserver.sendNext(initial)
 
 		// Pipe the scanned input signal into the output signal.
@@ -1229,15 +1236,15 @@ extension SignalType {
 		}
 	}
 
-	/// Forward any values from `self` until `predicate` returns false, at
-	/// which point the returned signal will complete.
+	/// Forward any values from `self` until `predicate` returns false, at which
+	/// point the returned signal will complete.
 	///
 	/// - parameters:
 	///   - predicate: A closure that accepts value and returns `Bool` value
 	///                whether `self` should forward it to `signal` and continue
 	///                sending other events.
 	///
-	/// - returns: A `signal` that sends events until the values sent by `self`
+	/// - returns: A signal that sends events until the values sent by `self`
 	///            pass the given `predicate`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func takeWhile(predicate: Value -> Bool) -> Signal<Value, Error> {
@@ -1474,8 +1481,8 @@ extension SignalType {
 	}
 
 	/// Debounce values sent by the receiver, such that at least `interval`
-	/// seconds pass after the receiver has last sent a value, then
-	/// forward the latest value on the given scheduler.
+	/// seconds pass after the receiver has last sent a value, then forward the
+	/// latest value on the given scheduler.
 	///
 	/// - note: If multiple values are received before the interval has elapsed, 
 	///         the latest value is the one that will be passed on.
@@ -1755,7 +1762,7 @@ extension SignalType {
 	/// completed yet, fails with `error` on `scheduler`.
 	///
 	/// - note: If the interval is 0, the timeout will be scheduled immediately. 
-	///         The signal must complete synchronously (or on a faster 
+	///         The signal must complete synchronously (or on a faster
 	///         scheduler) to avoid the timeout.
 	///
 	/// - parameters:
@@ -1765,7 +1772,7 @@ extension SignalType {
 	///   - scheudler: A scheduler to deliver error on.
 	///
 	/// - returns: A signal that sends events for at most `interval` seconds,
-	///            then, if not `Completed` - send `error` with `Failed` event
+	///            then, if not `Completed` - sends `error` with `Failed` event
 	///            on `scheduler`.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func timeoutWithError(error: Error, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> Signal<Value, Error> {

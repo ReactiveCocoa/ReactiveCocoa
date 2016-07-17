@@ -23,8 +23,10 @@ public enum Event<Value, Error: ErrorType> {
 
 	/// Event production on the signal has been interrupted. No further events
 	/// will be received.
+	///
+	/// - important: This event does not signify the successful or failed
+	///              completion of the signal.
 	case Interrupted
-
 
 	/// Whether this event indicates signal termination (i.e., that no further
 	/// events will be received).
@@ -38,7 +40,15 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given function over the event's value.
+	/// Lift the given closure over the event's value.
+	///
+	/// - important: The closure is called only on `Next` type events.
+	///
+	/// - parameters:
+	///   - f: A closure that accepts a value and returns a new value
+	///
+	/// - returns: An event with function applied to a value in case `self` is a
+	///            `Next` type of event.
 	public func map<U>(f: Value -> U) -> Event<U, Error> {
 		switch self {
 		case let .Next(value):
@@ -55,7 +65,16 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Lifts the given function over the event's error.
+	/// Lift the given closure over the event's error.
+	///
+	/// - important: The closure is called only on `Failed` type event.
+	///
+	/// - parameters:
+	///   - f: A closure that accepts an error object and returns
+	///        a new error object
+	///
+	/// - returns: An event with function applied to an error object in case
+	///            `self` is a `.Failed` type of event.
 	public func mapError<F>(f: Error -> F) -> Event<Value, F> {
 		switch self {
 		case let .Next(value):
@@ -72,7 +91,7 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Unwraps the contained `Next` value.
+	/// Unwrap the contained `Next` value.
 	public var value: Value? {
 		if case let .Next(value) = self {
 			return value
@@ -81,7 +100,7 @@ public enum Event<Value, Error: ErrorType> {
 		}
 	}
 
-	/// Unwraps the contained `Error` value.
+	/// Unwrap the contained `Error` value.
 	public var error: Error? {
 		if case let .Failed(error) = self {
 			return error
@@ -130,9 +149,10 @@ extension Event: CustomStringConvertible {
 
 /// Event protocol for constraining signal extensions
 public protocol EventType {
-	// The value type of an event.
+	/// The value type of an event.
 	associatedtype Value
-	/// The error type of an event. If errors aren't possible then `NoError` can be used.
+	/// The error type of an event. If errors aren't possible then `NoError` can
+	/// be used.
 	associatedtype Error: ErrorType
 	/// Extracts the event from the receiver.
 	var event: Event<Value, Error> { get }

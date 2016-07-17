@@ -24,8 +24,11 @@ public struct Bag<Element> {
 	public init() {
 	}
 
-	/// Inserts the given value in the collection, and returns a token that can
-	/// later be passed to removeValueForToken().
+	/// Insert the given value into `self`, and return a token that can
+	/// later be passed to `removeValueForToken()`.
+	///
+	/// - parameters:
+	///   - value: A value that will be inserted.
 	public mutating func insert(value: Element) -> RemovalToken {
 		let (nextIdentifier, overflow) = UInt.addWithOverflow(currentIdentifier, 1)
 		if overflow {
@@ -41,9 +44,12 @@ public struct Bag<Element> {
 		return token
 	}
 
-	/// Removes a value, given the token returned from insert().
+	/// Remove a value, given the token returned from `insert()`.
 	///
-	/// If the value has already been removed, nothing happens.
+	/// - note: If the value has already been removed, nothing happens.
+	///
+	/// - parameters:
+	///   - token: A token returned from a call to `insert()`.
 	public mutating func removeValueForToken(token: RemovalToken) {
 		if let identifier = token.identifier {
 			// Removal is more likely for recent objects than old ones.
@@ -57,9 +63,9 @@ public struct Bag<Element> {
 		}
 	}
 
-	/// In the event of an identifier overflow (highly, highly unlikely), this
-	/// will reset all current identifiers to reclaim a contiguous set of
-	/// available identifiers for the future.
+	/// In the event of an identifier overflow (highly, highly unlikely), reset
+	/// all current identifiers to reclaim a contiguous set of available
+	/// identifiers for the future.
 	private mutating func reindex() {
 		for i in elements.indices {
 			currentIdentifier = UInt(i)

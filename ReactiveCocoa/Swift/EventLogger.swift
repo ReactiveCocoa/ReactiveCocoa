@@ -31,11 +31,23 @@ private func defaultEventLog(identifier: String, event: String, fileName: String
 	print("[\(identifier)] \(event) fileName: \(fileName), functionName: \(functionName), lineNumber: \(lineNumber)")
 }
 
+/// A type that represents an event logging function.
 public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
 
 extension SignalType {
-	/// Logs all events that the receiver sends.
-	/// By default, it will print to the standard output.
+	/// Logs all events that the receiver sends. By default, it will print to 
+	/// the standard output.
+	///
+	/// - parameters:
+	///   - identifier: a string to identify the Signal firing events.
+	///   - events: Types of events to log.
+	///   - fileName: Name of the file containing the code which fired the
+	///               event.
+	///   - functionName: Function where event was fired.
+	///   - lineNumber: Line number where event was fired.
+	///   - logger: Logger that logs the events.
+	///
+	/// - returns: Signal that, when observed, logs the fired events.
 	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
 	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
 		func log<T>(event: LoggingEvent.Signal) -> (T -> Void)? {
@@ -56,8 +68,19 @@ extension SignalType {
 }
 
 extension SignalProducerType {
-	/// Logs all events that the receiver sends.
-	/// By default, it will print to the standard output.
+	/// Logs all events that the receiver sends. By default, it will print to 
+	/// the standard output.
+	///
+	/// - parameters:
+	///   - identifier: a string to identify the SignalProducer firing events.
+	///   - events: Types of events to log.
+	///   - fileName: Name of the file containing the code which fired the
+	///               event.
+	///   - functionName: Function where event was fired.
+	///   - lineNumber: Line number where event was fired.
+	///   - logger: Logger that logs the events.
+	///
+	/// - returns: Signal producer that, when started, logs the fired events.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func logEvents(identifier identifier: String = "", events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
 		func log<T>(event: LoggingEvent.SignalProducer) -> (T -> Void)? {

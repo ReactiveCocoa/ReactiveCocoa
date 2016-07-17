@@ -37,22 +37,34 @@ public struct AnyProperty<Value>: PropertyType {
 	}
 	
 	/// Initializes a property as a read-only view of the given property.
+	///
+	/// - parameters:
+	///   - property: A property to read as this property's own value.
 	public init<P: PropertyType where P.Value == Value>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
 	
-	/// Initializes a property that first takes on `initialValue`, then each value
-	/// sent on a signal created by `producer`.
+	/// Initializes a property that first takes on `initialValue`, then each
+	/// value sent on a signal created by `producer`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - producer: A producer that will start immediately and send values to
+	///               the property.
 	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ producer
 		self.init(mutableProperty)
 	}
 	
-	/// Initializes a property that first takes on `initialValue`, then each value
-	/// sent on `signal`.
+	/// Initializes a property that first takes on `initialValue`, then each
+	/// value sent on `signal`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - signal: A signal that will send values to the property.
 	public init(initialValue: Value, signal: Signal<Value, NoError>) {
 		let mutableProperty = MutableProperty(initialValue)
 		mutableProperty <~ signal
@@ -62,6 +74,13 @@ public struct AnyProperty<Value>: PropertyType {
 
 extension PropertyType {
 	/// Maps the current value and all subsequent values to a new value.
+	///
+	/// - parameters:
+	///   - transform: A closure that will map the current `value` of this
+	///                `Property` to a new value.
+	///
+	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
+	///            from `self`.
 	public func map<U>(transform: Value -> U) -> AnyProperty<U> {
 		let mappedProducer = SignalProducer<U, NoError> { observer, disposable in
 			disposable += ActionDisposable { self }
@@ -79,6 +98,9 @@ public struct ConstantProperty<Value>: PropertyType {
 	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
+	///
+	/// - parameters:
+	///   - value: Property's value.
 	public init(_ value: Value) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
@@ -150,7 +172,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		}
 	}
 
-	/// Initializes the property with the given value to start.
+	/// Initializes a mutable property that first takes on `initialValue`
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
 		var value = initialValue
 
@@ -165,14 +190,20 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	/// Atomically replaces the contents of the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - newValue: New property value.
+	///
+	/// - returns: The previous property value.
 	public func swap(newValue: Value) -> Value {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - action: A closure that accepts old property value and returns a new
+	///             property value.
+	/// - returns: The previous property value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
 		return try withValue { value in
 			let newValue = try action(value)
@@ -185,7 +216,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///
-	/// Returns the result of the action.
+	/// - parameters:
+	///   - action: A closure that accepts current property value.
+	///
+	/// - returns: the result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
@@ -208,8 +242,31 @@ infix operator <~ {
 /// Binds a signal to a property, updating the property's value to the latest
 /// value sent by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the signal sends a `Completed` event.
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the signal sends a `Completed` event.
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// property <~ signal
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// let disposable = property <~ signal
+/// ...
+/// // Terminates binding before property dealloc or signal's 
+/// // `Completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - signal: A signal to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or signal's `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 	disposable += property.producer.startWithCompleted {
@@ -235,8 +292,33 @@ public func <~ <P: MutablePropertyType>(property: P, signal: Signal<P.Value, NoE
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the created signal sends a `Completed` event.
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer<Int, NoError>(value: 1)
+/// property <~ producer
+/// print(property.value) // prints `1`
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer({ /* do some work after some time */ })
+/// let disposable = (property <~ producer)
+/// ...
+/// // Terminates binding before property dealloc or
+/// // signal's `Completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the created producer sends a `Completed` 
+///         event.
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - producer: A producer to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or producer's `Completed` event.
 public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
 
@@ -257,8 +339,32 @@ public func <~ <P: MutablePropertyType>(property: P, producer: SignalProducer<P.
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
-/// The binding will automatically terminate when either property is
-/// deinitialized.
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// dstProperty <~ srcProperty
+/// print(dstProperty.value) // prints 10
+/// ````
+///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// let disposable = (dstProperty <~ srcProperty)
+/// ...
+/// disposable.dispose() // terminate the binding earlier if
+///                      // needed
+/// ````
+///
+/// - note: The binding will automatically terminate when either property is
+///         deinitialized.
+///
+/// - parameters:
+///   - destinationProperty: A property to bind to.
+///   - sourceProperty: A property to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of destination property or source property
+///            producer's `Completed` event.
 public func <~ <Destination: MutablePropertyType, Source: PropertyType where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }

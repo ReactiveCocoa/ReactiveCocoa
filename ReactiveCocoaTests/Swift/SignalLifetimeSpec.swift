@@ -56,7 +56,7 @@ class SignalLifetimeSpec: QuickSpec {
 
 				var errored = false
 
-				signal?.observeFailed { _ in errored = true }
+				_ = signal?.observeFailed { _ in errored = true }
 
 				expect(errored) == false
 				expect(signal).toNot(beNil())
@@ -77,7 +77,7 @@ class SignalLifetimeSpec: QuickSpec {
 
 				var completed = false
 
-				signal?.observeCompleted { completed = true }
+				_ = signal?.observeCompleted { completed = true }
 
 				expect(completed) == false
 				expect(signal).toNot(beNil())
@@ -98,7 +98,7 @@ class SignalLifetimeSpec: QuickSpec {
 				}
 
 				var interrupted = false
-				signal?.observeInterrupted {
+				_ = signal?.observeInterrupted {
 					interrupted = true
 				}
 

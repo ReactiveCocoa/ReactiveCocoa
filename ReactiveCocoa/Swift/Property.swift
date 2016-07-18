@@ -62,42 +62,75 @@ extension PropertyProtocol {
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
+	///
+	/// - parameters:
+	///   - other: A property to combine `self`'s value with.
+	///
+	/// - returns: A property that holds a tuple containing values of `self` and
+	///            the given property.
 	public func combineLatest<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.combineLatest(with:))(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
+	///
+	/// - parameters:
+	///   - other: A property to zip `self`'s value with.
+	///
+	/// - returns: A property that holds a tuple containing values of `self` and
+	///            the given property.
 	public func zip<P: PropertyProtocol>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.zip(with:))(other)
 	}
 
-	/// Forwards events from `self` with history: values of the returned property
-	/// are a tuple whose first member is the previous value and whose second member
-	/// is the current value. `initial` is supplied as the first member of the first
-	/// tuple.
+	/// Forward events from `self` with history: values of the returned property
+	/// are a tuple whose first member is the previous value and whose second
+	/// member is the current value. `initial` is supplied as the first member
+	/// when `self` sends its first value.
+	///
+	/// - parameters:
+	///   - initial: A value that will be combined with the first value sent by
+	///              `self`.
+	///
+	/// - returns: A property that holds tuples that contain previous and
+	///            current values of `self`.
 	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
-	/// Forwards only those values from `self` which do not pass `isRepeat` with
-	/// respect to the previous value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value.
+	///
+	/// - parameters:
+	///   - isRepeat: A predicate to determine if the two given values are equal.
+	///
+	/// - returns: A property that does not emit events for two equal values
+	///            sequentially.
 	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 }
 
 extension PropertyProtocol where Value: Equatable {
-	/// Forwards only those values from `self` which is not equal to the previous
-	/// value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value.
+	///
+	/// - returns: A property that does not emit events for two equal values
+	///            sequentially.
 	public func skipRepeats() -> AnyProperty<Value> {
 		return lift { $0.skipRepeats() }
 	}
 }
 
 extension PropertyProtocol where Value: PropertyProtocol {
-	/// Flattens the inner properties sent upon `self` (into a single property),
-	/// according to the semantics of the given strategy.
+	/// Flattens the inner property held by `self` (into a single property of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// - parameters:
+	///   - strategy: The preferred flatten strategy.
+	///
+	/// - returns: A property that sends the values of its inner properties.
 	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
@@ -107,14 +140,27 @@ extension PropertyProtocol {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
+	///
+	/// - parameters:
+	///   - strategy: The preferred flatten strategy.
+	///   - transform: The transform to be applied on `self` before flattening.
+	///
+	/// - returns: A property that sends the values of its inner properties.
 	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
-	/// Forwards only those values from `self` that have unique identities across the set of
-	/// all values that have been seen.
+	/// Forward only those values from `self` that have unique identities across
+	/// the set of all values that have been held.
 	///
-	/// Note: This causes the identities to be retained to check for uniqueness.
+	/// - note: This causes the identities to be retained to check for 
+	///         uniqueness.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value and returns identity
+	///                value.
+	///
+	/// - returns: A property that sends unique values during its lifetime.
 	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> AnyProperty<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
@@ -124,80 +170,82 @@ extension PropertyProtocol where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
-	/// Note: This causes the values to be retained to check for uniqueness. Providing
-	/// a function that returns a unique value for each sent value can help you reduce
-	/// the memory footprint.
+	/// - note: This causes the identities to be retained to check for uniqueness.
+	///         Providing a function that returns a unique value for each sent
+	///         value can help you reduce the memory footprint.
+	///
+	/// - returns: A property that sends unique values during its lifetime.
 	public func uniqueValues() -> AnyProperty<Value> {
 		return lift { $0.uniqueValues() }
 	}
 }
 
 extension PropertyProtocol {
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
+	/// Combines the values of all the given properties, in the manner described
+	/// by `combineLatest(with:)`.
 	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
 		return a.combineLatest(with: b)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 		return combineLatest(a, b)
 			.combineLatest(with: c)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 		return combineLatest(a, b, c)
 			.combineLatest(with: d)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 		return combineLatest(a, b, c, d)
 			.combineLatest(with: e)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 		return combineLatest(a, b, c, d, e)
 			.combineLatest(with: f)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 		return combineLatest(a, b, c, d, e, f)
 			.combineLatest(with: g)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 		return combineLatest(a, b, c, d, e, f, g)
 			.combineLatest(with: h)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h)
 			.combineLatest(with: i)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
 			.combineLatest(with: j)
 			.map(repack)
@@ -316,15 +364,15 @@ public struct AnyProperty<Value>: PropertyProtocol {
 		return _value()
 	}
 
-	/// A producer for Signals that will send the wrapped property's current value,
-	/// followed by all changes over time, then complete when the wrapped property has
-	/// deinitialized.
+	/// A producer for Signals that will send the wrapped property's current
+	/// value, followed by all changes over time, then complete when the wrapped
+	/// property has deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
 		return _producer()
 	}
 
-	/// A signal that will send the wrapped property's changes over time, then complete
-	/// when the wrapped property has deinitialized.
+	/// A signal that will send the wrapped property's changes over time, then
+	/// complete when the wrapped property has deinitialized.
 	///
 	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
@@ -372,7 +420,8 @@ public struct AnyProperty<Value>: PropertyProtocol {
 	///
 	/// - parameters:
 	///   - property: The source property.
-	///   - signal: A unary `SignalProducer` transform to be applied on `property`.
+	///   - signal: A unary `SignalProducer` transform to be applied on
+	///     `property`.
 	private init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
 		          capturing: AnyProperty.capture(property))
@@ -487,8 +536,8 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 
 	/// The current value of the property.
 	///
-	/// Setting this to a new value will notify all observers of `signal`, or signals
-	/// created using `producer`.
+	/// Setting this to a new value will notify all observers of `signal`, or
+	/// signals created using `producer`.
 	public var value: Value {
 		get {
 			return withValue { $0 }

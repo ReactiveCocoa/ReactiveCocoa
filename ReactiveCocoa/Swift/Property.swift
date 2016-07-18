@@ -648,7 +648,7 @@ infix operator <~ {
 /// value sent by the signal.
 ///
 /// - note: The binding will automatically terminate when the property is
-///         deinitialized, or when the signal sends a `Completed` event.
+///         deinitialized, or when the signal sends a `completed` event.
 ///
 /// ````
 /// let property = MutableProperty(0)
@@ -662,7 +662,7 @@ infix operator <~ {
 /// let disposable = property <~ signal
 /// ...
 /// // Terminates binding before property dealloc or signal's 
-/// // `Completed` event.
+/// // `completed` event.
 /// disposable.dispose()
 /// ````
 ///
@@ -671,7 +671,7 @@ infix operator <~ {
 ///   - signal: A signal to bind.
 ///
 /// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or signal's `Completed` event.
+///            deinitialization of property or signal's `completed` event.
 @discardableResult
 public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
@@ -710,12 +710,12 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 /// let disposable = (property <~ producer)
 /// ...
 /// // Terminates binding before property dealloc or
-/// // signal's `Completed` event.
+/// // signal's `completed` event.
 /// disposable.dispose()
 /// ````
 ///
 /// - note: The binding will automatically terminate when the property is 
-///         deinitialized, or when the created producer sends a `Completed` 
+///         deinitialized, or when the created producer sends a `completed` 
 ///         event.
 ///
 /// - parameters:
@@ -723,7 +723,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value,
 ///   - producer: A producer to bind.
 ///
 /// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or producer's `Completed` event.
+///            deinitialization of property or producer's `completed` event.
 @discardableResult
 public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
@@ -746,7 +746,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProduce
 /// value sent by the signal.
 ///
 /// - note: The binding will automatically terminate when the property is
-///         deinitialized, or when the signal sends a `Completed` event.
+///         deinitialized, or when the signal sends a `completed` event.
 ///
 /// ````
 /// let property = MutableProperty(0)
@@ -760,7 +760,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProduce
 /// let disposable = property <~ signal
 /// ...
 /// // Terminates binding before property dealloc or signal's 
-/// // `Completed` event.
+/// // `completed` event.
 /// disposable.dispose()
 /// ````
 ///
@@ -769,7 +769,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProduce
 ///   - signal: A signal to bind.
 ///
 /// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or signal's `Completed` event.
+///            deinitialization of property or signal's `completed` event.
 @discardableResult
 public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
@@ -792,12 +792,12 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S
 /// let disposable = (property <~ producer)
 /// ...
 /// // Terminates binding before property dealloc or
-/// // signal's `Completed` event.
+/// // signal's `completed` event.
 /// disposable.dispose()
 /// ````
 ///
 /// - note: The binding will automatically terminate when the property is 
-///         deinitialized, or when the created producer sends a `Completed` 
+///         deinitialized, or when the created producer sends a `completed` 
 ///         event.
 ///
 /// - parameters:
@@ -805,7 +805,7 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S
 ///   - producer: A producer to bind.
 ///
 /// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or producer's `Completed` event.
+///            deinitialization of property or producer's `completed` event.
 @discardableResult
 public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
@@ -838,7 +838,7 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Va
 ///
 /// - returns: A disposable that can be used to terminate binding before the
 ///            deinitialization of destination property or source property
-///            producer's `Completed` event.
+///            producer's `completed` event.
 @discardableResult
 public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
@@ -871,7 +871,7 @@ public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol w
 ///
 /// - returns: A disposable that can be used to terminate binding before the
 ///            deinitialization of destination property or source property
-///            producer's `Completed` event.
+///            producer's `completed` event.
 @discardableResult
 public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer

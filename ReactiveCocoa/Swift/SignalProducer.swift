@@ -55,7 +55,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// then complete.
 	///
 	/// - parameters:
-	///   - value: A value that should be sent by the `Signal` in a `Next`
+	///   - value: A value that should be sent by the `Signal` in a `next`
 	///            event.
 	public init(value: Value) {
 		self.init { observer, disposable in
@@ -68,7 +68,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// given error.
 	///
 	/// - parameters:
-	///   - error: An error that should be sent by the `Signal` in a `Failed`
+	///   - error: An error that should be sent by the `Signal` in a `failed`
 	///            event.
 	public init(error: Error) {
 		self.init { observer, disposable in
@@ -80,8 +80,8 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	/// then complete, or immediately fail, depending on the given Result.
 	///
 	/// - parameters:
-	///   - result: A `Result` instance that will send either `Next` event if
-	///             `result` is `Success`ful or `Failed` event if `result` is a
+	///   - result: A `Result` instance that will send either `next` event if
+	///             `result` is `Success`ful or `failed` event if `result` is a
 	///             `Failure`.
 	public init(result: Result<Value, Error>) {
 		switch result {
@@ -98,7 +98,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	///
 	/// - parameters:
 	///   - values: A sequence of values that a `Signal` will send as separate
-	///             `Next` events and then complete.
+	///             `next` events and then complete.
 	public init<S: Sequence where S.Iterator.Element == Value>(values: S) {
 		self.init { observer, disposable in
 			for value in values {
@@ -148,7 +148,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	///   - operation: A closure that returns instance of `Result`.
 	///
 	/// - returns: A `SignalProducer` that will forward `Success`ful `result` as
-	///            `Next` event and then complete or `Failed` event if `result`
+	///            `next` event and then complete or `failed` event if `result`
 	///            is a `Failure`.
 	public static func attempt(_ operation: () -> Result<Value, Error>) -> SignalProducer {
 		return self.init { observer, disposable in
@@ -166,7 +166,7 @@ public struct SignalProducer<Value, Error: ErrorProtocol> {
 	///
 	/// The closure will also receive a disposable which can be used to
 	/// interrupt the work associated with the signal and immediately send an
-	/// `Interrupted` event.
+	/// `interrupted` event.
 	///
 	/// - parameters:
 	///   - setUp: A closure that accepts a `signal` and `interrupter`.
@@ -237,7 +237,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal and immediately send an
-	///            `Interrupted` event.
+	///            `interrupted` event.
 	@discardableResult
 	public func start(_ observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Disposable {
 		var disposable: Disposable!
@@ -259,19 +259,19 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal and immediately send an
-	///            `Interrupted` event.
+	///            `interrupted` event.
 	@discardableResult
 	public func start(_ observerAction: Signal<Value, Error>.Observer.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
 
 	/// Create a Signal from the producer, then add an observer to the `Signal`,
-	/// which will invoke the given callback when `Next` or `Failed` events are
+	/// which will invoke the given callback when `next` or `failed` events are
 	/// received.
 	///
 	/// - parameters:
 	///   - result: A closure that accepts a `result` that contains a `Success`
-	///             case for `Next` events or `Failure` case for `Failed` event.
+	///             case for `next` events or `Failure` case for `failed` event.
 	///
 	/// - returns:  A Disposable which can be used to interrupt the work
 	///             associated with the Signal, and prevent any future callbacks
@@ -287,12 +287,12 @@ extension SignalProducerProtocol {
 	}
 
 	/// Create a Signal from the producer, then add exactly one observer to the
-	/// Signal, which will invoke the given callback when a `Completed` event is
+	/// Signal, which will invoke the given callback when a `completed` event is
 	/// received.
 	///
 	/// - parameters:
 	///   - completed: A closure that will be envoked when produced signal sends
-	///                `Completed` event.
+	///                `completed` event.
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal.
@@ -316,11 +316,11 @@ extension SignalProducerProtocol {
 	}
 	
 	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when an `Interrupted`
+	/// the Signal, which will invoke the given callback when an `interrupted`
 	/// event is received.
 	///
 	/// - parameters:
-	///   - interrupted: A closure that is invoked when `Interrupted` event is
+	///   - interrupted: A closure that is invoked when `interrupted` event is
 	///                  received.
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
@@ -333,11 +333,11 @@ extension SignalProducerProtocol {
 
 extension SignalProducerProtocol where Error == NoError {
 	/// Create a Signal from the producer, then add exactly one observer to
-	/// the Signal, which will invoke the given callback when `Next` events are
+	/// the Signal, which will invoke the given callback when `next` events are
 	/// received.
 	///
 	/// - parameters:
-	///   - next: A closure that accepts a value carried by `Next` event.
+	///   - next: A closure that accepts a value carried by `next` event.
 	///
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the Signal, and prevent any future callbacks
@@ -654,7 +654,7 @@ extension SignalProducerProtocol {
 	///         also be interrupted.
 	///
 	/// - parameters:
-	///   - otherProducer: A producer to combine `self`'s value with.
+	///   - other: A producer to combine `self`'s value with.
 	///
 	/// - returns: A producer that, when started, will yield a tuple containing
 	///            values of `self` and given producer.
@@ -690,7 +690,7 @@ extension SignalProducerProtocol {
 	///         be interrupted.
 	///
 	/// - parameters:
-	///   - otherSignal: A signal to combine `self`'s value with.
+	///   - other: A signal to combine `self`'s value with.
 	///
 	/// - returns: A producer that, when started, will yield a tuple containing
 	///            values of `self` and given signal.
@@ -698,18 +698,18 @@ extension SignalProducerProtocol {
 		return lift(Signal.combineLatest(with:))(other)
 	}
 
-	/// Delay `Next` and `Completed` events by the given interval, forwarding
+	/// Delay `next` and `completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// - note: `Failed` and `Interrupted` events are always scheduled
+	/// - note: `failed` and `interrupted` events are always scheduled
 	///         immediately.
 	///
 	/// - parameters:
-	///   - interval: Interval to delay `Next` and `Completed` events by.
+	///   - interval: Interval to delay `next` and `completed` events by.
 	///   - scheduler: A scheduler to deliver delayed events on.
 	///
-	/// - returns: A producer that, when started, will delay `Next` and
-	///            `Completed` events and will yield them on given scheduler.
+	/// - returns: A producer that, when started, will delay `next` and
+	///            `completed` events and will yield them on given scheduler.
 	public func delay(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
 		return lift { $0.delay(interval, on: scheduler) }
 	}
@@ -732,7 +732,7 @@ extension SignalProducerProtocol {
 	///
 	/// - note: When a Completed or Failed event is received, the resulting
 	///         producer will send the Event itself and then complete. When an
-	///         `Interrupted` event is received, the resulting producer will
+	///         `interrupted` event is received, the resulting producer will
 	///         send the `Event` itself and then interrupt.
 	///
 	/// - returns: A producer that sends events as its values.
@@ -741,13 +741,13 @@ extension SignalProducerProtocol {
 	}
 
 	/// Forward the latest value from `self` with the value from `sampler` as a
-	/// tuple, only when `sampler` sends a `Next` event.
+	/// tuple, only when `sampler` sends a `next` event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`,
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - sampler: A producer that will trigger the delivery of `Next` event
+	///   - sampler: A producer that will trigger the delivery of `next` event
 	///              from `self`.
 	///
 	/// - returns: A producer that will send values from `self` and `sampler`,
@@ -759,13 +759,13 @@ extension SignalProducerProtocol {
 	}
 	
 	/// Forward the latest value from `self` with the value from `sampler` as a
-	/// tuple, only when `sampler` sends a `Next` event.
+	/// tuple, only when `sampler` sends a `next` event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`,
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///   - sampler: A signal that will trigger the delivery of `next` event
 	///              from `self`.
 	///
 	/// - returns: A producer that, when started, will send values from `self`
@@ -777,14 +777,14 @@ extension SignalProducerProtocol {
 		return lift(Signal.sample(with:))(sampler)
 	}
 
-	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
+	/// Forward the latest value from `self` whenever `sampler` sends a `next`
 	/// event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`,
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - sampler: A producer that will trigger the delivery of `Next` event
+	///   - sampler: A producer that will trigger the delivery of `next` event
 	///              from `self`.
 	///
 	/// - returns: A producer that, when started, will send values from `self`,
@@ -795,14 +795,14 @@ extension SignalProducerProtocol {
 		return liftLeft(Signal.sample(on:))(sampler)
 	}
 
-	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
+	/// Forward the latest value from `self` whenever `sampler` sends a `next`
 	/// event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`,
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///   - trigger: A signal whose `next` or `completed` events will start the
 	///              deliver of events on `self`.
 	///
 	/// - returns: A producer that will send values from `self`, sampled
@@ -813,15 +813,15 @@ extension SignalProducerProtocol {
 		return lift(Signal.sample(on:))(sampler)
 	}
 
-	/// Forward events from `self` until `trigger` sends a `Next` or `Completed`
+	/// Forward events from `self` until `trigger` sends a `next` or `completed`
 	/// event, at which point the returned producer will complete.
 	///
 	/// - parameters:
-	///   - trigger: A producer whose `Next` or `Completed` events will stop the
-	///              delivery of `Next` events from `self`.
+	///   - trigger: A producer whose `next` or `completed` events will stop the
+	///              delivery of `next` events from `self`.
 	///
 	/// - returns: A producer that will deliver events until `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func take(until trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		// This should be the implementation of this method:
 		// return liftRight(Signal.takeUntil)(trigger)
@@ -850,39 +850,39 @@ extension SignalProducerProtocol {
 	/// event, at which point the returned producer will complete.
 	///
 	/// - parameters:
-	///   - trigger: A signal whose `Next` or `Completed` events will stop the
-	///              delivery of `Next` events from `self`.
+	///   - trigger: A signal whose `next` or `completed` events will stop the
+	///              delivery of `next` events from `self`.
 	///
 	/// - returns: A producer that will deliver events until `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func take(until trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.take(until:))(trigger)
 	}
 
-	/// Do not forward any values from `self` until `trigger` sends a `Next`
-	/// or `Completed`, at which point the returned producer behaves exactly
+	/// Do not forward any values from `self` until `trigger` sends a `next`
+	/// or `completed`, at which point the returned producer behaves exactly
 	/// like `producer`.
 	///
 	/// - parameters:
-	///   - trigger: A producer whose `Next` or `Completed` events will start
+	///   - trigger: A producer whose `next` or `completed` events will start
 	///              the deliver of events on `self`.
 	///
 	/// - returns: A producer that will deliver events once the `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func skip(until trigger: SignalProducer<(), NoError>) -> SignalProducer<Value, Error> {
 		return liftRight(Signal.skip(until:))(trigger)
 	}
 	
-	/// Do not forward any values from `self` until `trigger` sends a `Next`
-	/// or `Completed`, at which point the returned signal behaves exactly like
+	/// Do not forward any values from `self` until `trigger` sends a `next`
+	/// or `completed`, at which point the returned signal behaves exactly like
 	/// `signal`.
 	///
 	/// - parameters:
-	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///   - trigger: A signal whose `next` or `completed` events will start the
 	///              deliver of events on `self`.
 	///
 	/// - returns: A producer that will deliver events once the `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func skip(until trigger: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.skip(until:))(trigger)
 	}
@@ -961,8 +961,8 @@ extension SignalProducerProtocol {
 	///   - replacement: A producer to wait to wait for values from and start
 	///                  sending them as a replacement to `self`'s values.
 	///
-	/// - returns: A producer which passes through `Next`, `Failed`, and
-	///            `Interrupted` events from `self` until `replacement` sends an 
+	/// - returns: A producer which passes through `next`, `failed`, and
+	///            `interrupted` events from `self` until `replacement` sends an 
 	///            event, at which point the returned producer will send that
 	///            event and switch to passing through events from `replacement` 
 	///            instead, regardless of whether `self` has sent events
@@ -977,8 +977,8 @@ extension SignalProducerProtocol {
 	///   - replacement: A signal to wait to wait for values from and start
 	///                  sending them as a replacement to `self`'s values.
 	///
-	/// - returns: A producer which passes through `Next`, `Failed`, and
-	///            `Interrupted` events from `self` until `replacement` sends an
+	/// - returns: A producer which passes through `next`, `failed`, and
+	///            `interrupted` events from `self` until `replacement` sends an
 	///            event, at which point the returned producer will send that
 	///            event and switch to passing through events from `replacement`
 	///            instead, regardless of whether `self` has sent events
@@ -1017,7 +1017,7 @@ extension SignalProducerProtocol {
 	/// are the Nth elements of the two input producers.
 	///
 	/// - parameters:
-	///   - otherProducer: A producer to zip values with.
+	///   - other: A producer to zip values with.
 	///
 	/// - returns: A producer that sends tuples of `self` and `otherProducer`.
 	public func zip<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
@@ -1028,7 +1028,7 @@ extension SignalProducerProtocol {
 	/// any Nth pair are the Nth elements of the two.
 	///
 	/// - parameters:
-	///   - otherSignal: A signal to zip values with.
+	///   - other: A signal to zip values with.
 	///
 	/// - returns: A producer that sends tuples of `self` and `otherSignal`.
 	public func zip<U>(with other: Signal<U, Error>) -> SignalProducer<(Value, U), Error> {
@@ -1036,27 +1036,27 @@ extension SignalProducerProtocol {
 	}
 
 	/// Apply `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned producer and `Failure`s sent as `Failed`
+	/// forwarded on the returned producer and `Failure`s sent as `failed`
 	/// events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a `Result`.
 	///
-	/// - returns: A producer that receives `Success`ful `Result` as `Next`
-	///            event and `Failure` as `Failed` event.
+	/// - returns: A producer that receives `Success`ful `Result` as `next`
+	///            event and `Failure` as `failed` event.
 	public func attempt(operation: (Value) -> Result<(), Error>) -> SignalProducer<Value, Error> {
 		return lift { $0.attempt(operation) }
 	}
 
 	/// Apply `operation` to values from `self` with `Success`ful results
-	/// mapped on the returned producer and `Failure`s sent as `Failed` events.
+	/// mapped on the returned producer and `Failure`s sent as `failed` events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a result of
 	///                a mapped value as `Success`.
 	///
 	/// - returns: A producer that sends mapped values from `self` if returned
-	///            `Result` is `Success`ful, `Failed` events otherwise.
+	///            `Result` is `Success`ful, `failed` events otherwise.
 	public func attemptMap<U>(_ operation: (Value) -> Result<U, Error>) -> SignalProducer<U, Error> {
 		return lift { $0.attemptMap(operation) }
 	}
@@ -1111,12 +1111,12 @@ extension SignalProducerProtocol {
 	///
 	/// - parameters:
 	///   - interval: Number of seconds to wait for `self` to complete.
-	///   - error: Error to send with `Failed` event if `self` is not completed
+	///   - error: Error to send with `failed` event if `self` is not completed
 	///            when `interval` passes.
 	///   - scheduler: A scheduler to deliver error on.
 	///
 	/// - returns: A producer that sends events for at most `interval` seconds,
-	///            then, if not `Completed` - sends `error` with `Failed` event
+	///            then, if not `completed` - sends `error` with `failed` event
 	///            on `scheduler`.
 	public func timeout(after interval: TimeInterval, raising error: Error, on scheduler: DateSchedulerProtocol) -> SignalProducer<Value, Error> {
 		return lift { $0.timeout(after: interval, raising: error, on: scheduler) }
@@ -1211,12 +1211,12 @@ extension SignalProducerProtocol {
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
 	///   - failed: A closure that accepts error object and is invoked for
-	///             `Failed` event.
-	///   - completed: A closure that is invoked for `Completed` event.
-	///   - interrupted: A closure that is invoked for `Interrupted` event.
+	///             `failed` event.
+	///   - completed: A closure that is invoked for `completed` event.
+	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `Next` event.
+	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A producer with attached side-effects for given event cases.
 	public func on(started: (() -> Void)? = nil, event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> SignalProducer<Value, Error> {
@@ -1544,7 +1544,7 @@ extension SignalProducerProtocol {
 	/// represent those cases. However, when no values are sent, `nil` will be
 	/// returned.
 	///
-	/// - returns: Result when single `Next` or `Failed` event is received.
+	/// - returns: Result when single `next` or `failed` event is received.
 	///            `nil` when no events are received.
 	public func first() -> Result<Value, Error>? {
 		return take(first: 1).single()
@@ -1557,7 +1557,7 @@ extension SignalProducerProtocol {
 	/// represent those cases. However, when no values are sent, or when more
 	/// than one value is sent, `nil` will be returned.
 	///
-	/// - returns: Result when single `Next` or `Failed` event is received. 
+	/// - returns: Result when single `next` or `failed` event is received. 
 	///            `nil` when 0 or more than 1 events are received.
 	public func single() -> Result<Value, Error>? {
 		let semaphore = DispatchSemaphore(value: 0)
@@ -1590,7 +1590,7 @@ extension SignalProducerProtocol {
 	/// represent those cases. However, when no values are sent, `nil` will be
 	/// returned.
 	///
-	/// - returns: Result when single `Next` or `Failed` event is received.
+	/// - returns: Result when single `next` or `failed` event is received.
 	///            `nil` when no events are received.
 	public func last() -> Result<Value, Error>? {
 		return take(last: 1).single()
@@ -1601,7 +1601,7 @@ extension SignalProducerProtocol {
 	/// When a completion or error is sent, the returned `Result` will represent
 	/// those cases.
 	///
-	/// - returns: Result when single `Completion` or `Failed` event is 
+	/// - returns: Result when single `Completion` or `failed` event is 
 	///            received.
 	public func wait() -> Result<(), Error> {
 		return then(SignalProducer<(), Error>(value: ())).last() ?? .success(())

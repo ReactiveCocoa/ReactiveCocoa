@@ -42,13 +42,13 @@ public enum Event<Value, Error: ErrorProtocol> {
 
 	/// Lift the given closure over the event's value.
 	///
-	/// - important: The closure is called only on `Next` type events.
+	/// - important: The closure is called only on `next` type events.
 	///
 	/// - parameters:
 	///   - f: A closure that accepts a value and returns a new value
 	///
 	/// - returns: An event with function applied to a value in case `self` is a
-	///            `Next` type of event.
+	///            `next` type of event.
 	public func map<U>(_ f: (Value) -> U) -> Event<U, Error> {
 		switch self {
 		case let .next(value):
@@ -67,7 +67,7 @@ public enum Event<Value, Error: ErrorProtocol> {
 
 	/// Lift the given closure over the event's error.
 	///
-	/// - important: The closure is called only on `Failed` type event.
+	/// - important: The closure is called only on failed type event.
 	///
 	/// - parameters:
 	///   - f: A closure that accepts an error object and returns
@@ -91,7 +91,7 @@ public enum Event<Value, Error: ErrorProtocol> {
 		}
 	}
 
-	/// Unwrap the contained `Next` value.
+	/// Unwrap the contained `next` value.
 	public var value: Value? {
 		if case let .next(value) = self {
 			return value

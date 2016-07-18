@@ -21,7 +21,7 @@ extension NotificationCenter {
 	///            criteria.
 	///
 	/// - note: If the `object` is deallocated before starting the producer, it
-	///         will terminate immediately with an `Interrupted` event.
+	///         will terminate immediately with an `interrupted` event.
 	///         Otherwise, the producer will not terminate naturally, so it must
 	///         be explicitly disposed to avoid leaks.
 	public func rac_notifications(forName name: Notification.Name?, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {

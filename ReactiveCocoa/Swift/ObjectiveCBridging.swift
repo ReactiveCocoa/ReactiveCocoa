@@ -125,7 +125,7 @@ extension SignalProducerProtocol where Value: AnyObject {
 	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -139,7 +139,7 @@ extension SignalProducerProtocol where Value: OptionalProtocol, Value.Wrapped: A
 	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -153,7 +153,7 @@ extension SignalProducerProtocol where Value: AnyObject, Error: NSError {
 	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -167,7 +167,7 @@ extension SignalProducerProtocol where Value: OptionalProtocol, Value.Wrapped: A
 	/// Create a `RACSignal` that will `start()` the producer once for each
 	/// subscription.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -199,7 +199,7 @@ extension SignalProducerProtocol where Value: OptionalProtocol, Value.Wrapped: A
 extension SignalProtocol where Value: AnyObject {
 	/// Create a `RACSignal` that will observe the given signal.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -212,7 +212,7 @@ extension SignalProtocol where Value: AnyObject {
 extension SignalProtocol where Value: AnyObject, Error: NSError {
 	/// Create a `RACSignal` that will observe the given signal.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -225,7 +225,7 @@ extension SignalProtocol where Value: AnyObject, Error: NSError {
 extension SignalProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject {
 	/// Create a `RACSignal` that will observe the given signal.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {
@@ -238,7 +238,7 @@ extension SignalProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject
 extension SignalProtocol where Value: OptionalProtocol, Value.Wrapped: AnyObject, Error: NSError {
 	/// Create a `RACSignal` that will observe the given signal.
 	///
-	/// - note: Any `Interrupted` events will be silently discarded.
+	/// - note: Any `interrupted` events will be silently discarded.
 	///
 	/// - returns: `RACSignal` instantiated from `self`.
 	public func toRACSignal() -> RACSignal {

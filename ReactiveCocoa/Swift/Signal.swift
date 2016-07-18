@@ -129,7 +129,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	/// Observe the Signal by sending any future events to the given observer.
 	///
 	/// - note: If the Signal has already terminated, the observer will
-	///         immediately receive an `Interrupted` event.
+	///         immediately receive an `interrupted` event.
 	///
 	/// - parameters:
 	///   - observer: An observer to forward the events to.
@@ -219,7 +219,7 @@ extension SignalProtocol {
 	/// event is received.
 	///
 	/// - parameters:
-	///   - completed: A closure that is called when `Completed` event is
+	///   - completed: A closure that is called when `completed` event is
 	///                received.
 	///
 	/// - returns: An optional `Disposable` which can be used to stop the
@@ -234,7 +234,7 @@ extension SignalProtocol {
 	/// event is received.
 	///
 	/// - parameters:
-	///   - error: A closure that is called when `Failed` event is received. It
+	///   - error: A closure that is called when failed event is received. It
 	///            accepts an error parameter.
 	///
 	/// Returns a Disposable which can be used to stop the invocation of the
@@ -250,7 +250,7 @@ extension SignalProtocol {
 	/// the callback will be invoked immediately.
 	///
 	/// - parameters:
-	///   - interrupted: A closure that is invoked when `Interrupted` event is
+	///   - interrupted: A closure that is invoked when `interrupted` event is
 	///                  received
 	///
 	/// - returns: An optional `Disposable` which can be used to stop the
@@ -267,7 +267,7 @@ extension SignalProtocol where Error == NoError {
 	/// received.
 	///
 	/// - parameters:
-	///   - next: A closure that accepts a value when `Next` event is received.
+	///   - next: A closure that accepts a value when `next` event is received.
 	///
 	/// - returns: An optional `Disposable` which can be used to stop the
 	///            invocation of the callback. Disposing of the Disposable will
@@ -282,7 +282,7 @@ extension SignalProtocol {
 	/// Map each value in the signal to a new value.
 	///
 	/// - parameters:
-	///   - transform: A closure that accepts a value from the `Next` event and
+	///   - transform: A closure that accepts a value from the `next` event and
 	///                returns a new value.
 	///
 	/// - returns: A signal that will send new values.
@@ -510,7 +510,7 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Repeatedly collect an array of values up to a matching `Next` value.
+	/// Repeatedly collect an array of values up to a matching `next` value.
 	/// Then forward them as single array and wait for next events.
 	///
 	/// - note: When `self` completes any remaining values will be sent, the
@@ -667,17 +667,17 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Delay `Next` and `Completed` events by the given interval, forwarding
+	/// Delay `next` and `completed` events by the given interval, forwarding
 	/// them on the given scheduler.
 	///
-	/// - note: `Failed` and `Interrupted` events are always scheduled
+	/// - note: failed and `interrupted` events are always scheduled
 	///         immediately.
 	///
 	/// - parameters:
-	///   - interval: Interval to delay `Next` and `Completed` events by.
+	///   - interval: Interval to delay `next` and `completed` events by.
 	///   - scheduler: A scheduler to deliver delayed events on.
 	///
-	/// - returns: A signal that will delay `Next` and `Completed` events and
+	/// - returns: A signal that will delay `next` and `completed` events and
 	///            will yield them on given scheduler.
 	public func delay(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)
@@ -791,12 +791,12 @@ extension SignalProtocol {
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
 	///   - failed: A closure that accepts error object and is invoked for
-	///             `Failed` event.
-	///   - completed: A closure that is invoked for `Completed` event.
-	///   - interrupted: A closure that is invoked for `Interrupted` event.
+	///             failed event.
+	///   - completed: A closure that is invoked for `completed` event.
+	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `Next` event.
+	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A signal with attached side-effects for given event cases.
 	public func on(event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> Signal<Value, Error> {
@@ -842,13 +842,13 @@ private struct SampleState<Value> {
 
 extension SignalProtocol {
 	/// Forward the latest value from `self` with the value from `sampler` as a
-	/// tuple, only when`sampler` sends a `Next` event.
+	/// tuple, only when`sampler` sends a `next` event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`, 
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///   - sampler: A signal that will trigger the delivery of `next` event
 	///              from `self`.
 	///
 	/// - returns: A signal that will send values from `self` and `sampler`, 
@@ -906,14 +906,14 @@ extension SignalProtocol {
 		}
 	}
 	
-	/// Forward the latest value from `self` whenever `sampler` sends a `Next`
+	/// Forward the latest value from `self` whenever `sampler` sends a `next`
 	/// event.
 	///
 	/// - note: If `sampler` fires before a value has been observed on `self`, 
 	///         nothing happens.
 	///
 	/// - parameters:
-	///   - sampler: A signal that will trigger the delivery of `Next` event
+	///   - sampler: A signal that will trigger the delivery of `next` event
 	///              from `self`.
 	///
 	/// - returns: A signal that will send values from `self`, sampled (possibly
@@ -925,15 +925,15 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
-	/// Forward events from `self` until `trigger` sends a `Next` or
-	/// `Completed` event, at which point the returned signal will complete.
+	/// Forward events from `self` until `trigger` sends a `next` or
+	/// `completed` event, at which point the returned signal will complete.
 	///
 	/// - parameters:
-	///   - trigger: A signal whose `Next` or `Completed` events will stop the
-	///              delivery of `Next` events from `self`.
+	///   - trigger: A signal whose `next` or `completed` events will stop the
+	///              delivery of `next` events from `self`.
 	///
 	/// - returns: A signal that will deliver events until `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func take(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
@@ -953,16 +953,16 @@ extension SignalProtocol {
 		}
 	}
 	
-	/// Do not forward any values from `self` until `trigger` sends a `Next` or
-	/// `Completed` event, at which point the returned signal behaves exactly
+	/// Do not forward any values from `self` until `trigger` sends a `next` or
+	/// `completed` event, at which point the returned signal behaves exactly
 	/// like `signal`.
 	///
 	/// - parameters:
-	///   - trigger: A signal whose `Next` or `Completed` events will start the
+	///   - trigger: A signal whose `next` or `completed` events will start the
 	///              deliver of events on `self`.
 	///
 	/// - returns: A signal that will deliver events once the `trigger` sends
-	///            `Next` or `Completed` events.
+	///            `next` or `completed` events.
 	public func skip(until trigger: Signal<(), NoError>) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = SerialDisposable()
@@ -1127,8 +1127,8 @@ extension SignalProtocol {
 	///   - replacement: A signal to wait to wait for values from and start
 	///                  sending them as a replacement to `self`'s values.
 	///
-	/// - returns: A signal which passes through `Next`, `Failed`, and
-	///            `Interrupted` events from `self` until `replacement` sends
+	/// - returns: A signal which passes through `next`, failed, and
+	///            `interrupted` events from `self` until `replacement` sends
 	///            an event, at which point the returned signal will send that
 	///            event and switch to passing through events from `replacement`
 	///            instead, regardless of whether `self` has sent events
@@ -1312,13 +1312,13 @@ extension SignalProtocol {
 	}
 
 	/// Apply `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned signal and `Failure`s sent as `Failed` events.
+	/// forwarded on the returned signal and `Failure`s sent as failed events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a `Result`.
 	///
-	/// - returns: A signal that receives `Success`ful `Result` as `Next` event
-	///            and `Failure` as `Failed` event.
+	/// - returns: A signal that receives `Success`ful `Result` as `next` event
+	///            and `Failure` as failed event.
 	public func attempt(_ operation: (Value) -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
 			return operation(value).map {
@@ -1328,14 +1328,14 @@ extension SignalProtocol {
 	}
 
 	/// Apply `operation` to values from `self` with `Success`ful results mapped
-	/// on the returned signal and `Failure`s sent as `Failed` events.
+	/// on the returned signal and `Failure`s sent as failed events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a result of
 	///                a mapped value as `Success`.
 	///
 	/// - returns: A signal that sends mapped values from `self` if returned
-	///            `Result` is `Success`ful, `Failed` events otherwise.
+	///            `Result` is `Success`ful, failed events otherwise.
 	public func attemptMap<U>(_ operation: (Value) -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
 			self.observe { event in
@@ -1681,13 +1681,13 @@ extension SignalProtocol {
 	///         scheduler) to avoid the timeout.
 	///
 	/// - parameters:
-	///   - error: Error to send with `Failed` event if `self` is not completed
+	///   - error: Error to send with failed event if `self` is not completed
 	///            when `interval` passes.
 	///   - interval: Number of seconds to wait for `self` to complete.
 	///   - scheudler: A scheduler to deliver error on.
 	///
 	/// - returns: A signal that sends events for at most `interval` seconds,
-	///            then, if not `Completed` - sends `error` with `Failed` event
+	///            then, if not `completed` - sends `error` with failed event
 	///            on `scheduler`.
 	public func timeout(after interval: TimeInterval, raising error: Error, on scheduler: DateSchedulerProtocol) -> Signal<Value, Error> {
 		precondition(interval >= 0)

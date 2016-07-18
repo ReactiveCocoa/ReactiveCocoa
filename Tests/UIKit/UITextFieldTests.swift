@@ -27,7 +27,7 @@ class UITextFieldTests: XCTestCase {
 #if os(iOS)
         textField.sendActions(for: .editingChanged)
 #else
-        NSNotificationCenter.defaultCenter().postNotificationName(UITextFieldTextDidChangeNotification, object: textField)
+        NotificationCenter.default.post(name: .UITextFieldTextDidChange, object: textField)
 #endif
     }
 }

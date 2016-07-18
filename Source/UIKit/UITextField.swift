@@ -20,8 +20,8 @@ extension UITextField {
 #else
         return associatedProperty(self, key: &textKey, initial: getter, setter: setter) { property in
             property <~
-                NSNotificationCenter.defaultCenter()
-                    .rac_notifications(UITextFieldTextDidChangeNotification, object: self)
+                NotificationCenter.default
+                    .rac_notifications(forName: .UITextFieldTextDidChange, object: self)
                     .filterMap  { ($0.object as? UITextField)?.text }
             }
 #endif

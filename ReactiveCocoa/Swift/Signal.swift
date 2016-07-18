@@ -790,16 +790,24 @@ extension SignalProtocol {
 	/// - parameters:
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
+	///   - next: A closure that accepts a value from `next` event.
 	///   - failed: A closure that accepts error object and is invoked for
 	///             failed event.
 	///   - completed: A closure that is invoked for `completed` event.
 	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A signal with attached side-effects for given event cases.
-	public func on(event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> Signal<Value, Error> {
+	public func on(
+		event: ((Event<Value, Error>) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil,
+		terminated: (() -> Void)? = nil,
+		disposed: (() -> Void)? = nil,
+		next: ((Value) -> Void)? = nil
+	) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 

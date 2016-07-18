@@ -2091,7 +2091,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer2: SignalProducer<Int, NoError> = SignalProducer.empty
 
 					// This expression verifies at compile time that the type is as expected.
-					let producer: SignalProducer<Int, NoError> = SignalProducer(values: [producer1, producer2])
+					let _: SignalProducer<Int, NoError> = SignalProducer(values: [producer1, producer2])
 						.flatten(.merge)
 				}
 			}

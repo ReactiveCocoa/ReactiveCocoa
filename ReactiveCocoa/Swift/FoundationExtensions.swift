@@ -63,7 +63,7 @@ extension URLSession {
 	public func rac_data(with request: URLRequest) -> SignalProducer<(Data, URLResponse), NSError> {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTask(with: request) { data, response, error in
-				if let data = data, response = response {
+				if let data = data, let response = response {
 					observer.sendNext((data, response))
 					observer.sendCompleted()
 				} else {

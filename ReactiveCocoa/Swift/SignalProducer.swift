@@ -1659,7 +1659,7 @@ extension SignalProducerProtocol {
 			let shouldStartUnderlyingProducer: Bool
 
 			lock.lock()
-			if let producer = producer, producerObserver = producerObserver {
+			if let producer = producer, let producerObserver = producerObserver {
 				(initializedProducer, initializedObserver) = (producer, producerObserver)
 				shouldStartUnderlyingProducer = false
 			} else {

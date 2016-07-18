@@ -718,7 +718,7 @@ extension SignalProtocol {
 			var skipped = 0
 
 			return self.observe { event in
-				if case .next = event where skipped < count {
+				if case .next = event, skipped < count {
 					skipped += 1
 				} else {
 					observer.action(event)
@@ -1207,7 +1207,7 @@ extension SignalProtocol {
 	public func take(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
-				if let value = event.value where !predicate(value) {
+				if let value = event.value, !predicate(value) {
 					observer.sendCompleted()
 				} else {
 					observer.action(event)

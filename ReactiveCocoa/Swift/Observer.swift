@@ -14,16 +14,16 @@ public protocol ObserverProtocol {
 	/// The wrapped action of `self`.
 	var action: (Event<Value, Error>) -> Void { get }
 
-	/// Puts a `Next` event into the given observer.
+	/// Puts a `next` event into `self`.
 	func sendNext(_ value: Value)
 
-	/// Puts a `Failed` event into the given observer.
+	/// Puts a failed event into `self`.
 	func sendFailed(_ error: Error)
 
-	/// Puts a `Completed` event into the given observer.
+	/// Puts a `completed` event into `self`.
 	func sendCompleted()
 
-	/// Puts an `Interrupted` event into the given observer.
+	/// Puts an `interrupted` event into `self`.
 	func sendInterrupted()
 }
 
@@ -32,12 +32,28 @@ public protocol ObserverProtocol {
 public struct Observer<Value, Error: ErrorProtocol> {
 	public typealias Action = (Event<Value, Error>) -> Void
 
+	/// An action that will be performed upon arrival of the event.
 	public let action: Action
 
+	/// An initializer that accepts a closure accepting an event for the 
+	/// observer.
+	///
+	/// - parameters:
+	///   - action: A closure to lift over received event.
 	public init(_ action: Action) {
 		self.action = action
 	}
 
+	/// An initializer that accepts closures for different event types.
+	///
+	/// - parameters:
+	///   - failed: Optional closure that accepts an `Error` parameter when a
+	///             failed event is observed.
+	///   - completed: Optional closure executed when a `completed` event is
+	///                observed.
+	///   - interruped: Optional closure executed when an `interrupted` event is
+	///                 observed.
+	///   - next: Optional closure executed when a `next` event is observed.
 	public init(failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) {
 		self.init { event in
 			switch event {
@@ -58,22 +74,28 @@ public struct Observer<Value, Error: ErrorProtocol> {
 }
 
 extension Observer: ObserverProtocol {
-	/// Puts a `Next` event into the given observer.
+	/// Puts a `next` event into `self`.
+	///
+	/// - parameters:
+	///   - value: A value sent with the `next` event.
 	public func sendNext(_ value: Value) {
 		action(.next(value))
 	}
 
-	/// Puts a `Failed` event into the given observer.
+	/// Puts a failed event into `self`.
+	///
+	/// - parameters:
+	///   - error: An error object sent with failed event.
 	public func sendFailed(_ error: Error) {
 		action(.failed(error))
 	}
 
-	/// Puts a `Completed` event into the given observer.
+	/// Puts a `completed` event into `self`.
 	public func sendCompleted() {
 		action(.completed)
 	}
 
-	/// Puts an `Interrupted` event into the given observer.
+	/// Puts an `interrupted` event into `self`.
 	public func sendInterrupted() {
 		action(.interrupted)
 	}

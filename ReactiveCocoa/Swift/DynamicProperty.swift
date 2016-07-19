@@ -40,8 +40,8 @@ public final class DynamicProperty<Wrapped>: MutablePropertyProtocol {
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.
 	///
-	/// By definition, this only works if the object given to init() is
-	/// KVO-compliant. Most UI controls are not!
+	/// - important: This only works if the object given to init() is KVO-compliant.
+	///              Most UI controls are not!
 	public var producer: SignalProducer<Wrapped?, NoError> {
 		return object.map { object in
 			return SignalProducer { [keyPath = self.keyPath, extractValue = self.extractValue]
@@ -66,7 +66,15 @@ public final class DynamicProperty<Wrapped>: MutablePropertyProtocol {
 	}()
 
 	/// Initializes a property that will observe and set the given key path of
-	/// the given object. `object` must support weak references!
+	/// the given object, using the supplied representation.
+	///
+	/// - important: `object` must support weak references!
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: Key path to observe on the object.
+	///   - representable: A representation that bridges the values across the
+	///                    language boundary.
 	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Wrapped>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
@@ -83,7 +91,11 @@ extension DynamicProperty where Wrapped: _ObjectiveCBridgeable {
 	/// the given object, where `Value` is a value type that is bridgeable
 	/// to Objective-C.
 	///
-	/// `object` must support weak references!
+	/// - important: `object` must support weak references!
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: Key path to observe on the object.
 	public convenience init(object: NSObject?, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: BridgeableRepresentation.self)
 	}
@@ -94,7 +106,11 @@ extension DynamicProperty where Wrapped: AnyObject {
 	/// the given object, where `Value` is a reference type that can be
 	/// represented directly in Objective-C via `AnyObject`.
 	///
-	/// `object` must support weak references!
+	/// - important: `object` must support weak references!
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: Key path to observe on the object.
 	public convenience init(object: NSObject?, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
 	}

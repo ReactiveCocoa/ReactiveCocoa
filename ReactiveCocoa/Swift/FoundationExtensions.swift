@@ -12,7 +12,18 @@ import enum Result.NoError
 private var lifetimeKey: UInt8 = 0
 
 extension NSObject: LifetimeProviding {
-	/// Returns a lifetime that ends when the receiver is deallocated.
+	/// An interruptible observation to the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
+	@nonobjc public var lifetimeProducer: SignalProducer<(), NoError> {
+		return SignalProducer(signal: lifetime)
+	}
+
+	/// A signal representing the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
 	@nonobjc public var lifetime: Signal<(), NoError> {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
@@ -29,11 +40,20 @@ extension NSObject: LifetimeProviding {
 }
 
 extension NotificationCenter {
-	/// Returns a producer of notifications posted that match the given criteria.
-	/// If the `object` is deallocated before starting the producer, it will 
-	/// terminate immediatelly with an Interrupted event. Otherwise, the producer
-	/// will not terminate naturally, so it must be explicitly disposed to avoid
-	/// leaks.
+	/// Returns a SignalProducer to observe posting of the specified
+	/// notification.
+	///
+	/// - parameters:
+	///   - name: name of the notification to observe
+	///   - object: an instance which sends the notifications
+	///
+	/// - returns: A SignalProducer of notifications posted that match the given
+	///            criteria.
+	///
+	/// - note: If the `object` is deallocated before starting the producer, it
+	///         will terminate immediately with an `interrupted` event.
+	///         Otherwise, the producer will not terminate naturally, so it must
+	///         be explicitly disposed to avoid leaks.
 	public func rac_notifications(forName name: Notification.Name?, object: AnyObject? = nil) -> SignalProducer<Notification, NoError> {
 		// We're weakly capturing an optional reference here, which makes destructuring awkward.
 		let objectWasNil = (object == nil)
@@ -57,8 +77,19 @@ extension NotificationCenter {
 private let defaultSessionError = NSError(domain: "org.reactivecocoa.ReactiveCocoa.rac_dataWithRequest", code: 1, userInfo: nil)
 
 extension URLSession {
-	/// Returns a producer that will execute the given request once for each
-	/// invocation of start().
+	/// Returns a SignalProducer which performs the work associated with an
+	/// `NSURLSession`
+	///
+	/// - parameters:
+	///   - request: A request that will be performed when the producer is
+	///              started
+	///
+	/// - returns: A producer that will execute the given request once for each
+	///            invocation of `start()`.
+	///
+	/// - note: This method will not send an error event in the case of a server
+	///         side error (i.e. when a response with status code other than
+	///         200...299 is received).
 	public func rac_data(with request: URLRequest) -> SignalProducer<(Data, URLResponse), NSError> {
 		return SignalProducer { observer, disposable in
 			let task = self.dataTask(with: request) { data, response, error in

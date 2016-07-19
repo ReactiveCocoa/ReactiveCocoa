@@ -23,18 +23,16 @@ public protocol ObservableProperty {
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public protocol BindableProperty: class {
-	associatedtype Value
-
+public protocol BindableProperty: class, ObservableProperty {
 	/// The current value of the property.
 	var value: Value { get set }
 }
 
-/// Represents a mutable property which allows observation of its changes.
+/// Represents an observable and mutable property.
 ///
 /// Only classes can conform to this protocol, because instances must support
 /// weak references (and value types currently do not).
-public typealias SourceProperty = protocol<ObservableProperty, BindableProperty>
+public protocol SourceProperty: BindableProperty, ObservableProperty {}
 
 /// Protocol composition operators
 ///
@@ -57,48 +55,88 @@ extension ObservableProperty {
 	}
 
 	/// Maps the current value and all subsequent values to a new property.
+	///
+	/// - parameters:
+	///   - transform: A closure that will map the current `value` of this
+	///                `Property` to a new value.
+	///
+	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
+	///            from `self`.
 	public func map<U>(_ transform: (Value) -> U) -> AnyProperty<U> {
 		return lift { $0.map(transform) }
 	}
 
 	/// Combines the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.combineLatestWith:`.
+	///
+	/// - parameters:
+	///   - other: A property to combine `self`'s value with.
+	///
+	/// - returns: A property that holds a tuple containing values of `self` and
+	///            the given property.
 	public func combineLatest<P: ObservableProperty>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.combineLatest(with:))(other)
 	}
 
 	/// Zips the current value and the subsequent values of two `Property`s in
 	/// the manner described by `Signal.zipWith`.
+	///
+	/// - parameters:
+	///   - other: A property to zip `self`'s value with.
+	///
+	/// - returns: A property that holds a tuple containing values of `self` and
+	///            the given property.
 	public func zip<P: ObservableProperty>(with other: P) -> AnyProperty<(Value, P.Value)> {
 		return lift(SignalProducer.zip(with:))(other)
 	}
 
-	/// Forwards events from `self` with history: values of the returned property
-	/// are a tuple whose first member is the previous value and whose second member
-	/// is the current value. `initial` is supplied as the first member of the first
-	/// tuple.
+	/// Forward events from `self` with history: values of the returned property
+	/// are a tuple whose first member is the previous value and whose second
+	/// member is the current value. `initial` is supplied as the first member
+	/// when `self` sends its first value.
+	///
+	/// - parameters:
+	///   - initial: A value that will be combined with the first value sent by
+	///              `self`.
+	///
+	/// - returns: A property that holds tuples that contain previous and
+	///            current values of `self`.
 	public func combinePrevious(initial: Value) -> AnyProperty<(Value, Value)> {
 		return lift { $0.combinePrevious(initial) }
 	}
 
-	/// Forwards only those values from `self` which do not pass `isRepeat` with
-	/// respect to the previous value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value.
+	///
+	/// - parameters:
+	///   - isRepeat: A predicate to determine if the two given values are equal.
+	///
+	/// - returns: A property that does not emit events for two equal values
+	///            sequentially.
 	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> AnyProperty<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 }
 
 extension ObservableProperty where Value: Equatable {
-	/// Forwards only those values from `self` which is not equal to the previous
-	/// value. The first value is always forwarded.
+	/// Forward only those values from `self` which do not pass `isRepeat` with
+	/// respect to the previous value.
+	///
+	/// - returns: A property that does not emit events for two equal values
+	///            sequentially.
 	public func skipRepeats() -> AnyProperty<Value> {
 		return lift { $0.skipRepeats() }
 	}
 }
 
 extension ObservableProperty where Value: ObservableProperty {
-	/// Flattens the inner properties sent upon `self` (into a single property),
-	/// according to the semantics of the given strategy.
+	/// Flattens the inner property held by `self` (into a single property of
+	/// values), according to the semantics of the given strategy.
+	///
+	/// - parameters:
+	///   - strategy: The preferred flatten strategy.
+	///
+	/// - returns: A property that sends the values of its inner properties.
 	public func flatten(_ strategy: FlattenStrategy) -> AnyProperty<Value.Value> {
 		return lift { $0.flatMap(strategy) { $0.producer } }
 	}
@@ -108,14 +146,27 @@ extension ObservableProperty {
 	/// Maps each property from `self` to a new property, then flattens the
 	/// resulting properties (into a single property), according to the
 	/// semantics of the given strategy.
+	///
+	/// - parameters:
+	///   - strategy: The preferred flatten strategy.
+	///   - transform: The transform to be applied on `self` before flattening.
+	///
+	/// - returns: A property that sends the values of its inner properties.
 	public func flatMap<P: ObservableProperty>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> AnyProperty<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
-	/// Forwards only those values from `self` that have unique identities across the set of
-	/// all values that have been seen.
+	/// Forward only those values from `self` that have unique identities across
+	/// the set of all values that have been held.
 	///
-	/// Note: This causes the identities to be retained to check for uniqueness.
+	/// - note: This causes the identities to be retained to check for 
+	///         uniqueness.
+	///
+	/// - parameters:
+	///   - transform: A closure that accepts a value and returns identity
+	///                value.
+	///
+	/// - returns: A property that sends unique values during its lifetime.
 	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> AnyProperty<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
@@ -125,80 +176,82 @@ extension ObservableProperty where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.
 	///
-	/// Note: This causes the values to be retained to check for uniqueness. Providing
-	/// a function that returns a unique value for each sent value can help you reduce
-	/// the memory footprint.
+	/// - note: This causes the identities to be retained to check for uniqueness.
+	///         Providing a function that returns a unique value for each sent
+	///         value can help you reduce the memory footprint.
+	///
+	/// - returns: A property that sends unique values during its lifetime.
 	public func uniqueValues() -> AnyProperty<Value> {
 		return lift { $0.uniqueValues() }
 	}
 }
 
 extension ObservableProperty {
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
+	/// Combines the values of all the given properties, in the manner described
+	/// by `combineLatest(with:)`.
 	public static func combineLatest<A: ObservableProperty, B: ObservableProperty where Value == A.Value>(_ a: A, _ b: B) -> AnyProperty<(A.Value, B.Value)> {
 		return a.combineLatest(with: b)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> AnyProperty<(A.Value, B.Value, C.Value)> {
 		return combineLatest(a, b)
 			.combineLatest(with: c)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value)> {
 		return combineLatest(a, b, c)
 			.combineLatest(with: d)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
 		return combineLatest(a, b, c, d)
 			.combineLatest(with: e)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
 		return combineLatest(a, b, c, d, e)
 			.combineLatest(with: f)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
 		return combineLatest(a, b, c, d, e, f)
 			.combineLatest(with: g)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
 		return combineLatest(a, b, c, d, e, f, g)
 			.combineLatest(with: h)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h)
 			.combineLatest(with: i)
 			.map(repack)
 	}
 
-	/// Combines the values of all the given properties, in the manner described by
-	/// `combineLatest(with:)`.
-	public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty, J: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	/// Combines the values of all the given properties, in the manner described 
+	/// by `combineLatest(with:)`.
+		public static func combineLatest<A: ObservableProperty, B: ObservableProperty, C: ObservableProperty, D: ObservableProperty, E: ObservableProperty, F: ObservableProperty, G: ObservableProperty, H: ObservableProperty, I: ObservableProperty, J: ObservableProperty where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> AnyProperty<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
 			.combineLatest(with: j)
 			.map(repack)
@@ -317,65 +370,96 @@ public struct AnyProperty<Value>: ObservableProperty {
 		return _value()
 	}
 
-	/// A producer for Signals that will send the wrapped property's current value,
-	/// followed by all changes over time, then complete when the wrapped property has
-	/// deinitialized.
+	/// A producer for Signals that will send the wrapped property's current
+	/// value, followed by all changes over time, then complete when the wrapped
+	/// property has deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
 		return _producer()
 	}
 
-	/// A signal that will send the wrapped property's changes over time, then complete
-	/// when the wrapped property has deinitialized.
+	/// A signal that will send the wrapped property's changes over time, then
+	/// complete when the wrapped property has deinitialized.
 	///
 	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
 
-	/// Initializes a property as a read-only view of the given property.
+	/// Initialize a property as a read-only view of the given property.
+	///
+	/// - parameters:
+	///   - property: A property to read as this property's own value.
 	public init<P: ObservableProperty where P.Value == Value>(_ property: P) {
 		sources = AnyProperty.capture(property)
 		disposable = nil
+
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
 
-	/// Initializes a property that first takes on `initial`, then each value
+	/// Initialize a property that first takes on `initial`, then each value
 	/// sent on a signal created by `producer`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - producer: A producer that will start immediately and send values to
+	///               the property.
 	public init(initial: Value, then producer: SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: producer.prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property that first takes on `initial`, then each value
+	/// Initialize a property that first takes on `initial`, then each value
 	/// sent on `signal`.
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the property.
+	///   - signal: A signal that will send values to the property.
 	public init(initial: Value, then signal: Signal<Value, NoError>) {
 		self.init(unsafeProducer: SignalProducer(signal: signal).prefix(value: initial),
 		          capturing: [])
 	}
 
-	/// Initializes a property by applying the unary `SignalProducer` transform on
-	/// `property`. The resulting property captures `property`.
+	/// Initialize a property by applying the unary `SignalProducer` transform
+	/// on `property`. The resulting property captures `property`.
+	///
+	/// - parameters:
+	///   - property: The source property.
+	///   - signal: A unary `SignalProducer` transform to be applied on
+	///     `property`.
 	private init<P: ObservableProperty>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
 		          capturing: AnyProperty.capture(property))
 	}
 
-	/// Initializes a property by applying the binary `SignalProducer` transform on
-	/// `firstProperty` and `secondProperty`. The resulting property captures
+	/// Initialize a property by applying the binary `SignalProducer` transform
+	/// on `firstProperty` and `secondProperty`. The resulting property captures
 	/// the two property sources.
+	///
+	/// - parameters:
+	///   - firstProperty: The first source property.
+	///   - secondProperty: The first source property.
+	///   - signal: A binary `SignalProducer` transform to be applied on
+	///             `firstProperty` and `secondProperty`.
 	private init<P1: ObservableProperty, P2: ObservableProperty>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: AnyProperty.capture(firstProperty) + AnyProperty.capture(secondProperty))
 	}
 
-	/// Initializes a property from a producer that promises to send at least one
-	/// value synchronously in its start handler before sending any subsequent event.
-	/// If the producer fails its promise, a fatal error would be raised.
+	/// Initialize a property from a producer that promises to send at least one
+	/// value synchronously in its start handler before sending any subsequent
+	/// event.
 	///
-	/// The producer and the signal of the created property would complete only
-	/// when the `unsafeProducer` completes.
+	/// - important: The producer and the signal of the created property would
+	///              complete only when the `unsafeProducer` completes.
+	///
+	/// - warning: If the producer fails its promise, a fatal error would be
+	///            raised.
+	///
+	/// - parameters:
+	///   - firstProperty: The composed producer for creating the property.
+	///   - sources: The property sources to be captured.
 	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [Any]) {
 		var value: Value!
 
@@ -408,9 +492,12 @@ public struct AnyProperty<Value>: ObservableProperty {
 		}
 	}
 
-	/// Check if `property` is an `AnyProperty` and has already captured its sources
-	/// using a closure. Returns that closure if it does. Otherwise, returns a closure
-	/// which captures `property`.
+	/// Inspect if `property` is an `AnyProperty` and has already captured its
+	/// sources using a closure. Returns that closure if it does. Otherwise,
+	/// returns a closure which captures `property`.
+	///
+	/// - parameters:
+	///   - property: The property to be insepcted.
 	private static func capture<P: ObservableProperty>(_ property: P) -> [Any] {
 		if let property = property as? AnyProperty<P.Value> {
 			return property.sources
@@ -428,6 +515,9 @@ public struct ConstantProperty<Value>: ObservableProperty {
 	public let signal: Signal<Value, NoError>
 
 	/// Initializes the property to have the given value.
+	///
+	/// - parameters:
+	///   - value: Property's value.
 	public init(_ value: Value) {
 		self.value = value
 		self.producer = SignalProducer(value: value)
@@ -452,8 +542,8 @@ public final class MutableProperty<Value>: SourceProperty {
 
 	/// The current value of the property.
 	///
-	/// Setting this to a new value will notify all observers of `signal`, or signals
-	/// created using `producer`.
+	/// Setting this to a new value will notify all observers of `signal`, or
+	/// signals created using `producer`.
 	public var value: Value {
 		get {
 			return withValue { $0 }
@@ -487,7 +577,10 @@ public final class MutableProperty<Value>: SourceProperty {
 		}
 	}
 
-	/// Initializes the property with the given value to start.
+	/// Initializes a mutable property that first takes on `initialValue`
+	///
+	/// - parameters:
+	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
 		lock = RecursiveLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
@@ -498,7 +591,10 @@ public final class MutableProperty<Value>: SourceProperty {
 
 	/// Atomically replaces the contents of the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - newValue: New property value.
+	///
+	/// - returns: The previous property value.
 	@discardableResult
 	public func swap(_ newValue: Value) -> Value {
 		return modify { $0 = newValue }
@@ -506,7 +602,10 @@ public final class MutableProperty<Value>: SourceProperty {
 
 	/// Atomically modifies the variable.
 	///
-	/// Returns the old value.
+	/// - parameters:
+	///   - action: A closure that accepts old property value and returns a new
+	///             property value.
+	/// - returns: The previous property value.
 	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
@@ -519,7 +618,10 @@ public final class MutableProperty<Value>: SourceProperty {
 	/// Atomically performs an arbitrary action using the current value of the
 	/// variable.
 	///
-	/// Returns the result of the action.
+	/// - parameters:
+	///   - action: A closure that accepts current property value.
+	///
+	/// - returns: the result of the action.
 	@discardableResult
 	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
@@ -551,8 +653,31 @@ infix operator <~ {
 /// Binds a signal to a property, updating the property's value to the latest
 /// value sent by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the signal sends a `Completed` event.
+/// - note: The binding will automatically terminate when the property is
+///         deinitialized, or when the signal sends a `completed` event.
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// property <~ signal
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// let disposable = property <~ signal
+/// ...
+/// // Terminates binding before property dealloc or signal's 
+/// // `completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - signal: A signal to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or signal's `completed` event.
 @discardableResult
 public func <~ <P: SourceProperty>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
@@ -578,8 +703,33 @@ public func <~ <P: SourceProperty>(property: P, signal: Signal<P.Value, NoError>
 /// the given property, updating the property's value to the latest value sent
 /// by the signal.
 ///
-/// The binding will automatically terminate when the property is deinitialized,
-/// or when the created signal sends a `Completed` event.
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer<Int, NoError>(value: 1)
+/// property <~ producer
+/// print(property.value) // prints `1`
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer({ /* do some work after some time */ })
+/// let disposable = (property <~ producer)
+/// ...
+/// // Terminates binding before property dealloc or
+/// // signal's `completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the created producer sends a `completed` 
+///         event.
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - producer: A producer to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or producer's `completed` event.
 @discardableResult
 public func <~ <P: SourceProperty>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
 	let disposable = CompositeDisposable()
@@ -598,16 +748,103 @@ public func <~ <P: SourceProperty>(property: P, producer: SignalProducer<P.Value
 	return disposable
 }
 
+/// Binds a signal to a property, updating the property's value to the latest
+/// value sent by the signal.
+///
+/// - note: The binding will automatically terminate when the property is
+///         deinitialized, or when the signal sends a `completed` event.
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// property <~ signal
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let signal = Signal({ /* do some work after some time */ })
+/// let disposable = property <~ signal
+/// ...
+/// // Terminates binding before property dealloc or signal's 
+/// // `completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - signal: A signal to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or signal's `completed` event.
 @discardableResult
 public func <~ <P: SourceProperty, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
 	return property <~ signal.optionalize()
 }
 
+/// Creates a signal from the given producer, which will be immediately bound to
+/// the given property, updating the property's value to the latest value sent
+/// by the signal.
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer<Int, NoError>(value: 1)
+/// property <~ producer
+/// print(property.value) // prints `1`
+/// ````
+///
+/// ````
+/// let property = MutableProperty(0)
+/// let producer = SignalProducer({ /* do some work after some time */ })
+/// let disposable = (property <~ producer)
+/// ...
+/// // Terminates binding before property dealloc or
+/// // signal's `completed` event.
+/// disposable.dispose()
+/// ````
+///
+/// - note: The binding will automatically terminate when the property is 
+///         deinitialized, or when the created producer sends a `completed` 
+///         event.
+///
+/// - parameters:
+///   - property: A property to bind to.
+///   - producer: A producer to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of property or producer's `completed` event.
 @discardableResult
 public func <~ <P: SourceProperty, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
 	return property <~ producer.optionalize()
 }
 
+/// Binds `destinationProperty` to the latest values of `sourceProperty`.
+///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// dstProperty <~ srcProperty
+/// print(dstProperty.value) // prints 10
+/// ````
+///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// let disposable = (dstProperty <~ srcProperty)
+/// ...
+/// disposable.dispose() // terminate the binding earlier if
+///                      // needed
+/// ````
+///
+/// - note: The binding will automatically terminate when either property is
+///         deinitialized.
+///
+/// - parameters:
+///   - destinationProperty: A property to bind to.
+///   - sourceProperty: A property to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of destination property or source property
+///            producer's `completed` event.
 @discardableResult
 public func <~ <Destination: SourceProperty, Source: ObservableProperty where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
@@ -615,8 +852,32 @@ public func <~ <Destination: SourceProperty, Source: ObservableProperty where De
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
-/// The binding will automatically terminate when either property is
-/// deinitialized.
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// dstProperty <~ srcProperty
+/// print(dstProperty.value) // prints 10
+/// ````
+///
+/// ````
+/// let dstProperty = MutableProperty(0)
+/// let srcProperty = ConstantProperty(10)
+/// let disposable = (dstProperty <~ srcProperty)
+/// ...
+/// disposable.dispose() // terminate the binding earlier if
+///                      // needed
+/// ````
+///
+/// - note: The binding will automatically terminate when either property is
+///         deinitialized.
+///
+/// - parameters:
+///   - destinationProperty: A property to bind to.
+///   - sourceProperty: A property to bind.
+///
+/// - returns: A disposable that can be used to terminate binding before the
+///            deinitialization of destination property or source property
+///            producer's `completed` event.
 @discardableResult
 public func <~ <Destination: SourceProperty, Source: ObservableProperty where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer

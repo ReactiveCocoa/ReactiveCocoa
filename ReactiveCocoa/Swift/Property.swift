@@ -21,9 +21,12 @@ public protocol PropertyProtocol: class {
 	/// change.
 	var signal: Signal<Value, NoError> { get }
 
-	/// The property sources of `self`, or `nil` if `self` owns the
-	/// lifetime of its signal and producer.
-	var sources: [AnyObject]? { get }
+	/// The property sources to be captured.
+	///
+	/// By default, it returns `self` for all implementations except
+	/// `Property`, which would returns its ultimate sources so as to allow
+	/// intermediate properties to deinitialize after a composition.
+	var sources: [AnyObject] { get }
 }
 
 /// Represents an observable property that can be mutated directly.
@@ -33,10 +36,9 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 }
 
 extension PropertyProtocol {
-	/// The property sources of `self`, or `nil` if `self` owns the
-	/// lifetime of its signal and producer.
-	public var sources: [AnyObject]? {
-		return nil
+	public var sources: [AnyObject] {
+		/// Generally, only `Property` would have non-`self` sources to be captured.
+		return [self]
 	}
 }
 
@@ -383,7 +385,7 @@ extension PropertyProtocol {
 /// In other words, its producer and signal can outlive the property itself, if
 /// its source outlives it too.
 public final class Property<Value>: PropertyProtocol {
-	public let sources: [AnyObject]?
+	public let sources: [AnyObject]
 	private let disposable: Disposable?
 
 	private let _value: () -> Value
@@ -427,9 +429,8 @@ public final class Property<Value>: PropertyProtocol {
 	/// - parameters:
 	///   - property: A property to be wrapped.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
-		sources = property.sources ?? [property]
+		sources = property.sources
 		disposable = nil
-
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -467,7 +468,7 @@ public final class Property<Value>: PropertyProtocol {
 	///     `property`.
 	private convenience init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(property.producer),
-		          capturing: property.sources ?? [property])
+		          capturing: property.sources)
 	}
 
 	/// Initialize a composed property by applying the binary `SignalProducer`
@@ -480,7 +481,7 @@ public final class Property<Value>: PropertyProtocol {
 	///             `firstProperty` and `secondProperty`.
 	private convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
-		          capturing: (firstProperty.sources ?? [firstProperty]) + (secondProperty.sources ?? [secondProperty]))
+		          capturing: firstProperty.sources + secondProperty.sources)
 	}
 
 	/// Initialize a composed property from a producer that promises to send

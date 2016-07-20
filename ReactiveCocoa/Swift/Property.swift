@@ -48,7 +48,7 @@ extension PropertyProtocol {
 /// A transformed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyProtocol {
-	/// Lifts a unary SignalProducer operator to operate upon PropertyType instead.
+	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
 	private func lift<U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
 		return Property(self, transform: transform)
 	}

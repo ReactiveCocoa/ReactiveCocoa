@@ -36,6 +36,14 @@ public enum EventLoggerType {}
 @available(*, unavailable, renamed:"EventProtocol")
 public enum EventType {}
 
+// Renamed and Removed Types
+
+@available(*, unavailable, renamed:"Property")
+public struct AnyProperty<Value> {}
+
+@available(*, unavailable, message:"Use 'Property(value:)' to create a constant property instead. 'ConstantProperty' is removed in RAC 5.0.")
+public struct ConstantProperty<Value> {}
+
 // Renamed Properties
 
 extension Disposable {
@@ -213,18 +221,18 @@ extension SignalProducer {
 
 extension ObservableProperty {
 	@available(*, unavailable, renamed:"combineLatest(with:)")
-	public func combineLatestWith<P: ObservableProperty>(_ otherProperty: P) -> AnyProperty<(Value, P.Value)> { fatalError() }
+	public func combineLatestWith<P: ObservableProperty>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
 
 	@available(*, unavailable, renamed:"zip(with:)")
-	public func zipWith<P: ObservableProperty>(_ otherProperty: P) -> AnyProperty<(Value, P.Value)> { fatalError() }
+	public func zipWith<P: ObservableProperty>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
 }
 
-extension AnyProperty {
+extension Property {
 	@available(*, unavailable, renamed:"AnyProperty(initial:then:)")
-	public init(initialValue: Value, producer: SignalProducer<Value, NoError>) { fatalError() }
+	public convenience init(initialValue: Value, producer: SignalProducer<Value, NoError>) { fatalError() }
 
 	@available(*, unavailable, renamed:"AnyProperty(initial:then:)")
-	public init(initialValue: Value, signal: Signal<Value, NoError>) { fatalError() }
+	public convenience init(initialValue: Value, signal: Signal<Value, NoError>) { fatalError() }
 }
 
 extension DateSchedulerProtocol {

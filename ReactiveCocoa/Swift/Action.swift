@@ -31,21 +31,21 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	public let errors: Signal<Error, NoError>
 
 	/// Whether the action is currently executing.
-	public var isExecuting: AnyProperty<Bool> {
-		return AnyProperty(_isExecuting)
+	public var isExecuting: Property<Bool> {
+		return Property(_isExecuting)
 	}
 
 	private let _isExecuting: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the action is currently enabled.
-	public var isEnabled: AnyProperty<Bool> {
-		return AnyProperty(_isEnabled)
+	public var isEnabled: Property<Bool> {
+		return Property(_isEnabled)
 	}
 
 	private let _isEnabled: MutableProperty<Bool> = MutableProperty(false)
 
 	/// Whether the instantiator of this action wants it to be enabled.
-	private let isUserEnabled: AnyProperty<Bool>
+	private let isUserEnabled: Property<Bool>
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
@@ -67,7 +67,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	///              calling `apply(Input)` on the action.
 	public init<P: ObservableProperty where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
-		isUserEnabled = AnyProperty(property)
+		isUserEnabled = Property(property)
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
@@ -86,7 +86,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	///   - execute: A closure that returns the signal producer returned by
 	///              calling `apply(Input)` on the action.
 	public convenience init(_ execute: (Input) -> SignalProducer<Output, Error>) {
-		self.init(enabledIf: ConstantProperty(true), execute)
+		self.init(enabledIf: Property(value: true), execute)
 	}
 
 	deinit {
@@ -146,7 +146,7 @@ public protocol ActionProtocol {
 	associatedtype Error: ErrorProtocol
 
 	/// Whether the action is currently enabled.
-	var isEnabled: AnyProperty<Bool> { get }
+	var isEnabled: Property<Bool> { get }
 
 	/// Extracts an action from the receiver.
 	var action: Action<Input, Output, Error> { get }

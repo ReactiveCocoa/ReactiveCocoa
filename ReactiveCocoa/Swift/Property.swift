@@ -485,24 +485,23 @@ public final class Property<Value>: PropertyProtocol {
 		// property.
 		let relay = MutableProperty<Value?>(nil)
 
-		// A disposable that causes the relay to emit a `completed` event.
+		// `relayDisposable` is a disposable which terminates the relay, and causes
+		// its producer and signal to emit a `completed` event.
 		//
 		// It is disposed of when the upstream emits a terminating event, or
 		// when `scopeDisposable` is released by the last consumer.
 		let relayDisposable = CompositeDisposable()
 		relayDisposable += { _ = relay }
 
-		// A disposable that tracks the active consumers of the relay.
+		// `scopedDisposable` tracks the active consumers of the relay.
 		//
-		// This property, its lazily initialized signal and its producer
-		// would retain `scopedDisposable` to keep the relay alive.
+		// This property, its lazily initialized signal and its producer would
+		// retain `scopedDisposable` to keep the relay alive.
 		//
-		// When the last consumer releases `scopedDisposable`, the wrapped
-		// `relayDisposable` would be disposed of to clean up all resources.
-		//
-		// Note that it is possible of `relayDisposable` to be disposed of
-		// ahead of this disposable, in the case of an upstream terminating
-		// event.
+		// When the last consumer releases `scopedDisposable`, it would dispose of
+		// the `relayDisposable` to terminate the relay. Note that it is possible
+		// of `relayDisposable` to be disposed of before `scopedDisposable` is
+		// released, if a terminating event is received from the upstream.
 		let scopedDisposable = ScopedDisposable(relayDisposable)
 
 		// Records the sources of this property.

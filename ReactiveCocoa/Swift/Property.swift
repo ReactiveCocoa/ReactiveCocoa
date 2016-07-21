@@ -11,7 +11,9 @@ public protocol PropertyProtocol: class {
 	/// The current value of the property.
 	var value: Value { get }
 
-	/// A producer for signals that sends the property's current value,
+	/// The values producer of the property.
+	///
+	/// It produces a signal that sends the property's current value,
 	/// followed by all changes over time. It completes when the property
 	/// has deinitialized, or has no further change.
 	var producer: SignalProducer<Value, NoError> { get }
@@ -33,7 +35,7 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 /// The producer and the signal of transformed properties would complete
 /// only when its source properties have deinitialized.
 ///
-/// A transformed property would retain its ultimate source, but not
+/// A composed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
@@ -372,7 +374,6 @@ extension PropertyProtocol {
 /// its source outlives it too.
 public final class Property<Value>: PropertyProtocol {
 	private let sources: [AnyObject]
-	private let disposable: Disposable?
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -392,8 +393,6 @@ public final class Property<Value>: PropertyProtocol {
 
 	/// A signal that will send the property's changes over time, then
 	/// complete when the property has deinitialized or has no further changes.
-	///
-	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
@@ -404,7 +403,6 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A value of the constant property.
 	public init(value: Value) {
 		sources = []
-		disposable = nil
 		_value = { value }
 		_producer = { SignalProducer(value: value) }
 		_signal = { Signal<Value, NoError>.empty }
@@ -416,7 +414,6 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A property to be wrapped.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = Property.capture(property)
-		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -481,40 +478,92 @@ public final class Property<Value>: PropertyProtocol {
 	///            raised.
 	///
 	/// - parameters:
-	///   - firstProperty: The composed producer for creating the property.
+	///   - unsafeProducer: The composed producer for creating the property.
 	///   - sources: The property sources to be captured.
-	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing propertySources: [AnyObject]) {
-		var value: Value!
+	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [AnyObject]) {
+		// A relay that provides a single source of truth for this composed
+		// property.
+		let relay = MutableProperty<Value?>(nil)
 
-		disposable = unsafeProducer.start { event in
+		// `relayDisposable` is a disposable which terminates the relay, and causes
+		// its producer and signal to emit a `completed` event.
+		//
+		// It is disposed of when the upstream emits a terminating event, or
+		// when `scopeDisposable` is released by the last consumer.
+		let relayDisposable = CompositeDisposable()
+		relayDisposable += { _ = relay }
+
+		// `scopedDisposable` tracks the active consumers of the relay.
+		//
+		// This property, its lazily initialized signal and its producer would
+		// retain `scopedDisposable` to keep the relay alive.
+		//
+		// When the last consumer releases `scopedDisposable`, it would dispose of
+		// the `relayDisposable` to terminate the relay. Note that it is possible
+		// of `relayDisposable` to be disposed of before `scopedDisposable` is
+		// released, if a terminating event is received from the upstream.
+		let scopedDisposable = ScopedDisposable(relayDisposable)
+
+		// Records the sources of this property.
+		self.sources = sources + [scopedDisposable]
+
+		// Starts forwarding values from the upstream to the relay.
+		relayDisposable += unsafeProducer.start { [weak relay] event in
 			switch event {
 			case let .next(newValue):
-				value = newValue
+				relay?.value = newValue
 
 			case .completed, .interrupted:
-				break
+				relayDisposable.dispose()
 
 			case let .failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
 
-		guard value != nil else {
+		guard relay.value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
 
-		sources = propertySources
-		_value = { value }
-		_producer = { unsafeProducer }
-		_signal = {
-			var extractedSignal: Signal<Value, NoError>!
-			unsafeProducer.startWithSignal { signal, _ in extractedSignal = signal }
-			return extractedSignal
+		func prepareRelayProducer(_ producer: SignalProducer<Value?, NoError>) -> SignalProducer<Value, NoError> {
+			return SignalProducer { observer, producerDisposable in
+				producer.startWithSignal { signal, signalDisposable in
+					producerDisposable += signalDisposable
+					prepareRelaySignal(signal).observe(observer)
+				}
+			}
 		}
-	}
 
-	deinit {
-		disposable?.dispose()
+		func prepareRelaySignal(_ signal: Signal<Value?, NoError>) -> Signal<Value, NoError> {
+			return Signal { observer in
+				let signalDisposable = CompositeDisposable()
+				signalDisposable += { _ = scopedDisposable }
+				signalDisposable += signal.observe { event in
+					observer.action(event.map { $0! })
+				}
+				return signalDisposable
+			}
+		}
+
+		_value = { relay.value! }
+		_producer = { prepareRelayProducer(relay.producer) }
+
+		// Lazily initializes the signal of this composed property.
+		//
+		// The created signal would retain `scopedDisposable` to keep the relay
+		// alive, thus inevitably binding the relay to the lifetime of the upstream
+		// for good.
+		let atomicSignal = Atomic<Signal<Value, NoError>?>(nil)
+		_signal = {
+			var signal: Signal<Value, NoError>!
+			atomicSignal.modify { innerSignal in
+				if signal == nil {
+					innerSignal = prepareRelaySignal(relay.signal)
+				}
+				signal = innerSignal
+			}
+			return signal
+		}
 	}
 
 	/// Inspect if `property` is an `AnyProperty` and has already captured its

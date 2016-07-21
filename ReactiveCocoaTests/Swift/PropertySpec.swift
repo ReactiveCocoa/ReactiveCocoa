@@ -21,54 +21,6 @@ private let finalOtherPropertyValue = "FinalOtherValue"
 
 class PropertySpec: QuickSpec {
 	override func spec() {
-		describe("ConstantProperty") {
-			it("should have the value given at initialization") {
-				let constantProperty = ConstantProperty(initialPropertyValue)
-
-				expect(constantProperty.value) == initialPropertyValue
-			}
-
-			it("should yield a signal that interrupts observers without emitting any value.") {
-				let constantProperty = ConstantProperty(initialPropertyValue)
-
-				var signalInterrupted = false
-				var hasUnexpectedEventsEmitted = false
-
-				constantProperty.signal.observe { event in
-					switch event {
-					case .interrupted:
-						signalInterrupted = true
-					case .next, .failed, .completed:
-						hasUnexpectedEventsEmitted = true
-					}
-				}
-
-				expect(signalInterrupted) == true
-				expect(hasUnexpectedEventsEmitted) == false
-			}
-
-			it("should yield a producer that sends the current value then completes") {
-				let constantProperty = ConstantProperty(initialPropertyValue)
-
-				var sentValue: String?
-				var signalCompleted = false
-
-				constantProperty.producer.start { event in
-					switch event {
-					case let .next(value):
-						sentValue = value
-					case .completed:
-						signalCompleted = true
-					case .failed, .interrupted:
-						break
-					}
-				}
-
-				expect(sentValue) == initialPropertyValue
-				expect(signalCompleted) == true
-			}
-		}
-
 		describe("MutableProperty") {
 			it("should have the value given at initialization") {
 				let mutableProperty = MutableProperty(initialPropertyValue)
@@ -296,11 +248,59 @@ class PropertySpec: QuickSpec {
 			}
 		}
 
-		describe("AnyProperty") {
+		describe("Property") {
+			describe("from a value") {
+				it("should have the value given at initialization") {
+					let constantProperty = Property(value: initialPropertyValue)
+
+					expect(constantProperty.value) == initialPropertyValue
+				}
+
+				it("should yield a signal that interrupts observers without emitting any value.") {
+					let constantProperty = Property(value: initialPropertyValue)
+
+					var signalInterrupted = false
+					var hasUnexpectedEventsEmitted = false
+
+					constantProperty.signal.observe { event in
+						switch event {
+						case .interrupted:
+							signalInterrupted = true
+						case .next, .failed, .completed:
+							hasUnexpectedEventsEmitted = true
+						}
+					}
+
+					expect(signalInterrupted) == true
+					expect(hasUnexpectedEventsEmitted) == false
+				}
+
+				it("should yield a producer that sends the current value then completes") {
+					let constantProperty = Property(value: initialPropertyValue)
+
+					var sentValue: String?
+					var signalCompleted = false
+
+					constantProperty.producer.start { event in
+						switch event {
+						case let .next(value):
+							sentValue = value
+						case .completed:
+							signalCompleted = true
+						case .failed, .interrupted:
+							break
+						}
+					}
+
+					expect(sentValue) == initialPropertyValue
+					expect(signalCompleted) == true
+				}
+			}
+
 			describe("from a PropertyProtocol") {
 				it("should pass through behaviors of the input property") {
-					let constantProperty = ConstantProperty(initialPropertyValue)
-					let property = AnyProperty(constantProperty)
+					let constantProperty = Property(value: initialPropertyValue)
+					let property = Property(constantProperty)
 
 					var sentValue: String?
 					var signalSentValue: String?
@@ -373,7 +373,7 @@ class PropertySpec: QuickSpec {
 					}
 
 					it("should transform property from a property that has a terminated producer") {
-						let property = ConstantProperty(1)
+						let property = Property(value: 1)
 						let transformedProperty = property.map { $0 + 1 }
 
 						expect(transformedProperty.value) == 2
@@ -415,19 +415,58 @@ class PropertySpec: QuickSpec {
 						}
 					}
 				}
+
+				describe("Property.capture") {
+					it("should not capture intermediate properties but only the ultimate sources") {
+						func increment(input: Int) -> Int {
+							return input + 1
+						}
+
+						weak var weakSourceProperty: MutableProperty<Int>?
+						weak var weakPropertyA: Property<Int>?
+						weak var weakPropertyB: Property<Int>?
+						weak var weakPropertyC: Property<Int>?
+
+						var finalProperty: Property<Int>!
+
+						func scope() {
+							let property = MutableProperty(1)
+							weakSourceProperty = property
+
+							let propertyA = property.map(increment)
+							weakPropertyA = propertyA
+
+							let propertyB = propertyA.map(increment)
+							weakPropertyB = propertyB
+
+							let propertyC = propertyB.map(increment)
+							weakPropertyC = propertyC
+
+							finalProperty = propertyC.map(increment)
+						}
+
+						scope()
+
+						expect(finalProperty.value) == 5
+						expect(weakSourceProperty).toNot(beNil())
+						expect(weakPropertyA).to(beNil())
+						expect(weakPropertyB).to(beNil())
+						expect(weakPropertyC).to(beNil())
+					}
+				}
 			}
 
 			describe("from a value and SignalProducer") {
 				it("should initially take on the supplied value") {
-					let property = AnyProperty(initial: initialPropertyValue,
-					                           then: SignalProducer.never)
+					let property = Property(initial: initialPropertyValue,
+					                        then: SignalProducer.never)
 
 					expect(property.value) == initialPropertyValue
 				}
 
 				it("should take on each value sent on the producer") {
-					let property = AnyProperty(initial: initialPropertyValue,
-					                           then: SignalProducer(value: subsequentPropertyValue))
+					let property = Property(initial: initialPropertyValue,
+					                        then: SignalProducer(value: subsequentPropertyValue))
 
 					expect(property.value) == subsequentPropertyValue
 				}
@@ -438,8 +477,8 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
-					                                              then: SignalProducer(signal: signal))
+					var property: Property<Int>? = Property(initial: 1,
+					                                           then: SignalProducer(signal: signal))
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }
@@ -469,8 +508,8 @@ class PropertySpec: QuickSpec {
 				it("should initially take on the supplied value, then values sent on the signal") {
 					let (signal, observer) = Signal<String, NoError>.pipe()
 
-					let property = AnyProperty(initial: initialPropertyValue,
-					                           then: signal)
+					let property = Property(initial: initialPropertyValue,
+					                        then: signal)
 
 					expect(property.value) == initialPropertyValue
 
@@ -486,8 +525,8 @@ class PropertySpec: QuickSpec {
 					var signalInterrupted = false
 
 					let (signal, observer) = Signal<Int, NoError>.pipe()
-					var property: AnyProperty<Int>? = AnyProperty(initial: 1,
-					                                              then: signal)
+					var property: Property<Int>? = Property(initial: 1,
+					                                           then: signal)
 					let propertySignal = property!.signal
 
 					propertySignal.observeCompleted { signalCompleted = true }
@@ -875,7 +914,7 @@ class PropertySpec: QuickSpec {
 
 				describe("combinePrevious") {
 					it("should pack the current value and the previous value a tuple") {
-						let transformedProperty = property.combinePrevious(initial: initialPropertyValue)
+						let transformedProperty = property.combinePrevious(initialPropertyValue)
 
 						expect(transformedProperty.value.0) == initialPropertyValue
 						expect(transformedProperty.value.1) == initialPropertyValue
@@ -895,7 +934,7 @@ class PropertySpec: QuickSpec {
 						var result: (String, String)?
 						var completed = false
 
-						var transformedProperty = Optional(property.combinePrevious(initial: initialPropertyValue))
+						var transformedProperty = Optional(property.combinePrevious(initialPropertyValue))
 						transformedProperty!.producer.start { event in
 							switch event {
 							case let .next(tuple):
@@ -1610,7 +1649,7 @@ class PropertySpec: QuickSpec {
 
 			describe("from another property") {
 				it("should take the source property's current value") {
-					let sourceProperty = ConstantProperty(initialPropertyValue)
+					let sourceProperty = Property(value: initialPropertyValue)
 
 					let destinationProperty = MutableProperty("")
 

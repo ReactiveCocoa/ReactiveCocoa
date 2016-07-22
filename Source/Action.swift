@@ -12,7 +12,7 @@ import enum Result.NoError
 extension Action {
     /// Creates an always disabled action.
     public static var rex_disabled: Action {
-        return Action(enabledIf: ConstantProperty(false)) { _ in .empty }
+        return Action(enabledIf: Property(value: false)) { _ in .empty }
     }
     
     /// Whether the action execution was started.

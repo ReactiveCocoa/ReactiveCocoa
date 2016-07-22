@@ -12,33 +12,33 @@ import enum Result.NoError
 extension PropertyProtocol where Value == Bool {
     /// The conjunction of `self` and `other`.
     public func and<P: PropertyProtocol where P.Value == Bool>(_ other: P) -> AndProperty {
-        return AndProperty(terms: [AnyProperty(self), AnyProperty(other)])
+        return AndProperty(terms: [Property(self), Property(other)])
     }
 
     /// The conjunction of `self` and `other`.
-    public func and(_ other: AnyProperty<Bool>) -> AndProperty {
-        return AndProperty(terms: [AnyProperty(self), other])
+    public func and(_ other: Property<Bool>) -> AndProperty {
+        return AndProperty(terms: [Property(self), other])
     }
 
     /// The disjunction of `self` and `other`.
     public func or<P: PropertyProtocol where P.Value == Bool>(_ other: P) -> OrProperty {
-        return OrProperty(terms: [AnyProperty(self), AnyProperty(other)])
+        return OrProperty(terms: [Property(self), Property(other)])
     }
 
     /// The disjunction of `self` and `other`.
-    public func or(_ other: AnyProperty<Bool>) -> OrProperty {
-        return OrProperty(terms: [AnyProperty(self), other])
+    public func or(_ other: Property<Bool>) -> OrProperty {
+        return OrProperty(terms: [Property(self), other])
     }
 
     /// A negated property of `self`.
     public func not() -> NotProperty {
-        return NotProperty(source: AnyProperty(self), invert: true)
+        return NotProperty(source: Property(self), invert: true)
     }
 }
 
 /// Specialized `PropertyType` for the conjuction of a set of boolean properties.
-public struct AndProperty: PropertyProtocol {
-    public let terms: [AnyProperty<Bool>]
+public class AndProperty: PropertyProtocol {
+    public let terms: [Property<Bool>]
 
     public var value: Bool {
         return terms.reduce(true) { $0 && $1.value }
@@ -60,22 +60,22 @@ public struct AndProperty: PropertyProtocol {
 
     /// Creates a new property with an additional conjunctive term.
     public func and<P : PropertyProtocol where P.Value == Bool>(_ other: P) -> AndProperty {
-        return AndProperty(terms: terms + [AnyProperty(other)])
+        return AndProperty(terms: terms + [Property(other)])
     }
 
     /// Creates a new property with an additional conjunctive term.
-    public func and(_ other: AnyProperty<Bool>) -> AndProperty {
+    public func and(_ other: Property<Bool>) -> AndProperty {
         return AndProperty(terms: terms + [other])
     }
 
-    private init(terms: [AnyProperty<Bool>]) {
+    private init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
 
 /// Specialized `PropertyType` for the disjunction of a set of boolean properties.
-public struct OrProperty: PropertyProtocol {
-    public let terms: [AnyProperty<Bool>]
+public class OrProperty: PropertyProtocol {
+    public let terms: [Property<Bool>]
     
     public var value: Bool {
         return terms.reduce(false) { $0 || $1.value }
@@ -97,22 +97,22 @@ public struct OrProperty: PropertyProtocol {
 
     /// Creates a new property with an additional disjunctive term.
     public func or<P : PropertyProtocol where P.Value == Bool>(_ other: P) -> OrProperty {
-        return OrProperty(terms: terms + [AnyProperty(other)])
+        return OrProperty(terms: terms + [Property(other)])
     }
 
     /// Creates a new property with an additional disjunctive term.
-    public func or(_ other: AnyProperty<Bool>) -> OrProperty {
+    public func or(_ other: Property<Bool>) -> OrProperty {
         return OrProperty(terms: terms + [other])
     }
 
-    private init(terms: [AnyProperty<Bool>]) {
+    private init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
 
 /// Specialized `PropertyType` for the negation of a boolean property.
-public struct NotProperty: PropertyProtocol {
-    private let source: AnyProperty<Bool>
+public class NotProperty: PropertyProtocol {
+    private let source: Property<Bool>
     private let invert: Bool
     
     public var value: Bool {
@@ -132,7 +132,7 @@ public struct NotProperty: PropertyProtocol {
         return NotProperty(source: source, invert: !invert)
     }
 
-    private init(source: AnyProperty<Bool>, invert: Bool) {
+    private init(source: Property<Bool>, invert: Bool) {
         self.source = source
         self.invert = invert
     }

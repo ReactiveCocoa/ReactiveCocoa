@@ -123,17 +123,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 
 	private let observer: Signal<Value, NoError>.Observer
 
-	/// Need a recursive lock around `value` to allow recursive access to
-	/// `value`. Note that recursive sets will still deadlock because the
-	/// underlying producer prevents sending recursive events.
-	private let lock: NSRecursiveLock
-
-	/// The getter of the underlying storage, which may outlive the property
-	/// if a returned producer is being retained.
-	private let getter: () -> Value
-
-	/// The setter of the underlying storage.
-	private let setter: Value -> Void
+	private let _atomic: Atomic<Value>
 
 	/// The current value of the property.
 	///
@@ -141,7 +131,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// created from the `values` producer.
 	public var value: Value {
 		get {
-			return withValue { $0 }
+			return _atomic.withValue { $0 }
 		}
 
 		set {
@@ -157,17 +147,15 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [getter, weak self] producerObserver, producerDisposable in
-			if let strongSelf = self {
-				strongSelf.withValue { value in
+		return SignalProducer { [_atomic, weak self] producerObserver, producerDisposable in
+			_atomic.withValue { value in
+				if let strongSelf = self {
 					producerObserver.sendNext(value)
 					producerDisposable += strongSelf.signal.observe(producerObserver)
+				} else {
+					producerObserver.sendNext(value)
+					producerObserver.sendCompleted()
 				}
-			} else {
-				/// As the setter would have been deinitialized with the property,
-				/// the underlying storage would be immutable, and locking is no longer necessary.
-				producerObserver.sendNext(getter())
-				producerObserver.sendCompleted()
 			}
 		}
 	}
@@ -177,14 +165,10 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	/// - parameters:
 	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
-		var value = initialValue
-
-		lock = NSRecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
-
-		getter = { value }
-		setter = { newValue in value = newValue }
-
+		/// Need a recursive lock around `value` to allow recursive access to
+		/// `value`. Note that recursive sets will still deadlock because the
+		/// underlying producer prevents sending recursive events.
+		_atomic = Atomic(initialValue, mutex: RecursiveLock("org.reactivecocoa.ReactiveCocoa.MutableProperty"))
 		(signal, observer) = Signal.pipe()
 	}
 
@@ -205,12 +189,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///             property value.
 	/// - returns: The previous property value.
 	public func modify(@noescape action: (Value) throws -> Value) rethrows -> Value {
-		return try withValue { value in
-			let newValue = try action(value)
-			setter(newValue)
-			observer.sendNext(newValue)
-			return value
-		}
+		return try _atomic.modify(action, completion: observer.sendNext)
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the
@@ -221,10 +200,7 @@ public final class MutableProperty<Value>: MutablePropertyType {
 	///
 	/// - returns: the result of the action.
 	public func withValue<Result>(@noescape action: (Value) throws -> Result) rethrows -> Result {
-		lock.lock()
-		defer { lock.unlock() }
-
-		return try action(getter())
+		return try _atomic.withValue(action)
 	}
 
 	deinit {

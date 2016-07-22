@@ -13,22 +13,7 @@ internal protocol MutexType: class {
 	func unlock()
 }
 
-final class RecursiveLock: MutexType {
-	private var _lock: NSRecursiveLock
-
-	init(_ name: String) {
-		_lock = NSRecursiveLock()
-		_lock.name = name
-	}
-
-	func lock() {
-		_lock.lock()
-	}
-
-	func unlock() {
-		_lock.unlock()
-	}
-}
+extension NSRecursiveLock: MutexType {}
 
 final class PosixThreadMutex: MutexType {
 	private var _mutex = pthread_mutex_t()

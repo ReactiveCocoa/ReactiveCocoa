@@ -168,7 +168,9 @@ public final class MutableProperty<Value>: MutablePropertyType {
 		/// Need a recursive lock around `value` to allow recursive access to
 		/// `value`. Note that recursive sets will still deadlock because the
 		/// underlying producer prevents sending recursive events.
-		_atomic = Atomic(initialValue, mutex: RecursiveLock("org.reactivecocoa.ReactiveCocoa.MutableProperty"))
+		let lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
+		_atomic = Atomic(initialValue, mutex: lock)
 		(signal, observer) = Signal.pipe()
 	}
 

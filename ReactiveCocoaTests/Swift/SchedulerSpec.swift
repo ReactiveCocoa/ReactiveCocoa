@@ -9,8 +9,12 @@
 import Foundation
 import Nimble
 import Quick
-@testable
-import ReactiveCocoa
+
+#if REACTIVE_SWIFT
+@testable import ReactiveSwift
+#else
+@testable import ReactiveCocoa
+#endif
 
 class SchedulerSpec: QuickSpec {
 	override func spec() {

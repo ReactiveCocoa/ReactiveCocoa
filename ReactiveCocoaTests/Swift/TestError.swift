@@ -6,7 +6,11 @@
 //  Copyright (c) 2015 GitHub. All rights reserved.
 //
 
+#if REACTIVE_SWIFT
+import ReactiveSwift
+#else
 import ReactiveCocoa
+#endif
 import Result
 
 enum TestError: Int {

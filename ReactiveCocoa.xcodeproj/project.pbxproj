@@ -843,6 +843,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		530F8B7F1D0DB70B00009C2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 530F8B731D0DB70B00009C2C;
+			remoteInfo = ReactiveSwift;
+		};
+		536ADDE91D2C04AE002822B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53990D0A1D28405A007C84EB;
+			remoteInfo = "ReactiveSwift-tvOS";
+		};
+		53990C551D282612007C84EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53990B381D282481007C84EB;
+			remoteInfo = "ReactiveSwift-iOS";
+		};
 		7DFBED091CDB8C9500EE435B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D04725E119E49ED7006002AA /* Project object */;
@@ -867,6 +888,32 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		53990C431D282490007C84EB /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				53990E1E1D284551007C84EB /* ReactiveSwift.framework in Copy Frameworks */,
+				53990C441D282490007C84EB /* Result.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DFD1D28405D007C84EB /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				536ADDEB1D2C0941002822B7 /* ReactiveSwift.framework in Copy Frameworks */,
+				53990DFE1D28405D007C84EB /* Result.framework in Copy Frameworks */,
+				53990DFF1D28405D007C84EB /* Nimble.framework in Copy Frameworks */,
+				53990E001D28405D007C84EB /* Quick.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7DFBED151CDB8CEC00EE435B /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -901,6 +948,18 @@
 		02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalLifetimeSpec.swift; sourceTree = "<group>"; };
 		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
+		530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-MacTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530F8BAE1D0DB7F600009C2C /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Checkouts/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
+		530F8BB01D0DB7FC00009C2C /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Checkouts/Quick/build/Debug/Quick.framework; sourceTree = "<group>"; };
+		530F8BB41D0DBC3200009C2C /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicPropertySpec.swift; sourceTree = "<group>"; };
+		5332070D1D2979D200587DAC /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "../DerivedData/ReactiveCocoa-hgxgehojwapajxgdaexixhamtqan/Build/Products/Debug-iphonesimulator/Quick.framework"; sourceTree = "<group>"; };
+		5332070F1D2979D600587DAC /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "Carthage/Checkouts/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
+		53990BF71D282481007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		53990DB51D28405A007C84EB /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveSwift-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -1233,6 +1292,70 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		530F8B701D0DB70B00009C2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				530F8BA01D0DB7A800009C2C /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		530F8B7A1D0DB70B00009C2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				530F8BB21D0DB80200009C2C /* Result.framework in Frameworks */,
+				530F8BB11D0DB7FC00009C2C /* Quick.framework in Frameworks */,
+				530F8BAF1D0DB7F600009C2C /* Nimble.framework in Frameworks */,
+				530F8B7E1D0DB70B00009C2C /* ReactiveSwift.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990BA81D282481007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990BA91D282481007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990C3D1D282490007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				533207101D2979D600587DAC /* Nimble.framework in Frameworks */,
+				5332070E1D2979D200587DAC /* Quick.framework in Frameworks */,
+				53FD788B1D2848F5009BD329 /* ReactiveSwift.framework in Frameworks */,
+				53990C571D28261C007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990CB41D2829A7007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990CB51D2829A7007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990D701D28405A007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990D711D28405A007C84EB /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DF71D28405D007C84EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				539ADA2A1D2846C3008F0B68 /* ReactiveSwift.framework in Frameworks */,
+				53990DF81D28405D007C84EB /* Nimble.framework in Frameworks */,
+				53990DF91D28405D007C84EB /* Quick.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		57A4D2071BA13D7A00F7D4B1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1633,6 +1756,10 @@
 		D04725E019E49ED7006002AA = {
 			isa = PBXGroup;
 			children = (
+				5332070F1D2979D600587DAC /* Nimble.framework */,
+				5332070D1D2979D200587DAC /* Quick.framework */,
+				530F8BB01D0DB7FC00009C2C /* Quick.framework */,
+				530F8BAE1D0DB7F600009C2C /* Nimble.framework */,
 				D04725EC19E49ED7006002AA /* ReactiveCocoa */,
 				D04725F919E49ED7006002AA /* ReactiveCocoaTests */,
 				D047262519E49FE8006002AA /* Configuration */,
@@ -1651,6 +1778,13 @@
 				A9B315541B3940610001CB9C /* ReactiveCocoa.framework */,
 				57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */,
 				7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */,
+				530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */,
+				530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */,
+				53990BF71D282481007C84EB /* ReactiveSwift.framework */,
+				53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */,
+				53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */,
+				53990DB51D28405A007C84EB /* ReactiveSwift.framework */,
+				53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1803,6 +1937,7 @@
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				C79B64731CD38B2B003F2376 /* TestLogger.swift */,
+				530F8BB41D0DBC3200009C2C /* DynamicPropertySpec.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -2076,6 +2211,123 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-Mac" */;
+			buildPhases = (
+				530F8B6F1D0DB70B00009C2C /* Sources */,
+				530F8B701D0DB70B00009C2C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveSwift-Mac";
+			productName = ReactiveSwift;
+			productReference = 530F8B741D0DB70B00009C2C /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		530F8B7C1D0DB70B00009C2C /* ReactiveSwift-MacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-MacTests" */;
+			buildPhases = (
+				530F8B791D0DB70B00009C2C /* Sources */,
+				530F8B7A1D0DB70B00009C2C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				530F8B801D0DB70B00009C2C /* PBXTargetDependency */,
+			);
+			name = "ReactiveSwift-MacTests";
+			productName = ReactiveSwiftTests;
+			productReference = 530F8B7D1D0DB70B00009C2C /* ReactiveSwift-MacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		53990B381D282481007C84EB /* ReactiveSwift-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990BF21D282481007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-iOS" */;
+			buildPhases = (
+				53990B391D282481007C84EB /* Sources */,
+				53990BA81D282481007C84EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveSwift-iOS";
+			productName = ReactiveCocoa;
+			productReference = 53990BF71D282481007C84EB /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		53990BF91D282490007C84EB /* ReactiveSwift-iOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990C481D282490007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-iOSTests" */;
+			buildPhases = (
+				53990BFC1D282490007C84EB /* Sources */,
+				53990C3D1D282490007C84EB /* Frameworks */,
+				53990C431D282490007C84EB /* Copy Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				53990C561D282612007C84EB /* PBXTargetDependency */,
+			);
+			name = "ReactiveSwift-iOSTests";
+			productName = ReactiveCocoaTests;
+			productReference = 53990C4D1D282490007C84EB /* ReactiveSwift-iOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		53990C591D2829A7007C84EB /* ReactiveSwift-watchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990CEA1D2829A7007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-watchOS" */;
+			buildPhases = (
+				53990C5A1D2829A7007C84EB /* Sources */,
+				53990CB41D2829A7007C84EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveSwift-watchOS";
+			productName = ReactiveCocoa;
+			productReference = 53990CEF1D2829A7007C84EB /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		53990D0A1D28405A007C84EB /* ReactiveSwift-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990DB01D28405A007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOS" */;
+			buildPhases = (
+				53990D0B1D28405A007C84EB /* Sources */,
+				53990D701D28405A007C84EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveSwift-tvOS";
+			productName = ReactiveCocoa;
+			productReference = 53990DB51D28405A007C84EB /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		53990DB71D28405D007C84EB /* ReactiveSwift-tvOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53990E021D28405D007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOSTests" */;
+			buildPhases = (
+				53990DBA1D28405D007C84EB /* Sources */,
+				53990DF71D28405D007C84EB /* Frameworks */,
+				53990DFD1D28405D007C84EB /* Copy Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				536ADDEA1D2C04AE002822B7 /* PBXTargetDependency */,
+			);
+			name = "ReactiveSwift-tvOSTests";
+			productName = "ReactiveCocoa-tvOSTests";
+			productReference = 53990E071D28405D007C84EB /* ReactiveSwift-tvOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 57A4D23C1BA13D7A00F7D4B1 /* Build configuration list for PBXNativeTarget "ReactiveCocoa-tvOS" */;
@@ -2262,6 +2514,13 @@
 				A9B315531B3940610001CB9C /* ReactiveCocoa-watchOS */,
 				57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */,
 				7DFBED021CDB8C9500EE435B /* ReactiveCocoa-tvOSTests */,
+				530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */,
+				530F8B7C1D0DB70B00009C2C /* ReactiveSwift-MacTests */,
+				53990B381D282481007C84EB /* ReactiveSwift-iOS */,
+				53990BF91D282490007C84EB /* ReactiveSwift-iOSTests */,
+				53990C591D2829A7007C84EB /* ReactiveSwift-watchOS */,
+				53990D0A1D28405A007C84EB /* ReactiveSwift-tvOS */,
+				53990DB71D28405D007C84EB /* ReactiveSwift-tvOSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -2322,6 +2581,157 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		530F8B6F1D0DB70B00009C2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				530F8B921D0DB76F00009C2C /* Event.swift in Sources */,
+				530F8B9C1D0DB76F00009C2C /* SignalProducer.swift in Sources */,
+				530F8B961D0DB76F00009C2C /* Scheduler.swift in Sources */,
+				530F8B971D0DB76F00009C2C /* EventLogger.swift in Sources */,
+				530F8B981D0DB76F00009C2C /* Action.swift in Sources */,
+				530F8B991D0DB76F00009C2C /* Flatten.swift in Sources */,
+				530F8B941D0DB76F00009C2C /* Observer.swift in Sources */,
+				530F8B9B1D0DB76F00009C2C /* Signal.swift in Sources */,
+				530F8B9A1D0DB76F00009C2C /* Property.swift in Sources */,
+				530F8B9D1D0DB76F00009C2C /* TupleExtensions.swift in Sources */,
+				530F8B951D0DB76F00009C2C /* Optional.swift in Sources */,
+				530F8B901D0DB76F00009C2C /* Bag.swift in Sources */,
+				530F8B911D0DB76F00009C2C /* Disposable.swift in Sources */,
+				530F8B8F1D0DB76F00009C2C /* Atomic.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		530F8B791D0DB70B00009C2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				530F8BAC1D0DB7E500009C2C /* TestError.swift in Sources */,
+				530F8BA41D0DB7E500009C2C /* DisposableSpec.swift in Sources */,
+				530F8BAD1D0DB7E500009C2C /* TestLogger.swift in Sources */,
+				530F8BA11D0DB7E500009C2C /* ActionSpec.swift in Sources */,
+				530F8BA51D0DB7E500009C2C /* FlattenSpec.swift in Sources */,
+				530F8BA81D0DB7E500009C2C /* SignalLifetimeSpec.swift in Sources */,
+				530F8BAA1D0DB7E500009C2C /* SignalProducerSpec.swift in Sources */,
+				530F8BA21D0DB7E500009C2C /* AtomicSpec.swift in Sources */,
+				530F8BA31D0DB7E500009C2C /* BagSpec.swift in Sources */,
+				530F8BA71D0DB7E500009C2C /* SchedulerSpec.swift in Sources */,
+				530F8BA91D0DB7E500009C2C /* SignalProducerLiftingSpec.swift in Sources */,
+				530F8BA61D0DB7E500009C2C /* PropertySpec.swift in Sources */,
+				530F8BAB1D0DB7E500009C2C /* SignalSpec.swift in Sources */,
+				530F8BB31D0DBBEB00009C2C /* SignalProducerNimbleMatchers.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990B391D282481007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990B3B1D282481007C84EB /* Signal.swift in Sources */,
+				53990B421D282481007C84EB /* Optional.swift in Sources */,
+				53990B441D282481007C84EB /* Disposable.swift in Sources */,
+				53990B4B1D282481007C84EB /* SignalProducer.swift in Sources */,
+				53990B541D282481007C84EB /* Observer.swift in Sources */,
+				53990B641D282481007C84EB /* Flatten.swift in Sources */,
+				53990B711D282481007C84EB /* Property.swift in Sources */,
+				53990B781D282481007C84EB /* TupleExtensions.swift in Sources */,
+				53990B871D282481007C84EB /* Event.swift in Sources */,
+				53990B8B1D282481007C84EB /* EventLogger.swift in Sources */,
+				53990B8C1D282481007C84EB /* Atomic.swift in Sources */,
+				53990B8D1D282481007C84EB /* Scheduler.swift in Sources */,
+				53990B951D282481007C84EB /* Bag.swift in Sources */,
+				53990B961D282481007C84EB /* Action.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990BFC1D282490007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990BFD1D282490007C84EB /* SignalProducerSpec.swift in Sources */,
+				53990C011D282490007C84EB /* PropertySpec.swift in Sources */,
+				53990C031D282490007C84EB /* SignalSpec.swift in Sources */,
+				53990C041D282490007C84EB /* AtomicSpec.swift in Sources */,
+				53990C091D282490007C84EB /* ActionSpec.swift in Sources */,
+				53990C0E1D282490007C84EB /* SignalProducerLiftingSpec.swift in Sources */,
+				53990C0F1D282490007C84EB /* SignalProducerNimbleMatchers.swift in Sources */,
+				53990C1B1D282490007C84EB /* TestError.swift in Sources */,
+				53990C201D282490007C84EB /* SchedulerSpec.swift in Sources */,
+				53990C211D282490007C84EB /* TestLogger.swift in Sources */,
+				53990C221D282490007C84EB /* DisposableSpec.swift in Sources */,
+				53990C251D282490007C84EB /* FlattenSpec.swift in Sources */,
+				53990C371D282490007C84EB /* BagSpec.swift in Sources */,
+				53990C3C1D282490007C84EB /* SignalLifetimeSpec.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990C5A1D2829A7007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990C5B1D2829A7007C84EB /* Optional.swift in Sources */,
+				53990C5C1D2829A7007C84EB /* RACCompoundDisposableProvider.d in Sources */,
+				53990C5D1D2829A7007C84EB /* RACSignalProvider.d in Sources */,
+				53990C5E1D2829A7007C84EB /* Disposable.swift in Sources */,
+				53990C5F1D2829A7007C84EB /* Event.swift in Sources */,
+				53990C611D2829A7007C84EB /* Scheduler.swift in Sources */,
+				53990C621D2829A7007C84EB /* Action.swift in Sources */,
+				53990C631D2829A7007C84EB /* Property.swift in Sources */,
+				53990C641D2829A7007C84EB /* Signal.swift in Sources */,
+				53990C651D2829A7007C84EB /* SignalProducer.swift in Sources */,
+				53990C661D2829A7007C84EB /* Atomic.swift in Sources */,
+				53990C671D2829A7007C84EB /* Bag.swift in Sources */,
+				53990C681D2829A7007C84EB /* TupleExtensions.swift in Sources */,
+				53990C6F1D2829A7007C84EB /* Flatten.swift in Sources */,
+				53990C881D2829A7007C84EB /* Observer.swift in Sources */,
+				53990C891D2829A7007C84EB /* EventLogger.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990D0B1D28405A007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990D0C1D28405A007C84EB /* Optional.swift in Sources */,
+				53990D0E1D28405A007C84EB /* RACCompoundDisposableProvider.d in Sources */,
+				53990D101D28405A007C84EB /* RACSignalProvider.d in Sources */,
+				53990D111D28405A007C84EB /* Disposable.swift in Sources */,
+				53990D121D28405A007C84EB /* Event.swift in Sources */,
+				53990D141D28405A007C84EB /* Scheduler.swift in Sources */,
+				53990D151D28405A007C84EB /* Action.swift in Sources */,
+				53990D161D28405A007C84EB /* Property.swift in Sources */,
+				53990D171D28405A007C84EB /* Signal.swift in Sources */,
+				53990D181D28405A007C84EB /* SignalProducer.swift in Sources */,
+				53990D191D28405A007C84EB /* Atomic.swift in Sources */,
+				53990D1A1D28405A007C84EB /* Bag.swift in Sources */,
+				53990D1B1D28405A007C84EB /* TupleExtensions.swift in Sources */,
+				53990D221D28405A007C84EB /* Flatten.swift in Sources */,
+				53990D411D28405A007C84EB /* Observer.swift in Sources */,
+				53990D461D28405A007C84EB /* EventLogger.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53990DBA1D28405D007C84EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53990DBB1D28405D007C84EB /* ActionSpec.swift in Sources */,
+				53990DBC1D28405D007C84EB /* AtomicSpec.swift in Sources */,
+				53990DBD1D28405D007C84EB /* BagSpec.swift in Sources */,
+				53990DBE1D28405D007C84EB /* DisposableSpec.swift in Sources */,
+				53990DC11D28405D007C84EB /* PropertySpec.swift in Sources */,
+				53990DC21D28405D007C84EB /* SchedulerSpec.swift in Sources */,
+				53990DC31D28405D007C84EB /* SignalLifetimeSpec.swift in Sources */,
+				53990DC41D28405D007C84EB /* SignalProducerSpec.swift in Sources */,
+				53990DC51D28405D007C84EB /* SignalProducerLiftingSpec.swift in Sources */,
+				53990DC61D28405D007C84EB /* SignalSpec.swift in Sources */,
+				53990DC71D28405D007C84EB /* FlattenSpec.swift in Sources */,
+				53990DC81D28405D007C84EB /* TestError.swift in Sources */,
+				53990DC91D28405D007C84EB /* TestLogger.swift in Sources */,
+				53990DE01D28405D007C84EB /* SignalProducerNimbleMatchers.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		57A4D1B01BA13D7A00F7D4B1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2702,6 +3112,7 @@
 				D03766F919EDA60000A782A9 /* RACSerialDisposableSpec.m in Sources */,
 				D0C3131E19EF2D9700984962 /* RACTestExampleScheduler.m in Sources */,
 				D037670B19EDA60000A782A9 /* RACTargetQueueSchedulerSpec.m in Sources */,
+				530F8BB71D0DBED200009C2C /* RACDynamicPropertySuperclass.m in Sources */,
 				D03766DD19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
 				D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */,
 				D037670919EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
@@ -2713,6 +3124,7 @@
 				D03766C919EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D03766C319EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				C79B64741CD38B2B003F2376 /* TestLogger.swift in Sources */,
+				530F8BB51D0DBC3200009C2C /* DynamicPropertySpec.swift in Sources */,
 				D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				CA6F28501C52626B001879D2 /* FlattenSpec.swift in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
@@ -2947,6 +3359,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		530F8B801D0DB70B00009C2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 530F8B731D0DB70B00009C2C /* ReactiveSwift-Mac */;
+			targetProxy = 530F8B7F1D0DB70B00009C2C /* PBXContainerItemProxy */;
+		};
+		536ADDEA1D2C04AE002822B7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53990D0A1D28405A007C84EB /* ReactiveSwift-tvOS */;
+			targetProxy = 536ADDE91D2C04AE002822B7 /* PBXContainerItemProxy */;
+		};
+		53990C561D282612007C84EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53990B381D282481007C84EB /* ReactiveSwift-iOS */;
+			targetProxy = 53990C551D282612007C84EB /* PBXContainerItemProxy */;
+		};
 		7DFBED0A1CDB8C9500EE435B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */;
@@ -2965,6 +3392,765 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		530F8B851D0DB70B00009C2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Result/build/Debug",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
+				PRODUCT_NAME = ReactiveSwift;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		530F8B861D0DB70B00009C2C /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Result/build/Debug",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
+				PRODUCT_NAME = ReactiveSwift;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Test;
+		};
+		530F8B871D0DB70B00009C2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Result/build/Debug",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
+				PRODUCT_NAME = ReactiveSwift;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		530F8B881D0DB70B00009C2C /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Result/build/Debug",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwift;
+				PRODUCT_NAME = ReactiveSwift;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Profile;
+		};
+		530F8B891D0DB70B00009C2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Quick/build/Debug",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					REACTIVE_SWIFT,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwiftTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		530F8B8A1D0DB70B00009C2C /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Quick/build/Debug",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_SWIFT_FLAGS = "-D DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwiftTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Test;
+		};
+		530F8B8B1D0DB70B00009C2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Quick/build/Debug",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwiftTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		530F8B8C1D0DB70B00009C2C /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Quick/build/Debug",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveSwiftTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Profile;
+		};
+		53990BF31D282481007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Debug;
+		};
+		53990BF41D282481007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Test;
+		};
+		53990BF51D282481007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Release;
+		};
+		53990BF61D282481007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
+		53990C491D282490007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		53990C4A1D282490007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Test;
+		};
+		53990C4B1D282490007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		53990C4C1D282490007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/Nimble/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		53990CEB1D2829A7007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Debug;
+		};
+		53990CEC1D2829A7007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Test;
+		};
+		53990CED1D2829A7007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Release;
+		};
+		53990CEE1D2829A7007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=watchsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
+		53990DB11D28405A007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Debug;
+		};
+		53990DB21D28405A007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Test;
+		};
+		53990DB31D28405A007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Release;
+		};
+		53990DB41D28405A007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DTRACE_PROBES_DISABLED=1",
+				);
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT $(inherited)";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
+		53990E031D28405D007C84EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		53990E041D28405D007C84EB /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG -D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Test;
+		};
+		53990E051D28405D007C84EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		53990E061D28405D007C84EB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D REACTIVE_SWIFT";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
 		57A4D23D1BA13D7A00F7D4B1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
@@ -3447,6 +4633,83 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		530F8B8D1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				530F8B851D0DB70B00009C2C /* Debug */,
+				530F8B861D0DB70B00009C2C /* Test */,
+				530F8B871D0DB70B00009C2C /* Release */,
+				530F8B881D0DB70B00009C2C /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		530F8B8E1D0DB70B00009C2C /* Build configuration list for PBXNativeTarget "ReactiveSwift-MacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				530F8B891D0DB70B00009C2C /* Debug */,
+				530F8B8A1D0DB70B00009C2C /* Test */,
+				530F8B8B1D0DB70B00009C2C /* Release */,
+				530F8B8C1D0DB70B00009C2C /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990BF21D282481007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990BF31D282481007C84EB /* Debug */,
+				53990BF41D282481007C84EB /* Test */,
+				53990BF51D282481007C84EB /* Release */,
+				53990BF61D282481007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990C481D282490007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-iOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990C491D282490007C84EB /* Debug */,
+				53990C4A1D282490007C84EB /* Test */,
+				53990C4B1D282490007C84EB /* Release */,
+				53990C4C1D282490007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990CEA1D2829A7007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-watchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990CEB1D2829A7007C84EB /* Debug */,
+				53990CEC1D2829A7007C84EB /* Test */,
+				53990CED1D2829A7007C84EB /* Release */,
+				53990CEE1D2829A7007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990DB01D28405A007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990DB11D28405A007C84EB /* Debug */,
+				53990DB21D28405A007C84EB /* Test */,
+				53990DB31D28405A007C84EB /* Release */,
+				53990DB41D28405A007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53990E021D28405D007C84EB /* Build configuration list for PBXNativeTarget "ReactiveSwift-tvOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53990E031D28405D007C84EB /* Debug */,
+				53990E041D28405D007C84EB /* Test */,
+				53990E051D28405D007C84EB /* Release */,
+				53990E061D28405D007C84EB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		57A4D23C1BA13D7A00F7D4B1 /* Build configuration list for PBXNativeTarget "ReactiveCocoa-tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -7,9 +7,14 @@
 //
 
 import Foundation
-
-import ReactiveCocoa
 import Nimble
+
+#if REACTIVE_SWIFT
+import ReactiveSwift
+#else
+import ReactiveCocoa
+#endif
+
 
 public func sendValue<T: Equatable, E: Equatable>(value: T?, sendError: E?, complete: Bool) -> NonNilMatcherFunc<SignalProducer<T, E>> {
 	return sendValues(value.map { [$0] } ?? [], sendError: sendError, complete: complete)

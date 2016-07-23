@@ -7,7 +7,12 @@
 //
 
 import Foundation
-@testable import ReactiveCocoa
+
+#if REACTIVE_SWIFT
+import ReactiveSwift
+#else
+import ReactiveCocoa
+#endif
 
 final class TestLogger {
 	private var expectations: [String -> Void]

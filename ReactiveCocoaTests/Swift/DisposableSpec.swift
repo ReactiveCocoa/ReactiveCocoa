@@ -8,7 +8,13 @@
 
 import Nimble
 import Quick
+
+#if REACTIVE_SWIFT
+import ReactiveSwift
+#else
 import ReactiveCocoa
+#endif
+
 
 class DisposableSpec: QuickSpec {
 	override func spec() {

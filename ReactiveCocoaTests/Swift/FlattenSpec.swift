@@ -9,7 +9,12 @@
 import Result
 import Nimble
 import Quick
+
+#if REACTIVE_SWIFT
+import ReactiveSwift
+#else
 import ReactiveCocoa
+#endif
 
 private extension SignalType {
 	typealias Pipe = (signal: Signal<Value, Error>, observer: Observer<Value, Error>)

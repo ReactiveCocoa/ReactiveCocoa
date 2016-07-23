@@ -8,14 +8,7 @@
 
 import Foundation
 
-internal protocol MutexType: class {
-	func lock()
-	func unlock()
-}
-
-extension RecursiveLock: MutexType {}
-
-final class PosixThreadMutex: MutexType {
+final class PosixThreadMutex: Locking {
 	private var _mutex = pthread_mutex_t()
 
 	init() {
@@ -41,7 +34,7 @@ final class PosixThreadMutex: MutexType {
 
 /// An atomic variable.
 public final class Atomic<Value> {
-	private var _mutex: MutexType
+	private var _mutex: Locking
 	private var _value: Value
 	
 	/// Atomically get or set the value of the variable.
@@ -64,7 +57,7 @@ public final class Atomic<Value> {
 	}
 
 	/// Initializes the variable with the given initial value.
-	internal init(_ value: Value, mutex: MutexType) {
+	internal init(_ value: Value, mutex: Locking) {
 		_value = value
 		_mutex = mutex
 	}

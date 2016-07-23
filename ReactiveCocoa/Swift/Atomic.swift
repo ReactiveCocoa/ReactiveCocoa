@@ -8,9 +8,40 @@
 
 import Foundation
 
+internal protocol MutexType: class {
+	func lock()
+	func unlock()
+}
+
+extension RecursiveLock: MutexType {}
+
+final class PosixThreadMutex: MutexType {
+	private var _mutex = pthread_mutex_t()
+
+	init() {
+		let result = pthread_mutex_init(&_mutex, nil)
+		precondition(result == 0, "Failed to initialize mutex with error \(result).")
+	}
+
+	deinit {
+		let result = pthread_mutex_destroy(&_mutex)
+		precondition(result == 0, "Failed to destroy mutex with error \(result).")
+	}
+
+	func lock() {
+		let result = pthread_mutex_lock(&_mutex)
+		precondition(result == 0, "Failed to lock \(self) with error \(result).")
+	}
+
+	func unlock() {
+		let result = pthread_mutex_unlock(&_mutex)
+		precondition(result == 0, "Failed to unlock \(self) with error \(result).")
+	}
+}
+
 /// An atomic variable.
 public final class Atomic<Value> {
-	private var mutex = pthread_mutex_t()
+	private var _mutex: MutexType
 	private var _value: Value
 	
 	/// Atomically get or set the value of the variable.
@@ -28,25 +59,22 @@ public final class Atomic<Value> {
 	/// 
 	/// - parameters:
 	///   - value: Initial value for `self`.
-	public init(_ value: Value) {
-		_value = value
-		let result = pthread_mutex_init(&mutex, nil)
-		assert(result == 0, "Failed to initialize mutex with error \(result).")
+	public convenience init(_ value: Value) {
+		self.init(value, mutex: PosixThreadMutex())
 	}
 
-	deinit {
-		let result = pthread_mutex_destroy(&mutex)
-		assert(result == 0, "Failed to destroy mutex with error \(result).")
+	/// Initializes the variable with the given initial value.
+	internal init(_ value: Value, mutex: MutexType) {
+		_value = value
+		_mutex = mutex
 	}
 
 	private func lock() {
-		let result = pthread_mutex_lock(&mutex)
-		assert(result == 0, "Failed to lock \(self) with error \(result).")
+		_mutex.lock()
 	}
 	
 	private func unlock() {
-		let result = pthread_mutex_unlock(&mutex)
-		assert(result == 0, "Failed to unlock \(self) with error \(result).")
+		_mutex.unlock()
 	}
 	
 	/// Atomically replace the contents of the variable.
@@ -68,8 +96,21 @@ public final class Atomic<Value> {
 	/// - returns: The old value.
 	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
+		return try modify(action, completion: nil)
+	}
+
+	/// Atomically modifies the variable.
+	///
+	/// - parameters:
+	///   - action: A closure that takes the current value.
+	///   - completion: An optional closure that would be executed after the
+	///                 returned value from `action` has been written back.
+	///
+	/// Returns the old value.
+	public func modify(_ action: @noescape (inout Value) throws -> Void, completion: (@noescape (Value) -> ())?) rethrows -> Value {
 		return try withValue { value in
 			try action(&_value)
+			completion?(_value)
 			return value
 		}
 	}
@@ -82,7 +123,7 @@ public final class Atomic<Value> {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
+	public func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
 		lock()
 		defer { unlock() }
 

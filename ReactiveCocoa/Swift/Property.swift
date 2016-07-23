@@ -511,7 +511,7 @@ public final class Property<Value>: PropertyProtocol {
 		_producer = { producer }
 		_signal = {
 			var extractedSignal: Signal<Value, NoError>!
-			producer.skip(first: 1).startWithSignal { signal, _ in extractedSignal = signal }
+			producer.startWithSignal { signal, _ in extractedSignal = signal }
 			return extractedSignal
 		}
 	}

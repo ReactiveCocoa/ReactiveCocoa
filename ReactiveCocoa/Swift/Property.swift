@@ -481,88 +481,38 @@ public final class Property<Value>: PropertyProtocol {
 	///   - unsafeProducer: The composed producer for creating the property.
 	///   - sources: The property sources to be captured.
 	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [AnyObject]) {
-		// A relay that provides a single source of truth for this composed
-		// property.
-		let relay = MutableProperty<Value?>(nil)
-
-		// `relayDisposable` is a disposable which terminates the relay, and causes
-		// its producer and signal to emit a `completed` event.
-		//
-		// It is disposed of when the upstream emits a terminating event, or
-		// when `scopeDisposable` is released by the last consumer.
-		let relayDisposable = CompositeDisposable()
-		relayDisposable += { _ = relay }
-
-		// `scopedDisposable` tracks the active consumers of the relay.
-		//
-		// This property, its lazily initialized signal and its producer would
-		// retain `scopedDisposable` to keep the relay alive.
-		//
-		// When the last consumer releases `scopedDisposable`, it would dispose of
-		// the `relayDisposable` to terminate the relay. Note that it is possible
-		// of `relayDisposable` to be disposed of before `scopedDisposable` is
-		// released, if a terminating event is received from the upstream.
-		let scopedDisposable = ScopedDisposable(relayDisposable)
-
-		// Records the sources of this property.
-		self.sources = sources + [scopedDisposable]
-
-		// Starts forwarding values from the upstream to the relay.
-		relayDisposable += unsafeProducer.start { [weak relay] event in
+		// Share a replayed producer with `self.producer` and `self.signal` so
+		// they see a consistent view of the `self.value`.
+		// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
+		let producer = unsafeProducer.replayLazily(upTo: 1)
+		
+		// Verify that an initial is sent. This is friendlier than deadlocking
+		// in the event that one isn't.
+		var value: Value? = nil
+		let disposable = producer.start { event in
 			switch event {
 			case let .next(newValue):
-				relay?.value = newValue
-
+				value = newValue
+				
 			case .completed, .interrupted:
-				relayDisposable.dispose()
-
+				break
+				
 			case let .failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
-
-		guard relay.value != nil else {
+		guard value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
+		disposable.dispose()
 
-		func prepareRelayProducer(_ producer: SignalProducer<Value?, NoError>) -> SignalProducer<Value, NoError> {
-			return SignalProducer { observer, producerDisposable in
-				producer.startWithSignal { signal, signalDisposable in
-					producerDisposable += signalDisposable
-					prepareRelaySignal(signal).observe(observer)
-				}
-			}
-		}
-
-		func prepareRelaySignal(_ signal: Signal<Value?, NoError>) -> Signal<Value, NoError> {
-			return Signal { observer in
-				let signalDisposable = CompositeDisposable()
-				signalDisposable += { _ = scopedDisposable }
-				signalDisposable += signal.observe { event in
-					observer.action(event.map { $0! })
-				}
-				return signalDisposable
-			}
-		}
-
-		_value = { relay.value! }
-		_producer = { prepareRelayProducer(relay.producer) }
-
-		// Lazily initializes the signal of this composed property.
-		//
-		// The created signal would retain `scopedDisposable` to keep the relay
-		// alive, thus inevitably binding the relay to the lifetime of the upstream
-		// for good.
-		let atomicSignal = Atomic<Signal<Value, NoError>?>(nil)
+		self.sources = sources
+		_value = { producer.take(first: 1).single()!.value! }
+		_producer = { producer }
 		_signal = {
-			var signal: Signal<Value, NoError>!
-			atomicSignal.modify { innerSignal in
-				if signal == nil {
-					innerSignal = prepareRelaySignal(relay.signal)
-				}
-				signal = innerSignal
-			}
-			return signal
+			var extractedSignal: Signal<Value, NoError>!
+			producer.skip(first: 1).startWithSignal { signal, _ in extractedSignal = signal }
+			return extractedSignal
 		}
 	}
 

@@ -538,7 +538,7 @@ public final class Property<Value>: PropertyProtocol {
 public final class MutableProperty<Value>: MutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 
-	private let _atomic: Atomic<Value>
+	private let _atomic: RecursiveAtomic<Value>
 
 	/// The current value of the property.
 	///
@@ -583,9 +583,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 		/// Need a recursive lock around `value` to allow recursive access to
 		/// `value`. Note that recursive sets will still deadlock because the
 		/// underlying producer prevents sending recursive events.
-		let lock = RecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
-		_atomic = Atomic(initialValue, mutex: lock)
+		_atomic = RecursiveAtomic(initialValue, name: "org.reactivecocoa.ReactiveCocoa.MutableProperty")
 
 		(signal, observer) = Signal.pipe()
 	}

@@ -33,8 +33,33 @@ final class PosixThreadMutex: Locking {
 }
 
 /// An atomic variable.
-public final class Atomic<Value> {
-	private var _mutex: Locking
+public final class Atomic<Value>: _AtomicBase<Value, PosixThreadMutex> {
+	/// Initialize the variable with the given initial value.
+	/// 
+	/// - parameters:
+	///   - value: Initial value for `self`.
+	public convenience init(_ value: Value) {
+		self.init(value, mutex: PosixThreadMutex())
+	}
+}
+
+/// An atomic variable which uses a recursive lock.
+internal final class RecursiveAtomic<Value>: _AtomicBase<Value, RecursiveLock> {
+	/// Initialize the variable with the given initial value.
+	/// 
+	/// - parameters:
+	///   - value: Initial value for `self`.
+	///   - name: An optional name used to create the recursive lock.
+	internal convenience init(_ value: Value, name: StaticString? = nil) {
+		let lock = RecursiveLock()
+		lock.name = name.map { String($0) }
+		self.init(value, mutex: lock)
+	}
+}
+
+/// The base class of an atomic variable.
+public class _AtomicBase<Value, Lock: Locking> {
+	private var _mutex: Lock
 	private var _value: Value
 	
 	/// Atomically get or set the value of the variable.
@@ -47,17 +72,9 @@ public final class Atomic<Value> {
 			swap(newValue)
 		}
 	}
-	
-	/// Initialize the variable with the given initial value.
-	/// 
-	/// - parameters:
-	///   - value: Initial value for `self`.
-	public convenience init(_ value: Value) {
-		self.init(value, mutex: PosixThreadMutex())
-	}
 
 	/// Initializes the variable with the given initial value.
-	internal init(_ value: Value, mutex: Locking) {
+	internal init(_ value: Value, mutex: Lock) {
 		_value = value
 		_mutex = mutex
 	}

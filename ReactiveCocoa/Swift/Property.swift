@@ -580,12 +580,14 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
+		(signal, observer) = Signal.pipe()
+
 		/// Need a recursive lock around `value` to allow recursive access to
 		/// `value`. Note that recursive sets will still deadlock because the
 		/// underlying producer prevents sending recursive events.
-		_atomic = RecursiveAtomic(initialValue, name: "org.reactivecocoa.ReactiveCocoa.MutableProperty")
-
-		(signal, observer) = Signal.pipe()
+		_atomic = RecursiveAtomic(initialValue,
+															name: "org.reactivecocoa.ReactiveCocoa.MutableProperty",
+															didSet: observer.sendNext)
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -607,7 +609,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: The previous property value.
 	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try _atomic.modify(action, completion: observer.sendNext)
+		return try _atomic.modify(action)
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the

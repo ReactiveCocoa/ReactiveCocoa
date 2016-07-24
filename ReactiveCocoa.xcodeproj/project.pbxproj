@@ -233,6 +233,10 @@
 		7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		7DFBED6E1CDB918900EE435B /* UIBarButtonItem+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D03764C719EDA41200A782A9 /* UIBarButtonItem+RACCommandSupport.m */; };
 		7DFBED6F1CDB926400EE435B /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764C619EDA41200A782A9 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9A5924411D449F89007F31AD /* Bindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5924401D449F89007F31AD /* Bindings.swift */; };
+		9A5924421D449F89007F31AD /* Bindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5924401D449F89007F31AD /* Bindings.swift */; };
+		9A5924431D449F89007F31AD /* Bindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5924401D449F89007F31AD /* Bindings.swift */; };
+		9A5924441D449F89007F31AD /* Bindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5924401D449F89007F31AD /* Bindings.swift */; };
 		9ABCB1851D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
 		9ABCB1861D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
 		9ABCB1871D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
@@ -906,6 +910,7 @@
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A5924401D449F89007F31AD /* Bindings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bindings.swift; sourceTree = "<group>"; };
 		9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -1601,6 +1606,7 @@
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
 				D85C65291C0D84C7005A77AD /* Flatten.swift */,
 				D08C54B01A69A2AC00AD8286 /* Property.swift */,
+				9A5924401D449F89007F31AD /* Bindings.swift */,
 				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
 				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
 			);
@@ -2371,6 +2377,7 @@
 				57A4D1DD1BA13D7A00F7D4B1 /* RACDelegateProxy.m in Sources */,
 				57A4D1DE1BA13D7A00F7D4B1 /* RACDisposable.m in Sources */,
 				EBCC7DBF1BBF01E200A2AE92 /* Observer.swift in Sources */,
+				9A5924441D449F89007F31AD /* Bindings.swift in Sources */,
 				57A4D1DF1BA13D7A00F7D4B1 /* RACDynamicSequence.m in Sources */,
 				C7142DBF1CDEA195009F402D /* CocoaAction.swift in Sources */,
 				57A4D1E01BA13D7A00F7D4B1 /* RACDynamicSignal.m in Sources */,
@@ -2520,6 +2527,7 @@
 				A9B3156D1B3940750001CB9C /* NSObject+RACKVOWrapper.m in Sources */,
 				A9B3156E1B3940750001CB9C /* NSObject+RACLifting.m in Sources */,
 				A9B3156F1B3940750001CB9C /* NSObject+RACPropertySubscribing.m in Sources */,
+				9A5924431D449F89007F31AD /* Bindings.swift in Sources */,
 				A9B315701B3940750001CB9C /* NSObject+RACSelectorSignal.m in Sources */,
 				A9B315711B3940750001CB9C /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
 				A9B315721B3940750001CB9C /* NSSet+RACSequenceAdditions.m in Sources */,
@@ -2629,6 +2637,7 @@
 				D0C312CF19EF2A5800984962 /* Bag.swift in Sources */,
 				D037658019EDA41200A782A9 /* RACEmptySequence.m in Sources */,
 				D037654A19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
+				9A5924411D449F89007F31AD /* Bindings.swift in Sources */,
 				D037660E19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
 				D03765FE19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
 				C7142DBC1CDEA167009F402D /* CocoaAction.swift in Sources */,
@@ -2776,6 +2785,7 @@
 				D03765B919EDA41200A782A9 /* RACReplaySubject.m in Sources */,
 				D03765ED19EDA41200A782A9 /* RACSubject.m in Sources */,
 				D037664F19EDA41200A782A9 /* UIStepper+RACSignalSupport.m in Sources */,
+				9A5924421D449F89007F31AD /* Bindings.swift in Sources */,
 				D03765D119EDA41200A782A9 /* RACSerialDisposable.m in Sources */,
 				EBCC7DBD1BBF01E100A2AE92 /* Observer.swift in Sources */,
 				D037663F19EDA41200A782A9 /* UIImagePickerController+RACSignalSupport.m in Sources */,

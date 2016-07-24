@@ -22,17 +22,6 @@ public protocol PropertyProtocol: class {
 	var signal: Signal<Value, NoError> { get }
 }
 
-/// Represents a mutable property to which can be bond.
-///
-/// Only classes can conform to this protocol, because instances must support
-/// weak references (and value types currently do not).
-public protocol BindableProperty: class {
-	associatedtype Value
-
-	/// The current value of the property.
-	var value: Value { get set }
-}
-
 /// Represents an observable and mutable property.
 ///
 /// Only classes can conform to this protocol, because instances must support

@@ -9,6 +9,36 @@
 import Foundation
 import enum Result.NoError
 
+private var lifetimeKey: UInt8 = 0
+
+extension NSObject: LifetimeProviding {
+	/// An interruptible observation to the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
+	@nonobjc public var lifetimeProducer: SignalProducer<(), NoError> {
+		return SignalProducer(signal: lifetime)
+	}
+
+	/// A signal representing the lifetime of `self`.
+	///
+	/// The signal emits `completed` when the object completes, or
+	/// `interrupted` after the object is completed.
+	@nonobjc public var lifetime: Signal<(), NoError> {
+		objc_sync_enter(self)
+		defer { objc_sync_exit(self) }
+
+		if let token = objc_getAssociatedObject(self, &lifetimeKey) as! DeallocationToken? {
+			return token.deallocSignal
+		}
+
+		let token = DeallocationToken()
+		objc_setAssociatedObject(self, &lifetimeKey, token, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+
+		return token.deallocSignal
+	}
+}
+
 extension NotificationCenter {
 	/// Returns a SignalProducer to observe posting of the specified
 	/// notification.

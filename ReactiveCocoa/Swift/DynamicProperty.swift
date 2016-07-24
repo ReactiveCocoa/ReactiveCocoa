@@ -15,18 +15,18 @@ private protocol ObjectiveCRepresentable {
 /// Use this class only as a last resort! `MutableProperty` is generally better
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
-public final class DynamicProperty<Value>: MutablePropertyProtocol {
+public final class DynamicProperty<Wrapped>: MutablePropertyProtocol {
+	public typealias Value = Wrapped?
+
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (from: AnyObject) -> Value
-	private let represent: (Value) -> AnyObject
-
-	private var property: MutableProperty<Value?>?
+	private let extractValue: (from: AnyObject) -> Wrapped
+	private let represent: (Wrapped) -> AnyObject
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
-	public var value: Value? {
+	public var value: Wrapped? {
 		get {
 			return object?.value(forKeyPath: keyPath).map(extractValue)
 		}
@@ -42,13 +42,28 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
-	public var producer: SignalProducer<Value?, NoError> {
-		return property?.producer ?? .empty
+	public var producer: SignalProducer<Wrapped?, NoError> {
+		return object.map { object in
+			return SignalProducer { [keyPath = self.keyPath, extractValue = self.extractValue]
+				observer, disposable in
+				let proxy = KeyValueObserver(object: object, keyPath: keyPath) { value in
+					observer.sendNext(value.map(extractValue))
+				}
+
+				object.lifetime.observeCompleted {
+					observer.sendCompleted()
+				}
+
+				disposable += proxy.disposable
+			}
+		} ?? .empty
 	}
 
-	public var signal: Signal<Value?, NoError> {
-		return property?.signal ?? .empty
-	}
+	public lazy var signal: Signal<Wrapped?, NoError> = { [unowned self] in
+		var signal: Signal<Value, NoError>!
+		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
+		return signal
+	}()
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, using the supplied representation.
@@ -60,32 +75,18 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - keyPath: Key path to observe on the object.
 	///   - representable: A representation that bridges the values across the
 	///                    language boundary.
-	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
+	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Wrapped>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
-		self.property = MutableProperty(nil)
+
 		self.extractValue = Representatable.extract(from:)
 		self.represent = Representatable.represent
 
-		/// A DynamicProperty will stay alive as long as its object is alive.
-		/// This is made possible by strong reference cycles.
-
-		object?.rac_values(forKeyPath: keyPath, observer: nil)?
-			.toSignalProducer()
-			.start { event in
-				switch event {
-				case let .next(newValue):
-					self.property?.value = newValue.map(self.extractValue)
-				case let .failed(error):
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .interrupted, .completed:
-					self.property = nil
-				}
-			}
+		_ = object?.lifetime.observeCompleted { _ = self }
 	}
 }
 
-extension DynamicProperty where Value: _ObjectiveCBridgeable {
+extension DynamicProperty where Wrapped: _ObjectiveCBridgeable {
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, where `Value` is a value type that is bridgeable
 	/// to Objective-C.
@@ -100,7 +101,7 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	}
 }
 
-extension DynamicProperty where Value: AnyObject {
+extension DynamicProperty where Wrapped: AnyObject {
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, where `Value` is a reference type that can be
 	/// represented directly in Objective-C via `AnyObject`.
@@ -139,3 +140,34 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 		return value._bridgeToObjectiveC()
 	}
 }
+
+private final class KeyValueObserver: NSObject {
+	let action: (AnyObject?) -> Void
+	unowned(unsafe) let object: NSObject
+	var disposable: ActionDisposable?
+
+	init(object: NSObject, keyPath: String, action: (AnyObject?) -> Void) {
+		self.action = action
+		self.object = object
+		super.init()
+
+		object.addObserver(self,
+		                   forKeyPath: keyPath,
+		                   options: [.initial, .new],
+		                   context: kvoProxyContext)
+
+		disposable = ActionDisposable {
+			self.object.removeObserver(self,
+			                           forKeyPath: keyPath,
+			                           context: kvoProxyContext)
+		}
+	}
+
+	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+		if context == kvoProxyContext {
+			action(change![.newKey])
+		}
+	}
+}
+
+private var kvoProxyContext = UnsafeMutablePointer<Void>(allocatingCapacity: 1)

@@ -12,10 +12,10 @@ public enum SignalType {}
 @available(*, unavailable, renamed:"SignalProducerProtocol")
 public enum SignalProducerType {}
 
-@available(*, unavailable, renamed:"ObservableProperty")
+@available(*, unavailable, renamed:"PropertyProtocol")
 public enum PropertyType {}
 
-@available(*, unavailable, renamed:"SourceProperty")
+@available(*, unavailable, renamed:"MutablePropertyProtocol")
 public enum MutablePropertyType {}
 
 @available(*, unavailable, renamed:"ObserverProtocol")
@@ -219,12 +219,12 @@ extension SignalProducer {
 	public static func buffer(_ capacity: Int) -> (SignalProducer, Signal<Value, Error>.Observer) { fatalError() }
 }
 
-extension ObservableProperty {
+extension PropertyProtocol {
 	@available(*, unavailable, renamed:"combineLatest(with:)")
-	public func combineLatestWith<P: ObservableProperty>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
+	public func combineLatestWith<P: PropertyProtocol>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
 
 	@available(*, unavailable, renamed:"zip(with:)")
-	public func zipWith<P: ObservableProperty>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
+	public func zipWith<P: PropertyProtocol>(_ otherProperty: P) -> Property<(Value, P.Value)> { fatalError() }
 }
 
 extension Property {

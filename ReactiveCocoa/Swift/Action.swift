@@ -65,7 +65,7 @@ public final class Action<Input, Output, Error: ErrorProtocol> {
 	///                enabled.
 	///   - execute: A closure that returns the signal producer returned by
 	///              calling `apply(Input)` on the action.
-	public init<P: ObservableProperty where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
+	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
 		executeClosure = execute
 		isUserEnabled = Property(property)
 

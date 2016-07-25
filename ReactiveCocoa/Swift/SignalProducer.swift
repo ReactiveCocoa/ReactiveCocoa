@@ -1942,10 +1942,10 @@ extension SignalProducerType {
 		// out of scope. This lets us know when we're supposed to dispose the
 		// underlying producer. This is necessary because `struct`s don't have
 		// `deinit`.
-		let token = DeallocationToken()
+		let lifetime = Lifetime()
 
 		return SignalProducer { observer, disposable in
-			var token: DeallocationToken? = token
+			var lifetime: Lifetime? = lifetime
 			let initializedProducer: SignalProducer<Value, Error>
 			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
 			let shouldStartUnderlyingProducer: Bool
@@ -1968,21 +1968,13 @@ extension SignalProducerType {
 			disposable += {
 				// Don't dispose of the original producer until all observers
 				// have terminated.
-				token = nil
+				lifetime = nil
 			}
 
 			if shouldStartUnderlyingProducer {
-				self.takeUntil(token!.deallocSignal)
+				self.takeDuring(lifetime!)
 					.start(initializedObserver)
 			}
 		}
-	}
-}
-
-private final class DeallocationToken {
-	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
-
-	deinit {
-		observer.sendCompleted()
 	}
 }

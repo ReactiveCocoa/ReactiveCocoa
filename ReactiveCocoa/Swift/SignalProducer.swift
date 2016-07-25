@@ -1356,6 +1356,31 @@ extension SignalProducerType where Error == NoError {
 	public func promoteErrors<F: ErrorType>(_: F.Type) -> SignalProducer<Value, F> {
 		return lift { $0.promoteErrors(F) }
 	}
+
+	/// Forward events from `self` until `interval`. Then if producer isn't
+	/// completed yet, fails with `error` on `scheduler`.
+	///
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The producer must complete synchronously (or on a faster
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - error: Error to send with `Failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A producer that sends events for at most `interval` seconds,
+	///            then, if not `Completed` - sends `error` with `Failed` event
+	///            on `scheduler`.
+	@warn_unused_result(message="Did you forget to call `start` on the producer?")
+	public func timeoutWithError<NewError: ErrorType>(
+		error: NewError,
+		afterInterval interval: NSTimeInterval,
+		onScheduler scheduler: DateSchedulerType
+	) -> SignalProducer<Value, NewError> {
+		return lift { $0.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler) }
+	}
 }
 
 extension SignalProducerType where Value: Equatable {

@@ -1413,6 +1413,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 				expect(completed) == false
 				expect(errored) == true
 			}
+
+			it("should be available for NoError") {
+				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, NoError>.never
+					.timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
+
+				_ = producer
+			}
 		}
 
 		describe("attempt") {

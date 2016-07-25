@@ -24,6 +24,9 @@ private var lifetimeKey: UInt8 = 0
 extension NSObject {
 	/// Returns a lifetime that ends when the receiver is deallocated.
 	@nonobjc public var rac_lifetime: Lifetime {
+		objc_sync_enter(self)
+		defer { objc_sync_exit(self) }
+
 		if let lifetime = objc_getAssociatedObject(self, &lifetimeKey) as! Lifetime? {
 			return lifetime
 		}

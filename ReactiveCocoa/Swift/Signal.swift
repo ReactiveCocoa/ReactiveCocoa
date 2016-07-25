@@ -925,6 +925,18 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
+	/// Forward events from `self` until the lifetime signal of `object`
+	/// completes, at which point the returned signal will complete.
+	///
+	/// - parameters:
+	///   - object: A `LifetimeProviding` object.
+	///
+	/// - returns: A signal that will deliver events until the lifetime signal of
+	///            `object` completes.
+	public func take<U: LifetimeProviding>(withinLifetimeOf object: U) -> Signal<Value, Error> {
+		return take(until: object.lifetime)
+	}
+
 	/// Forward events from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal will complete.
 	///
@@ -952,7 +964,7 @@ extension SignalProtocol {
 			return disposable
 		}
 	}
-	
+
 	/// Do not forward any values from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal behaves exactly
 	/// like `signal`.

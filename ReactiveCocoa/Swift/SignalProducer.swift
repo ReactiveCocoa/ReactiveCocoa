@@ -813,6 +813,18 @@ extension SignalProducerProtocol {
 		return lift(Signal.sample(on:))(sampler)
 	}
 
+	/// Forward events from `self` until the lifetime producer of `object`
+	/// completes, at which point the returned producer will complete.
+	///
+	/// - parameters:
+	///   - object: A `LifetimeProviding` object.
+	///
+	/// - returns: A producer that will deliver events until the lifetime producer
+	///            of `object` completes.
+	public func take<U: LifetimeProviding>(withinLifetimeOf object: U) -> SignalProducer<Value, Error> {
+		return take(until: object.lifetimeProducer)
+	}
+
 	/// Forward events from `self` until `trigger` sends a `next` or `completed`
 	/// event, at which point the returned producer will complete.
 	///
@@ -1684,14 +1696,6 @@ extension SignalProducerProtocol {
 					.start(initializedObserver)
 			}
 		}
-	}
-}
-
-private final class DeallocationToken {
-	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
-
-	deinit {
-		observer.sendCompleted()
 	}
 }
 

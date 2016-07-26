@@ -52,6 +52,7 @@ public final class Atomic<Value>: AtomicProtocol {
 	///   - action: A closure that takes the current value.
 	///
 	/// Returns the old value.
+	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
 			try action(&_value)
@@ -87,11 +88,12 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	/// - parameters:
 	///   - value: Initial value for `self`.
 	///   - name: An optional name used to create the recursive lock.
+	///   - action: An optional closure which would be invoked every time the
+	///             value of `self` is mutated.
 	internal init(_ value: Value, name: StaticString? = nil, didSet action: ((Value) -> Void)? = nil) {
 		_value = value
-
 		lock = RecursiveLock()
-		lock.name = name.map { String($0) }
+		lock.name = name.map(String.init(_:))
 		didSetObserver = action
 	}
 

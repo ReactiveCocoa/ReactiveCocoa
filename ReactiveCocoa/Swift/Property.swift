@@ -586,8 +586,8 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 		/// `value`. Note that recursive sets will still deadlock because the
 		/// underlying producer prevents sending recursive events.
 		_atomic = RecursiveAtomic(initialValue,
-															name: "org.reactivecocoa.ReactiveCocoa.MutableProperty",
-															didSet: observer.sendNext)
+		                          name: "org.reactivecocoa.ReactiveCocoa.MutableProperty",
+		                          didSet: observer.sendNext)
 	}
 
 	/// Atomically replaces the contents of the variable.

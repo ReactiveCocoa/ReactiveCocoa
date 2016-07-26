@@ -518,6 +518,125 @@ class PropertySpec: QuickSpec {
 				object = nil
 				expect(dynamicProperty).to(beNil())
 			}
+
+			describe("KVO") {
+				var testObject: ObservableObject!
+				var concurrentQueue: dispatch_queue_t!
+
+				beforeEach {
+					testObject = ObservableObject()
+					concurrentQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.DynamicPropertySpec.concurrentQueue", DISPATCH_QUEUE_CONCURRENT)
+				}
+
+				describe("async") {
+					it("should handle changes being made on another queue") {
+						var observedValue = 0
+
+						DynamicProperty(object: testObject, keyPath: "rac_value").producer
+							.skip(1)
+							.take(1)
+							.startWithNext { wrappedInt in
+								observedValue = (wrappedInt as! NSNumber).integerValue;
+							}
+
+						dispatch_async(concurrentQueue) {
+							testObject.rac_value = 2
+						}
+
+						dispatch_barrier_sync(concurrentQueue) {}
+						expect(observedValue).toEventually(be(2))
+					}
+
+					it("should handle changes being made on another queue using deliverOn") {
+						var observedValue = 0
+
+						DynamicProperty(object: testObject, keyPath: "rac_value").producer
+							.skip(1)
+							.take(1)
+							.observeOn(UIScheduler())
+							.startWithNext { wrappedInt in
+								observedValue = (wrappedInt as! NSNumber).integerValue;
+							}
+
+						dispatch_async(concurrentQueue) {
+							testObject.rac_value = 2
+						}
+
+						dispatch_barrier_sync(concurrentQueue) {}
+						expect(observedValue).toEventually(be(2))
+					}
+
+					it("async disposal of target") {
+						var observedValue = 0
+
+						DynamicProperty(object: testObject, keyPath: "rac_value").producer
+							.observeOn(UIScheduler())
+							.startWithNext { wrappedInt in
+								observedValue = (wrappedInt as! NSNumber).integerValue;
+							}
+
+						dispatch_async(concurrentQueue) {
+							testObject.rac_value = 2
+							testObject = nil
+						}
+
+						dispatch_barrier_sync(concurrentQueue) {}
+						expect(observedValue).toEventually(be(2))
+					}
+				}
+
+				describe("stress") {
+					let numIterations = 5000
+
+					var iterationQueue: dispatch_queue_t!
+
+					beforeEach {
+						iterationQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT)
+					}
+
+					// ReactiveCocoa/ReactiveCocoa#1122
+					it("async disposal of observer") {
+						let serialDisposable = SerialDisposable()
+
+						dispatch_apply(numIterations, iterationQueue) { index in
+							let disposable = DynamicProperty(object: testObject, keyPath: "rac_value").producer.startWithCompleted {}
+							serialDisposable.innerDisposable = disposable
+
+							dispatch_async(concurrentQueue) {
+								testObject.rac_value = index;
+							}
+						}
+
+						dispatch_barrier_sync(iterationQueue) {
+							serialDisposable.dispose()
+						}
+					}
+
+					it("async disposal of signal with in-flight changes") {
+						let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
+						let otherScheduler = QueueScheduler(queue: concurrentQueue)
+
+						let replayProducer = DynamicProperty(object: testObject, keyPath: "rac_value").producer
+							.map { wrappedInt in (wrappedInt as! NSNumber).intValue % 2 == 0 }
+							.observeOn(otherScheduler)
+							.takeUntil(teardown)
+							.replayLazily(1)
+
+						replayProducer.start { _ in }
+
+						dispatch_apply(numIterations, iterationQueue) { index in
+							testObject.rac_value = index
+						}
+
+						dispatch_barrier_async(iterationQueue) {
+							teardownObserver.sendNext()
+						}
+
+						let event = replayProducer.last()
+						expect(event).toNot(beNil())
+					}
+				}
+			}
 		}
 
 		describe("map") {

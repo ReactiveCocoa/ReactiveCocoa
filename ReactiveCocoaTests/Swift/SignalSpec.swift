@@ -1893,6 +1893,13 @@ class SignalSpec: QuickSpec {
 				expect(completed) == false
 				expect(errored) == true
 			}
+
+			it("should be available for NoError") {
+				let signal: Signal<Int, TestError> = Signal<Int, NoError>.never
+					.timeoutWithError(TestError.Default, afterInterval: 2, onScheduler: testScheduler)
+
+				_ = signal
+			}
 		}
 
 		describe("attempt") {

@@ -1834,4 +1834,31 @@ extension SignalType where Error == NoError {
 			}
 		}
 	}
+
+	/// Forward events from `self` until `interval`. Then if signal isn't
+	/// completed yet, fails with `error` on `scheduler`.
+	///
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The signal must complete synchronously (or on a faster
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - error: Error to send with `Failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A signal that sends events for at most `interval` seconds,
+	///            then, if not `Completed` - sends `error` with `Failed` event
+	///            on `scheduler`.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func timeoutWithError<NewError: ErrorType>(
+		error: NewError,
+		afterInterval interval: NSTimeInterval,
+		onScheduler scheduler: DateSchedulerType
+	) -> Signal<Value, NewError> {
+		return self
+			.promoteErrors(NewError.self)
+			.timeoutWithError(error, afterInterval: interval, onScheduler: scheduler)
+	}
 }

@@ -32,7 +32,7 @@ extension NSObject {
 		}
 
 		let lifetime = Lifetime()
-		objc_setAssociatedObject(self, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN)
+		objc_setAssociatedObject(self, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
 		return lifetime
 	}

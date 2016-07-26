@@ -9,101 +9,53 @@
 import Foundation
 
 final class PosixThreadMutex: Locking {
-	private var _mutex = pthread_mutex_t()
+	private var mutex = pthread_mutex_t()
 
 	init() {
-		let result = pthread_mutex_init(&_mutex, nil)
+		let result = pthread_mutex_init(&mutex, nil)
 		precondition(result == 0, "Failed to initialize mutex with error \(result).")
 	}
 
 	deinit {
-		let result = pthread_mutex_destroy(&_mutex)
+		let result = pthread_mutex_destroy(&mutex)
 		precondition(result == 0, "Failed to destroy mutex with error \(result).")
 	}
 
 	func lock() {
-		let result = pthread_mutex_lock(&_mutex)
+		let result = pthread_mutex_lock(&mutex)
 		precondition(result == 0, "Failed to lock \(self) with error \(result).")
 	}
 
 	func unlock() {
-		let result = pthread_mutex_unlock(&_mutex)
+		let result = pthread_mutex_unlock(&mutex)
 		precondition(result == 0, "Failed to unlock \(self) with error \(result).")
 	}
 }
 
 /// An atomic variable.
-public final class Atomic<Value> {
-	private var _mutex: Locking
+public final class Atomic<Value>: AtomicProtocol {
+	private let lock: PosixThreadMutex
 	private var _value: Value
-	
-	/// Atomically get or set the value of the variable.
-	public var value: Value {
-		get {
-			return withValue { $0 }
-		}
-	
-		set(newValue) {
-			swap(newValue)
-		}
-	}
-	
+
 	/// Initialize the variable with the given initial value.
 	/// 
 	/// - parameters:
 	///   - value: Initial value for `self`.
-	public convenience init(_ value: Value) {
-		self.init(value, mutex: PosixThreadMutex())
-	}
-
-	/// Initializes the variable with the given initial value.
-	internal init(_ value: Value, mutex: Locking) {
+	public init(_ value: Value) {
 		_value = value
-		_mutex = mutex
-	}
-
-	private func lock() {
-		_mutex.lock()
-	}
-	
-	private func unlock() {
-		_mutex.unlock()
-	}
-	
-	/// Atomically replace the contents of the variable.
-	///
-	/// - parameters:
-	///   - newValue: A new value for the variable.
-	///
-	/// - returns: The old value.
-	@discardableResult
-	public func swap(_ newValue: Value) -> Value {
-		return modify { $0 = newValue }
-	}
-
-	/// Atomically modify the variable.
-	///
-	/// - parameters:
-	///   - action: A closure that takes the current value.
-	///
-	/// - returns: The old value.
-	@discardableResult
-	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try modify(action, completion: nil)
+		lock = PosixThreadMutex()
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// - parameters:
 	///   - action: A closure that takes the current value.
-	///   - completion: An optional closure that would be executed after the
-	///                 returned value from `action` has been written back.
 	///
 	/// Returns the old value.
-	public func modify(_ action: @noescape (inout Value) throws -> Void, completion: (@noescape (Value) -> ())?) rethrows -> Value {
+	@discardableResult
+	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
 		return try withValue { value in
 			try action(&_value)
-			completion?(_value)
 			return value
 		}
 	}
@@ -117,9 +69,95 @@ public final class Atomic<Value> {
 	/// - returns: The result of the action.
 	@discardableResult
 	public func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
-		lock()
-		defer { unlock() }
+		lock.lock()
+		defer { lock.unlock() }
 
 		return try action(_value)
+	}
+}
+
+
+/// An atomic variable which uses a recursive lock.
+internal final class RecursiveAtomic<Value>: AtomicProtocol {
+	private let lock: RecursiveLock
+	private var _value: Value
+	private let didSetObserver: ((Value) -> Void)?
+
+	/// Initialize the variable with the given initial value.
+	/// 
+	/// - parameters:
+	///   - value: Initial value for `self`.
+	///   - name: An optional name used to create the recursive lock.
+	///   - action: An optional closure which would be invoked every time the
+	///             value of `self` is mutated.
+	internal init(_ value: Value, name: StaticString? = nil, didSet action: ((Value) -> Void)? = nil) {
+		_value = value
+		lock = RecursiveLock()
+		lock.name = name.map(String.init(_:))
+		didSetObserver = action
+	}
+
+	/// Atomically modifies the variable.
+	///
+	/// - parameters:
+	///   - action: A closure that takes the current value.
+	///
+	/// Returns the old value.
+	@discardableResult
+	func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
+		return try withValue { value in
+			try action(&_value)
+			didSetObserver?(_value)
+			return value
+		}
+	}
+	
+	/// Atomically perform an arbitrary action using the current value of the
+	/// variable.
+	///
+	/// - parameters:
+	///   - action: A closure that takes the current value.
+	///
+	/// - returns: The result of the action.
+	@discardableResult
+	func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
+		lock.lock()
+		defer { lock.unlock() }
+
+		return try action(_value)
+	}
+}
+
+public protocol AtomicProtocol: class {
+	associatedtype Value
+
+	@discardableResult
+	func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result
+
+	@discardableResult
+	func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value
+}
+
+extension AtomicProtocol {	
+	/// Atomically get or set the value of the variable.
+	public var value: Value {
+		get {
+			return withValue { $0 }
+		}
+	
+		set(newValue) {
+			swap(newValue)
+		}
+	}
+
+	/// Atomically replace the contents of the variable.
+	///
+	/// - parameters:
+	///   - newValue: A new value for the variable.
+	///
+	/// - returns: The old value.
+	@discardableResult
+	public func swap(_ newValue: Value) -> Value {
+		return modify { $0 = newValue }
 	}
 }

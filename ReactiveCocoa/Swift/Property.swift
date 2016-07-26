@@ -537,7 +537,7 @@ public final class Property<Value>: PropertyProtocol {
 public final class MutableProperty<Value>: MutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 
-	private let _atomic: Atomic<Value>
+	private let atomic: RecursiveAtomic<Value>
 
 	/// The current value of the property.
 	///
@@ -545,7 +545,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// signals created using `producer`.
 	public var value: Value {
 		get {
-			return _atomic.withValue { $0 }
+			return atomic.withValue { $0 }
 		}
 
 		set {
@@ -561,8 +561,8 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [_atomic, weak self] producerObserver, producerDisposable in
-			_atomic.withValue { value in
+		return SignalProducer { [atomic, weak self] producerObserver, producerDisposable in
+			atomic.withValue { value in
 				if let strongSelf = self {
 					producerObserver.sendNext(value)
 					producerDisposable += strongSelf.signal.observe(producerObserver)
@@ -579,14 +579,14 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
+		(signal, observer) = Signal.pipe()
+
 		/// Need a recursive lock around `value` to allow recursive access to
 		/// `value`. Note that recursive sets will still deadlock because the
 		/// underlying producer prevents sending recursive events.
-		let lock = RecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
-		_atomic = Atomic(initialValue, mutex: lock)
-
-		(signal, observer) = Signal.pipe()
+		atomic = RecursiveAtomic(initialValue,
+		                          name: "org.reactivecocoa.ReactiveCocoa.MutableProperty",
+		                          didSet: observer.sendNext)
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -608,7 +608,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: The previous property value.
 	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try _atomic.modify(action, completion: observer.sendNext)
+		return try atomic.modify(action)
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the
@@ -620,7 +620,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: the result of the action.
 	@discardableResult
 	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
-		return try _atomic.withValue(action)
+		return try atomic.withValue(action)
 	}
 
 	deinit {

@@ -4,11 +4,14 @@ import enum Result.NoError
 extension NSObject {
 	public func valuesForKeyPath(keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
-			let proxy = KeyValueObserver(observing: self,
-				keyPath: keyPath,
-				options: [.Initial, .New],
-				action: observer.sendNext)
-			disposable += proxy.disposable
+			let processNewValue: ([String: AnyObject?]) -> Void = {
+				observer.sendNext($0[NSKeyValueChangeNewKey]!)
+			}
+
+			disposable += KeyValueObserver.observe(self,
+			                                       keyPath: keyPath,
+			                                       options: [.Initial, .New],
+			                                       action: processNewValue)
 
 			self.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
@@ -16,40 +19,46 @@ extension NSObject {
 }
 
 internal final class KeyValueObserver: NSObject {
-	let action: (AnyObject?) -> Void
-	unowned(unsafe) let object: NSObject
-	var disposable: ActionDisposable?
-
 	/// Establish an observation to `object` for the specified key path.
 	///
-	/// - important: The observer would automatically terminate when `object`
-	///              deinitializes.
+	/// - warning: The observation would not be automatically removed when
+	///            `object` deinitializes. You must manually dispose of the
+	///            returned disposable before `object` completes its
+	///            deinitialization.
 	///
 	/// - parameters:
 	///   - object: The object to be observed.
 	///   - keyPath: The key path to be observed.
 	///   - options: The options of the observation.
 	///   - action: The action to be invoked upon arrival of changes.
-	init(observing object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: (AnyObject?) -> Void) {
-		self.action = action
-		self.object = object
-		super.init()
+	///
+	/// - return:
+	///   A disposable that would tear down the observation upon disposal.
+	static func observe(object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: ([String: AnyObject?]) -> Void) -> Disposable {
+		let observer = KeyValueObserver(action: action)
 
-		object.addObserver(self,
+		object.addObserver(observer,
 		                   forKeyPath: keyPath,
 		                   options: [.Initial, .New],
 		                   context: keyValueObserverKey)
 
-		disposable = ActionDisposable {
-			self.object.removeObserver(self, forKeyPath: keyPath, context: keyValueObserverKey)
+		unowned(unsafe) let unsafeObject = object
+		return ActionDisposable {
+			unsafeObject.removeObserver(observer, forKeyPath: keyPath, context: keyValueObserverKey)
 		}
+	}
 
-		object.lifetime.ended.observeCompleted(disposable!.dispose)
+	// MARK: Instance properties and methods
+
+	let action: ([String: AnyObject?]) -> Void
+
+	private init(action: ([String: AnyObject?]) -> Void) {
+		self.action = action
 	}
 
 	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		if context == keyValueObserverKey {
-			action(change![NSKeyValueChangeNewKey])
+			action(change!)
 		}
 	}
 }

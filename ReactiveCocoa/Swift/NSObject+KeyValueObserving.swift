@@ -17,15 +17,9 @@ extension NSObject {
 	///   A producer emitting values of the property specified by the key path.
 	public func valuesForKeyPath(keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
-			let processNewValue: ([String: AnyObject?]) -> Void = {
-				observer.sendNext($0[NSKeyValueChangeNewKey]!)
-			}
-
 			disposable += KeyValueObserver.observe(self,
 			                                       keyPath: keyPath,
-			                                       options: [.Initial, .New],
-			                                       action: processNewValue)
-
+			                                       action: observer.sendNext)
 			self.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
@@ -43,12 +37,11 @@ internal final class KeyValueObserver: NSObject {
 	/// - parameters:
 	///   - object: The object to be observed.
 	///   - keyPath: The key path of the property to be observed.
-	///   - options: The options of the observation.
 	///   - action: The action to be invoked upon arrival of changes.
 	///
 	/// - returns:
 	///   A disposable that would tear down the observation upon disposal.
-	static func observe(object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: ([String: AnyObject?]) -> Void) -> Disposable {
+	static func observe(object: NSObject, keyPath: String, action: (AnyObject?) -> Void) -> Disposable {
 		let observer = KeyValueObserver(action: action)
 
 		object.addObserver(observer,
@@ -64,15 +57,15 @@ internal final class KeyValueObserver: NSObject {
 
 	// MARK: Instance properties and methods
 
-	let action: ([String: AnyObject?]) -> Void
+	let action: (AnyObject?) -> Void
 
-	private init(action: ([String: AnyObject?]) -> Void) {
+	private init(action: (AnyObject?) -> Void) {
 		self.action = action
 	}
 
 	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		if context == keyValueObserverKey {
-			action(change!)
+			action(change![NSKeyValueChangeNewKey]!)
 		}
 	}
 }

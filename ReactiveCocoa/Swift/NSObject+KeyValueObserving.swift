@@ -1,7 +1,20 @@
 import Foundation
 import enum Result.NoError
 
+// Note: `valuesForKeyPath` has been covered by the `DynamicProperty` test
+//       cases.
+
 extension NSObject {
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when `self` deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns:
+	///   A producer emitting values of the property specified by the key path.
 	public func valuesForKeyPath(keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
 			let processNewValue: ([String: AnyObject?]) -> Void = {
@@ -19,7 +32,8 @@ extension NSObject {
 }
 
 internal final class KeyValueObserver: NSObject {
-	/// Establish an observation to `object` for the specified key path.
+	/// Establish an observation to the property specified by the key path
+	/// of `object`.
 	///
 	/// - warning: The observation would not be automatically removed when
 	///            `object` deinitializes. You must manually dispose of the
@@ -28,11 +42,11 @@ internal final class KeyValueObserver: NSObject {
 	///
 	/// - parameters:
 	///   - object: The object to be observed.
-	///   - keyPath: The key path to be observed.
+	///   - keyPath: The key path of the property to be observed.
 	///   - options: The options of the observation.
 	///   - action: The action to be invoked upon arrival of changes.
 	///
-	/// - return:
+	/// - returns:
 	///   A disposable that would tear down the observation upon disposal.
 	static func observe(object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: ([String: AnyObject?]) -> Void) -> Disposable {
 		let observer = KeyValueObserver(action: action)

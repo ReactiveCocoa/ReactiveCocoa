@@ -594,6 +594,26 @@ class PropertySpec: QuickSpec {
 						iterationQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT)
 					}
 
+					it("attach observers") {
+						let deliveringObserver = QueueScheduler(queue: dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT))
+						var atomicCounter = Int64(0)
+
+						dispatch_apply(numIterations, iterationQueue) { index in
+							DynamicProperty(object: testObject, keyPath: "rac_value").producer
+								.skip(1)
+								.observeOn(deliveringObserver)
+								.startWithNext { value in
+									OSAtomicAdd64((value as! NSNumber).longLongValue, &atomicCounter)
+							}
+						}
+
+						dispatch_barrier_async(iterationQueue) {
+							testObject.rac_value = 2
+						}
+
+						expect(atomicCounter).toEventually(equal(10000))
+					}
+
 					// ReactiveCocoa/ReactiveCocoa#1122
 					it("async disposal of observer") {
 						let serialDisposable = SerialDisposable()

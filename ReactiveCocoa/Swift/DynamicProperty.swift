@@ -34,16 +34,7 @@ import enum Result.NoError
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
-		return object.map { object in
-			return SignalProducer { [keyPath = self.keyPath] observer, disposable in
-				let proxy = KeyValueObserver(object: object,
-					keyPath: keyPath,
-					action: observer.sendNext)
-				disposable += proxy.disposable
-
-				object.lifetime.ended.observeCompleted(observer.sendCompleted)
-			}
-		} ?? .empty
+		return object.map(NSObject.valuesForKeyPath)?(keyPath) ?? .empty
 	}
 
 	public lazy var signal: Signal<AnyObject?, NoError> = { [unowned self] in
@@ -88,32 +79,3 @@ public func <~ <S: SignalProducerType where S.Value: _ObjectiveCBridgeable, S.Er
 public func <~ <Source: PropertyType where Source.Value: _ObjectiveCBridgeable>(destinationProperty: DynamicProperty, sourceProperty: Source) -> Disposable {
 	return destinationProperty <~ sourceProperty.producer
 }
-
-private final class KeyValueObserver: NSObject {
-	let action: (AnyObject?) -> Void
-	unowned(unsafe) let object: NSObject
-	var disposable: ActionDisposable?
-
-	init(object: NSObject, keyPath: String, action: (AnyObject?) -> Void) {
-		self.action = action
-		self.object = object
-		super.init()
-
-		object.addObserver(self,
-		                   forKeyPath: keyPath,
-		                   options: [.Initial, .New],
-		                   context: kvoProxyContext)
-
-		disposable = ActionDisposable {
-			self.object.removeObserver(self, forKeyPath: keyPath, context: kvoProxyContext)
-		}
-	}
-
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-		if context == kvoProxyContext {
-			action(change![NSKeyValueChangeNewKey])
-		}
-	}
-}
-
-private var kvoProxyContext = UnsafeMutablePointer<Void>.alloc(1)

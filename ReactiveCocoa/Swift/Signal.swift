@@ -1422,6 +1422,10 @@ extension SignalType {
 	///         that value will be discarded and the returned signal will 
 	///         terminate immediately.
 	///
+	/// - note: If the device time changed backwords before previous date while
+	///         a value is being throttled, and if there is a new value sent,
+	///         the new value will be passed anyway.
+	///
 	/// - parameters:
 	///   - interval: Number of seconds to wait between sent values.
 	///   - scheduler: A scheduler to deliver events on.
@@ -1453,12 +1457,11 @@ extension SignalType {
 					state.pendingValue = value
 
 					let proposedScheduleDate: NSDate
-					if let previousDate = state.previousDate where previousDate.compare(scheduler.currentDate) == .OrderedAscending {
+					if let previousDate = state.previousDate where previousDate.compare(scheduler.currentDate) != .OrderedDescending {
 						proposedScheduleDate = previousDate.dateByAddingTimeInterval(interval)
 					} else {
 						proposedScheduleDate = scheduler.currentDate
 					}
-					
 					scheduleDate = proposedScheduleDate.laterDate(scheduler.currentDate)
 
 					return state

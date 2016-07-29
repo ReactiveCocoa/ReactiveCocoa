@@ -827,19 +827,19 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func combineLatestWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
 		// This should be the implementation of this method:
-		// return liftRight(Signal.combineLatestWith)(otherProducer)
+		// return liftLeft(Signal.combineLatestWith)(otherProducer)
 		//
-		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
+		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftLeft` here.
 		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
 		//
-		// This can be reverted once tests with -O don't crash. 
+		// This can be reverted once tests with -O don't crash.
 
 		return SignalProducer { observer, outerDisposable in
-			self.startWithSignal { signal, disposable in
-				outerDisposable.addDisposable(disposable)
+			otherProducer.startWithSignal { otherSignal, otherDisposable in
+				outerDisposable.addDisposable(otherDisposable)
 
-				otherProducer.startWithSignal { otherSignal, otherDisposable in
-					outerDisposable.addDisposable(otherDisposable)
+				self.startWithSignal { signal, disposable in
+					outerDisposable.addDisposable(disposable)
 
 					signal.combineLatestWith(otherSignal).observe(observer)
 				}
@@ -1210,7 +1210,7 @@ extension SignalProducerType {
 	/// - returns: A producer that sends tuples of `self` and `otherProducer`.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func zipWith<U>(otherProducer: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return liftRight(Signal.zipWith)(otherProducer)
+		return liftLeft(Signal.zipWith)(otherProducer)
 	}
 
 	/// Zip elements of this producer and a signal into pairs. The elements of

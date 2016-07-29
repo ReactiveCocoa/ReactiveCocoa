@@ -874,28 +874,88 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 		}
-		
-		describe("sequence operators") {
-			var producerA: SignalProducer<Int, NoError>!
-			var producerB: SignalProducer<Int, NoError>!
-			
-			beforeEach {
-				producerA = SignalProducer<Int, NoError>(values: [ 1, 2 ])
-				producerB = SignalProducer<Int, NoError>(values: [ 3, 4 ])
-			}
-			
+
+		describe("combineLatest") {
 			it("should combine the events to one array") {
+				let (producerA, observerA) = SignalProducer<Int, NoError>.pipe()
+				let (producerB, observerB) = SignalProducer<Int, NoError>.pipe()
+
 				let producer = combineLatest([producerA, producerB])
-				let result = producer.collect().single()
-				
-				expect(result?.value) == [[1, 4], [2, 4]]
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				observerA.sendNext(1)
+				observerB.sendNext(2)
+				observerA.sendNext(3)
+				observerA.sendCompleted()
+				observerB.sendCompleted()
+
+				expect(values) == [[1, 2], [3, 2]]
 			}
-			
+
+			it("should start signal producers in order as defined") {
+				var ids = [Int]()
+				let createProducer = { (id: Int) -> SignalProducer<Int, NoError> in
+					return SignalProducer { observer, disposable in
+						ids.append(id)
+
+						observer.sendNext(id)
+						observer.sendCompleted()
+					}
+				}
+
+				let producerA = createProducer(1)
+				let producerB = createProducer(2)
+
+				let producer = combineLatest([producerA, producerB])
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				expect(ids) == [1, 2]
+				expect(values) == [[1, 2]]
+			}
+		}
+
+		describe("zip") {
 			it("should zip the events to one array") {
+				let producerA = SignalProducer<Int, NoError>(values: [ 1, 2 ])
+				let producerB = SignalProducer<Int, NoError>(values: [ 3, 4 ])
+
 				let producer = zip([producerA, producerB])
 				let result = producer.collect().single()
 				
 				expect(result?.value) == [[1, 3], [2, 4]]
+			}
+
+			it("should start signal producers in order as defined") {
+				var ids = [Int]()
+				let createProducer = { (id: Int) -> SignalProducer<Int, NoError> in
+					return SignalProducer { observer, disposable in
+						ids.append(id)
+
+						observer.sendNext(id)
+						observer.sendCompleted()
+					}
+				}
+
+				let producerA = createProducer(1)
+				let producerB = createProducer(2)
+
+				let producer = zip([producerA, producerB])
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				expect(ids) == [1, 2]
+				expect(values) == [[1, 2]]
 			}
 		}
 

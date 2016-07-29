@@ -1000,6 +1000,20 @@ class SignalProducerSpec: QuickSpec {
 				disposable.dispose()
 				expect(disposed) == true
 			}
+
+			it("should invoke the `started` action of the inner producer first") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.pipe()
+
+				var numbers = [Int]()
+
+				let producer = baseProducer
+					.on(started: { numbers.append(1) })
+					.on(started: { numbers.append(2) })
+					.on(started: { numbers.append(3) })
+					.start()
+
+				expect(numbers) == [1, 2, 3]
+			}
 		}
 
 		describe("startOn") {

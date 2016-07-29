@@ -1497,7 +1497,6 @@ extension SignalProducerType {
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
 	public func on(started started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
-			started?()
 			self.startWithSignal { signal, disposable in
 				compositeDisposable += disposable
 				compositeDisposable += signal
@@ -1512,6 +1511,8 @@ extension SignalProducerType {
 					)
 					.observe(observer)
 			}
+
+			started?()
 		}
 	}
 

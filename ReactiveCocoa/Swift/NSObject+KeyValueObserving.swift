@@ -20,7 +20,7 @@ extension NSObject {
 			disposable += KeyValueObserver.observe(self,
 			                                       keyPath: keyPath,
 			                                       action: observer.sendNext)
-			self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
 }

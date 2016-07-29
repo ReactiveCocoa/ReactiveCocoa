@@ -59,7 +59,7 @@ import enum Result.NoError
 		/// This is made possible by strong reference cycles.
 		super.init()
 
-		object?.lifetime.ended.observeCompleted { _ = self }
+		object?.rac_lifetime.ended.observeCompleted { _ = self }
 	}
 }
 

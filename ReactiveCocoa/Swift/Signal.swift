@@ -14,13 +14,17 @@ import Result
 /// progress,” like notifications, user input, etc. To represent streams that
 /// must first be _started_, see the SignalProducer type.
 ///
-/// Signals do not need to be retained to keep the event stream alive. However,
-/// a signal would dispose of itself if it has no observers and has not been
-/// retained.
+/// A Signal is kept alive until either of the following happens:
+///    1. its input observer receives a terminating event; or
+///    2. it has no active observers, and is not being retained.
 public final class Signal<Value, Error: ErrorProtocol> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
+	/// The disposable returned by the signal generator. It would be disposed of
+	/// when the signal terminates.
 	private var generatorDisposable: Disposable?
+
+	/// The state of the signal. `nil` if the signal has terminated.
 	private let state: Atomic<SignalState<Value, Error>?>
 
 	/// Initialize a Signal that will immediately invoke the given generator,
@@ -48,6 +52,14 @@ public final class Signal<Value, Error: ErrorProtocol> {
 				return
 			}
 
+			func interrupt() {
+				if let state = signal.state.swap(nil) {
+					for observer in state.observers {
+						observer.sendInterrupted()
+					}
+				}
+			}
+
 			if case .interrupted = event {
 				// Normally we disallow recursive events, but `interrupted` is
 				// kind of a special snowflake, since it can inadvertently be
@@ -59,7 +71,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 				interrupted.value = true
 
 				if sendLock.try() {
-					signal.interrupt()
+					interrupt()
 					sendLock.unlock()
 
 					signal.generatorDisposable?.dispose()
@@ -74,7 +86,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 
 					let shouldInterrupt = !event.isTerminating && interrupted.value
 					if shouldInterrupt {
-						signal.interrupt()
+						interrupt()
 					}
 
 					sendLock.unlock()
@@ -92,9 +104,11 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	}
 
 	deinit {
-		// The signal should have no observers at this point.
-		interrupt()
-		generatorDisposable?.dispose()
+		if state.swap(nil) != nil {
+			// As the signal can deinitialize only when it has no observers attached,
+			// only the generator disposable has to be disposed of at this point.
+			generatorDisposable?.dispose()
+		}
 	}
 
 	/// A Signal that never sends any events to its observers.
@@ -127,15 +141,6 @@ public final class Signal<Value, Error: ErrorProtocol> {
 		return (signal, observer)
 	}
 
-	/// Interrupts all observers and terminates the stream.
-	private func interrupt() {
-		if let state = state.swap(nil) {
-			for observer in state.observers {
-				observer.sendInterrupted()
-			}
-		}
-	}
-
 	/// Observe the Signal by sending any future events to the given observer.
 	///
 	/// - note: If the Signal has already terminated, the observer will
@@ -145,25 +150,20 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	///   - observer: An observer to forward the events to.
 	///
 	/// - returns: An optional `Disposable` which can be used to disconnect the
-	///            observer. Disposing of the Disposable will have no effect on
-	///            the Signal itself.
+	///            observer.
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
 		state.modify { state in
+			state?.retainedSignal = self
 			token = state?.observers.insert(observer)
-			state?.retainedSignal = token.map { _ in self }
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
 				_ = self?.state.modify { state in
-					guard state != nil else {
-						return
-					}
-
-					state!.observers.remove(using: token)
-					if state!.observers.isEmpty {
+					state?.observers.remove(using: token)
+					if state?.observers.isEmpty ?? false {
 						state!.retainedSignal = nil
 					}
 				}

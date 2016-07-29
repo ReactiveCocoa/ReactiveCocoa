@@ -659,25 +659,7 @@ extension SignalProducerProtocol {
 	/// - returns: A producer that, when started, will yield a tuple containing
 	///            values of `self` and given producer.
 	public func combineLatest<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		// This should be the implementation of this method:
-		// return liftLeft(Signal.combineLatestWith)(otherProducer)
-		//
-		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftLeft` here.
-		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
-		//
-		// This can be reverted once tests with -O don't crash.
-
-		return SignalProducer { observer, outerDisposable in
-			other.startWithSignal { otherSignal, otherDisposable in
-				outerDisposable += otherDisposable
-
-				self.startWithSignal { signal, disposable in
-					outerDisposable += disposable
-
-					signal.combineLatest(with: otherSignal).observe(observer)
-				}
-			}
-		}
+		return liftLeft(Signal.combineLatest)(other)
 	}
 
 	/// Combine the latest value of the receiver with the latest value from

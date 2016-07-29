@@ -958,6 +958,19 @@ extension SignalType {
 			.map { $0.0 }
 	}
 
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned signal will complete.
+	///
+	/// - parameters:
+	///   - lifetime: A lifetime whose `ended` signal will cause the returned
+	///               signal to complete.
+	///
+	/// - returns: A signal that will deliver events until `lifetime` ends.
+	@warn_unused_result(message="Did you forget to call `observe` on the signal?")
+	public func takeDuring(lifetime: Lifetime) -> Signal<Value, Error> {
+		return takeUntil(lifetime.ended)
+	}
+
 	/// Forward events from `self` until `trigger` sends a `Next` or
 	/// `Completed` event, at which point the returned signal will complete.
 	///
@@ -986,7 +999,7 @@ extension SignalType {
 			return disposable
 		}
 	}
-	
+
 	/// Do not forward any values from `self` until `trigger` sends a `Next` or
 	/// `Completed` event, at which point the returned signal behaves exactly
 	/// like `signal`.

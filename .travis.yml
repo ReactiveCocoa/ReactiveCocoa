@@ -17,7 +17,7 @@ git:
 
 script:
   - set -o pipefail
-  - carthage bootstrap
+  - carthage bootstrap --no-use-binaries
   - xcodebuild $XCODEBUILD_TEST_ACTION -scheme Rex-Mac | xcpretty -c
   - xcodebuild $XCODEBUILD_TEST_ACTION -scheme Rex-iOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
   - xcodebuild $XCODEBUILD_TEST_ACTION -scheme Rex-tvOS -sdk appletvsimulator -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c

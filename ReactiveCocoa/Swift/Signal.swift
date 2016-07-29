@@ -14,12 +14,14 @@ import Result
 /// progress,” like notifications, user input, etc. To represent streams that
 /// must first be _started_, see the SignalProducer type.
 ///
-/// Signals do not need to be retained. A Signal will be automatically kept
-/// alive until the event stream has terminated.
+/// Signals do not need to be retained to keep the event stream alive. However,
+/// a signal would dispose of itself if it has no observers and has not been
+/// retained.
 public final class Signal<Value, Error: ErrorProtocol> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
-	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+	private var generatorDisposable: Disposable?
+	private let state: Atomic<SignalState<Value, Error>?>
 
 	/// Initialize a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -32,17 +34,20 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	///   - generator: A closure that accepts an implicitly created observer
 	///                that will act as an event emitter for the signal.
 	public init(_ generator: @noescape (Observer) -> Disposable?) {
+		state = Atomic(SignalState())
 
 		/// Used to ensure that events are serialized during delivery to observers.
 		let sendLock = Lock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
-		let generatorDisposable = SerialDisposable()
-
 		/// When set to `true`, the Signal should interrupt as soon as possible.
 		let interrupted = Atomic(false)
 
-		let observer = Observer { event in
+		let observer = Observer { [weak self] event in
+			guard let signal = self else {
+				return
+			}
+
 			if case .interrupted = event {
 				// Normally we disallow recursive events, but `interrupted` is
 				// kind of a special snowflake, since it can inadvertently be
@@ -54,23 +59,22 @@ public final class Signal<Value, Error: ErrorProtocol> {
 				interrupted.value = true
 
 				if sendLock.try() {
-					self.interrupt()
+					signal.interrupt()
 					sendLock.unlock()
 
-					generatorDisposable.dispose()
+					signal.generatorDisposable?.dispose()
 				}
-
 			} else {
-				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
+				if let state = (event.isTerminating ? signal.state.swap(nil) : signal.state.value) {
 					sendLock.lock()
 
-					for observer in observers {
+					for observer in state.observers {
 						observer.action(event)
 					}
 
 					let shouldInterrupt = !event.isTerminating && interrupted.value
 					if shouldInterrupt {
-						self.interrupt()
+						signal.interrupt()
 					}
 
 					sendLock.unlock()
@@ -78,13 +82,19 @@ public final class Signal<Value, Error: ErrorProtocol> {
 					if event.isTerminating || shouldInterrupt {
 						// Dispose only after notifying observers, so disposal
 						// logic is consistently the last thing to run.
-						generatorDisposable.dispose()
+						signal.generatorDisposable?.dispose()
 					}
 				}
 			}
 		}
 
-		generatorDisposable.innerDisposable = generator(observer)
+		generatorDisposable = generator(observer)
+	}
+
+	deinit {
+		// The signal should have no observers at this point.
+		interrupt()
+		generatorDisposable?.dispose()
 	}
 
 	/// A Signal that never sends any events to its observers.
@@ -119,8 +129,8 @@ public final class Signal<Value, Error: ErrorProtocol> {
 
 	/// Interrupts all observers and terminates the stream.
 	private func interrupt() {
-		if let observers = self.atomicObservers.swap(nil) {
-			for observer in observers {
+		if let state = state.swap(nil) {
+			for observer in state.observers {
 				observer.sendInterrupted()
 			}
 		}
@@ -140,14 +150,22 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
-		atomicObservers.modify { observers in
-			token = observers?.insert(observer)
+		state.modify { state in
+			token = state?.observers.insert(observer)
+			state?.retainedSignal = token.map { _ in self }
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				_ = self?.atomicObservers.modify { observers in
-					observers?.remove(using: token)
+				_ = self?.state.modify { state in
+					guard state != nil else {
+						return
+					}
+
+					state!.observers.remove(using: token)
+					if state!.observers.isEmpty {
+						state!.retainedSignal = nil
+					}
 				}
 			}
 		} else {
@@ -155,6 +173,11 @@ public final class Signal<Value, Error: ErrorProtocol> {
 			return nil
 		}
 	}
+}
+
+private struct SignalState<Value, Error: ErrorProtocol> {
+	var observers: Bag<Signal<Value, Error>.Observer> = Bag()
+	var retainedSignal: Signal<Value, Error>?
 }
 
 public protocol SignalProtocol {

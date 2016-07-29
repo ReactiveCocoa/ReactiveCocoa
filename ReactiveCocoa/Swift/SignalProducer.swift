@@ -1224,6 +1224,7 @@ extension SignalProducerProtocol {
 			started?()
 			self.startWithSignal { signal, disposable in
 				compositeDisposable += disposable
+				_ = disposed.map(compositeDisposable.add)
 				compositeDisposable += signal
 					.on(
 						event: event,
@@ -1231,7 +1232,6 @@ extension SignalProducerProtocol {
 						completed: completed,
 						interrupted: interrupted,
 						terminated: terminated,
-						disposed: disposed,
 						next: next
 					)
 					.observe(observer)

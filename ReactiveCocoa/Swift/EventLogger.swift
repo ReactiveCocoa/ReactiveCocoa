@@ -14,7 +14,7 @@ public enum LoggingEvent {
 		case next, completed, failed, terminated, disposed, interrupted
 
 		public static let allEvents: Set<Signal> = [
-			.next, .completed, .failed, .terminated, .disposed, .interrupted,
+			.next, .completed, .failed, .terminated, .interrupted,
 		]
 	}
 
@@ -60,7 +60,6 @@ extension SignalProtocol {
 			completed: log(.completed),
 			interrupted: log(.interrupted),
 			terminated: log(.terminated),
-			disposed: log(.disposed),
 			next: log(.next)
 		)
 	}

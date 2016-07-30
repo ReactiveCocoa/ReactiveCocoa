@@ -519,6 +519,59 @@ class PropertySpec: QuickSpec {
 				expect(dynamicProperty).to(beNil())
 			}
 
+			it("should observe changes in a nested key path") {
+				let parentObject = NestedObservableObject()
+				let property = DynamicProperty(object: parentObject, keyPath: "rac_object.rac_value")
+
+				var values: [Int] = []
+				property.producer.startWithNext { wrappedInt in
+					values.append((wrappedInt as! NSNumber).integerValue)
+				}
+
+				expect(values) == [0]
+
+				parentObject.rac_object.rac_value = 1
+				expect(values) == [0, 1]
+
+				let oldInnerObject = parentObject.rac_object
+
+				let newInnerObject = ObservableObject()
+				parentObject.rac_object = newInnerObject
+				expect(values) == [0, 1, 0]
+
+				parentObject.rac_object.rac_value = 10
+				oldInnerObject.rac_value = 2
+				expect(values) == [0, 1, 0, 10]
+			}
+
+			it("should observe changes in a nested weak key path") {
+				let parentObject = NestedObservableObject()
+				var innerObject = Optional(ObservableObject())
+				parentObject.rac_weakObject = innerObject
+
+				let property = DynamicProperty(object: parentObject, keyPath: "rac_weakObject.rac_value")
+
+				var values: [Int] = []
+				property.producer.startWithNext { wrappedInt in
+					values.append((wrappedInt as! NSNumber).integerValue)
+				}
+
+				expect(values) == [0]
+
+				innerObject?.rac_value = 1
+				expect(values) == [0, 1]
+
+				innerObject = nil
+				expect(values) == [0, 1]
+
+				innerObject = ObservableObject()
+				parentObject.rac_weakObject = innerObject
+				expect(values) == [0, 1, 0]
+
+				innerObject?.rac_value = 10
+				expect(values) == [0, 1, 0, 10]
+			}
+
 			describe("KVO") {
 				var testObject: ObservableObject!
 				var concurrentQueue: dispatch_queue_t!
@@ -868,4 +921,9 @@ class PropertySpec: QuickSpec {
 
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+}
+
+private class NestedObservableObject: NSObject {
+	dynamic var rac_object: ObservableObject = ObservableObject()
+	dynamic weak var rac_weakObject: ObservableObject?
 }

@@ -1481,8 +1481,12 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 extension SignalProducerType {
 	/// Injects side effects to be performed upon the specified producer events.
 	///
+	/// - note: In a composed producer, `starting` is invoked in the reverse
+	///         direction of the flow of events.
+	///
 	/// - parameters:
-	///   - started: A closrure that is invoked when producer is started.
+	///   - starting: A closure that is invoked before the producer is started.
+	///   - started: A closure that is invoked after the producer is started.
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
 	///   - failed: A closure that accepts error object and is invoked for
@@ -1495,8 +1499,11 @@ extension SignalProducerType {
 	///
 	/// - returns: A producer with attached side-effects for given event cases.
 	@warn_unused_result(message="Did you forget to call `start` on the producer?")
-	public func on(started started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
+	public func on(starting starting: (() -> Void)? = nil, started: (() -> Void)? = nil, event: (Event<Value, Error> -> Void)? = nil, failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: (Value -> Void)? = nil) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
+			starting?()
+			defer { started?() }
+
 			self.startWithSignal { signal, disposable in
 				compositeDisposable += disposable
 				compositeDisposable += signal
@@ -1511,8 +1518,6 @@ extension SignalProducerType {
 					)
 					.observe(observer)
 			}
-
-			started?()
 		}
 	}
 

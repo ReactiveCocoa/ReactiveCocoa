@@ -1011,6 +1011,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should attach event handlers to each started signal") {
 				let (baseProducer, observer) = SignalProducer<Int, TestError>.pipe()
 
+				var starting = 0
 				var started = 0
 				var event = 0
 				var next = 0
@@ -1018,7 +1019,9 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					.on(started: {
+					.on(starting: {
+						starting += 1
+					}, started: {
 						started += 1
 					}, event: { e in
 						event += 1
@@ -1031,9 +1034,11 @@ class SignalProducerSpec: QuickSpec {
 					})
 
 				producer.start()
+				expect(starting) == 1
 				expect(started) == 1
 
 				producer.start()
+				expect(starting) == 2
 				expect(started) == 2
 
 				observer.sendNext(1)
@@ -1059,6 +1064,34 @@ class SignalProducerSpec: QuickSpec {
 				expect(disposed) == false
 				disposable.dispose()
 				expect(disposed) == true
+			}
+
+			it("should invoke the `started` action of the inner producer first") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.pipe()
+
+				var numbers = [Int]()
+
+				let producer = baseProducer
+					.on(started: { numbers.append(1) })
+					.on(started: { numbers.append(2) })
+					.on(started: { numbers.append(3) })
+					.start()
+
+				expect(numbers) == [1, 2, 3]
+			}
+
+			it("should invoke the `starting` action of the outer producer first") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.pipe()
+
+				var numbers = [Int]()
+
+				let producer = baseProducer
+					.on(starting: { numbers.append(1) })
+					.on(starting: { numbers.append(2) })
+					.on(starting: { numbers.append(3) })
+					.start()
+
+				expect(numbers) == [3, 2, 1]
 			}
 		}
 

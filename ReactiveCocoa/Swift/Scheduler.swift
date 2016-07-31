@@ -452,12 +452,12 @@ public final class TestScheduler: DateSchedulerType {
 		advanceToDate(NSDate.distantFuture())
 	}
 	
-	/// Retreats the virtualized clock by the given interval.
+	/// Rewinds the virtualized clock by the given interval.
 	/// This simulates that user changes device date.
 	///
 	/// - parameters:
 	///   - interval: Interval by which the current date will be retreated.
-	public func retreatCurrentDateByInterval(interval: NSTimeInterval) {
+	public func rewindByInterval(interval: NSTimeInterval) {
 		lock.lock()
 		
 		let newDate = currentDate.dateByAddingTimeInterval(-interval)

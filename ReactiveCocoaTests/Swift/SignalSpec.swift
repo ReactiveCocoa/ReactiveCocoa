@@ -1293,7 +1293,7 @@ class SignalSpec: QuickSpec {
 				scheduler.advance()
 				expect(values) == [ 0, 2, 3 ]
 				
-				scheduler.retreatCurrentDateByInterval(2)
+				scheduler.rewindByInterval(2)
 				expect(values) == [ 0, 2, 3 ]
 				
 				observer.sendNext(6)

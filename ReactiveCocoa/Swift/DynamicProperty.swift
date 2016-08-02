@@ -43,12 +43,15 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
-		return property?.producer ?? .empty
+		return (object.map { $0.values(forKeyPath: keyPath) } ?? .empty)
+			.map { [extractValue = self.extractValue] in $0.map(extractValue) }
 	}
 
-	public var signal: Signal<Value?, NoError> {
-		return property?.signal ?? .empty
-	}
+	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
+		var signal: Signal<DynamicProperty.Value, NoError>!
+		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
+		return signal
+	}()
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object, using the supplied representation.
@@ -63,25 +66,13 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
-		self.property = MutableProperty(nil)
+
 		self.extractValue = Representatable.extract(from:)
 		self.represent = Representatable.represent
 
 		/// A DynamicProperty will stay alive as long as its object is alive.
 		/// This is made possible by strong reference cycles.
-
-		object?.rac_values(forKeyPath: keyPath, observer: nil)?
-			.toSignalProducer()
-			.start { event in
-				switch event {
-				case let .next(newValue):
-					self.property?.value = newValue.map(self.extractValue)
-				case let .failed(error):
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .interrupted, .completed:
-					self.property = nil
-				}
-			}
+		_ = object?.rac_lifetime.ended.observeCompleted { _ = self }
 	}
 }
 

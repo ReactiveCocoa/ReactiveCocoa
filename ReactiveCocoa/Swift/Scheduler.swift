@@ -483,4 +483,20 @@ public final class TestScheduler: DateSchedulerProtocol {
 	public func run() {
 		advance(to: Date.distantFuture)
 	}
+	
+	/// Rewinds the virtualized clock by the given interval.
+	/// This simulates that user changes device date.
+	///
+	/// - parameters:
+	///   - interval: Interval by which the current date will be retreated.
+	public func rewind(by interval: TimeInterval) {
+		lock.lock()
+		
+		let newDate = currentDate.addingTimeInterval(-interval)
+		assert(currentDate.compare(newDate) != .orderedAscending)
+		_currentDate = newDate
+		
+		lock.unlock()
+		
+	}
 }

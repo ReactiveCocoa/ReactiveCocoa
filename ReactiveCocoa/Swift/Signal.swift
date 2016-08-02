@@ -925,6 +925,18 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned signal will complete.
+	///
+	/// - parameters:
+	///   - lifetime: A lifetime whose `ended` signal will cause the returned
+	///               signal to complete.
+	///
+	/// - returns: A signal that will deliver events until `lifetime` ends.
+	public func take(during lifetime: Lifetime) -> Signal<Value, Error> {
+		return take(until: lifetime.ended)
+	}
+
 	/// Forward events from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal will complete.
 	///
@@ -952,7 +964,7 @@ extension SignalProtocol {
 			return disposable
 		}
 	}
-	
+
 	/// Do not forward any values from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal behaves exactly
 	/// like `signal`.
@@ -1366,6 +1378,10 @@ extension SignalProtocol {
 	///         that value will be discarded and the returned signal will 
 	///         terminate immediately.
 	///
+	/// - note: If the device time changed backwords before previous date while
+	///         a value is being throttled, and if there is a new value sent,
+	///         the new value will be passed anyway.
+	///
 	/// - parameters:
 	///   - interval: Number of seconds to wait between sent values.
 	///   - scheduler: A scheduler to deliver events on.
@@ -1394,8 +1410,21 @@ extension SignalProtocol {
 				state.modify { state in
 					state.pendingValue = value
 
-					let proposedScheduleDate = state.previousDate?.addingTimeInterval(interval) ?? scheduler.currentDate
-					scheduleDate = (proposedScheduleDate as NSDate).laterDate(scheduler.currentDate)
+					let proposedScheduleDate: Date
+					if let previousDate = state.previousDate where previousDate.compare(scheduler.currentDate) != .orderedDescending {
+						proposedScheduleDate = previousDate.addingTimeInterval(interval)
+					} else {
+						proposedScheduleDate = scheduler.currentDate
+					}
+
+					switch proposedScheduleDate.compare(scheduler.currentDate) {
+					case .orderedAscending:
+						scheduleDate = scheduler.currentDate
+
+					case .orderedSame: fallthrough
+					case .orderedDescending:
+						scheduleDate = proposedScheduleDate
+					}
 				}
 
 				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
@@ -1733,5 +1762,31 @@ extension SignalProtocol where Error == NoError {
 				}
 			}
 		}
+	}
+
+	/// Forward events from `self` until `interval`. Then if signal isn't
+	/// completed yet, fails with `error` on `scheduler`.
+	///
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The signal must complete synchronously (or on a faster
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - error: Error to send with `failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A signal that sends events for at most `interval` seconds,
+	///            then, if not `completed` - sends `error` with `failed` event
+	///            on `scheduler`.
+	public func timeout<NewError: ErrorProtocol>(
+		after interval: TimeInterval,
+		raising error: NewError,
+		on scheduler: DateSchedulerProtocol
+	) -> Signal<Value, NewError> {
+		return self
+			.promoteErrors(NewError.self)
+			.timeout(after: interval, raising: error, on: scheduler)
 	}
 }

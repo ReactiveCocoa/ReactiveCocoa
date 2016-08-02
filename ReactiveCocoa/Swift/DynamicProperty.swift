@@ -34,12 +34,14 @@ import enum Result.NoError
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<AnyObject?, NoError> {
-		return property?.producer ?? .empty
+		return object.map(NSObject.valuesForKeyPath)?(keyPath) ?? .empty
 	}
 
-	public var signal: Signal<AnyObject?, NoError> {
-		return property?.signal ?? .empty
-	}
+	public lazy var signal: Signal<AnyObject?, NoError> = { [unowned self] in
+		var signal: Signal<AnyObject?, NoError>!
+		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
+		return signal
+	}()
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object.
@@ -52,24 +54,12 @@ import enum Result.NoError
 	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-		self.property = MutableProperty(nil)
 
 		/// A DynamicProperty will stay alive as long as its object is alive.
 		/// This is made possible by strong reference cycles.
 		super.init()
 
-		object?.rac_valuesForKeyPath(keyPath, observer: nil)?
-			.toSignalProducer()
-			.start { event in
-				switch event {
-				case let .Next(newValue):
-					self.property?.value = newValue
-				case let .Failed(error):
-					fatalError("Received unexpected error from KVO signal: \(error)")
-				case .Interrupted, .Completed:
-					self.property = nil
-				}
-			}
+		object?.rac_lifetime.ended.observeCompleted { _ = self }
 	}
 }
 

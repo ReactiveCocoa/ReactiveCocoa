@@ -671,28 +671,88 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 		}
-		
-		describe("sequence operators") {
-			var producerA: SignalProducer<Int, NoError>!
-			var producerB: SignalProducer<Int, NoError>!
-			
-			beforeEach {
-				producerA = SignalProducer<Int, NoError>(values: [ 1, 2 ])
-				producerB = SignalProducer<Int, NoError>(values: [ 3, 4 ])
-			}
-			
+
+		describe("combineLatest") {
 			it("should combine the events to one array") {
+				let (producerA, observerA) = SignalProducer<Int, NoError>.pipe()
+				let (producerB, observerB) = SignalProducer<Int, NoError>.pipe()
+
 				let producer = SignalProducer.combineLatest([producerA, producerB])
-				let result = producer.collect().single()
-				
-				expect(result?.value) == [[1, 4], [2, 4]]
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				observerA.sendNext(1)
+				observerB.sendNext(2)
+				observerA.sendNext(3)
+				observerA.sendCompleted()
+				observerB.sendCompleted()
+
+				expect(values) == [[1, 2], [3, 2]]
 			}
-			
+
+			it("should start signal producers in order as defined") {
+				var ids = [Int]()
+				let createProducer = { (id: Int) -> SignalProducer<Int, NoError> in
+					return SignalProducer { observer, disposable in
+						ids.append(id)
+
+						observer.sendNext(id)
+						observer.sendCompleted()
+					}
+				}
+
+				let producerA = createProducer(1)
+				let producerB = createProducer(2)
+
+				let producer = SignalProducer.combineLatest([producerA, producerB])
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				expect(ids) == [1, 2]
+				expect(values) == [[1, 2]]
+			}
+		}
+
+		describe("zip") {
 			it("should zip the events to one array") {
+				let producerA = SignalProducer<Int, NoError>(values: [ 1, 2 ])
+				let producerB = SignalProducer<Int, NoError>(values: [ 3, 4 ])
+
 				let producer = SignalProducer.zip([producerA, producerB])
 				let result = producer.collect().single()
 				
 				expect(result?.value) == [[1, 3], [2, 4]]
+			}
+
+			it("should start signal producers in order as defined") {
+				var ids = [Int]()
+				let createProducer = { (id: Int) -> SignalProducer<Int, NoError> in
+					return SignalProducer { observer, disposable in
+						ids.append(id)
+
+						observer.sendNext(id)
+						observer.sendCompleted()
+					}
+				}
+
+				let producerA = createProducer(1)
+				let producerB = createProducer(2)
+
+				let producer = SignalProducer.zip([producerA, producerB])
+
+				var values = [[Int]]()
+				producer.startWithNext { next in
+					values.append(next)
+				}
+
+				expect(ids) == [1, 2]
+				expect(values) == [[1, 2]]
 			}
 		}
 
@@ -748,6 +808,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should attach event handlers to each started signal") {
 				let (baseProducer, observer) = SignalProducer<Int, TestError>.pipe()
 
+				var starting = 0
 				var started = 0
 				var event = 0
 				var next = 0
@@ -755,7 +816,9 @@ class SignalProducerSpec: QuickSpec {
 				var terminated = 0
 
 				let producer = baseProducer
-					.on(started: {
+					.on(starting: {
+						starting += 1
+					}, started: {
 						started += 1
 					}, event: { e in
 						event += 1
@@ -768,9 +831,11 @@ class SignalProducerSpec: QuickSpec {
 					})
 
 				producer.start()
+				expect(starting) == 1
 				expect(started) == 1
 
 				producer.start()
+				expect(starting) == 2
 				expect(started) == 2
 
 				observer.sendNext(1)
@@ -796,6 +861,34 @@ class SignalProducerSpec: QuickSpec {
 				expect(disposed) == false
 				disposable.dispose()
 				expect(disposed) == true
+			}
+
+			it("should invoke the `started` action of the inner producer first") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.pipe()
+
+				var numbers = [Int]()
+
+				let producer = baseProducer
+					.on(started: { numbers.append(1) })
+					.on(started: { numbers.append(2) })
+					.on(started: { numbers.append(3) })
+					.start()
+
+				expect(numbers) == [1, 2, 3]
+			}
+
+			it("should invoke the `starting` action of the outer producer first") {
+				let (baseProducer, _) = SignalProducer<Int, TestError>.pipe()
+
+				var numbers = [Int]()
+
+				let producer = baseProducer
+					.on(starting: { numbers.append(1) })
+					.on(starting: { numbers.append(2) })
+					.on(starting: { numbers.append(3) })
+					.start()
+
+				expect(numbers) == [3, 2, 1]
 			}
 		}
 

@@ -11,7 +11,9 @@ public protocol PropertyProtocol: class {
 	/// The current value of the property.
 	var value: Value { get }
 
-	/// A producer for signals that sends the property's current value,
+	/// The values producer of the property.
+	///
+	/// It produces a signal that sends the property's current value,
 	/// followed by all changes over time. It completes when the property
 	/// has deinitialized, or has no further change.
 	var producer: SignalProducer<Value, NoError> { get }
@@ -33,7 +35,7 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 /// The producer and the signal of transformed properties would complete
 /// only when its source properties have deinitialized.
 ///
-/// A transformed property would retain its ultimate source, but not
+/// A composed property would retain its ultimate source, but not
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
@@ -372,7 +374,6 @@ extension PropertyProtocol {
 /// its source outlives it too.
 public final class Property<Value>: PropertyProtocol {
 	private let sources: [AnyObject]
-	private let disposable: Disposable?
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -392,8 +393,6 @@ public final class Property<Value>: PropertyProtocol {
 
 	/// A signal that will send the property's changes over time, then
 	/// complete when the property has deinitialized or has no further changes.
-	///
-	/// It is strongly discouraged to use `signal` on any transformed property.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
@@ -404,7 +403,6 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A value of the constant property.
 	public init(value: Value) {
 		sources = []
-		disposable = nil
 		_value = { value }
 		_producer = { SignalProducer(value: value) }
 		_signal = { Signal<Value, NoError>.empty }
@@ -416,7 +414,6 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A property to be wrapped.
 	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
 		sources = Property.capture(property)
-		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -481,40 +478,42 @@ public final class Property<Value>: PropertyProtocol {
 	///            raised.
 	///
 	/// - parameters:
-	///   - firstProperty: The composed producer for creating the property.
+	///   - unsafeProducer: The composed producer for creating the property.
 	///   - sources: The property sources to be captured.
-	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing propertySources: [AnyObject]) {
-		var value: Value!
-
-		disposable = unsafeProducer.start { event in
+	private init(unsafeProducer: SignalProducer<Value, NoError>, capturing sources: [AnyObject]) {
+		// Share a replayed producer with `self.producer` and `self.signal` so
+		// they see a consistent view of the `self.value`.
+		// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
+		let producer = unsafeProducer.replayLazily(upTo: 1)
+		
+		// Verify that an initial is sent. This is friendlier than deadlocking
+		// in the event that one isn't.
+		var value: Value? = nil
+		let disposable = producer.start { event in
 			switch event {
 			case let .next(newValue):
 				value = newValue
-
+				
 			case .completed, .interrupted:
 				break
-
+				
 			case let .failed(error):
 				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
 			}
 		}
-
 		guard value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
+		disposable.dispose()
 
-		sources = propertySources
-		_value = { value }
-		_producer = { unsafeProducer }
+		self.sources = sources
+		_value = { producer.take(first: 1).single()!.value! }
+		_producer = { producer }
 		_signal = {
 			var extractedSignal: Signal<Value, NoError>!
-			unsafeProducer.startWithSignal { signal, _ in extractedSignal = signal }
+			producer.startWithSignal { signal, _ in extractedSignal = signal }
 			return extractedSignal
 		}
-	}
-
-	deinit {
-		disposable?.dispose()
 	}
 
 	/// Inspect if `property` is an `AnyProperty` and has already captured its
@@ -538,14 +537,7 @@ public final class Property<Value>: PropertyProtocol {
 public final class MutableProperty<Value>: MutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 
-	/// Need a recursive lock around `value` to allow recursive access to
-	/// `value`. Note that recursive sets will still deadlock because the
-	/// underlying producer prevents sending recursive events.
-	private let lock: RecursiveLock
-
-	/// The box of the underlying storage, which may outlive the property
-	/// if a returned producer is being retained.
-	private let box: Box<Value>
+	private let atomic: RecursiveAtomic<Value>
 
 	/// The current value of the property.
 	///
@@ -553,7 +545,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// signals created using `producer`.
 	public var value: Value {
 		get {
-			return withValue { $0 }
+			return atomic.withValue { $0 }
 		}
 
 		set {
@@ -569,17 +561,15 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
-		return SignalProducer { [box, weak self] producerObserver, producerDisposable in
-			if let strongSelf = self {
-				strongSelf.withValue { value in
+		return SignalProducer { [atomic, weak self] producerObserver, producerDisposable in
+			atomic.withValue { value in
+				if let strongSelf = self {
 					producerObserver.sendNext(value)
 					producerDisposable += strongSelf.signal.observe(producerObserver)
+				} else {
+					producerObserver.sendNext(value)
+					producerObserver.sendCompleted()
 				}
-			} else {
-				/// As the setter would have been deinitialized with the property,
-				/// the underlying storage would be immutable, and locking is no longer necessary.
-				producerObserver.sendNext(box.value)
-				producerObserver.sendCompleted()
 			}
 		}
 	}
@@ -589,11 +579,14 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
-		lock = RecursiveLock()
-		lock.name = "org.reactivecocoa.ReactiveCocoa.MutableProperty"
-
-		box = Box(initialValue)
 		(signal, observer) = Signal.pipe()
+
+		/// Need a recursive lock around `value` to allow recursive access to
+		/// `value`. Note that recursive sets will still deadlock because the
+		/// underlying producer prevents sending recursive events.
+		atomic = RecursiveAtomic(initialValue,
+		                          name: "org.reactivecocoa.ReactiveCocoa.MutableProperty",
+		                          didSet: observer.sendNext)
 	}
 
 	/// Atomically replaces the contents of the variable.
@@ -615,11 +608,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: The previous property value.
 	@discardableResult
 	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try withValue { value in
-			try action(&box.value)
-			observer.sendNext(box.value)
-			return value
-		}
+		return try atomic.modify(action)
 	}
 
 	/// Atomically performs an arbitrary action using the current value of the
@@ -631,10 +620,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: the result of the action.
 	@discardableResult
 	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
-		lock.lock()
-		defer { lock.unlock() }
-
-		return try action(box.value)
+		return try atomic.withValue(action)
 	}
 
 	deinit {

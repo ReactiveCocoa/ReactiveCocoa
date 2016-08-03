@@ -1664,7 +1664,7 @@ class SignalProducerSpec: QuickSpec {
 				let forwardingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
 					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 				}
@@ -1674,7 +1674,7 @@ class SignalProducerSpec: QuickSpec {
 				let observingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
 					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 				}
@@ -1713,7 +1713,7 @@ class SignalProducerSpec: QuickSpec {
 				let forwardingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
 					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 				}
@@ -1723,7 +1723,7 @@ class SignalProducerSpec: QuickSpec {
 				let observingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
 					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 				}
@@ -2183,10 +2183,9 @@ class SignalProducerSpec: QuickSpec {
 					let producer1: SignalProducer<Int, NoError> = SignalProducer.empty
 					let producer2: SignalProducer<Int, NoError> = SignalProducer.empty
 
-					let producer = SignalProducer(values: [producer1, producer2])
+					// This expression verifies at compile time that the type is as expected.
+					let _: SignalProducer<Int, NoError> = SignalProducer(values: [producer1, producer2])
 						.flatten(.merge)
-
-					expect(producer is SignalProducer<Int, NoError>) == true
 				}
 			}
 		}

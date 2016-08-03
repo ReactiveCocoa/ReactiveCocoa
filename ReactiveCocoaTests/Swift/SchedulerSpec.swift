@@ -123,7 +123,7 @@ class SchedulerSpec: QuickSpec {
 
 				let scheduler: QueueScheduler
 				if #available(OSX 10.10, *) {
-					scheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					scheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
 					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 				}
@@ -141,7 +141,7 @@ class SchedulerSpec: QuickSpec {
 
 				beforeEach {
 					if #available(OSX 10.10, *) {
-						scheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+						scheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 					} else {
 						scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
 					}

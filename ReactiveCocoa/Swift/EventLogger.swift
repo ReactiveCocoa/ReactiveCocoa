@@ -80,21 +80,33 @@ extension SignalProducerProtocol {
 	///   - logger: Logger that logs the events.
 	///
 	/// - returns: Signal producer that, when started, logs the fired events.
-	public func logEvents(identifier: String = "", events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> SignalProducer<Value, Error> {
+	public func logEvents(identifier: String = "",
+	                      events: Set<LoggingEvent.SignalProducer> = LoggingEvent.SignalProducer.allEvents,
+	                      fileName: String = #file,
+	                      functionName: String = #function,
+	                      lineNumber: Int = #line,
+	                      logger: EventLogger = defaultEventLog
+	) -> SignalProducer<Value, Error> {
 		func log<T>(_ event: LoggingEvent.SignalProducer) -> ((T) -> Void)? {
 			return event.logIfNeeded(events: events) { event in
-				logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+				logger(
+					identifier: identifier,
+					event: event,
+					fileName: fileName,
+					functionName: functionName,
+					lineNumber: lineNumber
+				)
 			}
 		}
 
 		return self.on(
 			started: log(.started),
+			next: log(.next),
 			failed: log(.failed),
 			completed: log(.completed),
 			interrupted: log(.interrupted),
 			terminated: log(.terminated),
-			disposed: log(.disposed),
-			next: log(.next)
+			disposed: log(.disposed)
 		)
 	}
 }

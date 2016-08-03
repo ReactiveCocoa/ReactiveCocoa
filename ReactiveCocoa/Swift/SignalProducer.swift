@@ -659,25 +659,7 @@ extension SignalProducerProtocol {
 	/// - returns: A producer that, when started, will yield a tuple containing
 	///            values of `self` and given producer.
 	public func combineLatest<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		// This should be the implementation of this method:
-		// return liftLeft(Signal.combineLatestWith)(otherProducer)
-		//
-		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftLeft` here.
-		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
-		//
-		// This can be reverted once tests with -O don't crash.
-
-		return SignalProducer { observer, outerDisposable in
-			other.startWithSignal { otherSignal, otherDisposable in
-				outerDisposable += otherDisposable
-
-				self.startWithSignal { signal, disposable in
-					outerDisposable += disposable
-
-					signal.combineLatest(with: otherSignal).observe(observer)
-				}
-			}
-		}
+		return liftLeft(Signal.combineLatest)(other)
 	}
 
 	/// Combine the latest value of the receiver with the latest value from
@@ -1250,16 +1232,26 @@ extension SignalProducerProtocol {
 	///   - started: A closure that is invoked after the producer is started.
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
+	///   - next: A closure that accepts a value from `next` event.
 	///   - failed: A closure that accepts error object and is invoked for
 	///             `failed` event.
 	///   - completed: A closure that is invoked for `completed` event.
 	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A producer with attached side-effects for given event cases.
-	public func on(starting: (() -> Void)? = nil, started: (() -> Void)? = nil, event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> SignalProducer<Value, Error> {
+	public func on(
+		starting: (() -> Void)? = nil,
+		started: (() -> Void)? = nil,
+		event: ((Event<Value, Error>) -> Void)? = nil,
+		next: ((Value) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil,
+		terminated: (() -> Void)? = nil,
+		disposed: (() -> Void)? = nil
+	) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
 			starting?()
 			defer { started?() }
@@ -1701,7 +1693,7 @@ extension SignalProducerProtocol {
 			let shouldStartUnderlyingProducer: Bool
 
 			lock.lock()
-			if let producer = producer, producerObserver = producerObserver {
+			if let producer = producer, let producerObserver = producerObserver {
 				(initializedProducer, initializedObserver) = (producer, producerObserver)
 				shouldStartUnderlyingProducer = false
 			} else {

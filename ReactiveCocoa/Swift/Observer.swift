@@ -44,14 +44,19 @@ public struct Observer<Value, Error: ErrorProtocol> {
 	/// An initializer that accepts closures for different event types.
 	///
 	/// - parameters:
+	///   - next: Optional closure executed when a `next` event is observed.
 	///   - failed: Optional closure that accepts an `Error` parameter when a
 	///             failed event is observed.
 	///   - completed: Optional closure executed when a `completed` event is
 	///                observed.
 	///   - interruped: Optional closure executed when an `interrupted` event is
 	///                 observed.
-	///   - next: Optional closure executed when a `next` event is observed.
-	public init(failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) {
+	public init(
+		next: ((Value) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil
+	) {
 		self.init { event in
 			switch event {
 			case let .next(value):

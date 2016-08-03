@@ -15,7 +15,7 @@ import Result
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
-public struct SignalProducer<Value, Error: ErrorProtocol> {
+public struct SignalProducer<Value, Error: Swift.Error> {
 	public typealias ProducedSignal = Signal<Value, Error>
 
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
@@ -209,7 +209,7 @@ public protocol SignalProducerProtocol {
 	associatedtype Value
 	/// The type of error that can occur on the producer. If errors aren't possible
 	/// then `NoError` can be used.
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 
 	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<Value, Error> { get }
@@ -1149,7 +1149,7 @@ extension SignalProducerProtocol where Error == NoError {
 	///   - _ An `ErrorType`.
 	///
 	/// - returns: A producer that has an instantiatable `ErrorType`.
-	public func promoteErrors<F: ErrorProtocol>(_: F.Type) -> SignalProducer<Value, F> {
+	public func promoteErrors<F: Swift.Error>(_: F.Type) -> SignalProducer<Value, F> {
 		return lift { $0.promoteErrors(F.self) }
 	}
 
@@ -1169,7 +1169,7 @@ extension SignalProducerProtocol where Error == NoError {
 	/// - returns: A producer that sends events for at most `interval` seconds,
 	///            then, if not `completed` - sends `error` with `failed` event
 	///            on `scheduler`.
-	public func timeout<NewError: ErrorProtocol>(
+	public func timeout<NewError: Swift.Error>(
 		after interval: TimeInterval,
 		raising error: NewError,
 		on scheduler: DateSchedulerProtocol
@@ -1798,7 +1798,7 @@ private final class ReplayBuffer<Value> {
 	private var values: [Value] = []
 }
 
-private struct BufferState<Value, Error: ErrorProtocol> {
+private struct BufferState<Value, Error: Swift.Error> {
 	/// All values in the buffer.
 	var values: [Value] = []
 

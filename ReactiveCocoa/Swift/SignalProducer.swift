@@ -1677,7 +1677,7 @@ extension SignalProducerProtocol {
 		var producer: SignalProducer<Value, Error>?
 		var producerObserver: SignalProducer<Value, Error>.ProducedSignal.Observer?
 
-		let lock = Lock()
+		let lock = NSLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.replayLazily"
 
 		// This will go "out of scope" when the returned `SignalProducer` goes

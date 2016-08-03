@@ -308,7 +308,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 		}
 	}
 
-	private let lock = RecursiveLock()
+	private let lock = NSRecursiveLock()
 	private var _currentDate: Date
 
 	/// The virtual date that the scheduler is currently at.

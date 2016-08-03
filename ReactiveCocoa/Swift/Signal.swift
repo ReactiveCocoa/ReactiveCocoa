@@ -34,7 +34,7 @@ public final class Signal<Value, Error: Swift.Error> {
 	public init(_ generator: @noescape (Observer) -> Disposable?) {
 
 		/// Used to ensure that events are serialized during delivery to observers.
-		let sendLock = Lock()
+		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
 		let generatorDisposable = SerialDisposable()
@@ -599,7 +599,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalProtocol {
-	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: Lock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
+	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .next(value):
@@ -647,7 +647,7 @@ extension SignalProtocol {
 	///            and given signal.
 	public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
-			let lock = Lock()
+			let lock = NSLock()
 			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
 
 			let signalState = CombineLatestState<Value>()

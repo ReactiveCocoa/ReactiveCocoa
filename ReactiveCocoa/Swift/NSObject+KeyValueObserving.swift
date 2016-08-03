@@ -25,7 +25,7 @@ extension NSObject {
 
 internal final class KeyValueObserver: NSObject {
 	typealias Action = (object: AnyObject?) -> Void
-	private static let context = UnsafeMutablePointer<Void>(allocatingCapacity: 1)
+	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
 
 	unowned(unsafe) let unsafeObject: NSObject
 	let key: String
@@ -238,15 +238,15 @@ internal struct PropertyAttributes {
 
 			if className != UnsafePointer(next) {
 				let length = className.distance(to: next)
-				let name = UnsafeMutablePointer<Int8>(allocatingCapacity: length + 1)
-				name.initializeFrom(UnsafeMutablePointer<Int8>(className), count: length)
-				(name + length).initialize(with: Code.nul)
+				let name = UnsafeMutablePointer<Int8>.allocate(capacity: length + 1)
+				name.initialize(from: UnsafeMutablePointer<Int8>(className), count: length)
+				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime
 				objectClass = objc_getClass(name) as? AnyClass
 
 				name.deinitialize(count: length + 1)
-				name.deallocateCapacity(length + 1)
+				name.deallocate(capacity: length + 1)
 			}
 		}
 
@@ -255,11 +255,11 @@ internal struct PropertyAttributes {
 			next = strchr(next, Int32(Code.comma))
 		}
 
-		let emptyString = UnsafeMutablePointer<Int8>(allocatingCapacity: 1)
-		emptyString.initialize(with: Code.nul)
+		let emptyString = UnsafeMutablePointer<Int8>.allocate(capacity: 1)
+		emptyString.initialize(to: Code.nul)
 		defer {
 			emptyString.deinitialize()
-			emptyString.deallocateCapacity(1)
+			emptyString.deallocate(capacity: 1)
 		}
 
 		var isWeak = false
@@ -315,9 +315,9 @@ internal struct PropertyAttributes {
 				}
 
 			default:
-				let pointer = UnsafeMutablePointer<Int8>(allocatingCapacity: 2)
-				pointer.initialize(with: flag)
-				(pointer + 1).initialize(with: Code.nul)
+				let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 2)
+				pointer.initialize(to: flag)
+				(pointer + 1).initialize(to: Code.nul)
 
 				let flag = String(validatingUTF8: pointer)
 				let string = String(validatingUTF8: attrString)

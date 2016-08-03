@@ -49,7 +49,10 @@ public final class Action<Input, Output, Error: Swift.Error> {
 
 	/// This queue is used for read-modify-write operations on the `_executing`
 	/// property.
-	private let executingQueue = DispatchQueue(label: "org.reactivecocoa.ReactiveCocoa.Action.executingQueue", attributes: DispatchQueueAttributes.serial)
+	private let executingQueue = DispatchQueue(
+		label: "org.reactivecocoa.ReactiveCocoa.Action.executingQueue",
+		attributes: []
+	)
 
 	/// Whether the action should be enabled for the given combination of user
 	/// enabledness and executing status.

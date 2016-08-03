@@ -160,7 +160,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	@available(OSX, deprecated:10.10, obsoleted:10.11, message:"Use init(qos:, name:) instead")
 	@available(iOS, deprecated:8.0, obsoleted:9.0, message:"Use init(qos:, name:) instead.")
 	public convenience init(queue: DispatchQueue, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		self.init(internalQueue: DispatchQueue(label: name, attributes: [.serial], target: queue))
+		self.init(internalQueue: DispatchQueue(label: name, attributes: [], target: queue))
 	}
 
 	/// Initializes a scheduler that will target a new serial queue with the
@@ -170,26 +170,14 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	///   - qos: Dispatch queue's QoS value.
 	///   - name: Name for the queue in the form of reverse domain.
 	@available(OSX 10.10, *)
-	public convenience init(qos: DispatchQoS = .default, name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler") {
-		// TODO/FIXME [@liscio]: This seems really silly to have to implement in this manner, and I suspect that Dispatch either needs to be cleaned up to merge these concepts in some way, or we need to change the initialization API.
-		//
-		// In a nutshell, declaring the qos parameter as DispatchQueueAttributes would allow the caller to specify additional OptionSet values that get stashed into the queue attributes. Instead we just want to specify a specific QoS value which then gets translated into the attributes option flag.
-
-		let qosAttribute: DispatchQueueAttributes
-		switch qos {
-		case DispatchQoS.userInteractive:
-			qosAttribute = .qosUserInteractive
-		case DispatchQoS.userInitiated:
-			qosAttribute = .qosUserInitiated
-		case DispatchQoS.background:
-			qosAttribute = .qosBackground
-		case DispatchQoS.utility:
-			qosAttribute = .qosUtility
-		default:
-			qosAttribute = .qosDefault
-		}
-
-		self.init(internalQueue: DispatchQueue(label: name, attributes: [.serial, qosAttribute]))
+	public convenience init(
+		qos: DispatchQoS = .default,
+		name: String = "org.reactivecocoa.ReactiveCocoa.QueueScheduler"
+	) {
+		self.init(internalQueue: DispatchQueue(
+			label: name,
+			qos: qos
+		))
 	}
 
 	/// Schedules action for dispatch on internal queue
@@ -218,7 +206,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		let nsec: Double = frac * Double(NSEC_PER_SEC)
 		let walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
 
-		return DispatchWallTime(time: walltime)
+		return DispatchWallTime(timespec: walltime)
 	}
 
 	/// Schedules an action for execution at or after the given date.
@@ -233,7 +221,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
-		queue.after(walltime: wallTime(with: date)) {
+		queue.asyncAfter(wallDeadline: wallTime(with: date)) {
 			if !d.isDisposed {
 				action()
 			}
@@ -279,7 +267,10 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		let nsecInterval = interval * Double(NSEC_PER_SEC)
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
 
-		let timer = DispatchSource.timer(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: queue)
+		let timer = DispatchSource.makeTimerSource(
+			flags: DispatchSource.TimerFlags(rawValue: UInt(0)),
+			queue: queue
+		)
 		timer.scheduleRepeating(wallDeadline: wallTime(with: date),
 		                        interval: .nanoseconds(Int(nsecInterval)),
 		                        leeway: .nanoseconds(Int(nsecLeeway)))

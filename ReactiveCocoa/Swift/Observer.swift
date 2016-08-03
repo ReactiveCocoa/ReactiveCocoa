@@ -26,7 +26,7 @@ public protocol ObserverProtocol {
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public struct Observer<Value, Error: ErrorProtocol> {
+public class Observer<Value, Error: ErrorProtocol> {
 	public typealias Action = (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.
@@ -51,7 +51,7 @@ public struct Observer<Value, Error: ErrorProtocol> {
 	///   - interruped: Optional closure executed when an `interrupted` event is
 	///                 observed.
 	///   - next: Optional closure executed when a `next` event is observed.
-	public init(failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) {
+	public convenience init(failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) {
 		self.init { event in
 			switch event {
 			case let .next(value):
@@ -68,6 +68,16 @@ public struct Observer<Value, Error: ErrorProtocol> {
 			}
 		}
 	}
+}
+
+extension Observer: Hashable {
+	public var hashValue: Int {
+		return ObjectIdentifier(self).hashValue
+	}
+}
+
+public func ==<Value, Error: ErrorProtocol>(left: Observer<Value, Error>, right: Observer<Value, Error>) -> Bool {
+	return left === right
 }
 
 extension Observer: ObserverProtocol {

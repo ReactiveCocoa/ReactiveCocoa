@@ -1644,43 +1644,16 @@ extension SignalProducerProtocol {
 		// `deinit`.
 		let lifetime = DeallocationToken()
 
-		let state = Atomic(ReplayState<Value, Error>())
+		let state = Atomic(ReplayState<Value, Error>(upTo: capacity))
 
 		let bootstrap = ActionDisposable {
 			// Start the underlying producer.
 			self.take(until: lifetime.deallocSignal)
 				.start { event in
 					let originalState = state.modify { state in
-						if let value = event.value {
-							for buffer in state.replayBuffers {
-								buffer.values.append(value)
-							}
-
-							if capacity == 0 {
-								// `state.values` cannot be non-empty with a capacity of zero.
-								return
-							}
-
-							if capacity == 1 {
-								state.values = [value]
-								return
-							}
-
-							state.values.append(value)
-
-							let overflow = state.values.count - capacity
-							if overflow > 0 {
-								state.values.removeSubrange(0 ..< overflow)
-							}
-						} else {
-							// Disconnect all observers and prevent future
-							// attachments.
-							state.terminationEvent = event
-							state.observers = nil
-						}
+						state.enqueue(event)
 					}
-
-					originalState.observers?.forEach { $0.action(event) }
+					originalState.broadcast(event)
 				}
 		}
 
@@ -1689,47 +1662,30 @@ extension SignalProducerProtocol {
 			// have terminated.
 			disposable += { _ = lifetime }
 
-			var token: RemovalToken?
+			var isReplaying = true
 
-			let replayBuffer = ReplayBuffer<Value>()
-			var replayValues: [Value] = []
-			var replayToken: RemovalToken?
+			repeat {
+				var replayStatus: ReplayStatus<Value>!
 
-			var next = state.modify { state in
-				if state.values.isEmpty {
-					token = state.observers?.insert(observer)
-				} else {
-					replayValues = state.values
-					replayToken = state.replayBuffers.insert(replayBuffer)
+				state.modify { state in
+					replayStatus = state.tryObserve(observer)
 				}
-			}
 
-			while !replayValues.isEmpty {
-				replayValues.forEach(observer.sendNext)
+				switch replayStatus! {
+				case let .replaying(values):
+					values.forEach(observer.sendNext)
 
-				next = state.modify { state in
-					replayValues = replayBuffer.values
-					replayBuffer.values = []
-					if replayValues.isEmpty {
-						if let replayToken = replayToken {
-							state.replayBuffers.remove(using: replayToken)
+				case let .observing(token):
+					isReplaying = false
+					if let token = token {
+						disposable += {
+							state.modify { state in
+								state.removeObserver(using: token)
+							}
 						}
-						token = state.observers?.insert(observer)
 					}
 				}
-			}
-
-			if let terminationEvent = next.terminationEvent {
-				observer.action(terminationEvent)
-			}
-
-			if let token = token {
-				disposable += {
-					state.modify { state in
-						state.observers?.remove(using: token)
-					}
-				}
-			}
+			} while isReplaying
 
 			// Start the underlying producer if it has never been started.
 			bootstrap.dispose()
@@ -1745,13 +1701,21 @@ private final class DeallocationToken {
 	}
 }
 
+
 /// A uniquely identifying token for `Observer`s that are replaying values in
 /// `ReplayState`.
 private final class ReplayBuffer<Value> {
 	private var values: [Value] = []
 }
 
+private enum ReplayStatus<Value> {
+	case observing(token: RemovalToken?)
+	case replaying(values: [Value])
+}
+
 private struct ReplayState<Value, Error: ErrorProtocol> {
+	let capacity: Int
+
 	/// All cached values.
 	var values: [Value] = []
 
@@ -1765,7 +1729,93 @@ private struct ReplayState<Value, Error: ErrorProtocol> {
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
 	/// The set of unused replay token identifiers.
-	var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
+	var replayBuffers: [Signal<Value, Error>.Observer: ReplayBuffer<Value>] = [:]
+
+	init(upTo capacity: Int) {
+		self.capacity = capacity
+	}
+
+	/// Attempt to observe the replay state.
+	///
+	/// - parameters:
+	///   - observer: The observer to register.
+	///
+	/// - returns:
+	///   `replaying(values:)` if one or more values still have to be replayed, or
+	///   `observing(token:)` if the observer had completed the replaying phase
+	///   and has started the observation.
+	mutating func tryObserve(_ observer: Signal<Value, Error>.Observer) -> ReplayStatus<Value> {
+		assert(!(observers?.contains(observer) ?? false), "Attempt to attach an active observer.")
+
+		if let replayBuffer = replayBuffers[observer] {
+			if replayBuffer.values.isEmpty {
+				replayBuffers.removeValue(forKey: observer)
+				_ = terminationEvent.map(observer.action)
+				return .observing(token: observers?.insert(observer))
+			} else {
+				defer { replayBuffer.values.removeAll() }
+				return .replaying(values: replayBuffer.values)
+			}
+		} else {
+			if values.isEmpty {
+				_ = terminationEvent.map(observer.action)
+				return .observing(token: observers?.insert(observer))
+			} else {
+				replayBuffers[observer] = ReplayBuffer()
+				return .replaying(values: values)
+			}
+		}
+	}
+
+	/// Enqueue the supplied event to the replay state.
+	///
+	/// - parameter:
+	///   - event: The event to be cached.
+	mutating func enqueue(_ event: Event<Value, Error>) {
+		if let value = event.value {
+			for buffer in replayBuffers.values {
+				buffer.values.append(value)
+			}
+
+			if capacity == 0 {
+				// `state.values` cannot be non-empty with a capacity of zero.
+				return
+			}
+
+			if capacity == 1 {
+				values = [value]
+				return
+			}
+
+			values.append(value)
+
+			let overflow = values.count - capacity
+			if overflow > 0 {
+				values.removeSubrange(0 ..< overflow)
+			}
+		} else {
+			// Disconnect all observers and prevent future
+			// attachments.
+			terminationEvent = event
+			observers = nil
+		}
+	}
+
+	/// Broadcast the event to all observers.
+	///
+	/// - parameter:
+	///   - event: The event to be broadcasted.
+	func broadcast(_ event: Event<Value, Error>) {
+		observers?.forEach { $0.action(event) }
+	}
+
+	/// Remove the observer represented by the supplied token.
+	///
+	/// - parameters:
+	///   - token: The token of the observer to be removed.
+	mutating func removeObserver(using token: RemovalToken) {
+		observers?.remove(using: token)
+	}
 }
 
 /// Create a repeating timer of the given interval, with a reasonable default

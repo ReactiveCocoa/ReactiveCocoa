@@ -14,10 +14,12 @@ extension NSObject {
 	///   A producer emitting values of the property specified by the key path.
 	public func values(forKeyPath keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
-			disposable += KeyValueObserver.observe(self,
-																						 keyPath: keyPath,
-																						 options: [.initial, .new],
-																						 action: observer.sendNext)
+			disposable += KeyValueObserver.observe(
+				self,
+				keyPath: keyPath,
+				options: [.initial, .new],
+				action: observer.sendNext
+			)
 			disposable += self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
@@ -38,10 +40,12 @@ internal final class KeyValueObserver: NSObject {
 
 		super.init()
 
-		object.addObserver(self,
-		                   forKeyPath: key,
-		                   options: options,
-		                   context: KeyValueObserver.context)
+		object.addObserver(
+			self,
+			forKeyPath: key,
+			options: options,
+			context: KeyValueObserver.context
+		)
 	}
 
 	func detach() {
@@ -128,10 +132,12 @@ extension KeyValueObserver {
 				}
 
 				// Recursively add observers along the key path tail.
-				let disposable = KeyValueObserver.observe(value,
-				                                          keyPath: keyPathTail,
-				                                          options: options.subtracting(.initial),
-				                                          action: action)
+				let disposable = KeyValueObserver.observe(
+					value,
+					keyPath: keyPathTail,
+					options: options.subtracting(.initial),
+					action: action
+				)
 				headDisposable += disposable
 
 				// Send the latest value of the key path tail.

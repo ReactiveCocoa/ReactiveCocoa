@@ -75,9 +75,13 @@ class KeyValueObservingSpec: QuickSpec {
 				let parentObject = NestedObservableObject()
 				var values: [Int] = []
 
-				parentObject.values(forKeyPath: "rac_object.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).intValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_object.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -101,9 +105,13 @@ class KeyValueObservingSpec: QuickSpec {
 				parentObject.rac_weakObject = innerObject
 
 				var values: [Int] = []
-				parentObject.values(forKeyPath: "rac_weakObject.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).intValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_weakObject.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -150,8 +158,10 @@ class KeyValueObservingSpec: QuickSpec {
 					testObject.values(forKeyPath: "rac_value")
 						.skip(first: 1)
 						.take(first: 1)
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -169,8 +179,10 @@ class KeyValueObservingSpec: QuickSpec {
 						.skip(first: 1)
 						.take(first: 1)
 						.observe(on: UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -186,8 +198,10 @@ class KeyValueObservingSpec: QuickSpec {
 
 					testObject.values(forKeyPath: "rac_value")
 						.observe(on: UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -229,8 +243,10 @@ class KeyValueObservingSpec: QuickSpec {
 						testObject.values(forKeyPath: "rac_value")
 							.skip(first: 1)
 							.observe(on: deliveringObserver)
+							.map { $0 as! NSNumber }
+							.map { $0.int64Value }
 							.startWithNext { value in
-								OSAtomicAdd64((value as! NSNumber).int64Value, &atomicCounter)
+								OSAtomicAdd64(value, &atomicCounter)
 							}
 					}
 
@@ -269,7 +285,9 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					let replayProducer = testObject.values(forKeyPath: "rac_value")
-						.map { wrappedInt in (wrappedInt as! NSNumber).intValue % 2 == 0 }
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.map { $0 % 2 == 0 }
 						.observe(on: otherScheduler)
 						.take(until: teardown)
 						.replayLazily(upTo: 1)

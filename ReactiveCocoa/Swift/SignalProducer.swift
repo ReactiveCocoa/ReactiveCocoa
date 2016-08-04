@@ -1696,21 +1696,13 @@ extension SignalProducerProtocol {
 			// have terminated.
 			disposable += { _ = lifetime }
 
-			var isReplaying = true
-
 			repeat {
-				var replayStatus: ReplayStatus<Value>!
+				do {
+					var token: RemovalToken?
+					try state.modify { state in
+						token = try state.observe(observer)
+					}
 
-				state.modify { state in
-					replayStatus = state.tryObserve(observer)
-				}
-
-				switch replayStatus! {
-				case let .replaying(values):
-					values.forEach(observer.sendNext)
-
-				case let .observing(token):
-					isReplaying = false
 					if let token = token {
 						disposable += {
 							state.modify { state in
@@ -1718,11 +1710,18 @@ extension SignalProducerProtocol {
 							}
 						}
 					}
-				}
-			} while isReplaying
 
-			// Start the underlying producer if it has never been started.
-			bootstrap.dispose()
+					// Start the underlying producer if it has never been started.
+					bootstrap.dispose()
+
+					// Terminate the replay loop.
+					return
+				} catch ReplayError<Value>.pending(let values) {
+					values.forEach(observer.sendNext)
+				} catch let error {
+					preconditionFailure("Unexpected error: \(error).")
+				}
+			} while true
 		}
 	}
 }
@@ -1733,9 +1732,8 @@ private final class ReplayBuffer<Value> {
 	private var values: [Value] = []
 }
 
-private enum ReplayStatus<Value> {
-	case observing(removalToken: RemovalToken?)
-	case replaying(values: [Value])
+private enum ReplayError<Value>: Error {
+	case pending(values: [Value])
 }
 
 private struct ReplayState<Value, Error: Swift.Error> {
@@ -1767,32 +1765,41 @@ private struct ReplayState<Value, Error: Swift.Error> {
 
 	/// Attempt to observe the replay state.
 	///
+	/// - warning: Repeatedly observing the replay state with the same observer
+	///            should be avoided.
+	///
 	/// - parameters:
 	///   - observer: The observer to be registered.
 	///
+	/// - throws:
+	///   `ReplayError.pending(values:)` if there are still one or more values
+	///   pending for being replayed by the observer.
+	///
 	/// - returns:
-	///   `replaying(values:)` if one or more values still have to be replayed, or
-	///   `observing(token:)` if the observer had completed the replaying phase
-	///   and has started the observation.
-	mutating func tryObserve(_ observer: Signal<Value, Error>.Observer) -> ReplayStatus<Value> {
+	///   The removal token of the observer, or `nil` if the replay state has
+	///   already terminated.
+	mutating func observe(_ observer: Signal<Value, Error>.Observer) throws -> RemovalToken? {
+		// The only use case is in `replayLazily` which has always a unique observer
+		// created for each produced signal. So we can use the ObjectIdentifier to
+		// track them directly.
 		let id = ObjectIdentifier(observer)
 
 		if let buffer = replayBuffers[id] {
 			if buffer.values.isEmpty {
 				replayBuffers.removeValue(forKey: id)
 				_ = terminationEvent.map(observer.action)
-				return .observing(removalToken: observers?.insert(observer))
+				return observers?.insert(observer)
 			} else {
 				defer { buffer.values.removeAll() }
-				return .replaying(values: buffer.values)
+				throw ReplayError<Value>.pending(values: buffer.values)
 			}
 		} else {
 			if values.isEmpty {
 				_ = terminationEvent.map(observer.action)
-				return .observing(removalToken: observers?.insert(observer))
+				return observers?.insert(observer)
 			} else {
 				replayBuffers[id] = ReplayBuffer<Value>()
-				return .replaying(values: values)
+				throw ReplayError<Value>.pending(values: values)
 			}
 		}
 	}

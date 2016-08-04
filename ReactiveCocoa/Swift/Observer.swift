@@ -9,7 +9,7 @@
 /// A protocol for type-constrained extensions of `Observer`.
 public protocol ObserverProtocol {
 	associatedtype Value
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 
 	/// Puts a `next` event into `self`.
 	func sendNext(_ value: Value)
@@ -26,7 +26,7 @@ public protocol ObserverProtocol {
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public class Observer<Value, Error: ErrorProtocol> {
+public class Observer<Value, Error: Swift.Error> {
 	public typealias Action = (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.
@@ -44,14 +44,19 @@ public class Observer<Value, Error: ErrorProtocol> {
 	/// An initializer that accepts closures for different event types.
 	///
 	/// - parameters:
+	///   - next: Optional closure executed when a `next` event is observed.
 	///   - failed: Optional closure that accepts an `Error` parameter when a
 	///             failed event is observed.
 	///   - completed: Optional closure executed when a `completed` event is
 	///                observed.
 	///   - interruped: Optional closure executed when an `interrupted` event is
 	///                 observed.
-	///   - next: Optional closure executed when a `next` event is observed.
-	public convenience init(failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) {
+	public convenience init(
+		next: ((Value) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil
+	) {
 		self.init { event in
 			switch event {
 			case let .next(value):
@@ -76,7 +81,7 @@ extension Observer: Hashable {
 	}
 }
 
-public func ==<Value, Error: ErrorProtocol>(left: Observer<Value, Error>, right: Observer<Value, Error>) -> Bool {
+public func ==<Value, Error: Swift.Error>(left: Observer<Value, Error>, right: Observer<Value, Error>) -> Bool {
 	return left === right
 }
 

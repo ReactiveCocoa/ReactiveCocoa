@@ -868,7 +868,7 @@ class SignalProducerSpec: QuickSpec {
 
 				var numbers = [Int]()
 
-				let producer = baseProducer
+				_ = baseProducer
 					.on(started: { numbers.append(1) })
 					.on(started: { numbers.append(2) })
 					.on(started: { numbers.append(3) })
@@ -882,7 +882,7 @@ class SignalProducerSpec: QuickSpec {
 
 				var numbers = [Int]()
 
-				let producer = baseProducer
+				_ = baseProducer
 					.on(starting: { numbers.append(1) })
 					.on(starting: { numbers.append(2) })
 					.on(starting: { numbers.append(3) })
@@ -1664,9 +1664,9 @@ class SignalProducerSpec: QuickSpec {
 				let forwardingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
@@ -1674,9 +1674,9 @@ class SignalProducerSpec: QuickSpec {
 				let observingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				var result: Int?
@@ -1713,9 +1713,9 @@ class SignalProducerSpec: QuickSpec {
 				let forwardingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					forwardingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
@@ -1723,9 +1723,9 @@ class SignalProducerSpec: QuickSpec {
 				let observingScheduler: QueueScheduler
 
 				if #available(OSX 10.10, *) {
-					observingScheduler = QueueScheduler(name: "\(#file):\(#line)", qos: .default)
+					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				var result: Int?
@@ -1768,14 +1768,22 @@ class SignalProducerSpec: QuickSpec {
 				if #available(*, OSX 10.10) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<Int, NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, flags: []) {
+
+				let globalQueue: DispatchQueue
+				if #available(*, OSX 10.10) {
+					globalQueue = DispatchQueue.global()
+				} else {
+					globalQueue = DispatchQueue.global(priority: .default)
+				}
+
+				globalQueue.async(group: group, flags: []) {
 					result = producer.last()
 				}
 				expect(result).to(beNil())
@@ -1813,16 +1821,25 @@ class SignalProducerSpec: QuickSpec {
 				if #available(*, OSX 10.10) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<(), NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, flags: []) {
+
+				let globalQueue: DispatchQueue
+				if #available(*, OSX 10.10) {
+					globalQueue = DispatchQueue.global()
+				} else {
+					globalQueue = DispatchQueue.global(priority: .default)
+				}
+
+				globalQueue.async(group: group, flags: []) {
 					result = producer.wait()
 				}
+
 				expect(result).to(beNil())
 
 				observer.sendCompleted()
@@ -1864,7 +1881,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				// Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.
@@ -2183,10 +2200,9 @@ class SignalProducerSpec: QuickSpec {
 					let producer1: SignalProducer<Int, NoError> = SignalProducer.empty
 					let producer2: SignalProducer<Int, NoError> = SignalProducer.empty
 
-					let producer = SignalProducer(values: [producer1, producer2])
+					// This expression verifies at compile time that the type is as expected.
+					let _: SignalProducer<Int, NoError> = SignalProducer(values: [producer1, producer2])
 						.flatten(.merge)
-
-					expect(producer is SignalProducer<Int, NoError>) == true
 				}
 			}
 		}

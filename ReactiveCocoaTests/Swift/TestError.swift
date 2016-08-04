@@ -15,7 +15,7 @@ enum TestError: Int {
 	case error2 = 2
 }
 
-extension TestError: ErrorProtocol {
+extension TestError: Error {
 }
 
 

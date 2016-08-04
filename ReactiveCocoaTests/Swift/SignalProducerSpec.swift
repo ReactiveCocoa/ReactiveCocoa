@@ -1666,7 +1666,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
@@ -1676,7 +1676,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				var result: Int?
@@ -1715,7 +1715,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					forwardingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					forwardingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: forwardingScheduler))
@@ -1725,7 +1725,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					observingScheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
 				} else {
-					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					observingScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				var result: Int?
@@ -1768,14 +1768,22 @@ class SignalProducerSpec: QuickSpec {
 				if #available(*, OSX 10.10) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<Int, NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, flags: []) {
+
+				let globalQueue: DispatchQueue
+				if #available(*, OSX 10.10) {
+					globalQueue = DispatchQueue.global()
+				} else {
+					globalQueue = DispatchQueue.global(priority: .default)
+				}
+
+				globalQueue.async(group: group, flags: []) {
 					result = producer.last()
 				}
 				expect(result).to(beNil())
@@ -1813,16 +1821,25 @@ class SignalProducerSpec: QuickSpec {
 				if #available(*, OSX 10.10) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 				let producer = SignalProducer(signal: _signal.delay(0.1, on: scheduler))
 
 				var result: Result<(), NoError>?
 
 				let group = DispatchGroup()
-				DispatchQueue.global().async(group: group, flags: []) {
+
+				let globalQueue: DispatchQueue
+				if #available(*, OSX 10.10) {
+					globalQueue = DispatchQueue.global()
+				} else {
+					globalQueue = DispatchQueue.global(priority: .default)
+				}
+
+				globalQueue.async(group: group, flags: []) {
 					result = producer.wait()
 				}
+
 				expect(result).to(beNil())
 
 				observer.sendCompleted()
@@ -1864,7 +1881,7 @@ class SignalProducerSpec: QuickSpec {
 				if #available(OSX 10.10, *) {
 					scheduler = QueueScheduler(name: "\(#file):\(#line)")
 				} else {
-					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)", attributes: [.serial]))
+					scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 				}
 
 				// Delaying producer1 from sending a value to test whether producer2 is started in the mean-time.

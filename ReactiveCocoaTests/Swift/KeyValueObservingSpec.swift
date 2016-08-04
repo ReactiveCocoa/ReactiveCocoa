@@ -216,23 +216,25 @@ class KeyValueObservingSpec: QuickSpec {
 				}
 
 				it("attach observers") {
-					let deliveringObserver = QueueScheduler()
+					let deliveringObserver: QueueScheduler
+					if #available(*, OSX 10.10) {
+						deliveringObserver = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						deliveringObserver = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
+
 					var atomicCounter = Int64(0)
 
-					iterationQueue.async {
-						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
-							testObject.values(forKeyPath: "rac_value")
-								.skip(first: 1)
-								.observe(on: deliveringObserver)
-								.startWithNext { value in
-									OSAtomicAdd64((value as! NSNumber).int64Value, &atomicCounter)
-								}
-						}
+					DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+						testObject.values(forKeyPath: "rac_value")
+							.skip(first: 1)
+							.observe(on: deliveringObserver)
+							.startWithNext { value in
+								OSAtomicAdd64((value as! NSNumber).int64Value, &atomicCounter)
+							}
 					}
 
-					iterationQueue.async(flags: .barrier) {
-						testObject.rac_value = 2
-					}
+					testObject.rac_value = 2
 
 					expect(atomicCounter).toEventually(equal(10000), timeout: 30.0)
 				}
@@ -247,7 +249,7 @@ class KeyValueObservingSpec: QuickSpec {
 							serialDisposable.innerDisposable = disposable
 
 							concurrentQueue.async {
-								testObject.rac_value = index;
+								testObject.rac_value = index
 							}
 						}
 					}
@@ -259,7 +261,12 @@ class KeyValueObservingSpec: QuickSpec {
 
 				it("async disposal of signal with in-flight changes") {
 					let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
-					let otherScheduler = QueueScheduler()
+					let otherScheduler: QueueScheduler
+					if #available(*, OSX 10.10) {
+						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
 
 					let replayProducer = testObject.values(forKeyPath: "rac_value")
 						.map { wrappedInt in (wrappedInt as! NSNumber).intValue % 2 == 0 }

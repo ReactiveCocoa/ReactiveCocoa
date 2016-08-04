@@ -938,7 +938,7 @@ class SignalSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect { values in values.reduce(0, combine: +) == 10 }
+				let signal = original.collect { values in values.reduce(0, +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],

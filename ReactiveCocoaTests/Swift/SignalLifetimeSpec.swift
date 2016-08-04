@@ -60,8 +60,6 @@ class SignalLifetimeSpec: QuickSpec {
 					return signal
 				}()
 
-
-
 				expect(errored) == false
 				expect(signal).toNot(beNil())
 
@@ -108,7 +106,6 @@ class SignalLifetimeSpec: QuickSpec {
 					signal.observeInterrupted { interrupted = true }
 					return signal
 				}()
-
 
 				expect(interrupted) == false
 				expect(signal).toNot(beNil())

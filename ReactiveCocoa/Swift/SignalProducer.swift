@@ -15,7 +15,7 @@ import Result
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
-public struct SignalProducer<Value, Error: ErrorProtocol> {
+public struct SignalProducer<Value, Error: Swift.Error> {
 	public typealias ProducedSignal = Signal<Value, Error>
 
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
@@ -209,7 +209,7 @@ public protocol SignalProducerProtocol {
 	associatedtype Value
 	/// The type of error that can occur on the producer. If errors aren't possible
 	/// then `NoError` can be used.
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 
 	/// Extracts a signal producer from the receiver.
 	var producer: SignalProducer<Value, Error> { get }
@@ -659,25 +659,7 @@ extension SignalProducerProtocol {
 	/// - returns: A producer that, when started, will yield a tuple containing
 	///            values of `self` and given producer.
 	public func combineLatest<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		// This should be the implementation of this method:
-		// return liftRight(Signal.combineLatestWith)(otherProducer)
-		//
-		// However, due to a Swift miscompilation (with `-O`) we need to inline `liftRight` here.
-		// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/2751 for more details.
-		//
-		// This can be reverted once tests with -O don't crash. 
-
-		return SignalProducer { observer, outerDisposable in
-			self.startWithSignal { signal, disposable in
-				outerDisposable.add(disposable)
-
-				other.startWithSignal { otherSignal, otherDisposable in
-					outerDisposable += otherDisposable
-
-					signal.combineLatest(with: otherSignal).observe(observer)
-				}
-			}
-		}
+		return liftLeft(Signal.combineLatest)(other)
 	}
 
 	/// Combine the latest value of the receiver with the latest value from
@@ -811,6 +793,18 @@ extension SignalProducerProtocol {
 	///            interrupted.
 	public func sample(on sampler: Signal<(), NoError>) -> SignalProducer<Value, Error> {
 		return lift(Signal.sample(on:))(sampler)
+	}
+
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned producer will complete.
+	///
+	/// - parameters:
+	///   - lifetime: A lifetime whose `ended` signal will cause the returned
+	///               producer to complete.
+	///
+	/// - returns: A producer that will deliver events until `lifetime` ends.
+	public func take(during lifetime: Lifetime) -> SignalProducer<Value, Error> {
+		return take(until: lifetime.ended)
 	}
 
 	/// Forward events from `self` until `trigger` sends a `next` or `completed`
@@ -1021,7 +1015,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that sends tuples of `self` and `otherProducer`.
 	public func zip<U>(with other: SignalProducer<U, Error>) -> SignalProducer<(Value, U), Error> {
-		return liftRight(Signal.zip(with:))(other)
+		return liftLeft(Signal.zip(with:))(other)
 	}
 
 	/// Zip elements of this producer and a signal into pairs. The elements of
@@ -1155,8 +1149,32 @@ extension SignalProducerProtocol where Error == NoError {
 	///   - _ An `ErrorType`.
 	///
 	/// - returns: A producer that has an instantiatable `ErrorType`.
-	public func promoteErrors<F: ErrorProtocol>(_: F.Type) -> SignalProducer<Value, F> {
+	public func promoteErrors<F: Swift.Error>(_: F.Type) -> SignalProducer<Value, F> {
 		return lift { $0.promoteErrors(F.self) }
+	}
+
+	/// Forward events from `self` until `interval`. Then if producer isn't
+	/// completed yet, fails with `error` on `scheduler`.
+	///
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The producer must complete synchronously (or on a faster
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - error: Error to send with `failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A producer that sends events for at most `interval` seconds,
+	///            then, if not `completed` - sends `error` with `failed` event
+	///            on `scheduler`.
+	public func timeout<NewError: Swift.Error>(
+		after interval: TimeInterval,
+		raising error: NewError,
+		on scheduler: DateSchedulerProtocol
+	) -> SignalProducer<Value, NewError> {
+		return lift { $0.timeout(after: interval, raising: error, on: scheduler) }
 	}
 }
 
@@ -1206,22 +1224,38 @@ extension SignalProducerProtocol where Value: Hashable {
 extension SignalProducerProtocol {
 	/// Injects side effects to be performed upon the specified producer events.
 	///
+	/// - note: In a composed producer, `starting` is invoked in the reverse
+	///         direction of the flow of events.
+	///
 	/// - parameters:
-	///   - started: A closrure that is invoked when producer is started.
+	///   - starting: A closure that is invoked before the producer is started.
+	///   - started: A closure that is invoked after the producer is started.
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
+	///   - next: A closure that accepts a value from `next` event.
 	///   - failed: A closure that accepts error object and is invoked for
 	///             `failed` event.
 	///   - completed: A closure that is invoked for `completed` event.
 	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A producer with attached side-effects for given event cases.
-	public func on(started: (() -> Void)? = nil, event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> SignalProducer<Value, Error> {
+	public func on(
+		starting: (() -> Void)? = nil,
+		started: (() -> Void)? = nil,
+		event: ((Event<Value, Error>) -> Void)? = nil,
+		next: ((Value) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil,
+		terminated: (() -> Void)? = nil,
+		disposed: (() -> Void)? = nil
+	) -> SignalProducer<Value, Error> {
 		return SignalProducer { observer, compositeDisposable in
-			started?()
+			starting?()
+			defer { started?() }
+
 			self.startWithSignal { signal, disposable in
 				compositeDisposable += disposable
 				compositeDisposable += signal
@@ -1643,23 +1677,23 @@ extension SignalProducerProtocol {
 		var producer: SignalProducer<Value, Error>?
 		var producerObserver: SignalProducer<Value, Error>.ProducedSignal.Observer?
 
-		let lock = Lock()
+		let lock = NSLock()
 		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.replayLazily"
 
 		// This will go "out of scope" when the returned `SignalProducer` goes
 		// out of scope. This lets us know when we're supposed to dispose the
 		// underlying producer. This is necessary because `struct`s don't have
 		// `deinit`.
-		let token = DeallocationToken()
+		let lifetime = Lifetime()
 
 		return SignalProducer { observer, disposable in
-			var token: DeallocationToken? = token
+			var lifetime: Lifetime? = lifetime
 			let initializedProducer: SignalProducer<Value, Error>
 			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
 			let shouldStartUnderlyingProducer: Bool
 
 			lock.lock()
-			if let producer = producer, producerObserver = producerObserver {
+			if let producer = producer, let producerObserver = producerObserver {
 				(initializedProducer, initializedObserver) = (producer, producerObserver)
 				shouldStartUnderlyingProducer = false
 			} else {
@@ -1676,22 +1710,14 @@ extension SignalProducerProtocol {
 			disposable += {
 				// Don't dispose of the original producer until all observers
 				// have terminated.
-				token = nil
+				lifetime = nil
 			}
 
 			if shouldStartUnderlyingProducer {
-				self.take(until: token!.deallocSignal)
+				self.take(during: lifetime!)
 					.start(initializedObserver)
 			}
 		}
-	}
-}
-
-private final class DeallocationToken {
-	let (deallocSignal, observer) = Signal<(), NoError>.pipe()
-
-	deinit {
-		observer.sendCompleted()
 	}
 }
 
@@ -1772,7 +1798,7 @@ private final class ReplayBuffer<Value> {
 	private var values: [Value] = []
 }
 
-private struct BufferState<Value, Error: ErrorProtocol> {
+private struct BufferState<Value, Error: Swift.Error> {
 	/// All values in the buffer.
 	var values: [Value] = []
 

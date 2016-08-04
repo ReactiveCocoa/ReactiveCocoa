@@ -11,6 +11,13 @@
 		02D2602B1C1D6DB8003ACC61 /* SignalLifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */; };
 		314304171ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */; };
+		4A0E10FF1D2A92720065D310 /* Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* Lifetime.swift */; };
+		4A0E11001D2A92720065D310 /* Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* Lifetime.swift */; };
+		4A0E11011D2A92720065D310 /* Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* Lifetime.swift */; };
+		4A0E11021D2A92720065D310 /* Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* Lifetime.swift */; };
+		4A0E11041D2A95200065D310 /* LifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E11031D2A95200065D310 /* LifetimeSpec.swift */; };
+		4A0E11051D2A95200065D310 /* LifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E11031D2A95200065D310 /* LifetimeSpec.swift */; };
+		4A0E11061D2A95200065D310 /* LifetimeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E11031D2A95200065D310 /* LifetimeSpec.swift */; };
 		579504331BB8A34200A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		579504341BB8A34300A5E482 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312EF19EF2A7700984962 /* BagSpec.swift */; };
 		57A4D1B11BA13D7A00F7D4B1 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
@@ -237,6 +244,13 @@
 		9ABCB1861D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
 		9ABCB1871D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
 		9ABCB1881D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */; };
+		9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
+		9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
+		9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
+		9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
+		9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
+		9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
+		9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		A1046B7A1BFF5661004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A1046B7B1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A1046B7C1BFF5662004D8045 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666719EDA57100A782A9 /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -897,6 +911,8 @@
 		02D260291C1D6DAF003ACC61 /* SignalLifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalLifetimeSpec.swift; sourceTree = "<group>"; };
 		314304151ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		314304161ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+RACSignalSupport.m"; sourceTree = "<group>"; };
+		4A0E10FE1D2A92720065D310 /* Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lifetime.swift; sourceTree = "<group>"; };
+		4A0E11031D2A95200065D310 /* LifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifetimeSpec.swift; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -907,6 +923,8 @@
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
+		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
+		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
@@ -1600,6 +1618,7 @@
 				C7142DBB1CDEA167009F402D /* CocoaAction.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
 				D85C65291C0D84C7005A77AD /* Flatten.swift */,
+				4A0E10FE1D2A92720065D310 /* Lifetime.swift */,
 				D08C54B01A69A2AC00AD8286 /* Property.swift */,
 				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
 				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
@@ -1619,6 +1638,7 @@
 			isa = PBXGroup;
 			children = (
 				D03B4A3C19F4C39A009E02AC /* FoundationExtensions.swift */,
+				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -1788,6 +1808,7 @@
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
 				CA6F284F1C52626B001879D2 /* FlattenSpec.swift */,
 				D8170FC01B100EBC004192AD /* FoundationExtensionsSpec.swift */,
+				4A0E11031D2A95200065D310 /* LifetimeSpec.swift */,
 				D0A226101A72F30B00D33B74 /* ObjectiveCBridgingSpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* PropertySpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
@@ -1797,6 +1818,7 @@
 				D0A226071A72E0E900D33B74 /* SignalSpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				C79B64731CD38B2B003F2376 /* TestLogger.swift */,
+				9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -2370,6 +2392,7 @@
 				57A4D1DC1BA13D7A00F7D4B1 /* RACCompoundDisposable.m in Sources */,
 				57A4D1DD1BA13D7A00F7D4B1 /* RACDelegateProxy.m in Sources */,
 				57A4D1DE1BA13D7A00F7D4B1 /* RACDisposable.m in Sources */,
+				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				EBCC7DBF1BBF01E200A2AE92 /* Observer.swift in Sources */,
 				57A4D1DF1BA13D7A00F7D4B1 /* RACDynamicSequence.m in Sources */,
 				C7142DBF1CDEA195009F402D /* CocoaAction.swift in Sources */,
@@ -2377,6 +2400,7 @@
 				57A4D1E11BA13D7A00F7D4B1 /* RACEagerSequence.m in Sources */,
 				C79B64801CD52E4E003F2376 /* EventLogger.swift in Sources */,
 				57D4768D1C42063C00EFE697 /* UIControl+RACSignalSupport.m in Sources */,
+				4A0E11021D2A92720065D310 /* Lifetime.swift in Sources */,
 				57A4D1E21BA13D7A00F7D4B1 /* RACEmptySequence.m in Sources */,
 				57A4D1E31BA13D7A00F7D4B1 /* RACEmptySignal.m in Sources */,
 				57A4D1E41BA13D7A00F7D4B1 /* RACErrorSignal.m in Sources */,
@@ -2445,6 +2469,7 @@
 				7DFBED391CDB8DE300EE435B /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				7DFBED3A1CDB8DE300EE435B /* NSObjectRACSelectorSignalSpec.m in Sources */,
 				7DFBED3B1CDB8DE300EE435B /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
+				4A0E11061D2A95200065D310 /* LifetimeSpec.swift in Sources */,
 				7DFBED3D1CDB8DE300EE435B /* NSUserDefaultsRACSupportSpec.m in Sources */,
 				7DFBED3E1CDB8DE300EE435B /* RACBlockTrampolineSpec.m in Sources */,
 				7DFBED401CDB8DE300EE435B /* RACChannelExamples.m in Sources */,
@@ -2459,6 +2484,7 @@
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				7DFBED4A1CDB8DE300EE435B /* RACKVOProxySpec.m in Sources */,
 				7DFBED4B1CDB8DE300EE435B /* RACKVOWrapperSpec.m in Sources */,
+				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
 				7DFBED4C1CDB8DE300EE435B /* RACMulticastConnectionSpec.m in Sources */,
 				7DFBED4E1CDB8DE300EE435B /* RACPropertySignalExamples.m in Sources */,
@@ -2567,6 +2593,7 @@
 				A9B3159C1B3940750001CB9C /* RACStringSequence.m in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				A9B3159D1B3940750001CB9C /* RACSubject.m in Sources */,
+				4A0E11011D2A92720065D310 /* Lifetime.swift in Sources */,
 				A9B3159E1B3940750001CB9C /* RACSubscriber.m in Sources */,
 				A9B3159F1B3940750001CB9C /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				A9B315A01B3940750001CB9C /* RACSubscriptionScheduler.m in Sources */,
@@ -2577,6 +2604,8 @@
 				A9B315A51B3940750001CB9C /* RACUnarySequence.m in Sources */,
 				A9B315A61B3940750001CB9C /* RACUnit.m in Sources */,
 				A9B315A71B3940750001CB9C /* RACValueTransformer.m in Sources */,
+				9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
+				A9B315BB1B3940750001CB9C /* RACDynamicPropertySuperclass.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2616,6 +2645,7 @@
 				D03765E819EDA41200A782A9 /* RACStringSequence.m in Sources */,
 				D03764EE19EDA41200A782A9 /* NSControl+RACCommandSupport.m in Sources */,
 				D08C54B31A69A2AE00AD8286 /* Signal.swift in Sources */,
+				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				D037660A19EDA41200A782A9 /* RACTupleSequence.m in Sources */,
 				D03765D419EDA41200A782A9 /* RACSignal.m in Sources */,
 				D037651A19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */,
@@ -2649,6 +2679,7 @@
 				D037659419EDA41200A782A9 /* RACImmediateScheduler.m in Sources */,
 				7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */,
 				D037651619EDA41200A782A9 /* NSObject+RACDeallocating.m in Sources */,
+				4A0E10FF1D2A92720065D310 /* Lifetime.swift in Sources */,
 				D0C312E719EF2A5800984962 /* Scheduler.swift in Sources */,
 				D0C312CD19EF2A5800984962 /* Atomic.swift in Sources */,
 				D037658419EDA41200A782A9 /* RACEmptySignal.m in Sources */,
@@ -2707,6 +2738,7 @@
 				CA6F28501C52626B001879D2 /* FlattenSpec.swift in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CD19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
+				4A0E11041D2A95200065D310 /* LifetimeSpec.swift in Sources */,
 				D037671519EDA60000A782A9 /* RACTupleSpec.m in Sources */,
 				D03766C519EDA60000A782A9 /* NSObjectRACLiftingSpec.m in Sources */,
 				D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
@@ -2721,6 +2753,7 @@
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
+				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				D0A226081A72E0E900D33B74 /* SignalSpec.swift in Sources */,
 				D0C3132219EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
 				02D2602B1C1D6DB8003ACC61 /* SignalLifetimeSpec.swift in Sources */,
@@ -2801,6 +2834,7 @@
 				D037665F19EDA41200A782A9 /* UITextField+RACSignalSupport.m in Sources */,
 				D037650F19EDA41200A782A9 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D03765FB19EDA41200A782A9 /* RACSubscriptionScheduler.m in Sources */,
+				4A0E11001D2A92720065D310 /* Lifetime.swift in Sources */,
 				D037658119EDA41200A782A9 /* RACEmptySequence.m in Sources */,
 				D0C312E019EF2A5800984962 /* ObjectiveCBridging.swift in Sources */,
 				D037654B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
@@ -2850,6 +2884,7 @@
 				D037661719EDA41200A782A9 /* RACValueTransformer.m in Sources */,
 				D03765CD19EDA41200A782A9 /* RACSequence.m in Sources */,
 				314304181ACA8B1E00595017 /* MKAnnotationView+RACSignalSupport.m in Sources */,
+				9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				D037652F19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
 				D037662719EDA41200A782A9 /* UIButton+RACCommandSupport.m in Sources */,
 				D037652719EDA41200A782A9 /* NSObject+RACPropertySubscribing.m in Sources */,
@@ -2917,6 +2952,7 @@
 				D03766D819EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D037670019EDA60000A782A9 /* RACStreamExamples.m in Sources */,
 				D03766CC19EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m in Sources */,
+				9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				D03766E219EDA60000A782A9 /* RACControlCommandExamples.m in Sources */,
 				D03766C019EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				D037670419EDA60000A782A9 /* RACSubjectSpec.m in Sources */,
@@ -2930,6 +2966,7 @@
 				D03766DA19EDA60000A782A9 /* RACChannelExamples.m in Sources */,
 				D03766F619EDA60000A782A9 /* RACSequenceExamples.m in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
+				4A0E11051D2A95200065D310 /* LifetimeSpec.swift in Sources */,
 				02D2602A1C1D6DAF003ACC61 /* SignalLifetimeSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3149,6 +3186,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3169,6 +3207,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3296,6 +3335,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3369,6 +3409,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class PosixThreadMutex: Locking {
+final class PosixThreadMutex: NSLocking {
 	private var mutex = pthread_mutex_t()
 
 	init() {
@@ -79,7 +79,7 @@ public final class Atomic<Value>: AtomicProtocol {
 
 /// An atomic variable which uses a recursive lock.
 internal final class RecursiveAtomic<Value>: AtomicProtocol {
-	private let lock: RecursiveLock
+	private let lock: NSRecursiveLock
 	private var _value: Value
 	private let didSetObserver: ((Value) -> Void)?
 
@@ -92,7 +92,7 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	///             value of `self` is mutated.
 	internal init(_ value: Value, name: StaticString? = nil, didSet action: ((Value) -> Void)? = nil) {
 		_value = value
-		lock = RecursiveLock()
+		lock = NSRecursiveLock()
 		lock.name = name.map(String.init(_:))
 		didSetObserver = action
 	}

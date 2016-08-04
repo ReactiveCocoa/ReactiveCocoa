@@ -85,7 +85,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 		}
 
 		describe("toRACSignal") {
-			let key = "TestKey"
+			let key = NSLocalizedDescriptionKey
 			let userInfo: [String: String] = [key: "TestValue"]
 			let testNSError = NSError(domain: "TestDomain", code: 1, userInfo: userInfo)
 			describe("on a Signal") {
@@ -119,7 +119,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = signal.toRACSignal()
 
 					let expectedError = TestError.error2
-					var error: NSError?
+					var error: Error?
 
 					racSignal.subscribeError {
 						error = $0
@@ -134,17 +134,16 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let (signal, observer) = Signal<AnyObject, NSError>.pipe()
 					let racSignal = signal.toRACSignal()
 					
-					var error: NSError?
+					var error: String?
 					
 					racSignal.subscribeError {
-						error = $0
+						error = $0?.localizedDescription
 						return
 					}
 					
 					observer.sendFailed(testNSError)
-					
-					let userInfoValue = error?.userInfo[key] as? String
-					expect(userInfoValue) == userInfo[key]
+
+					expect(error) == userInfo[key]
 				}
 			}
 
@@ -179,7 +178,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = producer.toRACSignal().materialize()
 					
 					let event = racSignal.first() as? RACEvent
-					let userInfoValue = event?.error.userInfo[key] as? String
+					let userInfoValue = event?.error?.localizedDescription
 					expect(userInfoValue) == userInfo[key]
 				}
 			}

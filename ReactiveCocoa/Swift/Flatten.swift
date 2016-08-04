@@ -409,7 +409,7 @@ extension SignalProducerProtocol {
 	}
 }
 
-private final class ConcatState<Value, Error: ErrorProtocol> {
+private final class ConcatState<Value, Error: Swift.Error> {
 	/// The observer of a started `concat` producer.
 	let observer: Observer<Value, Error>
 
@@ -425,7 +425,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	}
 
 	func enqueueSignalProducer(_ producer: SignalProducer<Value, Error>) {
-		if let d = disposable where d.isDisposed {
+		if let d = disposable, d.isDisposed {
 			return
 		}
 
@@ -444,7 +444,7 @@ private final class ConcatState<Value, Error: ErrorProtocol> {
 	}
 
 	func dequeueSignalProducer() -> SignalProducer<Value, Error>? {
-		if let d = disposable where d.isDisposed {
+		if let d = disposable, d.isDisposed {
 			return nil
 		}
 
@@ -703,7 +703,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 	}
 }
 
-private struct LatestState<Value, Error: ErrorProtocol> {
+private struct LatestState<Value, Error: Swift.Error> {
 	var outerSignalComplete: Bool = false
 	var innerSignalComplete: Bool = true
 	

@@ -17,7 +17,7 @@ import Result
 /// A Signal is kept alive until either of the following happens:
 ///    1. its input observer receives a terminating event; or
 ///    2. it has no active observers, and is not being retained.
-public final class Signal<Value, Error: ErrorProtocol> {
+public final class Signal<Value, Error: Swift.Error> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
 	/// The disposable returned by the signal generator. It would be disposed of
@@ -41,7 +41,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 		state = Atomic(SignalState())
 
 		/// Used to ensure that events are serialized during delivery to observers.
-		let sendLock = Lock()
+		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
 		/// When set to `true`, the Signal should interrupt as soon as possible.
@@ -175,7 +175,7 @@ public final class Signal<Value, Error: ErrorProtocol> {
 	}
 }
 
-private struct SignalState<Value, Error: ErrorProtocol> {
+private struct SignalState<Value, Error: Swift.Error> {
 	var observers: Bag<Signal<Value, Error>.Observer> = Bag()
 	var retainedSignal: Signal<Value, Error>?
 }
@@ -186,7 +186,7 @@ public protocol SignalProtocol {
 
 	/// The type of error that can occur on the signal. If errors aren't
 	/// possible then `NoError` can be used.
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 
 	/// Extracts a signal from the receiver.
 	var signal: Signal<Value, Error> { get }
@@ -622,7 +622,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalProtocol {
-	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: Lock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
+	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
 		return self.observe { event in
 			switch event {
 			case let .next(value):
@@ -670,7 +670,7 @@ extension SignalProtocol {
 	///            and given signal.
 	public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
-			let lock = Lock()
+			let lock = NSLock()
 			lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
 
 			let signalState = CombineLatestState<Value>()
@@ -741,7 +741,7 @@ extension SignalProtocol {
 			var skipped = 0
 
 			return self.observe { event in
-				if case .next = event where skipped < count {
+				if case .next = event, skipped < count {
 					skipped += 1
 				} else {
 					observer.action(event)
@@ -813,16 +813,24 @@ extension SignalProtocol {
 	/// - parameters:
 	///   - event: A closure that accepts an event and is invoked on every
 	///            received event.
+	///   - next: A closure that accepts a value from `next` event.
 	///   - failed: A closure that accepts error object and is invoked for
 	///             failed event.
 	///   - completed: A closure that is invoked for `completed` event.
 	///   - interrupted: A closure that is invoked for `interrupted` event.
 	///   - terminated: A closure that is invoked for any terminating event.
 	///   - disposed: A closure added as disposable when signal completes.
-	///   - next: A closure that accepts a value from `next` event.
 	///
 	/// - returns: A signal with attached side-effects for given event cases.
-	public func on(event: ((Event<Value, Error>) -> Void)? = nil, failed: ((Error) -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, terminated: (() -> Void)? = nil, disposed: (() -> Void)? = nil, next: ((Value) -> Void)? = nil) -> Signal<Value, Error> {
+	public func on(
+		event: ((Event<Value, Error>) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil,
+		terminated: (() -> Void)? = nil,
+		disposed: (() -> Void)? = nil,
+		next: ((Value) -> Void)? = nil
+	) -> Signal<Value, Error> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
 
@@ -948,6 +956,18 @@ extension SignalProtocol {
 			.map { $0.0 }
 	}
 
+	/// Forwards events from `self` until `lifetime` ends, at which point the
+	/// returned signal will complete.
+	///
+	/// - parameters:
+	///   - lifetime: A lifetime whose `ended` signal will cause the returned
+	///               signal to complete.
+	///
+	/// - returns: A signal that will deliver events until `lifetime` ends.
+	public func take(during lifetime: Lifetime) -> Signal<Value, Error> {
+		return take(until: lifetime.ended)
+	}
+
 	/// Forward events from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal will complete.
 	///
@@ -975,7 +995,7 @@ extension SignalProtocol {
 			return disposable
 		}
 	}
-	
+
 	/// Do not forward any values from `self` until `trigger` sends a `next` or
 	/// `completed` event, at which point the returned signal behaves exactly
 	/// like `signal`.
@@ -1230,7 +1250,7 @@ extension SignalProtocol {
 	public func take(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
-				if let value = event.value where !predicate(value) {
+				if let value = event.value, !predicate(value) {
 					observer.sendCompleted()
 				} else {
 					observer.action(event)
@@ -1389,6 +1409,10 @@ extension SignalProtocol {
 	///         that value will be discarded and the returned signal will 
 	///         terminate immediately.
 	///
+	/// - note: If the device time changed backwords before previous date while
+	///         a value is being throttled, and if there is a new value sent,
+	///         the new value will be passed anyway.
+	///
 	/// - parameters:
 	///   - interval: Number of seconds to wait between sent values.
 	///   - scheduler: A scheduler to deliver events on.
@@ -1417,8 +1441,21 @@ extension SignalProtocol {
 				state.modify { state in
 					state.pendingValue = value
 
-					let proposedScheduleDate = state.previousDate?.addingTimeInterval(interval) ?? scheduler.currentDate
-					scheduleDate = (proposedScheduleDate as NSDate).laterDate(scheduler.currentDate)
+					let proposedScheduleDate: Date
+					if let previousDate = state.previousDate, previousDate.compare(scheduler.currentDate) != .orderedDescending {
+						proposedScheduleDate = previousDate.addingTimeInterval(interval)
+					} else {
+						proposedScheduleDate = scheduler.currentDate
+					}
+
+					switch proposedScheduleDate.compare(scheduler.currentDate) {
+					case .orderedAscending:
+						scheduleDate = scheduler.currentDate
+
+					case .orderedSame: fallthrough
+					case .orderedDescending:
+						scheduleDate = proposedScheduleDate
+					}
 				}
 
 				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
@@ -1741,7 +1778,7 @@ extension SignalProtocol where Error == NoError {
 	///   - _ An `ErrorType`.
 	///
 	/// - returns: A signal that has an instantiatable `ErrorType`.
-	public func promoteErrors<F: ErrorProtocol>(_: F.Type) -> Signal<Value, F> {
+	public func promoteErrors<F: Swift.Error>(_: F.Type) -> Signal<Value, F> {
 		return Signal { observer in
 			return self.observe { event in
 				switch event {
@@ -1756,5 +1793,31 @@ extension SignalProtocol where Error == NoError {
 				}
 			}
 		}
+	}
+
+	/// Forward events from `self` until `interval`. Then if signal isn't
+	/// completed yet, fails with `error` on `scheduler`.
+	///
+	/// - note: If the interval is 0, the timeout will be scheduled immediately.
+	///         The signal must complete synchronously (or on a faster
+	///         scheduler) to avoid the timeout.
+	///
+	/// - parameters:
+	///   - interval: Number of seconds to wait for `self` to complete.
+	///   - error: Error to send with `failed` event if `self` is not completed
+	///            when `interval` passes.
+	///   - scheudler: A scheduler to deliver error on.
+	///
+	/// - returns: A signal that sends events for at most `interval` seconds,
+	///            then, if not `completed` - sends `error` with `failed` event
+	///            on `scheduler`.
+	public func timeout<NewError: Swift.Error>(
+		after interval: TimeInterval,
+		raising error: NewError,
+		on scheduler: DateSchedulerProtocol
+	) -> Signal<Value, NewError> {
+		return self
+			.promoteErrors(NewError.self)
+			.timeout(after: interval, raising: error, on: scheduler)
 	}
 }

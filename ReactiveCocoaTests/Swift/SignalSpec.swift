@@ -938,7 +938,7 @@ class SignalSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = Signal<Int, NoError>.pipe()
 
-				let signal = original.collect { values in values.reduce(0, combine: +) == 10 }
+				let signal = original.collect { values in values.reduce(0, +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],
@@ -1279,9 +1279,21 @@ class SignalSpec: QuickSpec {
 				observer.sendNext(5)
 				scheduler.advance()
 				expect(values) == [ 0, 2, 3 ]
+				
+				scheduler.rewind(by: 2)
+				expect(values) == [ 0, 2, 3 ]
+				
+				observer.sendNext(6)
+				scheduler.advance()
+				expect(values) == [ 0, 2, 3, 6 ]
+				
+				observer.sendNext(7)
+				observer.sendNext(8)
+				scheduler.advance()
+				expect(values) == [ 0, 2, 3, 6 ]
 
 				scheduler.run()
-				expect(values) == [ 0, 2, 3, 5 ]
+				expect(values) == [ 0, 2, 3, 6, 8 ]
 			}
 
 			it("should schedule completion immediately") {
@@ -1879,6 +1891,13 @@ class SignalSpec: QuickSpec {
 				testScheduler.run()
 				expect(completed) == false
 				expect(errored) == true
+			}
+
+			it("should be available for NoError") {
+				let signal: Signal<Int, TestError> = Signal<Int, NoError>.never
+					.timeout(after: 2, raising: TestError.default, on: testScheduler)
+
+				_ = signal
 			}
 		}
 

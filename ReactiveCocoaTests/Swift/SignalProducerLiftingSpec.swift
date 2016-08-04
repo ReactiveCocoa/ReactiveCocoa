@@ -556,7 +556,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
-				let producer = original.collect { values in values.reduce(0, combine: +) == 10 }
+				let producer = original.collect { values in values.reduce(0, +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],
@@ -899,8 +899,20 @@ class SignalProducerLiftingSpec: QuickSpec {
 				scheduler.advance()
 				expect(values) == [ 0, 2, 3 ]
 
+				scheduler.rewind(by: 2)
+				expect(values) == [ 0, 2, 3 ]
+				
+				observer.sendNext(6)
+				scheduler.advance()
+				expect(values) == [ 0, 2, 3, 6 ]
+				
+				observer.sendNext(7)
+				observer.sendNext(8)
+				scheduler.advance()
+				expect(values) == [ 0, 2, 3, 6 ]
+				
 				scheduler.run()
-				expect(values) == [ 0, 2, 3, 5 ]
+				expect(values) == [ 0, 2, 3, 6, 8 ]
 			}
 
 			it("should schedule completion immediately") {
@@ -1412,6 +1424,13 @@ class SignalProducerLiftingSpec: QuickSpec {
 				testScheduler.run()
 				expect(completed) == false
 				expect(errored) == true
+			}
+
+			it("should be available for NoError") {
+				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, NoError>.never
+					.timeout(after: 2, raising: TestError.default, on: testScheduler)
+
+				_ = producer
 			}
 		}
 

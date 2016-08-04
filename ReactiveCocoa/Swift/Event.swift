@@ -10,7 +10,7 @@
 ///
 /// Signals must conform to the grammar:
 /// `Next* (Failed | Completed | Interrupted)?`
-public enum Event<Value, Error: ErrorProtocol> {
+public enum Event<Value, Error: Swift.Error> {
 	/// A value provided by the signal.
 	case next(Value)
 
@@ -153,7 +153,7 @@ public protocol EventProtocol {
 	associatedtype Value
 	/// The error type of an event. If errors aren't possible then `NoError` can
 	/// be used.
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 	/// Extracts the event from the receiver.
 	var event: Event<Value, Error> { get }
 }

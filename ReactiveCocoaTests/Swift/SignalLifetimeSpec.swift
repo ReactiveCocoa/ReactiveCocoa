@@ -149,6 +149,7 @@ class SignalLifetimeSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
+						// Note that the input observer has a weak reference to the signal.
 						observer.sendFailed(TestError.default)
 					}
 					signal.observeFailed { _ in errored = true }
@@ -174,6 +175,7 @@ class SignalLifetimeSpec: QuickSpec {
 					let (signal, observer) = Signal<(), TestError>.pipe()
 					weakSignal = signal
 					testScheduler.schedule {
+						// Note that the input observer has a weak reference to the signal.
 						observer.sendCompleted()
 					}
 					signal.observeCompleted { completed = true }
@@ -198,6 +200,7 @@ class SignalLifetimeSpec: QuickSpec {
 					weakSignal = signal
 
 					testScheduler.schedule {
+						// Note that the input observer has a weak reference to the signal.
 						observer.sendInterrupted()
 					}
 
@@ -251,15 +254,15 @@ class SignalLifetimeSpec: QuickSpec {
 
 				func run() {
 					_ = sourceSignal
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							firstCounter += 1
 							return value
 						}
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							secondCounter += 1
 							return value
 						}
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							thirdCounter += 1
 							return value
 						}
@@ -289,15 +292,15 @@ class SignalLifetimeSpec: QuickSpec {
 
 				func run() {
 					disposable = sourceSignal
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							firstCounter += 1
 							return value
 						}
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							secondCounter += 1
 							return value
 						}
-						.map { (value: Int) -> Int in
+						.map { value -> Int in
 							thirdCounter += 1
 							return value
 						}

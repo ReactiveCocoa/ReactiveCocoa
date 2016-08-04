@@ -5,6 +5,6 @@ public func scopedExample(_ exampleDescription: String, _ action: () -> Void) {
 	action()
 }
 
-public enum Error: ErrorProtocol {
+public enum PlaygroundError: Error {
 	case example(String)
 }

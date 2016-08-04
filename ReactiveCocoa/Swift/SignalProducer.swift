@@ -1734,7 +1734,7 @@ private final class ReplayBuffer<Value> {
 }
 
 private enum ReplayStatus<Value> {
-	case observing(token: RemovalToken?)
+	case observing(removalToken: RemovalToken?)
 	case replaying(values: [Value])
 }
 
@@ -1753,8 +1753,8 @@ private struct ReplayState<Value, Error: Swift.Error> {
 	/// caching producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
-	/// The set of in-flight replay buffers.
-	var replayBuffers: [Signal<Value, Error>.Observer: ReplayBuffer<Value>] = [:]
+	/// The set of in-flight replay tokens.
+	var replayBuffers: [ObjectIdentifier: ReplayBuffer<Value>] = [:]
 
 	/// Initialize the replay state.
 	///
@@ -1775,23 +1775,23 @@ private struct ReplayState<Value, Error: Swift.Error> {
 	///   `observing(token:)` if the observer had completed the replaying phase
 	///   and has started the observation.
 	mutating func tryObserve(_ observer: Signal<Value, Error>.Observer) -> ReplayStatus<Value> {
-		assert(!(observers?.contains(observer) ?? false), "Attempt to attach an active observer.")
+		let id = ObjectIdentifier(observer)
 
-		if let replayBuffer = replayBuffers[observer] {
-			if replayBuffer.values.isEmpty {
-				replayBuffers.removeValue(forKey: observer)
+		if let buffer = replayBuffers[id] {
+			if buffer.values.isEmpty {
+				replayBuffers.removeValue(forKey: id)
 				_ = terminationEvent.map(observer.action)
-				return .observing(token: observers?.insert(observer))
+				return .observing(removalToken: observers?.insert(observer))
 			} else {
-				defer { replayBuffer.values.removeAll() }
-				return .replaying(values: replayBuffer.values)
+				defer { buffer.values.removeAll() }
+				return .replaying(values: buffer.values)
 			}
 		} else {
 			if values.isEmpty {
 				_ = terminationEvent.map(observer.action)
-				return .observing(token: observers?.insert(observer))
+				return .observing(removalToken: observers?.insert(observer))
 			} else {
-				replayBuffers[observer] = ReplayBuffer()
+				replayBuffers[id] = ReplayBuffer<Value>()
 				return .replaying(values: values)
 			}
 		}

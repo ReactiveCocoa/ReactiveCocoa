@@ -26,7 +26,7 @@ public protocol ObserverProtocol {
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public class Observer<Value, Error: Swift.Error> {
+public final class Observer<Value, Error: Swift.Error> {
 	public typealias Action = (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.
@@ -73,16 +73,6 @@ public class Observer<Value, Error: Swift.Error> {
 			}
 		}
 	}
-}
-
-extension Observer: Hashable {
-	public var hashValue: Int {
-		return ObjectIdentifier(self).hashValue
-	}
-}
-
-public func ==<Value, Error: Swift.Error>(left: Observer<Value, Error>, right: Observer<Value, Error>) -> Bool {
-	return left === right
 }
 
 extension Observer: ObserverProtocol {

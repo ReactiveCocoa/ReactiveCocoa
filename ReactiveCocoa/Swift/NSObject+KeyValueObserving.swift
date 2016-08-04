@@ -116,7 +116,7 @@ extension KeyValueObserver {
 
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -145,7 +145,7 @@ extension KeyValueObserver {
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -249,7 +249,7 @@ internal struct PropertyAttributes {
 				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime
-				objectClass = objc_getClass(name) as? AnyClass
+				objectClass = objc_getClass(name) as! AnyClass?
 
 				name.deinitialize(count: length + 1)
 				name.deallocate(capacity: length + 1)

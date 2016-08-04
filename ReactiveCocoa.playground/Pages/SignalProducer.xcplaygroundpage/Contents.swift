@@ -77,9 +77,9 @@ scopedExample("`empty`") {
 	let emptyProducer = SignalProducer<Int, NoError>.empty
 
 	let observer = Observer<Int, NoError>(
+		next: { _ in print("next not called") },
 		failed: { _ in print("error not called") },
-		completed: { print("completed called") },
-		next: { _ in print("next not called") }
+		completed: { print("completed called") }
 	)
 
 	emptyProducer.start(observer)
@@ -93,9 +93,9 @@ scopedExample("`never`") {
 	let neverProducer = SignalProducer<Int, NoError>.never
 
 	let observer = Observer<Int, NoError>(
+		next: { _ in print("next not called") },
 		failed: { _ in print("error not called") },
-		completed: { print("completed not called") },
-		next: { _ in print("next not called") }
+		completed: { print("completed not called") }
 	)
 
 	neverProducer.start(observer)
@@ -251,7 +251,7 @@ Maps errors in the producer to a new error.
 */
 scopedExample("`mapError`") {
 	SignalProducer<Int, NSError>(error: NSError(domain: "mapError", code: 42, userInfo: nil))
-		.mapError { Error.example($0.description) }
+		.mapError { PlaygroundError.example($0.description) }
 		.startWithFailed { error in
 			print(error)
 		}
@@ -352,7 +352,7 @@ scopedExample("`collect(_:)` matching values inclusively") {
 		observer.sendNext(4)
 		observer.sendCompleted()
 	}
-		.collect { values in values.reduce(0, combine: +) == 3 }
+		.collect { values in values.reduce(0, +) == 3 }
 		.startWithNext { value in
 			print(value)
 		}

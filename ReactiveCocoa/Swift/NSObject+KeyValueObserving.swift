@@ -14,10 +14,12 @@ extension NSObject {
 	///   A producer emitting values of the property specified by the key path.
 	public func values(forKeyPath keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
-			disposable += KeyValueObserver.observe(self,
-																						 keyPath: keyPath,
-																						 options: [.initial, .new],
-																						 action: observer.sendNext)
+			disposable += KeyValueObserver.observe(
+				self,
+				keyPath: keyPath,
+				options: [.initial, .new],
+				action: observer.sendNext
+			)
 			disposable += self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
@@ -25,7 +27,7 @@ extension NSObject {
 
 internal final class KeyValueObserver: NSObject {
 	typealias Action = (object: AnyObject?) -> Void
-	private static let context = UnsafeMutablePointer<Void>(allocatingCapacity: 1)
+	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
 
 	unowned(unsafe) let unsafeObject: NSObject
 	let key: String
@@ -38,10 +40,12 @@ internal final class KeyValueObserver: NSObject {
 
 		super.init()
 
-		object.addObserver(self,
-		                   forKeyPath: key,
-		                   options: options,
-		                   context: KeyValueObserver.context)
+		object.addObserver(
+			self,
+			forKeyPath: key,
+			options: options,
+			context: KeyValueObserver.context
+		)
 	}
 
 	func detach() {
@@ -112,7 +116,7 @@ extension KeyValueObserver {
 
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -128,10 +132,12 @@ extension KeyValueObserver {
 				}
 
 				// Recursively add observers along the key path tail.
-				let disposable = KeyValueObserver.observe(value,
-				                                          keyPath: keyPathTail,
-				                                          options: options.subtracting(.initial),
-				                                          action: action)
+				let disposable = KeyValueObserver.observe(
+					value,
+					keyPath: keyPathTail,
+					options: options.subtracting(.initial),
+					action: action
+				)
 				headDisposable += disposable
 
 				// Send the latest value of the key path tail.
@@ -139,7 +145,7 @@ extension KeyValueObserver {
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -238,15 +244,15 @@ internal struct PropertyAttributes {
 
 			if className != UnsafePointer(next) {
 				let length = className.distance(to: next)
-				let name = UnsafeMutablePointer<Int8>(allocatingCapacity: length + 1)
-				name.initializeFrom(UnsafeMutablePointer<Int8>(className), count: length)
-				(name + length).initialize(with: Code.nul)
+				let name = UnsafeMutablePointer<Int8>.allocate(capacity: length + 1)
+				name.initialize(from: UnsafeMutablePointer<Int8>(className), count: length)
+				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime
-				objectClass = objc_getClass(name) as? AnyClass
+				objectClass = objc_getClass(name) as! AnyClass?
 
 				name.deinitialize(count: length + 1)
-				name.deallocateCapacity(length + 1)
+				name.deallocate(capacity: length + 1)
 			}
 		}
 
@@ -255,11 +261,11 @@ internal struct PropertyAttributes {
 			next = strchr(next, Int32(Code.comma))
 		}
 
-		let emptyString = UnsafeMutablePointer<Int8>(allocatingCapacity: 1)
-		emptyString.initialize(with: Code.nul)
+		let emptyString = UnsafeMutablePointer<Int8>.allocate(capacity: 1)
+		emptyString.initialize(to: Code.nul)
 		defer {
 			emptyString.deinitialize()
-			emptyString.deallocateCapacity(1)
+			emptyString.deallocate(capacity: 1)
 		}
 
 		var isWeak = false
@@ -315,9 +321,9 @@ internal struct PropertyAttributes {
 				}
 
 			default:
-				let pointer = UnsafeMutablePointer<Int8>(allocatingCapacity: 2)
-				pointer.initialize(with: flag)
-				(pointer + 1).initialize(with: Code.nul)
+				let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 2)
+				pointer.initialize(to: flag)
+				(pointer + 1).initialize(to: Code.nul)
 
 				let flag = String(validatingUTF8: pointer)
 				let string = String(validatingUTF8: attrString)

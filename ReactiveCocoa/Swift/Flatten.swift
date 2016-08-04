@@ -409,7 +409,7 @@ extension SignalProducerProtocol {
 	}
 }
 
-private final class ConcatState<Value, Error: ErrorProtocol> {
+private final class ConcatState<Value, Error: Swift.Error> {
 	/// The observer of a started `concat` producer.
 	let observer: Observer<Value, Error>
 
@@ -703,7 +703,7 @@ extension SignalProducerProtocol where Value: SignalProducerProtocol, Error == V
 	}
 }
 
-private struct LatestState<Value, Error: ErrorProtocol> {
+private struct LatestState<Value, Error: Swift.Error> {
 	var outerSignalComplete: Bool = false
 	var innerSignalComplete: Bool = true
 	

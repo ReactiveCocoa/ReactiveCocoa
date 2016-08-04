@@ -82,10 +82,10 @@ scopedExample("`empty`") {
 	let emptySignal = Signal<Int, NoError>.empty
 
 	let observer = Observer<Int, NoError>(
+		next: { _ in print("next not called") },
 		failed: { _ in print("error not called") },
 		completed: { print("completed not called") },
-		interrupted: { print("interrupted called") },
-		next: { _ in print("next not called") }
+		interrupted: { print("interrupted called") }
 	)
 
 	emptySignal.observe(observer)
@@ -99,10 +99,10 @@ scopedExample("`never`") {
 	let neverSignal = Signal<Int, NoError>.never
 
 	let observer = Observer<Int, NoError>(
+		next: { _ in print("next not called") },
 		failed: { _ in print("error not called") },
 		completed: { print("completed not called") },
-		interrupted: { print("interrupted not called") },
-		next: { _ in print("next not called") }
+		interrupted: { print("interrupted not called") }
 	)
 
 	neverSignal.observe(observer)

@@ -75,9 +75,13 @@ class KeyValueObservingSpec: QuickSpec {
 				let parentObject = NestedObservableObject()
 				var values: [Int] = []
 
-				parentObject.values(forKeyPath: "rac_object.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).intValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_object.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -101,9 +105,13 @@ class KeyValueObservingSpec: QuickSpec {
 				parentObject.rac_weakObject = innerObject
 
 				var values: [Int] = []
-				parentObject.values(forKeyPath: "rac_weakObject.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).intValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_weakObject.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -150,8 +158,10 @@ class KeyValueObservingSpec: QuickSpec {
 					testObject.values(forKeyPath: "rac_value")
 						.skip(first: 1)
 						.take(first: 1)
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -169,8 +179,10 @@ class KeyValueObservingSpec: QuickSpec {
 						.skip(first: 1)
 						.take(first: 1)
 						.observe(on: UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -186,8 +198,10 @@ class KeyValueObservingSpec: QuickSpec {
 
 					testObject.values(forKeyPath: "rac_value")
 						.observe(on: UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).intValue
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
 						}
 
 					concurrentQueue.async {
@@ -216,23 +230,27 @@ class KeyValueObservingSpec: QuickSpec {
 				}
 
 				it("attach observers") {
-					let deliveringObserver = QueueScheduler()
+					let deliveringObserver: QueueScheduler
+					if #available(*, OSX 10.10) {
+						deliveringObserver = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						deliveringObserver = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
+
 					var atomicCounter = Int64(0)
 
-					iterationQueue.async {
-						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
-							testObject.values(forKeyPath: "rac_value")
-								.skip(first: 1)
-								.observe(on: deliveringObserver)
-								.startWithNext { value in
-									OSAtomicAdd64((value as! NSNumber).int64Value, &atomicCounter)
-								}
-						}
+					DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+						testObject.values(forKeyPath: "rac_value")
+							.skip(first: 1)
+							.observe(on: deliveringObserver)
+							.map { $0 as! NSNumber }
+							.map { $0.int64Value }
+							.startWithNext { value in
+								OSAtomicAdd64(value, &atomicCounter)
+							}
 					}
 
-					iterationQueue.async(flags: .barrier) {
-						testObject.rac_value = 2
-					}
+					testObject.rac_value = 2
 
 					expect(atomicCounter).toEventually(equal(10000), timeout: 30.0)
 				}
@@ -247,7 +265,7 @@ class KeyValueObservingSpec: QuickSpec {
 							serialDisposable.innerDisposable = disposable
 
 							concurrentQueue.async {
-								testObject.rac_value = index;
+								testObject.rac_value = index
 							}
 						}
 					}
@@ -259,10 +277,17 @@ class KeyValueObservingSpec: QuickSpec {
 
 				it("async disposal of signal with in-flight changes") {
 					let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
-					let otherScheduler = QueueScheduler()
+					let otherScheduler: QueueScheduler
+					if #available(*, OSX 10.10) {
+						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
 
 					let replayProducer = testObject.values(forKeyPath: "rac_value")
-						.map { wrappedInt in (wrappedInt as! NSNumber).intValue % 2 == 0 }
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.map { $0 % 2 == 0 }
 						.observe(on: otherScheduler)
 						.take(until: teardown)
 						.replayLazily(upTo: 1)

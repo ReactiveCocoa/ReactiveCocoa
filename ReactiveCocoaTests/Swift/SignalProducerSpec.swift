@@ -868,7 +868,7 @@ class SignalProducerSpec: QuickSpec {
 
 				var numbers = [Int]()
 
-				let producer = baseProducer
+				_ = baseProducer
 					.on(started: { numbers.append(1) })
 					.on(started: { numbers.append(2) })
 					.on(started: { numbers.append(3) })
@@ -882,7 +882,7 @@ class SignalProducerSpec: QuickSpec {
 
 				var numbers = [Int]()
 
-				let producer = baseProducer
+				_ = baseProducer
 					.on(starting: { numbers.append(1) })
 					.on(starting: { numbers.append(2) })
 					.on(starting: { numbers.append(3) })

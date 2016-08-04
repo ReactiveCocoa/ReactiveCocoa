@@ -9,7 +9,7 @@
 /// A protocol for type-constrained extensions of `Observer`.
 public protocol ObserverProtocol {
 	associatedtype Value
-	associatedtype Error: ErrorProtocol
+	associatedtype Error: Swift.Error
 
 	/// Puts a `next` event into `self`.
 	func sendNext(_ value: Value)
@@ -26,7 +26,7 @@ public protocol ObserverProtocol {
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public struct Observer<Value, Error: ErrorProtocol> {
+public struct Observer<Value, Error: Swift.Error> {
 	public typealias Action = (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.

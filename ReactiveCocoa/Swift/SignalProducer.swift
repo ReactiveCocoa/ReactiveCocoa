@@ -1752,7 +1752,7 @@ private struct ReplayState<Value, Error: ErrorProtocol> {
 	/// All cached values.
 	var values: [Value] = []
 
-	/// A terminating event emitted by the underlying producer.
+	/// A termination event emitted by the underlying producer.
 	///
 	/// This will be nil if termination has not occurred.
 	var terminationEvent: Event<Value, Error>?
@@ -1761,9 +1761,14 @@ private struct ReplayState<Value, Error: ErrorProtocol> {
 	/// caching producer was terminated.
 	var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
 
-	/// The set of unused replay token identifiers.
+	/// The set of in-flight replay buffers.
 	var replayBuffers: [Signal<Value, Error>.Observer: ReplayBuffer<Value>] = [:]
 
+	/// Initialize the replay state.
+	///
+	/// - parameters:
+	///   - capacity: The maximum amount of values which can be cached by the
+	///               replay state.
 	init(upTo capacity: Int) {
 		self.capacity = capacity
 	}
@@ -1771,7 +1776,7 @@ private struct ReplayState<Value, Error: ErrorProtocol> {
 	/// Attempt to observe the replay state.
 	///
 	/// - parameters:
-	///   - observer: The observer to register.
+	///   - observer: The observer to be registered.
 	///
 	/// - returns:
 	///   `replaying(values:)` if one or more values still have to be replayed, or
@@ -1837,7 +1842,7 @@ private struct ReplayState<Value, Error: ErrorProtocol> {
 	/// Broadcast the event to all observers.
 	///
 	/// - parameter:
-	///   - event: The event to be broadcasted.
+	///   - event: The event to be broadcast.
 	func broadcast(_ event: Event<Value, Error>) {
 		observers?.forEach { $0.action(event) }
 	}

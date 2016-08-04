@@ -34,6 +34,20 @@ class SignalLifetimeSpec: QuickSpec {
 				expect(signal).to(beNil())
 			}
 
+			it("should deallocate if no one retains it") {
+				var signal: Signal<AnyObject, NoError>? = Signal { _ in nil }
+				weak var weakSignal = signal
+
+				expect(weakSignal).toNot(beNil())
+
+				var reference = signal
+				signal = nil
+				expect(weakSignal).toNot(beNil())
+
+				reference = nil
+				expect(weakSignal).to(beNil())
+			}
+
 			it("should deallocate even if the generator observer is retained") {
 				var observer: Signal<AnyObject, NoError>.Observer?
 

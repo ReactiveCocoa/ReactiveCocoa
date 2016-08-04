@@ -556,7 +556,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 			it("should collect values until it matches a certain condition on values") {
 				let (original, observer) = SignalProducer<Int, NoError>.pipe()
 
-				let producer = original.collect { values in values.reduce(0, combine: +) == 10 }
+				let producer = original.collect { values in values.reduce(0, +) == 10 }
 
 				var expectedValues = [
 					[1, 2, 3, 4],

@@ -662,15 +662,20 @@ scopedExample("`then`") {
 }
 
 /*:
-### `replayLazily(upTo:)`
+### `replay(upTo:)` and `replay(upTo:startsLazily:)`
 Creates a new `SignalProducer` that will multicast values emitted by
 the underlying producer, up to `capacity`.
 This means that all clients of this `SignalProducer` will see the same version
 of the emitted values/errors.
 
-The underlying `SignalProducer` will not be started until `self` is started
-for the first time. When subscribing to this producer, all previous values
-(up to `capacity`) will be emitted, followed by any new values.
+By default, the underlying `SignalProducer` will not be started until
+`self` is started for the first time. When subscribing to this producer,
+all previous values (up to `capacity`) will be emitted, followed by any
+new values. You may specify `startLazily` to be `false` if you intend
+to have it started immediately.
+
+Note that the underlying producer would be retained until it is started
+for the first time.
 
 If you find yourself needing *the current value* (the last buffered value)
 you should consider using `PropertyType` instead, which, unlike this operator,
@@ -682,12 +687,10 @@ a `Signal` instead.
 
 This operator is only recommended when you absolutely need to introduce
 a layer of caching in front of another `SignalProducer`.
-
-This operator has the same semantics as `SignalProducer.buffer`.
 */
-scopedExample("`replayLazily(upTo:)`") {
+scopedExample("`replay(upTo:)`") {
 	let baseProducer = SignalProducer<Int, NoError>(values: [ 1, 2, 3, 4, 42 ])
-		.replayLazily(upTo: 2)
+		.replay(upTo: 2)
 
 	baseProducer.startWithNext { value in
 		print(value)

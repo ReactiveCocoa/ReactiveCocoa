@@ -484,7 +484,7 @@ public final class Property<Value>: PropertyProtocol {
 		// Share a replayed producer with `self.producer` and `self.signal` so
 		// they see a consistent view of the `self.value`.
 		// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
-		let producer = unsafeProducer.replayLazily(upTo: 1)
+		let producer = unsafeProducer.replay(upTo: 1)
 		
 		// Verify that an initial is sent. This is friendlier than deadlocking
 		// in the event that one isn't.

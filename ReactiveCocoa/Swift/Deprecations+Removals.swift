@@ -210,6 +210,9 @@ extension SignalProducerProtocol {
 	@available(*, unavailable, renamed:"timeout(after:raising:on:)")
 	public func timeoutWithError(_ error: Error, afterInterval: TimeInterval, onScheduler: SchedulerProtocol) -> SignalProducer<Value, Error> { fatalError() }
 
+	@available(*, unavailable, renamed:"replay(upTo:)")
+	public func replayLazily(upTo capacity: Int) -> SignalProducer<Value, Error> { fatalError() }
+
 	@available(*, unavailable, message:"This SignalProducer may emit errors which must be handled explicitly, or observed using `startWithResult(_:)`.")
 	public func startWithNext(_ next: (Value) -> Void) -> Disposable { fatalError() }
 }

@@ -290,7 +290,7 @@ class KeyValueObservingSpec: QuickSpec {
 						.map { $0 % 2 == 0 }
 						.observe(on: otherScheduler)
 						.take(until: teardown)
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 
 					replayProducer.start { _ in }
 

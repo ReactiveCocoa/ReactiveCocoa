@@ -22,7 +22,7 @@ script:
   - xcodebuild $XCODEBUILD_TEST_ACTION -scheme Rex-iOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
   - xcodebuild $XCODEBUILD_TEST_ACTION -scheme Rex-tvOS -sdk appletvsimulator -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c
   - xcodebuild build -scheme Rex-watchOS -sdk watchsimulator -destination "platform=watchOS Simulator,name=Apple Watch - 38mm" | xcpretty -c
-  - pod lib lint --allow-warnings
+  - pod lib lint --quick --allow-warnings
 
 notifications:
   email: false

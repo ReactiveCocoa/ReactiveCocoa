@@ -71,13 +71,13 @@ class UILabelTests: XCTestCase {
     }
     
     func testTextColorProperty() {
-        let firstChange = UIColor.red()
-        let secondChange = UIColor.black()
+        let firstChange = UIColor.red
+        let secondChange = UIColor.black
         
         let label = UILabel(frame: CGRect.zero)
 
         let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
-        label.textColor = UIColor.black()
+        label.textColor = UIColor.black
         label.rex_textColor <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)

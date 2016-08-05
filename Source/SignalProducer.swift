@@ -18,7 +18,7 @@ extension SignalProducerProtocol {
         return SignalProducer<(Key, SignalProducer<Value, Error>), Error> { observer, disposable in
             var groups: [Key: Signal<Value, Error>.Observer] = [:]
 
-            let lock = RecursiveLock()
+            let lock = NSRecursiveLock()
             lock.name = "me.neilpa.rex.groupBy"
 
             self.start { event in
@@ -96,7 +96,7 @@ extension SignalProducerProtocol {
     }
 
     /// Delays retrying on failure by `interval` up to `count` attempts.
-    public func deferredRetry(interval: TimeInterval, on scheduler: DateSchedulerProtocol, count: Int = .max) -> SignalProducer<Value, Error> {
+    public func deferredRetry(_ interval: TimeInterval, on scheduler: DateSchedulerProtocol, count: Int = .max) -> SignalProducer<Value, Error> {
         precondition(count >= 0)
 
         if count == 0 {
@@ -205,25 +205,25 @@ private final class ReplayBuffer<Value> {
     private var values: [Value] = []
 }
 
-private struct BufferState<Value, Error: ErrorProtocol> {
+private struct BufferState<V, E: Error> {
     /// All values in the buffer.
-    var values: [Value] = []
+    var values: [V] = []
 
     /// Any terminating event sent to the buffer.
     ///
     /// This will be nil if termination has not occurred.
-    var terminationEvent: Event<Value, Error>?
+    var terminationEvent: Event<V, E>?
     
     /// The observers currently attached to the buffered producer, or nil if the
     /// producer was terminated.
-    var observers: Bag<Signal<Value, Error>.Observer>? = Bag()
+    var observers: Bag<Signal<V, E>.Observer>? = Bag()
     
     /// The set of unused replay token identifiers.
-    var replayBuffers: Bag<ReplayBuffer<Value>> = Bag()
+    var replayBuffers: Bag<ReplayBuffer<V>> = Bag()
     
     /// Appends a new value to the buffer, trimming it down to the given capacity
     /// if necessary.
-    mutating func add(_ value: Value, upTo capacity: Int) {
+    mutating func add(_ value: V, upTo capacity: Int) {
         precondition(capacity >= 0)
         
         for buffer in replayBuffers {

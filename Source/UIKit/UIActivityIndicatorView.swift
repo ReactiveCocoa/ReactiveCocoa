@@ -15,7 +15,7 @@ extension UIActivityIndicatorView {
     /// Setting a new value to the property would call `startAnimating()` or
     /// `stopAnimating()` depending on the value.
     public var rex_animating: MutableProperty<Bool> {
-        return associatedProperty(self, key: &animatingKey, initial: { $0.isAnimating() }, setter: { host, animating in
+        return associatedProperty(host: self, key: &animatingKey, initial: { $0.isAnimating() }, setter: { host, animating in
             if animating {
                 host.startAnimating()
             } else {
@@ -23,7 +23,6 @@ extension UIActivityIndicatorView {
             }
         })
     }
-
 }
 
 private var animatingKey: UInt8 = 0

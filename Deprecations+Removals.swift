@@ -39,7 +39,7 @@ extension Data {
     public static func rex_dataWithContentsOfURL(_ url: URL, options: Data.ReadingOptions = []) -> SignalProducer<Data, NSError> { fatalError() }
 }
 
-extension NSData {
+extension Data {
     @available(*, unavailable, renamed:"rex_data(contentsOf:options:)")
     public static func rex_dataWithContentsOfURL(_ url: URL, options: NSData.ReadingOptions = []) -> SignalProducer<NSData, NSError> { fatalError() }
 }

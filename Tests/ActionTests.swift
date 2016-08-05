@@ -13,7 +13,7 @@ import enum Result.NoError
 
 final class ActionTests: XCTestCase {
     
-    enum TestError: ErrorProtocol {
+    enum TestError: Error {
         case unknown
     }
 

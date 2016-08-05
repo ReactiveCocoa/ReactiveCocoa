@@ -23,7 +23,7 @@ extension Data {
     }
 }
 
-extension NSData {
+extension Data {
     /// Read the data at the URL, sending the result or an error.
     public static func rex_data(contentsOf url: URL, options: NSData.ReadingOptions = []) -> SignalProducer<NSData, NSError> {
         return Data.rex_data(contentsOf: url, options: options).map { $0 as NSData }

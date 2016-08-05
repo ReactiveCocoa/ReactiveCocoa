@@ -1669,7 +1669,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A caching producer that will hold up to last `capacity`
 	///            values.
-	public func replayLazily(upTo capacity: Int) -> SignalProducer<Value, Error> {
+	public func replay(upTo capacity: Int) -> SignalProducer<Value, Error> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// This will go "out of scope" when the returned `SignalProducer` goes

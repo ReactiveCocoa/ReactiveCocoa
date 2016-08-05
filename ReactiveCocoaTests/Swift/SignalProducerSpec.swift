@@ -1915,7 +1915,7 @@ class SignalProducerSpec: QuickSpec {
 				producer = producerTemp
 				observer = observerTemp
 
-				replayedProducer = producer.replayLazily(upTo: 2)
+				replayedProducer = producer.replay(upTo: 2)
 			}
 
 			context("subscribing to underlying producer") {
@@ -2015,7 +2015,7 @@ class SignalProducerSpec: QuickSpec {
 					expect(started) == false
 
 					let replayedProducer = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 					expect(started) == false
 
 					replayedProducer.start()
@@ -2030,7 +2030,7 @@ class SignalProducerSpec: QuickSpec {
 					expect(startedTimes) == 0
 
 					let replayedProducer = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 					expect(startedTimes) == 0
 
 					replayedProducer.start()
@@ -2047,7 +2047,7 @@ class SignalProducerSpec: QuickSpec {
 						.on(started: { startedTimes += 1 })
 
 					let replayedProducer = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 
 					expect(startedTimes) == 0
 					replayedProducer.start().dispose()
@@ -2064,7 +2064,7 @@ class SignalProducerSpec: QuickSpec {
 					expect(startedTimes) == 0
 
 					let replayedProducer = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 					expect(startedTimes) == 0
 
 					replayedProducer.start()
@@ -2083,7 +2083,7 @@ class SignalProducerSpec: QuickSpec {
 						.on(disposed: { disposed = true })
 
 					let replayedProducer = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 
 					expect(disposed) == false
 					let disposable = replayedProducer.start()
@@ -2099,7 +2099,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>.never
 						.on(disposed: { disposed = true })
 
-					var replayedProducer = ImplicitlyUnwrappedOptional(producer.replayLazily(upTo: 1))
+					var replayedProducer = ImplicitlyUnwrappedOptional(producer.replay(upTo: 1))
 
 					expect(disposed) == false
 					let disposable1 = replayedProducer?.start()
@@ -2122,7 +2122,7 @@ class SignalProducerSpec: QuickSpec {
 					let producer = SignalProducer<Int, NoError>.never
 						.on(disposed: { disposed = true })
 
-					var replayedProducer = ImplicitlyUnwrappedOptional(producer.replayLazily(upTo: 1))
+					var replayedProducer = ImplicitlyUnwrappedOptional(producer.replay(upTo: 1))
 
 					expect(disposed) == false
 					let disposable = replayedProducer?.start()
@@ -2156,7 +2156,7 @@ class SignalProducerSpec: QuickSpec {
 					expect(deinitValues) == 0
 
 					var replayedProducer: SignalProducer<Value, NoError>! = producer
-						.replayLazily(upTo: 1)
+						.replay(upTo: 1)
 					
 					let disposable = replayedProducer
 						.start()

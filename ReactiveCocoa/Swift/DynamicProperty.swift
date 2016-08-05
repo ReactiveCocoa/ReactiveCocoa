@@ -63,7 +63,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - keyPath: Key path to observe on the object.
 	///   - representable: A representation that bridges the values across the
 	///                    language boundary.
-	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
+	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject, keyPath: String, representable: Representatable.Type) {
 		self.object = object
 		self.keyPath = keyPath
 
@@ -86,7 +86,7 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	public convenience init(object: NSObject?, keyPath: String) {
+	public convenience init(object: NSObject, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: BridgeableRepresentation.self)
 	}
 }
@@ -101,7 +101,7 @@ extension DynamicProperty where Value: AnyObject {
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	public convenience init(object: NSObject?, keyPath: String) {
+	public convenience init(object: NSObject, keyPath: String) {
 		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
 	}
 }

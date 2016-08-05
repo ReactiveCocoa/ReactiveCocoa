@@ -30,7 +30,7 @@ This documents the RAC 4 which targets `Swift 2.2.x`. For `Swift 1.2` support se
 ## Introduction
 
 ReactiveCocoa is inspired by [functional reactive
-programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
+programming](https://joshaber.github.io/2013/02/11/input-and-output/).
 Rather than using mutable variables which are replaced and modified in-place,
 RAC offers “event streams,” represented by the [`Signal`][Signals] and
 [`SignalProducer`][Signal producers] types, that send values over time.

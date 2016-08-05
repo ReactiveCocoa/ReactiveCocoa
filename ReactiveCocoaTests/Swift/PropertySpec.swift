@@ -1489,13 +1489,56 @@ class PropertySpec: QuickSpec {
 				expect(values) == [ 0, 0 ]
 			}
 
+			it("should retain the underlying object") {
+				var object: ObservableObject? = ObservableObject()
+				var property: DynamicProperty<Int>? = DynamicProperty<Int>(object: object!, keyPath: #keyPath(ObservableObject.rac_value))
+
+				// Suppress the "never read" warning.
+				_ = property
+
+				weak var weakObject = object
+
+				object = nil
+				expect(weakObject).toNot(beNil())
+
+				property = nil
+				expect(weakObject).to(beNil())
+			}
+
+			it("should have a producer that does not retain the underlying object") {
+				var object: ObservableObject? = ObservableObject()
+				let producer = DynamicProperty<Int>(object: object!,
+				                                    keyPath: #keyPath(ObservableObject.rac_value)).producer
+
+				// Suppress "never used" compiler warnings.
+				_ = producer
+
+				weak var weakObject = object
+
+				object = nil
+				expect(weakObject).to(beNil())
+			}
+
+			it("should have a producer that replays the latest value even after the underlying object has deallocated") {
+				var object: ObservableObject? = ObservableObject()
+				let producer = DynamicProperty<Int>(object: object!,
+				                                    keyPath: #keyPath(ObservableObject.rac_value)).producer
+				weak var weakObject = object
+
+				object!.rac_value = 10
+				object = nil
+				expect(weakObject).to(beNil())
+
+				expect(producer.first()?.value!) == 10
+			}
+
 			it("should have a completed producer when the underlying object deallocates") {
 				var completed = false
 
-				property = {
+				var object: ObservableObject? = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: #keyPath(ObservableObject.rac_value))
 
 					property.producer.startWithCompleted {
 						completed = true
@@ -1503,20 +1546,22 @@ class PropertySpec: QuickSpec {
 
 					expect(completed) == false
 					expect(property.value).notTo(beNil())
-					return property
+					return object
 				}()
+				weak var weakObject = object
 
-				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
+				object = nil
+				expect(completed) == true
+				expect(weakObject).to(beNil())
 			}
 
 			it("should have a completed signal when the underlying object deallocates") {
 				var completed = false
 
-				property = {
+				var object: ObservableObject? = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+					let property = DynamicProperty<Int>(object: object, keyPath: #keyPath(ObservableObject.rac_value))
 
 					property.signal.observeCompleted {
 						completed = true
@@ -1524,21 +1569,13 @@ class PropertySpec: QuickSpec {
 
 					expect(completed) == false
 					expect(property.value).notTo(beNil())
-					return property
+					return object
 				}()
+				weak var weakObject = object
 
-				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
-			}
-
-			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty<Int>? = property
-				
-				property = nil
-				expect(dynamicProperty).toNot(beNil())
-				
 				object = nil
-				expect(dynamicProperty).to(beNil())
+				expect(completed) == true
+				expect(weakObject).to(beNil())
 			}
 
 			it("should support un-bridged reference types") {

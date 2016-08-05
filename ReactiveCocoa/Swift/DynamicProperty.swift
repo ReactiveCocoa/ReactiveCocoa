@@ -16,23 +16,22 @@ private protocol ObjectiveCRepresentable {
 /// unless KVC/KVO is required by the API you're using (for example,
 /// `NSOperation`).
 public final class DynamicProperty<Value>: MutablePropertyProtocol {
-	private weak var object: NSObject?
+	private let object: NSObject
 	private let keyPath: String
 
-	private let extractValue: (from: AnyObject) -> Value
 	private let represent: (Value) -> AnyObject
 
-	private var property: MutableProperty<Value?>?
+	private var disposable: Disposable!
+	private var _value: Value?
 
-	/// The current value of the property, as read and written using Key-Value
-	/// Coding.
+	/// The current value of the property.
 	public var value: Value? {
 		get {
-			return object?.value(forKeyPath: keyPath).map(extractValue)
+			return _value
 		}
 
 		set(newValue) {
-			object?.setValue(newValue.map(represent), forKeyPath: keyPath)
+			object.setValue(newValue.map(represent), forKeyPath: keyPath)
 		}
 	}
 
@@ -42,10 +41,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
-	public var producer: SignalProducer<Value?, NoError> {
-		return (object.map { $0.values(forKeyPath: keyPath) } ?? .empty)
-			.map { [extractValue = self.extractValue] in $0.map(extractValue) }
-	}
+	public let producer: SignalProducer<Value?, NoError>
 
 	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
 		var signal: Signal<DynamicProperty.Value, NoError>!
@@ -67,12 +63,19 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 		self.object = object
 		self.keyPath = keyPath
 
-		self.extractValue = Representatable.extract(from:)
 		self.represent = Representatable.represent
 
-		/// A DynamicProperty will stay alive as long as its object is alive.
-		/// This is made possible by strong reference cycles.
-		_ = object?.rac_lifetime.ended.observeCompleted { _ = self }
+		self.producer = object.values(forKeyPath: keyPath)
+			.map { $0.map(Representatable.extract(from:)) }
+			.replayLazily(upTo: 1)
+
+		self.disposable = producer.startWithNext { [weak self] value in
+			self?._value = value
+		}
+	}
+
+	deinit {
+		disposable.dispose()
 	}
 }
 

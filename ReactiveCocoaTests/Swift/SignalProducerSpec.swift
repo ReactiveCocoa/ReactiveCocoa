@@ -1904,7 +1904,7 @@ class SignalProducerSpec: QuickSpec {
 			}
 		}
 
-		describe("replayLazily") {
+		describe("replay") {
 			var producer: SignalProducer<Int, TestError>!
 			var observer: SignalProducer<Int, TestError>.ProducedSignal.Observer!
 
@@ -1919,6 +1919,31 @@ class SignalProducerSpec: QuickSpec {
 			}
 
 			context("subscribing to underlying producer") {
+				it("should start immediately") {
+					var isStarted = false
+
+					_ = producer
+						.on(started: { isStarted = true })
+						.replay(upTo: 2, startsLazily: false)
+						.assumeNoErrors()
+
+					expect(isStarted) == true
+				}
+
+				it("should not start immediately until the very first signal is to be produced") {
+					var isStarted = false
+
+					let replayedProducer = producer
+						.on(started: { isStarted = true })
+						.replay(upTo: 2)
+						.assumeNoErrors()
+
+					expect(isStarted) == false
+
+					replayedProducer.start()
+					expect(isStarted) == true
+				}
+
 				it("emits new values") {
 					var last: Int?
 

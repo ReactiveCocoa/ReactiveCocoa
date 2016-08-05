@@ -12,9 +12,9 @@
 		45CED4701D27C1E400788BDC /* UIActivityIndicatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46D1D27C1D400788BDC /* UIActivityIndicatorViewTests.swift */; };
 		45CED4711D27C1EB00788BDC /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */; };
 		45CED4721D27C1EC00788BDC /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CED46B1D27BB8700788BDC /* UIActivityIndicatorView.swift */; };
+		4A8EDADB1D54D12400A1734C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0DABA91CCC381F00B6CD2B /* UIControl+EnableSendActionsForControlEvents.swift */; };
 		5B7F81E31D0842AD0014B06D /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882D1D0715CE000B888F /* UISegmentedControl.swift */; };
 		5B7F81E41D0842B50014B06D /* UISegmentedControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1C882F1D071639000B888F /* UISegmentedControlTests.swift */; };
-		7D0DABAA1CCC381F00B6CD2B /* UIControl+EnableSendActionsForControlEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0DABA91CCC381F00B6CD2B /* UIControl+EnableSendActionsForControlEvents.swift */; };
 		7D2AA99B1CB6EFEB008AB5C9 /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99A1CB6EFEB008AB5C9 /* UISwitch.swift */; };
 		7D2AA99D1CB6F275008AB5C9 /* UISwitchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2AA99C1CB6F275008AB5C9 /* UISwitchTests.swift */; };
 		7D5FE3081CD4B04E00834675 /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7932E851C4B420A00086F3C /* UITextFieldTests.swift */; };
@@ -882,7 +882,6 @@
 				D8F0973F1B17F31E002E15BA /* NSData.swift in Sources */,
 				D86FFBDD1B34B691001A89B3 /* UIButton.swift in Sources */,
 				45CED4711D27C1EB00788BDC /* UIActivityIndicatorView.swift in Sources */,
-				7D0DABAA1CCC381F00B6CD2B /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -906,6 +905,7 @@
 				C7945F141CC1DFBE00DC9E37 /* UIViewControllerTests.swift in Sources */,
 				7DC3257F1CC6FD1E00746D88 /* UITableViewCellTests.swift in Sources */,
 				9DA915A61CA63046003723B9 /* UIDatePickerTests.swift in Sources */,
+				4A8EDADB1D54D12400A1734C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				D83457301AFEE45E0070616A /* SignalProducerTests.swift in Sources */,
 				D83457411AFEE6050070616A /* SignalTests.swift in Sources */,
 				8295FD8D1B87374A007C9000 /* UIBarButtonItemTests.swift in Sources */,

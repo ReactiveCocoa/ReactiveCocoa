@@ -1646,10 +1646,14 @@ extension SignalProducerProtocol {
 	/// This means that all clients of this `SignalProducer` will see the same
 	/// version of the emitted values/errors.
 	///
-	/// The underlying `SignalProducer` will not be started until `self` is
-	/// started for the first time. When subscribing to this producer, all
-	/// previous values (up to `capacity`) will be emitted, followed by any new
-	/// values.
+	/// By default, the underlying `SignalProducer` will not be started until
+	/// `self` is started for the first time. When subscribing to this producer,
+	/// all previous values (up to `capacity`) will be emitted, followed by any
+	/// new values. You may specify `startLazily` to be `false` if you intend
+	/// to have it started immediately.
+	///
+	/// Note that the underlying producer would be retained until it is started
+	/// for the first time.
 	///
 	/// If you find yourself needing *the current value* (the last buffered
 	/// value) you should consider using `PropertyType` instead, which, unlike
@@ -1666,10 +1670,12 @@ extension SignalProducerProtocol {
 	///
 	/// - parameters:
 	///   - capcity: Number of values to hold.
+	///   - startsLazily: Indicate whether the underlying producer should be
+	///                   started lazily.
 	///
 	/// - returns: A caching producer that will hold up to last `capacity`
 	///            values.
-	public func replay(upTo capacity: Int) -> SignalProducer<Value, Error> {
+	public func replay(upTo capacity: Int, startsLazily: Bool = true) -> SignalProducer<Value, Error> {
 		precondition(capacity >= 0, "Invalid capacity: \(capacity)")
 
 		// This will go "out of scope" when the returned `SignalProducer` goes
@@ -1689,6 +1695,10 @@ extension SignalProducerProtocol {
 					}
 					originalState.broadcast(event)
 				}
+		}
+
+		if !startsLazily {
+			bootstrap.dispose()
 		}
 
 		return SignalProducer { observer, disposable in

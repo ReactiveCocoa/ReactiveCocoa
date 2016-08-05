@@ -5,7 +5,7 @@ import Result
 
 final class LifetimeSpec: QuickSpec {
 	override func spec() {
-		describe("take during") {
+		describe("SignalProducerProtocol.takeDuring") {
 			it("completes a signal when the lifetime ends") {
 				let (signal, observer) = Signal<Int, NoError>.pipe()
 				let object = MutableReference(TestObject())
@@ -41,28 +41,30 @@ final class LifetimeSpec: QuickSpec {
 			}
 		}
 
-		describe("NSObject lifetime") {
-			it("ends when the object is deallocated") {
+		describe("NSObject") {
+			it("should complete its lifetime ended signal when the it deinitializes") {
 				let object = MutableReference(TestObject())
 
-				var events: [String] = []
+				var isCompleted = false
 
-				object.value!.lifetime.ended.observe { event in
-					switch event {
-					case .next:
-						events.append("next")
-					case .completed:
-						events.append("completed")
-					case .failed:
-						events.append("failed")
-					case .interrupted:
-						events.append("interrupted")
-					}
-				}
+				object.value!.lifetime.ended.observeCompleted { isCompleted = true }
+				expect(isCompleted) == false
 
 				object.value = nil
+				expect(isCompleted) == true
+			}
 
-				expect(events) == ["completed"]
+			it("should complete its lifetime ended signal even if the lifetime object is being retained") {
+				let object = MutableReference(TestObject())
+				let lifetime = object.value!.lifetime
+
+				var isCompleted = false
+
+				lifetime.ended.observeCompleted { isCompleted = true }
+				expect(isCompleted) == false
+
+				object.value = nil
+				expect(isCompleted) == true
 			}
 		}
 	}
@@ -76,5 +78,6 @@ private final class MutableReference<Value: AnyObject> {
 }
 
 private final class TestObject {
-	let lifetime = Lifetime()
+	private let token = Lifetime.Token()
+	var lifetime: Lifetime { return Lifetime(token) }
 }

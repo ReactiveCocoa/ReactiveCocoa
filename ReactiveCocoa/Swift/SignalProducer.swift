@@ -1684,10 +1684,12 @@ extension SignalProducerProtocol {
 		// out of scope. This lets us know when we're supposed to dispose the
 		// underlying producer. This is necessary because `struct`s don't have
 		// `deinit`.
-		let lifetime = Lifetime()
+		let token = Lifetime.Token()
 
 		return SignalProducer { observer, disposable in
-			var lifetime: Lifetime? = lifetime
+			var token: Lifetime.Token? = token
+			let lifetime = Lifetime(token!)
+
 			let initializedProducer: SignalProducer<Value, Error>
 			let initializedObserver: SignalProducer<Value, Error>.ProducedSignal.Observer
 			let shouldStartUnderlyingProducer: Bool
@@ -1710,11 +1712,12 @@ extension SignalProducerProtocol {
 			disposable += {
 				// Don't dispose of the original producer until all observers
 				// have terminated.
-				lifetime = nil
+				token = nil
 			}
 
 			if shouldStartUnderlyingProducer {
-				self.take(during: lifetime!)
+				self
+					.take(during: lifetime)
 					.start(initializedObserver)
 			}
 		}

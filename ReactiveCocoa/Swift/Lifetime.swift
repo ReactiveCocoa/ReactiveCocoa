@@ -1,21 +1,41 @@
 import enum Result.NoError
 
-/// Provides a signal that completes when the lifetime object is deinitialized.
-///
-/// When assigned to a property of another object, provides a hook to
-/// observe when that object goes out of scope.
+/// Represent the lifetime of an object, and provide a hook to observe when the
+/// object deinitializes.
 public final class Lifetime {
 	/// A signal that sends a Completed event when the lifetime ends.
 	public let ended: Signal<(), NoError>
 
-	private let endedObserver: Signal<(), NoError>.Observer
-
-	public init() {
-		(ended, endedObserver) = Signal.pipe()
+	public init(_ token: Token) {
+		ended = token.ended
 	}
 
-	deinit {
-		endedObserver.sendCompleted()
+	/// A token object which completes its signal when it deinitializes.
+	///
+	/// It is generally used in conjuncion with `Lifetime` as a private
+	/// deinitialization trigger.
+	///
+	/// ```
+	/// class MyController {
+	///		private let token = Lifetime.Token()
+	///		public var lifetime: Lifetime {
+	///			return Lifetime(token)
+	///		}
+	/// }
+	/// ```
+	public final class Token {
+		/// A signal that sends a Completed event when the lifetime ends.
+		private let ended: Signal<(), NoError>
+
+		private let endedObserver: Signal<(), NoError>.Observer
+
+		public init() {
+			(ended, endedObserver) = Signal.pipe()
+		}
+
+		deinit {
+			endedObserver.sendCompleted()
+		}
 	}
 }
 
@@ -27,13 +47,13 @@ extension NSObject {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
 
-		if let lifetime = objc_getAssociatedObject(self, &lifetimeKey) as! Lifetime? {
-			return lifetime
+		if let token = objc_getAssociatedObject(self, &lifetimeKey) as! Lifetime.Token? {
+			return Lifetime(token)
 		}
 
-		let lifetime = Lifetime()
-		objc_setAssociatedObject(self, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		let token = Lifetime.Token()
+		objc_setAssociatedObject(self, &lifetimeKey, token, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
-		return lifetime
+		return Lifetime(token)
 	}
 }

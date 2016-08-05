@@ -42,6 +42,34 @@ final class LifetimeSpec: QuickSpec {
 		}
 
 		describe("NSObject lifetime") {
+			it("should complete its signal even if it is being retained") {
+				let object = MutableReference(TestObject())
+
+				var events: [String] = []
+
+				object.value!.lifetime.ended.observe { event in
+					switch event {
+					case .next:
+						events.append("next")
+					case .completed:
+						events.append("completed")
+					case .failed:
+						events.append("failed")
+					case .interrupted:
+						events.append("interrupted")
+					}
+				}
+
+				let lifetime = object.value!.lifetime
+
+				// Suppress the "never read" warning.
+				_ = lifetime
+
+				object.value = nil
+
+				expect(events) == ["completed"]
+			}
+
 			it("ends when the object is deallocated") {
 				let object = MutableReference(TestObject())
 
@@ -76,5 +104,6 @@ private final class MutableReference<Value: AnyObject> {
 }
 
 private final class TestObject {
-	let lifetime = Lifetime()
+	private let token = Lifetime.Token()
+	var lifetime: Lifetime { return Lifetime(token) }
 }

@@ -14,12 +14,18 @@ import Result
 /// progress,” like notifications, user input, etc. To represent streams that
 /// must first be _started_, see the SignalProducer type.
 ///
-/// Signals do not need to be retained. A Signal will be automatically kept
-/// alive until the event stream has terminated.
+/// A Signal is kept alive until either of the following happens:
+///    1. its input observer receives a terminating event; or
+///    2. it has no active observers, and is not being retained.
 public final class Signal<Value, Error: Swift.Error> {
 	public typealias Observer = ReactiveCocoa.Observer<Value, Error>
 
-	private let atomicObservers: Atomic<Bag<Observer>?> = Atomic(Bag())
+	/// The disposable returned by the signal generator. It would be disposed of
+	/// when the signal terminates.
+	private var generatorDisposable: Disposable?
+
+	/// The state of the signal. `nil` if the signal has terminated.
+	private let state: Atomic<SignalState<Value, Error>?>
 
 	/// Initialize a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -32,17 +38,28 @@ public final class Signal<Value, Error: Swift.Error> {
 	///   - generator: A closure that accepts an implicitly created observer
 	///                that will act as an event emitter for the signal.
 	public init(_ generator: @noescape (Observer) -> Disposable?) {
+		state = Atomic(SignalState())
 
 		/// Used to ensure that events are serialized during delivery to observers.
 		let sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
-		let generatorDisposable = SerialDisposable()
-
 		/// When set to `true`, the Signal should interrupt as soon as possible.
 		let interrupted = Atomic(false)
 
-		let observer = Observer { event in
+		let observer = Observer { [weak self] event in
+			guard let signal = self else {
+				return
+			}
+
+			func interrupt() {
+				if let state = signal.state.swap(nil) {
+					for observer in state.observers {
+						observer.sendInterrupted()
+					}
+				}
+			}
+
 			if case .interrupted = event {
 				// Normally we disallow recursive events, but `interrupted` is
 				// kind of a special snowflake, since it can inadvertently be
@@ -54,23 +71,22 @@ public final class Signal<Value, Error: Swift.Error> {
 				interrupted.value = true
 
 				if sendLock.try() {
-					self.interrupt()
+					interrupt()
 					sendLock.unlock()
 
-					generatorDisposable.dispose()
+					signal.generatorDisposable?.dispose()
 				}
-
 			} else {
-				if let observers = (event.isTerminating ? self.atomicObservers.swap(nil) : self.atomicObservers.value) {
+				if let state = (event.isTerminating ? signal.state.swap(nil) : signal.state.value) {
 					sendLock.lock()
 
-					for observer in observers {
+					for observer in state.observers {
 						observer.action(event)
 					}
 
 					let shouldInterrupt = !event.isTerminating && interrupted.value
 					if shouldInterrupt {
-						self.interrupt()
+						interrupt()
 					}
 
 					sendLock.unlock()
@@ -78,13 +94,21 @@ public final class Signal<Value, Error: Swift.Error> {
 					if event.isTerminating || shouldInterrupt {
 						// Dispose only after notifying observers, so disposal
 						// logic is consistently the last thing to run.
-						generatorDisposable.dispose()
+						signal.generatorDisposable?.dispose()
 					}
 				}
 			}
 		}
 
-		generatorDisposable.innerDisposable = generator(observer)
+		generatorDisposable = generator(observer)
+	}
+
+	deinit {
+		if state.swap(nil) != nil {
+			// As the signal can deinitialize only when it has no observers attached,
+			// only the generator disposable has to be disposed of at this point.
+			generatorDisposable?.dispose()
+		}
 	}
 
 	/// A Signal that never sends any events to its observers.
@@ -117,15 +141,6 @@ public final class Signal<Value, Error: Swift.Error> {
 		return (signal, observer)
 	}
 
-	/// Interrupts all observers and terminates the stream.
-	private func interrupt() {
-		if let observers = self.atomicObservers.swap(nil) {
-			for observer in observers {
-				observer.sendInterrupted()
-			}
-		}
-	}
-
 	/// Observe the Signal by sending any future events to the given observer.
 	///
 	/// - note: If the Signal has already terminated, the observer will
@@ -135,19 +150,22 @@ public final class Signal<Value, Error: Swift.Error> {
 	///   - observer: An observer to forward the events to.
 	///
 	/// - returns: An optional `Disposable` which can be used to disconnect the
-	///            observer. Disposing of the Disposable will have no effect on
-	///            the Signal itself.
+	///            observer.
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
-		atomicObservers.modify { observers in
-			token = observers?.insert(observer)
+		state.modify { state in
+			state?.retainedSignal = self
+			token = state?.observers.insert(observer)
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				_ = self?.atomicObservers.modify { observers in
-					observers?.remove(using: token)
+				_ = self?.state.modify { state in
+					state?.observers.remove(using: token)
+					if state?.observers.isEmpty ?? false {
+						state!.retainedSignal = nil
+					}
 				}
 			}
 		} else {
@@ -155,6 +173,11 @@ public final class Signal<Value, Error: Swift.Error> {
 			return nil
 		}
 	}
+}
+
+private struct SignalState<Value, Error: Swift.Error> {
+	var observers: Bag<Signal<Value, Error>.Observer> = Bag()
+	var retainedSignal: Signal<Value, Error>?
 }
 
 public protocol SignalProtocol {

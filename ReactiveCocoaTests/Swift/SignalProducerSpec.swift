@@ -30,7 +30,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(handlerCalledTimes) == 2
 			}
 
-			it("should release signal observers when given disposable is disposed") {
+			it("should not release signal observers when given disposable is disposed") {
 				var disposable: Disposable!
 
 				let producer = SignalProducer<Int, NoError> { observer, innerDisposable in
@@ -53,7 +53,15 @@ class SignalProducerSpec: QuickSpec {
 				expect(objectRetainedByObserver).toNot(beNil())
 
 				disposable.dispose()
-				expect(objectRetainedByObserver).to(beNil())
+
+				// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2959
+				//
+				// Before #2959, this would be `nil` as the input observer is not
+				// retained, and observers would not retain the signal.
+				//
+				// After #2959, the object is still retained, since the observation
+				// keeps the signal alive.
+				expect(objectRetainedByObserver).toNot(beNil())
 			}
 
 			it("should dispose of added disposables upon completion") {
@@ -788,6 +796,7 @@ class SignalProducerSpec: QuickSpec {
 			it("should release the signal when disposed") {
 				let scheduler = TestScheduler()
 				let producer = timer(interval: 1, on: scheduler, leeway: 0)
+				var interrupted = false
 
 				weak var weakSignal: Signal<Date, NoError>?
 				producer.startWithSignal { signal, disposable in
@@ -795,12 +804,15 @@ class SignalProducerSpec: QuickSpec {
 					scheduler.schedule {
 						disposable.dispose()
 					}
+					signal.observeInterrupted { interrupted = true }
 				}
 
 				expect(weakSignal).toNot(beNil())
+				expect(interrupted) == false
 
 				scheduler.run()
 				expect(weakSignal).to(beNil())
+				expect(interrupted) == true
 			}
 		}
 

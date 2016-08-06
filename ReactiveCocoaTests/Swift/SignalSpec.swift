@@ -586,7 +586,7 @@ class SignalSpec: QuickSpec {
 
 				struct Item {
 					let payload: Bool
-					let disposable: ScopedDisposable
+					let disposable: ScopedDisposable<ActionDisposable>
 				}
 
 				func item(_ payload: Bool) -> Item {

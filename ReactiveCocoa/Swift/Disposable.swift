@@ -16,6 +16,23 @@ public protocol Disposable: class {
 	func dispose()
 }
 
+/// A type-erased disposable that forwards operations to an underlying disposable.
+public final class AnyDisposable: Disposable {
+	private let disposable: Disposable
+
+	public var isDisposed: Bool {
+		return disposable.isDisposed
+	}
+
+	public init(_ disposable: Disposable) {
+		self.disposable = disposable
+	}
+
+	public func dispose() {
+		disposable.dispose()
+	}
+}
+
 /// A disposable that only flips `isDisposed` upon disposal, and performs no other
 /// work.
 public final class SimpleDisposable: Disposable {
@@ -171,10 +188,10 @@ public final class CompositeDisposable: Disposable {
 
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
-public final class ScopedDisposable: Disposable {
+public final class ScopedDisposable<InnerDisposable: Disposable>: Disposable {
 	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
-	public let innerDisposable: Disposable
+	public let innerDisposable: InnerDisposable
 
 	public var isDisposed: Bool {
 		return innerDisposable.isDisposed
@@ -185,7 +202,7 @@ public final class ScopedDisposable: Disposable {
 	///
 	/// - parameters:
 	///   - disposable: A disposable to dispose of when deinitializing.
-	public init(_ disposable: Disposable) {
+	public init(_ disposable: InnerDisposable) {
 		innerDisposable = disposable
 	}
 
@@ -195,6 +212,18 @@ public final class ScopedDisposable: Disposable {
 
 	public func dispose() {
 		innerDisposable.dispose()
+	}
+}
+
+extension ScopedDisposable where InnerDisposable: AnyDisposable {
+	/// Initialize the receiver to dispose of the argument upon
+	/// deinitialization.
+	///
+	/// - parameters:
+	///   - disposable: A disposable to dispose of when deinitializing, which
+	///                 will be wrapped in an `AnyDisposable`.
+	public convenience init(_ disposable: Disposable) {
+		self.init(AnyDisposable(disposable))
 	}
 }
 
@@ -285,4 +314,40 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 @discardableResult
 public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
 	return lhs.add(rhs)
+}
+
+/// Adds the right-hand-side disposable to the left-hand-side
+/// `ScopedDisposable<CompositeDisposable>`.
+///
+/// ````
+/// disposable += { ... }
+/// ````
+///
+/// - parameters:
+///   - lhs: Disposable to add to.
+///   - rhs: Disposable to add.
+///
+/// - returns: An instance of `DisposableHandle` that can be used to opaquely
+///            remove the disposable later (if desired).
+@discardableResult
+public func +=(lhs: ScopedDisposable<CompositeDisposable>, rhs: Disposable?) -> CompositeDisposable.DisposableHandle {
+	return lhs.innerDisposable.add(rhs)
+}
+
+/// Adds the right-hand-side disposable to the left-hand-side
+/// `ScopedDisposable<CompositeDisposable>`.
+///
+/// ````
+/// disposable += { ... }
+/// ````
+///
+/// - parameters:
+///   - lhs: Disposable to add to.
+///   - rhs: Closure to add as a disposable.
+///
+/// - returns: An instance of `DisposableHandle` that can be used to opaquely
+///            remove the disposable later (if desired).
+@discardableResult
+public func +=(lhs: ScopedDisposable<CompositeDisposable>, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
+	return lhs.innerDisposable.add(rhs)
 }

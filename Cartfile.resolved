@@ -1,4 +1,4 @@
 github "andersio/Nimble" "7c0762319cd5c902a85b92722a0659cc33cd6338"
 github "norio-nomura/Quick" "eaf60d980d88ffefd8c3a7515f53547453d5938b"
-github "jameshurst/Result" "cdf310de1a1258fc2b3f20e02b85438ba11695da"
+github "antitypical/Result" "3.0.0-alpha.2"
 github "jspahrsummers/xcconfigs" "1ef97639ffbe041da0b1392b2114fa19b922a7a1"

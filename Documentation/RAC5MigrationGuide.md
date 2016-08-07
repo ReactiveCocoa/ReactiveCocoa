@@ -5,6 +5,12 @@
 	* [ReactiveSwift](#reactiveswift)
 	* [ReactiveObjC](#reactiveobjc)
 	* [ReactiveObjCBridge](#reactiveobjcbridge)
+* [API Names](#api-names)
+* [Signal](#signal)
+	* [Lifetime Semantics](#lifetime-semantics)
+* [SignalProducer](#signalproducer)
+* [Properties](#properties)
+* [Atomic](#atomic)
 
 ## Repository Split
 As part of RAC 5.0, ReactiveCocoa has been split into multiple repositories. _The rationale for this change is explained below._
@@ -44,3 +50,14 @@ Moving the Swift and Objective-C APIs to separate repositories meant that a new 
 This value will remain an important tool for anyone who’s heavily invested in the Objective-C RAC APIs as they (hopefully) move gradually to Swift.
 
 [ReactiveObjCBridge]: https://github.com/ReactiveCocoa/ReactiveObjCBridge
+
+## API Names
+
+## Signal
+### Lifetime Semantics
+
+## SignalProducer
+
+## Properties
+
+## Atomic

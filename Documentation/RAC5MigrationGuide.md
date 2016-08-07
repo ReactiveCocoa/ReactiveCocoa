@@ -1,5 +1,11 @@
 # RAC 5.0 Migration Guide
 
+* [Repository Split](#repository-split)
+	* [ReactiveCocoa](#reactivecocoa)
+	* [ReactiveSwift](#reactiveswift)
+	* [ReactiveObjC](#reactiveobjc)
+	* [ReactiveObjCBridge](#reactiveobjcbridge)
+
 ## Repository Split
 As part of RAC 5.0, ReactiveCocoa has been split into multiple repositories. _The rationale for this change is explained below._
 

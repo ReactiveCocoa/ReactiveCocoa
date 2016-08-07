@@ -10,7 +10,7 @@ final class LifetimeSpec: QuickSpec {
 				let (signal, observer) = Signal<Int, NoError>.pipe()
 				let object = MutableReference(TestObject())
 
-				let output = signal.takeDuring(object.value!.lifetime)
+				let output = signal.take(during: object.value!.lifetime)
 
 				var results: [Int] = []
 				output.observeNext { results.append($0) }
@@ -24,13 +24,13 @@ final class LifetimeSpec: QuickSpec {
 			}
 
 			it("completes a signal producer when the lifetime ends") {
-				let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
+				let (producer, observer) = Signal<Int, NoError>.pipe()
 				let object = MutableReference(TestObject())
 
-				let output = producer.takeDuring(object.value!.lifetime)
+				let output = producer.take(during: object.value!.lifetime)
 
 				var results: [Int] = []
-				output.startWithNext { results.append($0) }
+				output.observeNext { results.append($0) }
 
 				observer.sendNext(1)
 				observer.sendNext(2)
@@ -49,13 +49,13 @@ final class LifetimeSpec: QuickSpec {
 
 				object.value!.lifetime.ended.observe { event in
 					switch event {
-					case .Next:
+					case .next:
 						events.append("next")
-					case .Completed:
+					case .completed:
 						events.append("completed")
-					case .Failed:
+					case .failed:
 						events.append("failed")
-					case .Interrupted:
+					case .interrupted:
 						events.append("interrupted")
 					}
 				}

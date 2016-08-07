@@ -55,8 +55,8 @@ class ActionSpec: QuickSpec {
 			}
 
 			it("should be disabled and not executing after initialization") {
-				expect(action.enabled.value) == false
-				expect(action.executing.value) == false
+				expect(action.isEnabled.value) == false
+				expect(action.isExecuting.value) == false
 			}
 
 			it("should error if executed while disabled") {
@@ -67,19 +67,19 @@ class ActionSpec: QuickSpec {
 
 				expect(receivedError).notTo(beNil())
 				if let error = receivedError {
-					let expectedError = ActionError<NSError>.NotEnabled
+					let expectedError = ActionError<NSError>.disabled
 					expect(error == expectedError) == true
 				}
 			}
 
 			it("should enable and disable based on the given property") {
 				enabled.value = true
-				expect(action.enabled.value) == true
-				expect(action.executing.value) == false
+				expect(action.isEnabled.value) == true
+				expect(action.isExecuting.value) == false
 
 				enabled.value = false
-				expect(action.enabled.value) == false
-				expect(action.executing.value) == false
+				expect(action.isEnabled.value) == false
+				expect(action.isExecuting.value) == false
 			}
 
 			describe("execution") {
@@ -97,16 +97,16 @@ class ActionSpec: QuickSpec {
 						}
 
 					expect(executionCount) == 1
-					expect(action.executing.value) == true
-					expect(action.enabled.value) == false
+					expect(action.isExecuting.value) == true
+					expect(action.isEnabled.value) == false
 
 					expect(receivedValue) == "00"
 					expect(values) == [ "0", "00" ]
 					expect(errors) == []
 
 					scheduler.run()
-					expect(action.executing.value) == false
-					expect(action.enabled.value) == true
+					expect(action.isExecuting.value) == false
+					expect(action.isEnabled.value) == true
 
 					expect(values) == [ "0", "00" ]
 					expect(errors) == []
@@ -120,16 +120,16 @@ class ActionSpec: QuickSpec {
 					}
 
 					expect(executionCount) == 1
-					expect(action.executing.value) == true
-					expect(action.enabled.value) == false
+					expect(action.isExecuting.value) == true
+					expect(action.isEnabled.value) == false
 
 					scheduler.run()
-					expect(action.executing.value) == false
-					expect(action.enabled.value) == true
+					expect(action.isExecuting.value) == false
+					expect(action.isEnabled.value) == true
 
 					expect(receivedError).notTo(beNil())
 					if let error = receivedError {
-						let expectedError = ActionError<NSError>.ProducerError(testError)
+						let expectedError = ActionError<NSError>.producerFailed(testError)
 						expect(error == expectedError) == true
 					}
 

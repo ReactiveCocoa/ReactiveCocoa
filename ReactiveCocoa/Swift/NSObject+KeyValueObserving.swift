@@ -12,12 +12,14 @@ extension NSObject {
 	///
 	/// - returns:
 	///   A producer emitting values of the property specified by the key path.
-	public func valuesForKeyPath(keyPath: String) -> SignalProducer<AnyObject?, NoError> {
+	public func values(forKeyPath keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
-			disposable += KeyValueObserver.observe(self,
-																						 keyPath: keyPath,
-																						 options: [.Initial, .New],
-																						 action: observer.sendNext)
+			disposable += KeyValueObserver.observe(
+				self,
+				keyPath: keyPath,
+				options: [.initial, .new],
+				action: observer.sendNext
+			)
 			disposable += self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
@@ -25,7 +27,7 @@ extension NSObject {
 
 internal final class KeyValueObserver: NSObject {
 	typealias Action = (object: AnyObject?) -> Void
-	private static let context = UnsafeMutablePointer<Void>.alloc(1)
+	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
 
 	unowned(unsafe) let unsafeObject: NSObject
 	let key: String
@@ -38,17 +40,19 @@ internal final class KeyValueObserver: NSObject {
 
 		super.init()
 
-		object.addObserver(self,
-		                   forKeyPath: key,
-		                   options: options,
-		                   context: KeyValueObserver.context)
+		object.addObserver(
+			self,
+			forKeyPath: key,
+			options: options,
+			context: KeyValueObserver.context
+		)
 	}
 
 	func detach() {
 		unsafeObject.removeObserver(self, forKeyPath: key, context: KeyValueObserver.context)
 	}
 
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if context == KeyValueObserver.context {
 			action(object: object)
 		}
@@ -72,14 +76,14 @@ extension KeyValueObserver {
 	///
 	/// - returns:
 	///   A disposable that would tear down the observation upon disposal.
-	static func observe(object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: (value: AnyObject?) -> Void) -> ActionDisposable {
+	static func observe(_ object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: (value: AnyObject?) -> Void) -> ActionDisposable {
 		// Compute the key path head and tail.
-		let components = keyPath.componentsSeparatedByString(".")
+		let components = keyPath.components(separatedBy: ".")
 		precondition(!components.isEmpty, "Received an empty key path.")
 
 		let isNested = components.count > 1
 		let keyPathHead = components[0]
-		let keyPathTail = components[1 ..< components.endIndex].joinWithSeparator(".")
+		let keyPathTail = components[1 ..< components.endIndex].joined(separator: ".")
 
 		// The serial disposable for the head key.
 		//
@@ -96,9 +100,7 @@ extension KeyValueObserver {
 		// Attempting to observe non-weak properties using dynamic getters will
 		// result in broken behavior, so don't even try.
 		let shouldObserveDeinit = keyPathHead.withCString { cString -> Bool in
-			let propertyPointer = class_getProperty(object.dynamicType, cString)
-
-			if propertyPointer != nil as COpaquePointer {
+			if let propertyPointer = class_getProperty(object.dynamicType, cString) {
 				let attributes = PropertyAttributes(property: propertyPointer)
 				return attributes.isObject && attributes.isWeak && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock
 			}
@@ -114,7 +116,7 @@ extension KeyValueObserver {
 
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.valueForKey(keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -130,18 +132,20 @@ extension KeyValueObserver {
 				}
 
 				// Recursively add observers along the key path tail.
-				let disposable = KeyValueObserver.observe(value,
-				                                          keyPath: keyPathTail,
-				                                          options: options.subtract(.Initial),
-				                                          action: action)
+				let disposable = KeyValueObserver.observe(
+					value,
+					keyPath: keyPathTail,
+					options: options.subtracting(.initial),
+					action: action
+				)
 				headDisposable += disposable
 
 				// Send the latest value of the key path tail.
-				action(value: value.valueForKeyPath(keyPathTail))
+				action(value: value.value(forKeyPath: keyPathTail))
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.valueForKey(keyPathHead) as? NSObject else {
+				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(value: nil)
 					return
 				}
@@ -207,17 +211,22 @@ internal struct PropertyAttributes {
 	let isBlock: Bool
 
 	init(property: objc_property_t) {
-		guard let attrString = Optional(property_getAttributes(property)) else {
+		guard let attrString = property_getAttributes(property) else {
 			preconditionFailure("Could not get attribute string from property.")
 		}
 
 		precondition(attrString[0] == Code.start, "Expected attribute string to start with 'T'.")
 
 		let typeString = attrString + 1
-		var next = UnsafeMutablePointer<Int8>(NSGetSizeAndAlignment(typeString, nil, nil))
-		precondition(next != nil, "Could not read past type in attribute string.")
 
-		let typeLength = typeString.distanceTo(next);
+		let _next = NSGetSizeAndAlignment(typeString, nil, nil)
+		guard _next != typeString else {
+			let string = String(validatingUTF8: attrString)
+			preconditionFailure("Could not read past type in attribute string: \(string).")
+		}
+		var next = UnsafeMutablePointer<Int8>(_next)
+
+		let typeLength = typeString.distance(to: next)
 		precondition(typeLength > 0, "Invalid type in attribute string.")
 
 		var objectClass: AnyClass? = nil
@@ -228,40 +237,40 @@ internal struct PropertyAttributes {
 			let className = typeString + 2;
 
 			// fast forward the `next` pointer.
-			next = strchr(className, Int32(Code.quote))
-			precondition(next != nil, "Could not read class name in attribute string.")
+			guard let endQuote = strchr(className, Int32(Code.quote)) else {
+				preconditionFailure("Could not read class name in attribute string.")
+			}
+			next = endQuote
 
 			if className != UnsafePointer(next) {
-				let length = className.distanceTo(next)
-				let name = UnsafeMutablePointer<Int8>.alloc(length + 1)
-				name.initializeFrom(UnsafeMutablePointer<Int8>(className), count: length)
-				(name + length).initialize(Code.nul)
+				let length = className.distance(to: next)
+				let name = UnsafeMutablePointer<Int8>.allocate(capacity: length + 1)
+				name.initialize(from: UnsafeMutablePointer<Int8>(className), count: length)
+				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime
-				objectClass = objc_getClass(name) as? AnyClass
+				objectClass = objc_getClass(name) as! AnyClass?
 
-				for i in 0 ..< length + 1 {
-					(name + i).destroy()
-				}
-				name.dealloc(length + 1)
+				name.deinitialize(count: length + 1)
+				name.deallocate(capacity: length + 1)
 			}
 		}
 
-		if next.memory != Code.nul {
+		if next.pointee != Code.nul {
 			// skip past any junk before the first flag
 			next = strchr(next, Int32(Code.comma))
 		}
 
-		let emptyString = UnsafeMutablePointer<Int8>.alloc(1)
-		emptyString.initialize(Code.nul)
+		let emptyString = UnsafeMutablePointer<Int8>.allocate(capacity: 1)
+		emptyString.initialize(to: Code.nul)
 		defer {
-			emptyString.destroy()
-			emptyString.dealloc(1)
+			emptyString.deinitialize()
+			emptyString.deallocate(capacity: 1)
 		}
 
 		var isWeak = false
 
-		while next != nil && next.memory == Code.comma {
+		while next.pointee == Code.comma {
 			let flag = next[1]
 			next += 2
 
@@ -285,21 +294,14 @@ internal struct PropertyAttributes {
 				fallthrough
 
 			case Code.Attribute.setter:
-				let nextFlag = strchr(next, Int32(Code.comma))
-
-				if (nextFlag == nil) {
-					// assume that the rest of the string is the selector
-					next = emptyString
-				} else {
-					next = nextFlag
-				}
+					next = strchr(next, Int32(Code.comma)) ?? emptyString
 
 			case Code.Attribute.dynamic:
 				break
 
 			case Code.Attribute.ivar:
 				// assume that the rest of the string (if present) is the ivar name
-				if next.memory != Code.nul {
+				if next.pointee != Code.nul {
 					next = emptyString
 				}
 
@@ -310,28 +312,28 @@ internal struct PropertyAttributes {
 				break
 
 			case Code.Attribute.oldTypeEncoding:
-				let string = String.fromCString(attrString)
+				let string = String(validatingUTF8: attrString)
 				assertionFailure("Old-style type encoding is unsupported in attribute string \"\(string)\"")
 
 				// skip over this type encoding
-				while next.memory != Code.comma && next.memory != Code.nul {
+				while next.pointee != Code.comma && next.pointee != Code.nul {
 					next += 1
 				}
 
 			default:
-				let pointer = UnsafeMutablePointer<Int8>.alloc(2)
-				pointer.initialize(flag)
-				(pointer + 1).initialize(Code.nul)
+				let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 2)
+				pointer.initialize(to: flag)
+				(pointer + 1).initialize(to: Code.nul)
 
-				let flag = String.fromCString(pointer)
-				let string = String.fromCString(attrString)
+				let flag = String(validatingUTF8: pointer)
+				let string = String(validatingUTF8: attrString)
 				preconditionFailure("ERROR: Unrecognized attribute string flag '\(flag)' in attribute string \"\(string)\".")
 			}
 		}
 
-		if next != nil && next.memory != Code.nul {
-			let unparsedData = String.fromCString(next)
-			let string = String.fromCString(attrString)
+		if next.pointee != Code.nul {
+			let unparsedData = String(validatingUTF8: next)
+			let string = String(validatingUTF8: attrString)
 			assertionFailure("Warning: Unparsed data \"\(unparsedData)\" in attribute string \"\(string)\".")
 		}
 

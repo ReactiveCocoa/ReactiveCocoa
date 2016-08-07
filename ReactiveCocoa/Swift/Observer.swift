@@ -7,27 +7,27 @@
 //
 
 /// A protocol for type-constrained extensions of `Observer`.
-public protocol ObserverType {
+public protocol ObserverProtocol {
 	associatedtype Value
-	associatedtype Error: ErrorType
+	associatedtype Error: Swift.Error
 
-	/// Puts a `Next` event into `self`.
-	func sendNext(value: Value)
+	/// Puts a `next` event into `self`.
+	func sendNext(_ value: Value)
 
-	/// Puts a `Failed` event into `self`.
-	func sendFailed(error: Error)
+	/// Puts a failed event into `self`.
+	func sendFailed(_ error: Error)
 
-	/// Puts a `Completed` event into `self`.
+	/// Puts a `completed` event into `self`.
 	func sendCompleted()
 
-	/// Puts an `Interrupted` event into `self`.
+	/// Puts an `interrupted` event into `self`.
 	func sendInterrupted()
 }
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
-public struct Observer<Value, Error: ErrorType> {
-	public typealias Action = Event<Value, Error> -> Void
+public struct Observer<Value, Error: Swift.Error> {
+	public typealias Action = (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.
 	public let action: Action
@@ -44,56 +44,61 @@ public struct Observer<Value, Error: ErrorType> {
 	/// An initializer that accepts closures for different event types.
 	///
 	/// - parameters:
+	///   - next: Optional closure executed when a `next` event is observed.
 	///   - failed: Optional closure that accepts an `Error` parameter when a
-	///             `Failed` event is observed.
-	///   - completed: Optional closure executed when a `Completed` event is
+	///             failed event is observed.
+	///   - completed: Optional closure executed when a `completed` event is
 	///                observed.
-	///   - interruped: Optional closure executed when an `Interrupted` event is
+	///   - interruped: Optional closure executed when an `interrupted` event is
 	///                 observed.
-	///   - next: Optional closure executed when a `Next` event is observed.
-	public init(failed: (Error -> Void)? = nil, completed: (() -> Void)? = nil, interrupted: (() -> Void)? = nil, next: (Value -> Void)? = nil) {
+	public init(
+		next: ((Value) -> Void)? = nil,
+		failed: ((Error) -> Void)? = nil,
+		completed: (() -> Void)? = nil,
+		interrupted: (() -> Void)? = nil
+	) {
 		self.init { event in
 			switch event {
-			case let .Next(value):
+			case let .next(value):
 				next?(value)
 
-			case let .Failed(error):
+			case let .failed(error):
 				failed?(error)
 
-			case .Completed:
+			case .completed:
 				completed?()
 
-			case .Interrupted:
+			case .interrupted:
 				interrupted?()
 			}
 		}
 	}
 }
 
-extension Observer: ObserverType {
-	/// Puts a `Next` event into `self`.
+extension Observer: ObserverProtocol {
+	/// Puts a `next` event into `self`.
 	///
 	/// - parameters:
-	///   - value: A value sent with the `Next` event.
-	public func sendNext(value: Value) {
-		action(.Next(value))
+	///   - value: A value sent with the `next` event.
+	public func sendNext(_ value: Value) {
+		action(.next(value))
 	}
 
-	/// Puts a `Failed` event into `self`.
+	/// Puts a failed event into `self`.
 	///
 	/// - parameters:
-	///   - error: An error object sent with `Failed` event.
-	public func sendFailed(error: Error) {
-		action(.Failed(error))
+	///   - error: An error object sent with failed event.
+	public func sendFailed(_ error: Error) {
+		action(.failed(error))
 	}
 
-	/// Puts a `Completed` event into `self`.
+	/// Puts a `completed` event into `self`.
 	public func sendCompleted() {
-		action(.Completed)
+		action(.completed)
 	}
 
-	/// Puts an `Interrupted` event into `self`.
+	/// Puts an `interrupted` event into `self`.
 	public func sendInterrupted() {
-		action(.Interrupted)
+		action(.interrupted)
 	}
 }

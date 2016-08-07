@@ -23,7 +23,7 @@ resource for getting up to speed on the main types and concepts provided by RAC.
  1. [Signals start work when instantiated](#signals-start-work-when-instantiated)
  1. [Observing a signal does not have side effects](#observing-a-signal-does-not-have-side-effects)
  1. [All observers of a signal see the same events in the same order](#all-observers-of-a-signal-see-the-same-events-in-the-same-order)
- 1. [A signal is retained until the underlying observer is released](#a-signal-is-retained-until-the-underlying-observer-is-released)
+ 1. [A signal is alive as long as it is publicly reachable or is being observed](#a-signal-is-alive-as-long-as-it-is-publicly-reachable-or-is-being-observed)
  1. [Terminating events dispose of signal resources](#terminating-events-dispose-of-signal-resources)
 
 **[The `SignalProducer` contract](#the-signalproducer-contract)**
@@ -175,8 +175,7 @@ distributed.
 
 ## The `Signal` contract
 
-A [signal][Signals] is an “always on” stream that obeys [the `Event`
-contract](#the-event-contract).
+A [signal][Signals] is a stream of values that obeys [the `Event` contract](#the-event-contract).
 
 `Signal` is a reference type, because each signal has identity—in other words, each
 signal has its own lifetime, and may eventually terminate. Once terminated,
@@ -197,8 +196,7 @@ The work associated with a `Signal` does not start or stop when [observers][] ar
 added or removed, so the [`observe`][observe] method (or the cancellation thereof) never
 has side effects.
 
-A signal’s side effects can only be stopped through [a terminating
-event](#signals-are-retained-until-a-terminating-event-occurs).
+A signal’s side effects can only be stopped through [a terminating event](#signals-are-retained-until-a-terminating-event-occurs), or by a silent disposal at the point that [the signal is neither publicly reachable nor being observed](#a-signal-is-alive-as-long-as-it-is-publicly-reachable-or-is-being-observed).
 
 #### All observers of a signal see the same events in the same order
 
@@ -217,21 +215,19 @@ has already terminated will result in exactly one
 [`Interrupted`](#interruption-cancels-outstanding-work-and-usually-propagates-immediately)
 event sent to that specific observer.
 
-#### A signal is retained until the underlying observer is released
+#### A signal is alive as long as it is publicly reachable or is being observed
 
-Even if the caller does not maintain a reference to the `Signal`:
+A `Signal` must be publicly retained for attaching new observers, but not
+necessarily for keeping the stream of events alive. Moreover, a `Signal` retains
+itself as long as there is still an active observer.
 
- - A signal created with [`Signal.init`][Signal.init] is kept alive until the generator closure
-   releases the [observer][Observers] argument.
- - A signal created with [`Signal.pipe`][Signal.pipe] is kept alive until the returned observer
-   is released.
+In other words, if a `Signal` is neither publicly retained nor being observed,
+it would dispose of the signal resources silently.
 
-This ensures that signals associated with long-running work do not deallocate
-prematurely.
+Note that the input observer of a signal does not retain the signal itself.
 
-Note that it is possible to release a signal before a terminating [event][Events] has been
-sent upon it. This should usually be avoided, as it can result in resource
-leaks, but is sometimes useful to disable termination.
+Long-running side effects are recommended to be modeled as an observer to the
+signal.
 
 #### Terminating events dispose of signal resources
 

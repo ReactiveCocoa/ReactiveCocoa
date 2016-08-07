@@ -10,7 +10,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.valuesForKeyPath("rac_value").startWithNext { value in
+				object.values(forKeyPath: "rac_value").startWithNext { value in
 					expect(value).notTo(beNil())
 					values.append(value as! Int)
 				}
@@ -27,7 +27,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path, even if the value actually remains unchanged") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.valuesForKeyPath("rac_value").startWithNext { value in
+				object.values(forKeyPath: "rac_value").startWithNext { value in
 					expect(value).notTo(beNil())
 					values.append(value as! Int)
 				}
@@ -48,7 +48,7 @@ class KeyValueObservingSpec: QuickSpec {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
 
-					object.valuesForKeyPath("rac_value").startWithCompleted {
+					object.values(forKeyPath: "rac_value").startWithCompleted {
 						completed = true
 					}
 
@@ -62,7 +62,7 @@ class KeyValueObservingSpec: QuickSpec {
 				var interrupted = false
 
 				let object = ObservableObject()
-				let disposable = object.valuesForKeyPath("rac_value")
+				let disposable = object.values(forKeyPath: "rac_value")
 					.startWithInterrupted { interrupted = true }
 
 				expect(interrupted) == false
@@ -75,9 +75,13 @@ class KeyValueObservingSpec: QuickSpec {
 				let parentObject = NestedObservableObject()
 				var values: [Int] = []
 
-				parentObject.valuesForKeyPath("rac_object.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).integerValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_object.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -101,9 +105,13 @@ class KeyValueObservingSpec: QuickSpec {
 				parentObject.rac_weakObject = innerObject
 
 				var values: [Int] = []
-				parentObject.valuesForKeyPath("rac_weakObject.rac_value").startWithNext { wrappedInt in
-					values.append((wrappedInt as! NSNumber).integerValue)
-				}
+				parentObject
+					.values(forKeyPath: "rac_weakObject.rac_value")
+					.map { $0 as! NSNumber }
+					.map { $0.intValue }
+					.startWithNext {
+						values.append($0)
+					}
 
 				expect(values) == [0]
 
@@ -136,65 +144,72 @@ class KeyValueObservingSpec: QuickSpec {
 
 			describe("thread safety") {
 				var testObject: ObservableObject!
-				var concurrentQueue: dispatch_queue_t!
+				var concurrentQueue: DispatchQueue!
 
 				beforeEach {
 					testObject = ObservableObject()
-					concurrentQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.DynamicPropertySpec.concurrentQueue", DISPATCH_QUEUE_CONCURRENT)
+					concurrentQueue = DispatchQueue(label: "org.reactivecocoa.ReactiveCocoa.DynamicPropertySpec.concurrentQueue",
+					                                attributes: .concurrent)
 				}
 
 				it("should handle changes being made on another queue") {
 					var observedValue = 0
 
-					testObject.valuesForKeyPath("rac_value")
-						.skip(1)
-						.take(1)
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).integerValue;
-					}
+					testObject.values(forKeyPath: "rac_value")
+						.skip(first: 1)
+						.take(first: 1)
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
+						}
 
-					dispatch_async(concurrentQueue) {
+					concurrentQueue.async {
 						testObject.rac_value = 2
 					}
 
-					dispatch_barrier_sync(concurrentQueue) {}
+					concurrentQueue.sync(flags: .barrier) {}
 					expect(observedValue).toEventually(be(2))
 				}
 
 				it("should handle changes being made on another queue using deliverOn") {
 					var observedValue = 0
 
-					testObject.valuesForKeyPath("rac_value")
-						.skip(1)
-						.take(1)
-						.observeOn(UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).integerValue;
-					}
+					testObject.values(forKeyPath: "rac_value")
+						.skip(first: 1)
+						.take(first: 1)
+						.observe(on: UIScheduler())
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
+						}
 
-					dispatch_async(concurrentQueue) {
+					concurrentQueue.async {
 						testObject.rac_value = 2
 					}
 
-					dispatch_barrier_sync(concurrentQueue) {}
+					concurrentQueue.sync(flags: .barrier) {}
 					expect(observedValue).toEventually(be(2))
 				}
 
 				it("async disposal of target") {
 					var observedValue = 0
 
-					testObject.valuesForKeyPath("rac_value")
-						.observeOn(UIScheduler())
-						.startWithNext { wrappedInt in
-							observedValue = (wrappedInt as! NSNumber).integerValue;
-					}
+					testObject.values(forKeyPath: "rac_value")
+						.observe(on: UIScheduler())
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.startWithNext {
+							observedValue = $0
+						}
 
-					dispatch_async(concurrentQueue) {
+					concurrentQueue.async {
 						testObject.rac_value = 2
 						testObject = nil
 					}
 
-					dispatch_barrier_sync(concurrentQueue) {}
+					concurrentQueue.sync(flags: .barrier) {}
 					expect(observedValue).toEventually(be(2))
 				}
 			}
@@ -203,31 +218,39 @@ class KeyValueObservingSpec: QuickSpec {
 				let numIterations = 5000
 
 				var testObject: ObservableObject!
-				var iterationQueue: dispatch_queue_t!
-				var concurrentQueue: dispatch_queue_t!
+				var iterationQueue: DispatchQueue!
+				var concurrentQueue: DispatchQueue!
 
 				beforeEach {
 					testObject = ObservableObject()
-					iterationQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT)
-					concurrentQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.DynamicPropertySpec.concurrentQueue", DISPATCH_QUEUE_CONCURRENT)
+					iterationQueue = DispatchQueue(label: "org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue",
+					                               attributes: .concurrent)
+					concurrentQueue = DispatchQueue(label: "org.reactivecocoa.ReactiveCocoa.DynamicPropertySpec.concurrentQueue",
+					                                attributes: .concurrent)
 				}
 
 				it("attach observers") {
-					let deliveringObserver = QueueScheduler(queue: dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT))
+					let deliveringObserver: QueueScheduler
+					if #available(*, OSX 10.10) {
+						deliveringObserver = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						deliveringObserver = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
+
 					var atomicCounter = Int64(0)
 
-					dispatch_apply(numIterations, iterationQueue) { index in
-						testObject.valuesForKeyPath("rac_value")
-							.skip(1)
-							.observeOn(deliveringObserver)
+					DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+						testObject.values(forKeyPath: "rac_value")
+							.skip(first: 1)
+							.observe(on: deliveringObserver)
+							.map { $0 as! NSNumber }
+							.map { $0.int64Value }
 							.startWithNext { value in
-								OSAtomicAdd64((value as! NSNumber).longLongValue, &atomicCounter)
-						}
+								OSAtomicAdd64(value, &atomicCounter)
+							}
 					}
 
-					dispatch_barrier_async(iterationQueue) {
-						testObject.rac_value = 2
-					}
+					testObject.rac_value = 2
 
 					expect(atomicCounter).toEventually(equal(10000), timeout: 30.0)
 				}
@@ -236,37 +259,48 @@ class KeyValueObservingSpec: QuickSpec {
 				it("async disposal of observer") {
 					let serialDisposable = SerialDisposable()
 
-					dispatch_apply(numIterations, iterationQueue) { index in
-						let disposable = testObject.valuesForKeyPath("rac_value").startWithCompleted {}
-						serialDisposable.innerDisposable = disposable
+					iterationQueue.async {
+						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+							let disposable = testObject.values(forKeyPath: "rac_value").startWithCompleted {}
+							serialDisposable.innerDisposable = disposable
 
-						dispatch_async(concurrentQueue) {
-							testObject.rac_value = index;
+							concurrentQueue.async {
+								testObject.rac_value = index
+							}
 						}
 					}
 
-					dispatch_barrier_sync(iterationQueue) {
+					iterationQueue.sync(flags: .barrier) {
 						serialDisposable.dispose()
 					}
 				}
 
 				it("async disposal of signal with in-flight changes") {
 					let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
-					let otherScheduler = QueueScheduler(queue: concurrentQueue)
+					let otherScheduler: QueueScheduler
+					if #available(*, OSX 10.10) {
+						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
+					} else {
+						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
 
-					let replayProducer = testObject.valuesForKeyPath("rac_value")
-						.map { wrappedInt in (wrappedInt as! NSNumber).intValue % 2 == 0 }
-						.observeOn(otherScheduler)
-						.takeUntil(teardown)
-						.replayLazily(1)
+					let replayProducer = testObject.values(forKeyPath: "rac_value")
+						.map { $0 as! NSNumber }
+						.map { $0.intValue }
+						.map { $0 % 2 == 0 }
+						.observe(on: otherScheduler)
+						.take(until: teardown)
+						.replayLazily(upTo: 1)
 
 					replayProducer.start { _ in }
 
-					dispatch_apply(numIterations, iterationQueue) { index in
-						testObject.rac_value = index
+					iterationQueue.async {
+						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+							testObject.rac_value = index
+						}
 					}
 
-					dispatch_barrier_async(iterationQueue) {
+					iterationQueue.async(flags: .barrier) {
 						teardownObserver.sendNext()
 					}
 
@@ -282,10 +316,10 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify weak references") {
 				"weakProperty".withCString { cString in
 					let propertyPointer = class_getProperty(object.dynamicType, cString)
-					expect(propertyPointer) != nil as COpaquePointer
+					expect(propertyPointer) != nil
 
-					if propertyPointer != nil {
-						let attributes = PropertyAttributes(property: propertyPointer)
+					if let pointer = propertyPointer {
+						let attributes = PropertyAttributes(property: pointer)
 						expect(attributes.isWeak) == true
 						expect(attributes.isObject) == true
 						expect(attributes.isBlock) == false
@@ -297,10 +331,10 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify blocks") {
 				"block".withCString { cString in
 					let propertyPointer = class_getProperty(object.dynamicType, cString)
-					expect(propertyPointer) != nil as COpaquePointer
+					expect(propertyPointer) != nil
 
-					if propertyPointer != nil {
-						let attributes = PropertyAttributes(property: propertyPointer)
+					if let pointer = propertyPointer {
+						let attributes = PropertyAttributes(property: pointer)
 						expect(attributes.isWeak) == false
 						expect(attributes.isObject) == true
 						expect(attributes.isBlock) == true
@@ -312,10 +346,10 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify non object properties") {
 				"integer".withCString { cString in
 					let propertyPointer = class_getProperty(object.dynamicType, cString)
-					expect(propertyPointer) != nil as COpaquePointer
+					expect(propertyPointer) != nil
 
-					if propertyPointer != nil {
-						let attributes = PropertyAttributes(property: propertyPointer)
+					if let pointer = propertyPointer {
+						let attributes = PropertyAttributes(property: pointer)
 						expect(attributes.isWeak) == false
 						expect(attributes.isObject) == false
 						expect(attributes.isBlock) == false

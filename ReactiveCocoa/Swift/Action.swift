@@ -74,8 +74,8 @@ public final class Action<Input, Output, Error: Swift.Error> {
 
 		(events, eventsObserver) = Signal<Event<Output, Error>, NoError>.pipe()
 
-		values = events.map { $0.value }.ignoreNil()
-		errors = events.map { $0.error }.ignoreNil()
+		values = events.map { $0.value }.skipNil()
+		errors = events.map { $0.error }.skipNil()
 
 		_isEnabled <~ property.producer
 			.combineLatest(with: isExecuting.producer)

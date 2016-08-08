@@ -400,7 +400,7 @@ class SignalSpec: QuickSpec {
 		describe("ignoreNil") {
 			it("should forward only non-nil values") {
 				let (signal, observer) = Signal<Int?, NoError>.pipe()
-				let mappedSignal = signal.ignoreNil()
+				let mappedSignal = signal.skipNil()
 
 				var lastValue: Int?
 

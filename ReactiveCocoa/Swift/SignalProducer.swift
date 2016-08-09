@@ -1768,8 +1768,8 @@ extension SignalProducer {
 
 			if let token = token {
 				disposable += {
-					state.modify { state in
-						state.observers?.remove(using: token)
+					state.modify {
+						$0.observers?.remove(using: token)
 					}
 				}
 			}
@@ -1777,18 +1777,17 @@ extension SignalProducer {
 
 		let bufferingObserver: Signal<Value, Error>.Observer = Observer { event in
 			let observers: Bag<Signal<Value, Error>.Observer>? = state.modify { state in
-				let observers = state.observers
-
-				if let value = event.value {
-					state.add(value, upTo: capacity)
-				} else {
-					// Disconnect all observers and prevent future
-					// attachments.
-					state.terminationEvent = event
-					state.observers = nil
+				defer {
+					if let value = event.value {
+						state.add(value, upTo: capacity)
+					} else {
+						// Disconnect all observers and prevent future
+						// attachments.
+						state.terminationEvent = event
+						state.observers = nil
+					}
 				}
-
-				return observers
+				return state.observers
 			}
 
 			observers?.forEach { $0.action(event) }

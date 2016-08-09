@@ -429,13 +429,11 @@ private final class ConcatState<Value, Error: Swift.Error> {
 			return
 		}
 
-		var shouldStart = true
-
-		queuedSignalProducers.modify { queue in
+		let shouldStart: Bool = queuedSignalProducers.modify { queue in
 			// An empty queue means the concat is idle, ready & waiting to start
 			// the next producer.
-			shouldStart = queue.isEmpty
-			queue.append(producer)
+			defer { queue.append(producer) }
+			return queue.isEmpty
 		}
 
 		if shouldStart {
@@ -448,17 +446,13 @@ private final class ConcatState<Value, Error: Swift.Error> {
 			return nil
 		}
 
-		var nextSignalProducer: SignalProducer<Value, Error>?
-
-		queuedSignalProducers.modify { queue in
+		return queuedSignalProducers.modify { queue in
 			// Active producers remain in the queue until completed. Since
 			// dequeueing happens at completion of the active producer, the
 			// first producer in the queue can be removed.
 			if !queue.isEmpty { queue.remove(at: 0) }
-			nextSignalProducer = queue.first
+			return queue.first
 		}
-
-		return nextSignalProducer
 	}
 
 	/// Subscribes to the given signal producer.
@@ -502,11 +496,12 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	private func observeMerge(_ observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
 		let decrementInFlight = {
-			let new: Int = inFlight.modify {
+			let shouldComplete: Bool = inFlight.modify {
 				$0 -= 1
-				return $0
+				return $0 == 0
 			}
-			if new == 0 {
+
+			if shouldComplete {
 				observer.sendCompleted()
 			}
 		}
@@ -624,17 +619,17 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 			switch event {
 			case let .next(innerProducer):
 				innerProducer.startWithSignal { innerSignal, innerDisposable in
-					state.modify { state in
+					state.modify {
 						// When we replace the disposable below, this prevents
 						// the generated Interrupted event from doing any work.
-						state.replacingInnerSignal = true
+						$0.replacingInnerSignal = true
 					}
 
 					latestInnerDisposable.innerDisposable = innerDisposable
 
-					state.modify { state in
-						state.replacingInnerSignal = false
-						state.innerSignalComplete = false
+					state.modify {
+						$0.replacingInnerSignal = false
+						$0.innerSignalComplete = false
 					}
 
 					innerSignal.observe { event in
@@ -647,7 +642,6 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 								if !state.replacingInnerSignal {
 									state.innerSignalComplete = true
 								}
-
 								return !state.replacingInnerSignal && state.outerSignalComplete
 							}
 
@@ -656,9 +650,9 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 							}
 
 						case .completed:
-							let shouldComplete: Bool = state.modify { state in
-								state.innerSignalComplete = true
-								return state.outerSignalComplete
+							let shouldComplete: Bool = state.modify {
+								$0.innerSignalComplete = true
+								return $0.outerSignalComplete
 							}
 
 							if shouldComplete {
@@ -670,17 +664,20 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 						}
 					}
 				}
+
 			case let .failed(error):
 				observer.sendFailed(error)
+
 			case .completed:
-				let shouldComplete: Bool = state.modify { state in
-					state.outerSignalComplete = true
-					return state.innerSignalComplete
+				let shouldComplete: Bool = state.modify {
+					$0.outerSignalComplete = true
+					return $0.innerSignalComplete
 				}
 
 				if shouldComplete {
 					observer.sendCompleted()
 				}
+
 			case .interrupted:
 				observer.sendInterrupted()
 			}

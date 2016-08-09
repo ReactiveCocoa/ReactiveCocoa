@@ -154,17 +154,19 @@ public final class Signal<Value, Error: Swift.Error> {
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
-		state.modify { state in
-			state?.retainedSignal = self
-			token = state?.observers.insert(observer)
+		state.modify {
+			$0?.retainedSignal = self
+			token = $0?.observers.insert(observer)
 		}
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				_ = self?.state.modify { state -> Void in
-					state?.observers.remove(using: token)
-					if state?.observers.isEmpty ?? false {
-						state!.retainedSignal = nil
+				if let strongSelf = self {
+					strongSelf.state.modify { state in
+						state?.observers.remove(using: token)
+						if state?.observers.isEmpty ?? false {
+							state!.retainedSignal = nil
+						}
 					}
 				}
 			}
@@ -894,20 +896,23 @@ extension SignalProtocol {
 			disposable += self.observe { event in
 				switch event {
 				case let .next(value):
-					state.modify { st in
-						st.latestValue = value
+					state.modify {
+						$0.latestValue = value
 					}
+
 				case let .failed(error):
 					observer.sendFailed(error)
+
 				case .completed:
-					let shouldComplete: Bool = state.modify { state in
-						state.isSignalCompleted = true
-						return state.isSamplerCompleted
+					let shouldComplete: Bool = state.modify {
+						$0.isSignalCompleted = true
+						return $0.isSamplerCompleted
 					}
 					
 					if shouldComplete {
 						observer.sendCompleted()
 					}
+
 				case .interrupted:
 					observer.sendInterrupted()
 				}
@@ -919,17 +924,20 @@ extension SignalProtocol {
 					if let value = state.value.latestValue {
 						observer.sendNext((value, samplerValue))
 					}
+
 				case .completed:
-					let shouldComplete: Bool = state.modify { state in
-						state.isSamplerCompleted = true
-						return state.isSignalCompleted
+					let shouldComplete: Bool = state.modify {
+						$0.isSamplerCompleted = true
+						return $0.isSignalCompleted
 					}
 					
 					if shouldComplete {
 						observer.sendCompleted()
 					}
+
 				case .interrupted:
 					observer.sendInterrupted()
+
 				case .failed:
 					break
 				}
@@ -1313,19 +1321,20 @@ extension SignalProtocol {
 			disposable += self.observe { event in
 				switch event {
 				case let .next(value):
-					state.modify { state in
-						state.values.left.append(value)
+					state.modify {
+						$0.values.left.append(value)
 					}
-					
 					flush()
+
 				case let .failed(error):
 					onFailed(error)
+
 				case .completed:
-					state.modify { state in
-						state.isCompleted.left = true
+					state.modify {
+						$0.isCompleted.left = true
 					}
-					
 					flush()
+
 				case .interrupted:
 					onInterrupted()
 				}
@@ -1334,19 +1343,20 @@ extension SignalProtocol {
 			disposable += other.observe { event in
 				switch event {
 				case let .next(value):
-					state.modify { state in
-						state.values.right.append(value)
+					state.modify {
+						$0.values.right.append(value)
 					}
-					
 					flush()
+
 				case let .failed(error):
 					onFailed(error)
+
 				case .completed:
-					state.modify { state in
-						state.isCompleted.right = true
+					state.modify {
+						$0.isCompleted.right = true
 					}
-					
 					flush()
+
 				case .interrupted:
 					onInterrupted()
 				}
@@ -1440,11 +1450,11 @@ extension SignalProtocol {
 				}
 
 				var scheduleDate: Date!
-				state.modify { state in
-					state.pendingValue = value
+				state.modify {
+					$0.pendingValue = value
 
 					let proposedScheduleDate: Date
-					if let previousDate = state.previousDate, previousDate.compare(scheduler.currentDate) != .orderedDescending {
+					if let previousDate = $0.previousDate, previousDate.compare(scheduler.currentDate) != .orderedDescending {
 						proposedScheduleDate = previousDate.addingTimeInterval(interval)
 					} else {
 						proposedScheduleDate = scheduler.currentDate
@@ -1462,12 +1472,13 @@ extension SignalProtocol {
 
 				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
 					let pendingValue: Value? = state.modify { state in
-						let value = state.pendingValue
-						if value != nil {
-							state.pendingValue = nil
-							state.previousDate = scheduleDate
+						defer {
+							if state.pendingValue != nil {
+								state.pendingValue = nil
+								state.previousDate = scheduleDate
+							}
 						}
-						return value
+						return state.pendingValue
 					}
 					
 					if let pendingValue = pendingValue {

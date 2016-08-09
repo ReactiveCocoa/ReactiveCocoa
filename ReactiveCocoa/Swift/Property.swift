@@ -597,7 +597,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - returns: The previous property value.
 	@discardableResult
 	public func swap(_ newValue: Value) -> Value {
-		return modify { $0 = newValue }
+		return atomic.swap(newValue)
 	}
 
 	/// Atomically modifies the variable.
@@ -605,9 +605,10 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - action: A closure that accepts old property value and returns a new
 	///             property value.
-	/// - returns: The previous property value.
+	///
+	/// - returns: The result of the action.
 	@discardableResult
-	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
+	public func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
 		return try atomic.modify(action)
 	}
 

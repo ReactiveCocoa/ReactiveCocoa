@@ -502,8 +502,11 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 	private func observeMerge(_ observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable) -> Disposable? {
 		let inFlight = Atomic(1)
 		let decrementInFlight = {
-			let orig = inFlight.modify { $0 -= 1 }
-			if orig == 1 {
+			let new: Int = inFlight.modify {
+				$0 -= 1
+				return $0
+			}
+			if new == 0 {
 				observer.sendCompleted()
 			}
 		}
@@ -640,22 +643,25 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 							// If interruption occurred as a result of a new
 							// producer arriving, we don't want to notify our
 							// observer.
-							let original = state.modify { state in
+							let shouldComplete: Bool = state.modify { state in
 								if !state.replacingInnerSignal {
 									state.innerSignalComplete = true
 								}
+
+								return !state.replacingInnerSignal && state.outerSignalComplete
 							}
 
-							if !original.replacingInnerSignal && original.outerSignalComplete {
+							if shouldComplete {
 								observer.sendCompleted()
 							}
 
 						case .completed:
-							let original = state.modify { state in
+							let shouldComplete: Bool = state.modify { state in
 								state.innerSignalComplete = true
+								return state.outerSignalComplete
 							}
 
-							if original.outerSignalComplete {
+							if shouldComplete {
 								observer.sendCompleted()
 							}
 
@@ -667,11 +673,12 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 			case let .failed(error):
 				observer.sendFailed(error)
 			case .completed:
-				let original = state.modify { state in
+				let shouldComplete: Bool = state.modify { state in
 					state.outerSignalComplete = true
+					return state.innerSignalComplete
 				}
 
-				if original.innerSignalComplete {
+				if shouldComplete {
 					observer.sendCompleted()
 				}
 			case .interrupted:

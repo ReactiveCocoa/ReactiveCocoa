@@ -31,7 +31,7 @@ class AtomicSpec: QuickSpec {
 		}
 
 		it("should modify the value atomically") {
-			expect(atomic.modify({ $0 += 1 })) == 1
+			atomic.modify { $0 += 1 }
 			expect(atomic.value) == 2
 		}
 

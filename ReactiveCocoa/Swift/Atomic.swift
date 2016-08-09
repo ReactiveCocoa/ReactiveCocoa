@@ -51,13 +51,13 @@ public final class Atomic<Value>: AtomicProtocol {
 	/// - parameters:
 	///   - action: A closure that takes the current value.
 	///
-	/// Returns the old value.
+	/// - returns: The result of the action.
 	@discardableResult
-	public func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try withValue { value in
-			try action(&_value)
-			return value
-		}
+	public func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
+		lock.lock()
+		defer { lock.unlock() }
+
+		return try action(&_value)
 	}
 	
 	/// Atomically perform an arbitrary action using the current value of the
@@ -102,14 +102,16 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	/// - parameters:
 	///   - action: A closure that takes the current value.
 	///
-	/// Returns the old value.
+	/// - returns: The result of the action.
 	@discardableResult
-	func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value {
-		return try withValue { value in
-			try action(&_value)
+	func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
+		lock.lock()
+		defer {
 			didSetObserver?(_value)
-			return value
+			lock.unlock()
 		}
+
+		return try action(&_value)
 	}
 	
 	/// Atomically perform an arbitrary action using the current value of the
@@ -135,7 +137,7 @@ public protocol AtomicProtocol: class {
 	func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result
 
 	@discardableResult
-	func modify(_ action: @noescape (inout Value) throws -> Void) rethrows -> Value
+	func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result
 }
 
 extension AtomicProtocol {	
@@ -158,6 +160,10 @@ extension AtomicProtocol {
 	/// - returns: The old value.
 	@discardableResult
 	public func swap(_ newValue: Value) -> Value {
-		return modify { $0 = newValue }
+		return modify { (value: inout Value) in
+			let oldValue = value
+			value = newValue
+			return oldValue
+		}
 	}
 }

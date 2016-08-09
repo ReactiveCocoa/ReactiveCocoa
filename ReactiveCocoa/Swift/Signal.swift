@@ -161,7 +161,7 @@ public final class Signal<Value, Error: Swift.Error> {
 
 		if let token = token {
 			return ActionDisposable { [weak self] in
-				_ = self?.state.modify { state in
+				_ = self?.state.modify { state -> Void in
 					state?.observers.remove(using: token)
 					if state?.observers.isEmpty ?? false {
 						state!.retainedSignal = nil
@@ -900,11 +900,12 @@ extension SignalProtocol {
 				case let .failed(error):
 					observer.sendFailed(error)
 				case .completed:
-					let oldState = state.modify { st in
-						st.isSignalCompleted = true
+					let shouldComplete: Bool = state.modify { state in
+						state.isSignalCompleted = true
+						return state.isSamplerCompleted
 					}
 					
-					if oldState.isSamplerCompleted {
+					if shouldComplete {
 						observer.sendCompleted()
 					}
 				case .interrupted:
@@ -919,11 +920,12 @@ extension SignalProtocol {
 						observer.sendNext((value, samplerValue))
 					}
 				case .completed:
-					let oldState = state.modify { st in
-						st.isSamplerCompleted = true
+					let shouldComplete: Bool = state.modify { state in
+						state.isSamplerCompleted = true
+						return state.isSignalCompleted
 					}
 					
-					if oldState.isSignalCompleted {
+					if shouldComplete {
 						observer.sendCompleted()
 					}
 				case .interrupted:
@@ -1459,14 +1461,16 @@ extension SignalProtocol {
 				}
 
 				schedulerDisposable.innerDisposable = scheduler.schedule(after: scheduleDate) {
-					let previousState = state.modify { state in
-						if state.pendingValue != nil {
+					let pendingValue: Value? = state.modify { state in
+						let value = state.pendingValue
+						if value != nil {
 							state.pendingValue = nil
 							state.previousDate = scheduleDate
 						}
+						return value
 					}
 					
-					if let pendingValue = previousState.pendingValue {
+					if let pendingValue = pendingValue {
 						observer.sendNext(pendingValue)
 					}
 				}

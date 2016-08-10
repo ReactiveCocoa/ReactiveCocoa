@@ -1783,29 +1783,36 @@ private struct ReplayState<Value, Error: Swift.Error> {
 		// the `Observer` to track them directly.
 		let id = ObjectIdentifier(observer)
 
-		func replayCompletion() -> Result<RemovalToken?, ReplayError<Value>> {
-			if let event = terminationEvent {
-				observer.action(event)
-			}
-			return .success(observers?.insert(observer))
+		switch replayBuffers[id] {
+		case .none where !values.isEmpty:
+			// No in-flight replay buffers was found, but the `ReplayState` has one or
+			// more cached values in the `ReplayState`. The observer should replay
+			// them before attempting to observe again.
+			replayBuffers[id] = []
+			return .failure(ReplayError(values: values))
+
+		case let .some(buffer) where !buffer.isEmpty:
+			// An in-flight replay buffer was found with one or more buffered values.
+			// The observer should replay them before attempting to observe again.
+			defer { replayBuffers[id] = [] }
+			return .failure(ReplayError(values: buffer))
+
+		case let .some(buffer) where buffer.isEmpty:
+			// Since an in-flight but empty replay buffer was found, the observer is
+			// ready to be attached to the `ReplayState`.
+			replayBuffers.removeValue(forKey: id)
+
+		default:
+			// No values has to be replayed. The observer is ready to be attached to
+			// the `ReplayState`.
+			break
 		}
 
-		if let buffer = replayBuffers[id] {
-			if buffer.isEmpty {
-				replayBuffers.removeValue(forKey: id)
-				return replayCompletion()
-			} else {
-				defer { replayBuffers[id] = [] }
-				return .failure(ReplayError(values: buffer))
-			}
-		} else {
-			if values.isEmpty {
-				return replayCompletion()
-			} else {
-				replayBuffers[id] = []
-				return .failure(ReplayError(values: values))
-			}
+		if let event = terminationEvent {
+			observer.action(event)
 		}
+
+		return .success(observers?.insert(observer))
 	}
 
 	/// Enqueue the supplied event to the replay state.
@@ -1819,30 +1826,25 @@ private struct ReplayState<Value, Error: Swift.Error> {
 				replayBuffers[key]!.append(value)
 			}
 
-			if capacity == 0 {
-				// `state.values` cannot be non-empty with a capacity of zero.
-				return
-			}
+			switch capacity {
+			case 0:
+				// With a capacity of zero, `state.values` can never be filled.
+				break
 
-			if capacity == 1 {
+			case 1:
 				values = [value]
-				return
+
+			default:
+				values.append(value)
+
+				let overflow = values.count - capacity
+				if overflow > 0 {
+					values.removeFirst(overflow)
+				}
 			}
 
-			values.append(value)
-
-			let overflow = values.count - capacity
-			if overflow > 0 {
-				values.removeSubrange(0 ..< overflow)
-			}
-
-		case .failed:
-			fallthrough
-		case .completed:
-			fallthrough
-		case .interrupted:
-			// Disconnect all observers and prevent future
-			// attachments.
+		case .completed, .failed, .interrupted:
+			// Disconnect all observers and prevent future attachments.
 			terminationEvent = event
 			observers = nil
 		}

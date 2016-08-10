@@ -1,0 +1,40 @@
+#!/bin/sh
+
+set -e -o pipefail
+
+bootstrap() {
+  case "$1" in
+    CocoaPods)
+      ;;
+    *)
+      carthage bootstrap --no-use-binaries --platform "$1"
+      ;;
+  esac
+}
+
+build() {
+  case "$1" in
+    Mac)
+      xcodebuild ${TEST_ACTION:-test} -scheme Rex-Mac | xcpretty -c
+      ;;
+    iOS)
+      xcodebuild ${TEST_ACTION:-test} -scheme Rex-iOS -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
+      ;;
+    tvOS)
+      xcodebuild ${TEST_ACTION:-test} -scheme Rex-tvOS -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c
+      ;;
+    watchOS)
+      xcodebuild build -scheme Rex-watchOS -destination "platform=watchOS Simulator,name=Apple Watch - 42mm" | xcpretty -c
+      ;;
+    CocoaPods)
+      pod lib lint --quick --allow-warnings
+      ;;
+    *)
+      echo 2>&1 "Usage: $0 <Mac|iOS|tvOS|watchOS|CocoaPods>"
+      exit 1
+      ;;
+  esac
+}
+
+bootstrap "$@"
+build "$@"

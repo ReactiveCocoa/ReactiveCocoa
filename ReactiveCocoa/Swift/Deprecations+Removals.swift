@@ -155,6 +155,11 @@ extension SignalProtocol {
 	public func observeNext(_ next: (Value) -> Void) -> Disposable? { fatalError() }
 }
 
+extension SignalProtocol where Value: OptionalProtocol {
+	@available(*, unavailable, renamed:"skipNil()")
+	public func ignoreNil() -> SignalProducer<Value.Wrapped, Error> { fatalError() }
+}
+
 extension SignalProducerProtocol {
 	@available(*, unavailable, renamed:"take(first:)")
 	public func take(_ count: Int) -> SignalProducer<Value, Error> { fatalError() }
@@ -212,6 +217,11 @@ extension SignalProducerProtocol {
 
 	@available(*, unavailable, message:"This SignalProducer may emit errors which must be handled explicitly, or observed using `startWithResult(_:)`.")
 	public func startWithNext(_ next: (Value) -> Void) -> Disposable { fatalError() }
+}
+
+extension SignalProducerProtocol where Value: OptionalProtocol {
+	@available(*, unavailable, renamed:"skipNil()")
+	public func ignoreNil() -> SignalProducer<Value.Wrapped, Error> { fatalError() }
 }
 
 extension SignalProducer {

@@ -1122,8 +1122,8 @@ extension SignalProducerProtocol where Value: OptionalProtocol {
 	/// values are dropped.
 	///
 	/// - returns: A producer that sends only non-nil values.
-	public func ignoreNil() -> SignalProducer<Value.Wrapped, Error> {
-		return lift { $0.ignoreNil() }
+	public func skipNil() -> SignalProducer<Value.Wrapped, Error> {
+		return lift { $0.skipNil() }
 	}
 }
 

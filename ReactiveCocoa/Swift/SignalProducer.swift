@@ -1770,13 +1770,10 @@ private struct ReplayState<Value, Error: Swift.Error> {
 	/// - parameters:
 	///   - observer: The observer to be registered.
 	///
-	/// - throws:
-	///   `ReplayError.pending(values:)` if there are still one or more values
-	///   pending for being replayed by the observer.
-	///
 	/// - returns:
-	///   The removal token of the observer, or `nil` if the replay state has
-	///   already terminated.
+	///   If the observer is successfully attached, a `Result.success` with the
+	///   corresponding removal token would be returned. Otherwise, a
+	///   `Result.failure` with a `ReplayError` would be returned.
 	mutating func observe(_ observer: Signal<Value, Error>.Observer) -> Result<RemovalToken?, ReplayError<Value>> {
 		// Since the only use case is `replayLazily`, which always creates a unique
 		// `Observer` for every produced signal, we can use the ObjectIdentifier of

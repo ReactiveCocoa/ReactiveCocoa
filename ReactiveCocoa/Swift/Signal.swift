@@ -363,7 +363,7 @@ extension SignalProtocol where Value: OptionalProtocol {
 	/// values are dropped.
 	///
 	/// - returns: A signal that sends only non-nil values.
-	public func ignoreNil() -> Signal<Value.Wrapped, Error> {
+	public func skipNil() -> Signal<Value.Wrapped, Error> {
 		return filter { $0.optional != nil }.map { $0.optional! }
 	}
 }
@@ -1144,7 +1144,7 @@ extension SignalProtocol {
 			}
 			.filter { !$0.repeated }
 			.map { $0.value }
-			.ignoreNil()
+			.skipNil()
 	}
 
 	/// Do not forward any values from `self` until `predicate` returns false,

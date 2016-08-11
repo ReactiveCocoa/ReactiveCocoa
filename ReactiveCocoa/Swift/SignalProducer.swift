@@ -1676,14 +1676,15 @@ extension SignalProducerProtocol {
 		// out of scope. This lets us know when we're supposed to dispose the
 		// underlying producer. This is necessary because `struct`s don't have
 		// `deinit`.
-		let lifetime = Lifetime()
+		let lifetimeToken = Lifetime.Token()
+		let lifetime = Lifetime(lifetimeToken)
 
 		let state = Atomic(ReplayState<Value, Error>(upTo: capacity))
 
-		let start: Atomic<(() -> Void)?> = Atomic { [ended = lifetime.ended] in
+		let start: Atomic<(() -> Void)?> = Atomic {
 			// Start the underlying producer.
 			self
-				.take(until: ended)
+				.take(during: lifetime)
 				.start { event in
 					let originalState = state.modify {
 						$0.enqueue(event)
@@ -1695,7 +1696,7 @@ extension SignalProducerProtocol {
 		return SignalProducer { observer, disposable in
 			// Don't dispose of the original producer until all observers
 			// have terminated.
-			disposable += { _ = lifetime }
+			disposable += { _ = lifetimeToken }
 
 			while true {
 				var result: Result<RemovalToken?, ReplayError<Value>>!

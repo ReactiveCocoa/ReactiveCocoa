@@ -1,25 +1,55 @@
 import enum Result.NoError
 
-/// Provides a signal that completes when the lifetime object is deinitialized.
-///
-/// When assigned to a property of another object, provides a hook to
-/// observe when that object goes out of scope.
+/// Represents the lifetime of an object, and provides a hook to observe when
+/// the object deinitializes.
 public final class Lifetime {
 	/// A signal that sends a Completed event when the lifetime ends.
 	public let ended: Signal<(), NoError>
 
-	private let endedObserver: Signal<(), NoError>.Observer
-
-	public init() {
-		(ended, endedObserver) = Signal.pipe()
+	/// Initialize a `Lifetime` from a lifetime token, which is expected to be
+	/// associated with an object.
+	///
+	/// - important: The resulting lifetime object does not retain the lifetime
+	///              token.
+	///
+	/// - parameters:
+	///   - token: A lifetime token for detecting the deinitialization of the
+	///            associated object.
+	public init(_ token: Token) {
+		ended = token.ended
 	}
 
-	deinit {
-		endedObserver.sendCompleted()
+	/// A token object which completes its signal when it deinitializes.
+	///
+	/// It is generally used in conjuncion with `Lifetime` as a private
+	/// deinitialization trigger.
+	///
+	/// ```
+	/// class MyController {
+	///		private let token = Lifetime.Token()
+	///		public var lifetime: Lifetime {
+	///			return Lifetime(token)
+	///		}
+	/// }
+	/// ```
+	public final class Token {
+		/// A signal that sends a Completed event when the lifetime ends.
+		private let ended: Signal<(), NoError>
+
+		private let endedObserver: Signal<(), NoError>.Observer
+
+		public init() {
+			(ended, endedObserver) = Signal.pipe()
+		}
+
+		deinit {
+			endedObserver.sendCompleted()
+		}
 	}
 }
 
 private var lifetimeKey: UInt8 = 0
+private var lifetimeTokenKey: UInt8 = 0
 
 extension NSObject {
 	/// Returns a lifetime that ends when the receiver is deallocated.
@@ -31,7 +61,10 @@ extension NSObject {
 			return lifetime
 		}
 
-		let lifetime = Lifetime()
+		let token = Lifetime.Token()
+		let lifetime = Lifetime(token)
+
+		objc_setAssociatedObject(self, &lifetimeTokenKey, token, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 		objc_setAssociatedObject(self, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
 		return lifetime

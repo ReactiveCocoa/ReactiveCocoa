@@ -1686,10 +1686,11 @@ extension SignalProducerProtocol {
 			self
 				.take(during: lifetime)
 				.start { event in
-					let originalState = state.modify {
-						$0.enqueue(event)
+					let observers: Bag<Signal<Value, Error>.Observer>? = state.modify { state in
+						defer { state.enqueue(event) }
+						return state.observers
 					}
-					originalState.observers?.forEach { $0.action(event) }
+					observers?.forEach { $0.action(event) }
 				}
 		}
 

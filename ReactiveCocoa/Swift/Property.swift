@@ -25,9 +25,18 @@ public protocol PropertyProtocol: class {
 }
 
 /// Represents an observable property that can be mutated directly.
-public protocol MutablePropertyProtocol: PropertyProtocol {
+public protocol MutablePropertyProtocol: BindingTarget, PropertyProtocol {
 	/// The current value of the property.
 	var value: Value { get set }
+}
+
+/// Default implementation of `MutablePropertyProtocol` for `BindingTarget`.
+extension MutablePropertyProtocol {
+	public typealias ValueType = Value
+
+	public func consume(_ value: Value) {
+		self.value = value
+	}
 }
 
 /// Protocol composition operators
@@ -535,8 +544,8 @@ public final class Property<Value>: PropertyProtocol {
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: MutablePropertyProtocol {
+	private let token: Lifetime.Token
 	private let observer: Signal<Value, NoError>.Observer
-
 	private let atomic: RecursiveAtomic<Value>
 
 	/// The current value of the property.
@@ -552,6 +561,9 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 			swap(newValue)
 		}
 	}
+
+	/// The lifetime of the property.
+	public let lifetime: Lifetime
 
 	/// A signal that will send the property's changes over time,
 	/// then complete when the property has deinitialized.
@@ -580,6 +592,8 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	///   - initialValue: Starting value for the mutable property.
 	public init(_ initialValue: Value) {
 		(signal, observer) = Signal.pipe()
+		token = Lifetime.Token()
+		lifetime = Lifetime(token)
 
 		/// Need a recursive lock around `value` to allow recursive access to
 		/// `value`. Note that recursive sets will still deadlock because the
@@ -627,252 +641,4 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	deinit {
 		observer.sendCompleted()
 	}
-}
-
-private class Box<Value> {
-	var value: Value
-
-	init(_ value: Value) {
-		self.value = value
-	}
-}
-
-infix operator <~ {
-	associativity right
-
-	// Binds tighter than assignment but looser than everything else
-	precedence 93
-}
-
-/// Binds a signal to a property, updating the property's value to the latest
-/// value sent by the signal.
-///
-/// - note: The binding will automatically terminate when the property is
-///         deinitialized, or when the signal sends a `completed` event.
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let signal = Signal({ /* do some work after some time */ })
-/// property <~ signal
-/// ````
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let signal = Signal({ /* do some work after some time */ })
-/// let disposable = property <~ signal
-/// ...
-/// // Terminates binding before property dealloc or signal's 
-/// // `completed` event.
-/// disposable.dispose()
-/// ````
-///
-/// - parameters:
-///   - property: A property to bind to.
-///   - signal: A signal to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or signal's `completed` event.
-@discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, signal: Signal<P.Value, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-	disposable += property.producer.startWithCompleted {
-		disposable.dispose()
-	}
-
-	disposable += signal.observe { [weak property] event in
-		switch event {
-		case let .next(value):
-			property?.value = value
-		case .completed:
-			disposable.dispose()
-		case .failed, .interrupted:
-			break
-		}
-	}
-
-	return disposable
-}
-
-/// Creates a signal from the given producer, which will be immediately bound to
-/// the given property, updating the property's value to the latest value sent
-/// by the signal.
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let producer = SignalProducer<Int, NoError>(value: 1)
-/// property <~ producer
-/// print(property.value) // prints `1`
-/// ````
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let producer = SignalProducer({ /* do some work after some time */ })
-/// let disposable = (property <~ producer)
-/// ...
-/// // Terminates binding before property dealloc or
-/// // signal's `completed` event.
-/// disposable.dispose()
-/// ````
-///
-/// - note: The binding will automatically terminate when the property is 
-///         deinitialized, or when the created producer sends a `completed` 
-///         event.
-///
-/// - parameters:
-///   - property: A property to bind to.
-///   - producer: A producer to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or producer's `completed` event.
-@discardableResult
-public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProducer<P.Value, NoError>) -> Disposable {
-	let disposable = CompositeDisposable()
-
-	producer
-		.on(completed: { disposable.dispose() })
-		.startWithSignal { signal, signalDisposable in
-			disposable += property <~ signal
-			disposable += signalDisposable
-
-			disposable += property.producer.startWithCompleted {
-				disposable.dispose()
-			}
-		}
-
-	return disposable
-}
-
-/// Binds a signal to a property, updating the property's value to the latest
-/// value sent by the signal.
-///
-/// - note: The binding will automatically terminate when the property is
-///         deinitialized, or when the signal sends a `completed` event.
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let signal = Signal({ /* do some work after some time */ })
-/// property <~ signal
-/// ````
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let signal = Signal({ /* do some work after some time */ })
-/// let disposable = property <~ signal
-/// ...
-/// // Terminates binding before property dealloc or signal's 
-/// // `completed` event.
-/// disposable.dispose()
-/// ````
-///
-/// - parameters:
-///   - property: A property to bind to.
-///   - signal: A signal to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or signal's `completed` event.
-@discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
-	return property <~ signal.optionalize()
-}
-
-/// Creates a signal from the given producer, which will be immediately bound to
-/// the given property, updating the property's value to the latest value sent
-/// by the signal.
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let producer = SignalProducer<Int, NoError>(value: 1)
-/// property <~ producer
-/// print(property.value) // prints `1`
-/// ````
-///
-/// ````
-/// let property = MutableProperty(0)
-/// let producer = SignalProducer({ /* do some work after some time */ })
-/// let disposable = (property <~ producer)
-/// ...
-/// // Terminates binding before property dealloc or
-/// // signal's `completed` event.
-/// disposable.dispose()
-/// ````
-///
-/// - note: The binding will automatically terminate when the property is 
-///         deinitialized, or when the created producer sends a `completed` 
-///         event.
-///
-/// - parameters:
-///   - property: A property to bind to.
-///   - producer: A producer to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of property or producer's `completed` event.
-@discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
-	return property <~ producer.optionalize()
-}
-
-/// Binds `destinationProperty` to the latest values of `sourceProperty`.
-///
-/// ````
-/// let dstProperty = MutableProperty(0)
-/// let srcProperty = ConstantProperty(10)
-/// dstProperty <~ srcProperty
-/// print(dstProperty.value) // prints 10
-/// ````
-///
-/// ````
-/// let dstProperty = MutableProperty(0)
-/// let srcProperty = ConstantProperty(10)
-/// let disposable = (dstProperty <~ srcProperty)
-/// ...
-/// disposable.dispose() // terminate the binding earlier if
-///                      // needed
-/// ````
-///
-/// - note: The binding will automatically terminate when either property is
-///         deinitialized.
-///
-/// - parameters:
-///   - destinationProperty: A property to bind to.
-///   - sourceProperty: A property to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of destination property or source property
-///            producer's `completed` event.
-@discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
-}
-
-/// Binds `destinationProperty` to the latest values of `sourceProperty`.
-///
-/// ````
-/// let dstProperty = MutableProperty(0)
-/// let srcProperty = ConstantProperty(10)
-/// dstProperty <~ srcProperty
-/// print(dstProperty.value) // prints 10
-/// ````
-///
-/// ````
-/// let dstProperty = MutableProperty(0)
-/// let srcProperty = ConstantProperty(10)
-/// let disposable = (dstProperty <~ srcProperty)
-/// ...
-/// disposable.dispose() // terminate the binding earlier if
-///                      // needed
-/// ````
-///
-/// - note: The binding will automatically terminate when either property is
-///         deinitialized.
-///
-/// - parameters:
-///   - destinationProperty: A property to bind to.
-///   - sourceProperty: A property to bind.
-///
-/// - returns: A disposable that can be used to terminate binding before the
-///            deinitialization of destination property or source property
-///            producer's `completed` event.
-@discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
-	return destinationProperty <~ sourceProperty.producer
 }

@@ -2218,6 +2218,42 @@ class SignalProducerSpec: QuickSpec {
 				}
 			}
 		}
+
+		describe("take(during:)") {
+			it("completes a signal when the lifetime ends") {
+				let (signal, observer) = Signal<Int, NoError>.pipe()
+				let object = MutableReference(TestObject())
+
+				let output = signal.take(during: object.value!.lifetime)
+
+				var results: [Int] = []
+				output.observeNext { results.append($0) }
+
+				observer.sendNext(1)
+				observer.sendNext(2)
+				object.value = nil
+				observer.sendNext(3)
+
+				expect(results) == [1, 2]
+			}
+
+			it("completes a signal producer when the lifetime ends") {
+				let (producer, observer) = Signal<Int, NoError>.pipe()
+				let object = MutableReference(TestObject())
+
+				let output = producer.take(during: object.value!.lifetime)
+
+				var results: [Int] = []
+				output.observeNext { results.append($0) }
+
+				observer.sendNext(1)
+				observer.sendNext(2)
+				object.value = nil
+				observer.sendNext(3)
+
+				expect(results) == [1, 2]
+			}
+		}
 	}
 }
 

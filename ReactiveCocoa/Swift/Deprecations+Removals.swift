@@ -1,3 +1,4 @@
+import Foundation
 import enum Result.NoError
 
 // MARK: Removed Types and APIs in ReactiveCocoa 5.0.

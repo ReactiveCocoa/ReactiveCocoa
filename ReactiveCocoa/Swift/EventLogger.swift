@@ -32,7 +32,13 @@ private func defaultEventLog(identifier: String, event: String, fileName: String
 }
 
 /// A type that represents an event logging function.
-public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
+public typealias EventLogger = (
+	_ identifier: String,
+	_ event: String,
+	_ fileName: String,
+	_ functionName: String,
+	_ lineNumber: Int
+) -> Void
 
 extension SignalProtocol {
 	/// Logs all events that the receiver sends. By default, it will print to 

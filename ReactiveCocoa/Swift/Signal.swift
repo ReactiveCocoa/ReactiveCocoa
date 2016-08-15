@@ -517,7 +517,7 @@ extension SignalProtocol {
 				switch event {
 				case let .next(value):
 					state.append(value)
-					if predicate(values: state.values) {
+					if predicate(state.values) {
 						observer.sendNext(state.values)
 						state.flush()
 					}
@@ -581,7 +581,7 @@ extension SignalProtocol {
 			return self.observe { event in
 				switch event {
 				case let .next(value):
-					if predicate(values: state.values, next: value) {
+					if predicate(state.values, value) {
 						observer.sendNext(state.values)
 						state.flush()
 					}

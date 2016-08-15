@@ -108,7 +108,7 @@ extension RACSignal {
 				observer.sendNext(obj)
 			}
 
-			let failed: (nsError: Swift.Error?) -> () = {
+			let failed: (_ nsError: Swift.Error?) -> () = {
 				observer.sendFailed($0 ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 

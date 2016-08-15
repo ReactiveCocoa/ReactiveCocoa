@@ -184,7 +184,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 			producerDisposable.dispose()
 		}
 
-		setup(signal: signal, interrupter: cancelDisposable)
+		setup(signal, cancelDisposable)
 
 		if cancelDisposable.isDisposed {
 			return

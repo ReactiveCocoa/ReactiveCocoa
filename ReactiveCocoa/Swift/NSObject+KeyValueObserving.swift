@@ -26,7 +26,7 @@ extension NSObject {
 }
 
 internal final class KeyValueObserver: NSObject {
-	typealias Action = (object: AnyObject?) -> Void
+	typealias Action = (_ object: AnyObject?) -> Void
 	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
 
 	unowned(unsafe) let unsafeObject: NSObject
@@ -52,9 +52,14 @@ internal final class KeyValueObserver: NSObject {
 		unsafeObject.removeObserver(self, forKeyPath: key, context: KeyValueObserver.context)
 	}
 
-	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+	override func observeValue(
+		forKeyPath keyPath: String?,
+		of object: AnyObject?,
+		change: [NSKeyValueChangeKey : AnyObject]?,
+		context: UnsafeMutableRawPointer?
+	) {
 		if context == KeyValueObserver.context {
-			action(object: object)
+			action(object)
 		}
 	}
 }
@@ -76,7 +81,12 @@ extension KeyValueObserver {
 	///
 	/// - returns:
 	///   A disposable that would tear down the observation upon disposal.
-	static func observe(_ object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: (value: AnyObject?) -> Void) -> ActionDisposable {
+	static func observe(
+		_ object: NSObject,
+		keyPath: String,
+		options: NSKeyValueObservingOptions,
+		action: @escaping (_ value: AnyObject?) -> Void
+	) -> ActionDisposable {
 		// Compute the key path head and tail.
 		let components = keyPath.components(separatedBy: ".")
 		precondition(!components.isEmpty, "Received an empty key path.")
@@ -117,7 +127,7 @@ extension KeyValueObserver {
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
-					action(value: nil)
+					action(nil)
 					return
 				}
 
@@ -126,7 +136,7 @@ extension KeyValueObserver {
 
 				if shouldObserveDeinit {
 					let disposable = value.rac_lifetime.ended.observeCompleted {
-						action(value: nil)
+						action(nil)
 					}
 					headDisposable += disposable
 				}
@@ -141,24 +151,24 @@ extension KeyValueObserver {
 				headDisposable += disposable
 
 				// Send the latest value of the key path tail.
-				action(value: value.value(forKeyPath: keyPathTail))
+				action(value.value(forKeyPath: keyPathTail) as AnyObject?)
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
-					action(value: nil)
+					action(nil)
 					return
 				}
 
 				if shouldObserveDeinit {
 					let disposable = value.rac_lifetime.ended.observeCompleted {
-						action(value: nil)
+						action(nil)
 					}
 					headSerialDisposable.innerDisposable = disposable
 				}
 
 				// Send the latest value of the key.
-				action(value: value)
+				action(value)
 			}
 		}
 

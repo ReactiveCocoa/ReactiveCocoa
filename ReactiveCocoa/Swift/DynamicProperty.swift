@@ -5,8 +5,8 @@ import enum Result.NoError
 /// types, including generic types when boxed via `AnyObject`).
 private protocol ObjectiveCRepresentable {
 	associatedtype Value
-	static func extract(from representation: AnyObject) -> Value
-	static func represent(_ value: Value) -> AnyObject
+	static func extract(from representation: Any) -> Value
+	static func represent(_ value: Value) -> Any
 }
 
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
@@ -19,8 +19,8 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (from: AnyObject) -> Value
-	private let represent: (Value) -> AnyObject
+	private let extractValue: (_ from: Any) -> Value
+	private let represent: (Value) -> Any
 
 	private var property: MutableProperty<Value?>?
 

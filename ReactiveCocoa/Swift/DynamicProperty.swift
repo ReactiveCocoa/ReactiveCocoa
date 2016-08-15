@@ -63,7 +63,13 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - keyPath: Key path to observe on the object.
 	///   - representable: A representation that bridges the values across the
 	///                    language boundary.
-	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
+	private init<Representatable: ObjectiveCRepresentable>(
+		object: NSObject?,
+		keyPath: String,
+		representable: Representatable.Type
+	)
+		where Representatable.Value == Value
+	{
 		self.object = object
 		self.keyPath = keyPath
 

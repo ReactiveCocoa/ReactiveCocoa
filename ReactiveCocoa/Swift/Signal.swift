@@ -1651,7 +1651,9 @@ extension SignalProtocol {
 
 	/// Combines the values of all the given signals, in the manner described by
 	/// `combineLatestWith`. No events will be sent if the sequence is empty.
-	public static func combineLatest<S: Sequence where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
+	public static func combineLatest<S: Sequence>(_ signals: S) -> Signal<[Value], Error>
+		where S.Iterator.Element == Signal<Value, Error>
+	{
 		var generator = signals.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -1735,7 +1737,9 @@ extension SignalProtocol {
 
 	/// Zips the values of all the given signals, in the manner described by
 	/// `zipWith`. No events will be sent if the sequence is empty.
-	public static func zip<S: Sequence where S.Iterator.Element == Signal<Value, Error>>(_ signals: S) -> Signal<[Value], Error> {
+	public static func zip<S: Sequence>(_ signals: S) -> Signal<[Value], Error>
+		where S.Iterator.Element == Signal<Value, Error>
+	{
 		var generator = signals.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }

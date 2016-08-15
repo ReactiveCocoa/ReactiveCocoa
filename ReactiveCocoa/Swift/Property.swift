@@ -185,13 +185,13 @@ extension PropertyProtocol where Value: Hashable {
 extension PropertyProtocol {
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> Property<(A.Value, B.Value)> {
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> Property<(A.Value, B.Value)> where Value == A.Value {
 		return a.combineLatest(with: b)
 	}
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> Property<(A.Value, B.Value, C.Value)> {
+	public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> Property<(A.Value, B.Value, C.Value)> where Value == A.Value {
 		return combineLatest(a, b)
 			.combineLatest(with: c)
 			.map(repack)
@@ -199,7 +199,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> Property<(A.Value, B.Value, C.Value, D.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> Property<(A.Value, B.Value, C.Value, D.Value)> where Value == A.Value {
 		return combineLatest(a, b, c)
 			.combineLatest(with: d)
 			.map(repack)
@@ -207,7 +207,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d)
 			.combineLatest(with: e)
 			.map(repack)
@@ -215,7 +215,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d, e)
 			.combineLatest(with: f)
 			.map(repack)
@@ -223,7 +223,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d, e, f)
 			.combineLatest(with: g)
 			.map(repack)
@@ -231,7 +231,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d, e, f, g)
 			.combineLatest(with: h)
 			.map(repack)
@@ -239,7 +239,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d, e, f, g, h)
 			.combineLatest(with: i)
 			.map(repack)
@@ -247,7 +247,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given properties, in the manner described
 	/// by `combineLatest(with:)`.
-		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+		public static func combineLatest<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> where Value == A.Value {
 		return combineLatest(a, b, c, d, e, f, g, h, i)
 			.combineLatest(with: j)
 			.map(repack)
@@ -255,7 +255,7 @@ extension PropertyProtocol {
 
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatest(with:)`. Returns nil if the sequence is empty.
-	public static func combineLatest<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> Property<[S.Iterator.Element.Value]>? {
+	public static func combineLatest<S: Sequence>(_ properties: S) -> Property<[S.Iterator.Element.Value]>? where S.Iterator.Element: PropertyProtocol {
 		var generator = properties.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -269,13 +269,13 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B) -> Property<(A.Value, B.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol>(_ a: A, _ b: B) -> Property<(A.Value, B.Value)> where Value == A.Value {
 		return a.zip(with: b)
 	}
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C) -> Property<(A.Value, B.Value, C.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol>(_ a: A, _ b: B, _ c: C) -> Property<(A.Value, B.Value, C.Value)> where Value == A.Value {
 		return zip(a, b)
 			.zip(with: c)
 			.map(repack)
@@ -283,7 +283,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D) -> Property<(A.Value, B.Value, C.Value, D.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D) -> Property<(A.Value, B.Value, C.Value, D.Value)> where Value == A.Value {
 		return zip(a, b, c)
 			.zip(with: d)
 			.map(repack)
@@ -291,7 +291,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value)> where Value == A.Value {
 		return zip(a, b, c, d)
 			.zip(with: e)
 			.map(repack)
@@ -299,7 +299,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> where Value == A.Value {
 		return zip(a, b, c, d, e)
 			.zip(with: f)
 			.map(repack)
@@ -307,7 +307,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> where Value == A.Value {
 		return zip(a, b, c, d, e, f)
 			.zip(with: g)
 			.map(repack)
@@ -315,7 +315,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> where Value == A.Value {
 		return zip(a, b, c, d, e, f, g)
 			.zip(with: h)
 			.map(repack)
@@ -323,7 +323,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> where Value == A.Value {
 		return zip(a, b, c, d, e, f, g, h)
 			.zip(with: i)
 			.map(repack)
@@ -331,7 +331,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`.
-	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol where Value == A.Value>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+	public static func zip<A: PropertyProtocol, B: PropertyProtocol, C: PropertyProtocol, D: PropertyProtocol, E: PropertyProtocol, F: PropertyProtocol, G: PropertyProtocol, H: PropertyProtocol, I: PropertyProtocol, J: PropertyProtocol>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Property<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> where Value == A.Value {
 		return zip(a, b, c, d, e, f, g, h, i)
 			.zip(with: j)
 			.map(repack)
@@ -339,7 +339,7 @@ extension PropertyProtocol {
 
 	/// Zips the values of all the given properties, in the manner described by
 	/// `zip(with:)`. Returns nil if the sequence is empty.
-	public static func zip<S: Sequence where S.Iterator.Element: PropertyProtocol>(_ properties: S) -> Property<[S.Iterator.Element.Value]>? {
+	public static func zip<S: Sequence>(_ properties: S) -> Property<[S.Iterator.Element.Value]>? where S.Iterator.Element: PropertyProtocol {
 		var generator = properties.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -412,7 +412,7 @@ public final class Property<Value>: PropertyProtocol {
 	///
 	/// - parameters:
 	///   - property: A property to be wrapped.
-	public init<P: PropertyProtocol where P.Value == Value>(_ property: P) {
+	public init<P: PropertyProtocol>(_ property: P) where P.Value == Value {
 		sources = Property.capture(property)
 		_value = { property.value }
 		_producer = { property.producer }
@@ -467,7 +467,7 @@ public final class Property<Value>: PropertyProtocol {
 	///   - secondProperty: The first source property.
 	///   - transform: A binary `SignalProducer` transform to be applied on
 	///             `firstProperty` and `secondProperty`.
-	private convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @noescape (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
+	private convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: Property.capture(firstProperty) + Property.capture(secondProperty))
 	}
@@ -776,7 +776,7 @@ public func <~ <P: MutablePropertyProtocol>(property: P, producer: SignalProduce
 /// - returns: A disposable that can be used to terminate binding before the
 ///            deinitialization of property or signal's `completed` event.
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, signal: S) -> Disposable {
+public func <~ <P: MutablePropertyProtocol, S: SignalProtocol>(property: P, signal: S) -> Disposable where P.Value == S.Value?, S.Error == NoError {
 	return property <~ signal.optionalize()
 }
 
@@ -812,7 +812,7 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProtocol where P.Value == S
 /// - returns: A disposable that can be used to terminate binding before the
 ///            deinitialization of property or producer's `completed` event.
 @discardableResult
-public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Value == S.Value?, S.Error == NoError>(property: P, producer: S) -> Disposable {
+public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol>(property: P, producer: S) -> Disposable where P.Value == S.Value?, S.Error == NoError {
 	return property <~ producer.optionalize()
 }
 
@@ -845,7 +845,7 @@ public func <~ <P: MutablePropertyProtocol, S: SignalProducerProtocol where P.Va
 ///            deinitialization of destination property or source property
 ///            producer's `completed` event.
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Destination.Value == Source.Value?>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol>(destinationProperty: Destination, sourceProperty: Source) -> Disposable where Destination.Value == Source.Value? {
 	return destinationProperty <~ sourceProperty.producer
 }
 
@@ -878,6 +878,6 @@ public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol w
 ///            deinitialization of destination property or source property
 ///            producer's `completed` event.
 @discardableResult
-public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol where Source.Value == Destination.Value>(destinationProperty: Destination, sourceProperty: Source) -> Disposable {
+public func <~ <Destination: MutablePropertyProtocol, Source: PropertyProtocol>(destinationProperty: Destination, sourceProperty: Source) -> Disposable where Source.Value == Destination.Value {
 	return destinationProperty <~ sourceProperty.producer
 }

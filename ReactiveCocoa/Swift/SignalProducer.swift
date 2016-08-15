@@ -28,7 +28,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	///
 	/// - parameters:
 	///   - signal: A signal to observe after starting the producer.
-	public init<S: SignalProtocol where S.Value == Value, S.Error == Error>(signal: S) {
+	public init<S: SignalProtocol>(signal: S) where S.Value == Value, S.Error == Error {
 		self.init { observer, disposable in
 			disposable += signal.observe(observer)
 		}
@@ -1371,7 +1371,9 @@ extension SignalProducerProtocol {
 
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-	public static func combineLatest<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+	public static func combineLatest<S: Sequence>(_ producers: S) -> SignalProducer<[Value], Error>
+		where S.Iterator.Element == SignalProducer<Value, Error>
+	{
 		var generator = producers.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -1455,7 +1457,9 @@ extension SignalProducerProtocol {
 
 	/// Zips the values of all the given producers, in the manner described by
 	/// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-	public static func zip<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+	public static func zip<S: Sequence>(_ producers: S) -> SignalProducer<[Value], Error>
+		where S.Iterator.Element == SignalProducer<Value, Error>
+	{
 		var generator = producers.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }

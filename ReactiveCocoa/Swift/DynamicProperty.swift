@@ -114,18 +114,18 @@ extension DynamicProperty where Value: AnyObject {
 
 /// Represents values in Objective-C directly, via `AnyObject`.
 private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
-	static func extract(from representation: AnyObject) -> Value {
+	static func extract(from representation: Any) -> Value {
 		return representation as! Value
 	}
 
-	static func represent(_ value: Value) -> AnyObject {
+	static func represent(_ value: Value) -> Any {
 		return value
 	}
 }
 
 /// Represents values in Objective-C indirectly, via bridging.
 private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresentable {
-	static func extract(from representation: AnyObject) -> Value {
+	static func extract(from representation: Any) -> Value {
 		let object = representation as! Value._ObjectiveCType
 		var result: Value?
 		Value._forceBridgeFromObjectiveC(object, result: &result)

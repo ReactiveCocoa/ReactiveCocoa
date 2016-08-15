@@ -81,7 +81,7 @@ public final class CompositeDisposable: Disposable {
 		private let bagToken: Atomic<RemovalToken?>
 		private weak var disposable: CompositeDisposable?
 
-		private static let empty = DisposableHandle()
+		fileprivate static let empty = DisposableHandle()
 
 		private init() {
 			self.bagToken = Atomic(nil)

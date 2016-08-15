@@ -33,7 +33,7 @@ internal final class KeyValueObserver: NSObject {
 	let key: String
 	let action: Action
 
-	private init(observing object: NSObject, key: String, options: NSKeyValueObservingOptions, action: Action) {
+	fileprivate init(observing object: NSObject, key: String, options: NSKeyValueObservingOptions, action: Action) {
 		self.unsafeObject = object
 		self.key = key
 		self.action = action

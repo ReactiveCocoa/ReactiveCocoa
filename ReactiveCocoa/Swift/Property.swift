@@ -39,12 +39,12 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<U>(_ transform: (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
+	fileprivate func lift<U>(_ transform: (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
 		return Property(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<P: PropertyProtocol, U>(_ transform: (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> (P) -> Property<U> {
+	fileprivate func lift<P: PropertyProtocol, U>(_ transform: (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> (P) -> Property<U> {
 		return { otherProperty in
 			return Property(self, otherProperty, transform: transform)
 		}

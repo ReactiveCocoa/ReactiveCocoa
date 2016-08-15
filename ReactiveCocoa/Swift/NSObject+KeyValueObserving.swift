@@ -110,7 +110,7 @@ extension KeyValueObserver {
 		// Attempting to observe non-weak properties using dynamic getters will
 		// result in broken behavior, so don't even try.
 		let shouldObserveDeinit = keyPathHead.withCString { cString -> Bool in
-			if let propertyPointer = class_getProperty(object.dynamicType, cString) {
+			if let propertyPointer = class_getProperty(type(of: object), cString) {
 				let attributes = PropertyAttributes(property: propertyPointer)
 				return attributes.isObject && attributes.isWeak && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock
 			}

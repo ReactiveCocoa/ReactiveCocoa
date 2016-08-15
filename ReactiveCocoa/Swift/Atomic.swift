@@ -93,7 +93,7 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	internal init(_ value: Value, name: StaticString? = nil, didSet action: ((Value) -> Void)? = nil) {
 		_value = value
 		lock = NSRecursiveLock()
-		lock.name = name.map(String.init(_:))
+		lock.name = name.map(String.init(describing:))
 		didSetObserver = action
 	}
 

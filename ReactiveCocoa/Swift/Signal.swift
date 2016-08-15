@@ -37,7 +37,7 @@ public final class Signal<Value, Error: Swift.Error> {
 	/// - parameters:
 	///   - generator: A closure that accepts an implicitly created observer
 	///                that will act as an event emitter for the signal.
-	public init(_ generator: @noescape (Observer) -> Disposable?) {
+	public init(_ generator: (Observer) -> Disposable?) {
 		state = Atomic(SignalState())
 
 		/// Used to ensure that events are serialized during delivery to observers.
@@ -231,7 +231,7 @@ extension SignalProtocol {
 	///            invocation of the callback. Disposing of the Disposable will
 	///            have no effect on the Signal itself.
 	@discardableResult
-	public func observeResult(_ result: (Result<Value, Error>) -> Void) -> Disposable? {
+	public func observeResult(_ result: @escaping (Result<Value, Error>) -> Void) -> Disposable? {
 		return observe(
 			Observer(
 				next: { result(.success($0)) },
@@ -251,7 +251,7 @@ extension SignalProtocol {
 	///            invocation of the callback. Disposing of the Disposable will
 	///            have no effect on the Signal itself.
 	@discardableResult
-	public func observeCompleted(_ completed: () -> Void) -> Disposable? {
+	public func observeCompleted(_ completed: @escaping () -> Void) -> Disposable? {
 		return observe(Observer(completed: completed))
 	}
 	
@@ -266,7 +266,7 @@ extension SignalProtocol {
 	/// callback. Disposing of the Disposable will have no effect on the Signal
 	/// itself.
 	@discardableResult
-	public func observeFailed(_ error: (Error) -> Void) -> Disposable? {
+	public func observeFailed(_ error: @escaping (Error) -> Void) -> Disposable? {
 		return observe(Observer(failed: error))
 	}
 	
@@ -282,7 +282,7 @@ extension SignalProtocol {
 	///            invocation of the callback. Disposing of the Disposable will
 	///            have no effect on the Signal itself.
 	@discardableResult
-	public func observeInterrupted(_ interrupted: () -> Void) -> Disposable? {
+	public func observeInterrupted(_ interrupted: @escaping () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
 	}
 }
@@ -298,7 +298,7 @@ extension SignalProtocol where Error == NoError {
 	///            invocation of the callback. Disposing of the Disposable will
 	///            have no effect on the Signal itself.
 	@discardableResult
-	public func observeNext(_ next: (Value) -> Void) -> Disposable? {
+	public func observeNext(_ next: @escaping (Value) -> Void) -> Disposable? {
 		return observe(Observer(next: next))
 	}
 }
@@ -311,7 +311,7 @@ extension SignalProtocol {
 	///                returns a new value.
 	///
 	/// - returns: A signal that will send new values.
-	public func map<U>(_ transform: (Value) -> U) -> Signal<U, Error> {
+	public func map<U>(_ transform: @escaping (Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				observer.action(event.map(transform))
@@ -326,7 +326,7 @@ extension SignalProtocol {
 	///                a new type of error object.
 	///
 	/// - returns: A signal that will send new type of errors.
-	public func mapError<F>(_ transform: (Error) -> F) -> Signal<Value, F> {
+	public func mapError<F>(_ transform: @escaping (Error) -> F) -> Signal<Value, F> {
 		return Signal { observer in
 			return self.observe { event in
 				observer.action(event.mapError(transform))
@@ -342,7 +342,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that will send only the values passing the given
 	///            predicate.
-	public func filter(_ predicate: (Value) -> Bool) -> Signal<Value, Error> {
+	public func filter(_ predicate: @escaping (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { (event: Event<Value, Error>) -> Void in
 				guard let value = event.value else {
@@ -509,7 +509,7 @@ extension SignalProtocol {
 	/// - returns: A signal that collects values passing the predicate and, when
 	///            `self` completes, forwards them as a single array and
 	///            complets.
-	public func collect(_ predicate: (values: [Value]) -> Bool) -> Signal<[Value], Error> {
+	public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
 
@@ -574,7 +574,7 @@ extension SignalProtocol {
 	/// - returns: A signal that will yield an array of values based on a
 	///            predicate which matches the values collected and the next
 	///            value.
-	public func collect(_ predicate: (values: [Value], next: Value) -> Bool) -> Signal<[Value], Error> {
+	public func collect(_ predicate: @escaping (_ values: [Value], _ next: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
 
@@ -1060,7 +1060,7 @@ extension SignalProtocol {
 	///              `self`.
 	///
 	/// - returns: A signal that sends accumulated value after `self` completes.
-	public func reduce<U>(_ initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
+	public func reduce<U>(_ initial: U, _ combine: @escaping (U, Value) -> U) -> Signal<U, Error> {
 		// We need to handle the special case in which `signal` sends no values.
 		// We'll do that by sending `initial` on the output signal (before
 		// taking the last value).
@@ -1072,7 +1072,8 @@ extension SignalProtocol {
 		outputSignalObserver.sendNext(initial)
 
 		// Pipe the scanned input signal into the output signal.
-		scan(initial, combine).observe(outputSignalObserver)
+		self.scan(initial, combine)
+			.observe(outputSignalObserver)
 
 		return outputSignal
 	}
@@ -1091,7 +1092,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that sends accumulated value each time `self` emits
 	///            own value.
-	public func scan<U>(_ initial: U, _ combine: (U, Value) -> U) -> Signal<U, Error> {
+	public func scan<U>(_ initial: U, _ combine: @escaping (U, Value) -> U) -> Signal<U, Error> {
 		return Signal { observer in
 			var accumulator = initial
 
@@ -1130,7 +1131,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that forwards only those values that fail given
 	///            `isRepeat` predicate.
-	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> Signal<Value, Error> {
+	public func skipRepeats(_ isRepeat: @escaping (Value, Value) -> Bool) -> Signal<Value, Error> {
 		return self
 			.scan((nil, false)) { (accumulated: (Value?, Bool), next: Value) -> (value: Value?, repeated: Bool) in
 				switch accumulated.0 {
@@ -1155,7 +1156,7 @@ extension SignalProtocol {
 	///                should still not forward that value to a `signal`.
 	///
 	/// - returns: A signal that sends only forwarded values from `self`.
-	public func skip(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
+	public func skip(while predicate: @escaping (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			var shouldSkip = true
 
@@ -1257,7 +1258,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that sends events until the values sent by `self`
 	///            pass the given `predicate`.
-	public func take(while predicate: (Value) -> Bool) -> Signal<Value, Error> {
+	public func take(while predicate: @escaping (Value) -> Bool) -> Signal<Value, Error> {
 		return Signal { observer in
 			return self.observe { event in
 				if let value = event.value, !predicate(value) {
@@ -1374,7 +1375,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that receives `Success`ful `Result` as `next` event
 	///            and `Failure` as failed event.
-	public func attempt(_ operation: (Value) -> Result<(), Error>) -> Signal<Value, Error> {
+	public func attempt(_ operation: @escaping (Value) -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
 			return operation(value).map {
 				return value
@@ -1391,7 +1392,7 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that sends mapped values from `self` if returned
 	///            `Result` is `Success`ful, failed events otherwise.
-	public func attemptMap<U>(_ operation: (Value) -> Result<U, Error>) -> Signal<U, Error> {
+	public func attemptMap<U>(_ operation: @escaping (Value) -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
 			self.observe { event in
 				switch event {
@@ -1536,7 +1537,7 @@ extension SignalProtocol {
 	///                value.
 	///
 	/// - returns: A signal that sends unique values during its lifetime.
-	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> Signal<Value, Error> {
+	public func uniqueValues<Identity: Hashable>(_ transform: @escaping (Value) -> Identity) -> Signal<Value, Error> {
 		return Signal { observer in
 			var seenValues: Set<Identity> = []
 			

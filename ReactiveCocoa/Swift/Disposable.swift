@@ -61,7 +61,7 @@ public final class ActionDisposable: Disposable {
 	///
 	/// - parameters:
 	///   - action: A closure to run when calling `dispose()`.
-	public init(action: () -> Void) {
+	public init(action: @escaping () -> Void) {
 		self.action = Atomic(action)
 	}
 
@@ -181,7 +181,7 @@ public final class CompositeDisposable: Disposable {
 	///
 	/// - returns: An instance of `DisposableHandle` that can be used to
 	///            opaquely remove the disposable later (if desired).
-	public func add(_ action: () -> Void) -> DisposableHandle {
+	public func add(_ action: @escaping () -> Void) -> DisposableHandle {
 		return add(ActionDisposable(action: action))
 	}
 }
@@ -312,7 +312,7 @@ public func +=(lhs: CompositeDisposable, rhs: Disposable?) -> CompositeDisposabl
 /// - returns: An instance of `DisposableHandle` that can be used to opaquely
 ///            remove the disposable later (if desired).
 @discardableResult
-public func +=(lhs: CompositeDisposable, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
+public func +=(lhs: CompositeDisposable, rhs: @escaping () -> ()) -> CompositeDisposable.DisposableHandle {
 	return lhs.add(rhs)
 }
 
@@ -348,6 +348,6 @@ public func +=(lhs: ScopedDisposable<CompositeDisposable>, rhs: Disposable?) -> 
 /// - returns: An instance of `DisposableHandle` that can be used to opaquely
 ///            remove the disposable later (if desired).
 @discardableResult
-public func +=(lhs: ScopedDisposable<CompositeDisposable>, rhs: () -> ()) -> CompositeDisposable.DisposableHandle {
+public func +=(lhs: ScopedDisposable<CompositeDisposable>, rhs: @escaping () -> ()) -> CompositeDisposable.DisposableHandle {
 	return lhs.innerDisposable.add(rhs)
 }

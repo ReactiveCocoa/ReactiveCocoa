@@ -39,12 +39,12 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
+	private func lift<U>(_ transform: (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
 		return Property(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	private func lift<P: PropertyProtocol, U>(_ transform: @noescape (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> @noescape (P) -> Property<U> {
+	private func lift<P: PropertyProtocol, U>(_ transform: (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> (P) -> Property<U> {
 		return { otherProperty in
 			return Property(self, otherProperty, transform: transform)
 		}
@@ -58,7 +58,7 @@ extension PropertyProtocol {
 	///
 	/// - returns: A new instance of `AnyProperty` who's holds a mapped value
 	///            from `self`.
-	public func map<U>(_ transform: (Value) -> U) -> Property<U> {
+	public func map<U>(_ transform: @escaping (Value) -> U) -> Property<U> {
 		return lift { $0.map(transform) }
 	}
 
@@ -109,7 +109,7 @@ extension PropertyProtocol {
 	///
 	/// - returns: A property that does not emit events for two equal values
 	///            sequentially.
-	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> Property<Value> {
+	public func skipRepeats(_ isRepeat: @escaping (Value, Value) -> Bool) -> Property<Value> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 }
@@ -148,7 +148,7 @@ extension PropertyProtocol {
 	///   - transform: The transform to be applied on `self` before flattening.
 	///
 	/// - returns: A property that sends the values of its inner properties.
-	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: (Value) -> P) -> Property<P.Value> {
+	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: @escaping (Value) -> P) -> Property<P.Value> {
 		return lift { $0.flatMap(strategy) { transform($0).producer } }
 	}
 
@@ -163,7 +163,7 @@ extension PropertyProtocol {
 	///                value.
 	///
 	/// - returns: A property that sends unique values during its lifetime.
-	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> Property<Value> {
+	public func uniqueValues<Identity: Hashable>(_ transform: @escaping (Value) -> Identity) -> Property<Value> {
 		return lift { $0.uniqueValues(transform) }
 	}
 }
@@ -449,9 +449,14 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: The source property.
 	///   - transform: A unary `SignalProducer` transform to be applied on
 	///     `property`.
-	private convenience init<P: PropertyProtocol>(_ property: P, transform: @noescape (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>) {
-		self.init(unsafeProducer: transform(property.producer),
-		          capturing: Property.capture(property))
+	private convenience init<P: PropertyProtocol>(
+		_ property: P,
+		transform: (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>
+	) {
+		self.init(
+			unsafeProducer: transform(property.producer),
+			capturing: Property.capture(property)
+		)
 	}
 
 	/// Initialize a composed property by applying the binary `SignalProducer`
@@ -608,7 +613,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	public func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
+	public func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result {
 		return try atomic.modify(action)
 	}
 
@@ -620,7 +625,7 @@ public final class MutableProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - returns: the result of the action.
 	@discardableResult
-	public func withValue<Result>(action: @noescape (Value) throws -> Result) rethrows -> Result {
+	public func withValue<Result>(action: (Value) throws -> Result) rethrows -> Result {
 		return try atomic.withValue(action)
 	}
 

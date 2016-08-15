@@ -53,7 +53,7 @@ public final class Atomic<Value>: AtomicProtocol {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	public func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
+	public func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
 
@@ -68,7 +68,7 @@ public final class Atomic<Value>: AtomicProtocol {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	public func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
+	public func withValue<Result>(_ action: (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
 
@@ -104,7 +104,7 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result {
+	func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer {
 			didSetObserver?(_value)
@@ -122,7 +122,7 @@ internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	///
 	/// - returns: The result of the action.
 	@discardableResult
-	func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result {
+	func withValue<Result>(_ action: (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
 		defer { lock.unlock() }
 
@@ -134,10 +134,10 @@ public protocol AtomicProtocol: class {
 	associatedtype Value
 
 	@discardableResult
-	func withValue<Result>(_ action: @noescape (Value) throws -> Result) rethrows -> Result
+	func withValue<Result>(_ action: (Value) throws -> Result) rethrows -> Result
 
 	@discardableResult
-	func modify<Result>(_ action: @noescape (inout Value) throws -> Result) rethrows -> Result
+	func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result
 }
 
 extension AtomicProtocol {	

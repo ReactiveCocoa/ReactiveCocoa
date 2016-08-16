@@ -144,7 +144,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 		return Date()
 	}
 
-	internal let queue: DispatchQueue
+	public let queue: DispatchQueue
 	
 	internal init(internalQueue: DispatchQueue) {
 		queue = internalQueue

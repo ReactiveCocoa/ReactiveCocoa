@@ -7,6 +7,7 @@
 //
 
 import ReactiveCocoa
+import ReactiveSwift
 import Result
 
 enum TestError: Int {

@@ -1,4 +1,5 @@
 import Foundation
+import ReactiveSwift
 import enum Result.NoError
 
 extension NSObject {

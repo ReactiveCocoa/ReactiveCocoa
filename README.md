@@ -189,7 +189,7 @@ our event stream.
 
 #### Debugging event streams
 
-Due to its nature, a stream's stack trace might have dozens of frames, which, more often than not, can make debugging a very frustrating activity. 
+Due to its nature, a stream's stack trace might have dozens of frames, which, more often than not, can make debugging a very frustrating activity.
 A naive way of debugging, is by injecting side effects into the stream, like so:
 
 ```swift
@@ -354,10 +354,10 @@ We also provide a great Playground, so you can get used to ReactiveCocoa's opera
      - `carthage checkout`
  1. Open `ReactiveCocoa.xcworkspace`
  1. Build `Result-Mac` scheme
- 1. Build `ReactiveCocoa-Mac` scheme
+ 1. Build `ReactiveCocoa-macOS` scheme
  1. Finally open the `ReactiveCocoa.playground`
  1. Choose `View > Show Debug Area`
-    
+
 [Actions]: Documentation/FrameworkOverview.md#actions
 [Basic Operators]: Documentation/BasicOperators.md
 [CHANGELOG]: CHANGELOG.md

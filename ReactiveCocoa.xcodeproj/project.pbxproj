@@ -2010,9 +2010,9 @@
 			productReference = A9B315541B3940610001CB9C /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		D04725E919E49ED7006002AA /* ReactiveCocoa-Mac */ = {
+		D04725E919E49ED7006002AA /* ReactiveCocoa-macOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D047260019E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-Mac" */;
+			buildConfigurationList = D047260019E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-macOS" */;
 			buildPhases = (
 				D04725E519E49ED7006002AA /* Sources */,
 				D04725E619E49ED7006002AA /* Frameworks */,
@@ -2023,14 +2023,14 @@
 			);
 			dependencies = (
 			);
-			name = "ReactiveCocoa-Mac";
+			name = "ReactiveCocoa-macOS";
 			productName = ReactiveCocoa;
 			productReference = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		D04725F419E49ED7006002AA /* ReactiveCocoa-MacTests */ = {
+		D04725F419E49ED7006002AA /* ReactiveCocoa-macOSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D047260319E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-MacTests" */;
+			buildConfigurationList = D047260319E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-macOSTests" */;
 			buildPhases = (
 				D04725F119E49ED7006002AA /* Sources */,
 				D04725F219E49ED7006002AA /* Frameworks */,
@@ -2041,7 +2041,7 @@
 			dependencies = (
 				D04725F819E49ED7006002AA /* PBXTargetDependency */,
 			);
-			name = "ReactiveCocoa-MacTests";
+			name = "ReactiveCocoa-macOSTests";
 			productName = ReactiveCocoaTests;
 			productReference = D04725F519E49ED7006002AA /* ReactiveCocoaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -2134,8 +2134,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D04725E919E49ED7006002AA /* ReactiveCocoa-Mac */,
-				D04725F419E49ED7006002AA /* ReactiveCocoa-MacTests */,
+				D04725E919E49ED7006002AA /* ReactiveCocoa-macOS */,
+				D04725F419E49ED7006002AA /* ReactiveCocoa-macOSTests */,
 				D047260B19E49F82006002AA /* ReactiveCocoa-iOS */,
 				D047261519E49F82006002AA /* ReactiveCocoa-iOSTests */,
 				A9B315531B3940610001CB9C /* ReactiveCocoa-watchOS */,
@@ -2744,7 +2744,7 @@
 		};
 		D04725F819E49ED7006002AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D04725E919E49ED7006002AA /* ReactiveCocoa-Mac */;
+			target = D04725E919E49ED7006002AA /* ReactiveCocoa-macOS */;
 			targetProxy = D04725F719E49ED7006002AA /* PBXContainerItemProxy */;
 		};
 		D047261919E49F82006002AA /* PBXTargetDependency */ = {
@@ -3281,7 +3281,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D047260019E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-Mac" */ = {
+		D047260019E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D047260119E49ED7006002AA /* Debug */,
@@ -3292,7 +3292,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D047260319E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-MacTests" */ = {
+		D047260319E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-macOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D047260419E49ED7006002AA /* Debug */,

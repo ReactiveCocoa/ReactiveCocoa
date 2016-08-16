@@ -44,7 +44,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D04725E919E49ED7006002AA"
                BuildableName = "ReactiveCocoa.framework"
-               BlueprintName = "ReactiveCocoa-Mac"
+               BlueprintName = "ReactiveCocoa-macOS"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -86,7 +86,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D04725F419E49ED7006002AA"
                BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-MacTests"
+               BlueprintName = "ReactiveCocoa-macOSTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -105,7 +105,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D04725F419E49ED7006002AA"
                BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-MacTests"
+               BlueprintName = "ReactiveCocoa-macOSTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -115,7 +115,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D04725E919E49ED7006002AA"
             BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-Mac"
+            BlueprintName = "ReactiveCocoa-macOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -137,7 +137,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D04725E919E49ED7006002AA"
             BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-Mac"
+            BlueprintName = "ReactiveCocoa-macOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -155,7 +155,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D04725E919E49ED7006002AA"
             BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-Mac"
+            BlueprintName = "ReactiveCocoa-macOS"
             ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

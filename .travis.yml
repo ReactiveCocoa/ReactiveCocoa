@@ -11,7 +11,7 @@ script:
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:
   include:
-    - xcode_scheme: ReactiveCocoa-Mac
+    - xcode_scheme: ReactiveCocoa-macOS
       env:
         - XCODE_SDK=macosx
         - XCODE_ACTION="build test"

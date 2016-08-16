@@ -1,26 +1,26 @@
 /*:
-> # IMPORTANT: To use `ReactiveCocoa.playground`, please:
+> # IMPORTANT: To use `ReactiveSwift.playground`, please:
 
-1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
+1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveSwift project root directory:
     - `script/bootstrap`
  **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
     - `carthage checkout`
-1. Open `ReactiveCocoa.xcworkspace`
+1. Open `ReactiveSwift.xcworkspace`
 1. Build `Result-Mac` scheme
-1. Build `ReactiveCocoa-Mac` scheme
-1. Finally open the `ReactiveCocoa.playground`
+1. Build `ReactiveSwift-macOS` scheme
+1. Finally open the `ReactiveSwift.playground`
 1. Choose `View > Show Debug Area`
 */
 
 import Result
-import ReactiveCocoa
+import ReactiveSwift
 import Foundation
 
 /*:
 ## SignalProducer
 
-A **signal producer**, represented by the [`SignalProducer`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/SignalProducer.swift) type, creates
-[signals](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Signal.swift) and performs side effects.
+A **signal producer**, represented by the [`SignalProducer`](https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/ReactiveSwift/SignalProducer.swift) type, creates
+[signals](https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/ReactiveSwift/Signal.swift) and performs side effects.
 
 They can be used to represent operations or tasks, like network
 requests, where each invocation of `start()` will create a new underlying

@@ -1,25 +1,25 @@
 /*:
-> # IMPORTANT: To use `ReactiveCocoa.playground`, please:
+> # IMPORTANT: To use `ReactiveSwift.playground`, please:
 
-1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
+1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveSwift project root directory:
     - `script/bootstrap`
 **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
     - `carthage checkout`
-1. Open `ReactiveCocoa.xcworkspace`
+1. Open `ReactiveSwift.xcworkspace`
 1. Build `Result-Mac` scheme
-1. Build `ReactiveCocoa-Mac` scheme
-1. Finally open the `ReactiveCocoa.playground`
+1. Build `ReactiveSwift-macOS` scheme
+1. Finally open the `ReactiveSwift.playground`
 1. Choose `View > Show Debug Area`
 */
 
 import Result
-import ReactiveCocoa
+import ReactiveSwift
 import Foundation
 
 /*:
 ## Signal
 
-A **signal**, represented by the [`Signal`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Signal.swift) type, is any series of [`Event`](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Event.swift) values
+A **signal**, represented by the [`Signal`](https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/ReactiveSwift/Signal.swift) type, is any series of [`Event`](https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/ReactiveSwift/Event.swift) values
 over time that can be observed.
 
 Signals are generally used to represent event streams that are already “in progress”,
@@ -34,7 +34,7 @@ cannot have any effect on their lifetime. While observing a signal, the user
 can only evaluate the events in the same order as they are sent on the signal. There
 is no random access to values of a signal.
 
-Signals can be manipulated by applying [primitives](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/BasicOperators.md) to them.
+Signals can be manipulated by applying [primitives](https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/BasicOperators.md) to them.
 Typical primitives to manipulate a single signal like `filter`, `map` and
 `reduce` are available, as well as primitives to manipulate multiple signals
 at once (`zip`). Primitives operate only on the `Next` events of a signal.

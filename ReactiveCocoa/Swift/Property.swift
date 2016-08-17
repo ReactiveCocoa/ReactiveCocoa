@@ -39,12 +39,12 @@ public protocol MutablePropertyProtocol: PropertyProtocol {
 /// any intermediate property during the composition.
 extension PropertyProtocol {
 	/// Lifts a unary SignalProducer operator to operate upon PropertyProtocol instead.
-	fileprivate func lift<U>(_ transform: (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
+	fileprivate func lift<U>(_ transform: @escaping (SignalProducer<Value, NoError>) -> SignalProducer<U, NoError>) -> Property<U> {
 		return Property(self, transform: transform)
 	}
 
 	/// Lifts a binary SignalProducer operator to operate upon PropertyProtocol instead.
-	fileprivate func lift<P: PropertyProtocol, U>(_ transform: (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> (P) -> Property<U> {
+	fileprivate func lift<P: PropertyProtocol, U>(_ transform: @escaping (SignalProducer<Value, NoError>) -> (SignalProducer<P.Value, NoError>) -> SignalProducer<U, NoError>) -> (P) -> Property<U> {
 		return { otherProperty in
 			return Property(self, otherProperty, transform: transform)
 		}
@@ -449,9 +449,9 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: The source property.
 	///   - transform: A unary `SignalProducer` transform to be applied on
 	///     `property`.
-	private convenience init<P: PropertyProtocol>(
+	fileprivate convenience init<P: PropertyProtocol>(
 		_ property: P,
-		transform: (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>
+		transform: @escaping (SignalProducer<P.Value, NoError>) -> SignalProducer<Value, NoError>
 	) {
 		self.init(
 			unsafeProducer: transform(property.producer),
@@ -467,7 +467,7 @@ public final class Property<Value>: PropertyProtocol {
 	///   - secondProperty: The first source property.
 	///   - transform: A binary `SignalProducer` transform to be applied on
 	///             `firstProperty` and `secondProperty`.
-	private convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
+	fileprivate convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @escaping (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer),
 		          capturing: Property.capture(firstProperty) + Property.capture(secondProperty))
 	}

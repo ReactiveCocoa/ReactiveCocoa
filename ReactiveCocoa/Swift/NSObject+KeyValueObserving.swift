@@ -27,7 +27,7 @@ extension NSObject {
 
 internal final class KeyValueObserver: NSObject {
 	typealias Action = (_ object: AnyObject?) -> Void
-	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
+	private static let context = UnsafeMutableRawPointer.allocate(bytes: 1, alignedTo: 0)
 
 	unowned(unsafe) let unsafeObject: NSObject
 	let key: String
@@ -54,12 +54,12 @@ internal final class KeyValueObserver: NSObject {
 
 	override func observeValue(
 		forKeyPath keyPath: String?,
-		of object: AnyObject?,
-		change: [NSKeyValueChangeKey : AnyObject]?,
+		of object: Any?,
+		change: [NSKeyValueChangeKey : Any]?,
 		context: UnsafeMutableRawPointer?
 	) {
 		if context == KeyValueObserver.context {
-			action(object)
+			action(object as! NSObject)
 		}
 	}
 }
@@ -234,7 +234,7 @@ internal struct PropertyAttributes {
 			let string = String(validatingUTF8: attrString)
 			preconditionFailure("Could not read past type in attribute string: \(string).")
 		}
-		var next = UnsafeMutablePointer<Int8>(_next)
+		var next = UnsafeMutablePointer<Int8>(mutating: _next)
 
 		let typeLength = typeString.distance(to: next)
 		precondition(typeLength > 0, "Invalid type in attribute string.")
@@ -255,7 +255,7 @@ internal struct PropertyAttributes {
 			if className != UnsafePointer(next) {
 				let length = className.distance(to: next)
 				let name = UnsafeMutablePointer<Int8>.allocate(capacity: length + 1)
-				name.initialize(from: UnsafeMutablePointer<Int8>(className), count: length)
+				name.initialize(from: UnsafeMutablePointer<Int8>(mutating: className), count: length)
 				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime

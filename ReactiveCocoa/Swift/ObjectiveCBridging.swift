@@ -26,7 +26,7 @@ extension RACScheduler: DateSchedulerProtocol {
 	/// - returns: Disposable that can be used to cancel the work before it
 	///            begins.
 	@discardableResult
-	public func schedule(_ action: () -> Void) -> Disposable? {
+	public func schedule(_ action: @escaping () -> Void) -> Disposable? {
 		let disposable: RACDisposable = self.schedule(action) // Call the Objective-C implementation
 		return disposable as Disposable?
 	}
@@ -40,7 +40,7 @@ extension RACScheduler: DateSchedulerProtocol {
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: @escaping () -> Void) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
@@ -56,7 +56,7 @@ extension RACScheduler: DateSchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: @escaping () -> Void) -> Disposable? {
 		return self.after(date, repeatingEvery: interval, withLeeway: leeway, schedule: action)
 	}
 }
@@ -109,7 +109,7 @@ extension RACSignal {
 			}
 
 			let failed: (_ nsError: Swift.Error?) -> () = {
-				observer.sendFailed($0 ?? defaultNSError("Nil RACSignal error", file: file, line: line))
+				observer.sendFailed(($0 as? NSError) ?? defaultNSError("Nil RACSignal error", file: file, line: line))
 			}
 
 			let completed = {
@@ -299,7 +299,7 @@ extension RACCommand {
 **/
 
 extension ActionProtocol {
-	private var isCommandEnabled: RACSignal {
+	fileprivate var isCommandEnabled: RACSignal {
 		return self.isEnabled.producer
 			.map { $0 as NSNumber }
 			.toRACSignal()

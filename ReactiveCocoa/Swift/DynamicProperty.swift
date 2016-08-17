@@ -63,7 +63,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - keyPath: Key path to observe on the object.
 	///   - representable: A representation that bridges the values across the
 	///                    language boundary.
-	private init<Representatable: ObjectiveCRepresentable>(
+	fileprivate init<Representatable: ObjectiveCRepresentable>(
 		object: NSObject?,
 		keyPath: String,
 		representable: Representatable.Type
@@ -132,7 +132,7 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 		return result!
 	}
 
-	static func represent(_ value: Value) -> AnyObject {
+	static func represent(_ value: Value) -> Any {
 		return value._bridgeToObjectiveC()
 	}
 }

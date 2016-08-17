@@ -10,13 +10,13 @@ import ReactiveCocoa
 import ReactiveSwift
 import Result
 
-enum TestError: Int {
+internal enum TestError: Int {
 	case `default` = 0
 	case error1 = 1
 	case error2 = 2
 }
 
-extension TestError: Error {
+internal extension TestError: Error {
 }
 
 

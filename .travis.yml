@@ -2,6 +2,25 @@ language: objective-c
 matrix:
   include:
     - osx_image: xcode7.3
+      env: PLATFORM=Mac
+    - osx_image: xcode7.3
+      env: PLATFORM=iOS
+    - osx_image: xcode7.3
+      env: PLATFORM=tvOS
+    - osx_image: xcode7.3
+      env: PLATFORM=watchOS
+    - osx_image: xcode7.3
+      env: PLATFORM=CocoaPods
+    - osx_image: xcode8
+      env: PLATFORM=Mac TEST_ACTION="build-for-testing test-without-building"
+    - osx_image: xcode8
+      env: PLATFORM=iOS TEST_ACTION="build-for-testing test-without-building"
+    - osx_image: xcode8
+      env: PLATFORM=tvOS TEST_ACTION="build-for-testing test-without-building"
+    - osx_image: xcode8
+      env: PLATFORM=watchOS TEST_ACTION="build-for-testing test-without-building"
+    - osx_image: xcode8
+      env: PLATFORM=CocoaPods
 
 env:
   global:
@@ -10,14 +29,7 @@ env:
 git:
   submodules: false
 
-script:
-  - set -o pipefail
-  - carthage bootstrap
-  - xcodebuild test -scheme Rex-Mac | xcpretty -c
-  - xcodebuild test -scheme Rex-iOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6s" | xcpretty -c
-  - xcodebuild test -scheme Rex-tvOS -sdk appletvsimulator -destination "platform=tvOS Simulator,name=Apple TV 1080p" | xcpretty -c
-  - xcodebuild build -scheme Rex-watchOS -sdk watchsimulator -destination "platform=watchOS Simulator,name=Apple Watch - 38mm" | xcpretty -c
-  - pod lib lint
+script: script/ci "$PLATFORM"
 
 notifications:
   email: false

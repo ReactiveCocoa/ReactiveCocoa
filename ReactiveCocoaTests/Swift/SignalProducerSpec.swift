@@ -1044,6 +1044,37 @@ class SignalProducerSpec: QuickSpec {
 					}
 				}
 
+				describe("sequencing with many completed signal producers") {
+					let count = 10000
+					var disposable: Disposable!
+					var called = 0
+
+					beforeEach {
+						var producers: [SignalProducer<(), NoError>] = [
+							SignalProducer<(), NoError>(value: ())
+								.delay(0.1, on: QueueScheduler())
+						]
+						for _ in 0..<count {
+							producers.append(SignalProducer<(), NoError>(value: ()))
+						}
+						disposable = SignalProducer<SignalProducer<(), NoError>, NoError>(
+							values: producers
+							)
+							.flatten(.concat)
+							.startWithNext { _ in
+								called += 1
+						}
+					}
+
+					afterEach {
+						disposable.dispose()
+					}
+
+					it("should be able to send next event for many completed signal producers") {
+						expect{called}.toEventually(equal(count + 1), timeout: 5)
+					}
+				}
+
 				it("should forward an error from an inner producer") {
 					let errorProducer = SignalProducer<Int, TestError>(error: TestError.default)
 					let outerProducer = SignalProducer<SignalProducer<Int, TestError>, TestError>(value: errorProducer)

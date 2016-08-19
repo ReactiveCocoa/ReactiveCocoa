@@ -459,20 +459,56 @@ private final class ConcatState<Value, Error: Swift.Error> {
 
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(_ signalProducer: SignalProducer<Value, Error>) {
-		signalProducer.startWithSignal { signal, disposable in
-			let handle = self.disposable?.add(disposable) ?? nil
+		// Are we still inside the loop
+		var isLooping = true
+		// Current signal producer
+		let currentProducer = Atomic<SignalProducer<Value, Error>?>(signalProducer)
+		// Iterate over continuous completed SignalProducer as much as possible.
+		// We need to do this instead of recursive, otherwise when we encounter tons of completed
+		// SignalProducer, it's very liekly we will have stack overflow issue like this
+		//
+		//     startNextSignalProducer(signalProducer0) --Completed-->
+		//         startNextSignalProducer(signalProducer1) --Completed-->
+		//             startNextSignalProducer(signalProducer2) --Completed-->
+		//                 startNextSignalProducer(signalProducer3) --Completed-->
+		//                     ....
+		//
+		while let producer = currentProducer.modify({ (value: inout SignalProducer<Value, Error>?) -> SignalProducer<Value, Error>? in
+			guard let producer = value else {
+				// no next provider provided, set isLooping to false
+				isLooping = false
+				return nil
+			}
+			// set producer to nil and see if the producer will completed when we start it
+			value = nil
+			return producer
+		}) {
+			producer.startWithSignal { signal, disposable in
+				let handle = self.disposable?.add(disposable)
 
-			signal.observe { event in
-				switch event {
-				case .completed, .interrupted:
-					handle?.remove()
+				signal.observe { event in
+					switch event {
+					case .completed, .interrupted:
+						handle?.remove()
 
-					if let nextSignalProducer = self.dequeueSignalProducer() {
-						self.startNextSignalProducer(nextSignalProducer)
+						if let nextSignalProducer = self.dequeueSignalProducer() {
+							if currentProducer.modify({ value -> Bool in
+    							// We are still in the loop, use looping
+								if isLooping {
+									value = nextSignalProducer
+									// return false to not to call startNextSignalProducer
+									return false
+								}
+								return true
+							// We are outside the loop now, let's call
+							// startNextSignalProducer to start the next SignalProducer
+							}) {
+								self.startNextSignalProducer(nextSignalProducer)
+							}
+						}
+    				case .next, .failed:
+						self.observer.action(event)
 					}
-
-				case .next, .failed:
-					self.observer.action(event)
 				}
 			}
 		}

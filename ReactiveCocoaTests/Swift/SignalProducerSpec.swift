@@ -1051,19 +1051,18 @@ class SignalProducerSpec: QuickSpec {
 
 					beforeEach {
 						var producers: [SignalProducer<(), NoError>] = [
-							SignalProducer<(), NoError>(value: ())
-								.delay(0.1, on: QueueScheduler())
+							SignalProducer<(), NoError>(value: ()).delay(0.1, on: QueueScheduler())
 						]
 						for _ in 0..<count {
 							producers.append(SignalProducer<(), NoError>(value: ()))
 						}
 						disposable = SignalProducer<SignalProducer<(), NoError>, NoError>(
 							values: producers
-							)
+						)
 							.flatten(.concat)
 							.startWithNext { _ in
 								called += 1
-						}
+							}
 					}
 
 					afterEach {

@@ -26,7 +26,7 @@ class SchedulerSpec: QuickSpec {
 		}
 
 		describe("UIScheduler") {
-			func dispatchSyncInBackground(_ action: () -> Void) {
+			func dispatchSyncInBackground(_ action: @escaping () -> Void) {
 				let group = DispatchGroup()
 
 				let globalQueue: DispatchQueue

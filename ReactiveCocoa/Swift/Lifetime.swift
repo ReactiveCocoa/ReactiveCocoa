@@ -35,7 +35,7 @@ public final class Lifetime {
 	/// ```
 	public final class Token {
 		/// A signal that sends a Completed event when the lifetime ends.
-		private let ended: Signal<(), NoError>
+		fileprivate let ended: Signal<(), NoError>
 
 		private let endedObserver: Signal<(), NoError>.Observer
 

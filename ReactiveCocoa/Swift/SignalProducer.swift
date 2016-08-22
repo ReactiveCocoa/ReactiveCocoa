@@ -28,7 +28,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	///
 	/// - parameters:
 	///   - signal: A signal to observe after starting the producer.
-	public init<S: SignalProtocol where S.Value == Value, S.Error == Error>(signal: S) {
+	public init<S: SignalProtocol>(signal: S) where S.Value == Value, S.Error == Error {
 		self.init { observer, disposable in
 			disposable += signal.observe(observer)
 		}
@@ -47,7 +47,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	///
 	/// - parameters:
 	///   - startHandler: A closure that accepts observer and a disposable.
-	public init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
+	public init(_ startHandler: @escaping (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
 		self.startHandler = startHandler
 	}
 
@@ -99,7 +99,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	/// - parameters:
 	///   - values: A sequence of values that a `Signal` will send as separate
 	///             `next` events and then complete.
-	public init<S: Sequence where S.Iterator.Element == Value>(values: S) {
+	public init<S: Sequence>(values: S) where S.Iterator.Element == Value {
 		self.init { observer, disposable in
 			for value in values {
 				observer.sendNext(value)
@@ -150,7 +150,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	/// - returns: A `SignalProducer` that will forward `Success`ful `result` as
 	///            `next` event and then complete or `failed` event if `result`
 	///            is a `Failure`.
-	public static func attempt(_ operation: () -> Result<Value, Error>) -> SignalProducer {
+	public static func attempt(_ operation: @escaping () -> Result<Value, Error>) -> SignalProducer {
 		return self.init { observer, disposable in
 			operation().analysis(ifSuccess: { value in
 				observer.sendNext(value)
@@ -170,7 +170,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	///
 	/// - parameters:
 	///   - setUp: A closure that accepts a `signal` and `interrupter`.
-	public func startWithSignal(_ setup: @noescape (signal: Signal<Value, Error>, interrupter: Disposable) -> Void) {
+	public func startWithSignal(_ setup: (_ signal: Signal<Value, Error>, _ interrupter: Disposable) -> Void) {
 		let (signal, observer) = Signal<Value, Error>.pipe()
 
 		// Disposes of the work associated with the SignalProducer and any
@@ -184,7 +184,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 			producerDisposable.dispose()
 		}
 
-		setup(signal: signal, interrupter: cancelDisposable)
+		setup(signal, cancelDisposable)
 
 		if cancelDisposable.isDisposed {
 			return
@@ -215,11 +215,11 @@ public protocol SignalProducerProtocol {
 	var producer: SignalProducer<Value, Error> { get }
 
 	/// Initialize a signal
-	init(_ startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void)
+	init(_ startHandler: @escaping (Signal<Value, Error>.Observer, CompositeDisposable) -> Void)
 
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
-	func startWithSignal(_ setup: @noescape (signal: Signal<Value, Error>, interrupter: Disposable) -> Void)
+	func startWithSignal(_ setup: (_ signal: Signal<Value, Error>, _ interrupter: Disposable) -> Void)
 }
 
 extension SignalProducer: SignalProducerProtocol {
@@ -239,7 +239,7 @@ extension SignalProducerProtocol {
 	///            associated with the signal and immediately send an
 	///            `interrupted` event.
 	@discardableResult
-	public func start(_ observer: Signal<Value, Error>.Observer = Signal<Value, Error>.Observer()) -> Disposable {
+	public func start(_ observer: Signal<Value, Error>.Observer = .init()) -> Disposable {
 		var disposable: Disposable!
 
 		startWithSignal { signal, innerDisposable in
@@ -277,7 +277,7 @@ extension SignalProducerProtocol {
 	///             associated with the Signal, and prevent any future callbacks
 	///             from being invoked.
 	@discardableResult
-	public func startWithResult(_ result: (Result<Value, Error>) -> Void) -> Disposable {
+	public func startWithResult(_ result: @escaping (Result<Value, Error>) -> Void) -> Disposable {
 		return start(
 			Observer(
 				next: { result(.success($0)) },
@@ -297,7 +297,7 @@ extension SignalProducerProtocol {
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal.
 	@discardableResult
-	public func startWithCompleted(_ completed: () -> Void) -> Disposable {
+	public func startWithCompleted(_ completed: @escaping () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
 	
@@ -311,7 +311,7 @@ extension SignalProducerProtocol {
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal.
 	@discardableResult
-	public func startWithFailed(_ failed: (Error) -> Void) -> Disposable {
+	public func startWithFailed(_ failed: @escaping (Error) -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
 	
@@ -326,7 +326,7 @@ extension SignalProducerProtocol {
 	/// - returns: A `Disposable` which can be used to interrupt the work
 	///            associated with the signal.
 	@discardableResult
-	public func startWithInterrupted(_ interrupted: () -> Void) -> Disposable {
+	public func startWithInterrupted(_ interrupted: @escaping () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
 }
@@ -343,7 +343,7 @@ extension SignalProducerProtocol where Error == NoError {
 	///            associated with the Signal, and prevent any future callbacks
 	///            from being invoked.
 	@discardableResult
-	public func startWithNext(_ next: (Value) -> Void) -> Disposable {
+	public func startWithNext(_ next: @escaping (Value) -> Void) -> Disposable {
 		return start(Observer(next: next))
 	}
 }
@@ -360,7 +360,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A signal producer that applies signal's operator to every
 	///            created signal.
-	public func lift<U, F>(_ transform: (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
+	public func lift<U, F>(_ transform: @escaping (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable += innerDisposable
@@ -385,7 +385,7 @@ extension SignalProducerProtocol {
 	///   - transform: A binary operator to lift.
 	///
 	/// - returns: A binary operator that operates on two signal producers.
-	public func lift<U, F, V, G>(_ transform: (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
+	public func lift<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
 		return liftRight(transform)
 	}
 
@@ -393,7 +393,7 @@ extension SignalProducerProtocol {
 	/// That is, the argument producer will be started before the receiver. When
 	/// both producers are synchronous this order can be important depending on
 	/// the operator to generate correct results.
-	private func liftRight<U, F, V, G>(_ transform: (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
+	private func liftRight<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				self.startWithSignal { signal, disposable in
@@ -413,7 +413,7 @@ extension SignalProducerProtocol {
 	/// That is, the receiver will be started before the argument producer. When
 	/// both producers are synchronous this order can be important depending on
 	/// the operator to generate correct results.
-	private func liftLeft<U, F, V, G>(_ transform: (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
+	private func liftLeft<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
 				otherProducer.startWithSignal { otherSignal, otherDisposable in
@@ -443,7 +443,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A binary operator that works on `Signal` and returns
 	///            `SignalProducer`.
-	public func lift<U, F, V, G>(_ transform: (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (Signal<U, F>) -> SignalProducer<V, G> {
+	public func lift<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (Signal<U, F>) -> SignalProducer<V, G> {
 		return { otherSignal in
 			return SignalProducer { observer, outerDisposable in
 				let (wrapperSignal, otherSignalObserver) = Signal<U, F>.pipe()
@@ -475,7 +475,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A signal producer that, when started, will send a mapped
 	///            value of `self.`
-	public func map<U>(_ transform: (Value) -> U) -> SignalProducer<U, Error> {
+	public func map<U>(_ transform: @escaping (Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.map(transform) }
 	}
 
@@ -486,7 +486,7 @@ extension SignalProducerProtocol {
 	///                different error.
 	///
 	/// - returns: A producer that emits errors of new type.
-	public func mapError<F>(_ transform: (Error) -> F) -> SignalProducer<Value, F> {
+	public func mapError<F>(_ transform: @escaping (Error) -> F) -> SignalProducer<Value, F> {
 		return lift { $0.mapError(transform) }
 	}
 
@@ -498,7 +498,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that, when started, will send only the values
 	///            passing the given predicate.
-	public func filter(_ predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
+	public func filter(_ predicate: @escaping (Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.filter(predicate) }
 	}
 
@@ -585,7 +585,7 @@ extension SignalProducerProtocol {
 	/// - returns: A producer that, when started, collects values passing the
 	///            predicate and, when `self` completes, forwards them as a
 	///            single array and complets.
-	public func collect(_ predicate: (values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
+	public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
@@ -628,7 +628,7 @@ extension SignalProducerProtocol {
 	/// - returns: A signal that will yield an array of values based on a
 	///            predicate which matches the values collected and the next
 	///            value.
-	public func collect(_ predicate: (values: [Value], next: Value) -> Bool) -> SignalProducer<[Value], Error> {
+	public func collect(_ predicate: @escaping (_ values: [Value], _ next: Value) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
@@ -905,7 +905,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that sends accumulated value after `self`
 	///             completes.
-	public func reduce<U>(_ initial: U, _ combine: (U, Value) -> U) -> SignalProducer<U, Error> {
+	public func reduce<U>(_ initial: U, _ combine: @escaping (U, Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.reduce(initial, combine) }
 	}
 
@@ -923,7 +923,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that sends accumulated value each time `self`
 	///            emits own value.
-	public func scan<U>(_ initial: U, _ combine: (U, Value) -> U) -> SignalProducer<U, Error> {
+	public func scan<U>(_ initial: U, _ combine: @escaping (U, Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.scan(initial, combine) }
 	}
 
@@ -933,7 +933,7 @@ extension SignalProducerProtocol {
 	/// - note: The first value is always forwarded.
 	///
 	/// - returns: A producer that does not send two equal values sequentially.
-	public func skipRepeats(_ isRepeat: (Value, Value) -> Bool) -> SignalProducer<Value, Error> {
+	public func skipRepeats(_ isRepeat: @escaping (Value, Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.skipRepeats(isRepeat) }
 	}
 
@@ -945,7 +945,7 @@ extension SignalProducerProtocol {
 	///                should still not forward that value to a `producer`.
 	///
 	/// - returns: A producer that sends only forwarded values from `self`.
-	public func skip(while predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
+	public func skip(while predicate: @escaping (Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.skip(while: predicate) }
 	}
 
@@ -1003,7 +1003,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that sends events until the values sent by `self`
 	///            pass the given `predicate`.
-	public func take(while predicate: (Value) -> Bool) -> SignalProducer<Value, Error> {
+	public func take(while predicate: @escaping (Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.take(while: predicate) }
 	}
 
@@ -1038,7 +1038,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that receives `Success`ful `Result` as `next`
 	///            event and `Failure` as `failed` event.
-	public func attempt(operation: (Value) -> Result<(), Error>) -> SignalProducer<Value, Error> {
+	public func attempt(operation: @escaping (Value) -> Result<(), Error>) -> SignalProducer<Value, Error> {
 		return lift { $0.attempt(operation) }
 	}
 
@@ -1051,7 +1051,7 @@ extension SignalProducerProtocol {
 	///
 	/// - returns: A producer that sends mapped values from `self` if returned
 	///            `Result` is `Success`ful, `failed` events otherwise.
-	public func attemptMap<U>(_ operation: (Value) -> Result<U, Error>) -> SignalProducer<U, Error> {
+	public func attemptMap<U>(_ operation: @escaping (Value) -> Result<U, Error>) -> SignalProducer<U, Error> {
 		return lift { $0.attemptMap(operation) }
 	}
 
@@ -1202,7 +1202,7 @@ extension SignalProducerProtocol {
 	///                value.
 	///
 	/// - returns: A producer that sends unique values during its lifetime.
-	public func uniqueValues<Identity: Hashable>(_ transform: (Value) -> Identity) -> SignalProducer<Value, Error> {
+	public func uniqueValues<Identity: Hashable>(_ transform: @escaping (Value) -> Identity) -> SignalProducer<Value, Error> {
 		return lift { $0.uniqueValues(transform) }
 	}
 }
@@ -1371,7 +1371,9 @@ extension SignalProducerProtocol {
 
 	/// Combines the values of all the given producers, in the manner described by
 	/// `combineLatestWith`. Will return an empty `SignalProducer` if the sequence is empty.
-	public static func combineLatest<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+	public static func combineLatest<S: Sequence>(_ producers: S) -> SignalProducer<[Value], Error>
+		where S.Iterator.Element == SignalProducer<Value, Error>
+	{
 		var generator = producers.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }
@@ -1455,7 +1457,9 @@ extension SignalProducerProtocol {
 
 	/// Zips the values of all the given producers, in the manner described by
 	/// `zipWith`. Will return an empty `SignalProducer` if the sequence is empty.
-	public static func zip<S: Sequence where S.Iterator.Element == SignalProducer<Value, Error>>(_ producers: S) -> SignalProducer<[Value], Error> {
+	public static func zip<S: Sequence>(_ producers: S) -> SignalProducer<[Value], Error>
+		where S.Iterator.Element == SignalProducer<Value, Error>
+	{
 		var generator = producers.makeIterator()
 		if let first = generator.next() {
 			let initial = first.map { [$0] }

@@ -893,21 +893,20 @@ class SignalSpec: QuickSpec {
 				var expectation: [[Int]] = []
 
 				for i in 1...7 {
-
 					observer.sendNext(i)
 
 					if i % 3 == 0 {
 						expectation.append([Int]((i - 2)...i))
-						expect(observedValues) == expectation
+						expect(observedValues as NSArray) == expectation as NSArray
 					} else {
-						expect(observedValues) == expectation
+						expect(observedValues as NSArray) == expectation as NSArray
 					}
 				}
 
 				observer.sendCompleted()
 
 				expectation.append([7])
-				expect(observedValues) == expectation
+				expect(observedValues as NSArray) == expectation as NSArray
 			}
 
 			it("should collect values until it matches a certain value") {
@@ -925,7 +924,7 @@ class SignalSpec: QuickSpec {
 				}
 
 				signal.observeCompleted {
-					expect(expectedValues) == []
+					expect(expectedValues as NSArray) == []
 				}
 
 				expectedValues
@@ -950,7 +949,7 @@ class SignalSpec: QuickSpec {
 				}
 
 				signal.observeCompleted {
-					expect(expectedValues) == []
+					expect(expectedValues as NSArray) == []
 				}
 
 				expectedValues

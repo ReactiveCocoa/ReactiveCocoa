@@ -1046,12 +1046,18 @@ class SignalProducerSpec: QuickSpec {
 
 				describe("sequencing with many completed signal producers") {
 					let count = 10000
+					let scheduler: QueueScheduler
+					if #available(OSX 10.10, *) {
+						scheduler = QueueScheduler(qos: .default, name: "\(#file):\(#line)")
+					} else {
+						scheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
+					}
 					var disposable: Disposable!
 					var called = 0
 
 					beforeEach {
 						var producers: [SignalProducer<(), NoError>] = [
-							SignalProducer<(), NoError>(value: ()).delay(0.1, on: QueueScheduler())
+							SignalProducer<(), NoError>(value: ()).delay(0.1, on: scheduler)
 						]
 						for _ in 0..<count {
 							producers.append(SignalProducer<(), NoError>(value: ()))

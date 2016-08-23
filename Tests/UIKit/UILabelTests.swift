@@ -50,18 +50,18 @@ class UILabelTests: XCTestCase {
         let label = UILabel(frame: CGRect.zero)
         _label = label
         
-        label.rex_attributedText <~ SignalProducer(value: AttributedString(string: "Test"))
+        label.rex_attributedText <~ SignalProducer(value: NSAttributedString(string: "Test"))
         XCTAssert(_label?.attributedText?.string == "Test")
     }
     
     func testAttributedTextProperty() {
-        let firstChange = AttributedString(string: "first")
-        let secondChange = AttributedString(string: "second")
+        let firstChange = NSAttributedString(string: "first")
+        let secondChange = NSAttributedString(string: "second")
         
         let label = UILabel(frame: CGRect.zero)
-        label.attributedText = AttributedString(string: "")
+        label.attributedText = NSAttributedString(string: "")
         
-        let (pipeSignal, observer) = Signal<AttributedString?, NoError>.pipe()
+        let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
         label.rex_attributedText <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)
@@ -71,13 +71,13 @@ class UILabelTests: XCTestCase {
     }
     
     func testTextColorProperty() {
-        let firstChange = UIColor.red()
-        let secondChange = UIColor.black()
+        let firstChange = UIColor.red
+        let secondChange = UIColor.black
         
         let label = UILabel(frame: CGRect.zero)
 
         let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
-        label.textColor = UIColor.black()
+        label.textColor = UIColor.black
         label.rex_textColor <~ SignalProducer(signal: pipeSignal)
         
         observer.sendNext(firstChange)

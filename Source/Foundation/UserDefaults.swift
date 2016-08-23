@@ -28,7 +28,7 @@ extension UserDefaults {
         return SignalProducer<AnyObject?, NoError>(value: initial)
             .concat(changes)
             .skipRepeats { previous, next in
-                if let previous = previous as? NSObject, next = next as? NSObject {
+                if let previous = previous as? NSObject, let next = next as? NSObject {
                     return previous == next
                 }
                 return false

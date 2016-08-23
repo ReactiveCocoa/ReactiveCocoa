@@ -22,8 +22,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidDisappear() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_viewDidDisappear to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_viewDidDisappear to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
 
         let viewController = UIViewController()
         _viewController = viewController
@@ -37,8 +37,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillDisappear() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_viewWillDisappear to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_viewWillDisappear to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
@@ -52,8 +52,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidAppear() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_viewDidAppear to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_viewDidAppear to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
@@ -67,8 +67,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillAppear() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_viewWillAppear to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_viewWillAppear to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
@@ -82,8 +82,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testDismissViewController_via_property() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_dismissModally to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_dismissModally to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
@@ -97,8 +97,8 @@ class UIViewControllerTests: XCTestCase {
     
     func testDismissViewController_via_cocoaDismiss() {
         
-        let expectation = self.expectation(withDescription: "Expected rex_dismissModally to be triggered")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_dismissModally to be triggered")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController

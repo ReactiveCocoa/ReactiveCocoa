@@ -98,7 +98,7 @@ final class SignalProducerTests: XCTestCase {
         var value = -1
         var completed = false
         producer
-            .deferredRetry(interval: 1, on: scheduler)
+            .deferredRetry(1, on: scheduler)
             .start(Observer(
                 next: { value = $0 },
                 completed: { completed = true }
@@ -136,7 +136,7 @@ final class SignalProducerTests: XCTestCase {
         var value = -1
         var failed = false
         producer
-            .deferredRetry(interval: 1, on: scheduler, count: 2)
+            .deferredRetry(1, on: scheduler, count: 2)
             .start(Observer(
                 next: { value = $0 },
                 failed: { _ in failed = true }

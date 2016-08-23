@@ -13,8 +13,8 @@ import XCTest
 class UITextFieldTests: XCTestCase {
 
     func testTextProperty() {
-        let expectation = self.expectation(withDescription: "Expected `rex_text`'s value to equal to the textField's text")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected `rex_text`'s value to equal to the textField's text")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
 
         let textField = UITextField(frame: CGRect.zero)
         textField.text = "Test"

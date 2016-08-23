@@ -31,8 +31,8 @@ class UIDatePickerTests: XCTestCase {
     }
 
     func testUpdatePropertyFromPicker() {
-        let expectation = self.expectation(withDescription: "Expected rex_date to send an event when picker's date value is changed by a UI event")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_date to send an event when picker's date value is changed by a UI event")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         picker.rex_date.signal.observeNext { changedDate in
             XCTAssertEqual(changedDate, self.date)

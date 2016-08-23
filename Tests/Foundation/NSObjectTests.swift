@@ -25,8 +25,8 @@ final class NSObjectTests: XCTestCase {
     
     func testObjectsWillBeDeallocatedSignal() {
         
-        let expectation = self.expectation(withDescription: "Expected timer to send `completed` event when object deallocates")
-        defer { self.waitForExpectations(withTimeout: 2, handler: nil) }
+        let expectation = self.expectation(description: "Expected timer to send `completed` event when object deallocates")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let object = Object()
 

@@ -26,14 +26,14 @@ extension NSObject {
 }
 
 internal final class KeyValueObserver: NSObject {
-	typealias Action = (object: AnyObject?) -> Void
-	private static let context = UnsafeMutablePointer<Void>.allocate(capacity: 1)
+	typealias Action = (_ object: AnyObject?) -> Void
+	private static let context = UnsafeMutableRawPointer.allocate(bytes: 1, alignedTo: 0)
 
 	unowned(unsafe) let unsafeObject: NSObject
 	let key: String
 	let action: Action
 
-	private init(observing object: NSObject, key: String, options: NSKeyValueObservingOptions, action: Action) {
+	fileprivate init(observing object: NSObject, key: String, options: NSKeyValueObservingOptions, action: Action) {
 		self.unsafeObject = object
 		self.key = key
 		self.action = action
@@ -52,9 +52,14 @@ internal final class KeyValueObserver: NSObject {
 		unsafeObject.removeObserver(self, forKeyPath: key, context: KeyValueObserver.context)
 	}
 
-	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+	override func observeValue(
+		forKeyPath keyPath: String?,
+		of object: Any?,
+		change: [NSKeyValueChangeKey : Any]?,
+		context: UnsafeMutableRawPointer?
+	) {
 		if context == KeyValueObserver.context {
-			action(object: object)
+			action(object as! NSObject)
 		}
 	}
 }
@@ -76,7 +81,12 @@ extension KeyValueObserver {
 	///
 	/// - returns:
 	///   A disposable that would tear down the observation upon disposal.
-	static func observe(_ object: NSObject, keyPath: String, options: NSKeyValueObservingOptions, action: (value: AnyObject?) -> Void) -> ActionDisposable {
+	static func observe(
+		_ object: NSObject,
+		keyPath: String,
+		options: NSKeyValueObservingOptions,
+		action: @escaping (_ value: AnyObject?) -> Void
+	) -> ActionDisposable {
 		// Compute the key path head and tail.
 		let components = keyPath.components(separatedBy: ".")
 		precondition(!components.isEmpty, "Received an empty key path.")
@@ -100,7 +110,7 @@ extension KeyValueObserver {
 		// Attempting to observe non-weak properties using dynamic getters will
 		// result in broken behavior, so don't even try.
 		let shouldObserveDeinit = keyPathHead.withCString { cString -> Bool in
-			if let propertyPointer = class_getProperty(object.dynamicType, cString) {
+			if let propertyPointer = class_getProperty(type(of: object), cString) {
 				let attributes = PropertyAttributes(property: propertyPointer)
 				return attributes.isObject && attributes.isWeak && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock
 			}
@@ -117,7 +127,7 @@ extension KeyValueObserver {
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
-					action(value: nil)
+					action(nil)
 					return
 				}
 
@@ -126,7 +136,7 @@ extension KeyValueObserver {
 
 				if shouldObserveDeinit {
 					let disposable = value.rac_lifetime.ended.observeCompleted {
-						action(value: nil)
+						action(nil)
 					}
 					headDisposable += disposable
 				}
@@ -141,24 +151,24 @@ extension KeyValueObserver {
 				headDisposable += disposable
 
 				// Send the latest value of the key path tail.
-				action(value: value.value(forKeyPath: keyPathTail))
+				action(value.value(forKeyPath: keyPathTail) as AnyObject?)
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
-					action(value: nil)
+					action(nil)
 					return
 				}
 
 				if shouldObserveDeinit {
 					let disposable = value.rac_lifetime.ended.observeCompleted {
-						action(value: nil)
+						action(nil)
 					}
 					headSerialDisposable.innerDisposable = disposable
 				}
 
 				// Send the latest value of the key.
-				action(value: value)
+				action(value)
 			}
 		}
 
@@ -224,7 +234,7 @@ internal struct PropertyAttributes {
 			let string = String(validatingUTF8: attrString)
 			preconditionFailure("Could not read past type in attribute string: \(string).")
 		}
-		var next = UnsafeMutablePointer<Int8>(_next)
+		var next = UnsafeMutablePointer<Int8>(mutating: _next)
 
 		let typeLength = typeString.distance(to: next)
 		precondition(typeLength > 0, "Invalid type in attribute string.")
@@ -245,7 +255,7 @@ internal struct PropertyAttributes {
 			if className != UnsafePointer(next) {
 				let length = className.distance(to: next)
 				let name = UnsafeMutablePointer<Int8>.allocate(capacity: length + 1)
-				name.initialize(from: UnsafeMutablePointer<Int8>(className), count: length)
+				name.initialize(from: UnsafeMutablePointer<Int8>(mutating: className), count: length)
 				(name + length).initialize(to: Code.nul)
 
 				// attempt to look up the class in the runtime

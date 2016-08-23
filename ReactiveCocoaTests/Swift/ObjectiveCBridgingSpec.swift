@@ -105,8 +105,8 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					expect(lastValue).to(beNil())
 
 					for number in [1, 2, 3] {
-						observer.sendNext(number)
-						expect(lastValue) == number
+						observer.sendNext(number as NSNumber)
+						expect(lastValue) == number as NSNumber
 					}
 
 					expect(didComplete) == false
@@ -119,15 +119,15 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = signal.toRACSignal()
 
 					let expectedError = TestError.error2
-					var error: Error?
+					var error: TestError?
 
 					racSignal.subscribeError {
-						error = $0
+						error = $0 as? TestError
 						return
 					}
 
 					observer.sendFailed(expectedError)
-					expect(error) == expectedError as NSError
+					expect(error) == expectedError
 				}
 				
 				it("should maintain userInfo on NSError") {
@@ -156,7 +156,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 							subscriptions += 1
 						}
 
-						return .success(subscriptions)
+						return .success(subscriptions as NSNumber)
 					}
 					let racSignal = producer.toRACSignal()
 
@@ -170,7 +170,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					let racSignal = producer.toRACSignal().materialize()
 
 					let event = racSignal.first() as? RACEvent
-					expect(event?.error) == TestError.error1 as NSError
+					expect(event?.error as? NSError) == TestError.error1 as NSError
 				}
 				
 				it("should maintain userInfo on NSError") {
@@ -191,7 +191,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			var enabledSubject: RACSubject!
 			var enabled = false
 
-			var action: Action<AnyObject?, AnyObject?, NSError>!
+			var action: Action<Any?, Any?, NSError>!
 
 			beforeEach {
 				enabledSubject = RACSubject()
@@ -222,7 +222,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("should execute the command once per start()") {
-				let producer = action.apply(0)
+				let producer = action.apply(0 as NSNumber)
 				expect(results) == []
 
 				producer.start()
@@ -231,7 +231,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 				producer.start()
 				expect(results).toEventually(equal([ 1, 1 ]))
 
-				let otherProducer = action.apply(2)
+				let otherProducer = action.apply(2 as NSNumber)
 				expect(results) == [ 1, 1 ]
 
 				otherProducer.start()
@@ -257,7 +257,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 
 				action = Action(enabledIf: enabledProperty) { input in
 					let inputNumber = input as! Int
-					return SignalProducer(value: "\(inputNumber + 1)")
+					return SignalProducer(value: "\(inputNumber + 1)" as NSString)
 				}
 
 				expect(action.isEnabled.value) == true
@@ -280,7 +280,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("should apply and start a signal once per execution") {
-				let signal = command.execute(0)
+				let signal = command.execute(0 as NSNumber)
 
 				do {
 					try signal.asynchronouslyWaitUntilCompleted()
@@ -289,7 +289,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 					try signal.asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1" ]
 
-					try command.execute(2).asynchronouslyWaitUntilCompleted()
+					try command.execute(2 as NSNumber).asynchronouslyWaitUntilCompleted()
 					expect(results) == [ "1", "3" ]
 				} catch {
 					XCTFail("Failed to wait for completion")

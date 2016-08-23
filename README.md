@@ -320,7 +320,7 @@ To add RAC to your application:
  1. Add the ReactiveCocoa repository as a
     [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
     application’s repository.
- 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
+ 1. Run `git submodule update --init --recursive` from within the ReactiveCocoa folder.
  1. Drag and drop `ReactiveCocoa.xcodeproj` and `Carthage/Checkouts/Result/Result.xcodeproj`
     into your application’s Xcode project or workspace.
  1. On the “General” tab of your application target’s settings, add
@@ -350,7 +350,7 @@ We also provide a great Playground, so you can get used to ReactiveCocoa's opera
 
  1. Clone the ReactiveCocoa repository.
  1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
-     - `script/bootstrap` **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed    
+     - `git submodule update --init --recursive` **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed    
      - `carthage checkout`
  1. Open `ReactiveCocoa.xcworkspace`
  1. Build `Result-Mac` scheme

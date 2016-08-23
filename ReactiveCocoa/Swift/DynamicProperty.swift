@@ -5,8 +5,8 @@ import enum Result.NoError
 /// types, including generic types when boxed via `AnyObject`).
 private protocol ObjectiveCRepresentable {
 	associatedtype Value
-	static func extract(from representation: AnyObject) -> Value
-	static func represent(_ value: Value) -> AnyObject
+	static func extract(from representation: Any) -> Value
+	static func represent(_ value: Value) -> Any
 }
 
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
@@ -19,8 +19,8 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (from: AnyObject) -> Value
-	private let represent: (Value) -> AnyObject
+	private let extractValue: (_ from: Any) -> Value
+	private let represent: (Value) -> Any
 
 	private var property: MutableProperty<Value?>?
 
@@ -68,7 +68,13 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - keyPath: Key path to observe on the object.
 	///   - representable: A representation that bridges the values across the
 	///                    language boundary.
-	private init<Representatable: ObjectiveCRepresentable where Representatable.Value == Value>(object: NSObject?, keyPath: String, representable: Representatable.Type) {
+	fileprivate init<Representatable: ObjectiveCRepresentable>(
+		object: NSObject?,
+		keyPath: String,
+		representable: Representatable.Type
+	)
+		where Representatable.Value == Value
+	{
 		self.object = object
 		self.keyPath = keyPath
 
@@ -113,25 +119,25 @@ extension DynamicProperty where Value: AnyObject {
 
 /// Represents values in Objective-C directly, via `AnyObject`.
 private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
-	static func extract(from representation: AnyObject) -> Value {
+	static func extract(from representation: Any) -> Value {
 		return representation as! Value
 	}
 
-	static func represent(_ value: Value) -> AnyObject {
+	static func represent(_ value: Value) -> Any {
 		return value
 	}
 }
 
 /// Represents values in Objective-C indirectly, via bridging.
 private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresentable {
-	static func extract(from representation: AnyObject) -> Value {
+	static func extract(from representation: Any) -> Value {
 		let object = representation as! Value._ObjectiveCType
 		var result: Value?
 		Value._forceBridgeFromObjectiveC(object, result: &result)
 		return result!
 	}
 
-	static func represent(_ value: Value) -> AnyObject {
+	static func represent(_ value: Value) -> Any {
 		return value._bridgeToObjectiveC()
 	}
 }

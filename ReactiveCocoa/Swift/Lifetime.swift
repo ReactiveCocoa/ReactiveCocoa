@@ -1,3 +1,4 @@
+import Foundation
 import enum Result.NoError
 
 /// Represents the lifetime of an object, and provides a hook to observe when
@@ -34,7 +35,7 @@ public final class Lifetime {
 	/// ```
 	public final class Token {
 		/// A signal that sends a Completed event when the lifetime ends.
-		private let ended: Signal<(), NoError>
+		fileprivate let ended: Signal<(), NoError>
 
 		private let endedObserver: Signal<(), NoError>.Observer
 
@@ -47,6 +48,8 @@ public final class Lifetime {
 		}
 	}
 }
+
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 
 private var lifetimeKey: UInt8 = 0
 private var lifetimeTokenKey: UInt8 = 0
@@ -70,3 +73,5 @@ extension NSObject {
 		return lifetime
 	}
 }
+
+#endif

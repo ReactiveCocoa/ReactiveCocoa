@@ -35,7 +35,7 @@ public final class CocoaAction: NSObject {
 	///                     action and returns a value (e.g. 
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
-	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: (AnyObject?) -> Input) {
+	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (AnyObject?) -> Input) {
 		_execute = { input in
 			let producer = action.apply(inputTransform(input))
 			producer.start()

@@ -32,7 +32,13 @@ private func defaultEventLog(identifier: String, event: String, fileName: String
 }
 
 /// A type that represents an event logging function.
-public typealias EventLogger = (identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) -> Void
+public typealias EventLogger = (
+	_ identifier: String,
+	_ event: String,
+	_ fileName: String,
+	_ functionName: String,
+	_ lineNumber: Int
+) -> Void
 
 extension SignalProtocol {
 	/// Logs all events that the receiver sends. By default, it will print to 
@@ -51,7 +57,7 @@ extension SignalProtocol {
 	public func logEvents(identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
 		func log<T>(_ event: LoggingEvent.Signal) -> ((T) -> Void)? {
 			return event.logIfNeeded(events: events) { event in
-				logger(identifier: identifier, event: event, fileName: fileName, functionName: functionName, lineNumber: lineNumber)
+				logger(identifier, event, fileName, functionName, lineNumber)
 			}
 		}
 
@@ -89,13 +95,7 @@ extension SignalProducerProtocol {
 	) -> SignalProducer<Value, Error> {
 		func log<T>(_ event: LoggingEvent.SignalProducer) -> ((T) -> Void)? {
 			return event.logIfNeeded(events: events) { event in
-				logger(
-					identifier: identifier,
-					event: event,
-					fileName: fileName,
-					functionName: functionName,
-					lineNumber: lineNumber
-				)
+				logger(identifier, event, fileName, functionName, lineNumber)
 			}
 		}
 
@@ -116,7 +116,7 @@ extension LoggingEvent.Signal: LoggingEventProtocol {}
 extension LoggingEvent.SignalProducer: LoggingEventProtocol {}
 
 private extension LoggingEventProtocol {
-	func logIfNeeded<T>(events: Set<Self>, logger: (String) -> Void) -> ((T) -> Void)? {
+	func logIfNeeded<T>(events: Set<Self>, logger: @escaping (String) -> Void) -> ((T) -> Void)? {
 		guard events.contains(self) else {
 			return nil
 		}

@@ -38,6 +38,11 @@ matrix:
         - carthage build --no-skip-current
       env:
         - JOB=CARTHAGE
+    - os: osx
+      language: generic
+      script: swift build
+      env:
+        - JOB=SWIFTPM_DARWIN
 notifications:
   email: false
   slack:

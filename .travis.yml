@@ -38,17 +38,17 @@ matrix:
         - XCODE_ACTION="build test"
         - XCODE_DESTINATION="arch=x86_64"
         - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
-    - xcode_scheme: ReactiveSwift-macOS
+    - xcode_scheme: ReactiveSwift-iOS
       env:
         - XCODE_SDK=iphonesimulator
         - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
-    - xcode_scheme: ReactiveSwift-macOS
+    - xcode_scheme: ReactiveSwift-tvOS
       env:
         - XCODE_SDK=appletvsimulator
         - XCODE_ACTION="build-for-testing test-without-building"
         - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
-    - xcode_scheme: ReactiveSwift-macOS
+    - xcode_scheme: ReactiveSwift-watchOS
       env:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build

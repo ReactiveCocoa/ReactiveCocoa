@@ -17,10 +17,10 @@ import ReactiveCocoa
 /// bindings on Cocoa objects.
 public func associatedProperty(_ host: AnyObject, keyPath: StaticString) -> MutableProperty<String> {
     let initial: (AnyObject) -> String  = { host in
-        host.value(forKeyPath: String(keyPath)) as? String ?? ""
+        host.value(forKeyPath: String(describing: keyPath)) as? String ?? ""
     }
     let setter: (AnyObject, String) -> () = { host, newValue in
-        host.setValue(newValue, forKeyPath: String(keyPath))
+        host.setValue(newValue, forKeyPath: String(describing: keyPath))
     }
     return associatedProperty(host, key: keyPath.utf8Start, initial: initial, setter: setter)
 }
@@ -34,10 +34,10 @@ public func associatedProperty(_ host: AnyObject, keyPath: StaticString) -> Muta
 /// bindings on Cocoa objects.
 public func associatedProperty<T: AnyObject>(_ host: AnyObject, keyPath: StaticString, placeholder: @noescape () -> T) -> MutableProperty<T> {
     let setter: (AnyObject, T) -> () = { host, newValue in
-        host.setValue(newValue, forKeyPath: String(keyPath))
+        host.setValue(newValue, forKeyPath: String(describing: keyPath))
     }
     return associatedProperty(host, key: keyPath.utf8Start, initial: { host in
-        host.value(forKeyPath: String(keyPath)) as? T ?? placeholder()
+        host.value(forKeyPath: String(describing: keyPath)) as? T ?? placeholder()
     }, setter: setter)
 }
 
@@ -47,7 +47,7 @@ public func associatedProperty<T: AnyObject>(_ host: AnyObject, keyPath: StaticS
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-public func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafePointer<()>, initial: @noescape (Host) -> T, setter: (Host, T) -> (), setUp: @noescape (MutableProperty<T>) -> () = { _ in }) -> MutableProperty<T> {
+public func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafePointer<()>, initial: @noescape (Host) -> T, setter: @escaping (Host, T) -> (), setUp: @noescape (MutableProperty<T>) -> () = { _ in }) -> MutableProperty<T> {
     return associatedObject(host, key: key) { host in
         let property = MutableProperty(initial(host))
 

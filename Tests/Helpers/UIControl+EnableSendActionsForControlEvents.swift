@@ -39,7 +39,7 @@ private let rex_swizzleToken: Void = {
 /// the pair target+action.
 extension UIControl {
 
-    public override class func initialize() {
+    override open class func initialize() {
         if self !== UIControl.self {
             return
         }

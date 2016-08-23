@@ -13,7 +13,7 @@ extension SignalProtocol {
 
     /// Applies `transform` to values from `signal` with non-`nil` results unwrapped and
     /// forwared on the returned signal.
-    public func filterMap<U>(_ transform: (Value) -> U?) -> Signal<U, Error> {
+    public func filterMap<U>(_ transform: @escaping (Value) -> U?) -> Signal<U, Error> {
         return Signal<U, Error> { observer in
             return self.observe { event in
                 switch event {

@@ -59,7 +59,7 @@ final class NSObjectDeallocTests: XCTestCase {
         let object = Object()
         _object = object
 
-        associatedProperty(object, keyPath: "string", placeholder: { _ in "" }) <~ SignalProducer(value: "Test")
+        associatedProperty(object, keyPath: "string", placeholder: { _ in "" as NSString }) <~ SignalProducer(value: "Test")
         XCTAssert(_object?.string == "Test")
     }
 }

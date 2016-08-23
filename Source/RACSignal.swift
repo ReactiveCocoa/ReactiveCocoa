@@ -17,7 +17,7 @@ extension RACSignal {
     /// for certain things, like event streams (see `UIControl.signalForControlEvents`)
     /// use this method to be able to expose these inherently hot streams
     /// as `Signal`s.
-    public func rex_toSignal() -> Signal<AnyObject?, NSError> {
+    public func rex_toSignal() -> Signal<Any?, NSError> {
         return Signal { observer in
             return self.toSignalProducer().start(observer)
         }

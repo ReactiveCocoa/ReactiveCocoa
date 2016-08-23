@@ -14,11 +14,7 @@ import enum Result.NoError
 extension UIButton {
     static func button() -> UIButton {
         let button = UIButton(type: UIButtonType.custom)
-        return button;
-    }
-    
-    override public func sendAction(_ action: Selector, to target: AnyObject?, for event: UIEvent?) {
-        target?.perform(action, with: nil)
+        return button
     }
 }
 
@@ -82,17 +78,18 @@ class UIButtonTests: XCTestCase {
         button.isEnabled = true
         button.isUserInteractionEnabled = true
 
-        let passed = MutableProperty(false)
+        let pressed = MutableProperty(false)
         let action = Action<(), Bool, NoError> { _ in
             SignalProducer(value: true)
         }
         
-        passed <~ SignalProducer(signal: action.values)
+        pressed <~ SignalProducer(signal: action.values)
         button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
-        
+
+        XCTAssertFalse(pressed.value)
+
         button.sendActions(for: .touchUpInside)
-        
-        
-        XCTAssertTrue(passed.value)
+
+        XCTAssertTrue(pressed.value)
     }
 }

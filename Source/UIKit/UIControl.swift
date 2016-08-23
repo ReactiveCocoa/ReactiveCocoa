@@ -26,7 +26,7 @@ extension UIControl {
     /// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged` 
     /// events to detect changes and keep the value up-to-date.
     //
-    class func rex_value<Host: UIControl, T>(_ host: Host, getter: (Host) -> T, setter: (Host, T) -> ()) -> MutableProperty<T> {
+    class func rex_value<Host: UIControl, T>(_ host: Host, getter: @escaping (Host) -> T, setter: @escaping (Host, T) -> ()) -> MutableProperty<T> {
         return associatedProperty(host, key: &valueChangedKey, initial: getter, setter: setter) { property in
             property <~
                 host.rex_controlEvents([.valueChanged, .editingChanged])

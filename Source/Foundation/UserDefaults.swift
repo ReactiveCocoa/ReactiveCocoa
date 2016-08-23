@@ -14,7 +14,7 @@ extension UserDefaults {
     /// by casting to NSObject and checking for equality. If the values aren't
     /// convertible this will generate events whenever _any_ value in NSUserDefaults
     /// changes.
-    public func rex_value(forKey key: String) -> SignalProducer<AnyObject?, NoError> {
+    public func rex_value(forKey key: String) -> SignalProducer<Any?, NoError> {
         let center = NotificationCenter.default
         let initial = object(forKey: key)
 
@@ -25,7 +25,7 @@ extension UserDefaults {
                 self.object(forKey: key)
             }
 
-        return SignalProducer<AnyObject?, NoError>(value: initial)
+        return SignalProducer<Any?, NoError>(value: initial)
             .concat(changes)
             .skipRepeats { previous, next in
                 if let previous = previous as? NSObject, let next = next as? NSObject {

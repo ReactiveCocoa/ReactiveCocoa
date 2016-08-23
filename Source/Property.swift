@@ -68,7 +68,7 @@ public class AndProperty: PropertyProtocol {
         return AndProperty(terms: terms + [other])
     }
 
-    private init(terms: [Property<Bool>]) {
+    fileprivate init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
@@ -105,7 +105,7 @@ public class OrProperty: PropertyProtocol {
         return OrProperty(terms: terms + [other])
     }
 
-    private init(terms: [Property<Bool>]) {
+    fileprivate init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
@@ -132,7 +132,7 @@ public class NotProperty: PropertyProtocol {
         return NotProperty(source: source, invert: !invert)
     }
 
-    private init(source: Property<Bool>, invert: Bool) {
+    fileprivate init(source: Property<Bool>, invert: Bool) {
         self.source = source
         self.invert = invert
     }

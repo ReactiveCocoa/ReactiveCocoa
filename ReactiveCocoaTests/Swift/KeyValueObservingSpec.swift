@@ -170,7 +170,7 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					concurrentQueue.sync(flags: .barrier) {}
-					expect(observedValue).toEventually(be(2))
+					expect(observedValue).toEventually(equal(2))
 				}
 
 				it("should handle changes being made on another queue using deliverOn") {
@@ -191,7 +191,7 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					concurrentQueue.sync(flags: .barrier) {}
-					expect(observedValue).toEventually(be(2))
+					expect(observedValue).toEventually(equal(2))
 				}
 
 				it("async disposal of target") {
@@ -211,7 +211,7 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					concurrentQueue.sync(flags: .barrier) {}
-					expect(observedValue).toEventually(be(2))
+					expect(observedValue).toEventually(equal(2))
 				}
 			}
 
@@ -316,7 +316,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 			it("should be able to classify weak references") {
 				"weakProperty".withCString { cString in
-					let propertyPointer = class_getProperty(object.dynamicType, cString)
+					let propertyPointer = class_getProperty(type(of: object), cString)
 					expect(propertyPointer) != nil
 
 					if let pointer = propertyPointer {
@@ -331,7 +331,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 			it("should be able to classify blocks") {
 				"block".withCString { cString in
-					let propertyPointer = class_getProperty(object.dynamicType, cString)
+					let propertyPointer = class_getProperty(type(of: object), cString)
 					expect(propertyPointer) != nil
 
 					if let pointer = propertyPointer {
@@ -346,7 +346,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 			it("should be able to classify non object properties") {
 				"integer".withCString { cString in
-					let propertyPointer = class_getProperty(object.dynamicType, cString)
+					let propertyPointer = class_getProperty(type(of: object), cString)
 					expect(propertyPointer) != nil
 
 					if let pointer = propertyPointer {

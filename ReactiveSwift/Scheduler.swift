@@ -17,7 +17,7 @@ public protocol SchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	func schedule(_ action: () -> Void) -> Disposable?
+	func schedule(_ action: @escaping () -> Void) -> Disposable?
 }
 
 /// A particular kind of scheduler that supports enqueuing actions at future
@@ -38,7 +38,7 @@ public protocol DateSchedulerProtocol: SchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	func schedule(after date: Date, action: () -> Void) -> Disposable?
+	func schedule(after date: Date, action: @escaping () -> Void) -> Disposable?
 
 	/// Schedules a recurring action at the given interval, beginning at the
 	/// given date.
@@ -52,7 +52,7 @@ public protocol DateSchedulerProtocol: SchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable?
+	func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: @escaping () -> Void) -> Disposable?
 }
 
 /// A scheduler that performs all work synchronously.
@@ -66,7 +66,7 @@ public final class ImmediateScheduler: SchedulerProtocol {
 	///
 	/// - returns: `nil`.
 	@discardableResult
-	public func schedule(_ action: () -> Void) -> Disposable? {
+	public func schedule(_ action: @escaping () -> Void) -> Disposable? {
 		action()
 		return nil
 	}
@@ -106,7 +106,7 @@ public final class UIScheduler: SchedulerProtocol {
 	/// - returns: `Disposable` that can be used to cancel the work before it
 	///            begins.
 	@discardableResult
-	public func schedule(_ action: () -> Void) -> Disposable? {
+	public func schedule(_ action: @escaping () -> Void) -> Disposable? {
 		let disposable = SimpleDisposable()
 		let actionAndDecrement = {
 			if !disposable.isDisposed {
@@ -188,7 +188,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// - returns: `Disposable` that can be used to cancel the work before it
 	///            begins.
 	@discardableResult
-	public func schedule(_ action: () -> Void) -> Disposable? {
+	public func schedule(_ action: @escaping () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
 		queue.async {
@@ -218,7 +218,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: @escaping () -> Void) -> Disposable? {
 		let d = SimpleDisposable()
 
 		queue.asyncAfter(wallDeadline: wallTime(with: date)) {
@@ -242,7 +242,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after date: Date, interval: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, action: @escaping () -> Void) -> Disposable? {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
 		return schedule(after: date, interval: interval, leeway: interval * 0.1, action: action)
@@ -260,7 +260,7 @@ public final class QueueScheduler: DateSchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval, action: @escaping () -> Void) -> Disposable? {
 		precondition(interval >= 0)
 		precondition(leeway >= 0)
 
@@ -289,7 +289,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 		let date: Date
 		let action: () -> Void
 
-		init(date: Date, action: () -> Void) {
+		init(date: Date, action: @escaping () -> Void) {
 			self.date = date
 			self.action = action
 		}
@@ -349,7 +349,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(_ action: () -> Void) -> Disposable? {
+	public func schedule(_ action: @escaping () -> Void) -> Disposable? {
 		return schedule(ScheduledAction(date: currentDate, action: action))
 	}
 
@@ -362,12 +362,12 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// - returns: Optional disposable that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after delay: TimeInterval, action: () -> Void) -> Disposable? {
+	public func schedule(after delay: TimeInterval, action: @escaping () -> Void) -> Disposable? {
 		return schedule(after: currentDate.addingTimeInterval(delay), action: action)
 	}
 
 	@discardableResult
-	public func schedule(after date: Date, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, action: @escaping () -> Void) -> Disposable? {
 		return schedule(ScheduledAction(date: date, action: action))
 	}
 
@@ -381,7 +381,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	///
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
-	private func schedule(after date: Date, interval: TimeInterval, disposable: SerialDisposable, action: () -> Void) {
+	private func schedule(after date: Date, interval: TimeInterval, disposable: SerialDisposable, action: @escaping () -> Void) {
 		precondition(interval >= 0)
 
 		disposable.innerDisposable = schedule(after: date) { [unowned self] in
@@ -402,7 +402,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///            before it begins.
 	@discardableResult
-	public func schedule(after delay: TimeInterval, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
+	public func schedule(after delay: TimeInterval, interval: TimeInterval, leeway: TimeInterval = 0, action: @escaping () -> Void) -> Disposable? {
 		return schedule(after: currentDate.addingTimeInterval(delay), interval: interval, leeway: leeway, action: action)
 	}
 
@@ -417,7 +417,7 @@ public final class TestScheduler: DateSchedulerProtocol {
 	///
 	/// - returns: Optional `Disposable` that can be used to cancel the work
 	///	           before it begins.
-	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval = 0, action: () -> Void) -> Disposable? {
+	public func schedule(after date: Date, interval: TimeInterval, leeway: TimeInterval = 0, action: @escaping () -> Void) -> Disposable? {
 		let disposable = SerialDisposable()
 		schedule(after: date, interval: interval, disposable: disposable, action: action)
 		return disposable

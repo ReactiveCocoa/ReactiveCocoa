@@ -27,7 +27,7 @@ public protocol ObserverProtocol {
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
 public final class Observer<Value, Error: Swift.Error> {
-	public typealias Action = (Event<Value, Error>) -> Void
+	public typealias Action = @escaping (Event<Value, Error>) -> Void
 
 	/// An action that will be performed upon arrival of the event.
 	public let action: Action

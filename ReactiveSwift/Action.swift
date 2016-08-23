@@ -68,7 +68,7 @@ public final class Action<Input, Output, Error: Swift.Error> {
 	///                enabled.
 	///   - execute: A closure that returns the signal producer returned by
 	///              calling `apply(Input)` on the action.
-	public init<P: PropertyProtocol where P.Value == Bool>(enabledIf property: P, _ execute: (Input) -> SignalProducer<Output, Error>) {
+	public init<P: PropertyProtocol>(enabledIf property: P, _ execute: @escaping (Input) -> SignalProducer<Output, Error>) where P.Value == Bool {
 		executeClosure = execute
 		isUserEnabled = Property(property)
 
@@ -88,7 +88,7 @@ public final class Action<Input, Output, Error: Swift.Error> {
 	/// - parameters:
 	///   - execute: A closure that returns the signal producer returned by
 	///              calling `apply(Input)` on the action.
-	public convenience init(_ execute: (Input) -> SignalProducer<Output, Error>) {
+	public convenience init(_ execute: @escaping (Input) -> SignalProducer<Output, Error>) {
 		self.init(enabledIf: Property(value: true), execute)
 	}
 

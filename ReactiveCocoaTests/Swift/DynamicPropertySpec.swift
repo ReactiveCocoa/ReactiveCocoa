@@ -27,7 +27,7 @@ class DynamicPropertySpec: QuickSpec {
 			var property: DynamicProperty<Int>!
 
 			let propertyValue: () -> Int? = {
-				if let value: AnyObject = property?.value {
+				if let value: Any = property?.value {
 					return value as? Int
 				} else {
 					return nil

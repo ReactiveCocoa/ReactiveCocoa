@@ -67,7 +67,7 @@ extension URLSession {
 					observer.sendNext((data, response))
 					observer.sendCompleted()
 				} else {
-					observer.sendFailed(error ?? defaultSessionError)
+					observer.sendFailed(error as NSError? ?? defaultSessionError)
 				}
 			}
 

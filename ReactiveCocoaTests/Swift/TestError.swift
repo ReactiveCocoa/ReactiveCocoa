@@ -16,7 +16,7 @@ internal enum TestError: Int {
 	case error2 = 2
 }
 
-internal extension TestError: Error {
+extension TestError: Error {
 }
 
 

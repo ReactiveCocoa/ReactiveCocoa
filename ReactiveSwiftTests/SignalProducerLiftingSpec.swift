@@ -516,16 +516,16 @@ class SignalProducerLiftingSpec: QuickSpec {
 
 					if i % 3 == 0 {
 						expectation.append([Int]((i - 2)...i))
-						expect(observedValues) == expectation
+						expect(observedValues as NSArray) == expectation as NSArray
 					} else {
-						expect(observedValues) == expectation
+						expect(observedValues as NSArray) == expectation as NSArray
 					}
 				}
 
 				observer.sendCompleted()
 
 				expectation.append([7])
-				expect(observedValues) == expectation
+				expect(observedValues as NSArray) == expectation as NSArray
 			}
 
 			it("should collect values until it matches a certain value") {
@@ -543,7 +543,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				producer.startWithCompleted {
-					expect(expectedValues) == []
+					expect(expectedValues as NSArray) == [] as NSArray
 				}
 
 				expectedValues
@@ -568,7 +568,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				}
 
 				producer.startWithCompleted {
-					expect(expectedValues) == []
+					expect(expectedValues as NSArray) == [] as NSArray
 				}
 
 				expectedValues
@@ -1077,7 +1077,7 @@ class SignalProducerLiftingSpec: QuickSpec {
 				class Payload {
 					let action: () -> Void
 
-					init(onDeinit action: () -> Void) {
+					init(onDeinit action: @escaping () -> Void) {
 						self.action = action
 					}
 

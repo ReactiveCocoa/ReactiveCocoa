@@ -9,16 +9,16 @@
 /// A uniquely identifying token for removing a value that was inserted into a
 /// Bag.
 public final class RemovalToken {
-	private var identifier: UInt?
+	fileprivate var identifier: UInt?
 
-	private init(identifier: UInt) {
+	fileprivate init(identifier: UInt) {
 		self.identifier = identifier
 	}
 }
 
 /// An unordered, non-unique collection of values of type `Element`.
 public struct Bag<Element> {
-	private var elements: [BagElement<Element>] = []
+	fileprivate var elements: [BagElement<Element>] = []
 	private var currentIdentifier: UInt = 0
 
 	public init() {

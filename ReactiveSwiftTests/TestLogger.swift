@@ -10,7 +10,7 @@ import Foundation
 @testable import ReactiveSwift
 
 final class TestLogger {
-	private var expectations: [(String) -> Void]
+	fileprivate var expectations: [(String) -> Void]
 	
 	init(expectations: [(String) -> Void]) {
 		self.expectations = expectations
@@ -18,7 +18,6 @@ final class TestLogger {
 }
 
 extension TestLogger {
-	
 	func logEvent(_ identifier: String, event: String, fileName: String, functionName: String, lineNumber: Int) {
 		expectations.removeFirst()("[\(identifier)] \(event)")
 	}

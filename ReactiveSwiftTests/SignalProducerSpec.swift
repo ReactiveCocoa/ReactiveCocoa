@@ -698,7 +698,7 @@ class SignalProducerSpec: QuickSpec {
 				observerA.sendCompleted()
 				observerB.sendCompleted()
 
-				expect(values) == [[1, 2], [3, 2]]
+				expect(values as NSArray) == [[1, 2], [3, 2]]
 			}
 
 			it("should start signal producers in order as defined") {
@@ -723,7 +723,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				expect(ids) == [1, 2]
-				expect(values) == [[1, 2]]
+				expect(values as NSArray) == [[1, 2]] as NSArray
 			}
 		}
 
@@ -735,7 +735,7 @@ class SignalProducerSpec: QuickSpec {
 				let producer = SignalProducer.zip([producerA, producerB])
 				let result = producer.collect().single()
 				
-				expect(result?.value) == [[1, 3], [2, 4]]
+				expect(result?.value.map { $0 as NSArray }) == [[1, 3], [2, 4]] as NSArray
 			}
 
 			it("should start signal producers in order as defined") {
@@ -760,7 +760,7 @@ class SignalProducerSpec: QuickSpec {
 				}
 
 				expect(ids) == [1, 2]
-				expect(values) == [[1, 2]]
+				expect(values as NSArray) == [[1, 2]] as NSArray
 			}
 		}
 
@@ -774,7 +774,7 @@ class SignalProducerSpec: QuickSpec {
 				let tick2 = startDate.addingTimeInterval(2)
 				let tick3 = startDate.addingTimeInterval(3)
 
-				var dates: [NSDate] = []
+				var dates: [Date] = []
 				producer.startWithNext { dates.append($0) }
 
 				scheduler.advance(by: 0.9)
@@ -926,7 +926,7 @@ class SignalProducerSpec: QuickSpec {
 
 				let producer = timer(interval: 2, on: testScheduler, leeway: 0)
 
-				var next: NSDate?
+				var next: Date?
 				producer.start(on: startScheduler).startWithNext { next = $0 }
 
 				startScheduler.advance(by: 2)
@@ -1700,7 +1700,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				observer.sendNext(1)
-				expect(result).toEventually(be(1), timeout: 5.0)
+				expect(result).toEventually(equal(1), timeout: 5.0)
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -1753,7 +1753,7 @@ class SignalProducerSpec: QuickSpec {
 				expect(result).to(beNil())
 
 				observer.sendCompleted()
-				expect(result).toEventually(be(1))
+				expect(result).toEventually(equal(1))
 			}
 
 			it("should return a nil result if no values are sent before completion") {
@@ -2151,7 +2151,7 @@ class SignalProducerSpec: QuickSpec {
 					final class Value {
 						private let deinitBlock: () -> Void
 
-						init(deinitBlock: () -> Void) {
+						init(deinitBlock: @escaping () -> Void) {
 							self.deinitBlock = deinitBlock
 						}
 
@@ -2232,7 +2232,7 @@ extension SignalProducer {
 
 	/// Creates a producer that can be started as many times as elements in `results`.
 	/// Each signal will immediately send either a value or an error.
-	private static func attemptWithResults<C: Collection where C.Iterator.Element == Result<Value, Error>, C.IndexDistance == C.Index, C.Index == Int>(_ results: C) -> SignalProducer<Value, Error> {
+	fileprivate static func attemptWithResults<C: Collection>(_ results: C) -> SignalProducer<Value, Error> where C.Iterator.Element == Result<Value, Error>, C.IndexDistance == C.Index, C.Index == Int {
 		let resultCount = results.count
 		var operationIndex = 0
 

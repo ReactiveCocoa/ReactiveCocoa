@@ -177,13 +177,6 @@ public final class Signal<Value, Error: Swift.Error> {
 	}
 }
 
-// Testability
-extension Signal {
-	internal var test_observerCount: Int? {
-		return state.withValue { $0?.observers.count }
-	}
-}
-
 private struct SignalState<Value, Error: Swift.Error> {
 	var observers: Bag<Signal<Value, Error>.Observer> = Bag()
 	var retainedSignal: Signal<Value, Error>?

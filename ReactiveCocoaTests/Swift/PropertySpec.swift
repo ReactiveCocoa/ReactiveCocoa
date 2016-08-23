@@ -1606,28 +1606,27 @@ class PropertySpec: QuickSpec {
 					expect(mutableProperty.value) == initialPropertyValue
 				}
 				
-				it("should tear down the binding when bound signal is completed") {
-					let (signal, observer) = Signal<String, NoError>.pipe()
-					
-					let mutableProperty = MutableProperty(initialPropertyValue)
-					
-					mutableProperty <~ signal
-					expect(mutableProperty.lifetime.ended.test_observerCount) == 1
-
-					observer.sendCompleted()
-					expect(mutableProperty.lifetime.ended.test_observerCount) == 0
-				}
-				
 				it("should tear down the binding when the property deallocates") {
-					let (signal, _) = Signal<String, NoError>.pipe()
+					var signal: Signal<String, NoError>? = {
+						let (signal, _) = Signal<String, NoError>.pipe()
+						return signal
+					}()
+					weak var weakSignal = signal
 
 					var mutableProperty: MutableProperty<String>? = MutableProperty(initialPropertyValue)
 
-					mutableProperty! <~ signal
-					expect(signal.test_observerCount) == 1
+					mutableProperty! <~ signal!
+					signal = nil
 
+					// The binding attached an observer to the signal, so it cannot
+					// deinitialize.
+					expect(weakSignal).toNot(beNil())
+
+					// The deinitialization should tear down the binding, which would
+					// remove the last observer from the signal, causing it to
+					// dispose of itself.
 					mutableProperty = nil
-					expect(signal.test_observerCount) == 0
+					expect(weakSignal).to(beNil())
 				}
 			}
 
@@ -1653,19 +1652,6 @@ class PropertySpec: QuickSpec {
 
 					observer.sendNext(subsequentPropertyValue)
 					expect(mutableProperty.value) == initialPropertyValue
-				}
-
-				it("should tear down the binding when bound signal is completed") {
-					let (signalProducer, observer) = SignalProducer<String, NoError>.pipe()
-
-					let mutableProperty = MutableProperty(initialPropertyValue)
-
-					var isDisposed = false
-					mutableProperty <~ signalProducer.on(disposed: { isDisposed = true })
-					expect(isDisposed) == false
-
-					observer.sendCompleted()
-					expect(isDisposed) == true
 				}
 
 				it("should tear down the binding when the property deallocates") {
@@ -1733,7 +1719,7 @@ class PropertySpec: QuickSpec {
 					var destinationProperty: MutableProperty<String>? = MutableProperty("")
 
 					var isDisposed = false
-					let bindingDisposable = destinationProperty! <~ sourceProperty.producer.on(disposed: { isDisposed = true })
+					destinationProperty! <~ sourceProperty.producer.on(disposed: { isDisposed = true })
 					expect(isDisposed) == false
 
 					destinationProperty = nil

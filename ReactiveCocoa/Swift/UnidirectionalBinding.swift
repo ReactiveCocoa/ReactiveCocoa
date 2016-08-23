@@ -1,13 +1,15 @@
 import enum Result.NoError
 
-infix operator <~ {
-	associativity right
+precedencegroup BindingPrecedence {
+	associativity: right
 
 	// Binds tighter than assignment but looser than everything else
-	precedence 93
+	higherThan: AssignmentPrecedence
 }
 
-/// Describes a target to which can be bond.
+infix operator <~ : BindingPrecedence
+
+/// Describes a target to which can be bound.
 public protocol BindingTarget: class {
 	associatedtype ValueType
 
@@ -48,7 +50,7 @@ public protocol BindingTarget: class {
 	///            deinitialization of the target or the signal's `completed`
 	///            event.
 	@discardableResult
-	static func <~ <Source: SignalProtocol where Source.Value == ValueType, Source.Error == NoError>(target: Self, signal: Source) -> Disposable?
+	static func <~ <Source: SignalProtocol>(target: Self, signal: Source) -> Disposable? where Source.Value == ValueType, Source.Error == NoError
 }
 
 extension BindingTarget {
@@ -82,7 +84,7 @@ extension BindingTarget {
 	///            deinitialization of the target or the signal's `completed`
 	///            event.
 	@discardableResult
-	public static func <~ <Source: SignalProtocol where Source.Value == ValueType, Source.Error == NoError>(target: Self, signal: Source) -> Disposable? {
+	public static func <~ <Source: SignalProtocol>(target: Self, signal: Source) -> Disposable? where Source.Value == ValueType, Source.Error == NoError {
 		return signal
 			.take(during: target.lifetime)
 			.observeNext { [weak target] value in
@@ -121,7 +123,7 @@ extension BindingTarget {
 	///            deinitialization of the target or the producer's `completed
 	///            event.
 	@discardableResult
-	public static func <~ <Source: SignalProducerProtocol where Source.Value == ValueType, Source.Error == NoError>(target: Self, producer: Source) -> Disposable {
+	public static func <~ <Source: SignalProducerProtocol>(target: Self, producer: Source) -> Disposable where Source.Value == ValueType, Source.Error == NoError {
 		var disposable: Disposable!
 
 		producer
@@ -163,7 +165,7 @@ extension BindingTarget {
 	/// - returns: A disposable that can be used to terminate binding before the
 	///            deinitialization of the target or the source property.
 	@discardableResult
-	public static func <~ <Source: PropertyProtocol where Source.Value == ValueType>(target: Self, property: Source) -> Disposable {
+	public static func <~ <Source: PropertyProtocol>(target: Self, property: Source) -> Disposable where Source.Value == ValueType {
 		return target <~ property.producer
 	}
 }
@@ -199,7 +201,7 @@ extension BindingTarget where ValueType: OptionalProtocol {
 	///            deinitialization of the target or the signal's `completed`
 	///            event.
 	@discardableResult
-	public static func <~ <Source: SignalProtocol where Source.Value == ValueType.Wrapped, Source.Error == NoError>(target: Self, signal: Source) -> Disposable? {
+	public static func <~ <Source: SignalProtocol>(target: Self, signal: Source) -> Disposable? where Source.Value == ValueType.Wrapped, Source.Error == NoError {
 		return target <~ signal.map(ValueType.init(reconstructing:))
 	}
 
@@ -234,7 +236,7 @@ extension BindingTarget where ValueType: OptionalProtocol {
 	///            deinitialization of the target or the producer's `completed`
 	///            event.
 	@discardableResult
-	public static func <~ <Source: SignalProducerProtocol where Source.Value == ValueType.Wrapped, Source.Error == NoError>(target: Self, producer: Source) -> Disposable {
+	public static func <~ <Source: SignalProducerProtocol>(target: Self, producer: Source) -> Disposable where Source.Value == ValueType.Wrapped, Source.Error == NoError {
 		return target <~ producer.map(ValueType.init(reconstructing:))
 	}
 
@@ -270,16 +272,16 @@ extension BindingTarget where ValueType: OptionalProtocol {
 	/// - returns: A disposable that can be used to terminate binding before the
 	///            deinitialization of the target or the source property.
 	@discardableResult
-	public static func <~ <Source: PropertyProtocol where Source.Value == ValueType.Wrapped>(target: Self, property: Source) -> Disposable {
+	public static func <~ <Source: PropertyProtocol>(target: Self, property: Source) -> Disposable where Source.Value == ValueType.Wrapped {
 		return target <~ property.producer
 	}
 }
 
 /// A type-erased view of a binding consumer.
-public class AnyBindingTarget<Value>: BindingTarget {
+public final class AnyBindingTarget<Value>: BindingTarget {
 	public typealias ValueType = Value
 
-	let sink: (Value) -> ()
+	private let sink: @escaping (Value) -> ()
 
 	/// The lifetime of this binding consumer. The binding operators use this to
 	/// determine whether or not the binding should be teared down.
@@ -289,7 +291,7 @@ public class AnyBindingTarget<Value>: BindingTarget {
 	///
 	/// - parameter:
 	///   - consumer: The binding consumer to be wrapped.
-	public init<U: BindingTarget where U.ValueType == Value>(_ consumer: U) {
+	public init<U: BindingTarget>(_ consumer: U) where U.ValueType == Value {
 		self.sink = consumer.consume
 		self.lifetime = consumer.lifetime
 	}
@@ -299,7 +301,7 @@ public class AnyBindingTarget<Value>: BindingTarget {
 	/// - parameter:
 	///   - sink: The sink to receive the values from the binding.
 	///   - lifetime: The lifetime of the binding consumer.
-	public init(sink: (Value) -> (), lifetime: Lifetime) {
+	public init(sink: @escaping (Value) -> (), lifetime: Lifetime) {
 		self.sink = sink
 		self.lifetime = lifetime
 	}

@@ -374,6 +374,7 @@ extension PropertyProtocol {
 /// its source outlives it too.
 public final class Property<Value>: PropertyProtocol {
 	private let sources: [AnyObject]
+	private let disposable: Disposable?
 
 	private let _value: () -> Value
 	private let _producer: () -> SignalProducer<Value, NoError>
@@ -403,6 +404,7 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A value of the constant property.
 	public init(value: Value) {
 		sources = []
+		disposable = nil
 		_value = { value }
 		_producer = { SignalProducer(value: value) }
 		_signal = { Signal<Value, NoError>.empty }
@@ -414,6 +416,7 @@ public final class Property<Value>: PropertyProtocol {
 	///   - property: A property to be wrapped.
 	public init<P: PropertyProtocol>(_ property: P) where P.Value == Value {
 		sources = Property.capture(property)
+		disposable = nil
 		_value = { property.value }
 		_producer = { property.producer }
 		_signal = { property.signal }
@@ -490,35 +493,28 @@ public final class Property<Value>: PropertyProtocol {
 		// they see a consistent view of the `self.value`.
 		// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
 		let producer = unsafeProducer.replayLazily(upTo: 1)
-		
+
+		let atomic = Atomic<Value?>(nil)
+		disposable = producer.startWithNext { atomic.value = $0 }
+
 		// Verify that an initial is sent. This is friendlier than deadlocking
 		// in the event that one isn't.
-		var value: Value? = nil
-		let disposable = producer.start { event in
-			switch event {
-			case let .next(newValue):
-				value = newValue
-				
-			case .completed, .interrupted:
-				break
-				
-			case let .failed(error):
-				fatalError("Receive unexpected error from a producer of `NoError` type: \(error)")
-			}
-		}
-		guard value != nil else {
+		guard atomic.value != nil else {
 			fatalError("A producer promised to send at least one value. Received none.")
 		}
-		disposable.dispose()
 
 		self.sources = sources
-		_value = { producer.take(first: 1).single()!.value! }
+		_value = { atomic.value! }
 		_producer = { producer }
 		_signal = {
 			var extractedSignal: Signal<Value, NoError>!
 			producer.startWithSignal { signal, _ in extractedSignal = signal }
 			return extractedSignal
 		}
+	}
+
+	deinit {
+		disposable?.dispose()
 	}
 
 	/// Inspect if `property` is an `AnyProperty` and has already captured its

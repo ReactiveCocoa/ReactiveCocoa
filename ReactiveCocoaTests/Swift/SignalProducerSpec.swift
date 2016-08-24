@@ -1667,6 +1667,13 @@ class SignalProducerSpec: QuickSpec {
 				subsequentObserver.sendCompleted()
 				expect(completed) == true
 			}
+
+			it("should be available for NoError") {
+				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, NoError>.empty
+					.then(SignalProducer<Int, TestError>.empty)
+
+				_ = producer
+			}
 		}
 
 		describe("first") {

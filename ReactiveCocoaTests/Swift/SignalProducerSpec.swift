@@ -1668,9 +1668,23 @@ class SignalProducerSpec: QuickSpec {
 				expect(completed) == true
 			}
 
-			it("should be available for NoError") {
+			it("works with NoError and TestError") {
 				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, NoError>.empty
 					.then(SignalProducer<Int, TestError>.empty)
+
+				_ = producer
+			}
+
+			it("works with TestError and NoError") {
+				let producer: SignalProducer<Int, TestError> = SignalProducer<Int, TestError>.empty
+					.then(SignalProducer<Int, NoError>.empty)
+
+				_ = producer
+			}
+
+			it("works with NoError and NoError") {
+				let producer: SignalProducer<Int, NoError> = SignalProducer<Int, NoError>.empty
+					.then(SignalProducer<Int, NoError>.empty)
 
 				_ = producer
 			}

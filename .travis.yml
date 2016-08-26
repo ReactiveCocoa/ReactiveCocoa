@@ -56,25 +56,25 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform mac
+        - carthage build --no-skip-current --platform mac --verbose
       env:
         - JOB=CARTHAGE-macOS
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform iOS
+        - carthage build --no-skip-current --platform iOS --verbose
       env:
         - JOB=CARTHAGE-iOS
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform tvOS
+        - carthage build --no-skip-current --platform tvOS --verbose
       env:
         - JOB=CARTHAGE-tvOS
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current --platform watchOS
+        - carthage build --no-skip-current --platform watchOS --verbose
       env:
         - JOB=CARTHAGE-watchOS
     - os: osx

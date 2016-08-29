@@ -276,39 +276,3 @@ extension BindingTarget where Value: OptionalProtocol {
 		return target <~ property.producer
 	}
 }
-
-/// A type-erased view of a binding consumer.
-public final class AnyBindingTarget<Value>: BindingTarget {
-	public typealias ValueType = Value
-
-	private let sink: @escaping (Value) -> ()
-
-	/// The lifetime of this binding consumer. The binding operators use this to
-	/// determine whether or not the binding should be teared down.
-	public let lifetime: Lifetime
-
-	/// Wrap an binding consumer.
-	///
-	/// - parameter:
-	///   - consumer: The binding consumer to be wrapped.
-	public init<U: BindingTarget>(_ consumer: U) where U.ValueType == Value {
-		self.sink = consumer.consume
-		self.lifetime = consumer.lifetime
-	}
-
-	/// Create a binding consumer.
-	///
-	/// - parameter:
-	///   - sink: The sink to receive the values from the binding.
-	///   - lifetime: The lifetime of the binding consumer.
-	public init(sink: @escaping (Value) -> (), lifetime: Lifetime) {
-		self.sink = sink
-		self.lifetime = lifetime
-	}
-
-	/// Consume a value.
-	public func consume(_ value: Value) {
-		sink(value)
-	}
-}
-

@@ -1176,6 +1176,22 @@ extension SignalProducerProtocol where Error == NoError {
 	) -> SignalProducer<Value, NewError> {
 		return lift { $0.timeout(after: interval, raising: error, on: scheduler) }
 	}
+
+	/// Wait for completion of `self`, *then* forward all events from
+	/// `replacement`.
+	///
+	/// - note: All values sent from `self` are ignored.
+	///
+	/// - parameters:
+	///   - replacement: A producer to start when `self` completes.
+	///
+	/// - returns: A producer that sends events from `self` and then from
+	///            `replacement` when `self` completes.
+	public func then<U, NewError: Swift.Error>(_ replacement: SignalProducer<U, NewError>) -> SignalProducer<U, NewError> {
+		return self
+			.promoteErrors(NewError.self)
+			.then(replacement)
+	}
 }
 
 extension SignalProducerProtocol where Value: Equatable {
@@ -1574,6 +1590,22 @@ extension SignalProducerProtocol {
 				}
 			}
 		}
+	}
+
+	/// Wait for completion of `self`, *then* forward all events from
+	/// `replacement`. Any failure or interruption sent from `self` is
+	/// forwarded immediately, in which case `replacement` will not be started,
+	/// and none of its events will be be forwarded.
+	///
+	/// - note: All values sent from `self` are ignored.
+	///
+	/// - parameters:
+	///   - replacement: A producer to start when `self` completes.
+	///
+	/// - returns: A producer that sends events from `self` and then from
+	///            `replacement` when `self` completes.
+	public func then<U>(_ replacement: SignalProducer<U, NoError>) -> SignalProducer<U, Error> {
+		return self.then(replacement.promoteErrors(Error.self))
 	}
 
 	/// Start the producer, then block, waiting for the first value.

@@ -25,15 +25,13 @@ public protocol PropertyProtocol: class {
 }
 
 /// Represents an observable property that can be mutated directly.
-public protocol MutablePropertyProtocol: BindingTarget, PropertyProtocol {
+public protocol MutablePropertyProtocol: PropertyProtocol, BindingTarget {
 	/// The current value of the property.
 	var value: Value { get set }
 }
 
 /// Default implementation of `MutablePropertyProtocol` for `BindingTarget`.
 extension MutablePropertyProtocol {
-	public typealias ValueType = Value
-
 	public func consume(_ value: Value) {
 		self.value = value
 	}

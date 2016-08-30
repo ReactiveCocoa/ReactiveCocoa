@@ -72,6 +72,10 @@
 		A9F793341B60D0140026BCBA /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = D871D69E1B3B29A40070F16C /* Optional.swift */; };
 		B696FB811A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
+		BE9CF3951D751B6B003AE479 /* UnidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */; };
+		BE9CF3961D751B70003AE479 /* UnidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */; };
+		BE9CF3971D751B71003AE479 /* UnidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */; };
+		BE9CF3981D751B71003AE479 /* UnidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		C79B64741CD38B2B003F2376 /* TestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79B64731CD38B2B003F2376 /* TestLogger.swift */; };
@@ -223,6 +227,7 @@
 		A97451361B3A935E00F48E55 /* watchOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		A9B315541B3940610001CB9C /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B696FB801A7640C00075236D /* TestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
+		BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnidirectionalBinding.swift; sourceTree = "<group>"; };
 		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
 		C79B64731CD38B2B003F2376 /* TestLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLogger.swift; sourceTree = "<group>"; };
 		C79B647B1CD52E23003F2376 /* EventLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventLogger.swift; sourceTree = "<group>"; };
@@ -379,6 +384,7 @@
 				D08C54B01A69A2AC00AD8286 /* Property.swift */,
 				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
 				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
+				BE9CF3941D751B6B003AE479 /* UnidirectionalBinding.swift */,
 			);
 			name = Signals;
 			sourceTree = "<group>";
@@ -858,6 +864,7 @@
 				EBCC7DBF1BBF01E200A2AE92 /* Observer.swift in Sources */,
 				C79B64801CD52E4E003F2376 /* EventLogger.swift in Sources */,
 				4A0E11021D2A92720065D310 /* Lifetime.swift in Sources */,
+				BE9CF3981D751B71003AE479 /* UnidirectionalBinding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -905,6 +912,7 @@
 				EBCC7DBE1BBF01E200A2AE92 /* Observer.swift in Sources */,
 				C79B647F1CD52E4D003F2376 /* EventLogger.swift in Sources */,
 				4A0E11011D2A92720065D310 /* Lifetime.swift in Sources */,
+				BE9CF3971D751B71003AE479 /* UnidirectionalBinding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -929,6 +937,7 @@
 				C79B647C1CD52E23003F2376 /* EventLogger.swift in Sources */,
 				9ABCB1851D2A5B5A00BCA243 /* Deprecations+Removals.swift in Sources */,
 				D08C54B81A69A9D000AD8286 /* SignalProducer.swift in Sources */,
+				BE9CF3951D751B6B003AE479 /* UnidirectionalBinding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -976,6 +985,7 @@
 				D0C312E819EF2A5800984962 /* Scheduler.swift in Sources */,
 				D0C312D019EF2A5800984962 /* Bag.swift in Sources */,
 				D0D11ABA1A6AE87700C1F8B1 /* Action.swift in Sources */,
+				BE9CF3961D751B70003AE479 /* UnidirectionalBinding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

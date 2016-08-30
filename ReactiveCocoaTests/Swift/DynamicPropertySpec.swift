@@ -179,6 +179,21 @@ class DynamicPropertySpec: QuickSpec {
 				dynamicProperty.value = UnbridgedObject("foo")
 				expect(object.rac_reference.value) == "foo"
 			}
+
+			it("should expose a lifetime that ends upon the deinitialization of its underlying object") {
+				var isEnded = false
+				property!.lifetime.ended.observeCompleted {
+					isEnded = true
+				}
+
+				expect(isEnded) == false
+
+				property = nil
+				expect(isEnded) == false
+
+				object = nil
+				expect(isEnded) == true
+			}
 		}
 
 		describe("binding") {

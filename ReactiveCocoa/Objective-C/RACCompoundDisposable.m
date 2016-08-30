@@ -94,7 +94,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 
 	#if RACCompoundDisposableInlineCount
 	[otherDisposables enumerateObjectsUsingBlock:^(RACDisposable *disposable, NSUInteger index, BOOL *stop) {
-		_inlineDisposables[index] = disposable;
+		self->_inlineDisposables[index] = disposable;
 
 		// Stop after this iteration if we've reached the end of the inlined
 		// array.

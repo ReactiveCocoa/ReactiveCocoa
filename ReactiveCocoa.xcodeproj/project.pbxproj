@@ -825,6 +825,7 @@
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
+		9A694EF21D5CE02E009B05BD /* UnidirectionalBinding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnidirectionalBinding.swift; sourceTree = "<group>"; };
 		9ABCB1841D2A5B5A00BCA243 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
@@ -2279,6 +2280,7 @@
 				57A4D1F81BA13D7A00F7D4B1 /* RACSignalSequence.m in Sources */,
 				57A4D1F91BA13D7A00F7D4B1 /* RACStream.m in Sources */,
 				57A4D1FA1BA13D7A00F7D4B1 /* RACStringSequence.m in Sources */,
+				9A694EF61D5CE02E009B05BD /* UnidirectionalBinding.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				57A4D1FB1BA13D7A00F7D4B1 /* RACSubject.m in Sources */,
 				57A4D1FC1BA13D7A00F7D4B1 /* RACSubscriber.m in Sources */,
@@ -2401,6 +2403,7 @@
 				A9B3158D1B3940750001CB9C /* RACKVOTrampoline.m in Sources */,
 				A9B3158E1B3940750001CB9C /* RACMulticastConnection.m in Sources */,
 				C7142DBE1CDEA194009F402D /* CocoaAction.swift in Sources */,
+				9A694EF51D5CE02E009B05BD /* UnidirectionalBinding.swift in Sources */,
 				A9B315901B3940750001CB9C /* RACPassthroughSubscriber.m in Sources */,
 				A9B315911B3940750001CB9C /* RACQueueScheduler.m in Sources */,
 				A9B315921B3940750001CB9C /* RACReplaySubject.m in Sources */,
@@ -2941,8 +2944,6 @@
 			baseConfigurationReference = D047262919E49FE8006002AA /* Debug.xcconfig */;
 			buildSettings = {
 				BITCODE_GENERATION_MODE = bitcode;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -2965,8 +2966,6 @@
 			baseConfigurationReference = D047262B19E49FE8006002AA /* Release.xcconfig */;
 			buildSettings = {
 				BITCODE_GENERATION_MODE = bitcode;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -3096,8 +3095,6 @@
 			baseConfigurationReference = D047262A19E49FE8006002AA /* Profile.xcconfig */;
 			buildSettings = {
 				BITCODE_GENERATION_MODE = bitcode;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -3172,8 +3169,6 @@
 			baseConfigurationReference = D047262C19E49FE8006002AA /* Test.xcconfig */;
 			buildSettings = {
 				BITCODE_GENERATION_MODE = bitcode;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;

@@ -36,6 +36,11 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 		}
 	}
 
+	/// The lifetime of the property.
+	public var lifetime: Lifetime {
+		return object?.rac_lifetime ?? .empty
+	}
+
 	/// A producer that will create a Key-Value Observer for the given object,
 	/// send its initial value then all changes over time, and then complete
 	/// when the observed object has deallocated.

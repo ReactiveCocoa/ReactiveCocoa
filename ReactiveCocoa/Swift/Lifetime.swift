@@ -4,8 +4,27 @@ import enum Result.NoError
 /// Represents the lifetime of an object, and provides a hook to observe when
 /// the object deinitializes.
 public final class Lifetime {
-	/// A signal that sends a Completed event when the lifetime ends.
+	/// MARK: Type properties and methods
+
+	/// A `Lifetime` that has already ended.
+	public static var empty: Lifetime {
+		return Lifetime(ended: .empty)
+	}
+
+	/// MARK: Instance properties
+
+	/// A signal that sends a `completed` event when the lifetime ends.
 	public let ended: Signal<(), NoError>
+
+	/// MARK: Initializers
+
+	/// Initialize a `Lifetime` object with the supplied ended signal.
+	///
+	/// - parameters:
+	///   - signal: The ended signal.
+	private init(ended signal: Signal<(), NoError>) {
+		ended = signal
+	}
 
 	/// Initialize a `Lifetime` from a lifetime token, which is expected to be
 	/// associated with an object.
@@ -16,8 +35,8 @@ public final class Lifetime {
 	/// - parameters:
 	///   - token: A lifetime token for detecting the deinitialization of the
 	///            associated object.
-	public init(_ token: Token) {
-		ended = token.ended
+	public convenience init(_ token: Token) {
+		self.init(ended: token.ended)
 	}
 
 	/// A token object which completes its signal when it deinitializes.

@@ -1444,7 +1444,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == [ 0 ]
@@ -1460,7 +1460,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.producer.startWithNext { value in
 					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == [ 0 ]
@@ -1476,7 +1476,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == []
@@ -1492,7 +1492,7 @@ class PropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeNext { value in
 					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == []
@@ -1507,7 +1507,7 @@ class PropertySpec: QuickSpec {
 			it("should have a completed producer when the underlying object deallocates") {
 				var completed = false
 
-				property = {
+				_ = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
 					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
@@ -1518,17 +1518,15 @@ class PropertySpec: QuickSpec {
 
 					expect(completed) == false
 					expect(property.value).notTo(beNil())
-					return property
 				}()
 
 				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
 			}
 
 			it("should have a completed signal when the underlying object deallocates") {
 				var completed = false
 
-				property = {
+				_ = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
 					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
@@ -1539,27 +1537,36 @@ class PropertySpec: QuickSpec {
 
 					expect(completed) == false
 					expect(property.value).notTo(beNil())
-					return property
 				}()
 
 				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
 			}
 
-			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty<Int>? = property
-				
-				property = nil
-				expect(dynamicProperty).toNot(beNil())
-				
+			it("should retain the object"){
+				weak var weakObject: NSObject? = object
+
 				object = nil
-				expect(dynamicProperty).to(beNil())
+				expect(weakObject).toNot(beNil())
+
+				property = nil
+				expect(weakObject).to(beNil())
 			}
 
 			it("should support un-bridged reference types") {
-				let dynamicProperty = DynamicProperty<UnbridgedObject>(object: object, keyPath: "rac_reference")
+				let dynamicProperty = DynamicProperty<UnbridgedObject>(object: object,
+				                                                       keyPath: #keyPath(ObservableObject.rac_reference))
 				dynamicProperty.value = UnbridgedObject("foo")
 				expect(object.rac_reference.value) == "foo"
+			}
+
+			it("should support un-bridged reference types with nullability") {
+				let dynamicProperty = DynamicProperty<UnbridgedObject?>(object: object,
+				                                                        keyPath: #keyPath(ObservableObject.rac_nullableReference))
+				expect(dynamicProperty.value).toNot(beNil())
+				expect(dynamicProperty.value?.value) == ""
+
+				dynamicProperty.value = nil
+				expect(object.rac_nullableReference).to(beNil())
 			}
 
 			it("should expose a lifetime that ends upon the deinitialization of its underlying object") {
@@ -1735,7 +1742,8 @@ class PropertySpec: QuickSpec {
 					object = ObservableObject()
 					expect(object.rac_value) == 0
 
-					property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+					property = DynamicProperty<Int>(object: object,
+					                                keyPath: #keyPath(ObservableObject.rac_value))
 				}
 
 				afterEach {
@@ -1760,6 +1768,64 @@ class PropertySpec: QuickSpec {
 					property <~ source
 					expect(object.rac_value) == 1
 				}
+
+				it("should not retain the DynamicProperty") {
+					let source = MutableProperty(1)
+					property <~ source
+					expect(property).toNot(beNil())
+
+					property = nil
+					expect(property).to(beNil())
+				}
+
+				it("should not be teared down until the underlying object deinitializes") {
+					var isDisposed = false
+
+					let source = MutableProperty(1)
+					property <~ source.producer.on(disposed: { isDisposed = true })
+
+					property = nil
+					expect(isDisposed) == false
+
+					object = nil
+					expect(isDisposed) == true
+				}
+			}
+
+			describe("to a nullable dynamic property") {
+				var object: ObservableObject!
+				var property: DynamicProperty<String?>!
+
+				beforeEach {
+					object = ObservableObject()
+					expect(object.rac_nullableValue) == ""
+
+					property = DynamicProperty<String?>(object: object,
+					                                keyPath: #keyPath(ObservableObject.rac_nullableValue))
+				}
+
+				afterEach {
+					object = nil
+				}
+
+				it("should bridge values sent on a signal to Objective-C") {
+					let (signal, observer) = Signal<String?, NoError>.pipe()
+					property <~ signal
+					observer.sendNext(initialPropertyValue)
+					expect(object.rac_nullableValue) == initialPropertyValue
+				}
+
+				it("should bridge values sent on a signal producer to Objective-C") {
+					let producer = SignalProducer<String?, NoError>(value: initialPropertyValue)
+					property <~ producer
+					expect(object.rac_nullableValue) == initialPropertyValue
+				}
+
+				it("should bridge values from a source property to Objective-C") {
+					let source = MutableProperty(initialPropertyValue)
+					property <~ source
+					expect(object.rac_nullableValue) == initialPropertyValue
+				}
 			}
 		}
 	}
@@ -1767,7 +1833,9 @@ class PropertySpec: QuickSpec {
 
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+	dynamic var rac_nullableValue: String? = ""
 	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+	dynamic var rac_nullableReference: UnbridgedObject? = UnbridgedObject("")
 }
 
 private class UnbridgedObject: NSObject {

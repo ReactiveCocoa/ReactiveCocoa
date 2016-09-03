@@ -1,9 +1,9 @@
 [submodule "Carthage/Checkouts/Nimble"]
 	path = Carthage/Checkouts/Nimble
-	url = https://github.com/norio-nomura/Nimble.git
+	url = https://github.com/Quick/Nimble.git
 [submodule "Carthage/Checkouts/Quick"]
 	path = Carthage/Checkouts/Quick
-	url = https://github.com/norio-nomura/Quick.git
+	url = https://github.com/Quick/Quick.git
 [submodule "Carthage/Checkouts/xcconfigs"]
 	path = Carthage/Checkouts/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git

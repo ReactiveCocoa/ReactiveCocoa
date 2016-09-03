@@ -126,7 +126,9 @@ extension DynamicProperty where Value: OptionalProtocol, Value.Wrapped: _Objecti
 	///   - object: An object to be lensed.
 	///   - keyPath: Key path to lense on the object.
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representable: NullableBridgeableRepresentation.self)
+		self.init(object: object,
+		          keyPath: keyPath,
+		          representable: NullableRepresentation<Value, BridgeableRepresentation<Value.Wrapped>>.self)
 	}
 }
 
@@ -139,7 +141,9 @@ extension DynamicProperty where Value: OptionalProtocol, Value.Wrapped: AnyObjec
 	///   - object: An object to be lensed.
 	///   - keyPath: Key path to lense on the object.
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representable: NullableDirectRepresentation.self)
+		self.init(object: object,
+		          keyPath: keyPath,
+		          representable: NullableRepresentation<Value, DirectRepresentation<Value.Wrapped>>.self)
 	}
 }
 
@@ -169,28 +173,12 @@ private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: Objective
 }
 
 /// Represents nullable values in Objective-C directly, via `AnyObject`.
-private struct NullableDirectRepresentation<Value: OptionalProtocol>: ObjectiveCRepresentable where Value.Wrapped: AnyObject {
+private struct NullableRepresentation<Value: OptionalProtocol, Representation: ObjectiveCRepresentable>: ObjectiveCRepresentable where Value.Wrapped == Representation.Value {
 	static func extract(from representation: Any?) -> Value {
-		return representation as! Value
+		return Value(reconstructing: representation.map(Representation.extract(from:)))
 	}
 
 	static func represent(_ value: Value) -> Any? {
-		return value.optional
-	}
-}
-
-/// Represents nullable values in Objective-C indirectly, via bridging.
-private struct NullableBridgeableRepresentation<Value: OptionalProtocol>: ObjectiveCRepresentable where Value.Wrapped: _ObjectiveCBridgeable {
-	static func extract(from representation: Any?) -> Value {
-		let object = representation as? Value.Wrapped._ObjectiveCType
-		return Value(reconstructing: object.map { value in
-			var result: Value.Wrapped?
-			Value.Wrapped._forceBridgeFromObjectiveC(value, result: &result)
-			return result!
-		})
-	}
-
-	static func represent(_ value: Value) -> Any? {
-		return value.optional.map { $0._bridgeToObjectiveC() }
+		return value.optional.map(Representation.represent)
 	}
 }

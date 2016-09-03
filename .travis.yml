@@ -35,7 +35,7 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current
+        - carthage build --no-skip-current --configuration Debug
       env:
         - JOB=CARTHAGE
     - os: osx

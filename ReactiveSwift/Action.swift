@@ -100,7 +100,7 @@ public final class Action<Input, Output, Error: Swift.Error> {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// - note: If the action is disabled when the returned SignalProducer is
-	///         started, the produced signal will send `ActionError.NotEnabled`,
+	///         started, the produced signal will send `ActionError.disabled`,
 	///         and nothing will be sent upon `values` or `errors` for that
 	///         particular signal.
 	///
@@ -158,7 +158,7 @@ public protocol ActionProtocol {
 	/// with the given input, then forward the results upon the produced Signal.
 	///
 	/// - note: If the action is disabled when the returned SignalProducer is
-	///         started, the produced signal will send `ActionError.NotEnabled`,
+	///         started, the produced signal will send `ActionError.disabled`,
 	///         and nothing will be sent upon `values` or `errors` for that
 	///         particular signal.
 	///

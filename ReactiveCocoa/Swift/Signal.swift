@@ -224,8 +224,8 @@ extension SignalProtocol {
 	///
 	/// - parameters:
 	///   - result: A closure that accepts instance of `Result<Value, Error>`
-	///             enum that contains either a `Success(Value)` or
-	///             `Failure<Error>` case.
+	///             enum that contains either a `.success(Value)` or
+	///             `.failure<Error>` case.
 	///
 	/// - returns: An optional `Disposable` which can be used to stop the
 	///            invocation of the callback. Disposing of the Disposable will
@@ -1367,14 +1367,14 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Apply `operation` to values from `self` with `Success`ful results
-	/// forwarded on the returned signal and `Failure`s sent as failed events.
+	/// Apply `operation` to values from `self` with `success`ful results
+	/// forwarded on the returned signal and `failure`s sent as failed events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a `Result`.
 	///
-	/// - returns: A signal that receives `Success`ful `Result` as `next` event
-	///            and `Failure` as failed event.
+	/// - returns: A signal that receives `success`ful `Result` as `next` event
+	///            and `failure` as failed event.
 	public func attempt(_ operation: @escaping (Value) -> Result<(), Error>) -> Signal<Value, Error> {
 		return attemptMap { value in
 			return operation(value).map {
@@ -1383,15 +1383,15 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Apply `operation` to values from `self` with `Success`ful results mapped
-	/// on the returned signal and `Failure`s sent as failed events.
+	/// Apply `operation` to values from `self` with `success`ful results mapped
+	/// on the returned signal and `failure`s sent as failed events.
 	///
 	/// - parameters:
 	///   - operation: A closure that accepts a value and returns a result of
-	///                a mapped value as `Success`.
+	///                a mapped value as `success`.
 	///
 	/// - returns: A signal that sends mapped values from `self` if returned
-	///            `Result` is `Success`ful, failed events otherwise.
+	///            `Result` is `success`ful, `failed` events otherwise.
 	public func attemptMap<U>(_ operation: @escaping (Value) -> Result<U, Error>) -> Signal<U, Error> {
 		return Signal { observer in
 			self.observe { event in

@@ -9,7 +9,7 @@
 /// Represents a signal event.
 ///
 /// Signals must conform to the grammar:
-/// `Next* (Failed | Completed | Interrupted)?`
+/// `next* (failed | completed | interrupted)?`
 public enum Event<Value, Error: Swift.Error> {
 	/// A value provided by the signal.
 	case next(Value)

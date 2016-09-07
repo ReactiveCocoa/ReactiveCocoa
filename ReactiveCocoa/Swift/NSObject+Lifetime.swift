@@ -1,8 +1,6 @@
 import Foundation
 import ReactiveSwift
 
-#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-
 private var lifetimeKey: UInt8 = 0
 private var lifetimeTokenKey: UInt8 = 0
 
@@ -25,5 +23,3 @@ extension NSObject {
 		return lifetime
 	}
 }
-
-#endif

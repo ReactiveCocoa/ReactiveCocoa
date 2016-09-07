@@ -5,7 +5,7 @@ import Result
 
 final class LifetimeSpec: QuickSpec {
 	override func spec() {
-		describe("NSObject.rac_lifetime") {
+		describe("Lifetime") {
 			it("should complete its lifetime ended signal when the it deinitializes") {
 				let object = MutableReference(TestObject())
 

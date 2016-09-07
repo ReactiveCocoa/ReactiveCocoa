@@ -1,6 +1,5 @@
 import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 

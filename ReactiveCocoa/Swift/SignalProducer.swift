@@ -261,7 +261,7 @@ extension SignalProducerProtocol {
 	///            associated with the signal and immediately send an
 	///            `interrupted` event.
 	@discardableResult
-	public func start(_ observerAction: Signal<Value, Error>.Observer.Action) -> Disposable {
+	public func start(_ observerAction: @escaping Signal<Value, Error>.Observer.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
 

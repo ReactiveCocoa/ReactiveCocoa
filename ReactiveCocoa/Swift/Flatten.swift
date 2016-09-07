@@ -346,7 +346,7 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 		let state = Atomic(ConcatState<Value.Value, Error>())
 		
 		func startNextIfNeeded() {
-			while let producer = state.modify({ $0.willStart() }) {
+			while let producer = state.modify({ $0.dequeue() }) {
 				producer.startWithSignal { signal, inner in
 					let handle = disposable?.add(inner) ?? nil
 
@@ -354,8 +354,10 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 						switch event {
 						case .completed, .interrupted:
 							handle?.remove()
+							
+							state.modify { $0.active = nil }
 
-							if state.modify({ $0.didTerminate() }) {
+							if !state.value.isStarting {
 								startNextIfNeeded()
 							}
 
@@ -364,7 +366,7 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 						}
 					}
 				}
-				state.modify { $0.didStart() }
+				state.modify { $0.isStarting = false }
 			}
 		}
 		
@@ -449,11 +451,14 @@ private final class ConcatState<Value, Error: Swift.Error> {
 	/// Used to prevent deep recursion.
 	var isStarting: Bool = false
 	
-	/// Try to start the next producer.
+	/// Dequeue the next producer if one should be started.
+	///
+	/// - note: The caller *must* set `isStarting` to false after the returned
+	///         producer has been started.
 	///
 	/// - returns: The `SignalProducer` to start or `nil` if no producer should
 	///            be started.
-	func willStart() -> SignalProducer? {
+	func dequeue() -> SignalProducer? {
 		if active != nil {
 			return nil
 		}
@@ -464,19 +469,6 @@ private final class ConcatState<Value, Error: Swift.Error> {
 			isStarting = true
 		}
 		return active
-	}
-	
-	/// Indicate that the producer was successfully started.
-	func didStart() {
-		isStarting = false
-	}
-	
-	/// Indicate that the active producer completed.
-	///
-	/// - returns: Whether another producer should be started.
-	func didTerminate() -> Bool {
-		active = nil
-		return !isStarting
 	}
 }
 

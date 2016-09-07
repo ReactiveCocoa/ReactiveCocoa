@@ -1514,24 +1514,6 @@
 			path = "Objective-C";
 			sourceTree = "<group>";
 		};
-		D03B4A3919F4C25F009E02AC /* Signals */ = {
-			isa = PBXGroup;
-			children = (
-				C7142DBB1CDEA167009F402D /* CocoaAction.swift */,
-				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
-				4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */,
-			);
-			name = Signals;
-			sourceTree = "<group>";
-		};
-		D03B4A3B19F4C281009E02AC /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
-			);
-			name = Extensions;
-			sourceTree = "<group>";
-		};
 		D04725E019E49ED7006002AA = {
 			isa = PBXGroup;
 			children = (
@@ -1671,9 +1653,11 @@
 		D0C312B919EF2A3000984962 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				C7142DBB1CDEA167009F402D /* CocoaAction.swift */,
+				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
+				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
+				4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */,
 				D0C312C419EF2A5800984962 /* ObjectiveCBridging.swift */,
-				D03B4A3919F4C25F009E02AC /* Signals */,
-				D03B4A3B19F4C281009E02AC /* Extensions */,
 			);
 			path = Swift;
 			sourceTree = "<group>";

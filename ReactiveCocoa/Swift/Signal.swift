@@ -215,7 +215,7 @@ extension SignalProtocol {
 	///            invocation of the callback. Disposing of the Disposable will
 	///            have no effect on the Signal itself.
 	@discardableResult
-	public func observe(_ action: Signal<Value, Error>.Observer.Action) -> Disposable? {
+	public func observe(_ action: @escaping Signal<Value, Error>.Observer.Action) -> Disposable? {
 		return observe(Observer(action))
 	}
 

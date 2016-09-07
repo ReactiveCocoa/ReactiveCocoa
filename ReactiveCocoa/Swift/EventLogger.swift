@@ -54,7 +54,7 @@ extension SignalProtocol {
 	///   - logger: Logger that logs the events.
 	///
 	/// - returns: Signal that, when observed, logs the fired events.
-	public func logEvents(identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: EventLogger = defaultEventLog) -> Signal<Value, Error> {
+	public func logEvents(identifier: String = "", events: Set<LoggingEvent.Signal> = LoggingEvent.Signal.allEvents, fileName: String = #file, functionName: String = #function, lineNumber: Int = #line, logger: @escaping EventLogger = defaultEventLog) -> Signal<Value, Error> {
 		func log<T>(_ event: LoggingEvent.Signal) -> ((T) -> Void)? {
 			return event.logIfNeeded(events: events) { event in
 				logger(identifier, event, fileName, functionName, lineNumber)
@@ -91,7 +91,7 @@ extension SignalProducerProtocol {
 	                      fileName: String = #file,
 	                      functionName: String = #function,
 	                      lineNumber: Int = #line,
-	                      logger: EventLogger = defaultEventLog
+	                      logger: @escaping EventLogger = defaultEventLog
 	) -> SignalProducer<Value, Error> {
 		func log<T>(_ event: LoggingEvent.SignalProducer) -> ((T) -> Void)? {
 			return event.logIfNeeded(events: events) { event in

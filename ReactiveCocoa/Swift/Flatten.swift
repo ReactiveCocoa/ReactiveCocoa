@@ -355,9 +355,12 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 						case .completed, .interrupted:
 							handle?.remove()
 							
-							state.modify { $0.active = nil }
+							let shouldStart: Bool = state.modify {
+								$0.active = nil
+								return !$0.isStarting
+							}
 
-							if !state.value.isStarting {
+							if shouldStart {
 								startNextIfNeeded()
 							}
 

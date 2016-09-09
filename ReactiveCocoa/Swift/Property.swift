@@ -175,6 +175,24 @@ extension PropertyProtocol {
 	}
 }
 
+extension PropertyProtocol where Value: OptionalProtocol, Value.Wrapped: PropertyProtocol {
+	/// Maps each value from `self` to an optional property, then flattens the
+	/// resulting properties (into a single property), according to the
+	/// semantics of the given strategy.
+	///
+	/// If the mapping results in `nil`, it would be treated as a constant
+	/// property of `nil`.
+	///
+	/// - parameters:
+	///   - strategy: The preferred flatten strategy.
+	///   - transform: The transform to be applied on `self` before flattening.
+	///
+	/// - returns: A property that sends the values of its inner properties.
+	public func flatMap<P: PropertyProtocol>(_ strategy: FlattenStrategy, transform: @escaping (Value) -> P?) -> Property<P.Value?> {
+		return lift { $0.flatMap(strategy) { transform($0)?.producer.optionalize() ?? SignalProducer(value: nil) } }
+	}
+}
+
 extension PropertyProtocol where Value: Hashable {
 	/// Forwards only those values from `self` that are unique across the set of
 	/// all values that have been seen.

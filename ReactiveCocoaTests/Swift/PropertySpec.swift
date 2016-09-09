@@ -1351,6 +1351,50 @@ class PropertySpec: QuickSpec {
 
 				describe("flatMap") {
 					describe("PropertyFlattenStrategy.latest") {
+						it("should forward values from the latest inner transformed optional property") {
+							let outerProperty = MutableProperty(Optional(MutableProperty(0)))
+
+							var receivedValues: [String] = []
+							var isFailed = false
+							var isCompleted = false
+
+							outerProperty.flatMap(.latest) { $0?.map { "\($0)" } }
+								.producer.start { event in
+									switch event {
+									case let .next(value):
+										receivedValue.append(value ?? "nil")
+
+									case .completed:
+										isCompleted = true
+
+									case .failed:
+										isFailed = true
+
+									case .interrupted:
+										break
+									}
+								}
+
+							expect(receivedValues) == ["0"]
+							expect(isCompleted) == false
+							expect(isFailed) == false
+
+							outerProperty.value!.value = 10
+							expect(receivedValues) == ["0", "10"]
+
+							outerProperty.value = nil
+							expect(receivedValues) == ["0", "10", "nil"]
+
+							outerProperty.value = MutableProperty(20)
+							expect(receivedValues) == ["0", "10", "nil", "20"]
+
+							outerProperty.value = nil
+							expect(receivedValues) == ["0", "10", "nil", "20", "nil"]
+
+							expect(isCompleted) == false
+							expect(isFailed) == false
+						}
+
 						it("should forward values from the latest inner transformed property") {
 							let firstProperty = Optional(MutableProperty(0))
 							var secondProperty = Optional(MutableProperty(10))

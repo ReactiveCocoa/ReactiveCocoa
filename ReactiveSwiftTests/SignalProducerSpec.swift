@@ -2208,6 +2208,7 @@ class SignalProducerSpec: QuickSpec {
 			describe("log events") {
 				it("should output the correct event") {
 					let expectations: [(String) -> Void] = [
+						{ event in expect(event) == "[] starting" },
 						{ event in expect(event) == "[] started" },
 						{ event in expect(event) == "[] next 1" },
 						{ event in expect(event) == "[] completed" },

@@ -19,10 +19,10 @@ public enum LoggingEvent {
 	}
 
 	public enum SignalProducer: String {
-		case started, next, completed, failed, terminated, disposed, interrupted
+		case starting, started, next, completed, failed, terminated, disposed, interrupted
 
 		public static let allEvents: Set<SignalProducer> = [
-			.started, .next, .completed, .failed, .terminated, .disposed, .interrupted,
+			.starting, .started, .next, .completed, .failed, .terminated, .disposed, .interrupted,
 		]
 	}
 }
@@ -100,6 +100,7 @@ extension SignalProducerProtocol {
 		}
 
 		return self.on(
+			starting: log(.starting),
 			started: log(.started),
 			next: log(.next),
 			failed: log(.failed),

@@ -34,17 +34,12 @@ static void RACUseDelegateProxy(UISearchBar *self) {
 
 - (RACSignal *)rac_textSignal {
     @weakify(self);
-    RACSignal *signal = [[[[[RACSignal
-            defer:^{
-                @strongify(self);
-                return [RACSignal return:RACTuplePack(self)];
-            }]
-            concat:[self.rac_delegateProxy signalForSelector:@selector(searchBar:textDidChange:)]]
-            reduceEach:^(UISearchBar *searchBar, NSString *searchBarText) {
-                return searchBarText;
-            }]
-            takeUntil:self.rac_willDeallocSignal]
-            setNameWithFormat:@"%@ -rac_textSignal", RACDescription(self)];
+    RACSignal *signal = [[[RACSignal defer:^{
+        @strongify(self);
+        return [self.rac_delegateProxy signalForSelector:@selector(searchBar:textDidChange:)];
+    }] reduceEach:^(UISearchBar *searchBar, NSString *searchBarText) {
+        return searchBarText;
+    }] takeUntil:self.rac_willDeallocSignal];
 
     RACUseDelegateProxy(self);
 

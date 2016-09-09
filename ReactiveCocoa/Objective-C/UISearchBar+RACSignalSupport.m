@@ -5,12 +5,7 @@
 
 #import "UISearchBar+RACSignalSupport.h"
 
-#import <ReactiveCocoa/EXTScope.h>
-#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
-#import "RACDelegateProxy.h"
-#import "RACSignal+Operations.h"
-#import "RACTuple.h"
 #import <objc/runtime.h>
 
 @implementation UISearchBar (RACSignalSupport)
@@ -34,12 +29,12 @@ static void RACUseDelegateProxy(UISearchBar *self) {
 
 - (RACSignal *)rac_textSignal {
     @weakify(self);
-    RACSignal *signal = [[[RACSignal defer:^{
+    RACSignal *signal = [[[[RACSignal defer:^{
         @strongify(self);
         return [self.rac_delegateProxy signalForSelector:@selector(searchBar:textDidChange:)];
     }] reduceEach:^(UISearchBar *searchBar, NSString *searchBarText) {
         return searchBarText;
-    }] takeUntil:self.rac_willDeallocSignal];
+    }] takeUntil:self.rac_willDeallocSignal] setNameWithFormat:@"%@ -rac_textSignal", RACDescription(self)];
 
     RACUseDelegateProxy(self);
 

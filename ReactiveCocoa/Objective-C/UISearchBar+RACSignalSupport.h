@@ -3,7 +3,10 @@
 // Copyright (c) 2016 GitHub. All rights reserved.
 //
 
-#import "ReactiveCocoa.h"
+#import <UIKit/UIKit.h>
+
+@class RACDelegateProxy;
+@class RACSignal;
 
 @interface UISearchBar (RACSignalSupport)
 

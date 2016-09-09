@@ -169,8 +169,8 @@
 		57DC89A61C50675F00E367B7 /* UITextView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764E619EDA41200A782A9 /* UITextView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57DC89A71C50679700E367B7 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764C819EDA41200A782A9 /* UIButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57DC89A81C50679E00E367B7 /* UICollectionReusableView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764CA19EDA41200A782A9 /* UICollectionReusableView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		74AD3058D81008E7B7F3EE95 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; };
-		74AD30B5F401EEDC93550FD3 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; };
+		74AD3058D81008E7B7F3EE95 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74AD30B5F401EEDC93550FD3 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		74AD36F6DF798F2CBB78F529 /* UISearchBar+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */; };
 		74AD3E2EB9D015869DC05990 /* UISearchBar+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */; };
 		7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };

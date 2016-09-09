@@ -6,6 +6,9 @@
 #import "UISearchBar+RACSignalSupport.h"
 
 #import "NSObject+RACDescription.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACDelegateProxy.h"
+#import "RACSignal.h"
 #import <objc/runtime.h>
 
 @implementation UISearchBar (RACSignalSupport)

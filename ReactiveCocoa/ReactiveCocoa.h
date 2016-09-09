@@ -73,7 +73,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 	#import <ReactiveCocoa/UITableViewHeaderFooterView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
-
+    #import <ReactiveCocoa/UISearchBar+RACSignalSupport.h>
 	#if TARGET_OS_IOS
 		#import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 		#import <ReactiveCocoa/UIStepper+RACSignalSupport.h>

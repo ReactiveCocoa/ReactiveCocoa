@@ -341,25 +341,55 @@ extension SignalProtocol where Value: SignalProducerProtocol, Error == Value.Err
 			return disposable
 		}
 	}
-
+	
 	fileprivate func observeConcat(_ observer: Observer<Value.Value, Error>, _ disposable: CompositeDisposable? = nil) -> Disposable? {
-		let state = ConcatState(observer: observer, disposable: disposable)
+		let state = Atomic(ConcatState<Value.Value, Error>())
+		
+		func startNextIfNeeded() {
+			while let producer = state.modify({ $0.dequeue() }) {
+				producer.startWithSignal { signal, inner in
+					let handle = disposable?.add(inner) ?? nil
 
-		return self.observe { event in
+					signal.observe { event in
+						switch event {
+						case .completed, .interrupted:
+							handle?.remove()
+							
+							let shouldStart: Bool = state.modify {
+								$0.active = nil
+								return !$0.isStarting
+							}
+
+							if shouldStart {
+								startNextIfNeeded()
+							}
+
+						case .next, .failed:
+							observer.action(event)
+						}
+					}
+				}
+				state.modify { $0.isStarting = false }
+			}
+		}
+		
+		return observe { event in
 			switch event {
 			case let .next(value):
-				state.enqueueSignalProducer(value.producer)
+				state.modify { $0.queue.append(value.producer) }
+				startNextIfNeeded()
 
 			case let .failed(error):
 				observer.sendFailed(error)
 
 			case .completed:
-				// Add one last producer to the queue, whose sole job is to
-				// "turn out the lights" by completing `observer`.
-				state.enqueueSignalProducer(SignalProducer.empty.on(completed: {
-					observer.sendCompleted()
-				}))
-
+				state.modify { state in
+					state.queue.append(SignalProducer.empty.on(completed: {
+						observer.sendCompleted()
+					}))
+				}
+				startNextIfNeeded()
+				
 			case .interrupted:
 				observer.sendInterrupted()
 			}
@@ -412,70 +442,36 @@ extension SignalProducerProtocol {
 }
 
 private final class ConcatState<Value, Error: Swift.Error> {
-	/// The observer of a started `concat` producer.
-	let observer: Observer<Value, Error>
-
-	/// The top level disposable of a started `concat` producer.
-	let disposable: CompositeDisposable?
-
-	/// The active producer, if any, and the producers waiting to be started.
-	let queuedSignalProducers: Atomic<[SignalProducer<Value, Error>]> = Atomic([])
-
-	init(observer: Signal<Value, Error>.Observer, disposable: CompositeDisposable?) {
-		self.observer = observer
-		self.disposable = disposable
-	}
-
-	func enqueueSignalProducer(_ producer: SignalProducer<Value, Error>) {
-		if let d = disposable, d.isDisposed {
-			return
-		}
-
-		let shouldStart: Bool = queuedSignalProducers.modify { queue in
-			// An empty queue means the concat is idle, ready & waiting to start
-			// the next producer.
-			defer { queue.append(producer) }
-			return queue.isEmpty
-		}
-
-		if shouldStart {
-			startNextSignalProducer(producer)
-		}
-	}
-
-	func dequeueSignalProducer() -> SignalProducer<Value, Error>? {
-		if let d = disposable, d.isDisposed {
+	typealias SignalProducer = ReactiveCocoa.SignalProducer<Value, Error>
+	
+	/// The active producer, if any.
+	var active: SignalProducer? = nil
+	
+	/// The producers waiting to be started.
+	var queue: [SignalProducer] = []
+	
+	/// Whether the active producer is currently starting.
+	/// Used to prevent deep recursion.
+	var isStarting: Bool = false
+	
+	/// Dequeue the next producer if one should be started.
+	///
+	/// - note: The caller *must* set `isStarting` to false after the returned
+	///         producer has been started.
+	///
+	/// - returns: The `SignalProducer` to start or `nil` if no producer should
+	///            be started.
+	func dequeue() -> SignalProducer? {
+		if active != nil {
 			return nil
 		}
-
-		return queuedSignalProducers.modify { queue in
-			// Active producers remain in the queue until completed. Since
-			// dequeueing happens at completion of the active producer, the
-			// first producer in the queue can be removed.
-			if !queue.isEmpty { queue.remove(at: 0) }
-			return queue.first
+		
+		active = queue.first
+		if active != nil {
+			queue.removeFirst()
+			isStarting = true
 		}
-	}
-
-	/// Subscribes to the given signal producer.
-	func startNextSignalProducer(_ signalProducer: SignalProducer<Value, Error>) {
-		signalProducer.startWithSignal { signal, disposable in
-			let handle = self.disposable?.add(disposable) ?? nil
-
-			signal.observe { event in
-				switch event {
-				case .completed, .interrupted:
-					handle?.remove()
-
-					if let nextSignalProducer = self.dequeueSignalProducer() {
-						self.startNextSignalProducer(nextSignalProducer)
-					}
-
-				case .next, .failed:
-					self.observer.action(event)
-				}
-			}
-		}
+		return active
 	}
 }
 

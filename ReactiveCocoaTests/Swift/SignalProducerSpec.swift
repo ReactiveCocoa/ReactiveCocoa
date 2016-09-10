@@ -1067,6 +1067,27 @@ class SignalProducerSpec: QuickSpec {
 					outerObserver.sendFailed(TestError.default)
 					expect(error) == TestError.default
 				}
+				
+				it("should not overflow the stack if inner producers complete immediately") {
+					typealias Inner = SignalProducer<(), NoError>
+					
+					let depth = 10000
+					let inner: Inner = SignalProducer(value: ())
+					let (first, firstObserver) = SignalProducer<(), NoError>.pipe()
+					let (outer, outerObserver) = SignalProducer<Inner, NoError>.pipe()
+					
+					var value = 0
+					outer
+						.flatten(.concat)
+						.startWithNext { _ in
+							value += 1
+						}
+					
+					outerObserver.sendNext(first)
+					for _ in 0..<depth { outerObserver.sendNext(inner) }
+					firstObserver.sendCompleted()
+					expect(value) == depth
+				}
 
 				describe("completion") {
 					var completeOuter: (() -> Void)!

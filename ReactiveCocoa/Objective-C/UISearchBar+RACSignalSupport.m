@@ -5,10 +5,11 @@
 
 #import "UISearchBar+RACSignalSupport.h"
 
-#import "NSObject+RACDescription.h"
+#import <ReactiveCocoa/EXTScope.h>
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACDelegateProxy.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 @implementation UISearchBar (RACSignalSupport)

@@ -1539,8 +1539,8 @@
 				D03764E519EDA41200A782A9 /* UITextField+RACSignalSupport.m */,
 				D03764E619EDA41200A782A9 /* UITextView+RACSignalSupport.h */,
 				D03764E719EDA41200A782A9 /* UITextView+RACSignalSupport.m */,
-				74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */,
 				74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */,
+				74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */,
 			);
 			path = "Objective-C";
 			sourceTree = "<group>";

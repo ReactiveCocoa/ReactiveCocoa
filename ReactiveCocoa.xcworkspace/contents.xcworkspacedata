@@ -14,6 +14,6 @@
       location = "group:Carthage/Checkouts/Result/Result.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:ReactiveSwift.xcodeproj">
+      location = "group:Carthage/Checkouts/ReactiveSwift/ReactiveSwift.xcodeproj">
    </FileRef>
 </Workspace>

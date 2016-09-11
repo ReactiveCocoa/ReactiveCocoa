@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D454807C1A957361009D7229"
+               BlueprintIdentifier = "D45480561A9572F5009D7229"
                BuildableName = "Result.framework"
-               BlueprintName = "Result-iOS"
+               BlueprintName = "Result-Mac"
                ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,24 +28,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D047260B19E49F82006002AA"
+               BlueprintIdentifier = "D04725E919E49ED7006002AA"
                BuildableName = "ReactiveSwift.framework"
-               BlueprintName = "ReactiveSwift-iOS"
+               BlueprintName = "ReactiveSwift-macOS"
                ReferencedContainer = "container:ReactiveSwift.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D047260B19E49F82006002AA"
-               BuildableName = "ReactiveCocoa.framework"
-               BlueprintName = "ReactiveCocoa-iOS"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -56,9 +42,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1F1A74281940169200FFFC47"
+               BlueprintIdentifier = "1F925EAC195C0D6300ED456B"
                BuildableName = "Nimble.framework"
-               BlueprintName = "Nimble-iOS"
+               BlueprintName = "Nimble-macOS"
                ReferencedContainer = "container:Carthage/Checkouts/Nimble/Nimble.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -70,9 +56,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5A5D117B19473F2100F6D13D"
+               BlueprintIdentifier = "DAEB6B8D1943873100289F44"
                BuildableName = "Quick.framework"
-               BlueprintName = "Quick-iOS"
+               BlueprintName = "Quick-OSX"
                ReferencedContainer = "container:Carthage/Checkouts/Quick/Quick.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -84,10 +70,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D047261519E49F82006002AA"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-iOSTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+               BlueprintIdentifier = "D04725F419E49ED7006002AA"
+               BuildableName = "ReactiveSwiftTests.xctest"
+               BlueprintName = "ReactiveSwift-macOSTests"
+               ReferencedContainer = "container:ReactiveSwift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -103,20 +89,20 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D047261519E49F82006002AA"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-iOSTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+               BlueprintIdentifier = "D04725F419E49ED7006002AA"
+               BuildableName = "ReactiveSwiftTests.xctest"
+               BlueprintName = "ReactiveSwift-macOSTests"
+               ReferencedContainer = "container:ReactiveSwift.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D45480561A9572F5009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-Mac"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -135,10 +121,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D45480561A9572F5009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-Mac"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -153,10 +139,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D45480561A9572F5009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-Mac"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

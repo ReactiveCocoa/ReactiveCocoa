@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<playground version='6.0' target-platform='osx' display-mode='rendered'>
-    <pages>
-        <page name='Sandbox'/>
-        <page name='SignalProducer'/>
-        <page name='Signal'/>
-    </pages>
-</playground>

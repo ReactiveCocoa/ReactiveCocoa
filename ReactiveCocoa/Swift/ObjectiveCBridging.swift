@@ -6,7 +6,23 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
+import Foundation
+import ReactiveSwift
 import Result
+
+extension SignalProtocol {
+	/// Turns each value into an Optional.
+	fileprivate func optionalize() -> Signal<Value?, Error> {
+		return map(Optional.init)
+	}
+}
+
+extension SignalProducerProtocol {
+	/// Turns each value into an Optional.
+	fileprivate func optionalize() -> SignalProducer<Value?, Error> {
+		return lift { $0.optionalize() }
+	}
+}
 
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateSchedulerProtocol {

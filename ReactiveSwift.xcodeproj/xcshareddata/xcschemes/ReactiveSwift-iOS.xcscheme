@@ -36,20 +36,6 @@
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D047260B19E49F82006002AA"
-               BuildableName = "ReactiveCocoa.framework"
-               BlueprintName = "ReactiveCocoa-iOS"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
             buildForRunning = "NO"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
@@ -85,9 +71,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D047261519E49F82006002AA"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-iOSTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+               BuildableName = "ReactiveSwiftTests.xctest"
+               BlueprintName = "ReactiveSwift-iOSTests"
+               ReferencedContainer = "container:ReactiveSwift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -104,19 +90,19 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D047261519E49F82006002AA"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoa-iOSTests"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+               BuildableName = "ReactiveSwiftTests.xctest"
+               BlueprintName = "ReactiveSwift-iOSTests"
+               ReferencedContainer = "container:ReactiveSwift.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D454807C1A957361009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-iOS"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -135,10 +121,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D454807C1A957361009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-iOS"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -153,10 +139,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D047260B19E49F82006002AA"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa-iOS"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            BlueprintIdentifier = "D454807C1A957361009D7229"
+            BuildableName = "Result.framework"
+            BlueprintName = "Result-iOS"
+            ReferencedContainer = "container:Carthage/Checkouts/Result/Result.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

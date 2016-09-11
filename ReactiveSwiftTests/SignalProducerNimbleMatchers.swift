@@ -1,6 +1,6 @@
 //
 //  SignalProducerNimbleMatchers.swift
-//  ReactiveCocoa
+//  ReactiveSwift
 //
 //  Created by Javier Soto on 1/25/15.
 //  Copyright (c) 2015 GitHub. All rights reserved.
@@ -8,7 +8,6 @@
 
 import Foundation
 
-import ReactiveCocoa
 import ReactiveSwift
 import Nimble
 

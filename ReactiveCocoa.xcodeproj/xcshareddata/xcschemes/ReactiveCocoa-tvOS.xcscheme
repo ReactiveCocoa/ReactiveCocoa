@@ -29,6 +29,20 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "57A4D1AF1BA13D7A00F7D4B1"
+               BuildableName = "ReactiveSwift.framework"
+               BlueprintName = "ReactiveSwift-tvOS"
+               ReferencedContainer = "container:Carthage/Checkouts/ReactiveSwift/ReactiveSwift.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "57A4D1AF1BA13D7A00F7D4B1"
                BuildableName = "ReactiveCocoa.framework"
                BlueprintName = "ReactiveCocoa-tvOS"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">

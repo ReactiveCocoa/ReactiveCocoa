@@ -1,4 +1,5 @@
 import Foundation
+import ReactiveSwift
 
 /// Wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.

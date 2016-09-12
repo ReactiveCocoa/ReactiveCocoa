@@ -50,6 +50,7 @@
 		9A0501A01D86D76C006BBAE8 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A05019F1D86D765006BBAE8 /* ReactiveSwift.framework */; };
 		9A4375B41D86DBA000F04A59 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0501961D86D713006BBAE8 /* ReactiveSwift.framework */; };
 		9A4375B51D86DBA000F04A59 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8003EAD1AFEC68A00D7D3C5 /* ReactiveCocoa.framework */; };
+		9A4375B61D86DD1D00F04A59 /* UIControl+EnableSendActionsForControlEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0DABA91CCC381F00B6CD2B /* UIControl+EnableSendActionsForControlEvents.swift */; };
 		9A5492121D33387D009A8D44 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5492111D33387D009A8D44 /* Deprecations+Removals.swift */; };
 		9A5492131D33387D009A8D44 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5492111D33387D009A8D44 /* Deprecations+Removals.swift */; };
 		9A5492141D33387D009A8D44 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A5492111D33387D009A8D44 /* Deprecations+Removals.swift */; };
@@ -1015,6 +1016,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A4375B61D86DD1D00F04A59 /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				E6933BEB1CD9C363006F7CE7 /* UIProgressViewTests.swift in Sources */,
 				D8715DE51C211643005F4191 /* UIViewTests.swift in Sources */,
 				7DCF5B371CC80E8E004AEE75 /* UICollectionReusableViewTests.swift in Sources */,

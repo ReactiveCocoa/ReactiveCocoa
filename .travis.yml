@@ -38,7 +38,6 @@ matrix:
         - XCODE_SDK=macosx
         - XCODE_ACTION="build test"
         - XCODE_DESTINATION="arch=x86_64"
-        - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
     - xcode_scheme: ReactiveObjC-iOS
       xcode_workspace: ReactiveObjC.xcworkspace
       env:
@@ -63,7 +62,6 @@ matrix:
         - XCODE_SDK=macosx
         - XCODE_ACTION="build test"
         - XCODE_DESTINATION="arch=x86_64"
-        - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
     - xcode_scheme: ReactiveObjCBridge-iOS
       xcode_workspace: ReactiveObjCBridge.xcworkspace
       env:

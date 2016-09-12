@@ -12,7 +12,7 @@ import enum Result.NoError
 
 extension PropertyProtocol where Value == Bool {
     /// The conjunction of `self` and `other`.
-    public func and<P: PropertyProtocol where P.Value == Bool>(_ other: P) -> AndProperty {
+    public func and<P: PropertyProtocol>(_ other: P) -> AndProperty where P.Value == Bool {
         return AndProperty(terms: [Property(self), Property(other)])
     }
 
@@ -22,7 +22,7 @@ extension PropertyProtocol where Value == Bool {
     }
 
     /// The disjunction of `self` and `other`.
-    public func or<P: PropertyProtocol where P.Value == Bool>(_ other: P) -> OrProperty {
+    public func or<P: PropertyProtocol>(_ other: P) -> OrProperty where P.Value == Bool {
         return OrProperty(terms: [Property(self), Property(other)])
     }
 
@@ -60,7 +60,7 @@ public class AndProperty: PropertyProtocol {
     }
 
     /// Creates a new property with an additional conjunctive term.
-    public func and<P : PropertyProtocol where P.Value == Bool>(_ other: P) -> AndProperty {
+    public func and<P : PropertyProtocol>(_ other: P) -> AndProperty where P.Value == Bool {
         return AndProperty(terms: terms + [Property(other)])
     }
 
@@ -97,7 +97,7 @@ public class OrProperty: PropertyProtocol {
     }
 
     /// Creates a new property with an additional disjunctive term.
-    public func or<P : PropertyProtocol where P.Value == Bool>(_ other: P) -> OrProperty {
+    public func or<P : PropertyProtocol>(_ other: P) -> OrProperty where P.Value == Bool {
         return OrProperty(terms: terms + [Property(other)])
     }
 

@@ -6,6 +6,7 @@
 //  Copyright © 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 

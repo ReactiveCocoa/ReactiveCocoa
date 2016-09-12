@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
-import ReactiveCocoa
+import ReactiveSwift
 
 extension Data {
     /// Read the data at the URL, sending the result or an error.

@@ -7,6 +7,7 @@
 //
 
 import Rex
+import ReactiveSwift
 import ReactiveCocoa
 import XCTest
 import enum Result.NoError

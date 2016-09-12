@@ -1,4 +1,5 @@
 // MARK: Renamed APIs in Swift 3.0
+import ReactiveSwift
 import ReactiveCocoa
 import enum Result.NoError
 

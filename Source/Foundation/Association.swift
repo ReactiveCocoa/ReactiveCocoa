@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 
 /// Attaches a `MutableProperty` value to the `host` object using KVC to get the initial

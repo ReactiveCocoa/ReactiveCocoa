@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import ReactiveSwift
 import ReactiveCocoa
 import Result
 

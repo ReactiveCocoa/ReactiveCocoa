@@ -7,8 +7,8 @@
 //
 
 import XCTest
+import ReactiveSwift
 import ReactiveCocoa
-
 class UITableViewHeaderFooterViewTests: XCTestCase {
     
     func testPrepareForReuse() {

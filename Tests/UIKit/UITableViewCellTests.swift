@@ -7,8 +7,8 @@
 //
 
 import XCTest
+import ReactiveSwift
 import ReactiveCocoa
-
 class UITableViewCellTests: XCTestCase {
     
     func testPrepareForReuse() {

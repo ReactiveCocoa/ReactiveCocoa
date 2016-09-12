@@ -26,7 +26,7 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("gives current date") {
-				expect(scheduler.currentDate).to(beCloseTo(Date(), within: 0.0002))
+				expect(scheduler.currentDate).to(beCloseTo(Date(), within: 0.0003))
 			}
 
 			it("schedules actions") {

@@ -164,14 +164,22 @@ class DynamicPropertySpec: QuickSpec {
 				expect(property.value).to(beNil())
 			}
 
-			it("should retain property while DynamicProperty's underlying object is retained"){
-				weak var dynamicProperty: DynamicProperty<Int>? = property
-				
-				property = nil
-				expect(dynamicProperty).toNot(beNil())
+			it("should not retain the object"){
+				weak var weakObject: ObservableObject? = object
 				
 				object = nil
-				expect(dynamicProperty).to(beNil())
+				expect(weakObject).to(beNil())
+			}
+
+			it("should not be retained by the object"){
+				weak var weakProperty: DynamicProperty<Int>? = property
+
+				property = nil
+				expect(weakProperty).to(beNil())
+			}
+
+			it("should pass through the lifetime of the object"){
+				expect(property.lifetime).to(beIdenticalTo(object.rac_lifetime))
 			}
 
 			it("should support un-bridged reference types") {

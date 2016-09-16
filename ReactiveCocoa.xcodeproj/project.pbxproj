@@ -150,6 +150,10 @@
 		57DC89A61C50675F00E367B7 /* UITextView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764E619EDA41200A782A9 /* UITextView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57DC89A71C50679700E367B7 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764C819EDA41200A782A9 /* UIButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		57DC89A81C50679E00E367B7 /* UICollectionReusableView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D03764CA19EDA41200A782A9 /* UICollectionReusableView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74AD3058D81008E7B7F3EE95 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74AD30B5F401EEDC93550FD3 /* UISearchBar+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74AD36F6DF798F2CBB78F529 /* UISearchBar+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */; };
+		74AD3E2EB9D015869DC05990 /* UISearchBar+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */; };
 		7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
 		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
@@ -820,6 +824,8 @@
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
 		57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UISearchBar+RACSignalSupport.m"; sourceTree = "<group>"; };
+		74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UISearchBar+RACSignalSupport.h"; sourceTree = "<group>"; };
 		7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
 		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
 		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
@@ -1431,6 +1437,8 @@
 				D03764E519EDA41200A782A9 /* UITextField+RACSignalSupport.m */,
 				D03764E619EDA41200A782A9 /* UITextView+RACSignalSupport.h */,
 				D03764E719EDA41200A782A9 /* UITextView+RACSignalSupport.m */,
+				74AD3B29C8887D6D22C32932 /* UISearchBar+RACSignalSupport.h */,
+				74AD39675A5DE2A0E446A834 /* UISearchBar+RACSignalSupport.m */,
 			);
 			path = "Objective-C";
 			sourceTree = "<group>";
@@ -1740,6 +1748,7 @@
 				57A4D2381BA13D7A00F7D4B1 /* RACTuple.h in Headers */,
 				57DC89A61C50675F00E367B7 /* UITextView+RACSignalSupport.h in Headers */,
 				57A4D2391BA13D7A00F7D4B1 /* RACUnit.h in Headers */,
+				74AD3058D81008E7B7F3EE95 /* UISearchBar+RACSignalSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1933,6 +1942,7 @@
 				BEBDD6E71CDC292E009A75A9 /* RACDelegateProxy.h in Headers */,
 				D037656119EDA41200A782A9 /* RACCommand.h in Headers */,
 				D03765EF19EDA41200A782A9 /* RACSubscriber.h in Headers */,
+				74AD30B5F401EEDC93550FD3 /* UISearchBar+RACSignalSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2274,6 +2284,7 @@
 				57A4D2031BA13D7A00F7D4B1 /* RACUnarySequence.m in Sources */,
 				57A4D2041BA13D7A00F7D4B1 /* RACUnit.m in Sources */,
 				57A4D2051BA13D7A00F7D4B1 /* RACValueTransformer.m in Sources */,
+				74AD36F6DF798F2CBB78F529 /* UISearchBar+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2655,6 +2666,7 @@
 				D037652B19EDA41200A782A9 /* NSObject+RACSelectorSignal.m in Sources */,
 				D03765AF19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */,
 				D03765BD19EDA41200A782A9 /* RACReturnSignal.m in Sources */,
+				74AD3E2EB9D015869DC05990 /* UISearchBar+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

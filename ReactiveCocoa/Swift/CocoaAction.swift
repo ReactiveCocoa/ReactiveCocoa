@@ -46,7 +46,7 @@ public final class CocoaAction: NSObject {
 		
 		disposable += action.isEnabled.producer
 			.observe(on: UIScheduler())
-			.startWithNext { [weak self] value in
+			.startWithValues { [weak self] value in
 				self?.willChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
 				self?.isEnabled = value
 				self?.didChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
@@ -54,7 +54,7 @@ public final class CocoaAction: NSObject {
 		
 		disposable += action.isExecuting.producer
 			.observe(on: UIScheduler())
-			.startWithNext { [weak self] value in
+			.startWithValues { [weak self] value in
 				self?.willChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
 				self?.isExecuting = value
 				self?.didChangeValue(forKey: #keyPath(CocoaAction.isExecuting))

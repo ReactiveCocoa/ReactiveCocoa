@@ -14,13 +14,6 @@ import Nimble
 import Quick
 import XCTest
 
-// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3182#issuecomment-246866803
-extension NSDate: NMBDoubleConvertible {
-	public var doubleValue: CDouble {
-		return self.timeIntervalSinceReferenceDate
-	}
-}
-
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
 		describe("RACScheduler") {

@@ -45,8 +45,8 @@ if [ "$result" -ne 0 ]; then
     exit $result
 fi
 
-# Compile code in playgrounds 
-if [[ $XCODE_SDK = "macosx" ]]; then
-    echo "SDK is $XCODE_SDK, validating playground..."
+# Compile code in playgrounds
+if [[ "$XCODE_PLAYGROUND_TARGET" ]]; then
+    echo "Validating playground..."
     . script/validate-playground.sh
 fi

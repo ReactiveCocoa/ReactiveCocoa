@@ -26,9 +26,9 @@ class ObjectiveCBridgingSpec: QuickSpec {
 			}
 
 			it("gives current date") {
-				let expected = Date().timeIntervalSinceReferenceDate
-				let actual = scheduler.currentDate.timeIntervalSinceReferenceDate
-				expect(actual).to(beCloseTo(expected, within: 0.0003))
+				let expected = Date()
+				let actual = scheduler.currentDate
+				expect(actual.timeIntervalSinceReferenceDate).to(beCloseTo(expected.timeIntervalSinceReferenceDate, within: 0.0003))
 			}
 
 			it("schedules actions") {

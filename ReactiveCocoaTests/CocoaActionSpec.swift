@@ -65,7 +65,18 @@ class CocoaActionSpec: QuickSpec {
 			
 			_ = cocoaAction
 		}
-		
+
+		it("ignores the input when initialized with a void action") {
+			let action = Action<Void, Int, NoError> { SignalProducer(value: 1) }
+
+			var result: Int?
+			action.values.observeResult { result = $0.value }
+
+			CocoaAction(action).execute(NSObject())
+
+			expect(result) == 1
+		}
+
 		context("lifetime") {
 			it("unsafeCocoaAction should not create a retain cycle") {
 				weak var weakAction: Action<Int, Int, NoError>?

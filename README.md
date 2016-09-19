@@ -6,9 +6,7 @@ ReactiveCocoa (RAC) is a Cocoa framework built on top of [ReactiveSwift][]. It
 provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.
 
  1. [Introduction](#introduction)
- 1. [Example: online search](#example-online-search)
  1. [Objective-C and Swift](#objective-c-and-swift)
- 1. [How does ReactiveCocoa relate to Rx?](#how-does-reactivecocoa-relate-to-rx)
  1. [Getting started](#getting-started)
 
 If you’re already familiar with functional reactive programming or what

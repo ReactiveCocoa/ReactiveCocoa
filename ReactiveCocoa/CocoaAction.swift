@@ -70,7 +70,14 @@ public final class CocoaAction: NSObject {
 	public convenience init<Action: ActionProtocol>(_ action: Action, input: Action.Input) {
 		self.init(action, { _ in input })
 	}
-	
+
+	/// Initializes a Cocoa action that will ignore its input.
+	///
+	/// - parameter action: An action with input type `Void`.
+	public convenience init<Action: ActionProtocol>(_ action: Action) where Action.Input == Void {
+		self.init(action, { _ in })
+	}
+
 	deinit {
 		disposable.dispose()
 	}

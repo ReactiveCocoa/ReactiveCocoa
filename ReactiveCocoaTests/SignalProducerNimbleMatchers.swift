@@ -30,7 +30,7 @@ public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError mayb
 
 			signalProducer.start { event in
 				switch event {
-				case let .next(value):
+				case let .value(value):
 					sentValues.append(value)
 				case .completed:
 					signalCompleted = true

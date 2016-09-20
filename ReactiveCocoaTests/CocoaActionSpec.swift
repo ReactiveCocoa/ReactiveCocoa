@@ -37,7 +37,7 @@ class CocoaActionSpec: QuickSpec {
 			cocoaAction
 				.values(forKeyPath: #keyPath(CocoaAction.isEnabled))
 				.map { $0! as! Bool }
-				.start(Observer(next: { values.append($0) }))
+				.start(Observer(value: { values.append($0) }))
 
 			expect(values) == [ true ]
 
@@ -55,7 +55,7 @@ class CocoaActionSpec: QuickSpec {
 			cocoaAction
 				.values(forKeyPath: #keyPath(CocoaAction.isExecuting))
 				.map { $0! as! Bool }
-				.start(Observer(next: { values.append($0) }))
+				.start(Observer(value: { values.append($0) }))
 
 			expect(values) == [ false ]
 

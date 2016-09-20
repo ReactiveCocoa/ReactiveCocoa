@@ -19,7 +19,7 @@ extension NSObject {
 				self,
 				keyPath: keyPath,
 				options: [.initial, .new],
-				action: observer.sendNext
+				action: observer.send
 			)
 			disposable += self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
 		}

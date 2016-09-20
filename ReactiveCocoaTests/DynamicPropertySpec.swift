@@ -60,7 +60,7 @@ class DynamicPropertySpec: QuickSpec {
 
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {
 				var values: [Int] = []
-				property.producer.startWithNext { value in
+				property.producer.startWithValues { value in
 					expect(value).notTo(beNil())
 					values.append(value!)
 				}
@@ -76,7 +76,7 @@ class DynamicPropertySpec: QuickSpec {
 
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object, even if the value actually remains unchanged") {
 				var values: [Int] = []
-				property.producer.startWithNext { value in
+				property.producer.startWithValues { value in
 					expect(value).notTo(beNil())
 					values.append(value!)
 				}
@@ -92,7 +92,7 @@ class DynamicPropertySpec: QuickSpec {
 
 			it("should yield a signal that emits subsequent values for the key path of the underlying object") {
 				var values: [Int] = []
-				property.signal.observeNext { value in
+				property.signal.observeValues { value in
 					expect(value).notTo(beNil())
 					values.append(value!)
 				}
@@ -108,7 +108,7 @@ class DynamicPropertySpec: QuickSpec {
 
 			it("should yield a signal that emits subsequent values for the key path of the underlying object, even if the value actually remains unchanged") {
 				var values: [Int] = []
-				property.signal.observeNext { value in
+				property.signal.observeValues { value in
 					expect(value).notTo(beNil())
 					values.append(value!)
 				}
@@ -215,7 +215,7 @@ class DynamicPropertySpec: QuickSpec {
 				it("should bridge values sent on a signal to Objective-C") {
 					let (signal, observer) = Signal<Int, NoError>.pipe()
 					property <~ signal
-					observer.sendNext(1)
+					observer.send(value: 1)
 					expect(object.rac_value) == 1
 				}
 

@@ -11,7 +11,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.values(forKeyPath: "rac_value").startWithNext { value in
+				object.values(forKeyPath: "rac_value").startWithValues { value in
 					expect(value).notTo(beNil())
 					values.append(value as! Int)
 				}
@@ -28,7 +28,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path, even if the value actually remains unchanged") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.values(forKeyPath: "rac_value").startWithNext { value in
+				object.values(forKeyPath: "rac_value").startWithValues { value in
 					expect(value).notTo(beNil())
 					values.append(value as! Int)
 				}
@@ -80,7 +80,7 @@ class KeyValueObservingSpec: QuickSpec {
 					.values(forKeyPath: "rac_object.rac_value")
 					.map { $0 as! NSNumber }
 					.map { $0.intValue }
-					.startWithNext {
+					.startWithValues {
 						values.append($0)
 					}
 
@@ -110,7 +110,7 @@ class KeyValueObservingSpec: QuickSpec {
 					.values(forKeyPath: "rac_weakObject.rac_value")
 					.map { $0 as! NSNumber }
 					.map { $0.intValue }
-					.startWithNext {
+					.startWithValues {
 						values.append($0)
 					}
 
@@ -161,7 +161,7 @@ class KeyValueObservingSpec: QuickSpec {
 						.take(first: 1)
 						.map { $0 as! NSNumber }
 						.map { $0.intValue }
-						.startWithNext {
+						.startWithValues {
 							observedValue = $0
 						}
 
@@ -182,7 +182,7 @@ class KeyValueObservingSpec: QuickSpec {
 						.observe(on: UIScheduler())
 						.map { $0 as! NSNumber }
 						.map { $0.intValue }
-						.startWithNext {
+						.startWithValues {
 							observedValue = $0
 						}
 
@@ -201,7 +201,7 @@ class KeyValueObservingSpec: QuickSpec {
 						.observe(on: UIScheduler())
 						.map { $0 as! NSNumber }
 						.map { $0.intValue }
-						.startWithNext {
+						.startWithValues {
 							observedValue = $0
 						}
 
@@ -246,7 +246,7 @@ class KeyValueObservingSpec: QuickSpec {
 							.observe(on: deliveringObserver)
 							.map { $0 as! NSNumber }
 							.map { $0.int64Value }
-							.startWithNext { value in
+							.startWithValues { value in
 								OSAtomicAdd64(value, &atomicCounter)
 							}
 					}
@@ -302,7 +302,7 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					iterationQueue.async(flags: .barrier) {
-						teardownObserver.sendNext()
+						teardownObserver.send(value: ())
 					}
 
 					let event = replayProducer.last()

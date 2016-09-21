@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 
@@ -25,7 +26,7 @@ extension UIBarButtonItem {
                     host?.action = CocoaAction.selector
                 }
 
-            host.rex_enabled <~ property.producer.flatMap(.Latest) { $0.rex_enabledProducer }
+            host.rex_enabled <~ property.producer.flatMap(.latest) { $0.rex_enabledProducer }
 
             return property
         }

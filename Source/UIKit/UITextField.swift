@@ -6,6 +6,8 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 
@@ -13,15 +15,15 @@ extension UITextField {
     
     /// Wraps a textField's `text` value in a bindable property.
     public var rex_text: MutableProperty<String?> {
-        let getter: UITextField -> String? = { $0.text }
+        let getter: (UITextField) -> String? = { $0.text }
         let setter: (UITextField, String?) -> () = { $0.text = $1 }
 #if os(iOS)
         return UIControl.rex_value(self, getter: getter, setter: setter)
 #else
         return associatedProperty(self, key: &textKey, initial: getter, setter: setter) { property in
             property <~
-                NSNotificationCenter.defaultCenter()
-                    .rac_notifications(UITextFieldTextDidChangeNotification, object: self)
+                NotificationCenter.default
+                    .rac_notifications(forName: .UITextFieldTextDidChange, object: self)
                     .filterMap  { ($0.object as? UITextField)?.text }
             }
 #endif

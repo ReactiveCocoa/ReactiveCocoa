@@ -6,6 +6,7 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import XCTest
@@ -13,10 +14,10 @@ import XCTest
 class UITextFieldTests: XCTestCase {
 
     func testTextProperty() {
-        let expectation = self.expectationWithDescription("Expected `rex_text`'s value to equal to the textField's text")
-        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        let expectation = self.expectation(description: "Expected `rex_text`'s value to equal to the textField's text")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
 
-        let textField = UITextField(frame: CGRectZero)
+        let textField = UITextField(frame: CGRect.zero)
         textField.text = "Test"
         
         textField.rex_text.signal.observeNext { text in
@@ -25,9 +26,9 @@ class UITextFieldTests: XCTestCase {
         }
 
 #if os(iOS)
-        textField.sendActionsForControlEvents(.EditingChanged)
+        textField.sendActions(for: .editingChanged)
 #else
-        NSNotificationCenter.defaultCenter().postNotificationName(UITextFieldTextDidChangeNotification, object: textField)
+        NotificationCenter.default.post(name: .UITextFieldTextDidChange, object: textField)
 #endif
     }
 }

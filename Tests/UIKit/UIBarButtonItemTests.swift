@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import XCTest
@@ -32,15 +33,15 @@ class UIBarButtonItemTests: XCTestCase {
     
     func testEnabledProperty() {
         let barButtonItem = UIBarButtonItem()
-        barButtonItem.enabled = true
+        barButtonItem.isEnabled = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
         
         
         observer.sendNext(false)
-        XCTAssertFalse(barButtonItem.enabled)
+        XCTAssertFalse(barButtonItem.isEnabled)
         observer.sendNext(true)
-        XCTAssertTrue(barButtonItem.enabled)
+        XCTAssertTrue(barButtonItem.isEnabled)
     }
 }

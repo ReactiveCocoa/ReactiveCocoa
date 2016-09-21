@@ -6,6 +6,7 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 
@@ -13,7 +14,7 @@ extension UISegmentedControl {
     /// Wraps a segmentedControls `selectedSegmentIndex` state in a bindable property.
     public var rex_selectedSegmentIndex: MutableProperty<Int> {
         let property = associatedProperty(self, key: &selectedSegmentIndexKey, initial: { $0.selectedSegmentIndex }, setter: { $0.selectedSegmentIndex = $1 })
-        property <~ rex_controlEvents(.ValueChanged)
+        property <~ rex_controlEvents(.valueChanged)
             .filterMap { ($0 as? UISegmentedControl)?.selectedSegmentIndex }
         return property
     }

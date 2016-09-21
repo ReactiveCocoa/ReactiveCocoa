@@ -7,14 +7,15 @@
 //
 
 @testable import Rex
+import ReactiveSwift
 import ReactiveCocoa
 import XCTest
 import enum Result.NoError
 
 final class ActionTests: XCTestCase {
     
-    enum TestError: ErrorType {
-        case Unknown
+    enum TestError: Error {
+        case unknown
     }
 
     func testStarted() {
@@ -33,7 +34,9 @@ final class ActionTests: XCTestCase {
     }
     
     func testCompleted() {
-        let (producer, observer) = SignalProducer<Int, TestError>.buffer(Int.max)
+        let (signal, observer) = Signal<Int, TestError>.pipe()
+        let producer = SignalProducer(signal: signal)
+
         let action = Action { producer }
 
         var completed = false
@@ -53,7 +56,9 @@ final class ActionTests: XCTestCase {
     }
     
     func testCompletedOnFailed() {
-        let (producer, observer) = SignalProducer<Int, TestError>.buffer(Int.max)
+        let (signal, observer) = Signal<Int, TestError>.pipe()
+        let producer = SignalProducer(signal: signal)
+
         let action = Action { producer }
         
         var completed = false
@@ -65,7 +70,7 @@ final class ActionTests: XCTestCase {
             .apply()
             .start()
         
-        observer.sendFailed(.Unknown)
+        observer.sendFailed(.unknown)
         XCTAssertFalse(completed)
     }
 }

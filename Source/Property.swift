@@ -6,44 +6,40 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import enum Result.NoError
 
-extension PropertyType where Value == Bool {
+extension PropertyProtocol where Value == Bool {
     /// The conjunction of `self` and `other`.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func and<P: PropertyType where P.Value == Bool>(other: P) -> AndProperty {
-        return AndProperty(terms: [AnyProperty(self), AnyProperty(other)])
+    public func and<P: PropertyProtocol>(_ other: P) -> AndProperty where P.Value == Bool {
+        return AndProperty(terms: [Property(self), Property(other)])
     }
 
     /// The conjunction of `self` and `other`.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func and(other: AnyProperty<Bool>) -> AndProperty {
-        return AndProperty(terms: [AnyProperty(self), other])
+    public func and(_ other: Property<Bool>) -> AndProperty {
+        return AndProperty(terms: [Property(self), other])
     }
 
     /// The disjunction of `self` and `other`.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func or<P: PropertyType where P.Value == Bool>(other: P) -> OrProperty {
-        return OrProperty(terms: [AnyProperty(self), AnyProperty(other)])
+    public func or<P: PropertyProtocol>(_ other: P) -> OrProperty where P.Value == Bool {
+        return OrProperty(terms: [Property(self), Property(other)])
     }
 
     /// The disjunction of `self` and `other`.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func or(other: AnyProperty<Bool>) -> OrProperty {
-        return OrProperty(terms: [AnyProperty(self), other])
+    public func or(_ other: Property<Bool>) -> OrProperty {
+        return OrProperty(terms: [Property(self), other])
     }
 
     /// A negated property of `self`.
-    @warn_unused_result(message="Did you forget to use the property?")
     public func not() -> NotProperty {
-        return NotProperty(source: AnyProperty(self), invert: true)
+        return NotProperty(source: Property(self), invert: true)
     }
 }
 
 /// Specialized `PropertyType` for the conjuction of a set of boolean properties.
-public struct AndProperty: PropertyType {
-    public let terms: [AnyProperty<Bool>]
+public class AndProperty: PropertyProtocol {
+    public let terms: [Property<Bool>]
 
     public var value: Bool {
         return terms.reduce(true) { $0 && $1.value }
@@ -51,38 +47,36 @@ public struct AndProperty: PropertyType {
 
     public var producer: SignalProducer<Bool, NoError> {
         let producers = terms.map { $0.producer }
-        return combineLatest(producers).map { values in
+        return SignalProducer.combineLatest(producers).map { values in
             return values.reduce(true) { $0 && $1 }
         }
     }
 
     public var signal: Signal<Bool, NoError> {
         let signals = terms.map { $0.signal }
-        return combineLatest(signals).map { values in
+        return Signal.combineLatest(signals).map { values in
             return values.reduce(true) { $0 && $1 }
         }
     }
 
     /// Creates a new property with an additional conjunctive term.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func and<P : PropertyType where P.Value == Bool>(other: P) -> AndProperty {
-        return AndProperty(terms: terms + [AnyProperty(other)])
+    public func and<P : PropertyProtocol>(_ other: P) -> AndProperty where P.Value == Bool {
+        return AndProperty(terms: terms + [Property(other)])
     }
 
     /// Creates a new property with an additional conjunctive term.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func and(other: AnyProperty<Bool>) -> AndProperty {
+    public func and(_ other: Property<Bool>) -> AndProperty {
         return AndProperty(terms: terms + [other])
     }
 
-    private init(terms: [AnyProperty<Bool>]) {
+    fileprivate init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
 
 /// Specialized `PropertyType` for the disjunction of a set of boolean properties.
-public struct OrProperty: PropertyType {
-    public let terms: [AnyProperty<Bool>]
+public class OrProperty: PropertyProtocol {
+    public let terms: [Property<Bool>]
     
     public var value: Bool {
         return terms.reduce(false) { $0 || $1.value }
@@ -90,38 +84,36 @@ public struct OrProperty: PropertyType {
     
     public var producer: SignalProducer<Bool, NoError> {
         let producers = terms.map { $0.producer }
-        return combineLatest(producers).map { values in
+        return SignalProducer.combineLatest(producers).map { values in
             return values.reduce(false) { $0 || $1 }
         }
     }
 
     public var signal: Signal<Bool, NoError> {
         let signals = terms.map { $0.signal }
-        return combineLatest(signals).map { values in
+        return Signal.combineLatest(signals).map { values in
             return values.reduce(false) { $0 || $1 }
         }
     }
 
     /// Creates a new property with an additional disjunctive term.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func or<P : PropertyType where P.Value == Bool>(other: P) -> OrProperty {
-        return OrProperty(terms: terms + [AnyProperty(other)])
+    public func or<P : PropertyProtocol>(_ other: P) -> OrProperty where P.Value == Bool {
+        return OrProperty(terms: terms + [Property(other)])
     }
 
     /// Creates a new property with an additional disjunctive term.
-    @warn_unused_result(message="Did you forget to use the property?")
-    public func or(other: AnyProperty<Bool>) -> OrProperty {
+    public func or(_ other: Property<Bool>) -> OrProperty {
         return OrProperty(terms: terms + [other])
     }
 
-    private init(terms: [AnyProperty<Bool>]) {
+    fileprivate init(terms: [Property<Bool>]) {
         self.terms = terms
     }
 }
 
 /// Specialized `PropertyType` for the negation of a boolean property.
-public struct NotProperty: PropertyType {
-    private let source: AnyProperty<Bool>
+public class NotProperty: PropertyProtocol {
+    private let source: Property<Bool>
     private let invert: Bool
     
     public var value: Bool {
@@ -137,12 +129,11 @@ public struct NotProperty: PropertyType {
     }
 
     /// A negated property of `self`.
-    @warn_unused_result(message="Did you forget to use the property?")
     public func not() -> NotProperty {
         return NotProperty(source: source, invert: !invert)
     }
 
-    private init(source: AnyProperty<Bool>, invert: Bool) {
+    fileprivate init(source: Property<Bool>, invert: Bool) {
         self.source = source
         self.invert = invert
     }

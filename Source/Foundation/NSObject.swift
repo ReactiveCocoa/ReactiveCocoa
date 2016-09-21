@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import enum Result.NoError
 
@@ -15,16 +16,15 @@ extension NSObject {
     ///
     /// Swift classes deriving `NSObject` must declare properties as `dynamic` for
     /// them to work with KVO. However, this is not recommended practice.
-    @warn_unused_result(message="Did you forget to call `start` on the producer?")
-    public func rex_producerForKeyPath<T>(keyPath: String) -> SignalProducer<T, NoError> {
-        return self.rac_valuesForKeyPath(keyPath, observer: nil)
+    public func rex_producer<T>(forKeyPath keyPath: String) -> SignalProducer<T, NoError> {
+        return self.rac_values(forKeyPath: keyPath, observer: nil)
             .toSignalProducer()
             .map { $0 as! T }
             .flatMapError { error in
                 // Errors aren't possible, but the compiler doesn't know that.
                 assertionFailure("Unexpected error from KVO signal: \(error)")
                 return .empty
-        }
+            }
     }
     
     /// Creates a signal that will be triggered when the object

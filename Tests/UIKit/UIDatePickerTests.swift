@@ -6,6 +6,7 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
+import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import XCTest
@@ -13,15 +14,15 @@ import Rex
 
 class UIDatePickerTests: XCTestCase {
     
-    var date: NSDate!
+    var date: Date!
     var picker: UIDatePicker!
     
     override func setUp() {
-        let formatter = NSDateFormatter()
+        let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/YYYY"
-        date = formatter.dateFromString("11/29/1988")!
+        date = formatter.date(from: "11/29/1988")!
         
-        picker = UIDatePicker(frame: CGRectZero)
+        picker = UIDatePicker(frame: CGRect.zero)
     }
     
     func testUpdatePickerFromProperty() {
@@ -31,8 +32,8 @@ class UIDatePickerTests: XCTestCase {
     }
 
     func testUpdatePropertyFromPicker() {
-        let expectation = self.expectationWithDescription("Expected rex_date to send an event when picker's date value is changed by a UI event")
-        defer { self.waitForExpectationsWithTimeout(2, handler: nil) }
+        let expectation = self.expectation(description: "Expected rex_date to send an event when picker's date value is changed by a UI event")
+        defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         picker.rex_date.signal.observeNext { changedDate in
             XCTAssertEqual(changedDate, self.date)
@@ -40,8 +41,8 @@ class UIDatePickerTests: XCTestCase {
         }
         
         picker.date = date
-        picker.enabled = true
-        picker.userInteractionEnabled = true
-        picker.sendActionsForControlEvents(.ValueChanged)
+        picker.isEnabled = true
+        picker.isUserInteractionEnabled = true
+        picker.sendActions(for: .valueChanged)
     }
 }

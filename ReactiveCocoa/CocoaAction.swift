@@ -36,7 +36,7 @@ public final class CocoaAction: NSObject {
 	///                     action and returns a value (e.g. 
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
-	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (AnyObject?) -> Input) {
+	public init<Action: ActionProtocol>(_ action: Action, _ inputTransform: @escaping (AnyObject?) -> Action.Input) {
 		_execute = { input in
 			let producer = action.apply(inputTransform(input))
 			producer.start()
@@ -52,7 +52,7 @@ public final class CocoaAction: NSObject {
 				self?.didChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
 		}
 		
-		disposable += action.isExecuting.producer
+		disposable += action.action.isExecuting.producer
 			.observe(on: UIScheduler())
 			.startWithValues { [weak self] value in
 				self?.willChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
@@ -67,7 +67,7 @@ public final class CocoaAction: NSObject {
 	/// - parameters:
 	///   - action: Executable action.
 	///   - input: A value given as input to the action.
-	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
+	public convenience init<Action: ActionProtocol>(_ action: Action, input: Action.Input) {
 		self.init(action, { _ in input })
 	}
 	

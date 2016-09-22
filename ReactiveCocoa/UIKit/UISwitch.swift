@@ -11,7 +11,7 @@ import UIKit
 
 extension UISwitch {
 	/// Wraps a switch's `on` value in a bindable property.
-	public var rex_on: MutableProperty<Bool> {
-		return UIControl.rex_value(self, getter: { $0.isOn }, setter: { $0.isOn = $1 })
+	public var rac_on: MutableProperty<Bool> {
+		return UIControl.rac_value(self, getter: { $0.isOn }, setter: { $0.isOn = $1 })
 	}
 }

@@ -11,7 +11,7 @@ import UIKit
 
 extension UISegmentedControl {
 	/// Wraps a segmentedControls `selectedSegmentIndex` state in a bindable property.
-	public var rex_selectedSegmentIndex: MutableProperty<Int> {
+	public var rac_selectedSegmentIndex: MutableProperty<Int> {
 		let property = associatedProperty(self, key: &selectedSegmentIndexKey, initial: { $0.selectedSegmentIndex }, setter: { $0.selectedSegmentIndex = $1 })
 		property <~ trigger(for: .valueChanged)
 			.map { [unowned self] in self.selectedSegmentIndex }

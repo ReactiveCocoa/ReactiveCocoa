@@ -25,7 +25,7 @@ class UIActivityIndicatorTests: XCTestCase {
         _activityIndicatorView = indicatorView
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        indicatorView.rex_animating <~ SignalProducer(signal: pipeSignal)
+        indicatorView.rac_animating <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(indicatorView.isAnimating)

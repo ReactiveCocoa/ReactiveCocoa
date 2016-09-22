@@ -24,7 +24,7 @@ class UIProgressViewTests: XCTestCase {
         let progressView = UIProgressView(frame: CGRect.zero)
         _progressView = progressView
         
-        progressView.rex_progress <~ SignalProducer(value: 0.5)
+        progressView.rac_progress <~ SignalProducer(value: 0.5)
         XCTAssert(_progressView?.progress == 0.5)
     }
     
@@ -36,7 +36,7 @@ class UIProgressViewTests: XCTestCase {
         progressView.progress = 1.0
         
         let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
-        progressView.rex_progress <~ SignalProducer(signal: pipeSignal)
+        progressView.rac_progress <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: firstChange)
         XCTAssertEqual(progressView.progress, firstChange)

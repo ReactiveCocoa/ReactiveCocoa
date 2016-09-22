@@ -27,19 +27,19 @@ extension Reusable where Self: NSObject {
 	///
 	/// ```
 	/// button
-	///     .rex_controlEvents(.TouchUpInside)
-	///     .takeUntil(self.rex_prepareForReuse)
+	///     .rac_controlEvents(.TouchUpInside)
+	///     .takeUntil(self.rac_prepareForReuse)
 	///     .startWithNext { _ in
 	///         // do other things
 	///      }
 	///
-	/// label.rex_text <~
+	/// label.rac_text <~
 	///     titleProperty
 	///         .producer
-	///         .takeUntil(self.rex_prepareForReuse)
+	///         .takeUntil(self.rac_prepareForReuse)
 	/// ```
 	///
-	public var rex_prepareForReuse: Signal<Void, NoError> {
+	public var rac_prepareForReuse: Signal<Void, NoError> {
 		return signal(for: #selector(prepareForReuse))
 	}
 }

@@ -8,9 +8,9 @@
 
 import UIKit
 
-private let rex_swizzleToken: Void = {
+private let rac_swizzleToken: Void = {
     let originalSelector = #selector(UIControl.sendAction(_:to:for:))
-    let swizzledSelector = #selector(UIControl.rex_sendAction(_:to:forEvent:))
+    let swizzledSelector = #selector(UIControl.rac_sendAction(_:to:forEvent:))
 
     let originalMethod = class_getInstanceMethod(UIControl.self, originalSelector)
     let swizzledMethod = class_getInstanceMethod(UIControl.self, swizzledSelector)
@@ -44,12 +44,12 @@ extension UIControl {
             return
         }
 
-        _ = rex_swizzleToken
+        _ = rac_swizzleToken
     }
 
     // MARK: - Method Swizzling
 
-    func rex_sendAction(_ action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
+    func rac_sendAction(_ action: Selector, to target: AnyObject?, forEvent event: UIEvent?) {
         _ = target?.perform(action, with: self)
     }
 }

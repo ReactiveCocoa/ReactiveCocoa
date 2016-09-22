@@ -13,25 +13,25 @@ import UIKit
 extension UIViewController {
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidDisappear` is called
-	public var rex_viewDidDisappear: Signal<(), NoError> {
+	public var rac_viewDidDisappear: Signal<(), NoError> {
 		return signal(for: #selector(UIViewController.viewDidDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillDisappear` is called
-	public var rex_viewWillDisappear: Signal<(), NoError> {
+	public var rac_viewWillDisappear: Signal<(), NoError> {
 		return signal(for: #selector(UIViewController.viewWillDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidAppear` is called
-	public var rex_viewDidAppear: Signal<(), NoError> {
+	public var rac_viewDidAppear: Signal<(), NoError> {
 		return signal(for: #selector(UIViewController.viewDidAppear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillAppear` is called
-	public var rex_viewWillAppear: Signal<(), NoError> {
+	public var rac_viewWillAppear: Signal<(), NoError> {
 		return signal(for: #selector(UIViewController.viewWillAppear(_:)))
 	}
 
@@ -44,11 +44,11 @@ extension UIViewController {
 	/// E.g:
 	/// ```
 	/// //Dismissed with animation (`true`) and `nil` completion
-	/// viewController.rex_dismissAnimated <~ aProducer.map { _ in (true, nil) }
+	/// viewController.rac_dismissAnimated <~ aProducer.map { _ in (true, nil) }
 	/// ```
 	/// The dismissal observation can be made either with binding (example above)
 	/// or `viewController.dismissViewControllerAnimated(true, completion: nil)`
-	public var rex_dismissAnimated: MutableProperty<DismissingInformation> {
+	public var rac_dismissAnimated: MutableProperty<DismissingInformation> {
 
 		let initial: (UIViewController) -> DismissingInformation = { _ in nil }
 		let setter: (UIViewController, DismissingInformation) -> Void = { host, dismissingInfo in

@@ -23,13 +23,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidDisappear() {
         
-        let expectation = self.expectation(description: "Expected rex_viewDidDisappear to be triggered")
+        let expectation = self.expectation(description: "Expected rac_viewDidDisappear to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
 
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidDisappear.observeValues {
+        viewController.rac_viewDidDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -38,13 +38,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillDisappear() {
         
-        let expectation = self.expectation(description: "Expected rex_viewWillDisappear to be triggered")
+        let expectation = self.expectation(description: "Expected rac_viewWillDisappear to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillDisappear.observeValues {
+        viewController.rac_viewWillDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -53,13 +53,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewDidAppear() {
         
-        let expectation = self.expectation(description: "Expected rex_viewDidAppear to be triggered")
+        let expectation = self.expectation(description: "Expected rac_viewDidAppear to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidAppear.observeValues {
+        viewController.rac_viewDidAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -68,13 +68,13 @@ class UIViewControllerTests: XCTestCase {
     
     func testViewWillAppear() {
         
-        let expectation = self.expectation(description: "Expected rex_viewWillAppear to be triggered")
+        let expectation = self.expectation(description: "Expected rac_viewWillAppear to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillAppear.observeValues {
+        viewController.rac_viewWillAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -83,28 +83,28 @@ class UIViewControllerTests: XCTestCase {
     
     func testDismissViewController_via_property() {
         
-        let expectation = self.expectation(description: "Expected rex_dismissModally to be triggered")
+        let expectation = self.expectation(description: "Expected rac_dismissModally to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissAnimated.signal.observeValues { _ in
+        viewController.rac_dismissAnimated.signal.observeValues { _ in
             expectation.fulfill()
         }
                 
-        viewController.rex_dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
+        viewController.rac_dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
     }
     
     func testDismissViewController_via_cocoaDismiss() {
         
-        let expectation = self.expectation(description: "Expected rex_dismissModally to be triggered")
+        let expectation = self.expectation(description: "Expected rac_dismissModally to be triggered")
         defer { self.waitForExpectations(timeout: 2, handler: nil) }
         
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissAnimated.signal.observeValues { _ in
+        viewController.rac_dismissAnimated.signal.observeValues { _ in
             expectation.fulfill()
         }
 

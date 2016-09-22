@@ -32,7 +32,7 @@ class UIButtonTests: XCTestCase {
         let button = UIButton(frame: CGRect.zero)
         _button = button
         
-        button.rex_enabled <~ SignalProducer(value: false)
+        button.rac_enabled <~ SignalProducer(value: false)
         XCTAssert(_button?.isEnabled == false)
     }
 
@@ -43,14 +43,14 @@ class UIButtonTests: XCTestCase {
         let action = Action<(),(),NoError> {
             SignalProducer(value: ())
         }
-        button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
+        button.rac_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
     }
 
     func testTitlePropertyDoesntCreateRetainCycle() {
         let button = UIButton(frame: CGRect.zero)
         _button = button
 
-        button.rex_title <~ SignalProducer(value: "button")
+        button.rac_title <~ SignalProducer(value: "button")
         XCTAssert(_button?.title(for: UIControlState()) == "button")
     }
     
@@ -59,7 +59,7 @@ class UIButtonTests: XCTestCase {
         let secondTitle = "Second title"
         let button = UIButton(frame: CGRect.zero)
         let (pipeSignal, observer) = Signal<String, NoError>.pipe()
-        button.rex_title <~ SignalProducer(signal: pipeSignal)
+        button.rac_title <~ SignalProducer(signal: pipeSignal)
         button.setTitle("", for: .selected)
         button.setTitle("", for: .highlighted)
         
@@ -85,7 +85,7 @@ class UIButtonTests: XCTestCase {
         }
         
         pressed <~ SignalProducer(signal: action.values)
-        button.rex_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
+        button.rac_pressed <~ SignalProducer(value: CocoaAction(action, input: ()))
 
         XCTAssertFalse(pressed.value)
 

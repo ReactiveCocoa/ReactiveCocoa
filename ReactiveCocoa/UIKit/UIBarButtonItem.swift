@@ -12,9 +12,9 @@ import UIKit
 extension UIBarButtonItem {
 	/// Exposes a property that binds an action to bar button item. The action is set as
 	/// a target of the button. When property changes occur the previous action is
-	/// overwritten. This also binds the enabled state of the action to the `rex_enabled`
+	/// overwritten. This also binds the enabled state of the action to the `rac_enabled`
 	/// property on the button.
-	public var rex_action: MutableProperty<CocoaAction> {
+	public var rac_action: MutableProperty<CocoaAction> {
 		return associatedObject(self, key: &actionKey) { host in
 			let initial = CocoaAction.disabled
 			let property = MutableProperty(initial)
@@ -25,7 +25,7 @@ extension UIBarButtonItem {
 					host?.action = CocoaAction.selector
 			}
 
-			host.rex_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
+			host.rac_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
 
 			return property
 		}

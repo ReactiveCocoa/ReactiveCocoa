@@ -10,9 +10,8 @@ import ReactiveSwift
 import UIKit
 
 extension UISwitch {
-
-    /// Wraps a switch's `on` value in a bindable property.
-    public var rex_on: MutableProperty<Bool> {
-        return UIControl.rex_value(self, getter: { $0.isOn }, setter: { $0.isOn = $1 })
-    }
+	/// Wraps a switch's `on` value in a bindable property.
+	public var rex_on: MutableProperty<Bool> {
+		return UIControl.rex_value(self, getter: { $0.isOn }, setter: { $0.isOn = $1 })
+	}
 }

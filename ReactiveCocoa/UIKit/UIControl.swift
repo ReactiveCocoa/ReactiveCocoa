@@ -10,9 +10,31 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
+private class UnsafeControlReceiver: NSObject {
+	private let observer: Observer<(), NoError>
+
+	fileprivate init(observer: Observer<(), NoError>) {
+		self.observer = observer
+	}
+
+	@objc fileprivate func sendNext() {
+		observer.send(value: ())
+	}
+}
+
 extension UIControl {
 	public func trigger(for events: UIControlEvents) -> Signal<(), NoError> {
-		return .empty
+		return Signal { observer in
+			let receiver = UnsafeControlReceiver(observer: observer)
+			addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+
+			let disposable = rac_lifetime.ended.observeCompleted(observer.sendCompleted)
+
+			return ActionDisposable { [weak self] in
+				disposable?.dispose()
+				self?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+			}
+		}
 	}
 
 	#if os(iOS)

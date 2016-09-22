@@ -108,6 +108,20 @@
                BlueprintName = "ReactiveCocoa-iOSTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "CocoaActionSpec">
+               </Test>
+               <Test
+                  Identifier = "DynamicPropertySpec">
+               </Test>
+               <Test
+                  Identifier = "KeyValueObservingSpec">
+               </Test>
+               <Test
+                  Identifier = "UIViewControllerTests/testDismissViewController_via_cocoaDismiss()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

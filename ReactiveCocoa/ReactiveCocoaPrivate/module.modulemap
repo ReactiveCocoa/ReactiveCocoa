@@ -1,0 +1,4 @@
+module ReactiveCocoaPrivate {
+	header "../RACObjCRuntimeUtilities.h"
+	export *
+}

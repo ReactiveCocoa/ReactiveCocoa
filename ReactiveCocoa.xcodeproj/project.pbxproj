@@ -102,7 +102,11 @@
 		9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A1D065D1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A1D065E1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
-		9A1D065F1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
+		9A1D06771D9415FF00ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
+		9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
+		9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
+		9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
+		9A1D067B1D94164900ACF44C /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; };
 		9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
@@ -261,6 +265,8 @@
 		9A1D06341D93EA7E00ACF44C /* UIViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerTests.swift; sourceTree = "<group>"; };
 		9A1D06351D93EA7E00ACF44C /* UIViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewTests.swift; sourceTree = "<group>"; };
 		9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Intercepting.swift"; sourceTree = "<group>"; };
+		9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntimeUtilities.h; sourceTree = "<group>"; };
+		9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RACObjCRuntimeUtilities.m; sourceTree = "<group>"; };
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
@@ -510,6 +516,8 @@
 			isa = PBXGroup;
 			children = (
 				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
+				9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */,
+				9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */,
 				C7142DBB1CDEA167009F402D /* CocoaAction.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
 				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
@@ -658,6 +666,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */,
+				9A1D067B1D94164900ACF44C /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -922,6 +931,7 @@
 				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				C7142DBF1CDEA195009F402D /* CocoaAction.swift in Sources */,
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
+				9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9A1D061D1D93EA0100ACF44C /* UITableViewCell.swift in Sources */,
 				9A1D05E31D93E99100ACF44C /* Association.swift in Sources */,
 				9A1D06161D93EA0100ACF44C /* UIControl.swift in Sources */,
@@ -963,7 +973,6 @@
 				9A1D06411D93EA7E00ACF44C /* UIControlTests.swift in Sources */,
 				9A1D06491D93EA7E00ACF44C /* UIProgressViewTests.swift in Sources */,
 				9A1D06511D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift in Sources */,
-				9A1D065F1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				BEE020661D637B0000DF261F /* TestError.swift in Sources */,
 				9A1D06531D93EA7E00ACF44C /* UITextFieldTests.swift in Sources */,
 			);
@@ -973,6 +982,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9A1D05E71D93E9E200ACF44C /* Reusable.swift in Sources */,
 				9A1D065D1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				C7142DBE1CDEA194009F402D /* CocoaAction.swift in Sources */,
@@ -989,6 +999,7 @@
 			files = (
 				9A1D05E51D93E9E200ACF44C /* Reusable.swift in Sources */,
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
+				9A1D06771D9415FF00ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D05FE1D93E9F900ACF44C /* NSTextField.swift in Sources */,
 				9A1D05E01D93E99100ACF44C /* Association.swift in Sources */,
@@ -1020,6 +1031,7 @@
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
+				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				C7142DBD1CDEA194009F402D /* CocoaAction.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
 				9A1D060B1D93EA0000ACF44C /* UITableViewCell.swift in Sources */,
@@ -1097,6 +1109,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1105,6 +1119,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1112,6 +1130,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1120,6 +1140,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Test;
 		};
@@ -1127,6 +1151,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1135,6 +1161,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1142,6 +1172,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1150,6 +1182,9 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};
@@ -1217,6 +1252,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1225,6 +1262,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1232,6 +1273,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1240,6 +1283,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Test;
 		};
@@ -1247,6 +1294,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1255,6 +1304,10 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1262,6 +1315,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -1270,6 +1325,9 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};
@@ -1317,11 +1375,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
@@ -1330,11 +1393,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
@@ -1371,11 +1439,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
@@ -1384,11 +1457,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
@@ -1444,11 +1522,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
@@ -1471,11 +1553,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
@@ -1517,11 +1603,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;
@@ -1544,11 +1635,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;

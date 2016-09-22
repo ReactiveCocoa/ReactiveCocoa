@@ -38,9 +38,9 @@ class UIProgressViewTests: XCTestCase {
         let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
         progressView.rex_progress <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(progressView.progress, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(progressView.progress, secondChange)
     }
 }

@@ -1,9 +1,17 @@
 import Foundation
 import ReactiveSwift
+import enum Result.NoError
 
 /// Wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.
 public final class CocoaAction: NSObject {
+	/// Creates an always disabled action that can be used as a default for
+	/// things like `rac_pressed`.
+	public static var disabled: CocoaAction {
+		return CocoaAction(Action<Any?, (), NoError>(enabledIf: Property(value: false)) { _ in .empty },
+		                   input: nil)
+	}
+
 	/// The selector that a caller should invoke upon a CocoaAction in order to
 	/// execute it.
 	public static let selector: Selector = #selector(CocoaAction.execute(_:))
@@ -19,7 +27,19 @@ public final class CocoaAction: NSObject {
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
 	public private(set) var isExecuting: Bool = false
-	
+
+	/// Creates a producer for the `enabled` state of a CocoaAction.
+	public var isEnabledProducer: SignalProducer<Bool, NoError> {
+		return values(forKeyPath: #keyPath(CocoaAction.isEnabled))
+			.map { $0 as! Bool }
+	}
+
+	/// Creates a producer for the `executing` state of a CocoaAction.
+	public var isExecutingProducer: SignalProducer<Bool, NoError> {
+		return values(forKeyPath: #keyPath(CocoaAction.isExecuting))
+			.map { $0 as! Bool }
+	}
+
 	private let _execute: (AnyObject?) -> Void
 	private let disposable = CompositeDisposable()
 	

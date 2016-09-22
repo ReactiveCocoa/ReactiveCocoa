@@ -53,7 +53,7 @@ public func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafeRawP
 
 		setUp(property)
 
-		property.producer.startWithNext { [weak host] next in
+		property.producer.startWithValues { [weak host] next in
 			if let host = host {
 				setter(host, next)
 			}

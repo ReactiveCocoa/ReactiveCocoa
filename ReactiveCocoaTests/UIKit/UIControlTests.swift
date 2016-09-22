@@ -52,9 +52,9 @@ class UIControlTests: XCTestCase {
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_enabled <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(true)
+        observer.send(value: true)
         XCTAssertTrue(control.isEnabled)
-        observer.sendNext(false)
+        observer.send(value: false)
         XCTAssertFalse(control.isEnabled)
     }
     
@@ -65,9 +65,9 @@ class UIControlTests: XCTestCase {
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_selected <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(true)
+        observer.send(value: true)
         XCTAssertTrue(control.isSelected)
-        observer.sendNext(false)
+        observer.send(value: false)
         XCTAssertFalse(control.isSelected)
     }
     
@@ -78,9 +78,9 @@ class UIControlTests: XCTestCase {
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
         control.rex_highlighted <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(true)
+        observer.send(value: true)
         XCTAssertTrue(control.isHighlighted)
-        observer.sendNext(false)
+        observer.send(value: false)
         XCTAssertFalse(control.isHighlighted)
     }
     
@@ -94,14 +94,14 @@ class UIControlTests: XCTestCase {
         control.rex_selected <~ SignalProducer(signal: pipeSignalSelected)
         control.rex_enabled <~ SignalProducer(signal: pipeSignalEnabled)
         
-        observerSelected.sendNext(true)
-        observerEnabled.sendNext(true)
+        observerSelected.send(value: true)
+        observerEnabled.send(value: true)
         XCTAssertTrue(control.isEnabled)
         XCTAssertTrue(control.isSelected)
-        observerSelected.sendNext(false)
+        observerSelected.send(value: false)
         XCTAssertTrue(control.isEnabled)
         XCTAssertFalse(control.isSelected)
-        observerEnabled.sendNext(false)
+        observerEnabled.send(value: false)
         XCTAssertFalse(control.isEnabled)
         XCTAssertFalse(control.isSelected)
     }

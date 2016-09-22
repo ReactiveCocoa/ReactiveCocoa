@@ -39,9 +39,9 @@ class UIBarButtonItemTests: XCTestCase {
         barButtonItem.rex_enabled <~ SignalProducer(signal: pipeSignal)
         
         
-        observer.sendNext(false)
+        observer.send(value: false)
         XCTAssertFalse(barButtonItem.isEnabled)
-        observer.sendNext(true)
+        observer.send(value: true)
         XCTAssertTrue(barButtonItem.isEnabled)
     }
 }

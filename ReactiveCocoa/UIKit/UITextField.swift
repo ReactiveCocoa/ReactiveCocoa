@@ -21,7 +21,7 @@ extension UITextField {
 				property <~
 					NotificationCenter.default
 						.rac_notifications(forName: .UITextFieldTextDidChange, object: self)
-						.filterMap  { ($0.object as? UITextField)?.text }
+						.map { ($0.object as! UITextField).text }
 			}
 		#endif
 	}

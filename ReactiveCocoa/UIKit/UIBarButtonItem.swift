@@ -16,16 +16,16 @@ extension UIBarButtonItem {
 	/// property on the button.
 	public var rex_action: MutableProperty<CocoaAction> {
 		return associatedObject(self, key: &actionKey) { host in
-			let initial = CocoaAction.rex_disabled
+			let initial = CocoaAction.disabled
 			let property = MutableProperty(initial)
 
 			property.producer
-				.startWithNext { [weak host] action in
+				.startWithValues { [weak host] action in
 					host?.target = action
 					host?.action = CocoaAction.selector
 			}
 
-			host.rex_enabled <~ property.producer.flatMap(.latest) { $0.rex_enabledProducer }
+			host.rex_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
 
 			return property
 		}

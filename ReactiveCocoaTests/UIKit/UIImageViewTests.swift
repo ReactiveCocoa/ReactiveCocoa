@@ -50,9 +50,9 @@ class UIImageViewTests: XCTestCase {
         let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
         imageView.rex_image <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(imageView.image, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(imageView.image, secondChange)
     }
     
@@ -65,9 +65,9 @@ class UIImageViewTests: XCTestCase {
         let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
         imageView.rex_highlightedImage <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(imageView.highlightedImage, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(imageView.highlightedImage, secondChange)
     }
 }

@@ -16,17 +16,17 @@ extension UIButton {
 	/// action to the `rex_enabled` property on the button.
 	public var rex_pressed: MutableProperty<CocoaAction> {
 		return associatedObject(self, key: &pressedKey) { host in
-			let initial = CocoaAction.rex_disabled
+			let initial = CocoaAction.disabled
 			let property = MutableProperty(initial)
 
 			property.producer
 				.combinePrevious(initial)
-				.startWithNext { [weak host] previous, next in
+				.startWithValues { [weak host] previous, next in
 					host?.removeTarget(previous, action: CocoaAction.selector, for: .touchUpInside)
 					host?.addTarget(next, action: CocoaAction.selector, for: .touchUpInside)
 			}
 
-			host.rex_enabled <~ property.producer.flatMap(.latest) { $0.rex_enabledProducer }
+			host.rex_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
 
 			return property
 		}

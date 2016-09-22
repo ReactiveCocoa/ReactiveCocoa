@@ -63,12 +63,12 @@ class UIButtonTests: XCTestCase {
         button.setTitle("", for: .selected)
         button.setTitle("", for: .highlighted)
         
-        observer.sendNext(firstTitle)
+        observer.send(value: firstTitle)
         XCTAssertEqual(button.title(for: UIControlState()), firstTitle)
         XCTAssertEqual(button.title(for: .highlighted), "")
         XCTAssertEqual(button.title(for: .selected), "")
         
-        observer.sendNext(secondTitle)
+        observer.send(value: secondTitle)
         XCTAssertEqual(button.title(for: UIControlState()), secondTitle)
         XCTAssertEqual(button.title(for: .highlighted), "")
         XCTAssertEqual(button.title(for: .selected), "")

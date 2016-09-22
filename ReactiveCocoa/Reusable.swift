@@ -6,18 +6,17 @@
 //  Copyright © 2016 Neil Pankey. All rights reserved.
 //
 
+import Foundation
 import ReactiveSwift
-import ReactiveCocoa
 import enum Result.NoError
 
 
 /// A protocol for components that can be reused using `prepareForReuse`.
-public protocol Reusable {
-	var rac_prepareForReuseSignal: RACSignal! { get }
+@objc public protocol Reusable: class {
+	func prepareForReuse()
 }
 
-extension Reusable {
-
+extension Reusable where Self: NSObject {
 	/// A signal which will send a `Next` event whenever `prepareForReuse` is invoked upon
 	/// the receiver.
 	///
@@ -41,7 +40,6 @@ extension Reusable {
 	/// ```
 	///
 	public var rex_prepareForReuse: Signal<Void, NoError> {
-		return rac_prepareForReuseSignal
-			.rex_toTriggerSignal()
+		return signal(for: #selector(prepareForReuse))
 	}
 }

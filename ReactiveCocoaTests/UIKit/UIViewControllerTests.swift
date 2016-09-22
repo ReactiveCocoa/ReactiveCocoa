@@ -29,7 +29,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidDisappear.observeNext {
+        viewController.rex_viewDidDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -44,7 +44,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillDisappear.observeNext {
+        viewController.rex_viewWillDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -59,7 +59,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewDidAppear.observeNext {
+        viewController.rex_viewDidAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -74,7 +74,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_viewWillAppear.observeNext {
+        viewController.rex_viewWillAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -89,7 +89,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissAnimated.signal.observeNext { _ in
+        viewController.rex_dismissAnimated.signal.observeValues { _ in
             expectation.fulfill()
         }
                 
@@ -104,7 +104,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rex_dismissAnimated.signal.observeNext { _ in
+        viewController.rex_dismissAnimated.signal.observeValues { _ in
             expectation.fulfill()
         }
 

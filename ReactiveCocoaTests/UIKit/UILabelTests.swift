@@ -39,11 +39,11 @@ class UILabelTests: XCTestCase {
         let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
         label.rex_text <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(label.text, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(label.text, secondChange)
-        observer.sendNext(nil)
+        observer.send(value: nil)
         XCTAssertNil(label.text)
     }
     
@@ -65,9 +65,9 @@ class UILabelTests: XCTestCase {
         let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
         label.rex_attributedText <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(label.attributedText, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(label.attributedText, secondChange)
     }
     
@@ -81,9 +81,9 @@ class UILabelTests: XCTestCase {
         label.textColor = UIColor.black
         label.rex_textColor <~ SignalProducer(signal: pipeSignal)
         
-        observer.sendNext(firstChange)
+        observer.send(value: firstChange)
         XCTAssertEqual(label.textColor, firstChange)
-        observer.sendNext(secondChange)
+        observer.send(value: secondChange)
         XCTAssertEqual(label.textColor, secondChange)
     }
 }

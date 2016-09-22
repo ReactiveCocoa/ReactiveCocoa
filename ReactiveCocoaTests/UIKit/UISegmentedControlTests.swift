@@ -22,9 +22,9 @@ class UISegmentedControlTests: XCTestCase {
         s.rex_selectedSegmentIndex <~ SignalProducer(signal: pipeSignal)
         
         XCTAssertEqual(s.selectedSegmentIndex, UISegmentedControlNoSegment)
-        observer.sendNext(1)
+        observer.send(value: 1)
         XCTAssertEqual(s.selectedSegmentIndex, 1)
-        observer.sendNext(2)
+        observer.send(value: 2)
         XCTAssertEqual(s.selectedSegmentIndex, 2)
     }
 }

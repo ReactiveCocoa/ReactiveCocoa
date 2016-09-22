@@ -1,3 +1,3 @@
 github "jspahrsummers/xcconfigs" "3d9d996"
 github "Quick/Quick" "swift-3.0"
-github "Quick/Nimble" "master"
+github "Quick/Nimble" ~> 5.0

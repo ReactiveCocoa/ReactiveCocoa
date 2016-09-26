@@ -106,7 +106,6 @@
 		9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
 		9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
 		9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */; };
-		9A1D067B1D94164900ACF44C /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; };
 		9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
@@ -666,7 +665,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */,
-				9A1D067B1D94164900ACF44C /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

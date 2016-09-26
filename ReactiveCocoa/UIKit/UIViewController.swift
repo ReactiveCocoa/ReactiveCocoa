@@ -14,25 +14,25 @@ extension UIViewController {
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidDisappear` is called
 	public var rac_viewDidDisappear: Signal<(), NoError> {
-		return signal(for: #selector(UIViewController.viewDidDisappear(_:)))
+		return trigger(for: #selector(UIViewController.viewDidDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillDisappear` is called
 	public var rac_viewWillDisappear: Signal<(), NoError> {
-		return signal(for: #selector(UIViewController.viewWillDisappear(_:)))
+		return trigger(for: #selector(UIViewController.viewWillDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidAppear` is called
 	public var rac_viewDidAppear: Signal<(), NoError> {
-		return signal(for: #selector(UIViewController.viewDidAppear(_:)))
+		return trigger(for: #selector(UIViewController.viewDidAppear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillAppear` is called
 	public var rac_viewWillAppear: Signal<(), NoError> {
-		return signal(for: #selector(UIViewController.viewWillAppear(_:)))
+		return trigger(for: #selector(UIViewController.viewWillAppear(_:)))
 	}
 
 	public typealias DismissingCompletion = ((Void) -> Void)?
@@ -58,7 +58,7 @@ extension UIViewController {
 		}
 
 		let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter) { property in
-			property <~ self.signal(for: #selector(UIViewController.dismiss))
+			property <~ self.trigger(for: #selector(UIViewController.dismiss))
 				.take { _ in property.value != nil }
 				.map { _ in return nil }
 		}

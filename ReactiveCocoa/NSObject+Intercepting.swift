@@ -4,7 +4,13 @@ import enum Result.NoError
 import ReactiveCocoaPrivate
 
 extension NSObject {
-	public func signal(for selector: Selector) -> Signal<(), NoError> {
+	public func trigger(for selector: Selector) -> Signal<(), NoError> {
+		return signal(for: selector) { observer in
+			return { _ in observer.send(value: ()) }
+		}
+	}
+
+	private func signal<U>(for selector: Selector, action: (Observer<U, NoError>) -> rac_receiver_t) -> Signal<U, NoError> {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
 
@@ -19,15 +25,13 @@ extension NSObject {
 		}()
 
 		let selectorName = String(describing: selector) as NSString
-		if let signal = map.object(forKey: selectorName) as? Signal<(), NoError> {
+		if let signal = map.object(forKey: selectorName) as? Signal<U, NoError> {
 			return signal
 		}
 
-		let (signal, observer) = Signal<(), NoError>.pipe()
-
-		let isSuccessful = RACRegisterBlockForSelector(self, selector, nil, {
-			observer.send(value: ())
-		})
+		let (signal, observer) = Signal<U, NoError>.pipe()
+		let action = action(observer)
+		let isSuccessful = RACRegisterBlockForSelector(self, selector, nil, action)
 		assert(isSuccessful)
 
 		rac_lifetime.ended.observeCompleted(observer.sendCompleted)

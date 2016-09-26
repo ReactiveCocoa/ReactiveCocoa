@@ -40,6 +40,6 @@ extension Reusable where Self: NSObject {
 	/// ```
 	///
 	public var rac_prepareForReuse: Signal<Void, NoError> {
-		return signal(for: #selector(prepareForReuse))
+		return trigger(for: #selector(prepareForReuse))
 	}
 }

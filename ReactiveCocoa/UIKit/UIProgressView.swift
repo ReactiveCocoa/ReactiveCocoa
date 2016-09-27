@@ -11,9 +11,7 @@ import UIKit
 
 extension UIProgressView {
 	/// Wraps a progressView's `progress` value in a bindable property.
-	public var rac_progress: MutableProperty<Float> {
-		return associatedProperty(self, key: &progressKey, initial: { $0.progress }, setter: { $0.progress = $1 })
+	public var rac_progress: BindingTarget<Float> {
+		return bindingTarget { $0.progress = $1 }
 	}
 }
-
-private var progressKey: UInt8 = 0

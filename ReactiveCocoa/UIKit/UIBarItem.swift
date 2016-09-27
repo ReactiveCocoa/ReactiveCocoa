@@ -11,9 +11,7 @@ import UIKit
 
 extension UIBarItem {
 	/// Wraps a UIBarItem's `enabled` state in a bindable property.
-	public var rac_enabled: MutableProperty<Bool> {
-		return associatedProperty(self, key: &enabledKey, initial: { $0.isEnabled }, setter: { $0.isEnabled = $1 })
+	public var rac_enabled: BindingTarget<Bool> {
+		return bindingTarget { $0.isEnabled = $1 }
 	}
 }
-
-private var enabledKey: UInt8 = 0

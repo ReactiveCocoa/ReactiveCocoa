@@ -11,15 +11,12 @@ import UIKit
 
 extension UIImageView {
 	/// Wraps a imageView's `image` value in a bindable property.
-	public var rac_image: MutableProperty<UIImage?> {
-		return associatedProperty(self, key: &imageKey, initial: { $0.image }, setter: { $0.image = $1 })
+	public var rac_image: BindingTarget<UIImage?> {
+		return bindingTarget { $0.image = $1 }
 	}
 
 	/// Wraps a imageView's `highlightedImage` value in a bindable property.
-	public var rac_highlightedImage: MutableProperty<UIImage?> {
-		return associatedProperty(self, key: &highlightedImageKey, initial: { $0.highlightedImage }, setter: { $0.highlightedImage = $1 })
+	public var rac_highlightedImage: BindingTarget<UIImage?> {
+		return bindingTarget { $0.highlightedImage = $1 }
 	}
 }
-
-private var imageKey: UInt8 = 0
-private var highlightedImageKey: UInt8 = 0

@@ -36,7 +36,7 @@ extension UIViewController {
 	}
 
 	public typealias DismissingCompletion = ((Void) -> Void)?
-	public typealias DismissingInformation = (animated: Bool, completion: DismissingCompletion)?
+	public typealias DismissingInformation = (animated: Bool, completion: DismissingCompletion)
 
 	/// Wraps a viewController's `dismissViewControllerAnimated` function in a bindable property.
 	/// It mimics the same input as `dismissViewControllerAnimated`: a `Bool` flag for the animation
@@ -48,22 +48,9 @@ extension UIViewController {
 	/// ```
 	/// The dismissal observation can be made either with binding (example above)
 	/// or `viewController.dismissViewControllerAnimated(true, completion: nil)`
-	public var rac_dismissAnimated: MutableProperty<DismissingInformation> {
-
-		let initial: (UIViewController) -> DismissingInformation = { _ in nil }
-		let setter: (UIViewController, DismissingInformation) -> Void = { host, dismissingInfo in
-
-			guard let unwrapped = dismissingInfo else { return }
-			host.dismiss(animated: unwrapped.animated, completion: unwrapped.completion)
-		}
-
-		let property = associatedProperty(self, key: &dismissModally, initial: initial, setter: setter) { property in
-			property <~ self.trigger(for: #selector(UIViewController.dismiss))
-				.take { _ in property.value != nil }
-				.map { _ in return nil }
-		}
-
-		return property
+	public var rac_dismissAnimated: BindingTarget<DismissingInformation> {
+		/// TODO: Convert into `Action`?
+		return bindingTarget { $0.dismiss(animated: $1.animated, completion: $1.completion) }
 	}
 }
 

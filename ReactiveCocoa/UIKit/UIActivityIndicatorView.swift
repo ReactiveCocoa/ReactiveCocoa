@@ -14,15 +14,13 @@ extension UIActivityIndicatorView {
 	/// Wraps an indicator's `isAnimating()` state in a bindable property.
 	/// Setting a new value to the property would call `startAnimating()` or
 	/// `stopAnimating()` depending on the value.
-	public var rac_animating: MutableProperty<Bool> {
-		return associatedProperty(self, key: &animatingKey, initial: { $0.isAnimating }, setter: { host, animating in
-			if animating {
-				host.startAnimating()
+	public var rac_animating: BindingTarget<Bool> {
+		return bindingTarget { _self, isAnimating in
+			if isAnimating {
+				_self.startAnimating()
 			} else {
-				host.stopAnimating()
+				_self.stopAnimating()
 			}
-		})
+		}
 	}
 }
-
-private var animatingKey: UInt8 = 0

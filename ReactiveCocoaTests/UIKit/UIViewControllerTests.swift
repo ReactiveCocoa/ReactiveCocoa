@@ -89,7 +89,10 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_dismissAnimated.signal.observeValues { _ in
+			viewController
+				.trigger(for: #selector(UIViewController.dismiss(animated:completion:)))
+				.signal
+				.observeValues { _ in
             expectation.fulfill()
         }
                 
@@ -104,8 +107,11 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_dismissAnimated.signal.observeValues { _ in
-            expectation.fulfill()
+			viewController
+				.trigger(for: #selector(UIViewController.dismiss(animated:completion:)))
+				.signal
+				.observeValues { _ in
+					expectation.fulfill()
         }
 
         viewController.dismiss(animated: true, completion: nil)

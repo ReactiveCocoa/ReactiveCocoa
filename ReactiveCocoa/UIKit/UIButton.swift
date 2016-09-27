@@ -34,10 +34,9 @@ extension UIButton {
 
 	/// Wraps a button's `title` text in a bindable property. Note that this only applies
 	/// to `UIControlState.Normal`.
-	public var rac_title: MutableProperty<String> {
-		return associatedProperty(self, key: &titleKey, initial: { $0.title(for: .normal) ?? "" }, setter: { $0.setTitle($1, for: .normal) })
+	public var rac_title: BindingTarget<String> {
+		return bindingTarget { $0.setTitle($1, for: .normal) }
 	}
 }
 
 private var pressedKey: UInt8 = 0
-private var titleKey: UInt8 = 0

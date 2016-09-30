@@ -15,7 +15,7 @@ import ReactiveSwift
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-public func associatedProperty(_ host: AnyObject, keyPath: StaticString) -> MutableProperty<String> {
+internal func associatedProperty(_ host: AnyObject, keyPath: StaticString) -> MutableProperty<String> {
 	let initial: (AnyObject) -> String  = { host in
 		host.value(forKeyPath: String(describing: keyPath)) as? String ?? ""
 	}
@@ -32,7 +32,7 @@ public func associatedProperty(_ host: AnyObject, keyPath: StaticString) -> Muta
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-public func associatedProperty<T: AnyObject>(_ host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
+internal func associatedProperty<T: AnyObject>(_ host: AnyObject, keyPath: StaticString, placeholder: () -> T) -> MutableProperty<T> {
 	let setter: (AnyObject, T) -> () = { host, newValue in
 		host.setValue(newValue, forKeyPath: String(describing: keyPath))
 	}
@@ -47,7 +47,7 @@ public func associatedProperty<T: AnyObject>(_ host: AnyObject, keyPath: StaticS
 ///
 /// This can be used as an alternative to `DynamicProperty` for creating strongly typed
 /// bindings on Cocoa objects.
-public func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafeRawPointer, initial: (Host) -> T, setter: @escaping (Host, T) -> (), setUp: (MutableProperty<T>) -> () = { _ in }) -> MutableProperty<T> {
+internal func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafeRawPointer, initial: (Host) -> T, setter: @escaping (Host, T) -> (), setUp: (MutableProperty<T>) -> () = { _ in }) -> MutableProperty<T> {
 	return associatedObject(host, key: key) { host in
 		let property = MutableProperty(initial(host))
 
@@ -66,7 +66,7 @@ public func associatedProperty<Host: AnyObject, T>(_ host: Host, key: UnsafeRawP
 /// On first use attaches the object returned from `initial` to the `host` object using
 /// `key` via `objc_setAssociatedObject`. On subsequent usage, returns said object via
 /// `objc_getAssociatedObject`.
-public func associatedObject<Host: AnyObject, T: AnyObject>(_ host: Host, key: UnsafeRawPointer, initial: (Host) -> T) -> T {
+internal func associatedObject<Host: AnyObject, T: AnyObject>(_ host: Host, key: UnsafeRawPointer, initial: (Host) -> T) -> T {
 	var value = objc_getAssociatedObject(host, key) as? T
 	if value == nil {
 		value = initial(host)

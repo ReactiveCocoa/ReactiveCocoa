@@ -12,7 +12,7 @@ class CocoaActionSpec: QuickSpec {
 			action = Action { value in SignalProducer(value: value + 1) }
 			expect(action.isEnabled.value) == true
 
-			expect(action.unsafeCocoaAction.isEnabled).toEventually(beTruthy())
+			expect(action.unsafeCocoaAction.isEnabled.value).toEventually(beTruthy())
 		}
 
 		#if os(OSX)
@@ -30,14 +30,12 @@ class CocoaActionSpec: QuickSpec {
 			}
 		#endif
 
-		it("should generate KVO notifications for enabled") {
+		it("should emit changes for enabled") {
 			var values: [Bool] = []
 
 			let cocoaAction = action.unsafeCocoaAction
-			cocoaAction
-				.values(forKeyPath: #keyPath(CocoaAction.isEnabled))
-				.map { $0! as! Bool }
-				.start(Observer(value: { values.append($0) }))
+			cocoaAction.isEnabled.producer
+				.startWithValues { values.append($0) }
 
 			expect(values) == [ true ]
 
@@ -52,10 +50,8 @@ class CocoaActionSpec: QuickSpec {
 			var values: [Bool] = []
 
 			let cocoaAction = action.unsafeCocoaAction
-			cocoaAction
-				.values(forKeyPath: #keyPath(CocoaAction.isExecuting))
-				.map { $0! as! Bool }
-				.start(Observer(value: { values.append($0) }))
+			cocoaAction.isExecuting.producer
+				.startWithValues { values.append($0) }
 
 			expect(values) == [ false ]
 

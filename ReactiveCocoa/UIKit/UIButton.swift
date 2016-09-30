@@ -24,9 +24,9 @@ extension UIButton {
 				.startWithValues { [weak host] previous, next in
 					host?.removeTarget(previous, action: CocoaAction.selector, for: .touchUpInside)
 					host?.addTarget(next, action: CocoaAction.selector, for: .touchUpInside)
-			}
+				}
 
-			host.rac_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
+			host.rac_enabled <~ property.flatMap(.latest) { $0.isEnabled }
 
 			return property
 		}

@@ -25,7 +25,7 @@ extension UIBarButtonItem {
 					host?.action = CocoaAction.selector
 			}
 
-			host.rac_enabled <~ property.producer.flatMap(.latest) { $0.isEnabledProducer }
+			host.rac_enabled <~ property.flatMap(.latest) { $0.isEnabled }
 
 			return property
 		}

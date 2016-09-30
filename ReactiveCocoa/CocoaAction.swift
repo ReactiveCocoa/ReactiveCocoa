@@ -20,29 +20,16 @@ public final class CocoaAction: NSObject {
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var isEnabled: Bool = false
+	public let isEnabled: Property<Bool>
 	
 	/// Whether the action is executing.
 	///
 	/// This property will only change on the main thread, and will generate a
 	/// KVO notification for every change.
-	public private(set) var isExecuting: Bool = false
-
-	/// Creates a producer for the `enabled` state of a CocoaAction.
-	public var isEnabledProducer: SignalProducer<Bool, NoError> {
-		return values(forKeyPath: #keyPath(CocoaAction.isEnabled))
-			.map { $0 as! Bool }
-	}
-
-	/// Creates a producer for the `executing` state of a CocoaAction.
-	public var isExecutingProducer: SignalProducer<Bool, NoError> {
-		return values(forKeyPath: #keyPath(CocoaAction.isExecuting))
-			.map { $0 as! Bool }
-	}
+	public let isExecuting: Property<Bool>
 
 	private let _execute: (AnyObject?) -> Void
-	private let disposable = CompositeDisposable()
-	
+
 	/// Initializes a Cocoa action that will invoke the given Action by
 	/// transforming the object given to execute().
 	///
@@ -61,24 +48,11 @@ public final class CocoaAction: NSObject {
 			let producer = action.apply(inputTransform(input))
 			producer.start()
 		}
+
+		isEnabled = action.isEnabled
+		isExecuting = action.isExecuting
 		
 		super.init()
-		
-		disposable += action.isEnabled.producer
-			.observe(on: UIScheduler())
-			.startWithValues { [weak self] value in
-				self?.willChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
-				self?.isEnabled = value
-				self?.didChangeValue(forKey: #keyPath(CocoaAction.isEnabled))
-		}
-		
-		disposable += action.isExecuting.producer
-			.observe(on: UIScheduler())
-			.startWithValues { [weak self] value in
-				self?.willChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
-				self?.isExecuting = value
-				self?.didChangeValue(forKey: #keyPath(CocoaAction.isExecuting))
-		}
 	}
 	
 	/// Initializes a Cocoa action that will invoke the given Action by always
@@ -90,11 +64,7 @@ public final class CocoaAction: NSObject {
 	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
 		self.init(action, { _ in input })
 	}
-	
-	deinit {
-		disposable.dispose()
-	}
-	
+
 	/// Attempts to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
 	///
@@ -102,10 +72,6 @@ public final class CocoaAction: NSObject {
 	///   - input: A value for the action passed during initialization.
 	@IBAction public func execute(_ input: AnyObject?) {
 		_execute(input)
-	}
-	
-	public override class func automaticallyNotifiesObservers(forKey key: String) -> Bool {
-		return false
 	}
 }
 

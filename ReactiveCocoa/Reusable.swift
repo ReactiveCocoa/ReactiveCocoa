@@ -39,7 +39,7 @@ extension Reusable where Self: NSObject {
 	///         .takeUntil(self.rac_prepareForReuse)
 	/// ```
 	///
-	public var rac_prepareForReuse: Signal<Void, NoError> {
+	public var rac_prepareForReuse: Signal<(), NoError> {
 		return trigger(for: #selector(prepareForReuse))
 	}
 }

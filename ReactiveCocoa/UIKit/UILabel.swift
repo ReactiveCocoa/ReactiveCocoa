@@ -9,19 +9,19 @@
 import ReactiveSwift
 import UIKit
 
-extension UILabel {
+extension Reactivity where Reactant: UILabel {
 	/// Wraps a label's `text` value in a bindable property.
-	public var rac_text: BindingTarget<String?> {
+	public var text: BindingTarget<String?> {
 		return bindingTarget { $0.text = $1 }
 	}
 
 	/// Wraps a label's `attributedText` value in a bindable property.
-	public var rac_attributedText: BindingTarget<NSAttributedString?> {
+	public var attributedText: BindingTarget<NSAttributedString?> {
 		return bindingTarget { $0.attributedText = $1 }
 	}
 
 	/// Wraps a label's `textColor` value in a bindable property.
-	public var rac_textColor: BindingTarget<UIColor> {
+	public var textColor: BindingTarget<UIColor> {
 		return bindingTarget { $0.textColor = $1 }
 	}
 }

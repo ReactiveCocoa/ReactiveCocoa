@@ -25,7 +25,7 @@ class UIViewTests: XCTestCase {
         let view = UIView(frame: CGRect.zero)
         _view = view
         
-        view.rac_alpha <~ SignalProducer(value: 0.5)
+        view.rac.alpha <~ SignalProducer(value: 0.5)
         XCTAssertEqualWithAccuracy(_view!.alpha, 0.5, accuracy: 0.01)
     }
     
@@ -33,7 +33,7 @@ class UIViewTests: XCTestCase {
         let view = UIView(frame: CGRect.zero)
         _view = view
         
-        view.rac_hidden <~ SignalProducer(value: true)
+        view.rac.isHidden <~ SignalProducer(value: true)
         XCTAssert(_view?.isHidden == true)
     }
     
@@ -42,7 +42,7 @@ class UIViewTests: XCTestCase {
         view.isHidden = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        view.rac_hidden <~ SignalProducer(signal: pipeSignal)
+        view.rac.isHidden <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(view.isHidden)
@@ -58,7 +58,7 @@ class UIViewTests: XCTestCase {
         let secondChange = CGFloat(0.7)
         
         let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
-        view.rac_alpha <~ SignalProducer(signal: pipeSignal)
+        view.rac.alpha <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: firstChange)
         XCTAssertEqualWithAccuracy(view.alpha, firstChange, accuracy: 0.01)
@@ -71,7 +71,7 @@ class UIViewTests: XCTestCase {
         view.isUserInteractionEnabled = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        view.rac_userInteractionEnabled <~ SignalProducer(signal: pipeSignal)
+        view.rac.isUserInteractionEnabled <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(view.isUserInteractionEnabled)

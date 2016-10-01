@@ -9,9 +9,9 @@
 import ReactiveSwift
 import UIKit
 
-extension UIDatePicker {
+extension Reactivity where Reactant: UIDatePicker {
 	// Wraps a datePicker's `date` value in a bindable property.
-	public var rac_date: MutableProperty<Date> {
-		return UIControl.rac_value(self, getter: { $0.date }, setter: { $0.date = $1 })
+	public var date: MutableProperty<Date> {
+		return value(getter: { $0.date }, setter: { $0.date = $1 })
 	}
 }

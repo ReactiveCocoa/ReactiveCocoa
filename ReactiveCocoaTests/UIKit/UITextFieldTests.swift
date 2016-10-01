@@ -20,7 +20,7 @@ class UITextFieldTests: XCTestCase {
         let textField = UITextField(frame: CGRect.zero)
         textField.text = "Test"
         
-        textField.rac_text.signal.observeValues { text in
+        textField.rac.text.signal.observeValues { text in
             XCTAssertEqual(text, textField.text)
             expectation.fulfill()
         }

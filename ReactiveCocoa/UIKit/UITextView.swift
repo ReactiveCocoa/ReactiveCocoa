@@ -10,11 +10,11 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
-extension UITextView {
+extension Reactivity where Reactant: UITextView {
 	/// Sends the textView's string value whenever it changes.
-	public var rac_text: SignalProducer<String, NoError> {
+	public var text: SignalProducer<String, NoError> {
 		return NotificationCenter.default
-			.rac_notifications(forName: .UITextViewTextDidChange, object: self)
+			.rac_notifications(forName: .UITextViewTextDidChange, object: reactant)
 			.map { ($0.object as? UITextView)?.text }
 			.skipNil()
 	}

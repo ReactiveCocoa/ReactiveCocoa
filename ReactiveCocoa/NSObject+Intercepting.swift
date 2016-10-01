@@ -34,7 +34,7 @@ extension NSObject {
 		let isSuccessful = RACRegisterBlockForSelector(self, selector, nil, action)
 		assert(isSuccessful)
 
-		rac_lifetime.ended.observeCompleted(observer.sendCompleted)
+		rac.lifetime.ended.observeCompleted(observer.sendCompleted)
 		map.setObject(signal, forKey: selectorName)
 
 		return signal

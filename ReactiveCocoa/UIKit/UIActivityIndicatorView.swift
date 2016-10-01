@@ -9,12 +9,12 @@
 import ReactiveSwift
 import UIKit
 
-extension UIActivityIndicatorView {
+extension Reactivity where Reactant: UIActivityIndicatorView {
 
 	/// Wraps an indicator's `isAnimating()` state in a bindable property.
 	/// Setting a new value to the property would call `startAnimating()` or
 	/// `stopAnimating()` depending on the value.
-	public var rac_animating: BindingTarget<Bool> {
+	public var isAnimating: BindingTarget<Bool> {
 		return bindingTarget { _self, isAnimating in
 			if isAnimating {
 				_self.startAnimating()

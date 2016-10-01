@@ -9,9 +9,9 @@
 import ReactiveSwift
 import UIKit
 
-extension UIBarItem {
+extension Reactivity where Reactant: UIBarItem {
 	/// Wraps a UIBarItem's `enabled` state in a bindable property.
-	public var rac_enabled: BindingTarget<Bool> {
+	public var isEnabled: BindingTarget<Bool> {
 		return bindingTarget { $0.isEnabled = $1 }
 	}
 }

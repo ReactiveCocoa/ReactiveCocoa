@@ -21,7 +21,7 @@ extension NSObject {
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.rac_lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += self.rac.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
 }
@@ -136,7 +136,7 @@ extension KeyValueObserver {
 				headSerialDisposable.innerDisposable = headDisposable
 
 				if shouldObserveDeinit {
-					let disposable = value.rac_lifetime.ended.observeCompleted {
+					let disposable = value.rac.lifetime.ended.observeCompleted {
 						action(nil)
 					}
 					headDisposable += disposable
@@ -162,7 +162,7 @@ extension KeyValueObserver {
 				}
 
 				if shouldObserveDeinit {
-					let disposable = value.rac_lifetime.ended.observeCompleted {
+					let disposable = value.rac.lifetime.ended.observeCompleted {
 						action(nil)
 					}
 					headSerialDisposable.innerDisposable = disposable

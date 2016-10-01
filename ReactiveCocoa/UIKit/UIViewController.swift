@@ -10,29 +10,29 @@ import ReactiveSwift
 import Result
 import UIKit
 
-extension UIViewController {
+extension Reactivity where Reactant: UIViewController {
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidDisappear` is called
-	public var rac_viewDidDisappear: Signal<(), NoError> {
-		return trigger(for: #selector(UIViewController.viewDidDisappear(_:)))
+	public var viewDidDisappear: Signal<(), NoError> {
+		return reactant.trigger(for: #selector(UIViewController.viewDidDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillDisappear` is called
-	public var rac_viewWillDisappear: Signal<(), NoError> {
-		return trigger(for: #selector(UIViewController.viewWillDisappear(_:)))
+	public var viewWillDisappear: Signal<(), NoError> {
+		return reactant.trigger(for: #selector(UIViewController.viewWillDisappear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewDidAppear` is called
-	public var rac_viewDidAppear: Signal<(), NoError> {
-		return trigger(for: #selector(UIViewController.viewDidAppear(_:)))
+	public var viewDidAppear: Signal<(), NoError> {
+		return reactant.trigger(for: #selector(UIViewController.viewDidAppear(_:)))
 	}
 
 	/// Returns a `Signal`, that will be triggered
 	/// when `self`'s `viewWillAppear` is called
-	public var rac_viewWillAppear: Signal<(), NoError> {
-		return trigger(for: #selector(UIViewController.viewWillAppear(_:)))
+	public var viewWillAppear: Signal<(), NoError> {
+		return reactant.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
 	}
 
 	public typealias DismissingCompletion = ((Void) -> Void)?
@@ -44,11 +44,11 @@ extension UIViewController {
 	/// E.g:
 	/// ```
 	/// //Dismissed with animation (`true`) and `nil` completion
-	/// viewController.rac_dismissAnimated <~ aProducer.map { _ in (true, nil) }
+	/// viewController.dismissAnimated <~ aProducer.map { _ in (true, nil) }
 	/// ```
 	/// The dismissal observation can be made either with binding (example above)
 	/// or `viewController.dismissViewControllerAnimated(true, completion: nil)`
-	public var rac_dismissAnimated: BindingTarget<DismissingInformation> {
+	public var dismissAnimated: BindingTarget<DismissingInformation> {
 		/// TODO: Convert into `Action`?
 		return bindingTarget { $0.dismiss(animated: $1.animated, completion: $1.completion) }
 	}

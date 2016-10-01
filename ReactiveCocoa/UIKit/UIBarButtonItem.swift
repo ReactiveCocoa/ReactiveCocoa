@@ -9,13 +9,13 @@
 import ReactiveSwift
 import UIKit
 
-extension UIBarButtonItem {
+extension Reactivity where Reactant: UIBarButtonItem {
 	/// Exposes a property that binds an action to bar button item. The action is set as
 	/// a target of the button. When property changes occur the previous action is
-	/// overwritten. This also binds the enabled state of the action to the `rac_enabled`
+	/// overwritten. This also binds the enabled state of the action to the `enabled`
 	/// property on the button.
-	public var rac_action: MutableProperty<CocoaAction> {
-		return associatedObject(self, key: &actionKey) { host in
+	public var action: MutableProperty<CocoaAction> {
+		return associatedObject(reactant, key: &actionKey) { host in
 			let initial = CocoaAction.disabled
 			let property = MutableProperty(initial)
 
@@ -25,7 +25,7 @@ extension UIBarButtonItem {
 					host?.action = CocoaAction.selector
 			}
 
-			host.rac_enabled <~ property.flatMap(.latest) { $0.isEnabled }
+			host.rac.isEnabled <~ property.flatMap(.latest) { $0.isEnabled }
 
 			return property
 		}

@@ -18,7 +18,7 @@ class UISwitchTests: XCTestCase {
         `switch`.isOn = false
 
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        `switch`.rac_on <~ SignalProducer(signal: pipeSignal)
+        `switch`.rac.isOn <~ SignalProducer(signal: pipeSignal)
 
         observer.send(value: true)
         XCTAssertTrue(`switch`.isOn)
@@ -27,6 +27,6 @@ class UISwitchTests: XCTestCase {
 
         `switch`.isOn = true
         `switch`.sendActions(for: .valueChanged)
-        XCTAssertTrue(`switch`.rac_on.value)
+        XCTAssertTrue(`switch`.rac.isOn.value)
     }
 }

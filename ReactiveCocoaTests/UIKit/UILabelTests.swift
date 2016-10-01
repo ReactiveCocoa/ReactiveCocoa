@@ -25,7 +25,7 @@ class UILabelTests: XCTestCase {
         let label = UILabel(frame: CGRect.zero)
         _label = label
 
-        label.rac_text <~ SignalProducer(value: "Test")
+        label.rac.text <~ SignalProducer(value: "Test")
         XCTAssert(_label?.text == "Test")
     }
     
@@ -37,7 +37,7 @@ class UILabelTests: XCTestCase {
         label.text = ""
         
         let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-        label.rac_text <~ SignalProducer(signal: pipeSignal)
+        label.rac.text <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: firstChange)
         XCTAssertEqual(label.text, firstChange)
@@ -51,7 +51,7 @@ class UILabelTests: XCTestCase {
         let label = UILabel(frame: CGRect.zero)
         _label = label
         
-        label.rac_attributedText <~ SignalProducer(value: NSAttributedString(string: "Test"))
+        label.rac.attributedText <~ SignalProducer(value: NSAttributedString(string: "Test"))
         XCTAssert(_label?.attributedText?.string == "Test")
     }
     
@@ -63,7 +63,7 @@ class UILabelTests: XCTestCase {
         label.attributedText = NSAttributedString(string: "")
         
         let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-        label.rac_attributedText <~ SignalProducer(signal: pipeSignal)
+        label.rac.attributedText <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: firstChange)
         XCTAssertEqual(label.attributedText, firstChange)
@@ -79,7 +79,7 @@ class UILabelTests: XCTestCase {
 
         let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
         label.textColor = UIColor.black
-        label.rac_textColor <~ SignalProducer(signal: pipeSignal)
+        label.rac.textColor <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: firstChange)
         XCTAssertEqual(label.textColor, firstChange)

@@ -10,29 +10,29 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
-private class UnsafeControlReceiver: NSObject {
-	private let observer: Observer<(), NoError>
+private class UnsafeControlReceiver<Control: UIControl>: NSObject {
+	private let observer: Observer<Control, NoError>
 
-	fileprivate init(observer: Observer<(), NoError>) {
+	fileprivate init(observer: Observer<Control, NoError>) {
 		self.observer = observer
 	}
 
-	@objc fileprivate func sendNext() {
-		observer.send(value: ())
+	@objc fileprivate func sendNext(_ receiver: Any?) {
+		observer.send(value: receiver as! Control)
 	}
 }
 
-extension UIControl {
-	public func trigger(for events: UIControlEvents) -> Signal<(), NoError> {
+extension Reactivity where Reactant: UIControl {
+	public func trigger(for events: UIControlEvents) -> Signal<Reactant, NoError> {
 		return Signal { observer in
 			let receiver = UnsafeControlReceiver(observer: observer)
-			addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+			reactant.addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
 
-			let disposable = rac_lifetime.ended.observeCompleted(observer.sendCompleted)
+			let disposable = reactant.rac.lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return ActionDisposable { [weak self] in
+			return ActionDisposable { [weak reactant] in
 				disposable?.dispose()
-				self?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+				reactant?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
 			}
 		}
 	}
@@ -43,27 +43,25 @@ extension UIControl {
 	/// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged`
 	/// events to detect changes and keep the value up-to-date.
 	//
-	class func rac_value<Host: UIControl, T>(_ host: Host, getter: @escaping (Host) -> T, setter: @escaping (Host, T) -> ()) -> MutableProperty<T> {
-		return associatedProperty(host, key: &valueChangedKey, initial: getter, setter: setter) { property in
-			property <~
-				host.trigger(for: [.valueChanged, .editingChanged])
-					.map { [unowned host] in getter(host) }
+	internal func value<T>(getter: @escaping (Reactant) -> T, setter: @escaping (Reactant, T) -> ()) -> MutableProperty<T> {
+		return associatedProperty(reactant, key: &valueChangedKey, initial: getter, setter: setter) { property in
+			property <~ self.trigger(for: [.valueChanged, .editingChanged]).map(getter)
 		}
 	}
 	#endif
 
 	/// Wraps a control's `enabled` state in a bindable property.
-	public var rac_enabled: BindingTarget<Bool> {
+	public var isEnabled: BindingTarget<Bool> {
 		return bindingTarget { $0.isEnabled = $1 }
 	}
 
 	/// Wraps a control's `selected` state in a bindable property.
-	public var rac_selected: BindingTarget<Bool> {
+	public var isSelected: BindingTarget<Bool> {
 		return bindingTarget { $0.isSelected = $1 }
 	}
 
 	/// Wraps a control's `highlighted` state in a bindable property.
-	public var rac_highlighted: BindingTarget<Bool> {
+	public var isHighlighted: BindingTarget<Bool> {
 		return bindingTarget { $0.isHighlighted = $1 }
 	}
 }

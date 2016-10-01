@@ -9,20 +9,20 @@
 import ReactiveSwift
 import UIKit
 
-extension UIView {
+extension Reactivity where Reactant: UIView {
 	/// Wraps a view's `alpha` value in a bindable property.
-	public var rac_alpha: BindingTarget<CGFloat> {
+	public var alpha: BindingTarget<CGFloat> {
 		return bindingTarget { $0.alpha = $1 }
 	}
 
 	/// Wraps a view's `hidden` state in a bindable property.
-	public var rac_hidden: BindingTarget<Bool> {
+	public var isHidden: BindingTarget<Bool> {
 		return bindingTarget { $0.isHidden = $1 }
 	}
 
 
 	/// Wraps a view's `userInteractionEnabled` state in a bindable property.
-	public var rac_userInteractionEnabled: BindingTarget<Bool> {
+	public var isUserInteractionEnabled: BindingTarget<Bool> {
 		return bindingTarget { $0.isUserInteractionEnabled = $1 }
 	}
 }

@@ -9,14 +9,14 @@
 import ReactiveSwift
 import UIKit
 
-extension UIImageView {
+extension Reactivity where Reactant: UIImageView {
 	/// Wraps a imageView's `image` value in a bindable property.
-	public var rac_image: BindingTarget<UIImage?> {
+	public var image: BindingTarget<UIImage?> {
 		return bindingTarget { $0.image = $1 }
 	}
 
 	/// Wraps a imageView's `highlightedImage` value in a bindable property.
-	public var rac_highlightedImage: BindingTarget<UIImage?> {
+	public var highlightedImage: BindingTarget<UIImage?> {
 		return bindingTarget { $0.highlightedImage = $1 }
 	}
 }

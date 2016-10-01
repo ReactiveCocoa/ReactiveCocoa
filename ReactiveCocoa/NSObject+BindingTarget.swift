@@ -1,29 +1,23 @@
 import Foundation
 import ReactiveSwift
 
-internal protocol NSObjectBindingTargetProtocol: class {
-	var rac_lifetime: Lifetime { get }
-}
-
-extension NSObjectBindingTargetProtocol {
-	/// Creates a binding target which uses the lifetime of `self`, and weakly
-	/// references `self` so that the supplied `action` is triggered only if
-	/// `self` has not deinitialized.
+extension Reactivity where Reactant: NSObject {
+	/// Creates a binding target which uses the lifetime of `reactant`, and weakly
+	/// references `reactant` so that the supplied `action` is triggered only if
+	/// `reactant` has not deinitialized.
 	///
-	/// - important: The resulting binding target is bound to the main queue.
+	/// - important: The binding target is bound to the main queue.
 	///
 	/// - parameters:
 	///   - action: The action to consume values from the bindings.
 	///
 	/// - returns:
-	///   A binding target that holds no strong references to `self`.
-	internal func bindingTarget<U>(action: @escaping (Self, U) -> Void) -> BindingTarget<U> {
-		return BindingTarget(on: .main, lifetime: rac_lifetime) { [weak self] value in
-			if let strongSelf = self {
-				action(strongSelf, value)
+	///   A binding target that holds no strong references to `reactant`.
+	internal func bindingTarget<U>(action: @escaping (Reactant, U) -> Void) -> BindingTarget<U> {
+		return BindingTarget(on: .main, lifetime: reactant.rac.lifetime) { [weak reactant] value in
+			if let reactant = reactant {
+				action(reactant, value)
 			}
 		}
 	}
 }
-
-extension NSObject: NSObjectBindingTargetProtocol {}

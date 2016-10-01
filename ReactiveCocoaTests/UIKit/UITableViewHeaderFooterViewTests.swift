@@ -17,10 +17,10 @@ class UITableViewHeaderFooterViewTests: XCTestCase {
 
         let header = UITableViewHeaderFooterView()
 
-        header.rac_hidden <~
+        header.rac.isHidden <~
             hiddenProperty
                 .producer
-                .take(until: header.rac_prepareForReuse)
+                .take(until: header.rac.prepareForReuse)
 
         XCTAssertFalse(header.isHidden)
 

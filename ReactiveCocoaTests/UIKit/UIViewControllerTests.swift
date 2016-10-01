@@ -29,7 +29,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_viewDidDisappear.observeValues {
+        viewController.rac.viewDidDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -44,7 +44,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_viewWillDisappear.observeValues {
+        viewController.rac.viewWillDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -59,7 +59,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_viewDidAppear.observeValues {
+        viewController.rac.viewDidAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -74,7 +74,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac_viewWillAppear.observeValues {
+        viewController.rac.viewWillAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -96,7 +96,7 @@ class UIViewControllerTests: XCTestCase {
             expectation.fulfill()
         }
                 
-        viewController.rac_dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
+        viewController.rac.dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
     }
     
     func testDismissViewController_via_cocoaDismiss() {

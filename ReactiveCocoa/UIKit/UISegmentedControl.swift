@@ -9,12 +9,15 @@
 import ReactiveSwift
 import UIKit
 
-extension UISegmentedControl {
+extension Reactivity where Reactant: UISegmentedControl {
 	/// Wraps a segmentedControls `selectedSegmentIndex` state in a bindable property.
-	public var rac_selectedSegmentIndex: MutableProperty<Int> {
-		let property = associatedProperty(self, key: &selectedSegmentIndexKey, initial: { $0.selectedSegmentIndex }, setter: { $0.selectedSegmentIndex = $1 })
-		property <~ trigger(for: .valueChanged)
-			.map { [unowned self] in self.selectedSegmentIndex }
+	public var selectedSegmentIndex: MutableProperty<Int> {
+		let property = associatedProperty(reactant,
+		                                  key: &selectedSegmentIndexKey,
+		                                  initial: { $0.selectedSegmentIndex },
+		                                  setter: { $0.selectedSegmentIndex = $1 })
+
+		property <~ trigger(for: .valueChanged).map { $0.selectedSegmentIndex }
 		return property
 	}
 }

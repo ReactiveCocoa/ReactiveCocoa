@@ -17,10 +17,10 @@ class UICollectionReusableViewTests: XCTestCase {
 
         let cell = UICollectionViewCell()
 
-        cell.rac_hidden <~
+        cell.rac.isHidden <~
             hiddenProperty
                 .producer
-                .take(until: cell.rac_prepareForReuse)
+                .take(until: cell.rac.prepareForReuse)
 
         XCTAssertFalse(cell.isHidden)
 

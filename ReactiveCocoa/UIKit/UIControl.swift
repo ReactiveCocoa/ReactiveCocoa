@@ -52,17 +52,17 @@ extension Reactivity where Reactant: UIControl {
 
 	/// Wraps a control's `enabled` state in a bindable property.
 	public var isEnabled: BindingTarget<Bool> {
-		return bindingTarget { $0.isEnabled = $1 }
+		return makeBindingTarget { $0.isEnabled = $1 }
 	}
 
 	/// Wraps a control's `selected` state in a bindable property.
 	public var isSelected: BindingTarget<Bool> {
-		return bindingTarget { $0.isSelected = $1 }
+		return makeBindingTarget { $0.isSelected = $1 }
 	}
 
 	/// Wraps a control's `highlighted` state in a bindable property.
 	public var isHighlighted: BindingTarget<Bool> {
-		return bindingTarget { $0.isHighlighted = $1 }
+		return makeBindingTarget { $0.isHighlighted = $1 }
 	}
 }
 

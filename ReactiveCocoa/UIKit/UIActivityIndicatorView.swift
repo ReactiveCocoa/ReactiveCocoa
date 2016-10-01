@@ -15,7 +15,7 @@ extension Reactivity where Reactant: UIActivityIndicatorView {
 	/// Setting a new value to the property would call `startAnimating()` or
 	/// `stopAnimating()` depending on the value.
 	public var isAnimating: BindingTarget<Bool> {
-		return bindingTarget { _self, isAnimating in
+		return makeBindingTarget { _self, isAnimating in
 			if isAnimating {
 				_self.startAnimating()
 			} else {

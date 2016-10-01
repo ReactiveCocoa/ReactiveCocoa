@@ -12,16 +12,16 @@ import UIKit
 extension Reactivity where Reactant: UILabel {
 	/// Wraps a label's `text` value in a bindable property.
 	public var text: BindingTarget<String?> {
-		return bindingTarget { $0.text = $1 }
+		return makeBindingTarget { $0.text = $1 }
 	}
 
 	/// Wraps a label's `attributedText` value in a bindable property.
 	public var attributedText: BindingTarget<NSAttributedString?> {
-		return bindingTarget { $0.attributedText = $1 }
+		return makeBindingTarget { $0.attributedText = $1 }
 	}
 
 	/// Wraps a label's `textColor` value in a bindable property.
 	public var textColor: BindingTarget<UIColor> {
-		return bindingTarget { $0.textColor = $1 }
+		return makeBindingTarget { $0.textColor = $1 }
 	}
 }

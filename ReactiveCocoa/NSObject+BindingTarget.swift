@@ -13,7 +13,7 @@ extension Reactivity where Reactant: NSObject {
 	///
 	/// - returns:
 	///   A binding target that holds no strong references to `reactant`.
-	internal func bindingTarget<U>(action: @escaping (Reactant, U) -> Void) -> BindingTarget<U> {
+	internal func makeBindingTarget<U>(action: @escaping (Reactant, U) -> Void) -> BindingTarget<U> {
 		return BindingTarget(on: .main, lifetime: reactant.rac.lifetime) { [weak reactant] value in
 			if let reactant = reactant {
 				action(reactant, value)

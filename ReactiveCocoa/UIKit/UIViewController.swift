@@ -50,7 +50,7 @@ extension Reactivity where Reactant: UIViewController {
 	/// or `viewController.dismissViewControllerAnimated(true, completion: nil)`
 	public var dismissAnimated: BindingTarget<DismissingInformation> {
 		/// TODO: Convert into `Action`?
-		return bindingTarget { $0.dismiss(animated: $1.animated, completion: $1.completion) }
+		return makeBindingTarget { $0.dismiss(animated: $1.animated, completion: $1.completion) }
 	}
 }
 

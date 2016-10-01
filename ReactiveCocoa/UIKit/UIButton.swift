@@ -35,7 +35,7 @@ extension Reactivity where Reactant: UIButton {
 	/// Wraps a button's `title` text in a bindable property. Note that this only applies
 	/// to `UIControlState.Normal`.
 	public var title: BindingTarget<String> {
-		return bindingTarget { $0.setTitle($1, for: .normal) }
+		return makeBindingTarget { $0.setTitle($1, for: .normal) }
 	}
 }
 

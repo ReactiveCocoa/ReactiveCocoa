@@ -12,6 +12,6 @@ import UIKit
 extension Reactivity where Reactant: UIProgressView {
 	/// Wraps a progressView's `progress` value in a bindable property.
 	public var progress: BindingTarget<Float> {
-		return bindingTarget { $0.progress = $1 }
+		return makeBindingTarget { $0.progress = $1 }
 	}
 }

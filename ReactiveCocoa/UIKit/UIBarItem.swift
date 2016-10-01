@@ -12,6 +12,6 @@ import UIKit
 extension Reactivity where Reactant: UIBarItem {
 	/// Wraps a UIBarItem's `enabled` state in a bindable property.
 	public var isEnabled: BindingTarget<Bool> {
-		return bindingTarget { $0.isEnabled = $1 }
+		return makeBindingTarget { $0.isEnabled = $1 }
 	}
 }

@@ -60,6 +60,19 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	}()
 
 	/// Initializes a property that will observe and set the given key path of
+	/// the given object, where `Value` is a reference type that can be
+	/// represented directly in Objective-C via `AnyObject`.
+	///
+	/// - important: `object` must support weak references!
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: Key path to observe on the object.
+	public convenience init(object: NSObject?, keyPath: String) {
+		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
+	}
+
+	/// Initializes a property that will observe and set the given key path of
 	/// the given object, using the supplied representation.
 	///
 	/// - important: `object` must support weak references!
@@ -103,23 +116,8 @@ extension DynamicProperty where Value: _ObjectiveCBridgeable {
 	}
 }
 
-extension DynamicProperty where Value: AnyObject {
-	/// Initializes a property that will observe and set the given key path of
-	/// the given object, where `Value` is a reference type that can be
-	/// represented directly in Objective-C via `AnyObject`.
-	///
-	/// - important: `object` must support weak references!
-	///
-	/// - parameters:
-	///   - object: An object to be observed.
-	///   - keyPath: Key path to observe on the object.
-	public convenience init(object: NSObject?, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
-	}
-}
-
 /// Represents values in Objective-C directly, via `AnyObject`.
-private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
+private struct DirectRepresentation<Value>: ObjectiveCRepresentable {
 	static func extract(from representation: Any) -> Value {
 		return representation as! Value
 	}

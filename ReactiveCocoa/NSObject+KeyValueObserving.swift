@@ -13,7 +13,7 @@ extension NSObject {
 	///
 	/// - returns:
 	///   A producer emitting values of the property specified by the key path.
-	public func values(forKeyPath keyPath: String) -> SignalProducer<AnyObject?, NoError> {
+	public func values(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
 		return SignalProducer { observer, disposable in
 			disposable += KeyValueObserver.observe(
 				self,

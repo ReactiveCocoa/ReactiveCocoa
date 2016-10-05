@@ -49,8 +49,8 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	}()
 
 	/// Initializes a property that will observe and set the given key path of
-	/// the given object, where `Value` is a reference type that can be
-	/// represented directly in Objective-C via `AnyObject`.
+	/// the given object. The generic type `Value` can be any Swift type, and will
+	/// be bridged to Objective-C via `Any`.
 	///
 	/// - important: `object` must support weak references!
 	///

@@ -2,14 +2,6 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-/// Models types that can be represented in Objective-C (i.e., reference
-/// types, including generic types when boxed via `AnyObject`).
-private protocol ObjectiveCRepresentable {
-	associatedtype Value
-	static func extract(from representation: Any) -> Value
-	static func represent(_ value: Value) -> Any
-}
-
 /// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
 /// Coding and Key-Value Observing.
 ///
@@ -20,20 +12,17 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private let extractValue: (_ from: Any) -> Value
-	private let represent: (Value) -> Any
-
 	private var property: MutableProperty<Value?>?
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: Value? {
 		get {
-			return object?.value(forKeyPath: keyPath).map(extractValue)
+			return object?.value(forKeyPath: keyPath) as! Value
 		}
 
 		set(newValue) {
-			object?.setValue(newValue.map(represent), forKeyPath: keyPath)
+			object?.setValue(newValue, forKeyPath: keyPath)
 		}
 	}
 
@@ -50,7 +39,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
 		return (object.map { $0.reactive.values(forKeyPath: keyPath) } ?? .empty)
-			.map { [extractValue = self.extractValue] in $0.map(extractValue) }
+			.map { $0 as! Value }
 	}
 
 	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
@@ -60,85 +49,20 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	}()
 
 	/// Initializes a property that will observe and set the given key path of
-	/// the given object, using the supplied representation.
+	/// the given object. The generic type `Value` can be any Swift type, and will
+	/// be bridged to Objective-C via `Any`.
 	///
 	/// - important: `object` must support weak references!
 	///
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	///   - representable: A representation that bridges the values across the
-	///                    language boundary.
-	fileprivate init<Representatable: ObjectiveCRepresentable>(
-		object: NSObject?,
-		keyPath: String,
-		representable: Representatable.Type
-	)
-		where Representatable.Value == Value
-	{
+	public init(object: NSObject?, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-
-		self.extractValue = Representatable.extract(from:)
-		self.represent = Representatable.represent
 
 		/// A DynamicProperty will stay alive as long as its object is alive.
 		/// This is made possible by strong reference cycles.
 		_ = object?.reactive.lifetime.ended.observeCompleted { _ = self }
-	}
-}
-
-extension DynamicProperty where Value: _ObjectiveCBridgeable {
-	/// Initializes a property that will observe and set the given key path of
-	/// the given object, where `Value` is a value type that is bridgeable
-	/// to Objective-C.
-	///
-	/// - important: `object` must support weak references!
-	///
-	/// - parameters:
-	///   - object: An object to be observed.
-	///   - keyPath: Key path to observe on the object.
-	public convenience init(object: NSObject?, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representable: BridgeableRepresentation.self)
-	}
-}
-
-extension DynamicProperty where Value: AnyObject {
-	/// Initializes a property that will observe and set the given key path of
-	/// the given object, where `Value` is a reference type that can be
-	/// represented directly in Objective-C via `AnyObject`.
-	///
-	/// - important: `object` must support weak references!
-	///
-	/// - parameters:
-	///   - object: An object to be observed.
-	///   - keyPath: Key path to observe on the object.
-	public convenience init(object: NSObject?, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, representable: DirectRepresentation.self)
-	}
-}
-
-/// Represents values in Objective-C directly, via `AnyObject`.
-private struct DirectRepresentation<Value: AnyObject>: ObjectiveCRepresentable {
-	static func extract(from representation: Any) -> Value {
-		return representation as! Value
-	}
-
-	static func represent(_ value: Value) -> Any {
-		return value
-	}
-}
-
-/// Represents values in Objective-C indirectly, via bridging.
-private struct BridgeableRepresentation<Value: _ObjectiveCBridgeable>: ObjectiveCRepresentable {
-	static func extract(from representation: Any) -> Value {
-		let object = representation as! Value._ObjectiveCType
-		var result: Value?
-		Value._forceBridgeFromObjectiveC(object, result: &result)
-		return result!
-	}
-
-	static func represent(_ value: Value) -> Any {
-		return value._bridgeToObjectiveC()
 	}
 }

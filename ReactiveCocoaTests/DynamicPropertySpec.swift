@@ -180,6 +180,12 @@ class DynamicPropertySpec: QuickSpec {
 				expect(object.rac_reference.value) == "foo"
 			}
 
+			it("should support un-bridged value types") {
+				let dynamicProperty = DynamicProperty<UnbridgedValue>(object: object, keyPath: "rac_unbridged")
+				dynamicProperty.value = .changed
+				expect(object.rac_unbridged as? UnbridgedValue) == UnbridgedValue.changed
+			}
+
 			it("should expose a lifetime that ends upon the deinitialization of its underlying object") {
 				var isEnded = false
 				property!.lifetime.ended.observeCompleted {
@@ -238,6 +244,7 @@ class DynamicPropertySpec: QuickSpec {
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
 	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+	dynamic var rac_unbridged: Any = UnbridgedValue.starting
 }
 
 private class UnbridgedObject: NSObject {
@@ -245,4 +252,9 @@ private class UnbridgedObject: NSObject {
 	init(_ value: String) {
 		self.value = value
 	}
+}
+
+private enum UnbridgedValue {
+	case starting
+	case changed
 }

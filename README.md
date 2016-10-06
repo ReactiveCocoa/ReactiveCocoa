@@ -108,7 +108,7 @@ introductory examples of using it.
 [Code]: ReactiveCocoa
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md
-[Legacy Documentation]: Documentation/Legacy
+[Legacy Documentation]: https://github.com/ReactiveCocoa/ReactiveObjC/blob/master/Documentation/
 [Objective-C API]: ReactiveCocoa/Objective-C
 [Objective-C Bridging]: Documentation/ObjectiveCBridging.md
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers

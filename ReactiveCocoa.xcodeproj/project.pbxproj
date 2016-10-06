@@ -25,16 +25,11 @@
 		9A1D05E11D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
 		9A1D05E21D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
 		9A1D05E31D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
-		9A1D05E51D93E9E200ACF44C /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05E41D93E9E200ACF44C /* Reusable.swift */; };
-		9A1D05E61D93E9E200ACF44C /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05E41D93E9E200ACF44C /* Reusable.swift */; };
-		9A1D05E71D93E9E200ACF44C /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05E41D93E9E200ACF44C /* Reusable.swift */; };
-		9A1D05E81D93E9E200ACF44C /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05E41D93E9E200ACF44C /* Reusable.swift */; };
 		9A1D05FE1D93E9F900ACF44C /* NSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EA1D93E9F100ACF44C /* NSTextField.swift */; };
 		9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */; };
 		9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */; };
 		9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */; };
 		9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EF1D93E9F100ACF44C /* UIButton.swift */; };
-		9A1D06031D93EA0000ACF44C /* UICollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F01D93E9F100ACF44C /* UICollectionReusableView.swift */; };
 		9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F11D93E9F100ACF44C /* UIControl.swift */; };
 		9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */; };
 		9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F31D93E9F100ACF44C /* UIImageView.swift */; };
@@ -42,36 +37,27 @@
 		9A1D06081D93EA0000ACF44C /* UIProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */; };
 		9A1D06091D93EA0000ACF44C /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */; };
 		9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F71D93E9F100ACF44C /* UISwitch.swift */; };
-		9A1D060B1D93EA0000ACF44C /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F81D93E9F100ACF44C /* UITableViewCell.swift */; };
-		9A1D060C1D93EA0000ACF44C /* UITableViewHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F91D93E9F100ACF44C /* UITableViewHeaderFooterView.swift */; };
 		9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FA1D93E9F100ACF44C /* UITextField.swift */; };
 		9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FB1D93E9F100ACF44C /* UITextView.swift */; };
 		9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FC1D93E9F100ACF44C /* UIView.swift */; };
-		9A1D06101D93EA0000ACF44C /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FD1D93E9F100ACF44C /* UIViewController.swift */; };
 		9A1D06111D93EA0100ACF44C /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */; };
 		9A1D06121D93EA0100ACF44C /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */; };
 		9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */; };
 		9A1D06141D93EA0100ACF44C /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EF1D93E9F100ACF44C /* UIButton.swift */; };
-		9A1D06151D93EA0100ACF44C /* UICollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F01D93E9F100ACF44C /* UICollectionReusableView.swift */; };
 		9A1D06161D93EA0100ACF44C /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F11D93E9F100ACF44C /* UIControl.swift */; };
 		9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F31D93E9F100ACF44C /* UIImageView.swift */; };
 		9A1D06191D93EA0100ACF44C /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F41D93E9F100ACF44C /* UILabel.swift */; };
 		9A1D061A1D93EA0100ACF44C /* UIProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */; };
 		9A1D061B1D93EA0100ACF44C /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */; };
-		9A1D061D1D93EA0100ACF44C /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F81D93E9F100ACF44C /* UITableViewCell.swift */; };
-		9A1D061E1D93EA0100ACF44C /* UITableViewHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F91D93E9F100ACF44C /* UITableViewHeaderFooterView.swift */; };
 		9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FA1D93E9F100ACF44C /* UITextField.swift */; };
 		9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FB1D93E9F100ACF44C /* UITextView.swift */; };
 		9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FC1D93E9F100ACF44C /* UIView.swift */; };
-		9A1D06221D93EA0100ACF44C /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FD1D93E9F100ACF44C /* UIViewController.swift */; };
 		9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift */; };
 		9A1D06371D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift */; };
 		9A1D06381D93EA7E00ACF44C /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06251D93EA7E00ACF44C /* UIBarButtonItemTests.swift */; };
 		9A1D06391D93EA7E00ACF44C /* UIBarButtonItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06251D93EA7E00ACF44C /* UIBarButtonItemTests.swift */; };
 		9A1D063A1D93EA7E00ACF44C /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06261D93EA7E00ACF44C /* UIButtonTests.swift */; };
 		9A1D063B1D93EA7E00ACF44C /* UIButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06261D93EA7E00ACF44C /* UIButtonTests.swift */; };
-		9A1D063C1D93EA7E00ACF44C /* UICollectionReusableViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06271D93EA7E00ACF44C /* UICollectionReusableViewTests.swift */; };
-		9A1D063D1D93EA7E00ACF44C /* UICollectionReusableViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06271D93EA7E00ACF44C /* UICollectionReusableViewTests.swift */; };
 		9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06281D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift */; };
 		9A1D063F1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06281D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift */; };
 		9A1D06401D93EA7E00ACF44C /* UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06291D93EA7E00ACF44C /* UIControlTests.swift */; };
@@ -86,16 +72,10 @@
 		9A1D064A1D93EA7E00ACF44C /* UISegmentedControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D062E1D93EA7E00ACF44C /* UISegmentedControlTests.swift */; };
 		9A1D064B1D93EA7E00ACF44C /* UISegmentedControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D062E1D93EA7E00ACF44C /* UISegmentedControlTests.swift */; };
 		9A1D064C1D93EA7E00ACF44C /* UISwitchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D062F1D93EA7E00ACF44C /* UISwitchTests.swift */; };
-		9A1D064E1D93EA7E00ACF44C /* UITableViewCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06301D93EA7E00ACF44C /* UITableViewCellTests.swift */; };
-		9A1D064F1D93EA7E00ACF44C /* UITableViewCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06301D93EA7E00ACF44C /* UITableViewCellTests.swift */; };
-		9A1D06501D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06311D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift */; };
-		9A1D06511D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06311D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift */; };
 		9A1D06521D93EA7E00ACF44C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06321D93EA7E00ACF44C /* UITextFieldTests.swift */; };
 		9A1D06531D93EA7E00ACF44C /* UITextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06321D93EA7E00ACF44C /* UITextFieldTests.swift */; };
 		9A1D06541D93EA7E00ACF44C /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06331D93EA7E00ACF44C /* UITextViewTests.swift */; };
 		9A1D06551D93EA7E00ACF44C /* UITextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06331D93EA7E00ACF44C /* UITextViewTests.swift */; };
-		9A1D06561D93EA7E00ACF44C /* UIViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06341D93EA7E00ACF44C /* UIViewControllerTests.swift */; };
-		9A1D06571D93EA7E00ACF44C /* UIViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06341D93EA7E00ACF44C /* UIViewControllerTests.swift */; };
 		9A1D06581D93EA7E00ACF44C /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06351D93EA7E00ACF44C /* UIViewTests.swift */; };
 		9A1D06591D93EA7E00ACF44C /* UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D06351D93EA7E00ACF44C /* UIViewTests.swift */; };
 		9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
@@ -233,13 +213,11 @@
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1D05DF1D93E99100ACF44C /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
-		9A1D05E41D93E9E200ACF44C /* Reusable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reusable.swift; sourceTree = "<group>"; };
 		9A1D05EA1D93E9F100ACF44C /* NSTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSTextField.swift; sourceTree = "<group>"; };
 		9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
 		9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarItem.swift; sourceTree = "<group>"; };
 		9A1D05EF1D93E9F100ACF44C /* UIButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
-		9A1D05F01D93E9F100ACF44C /* UICollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionReusableView.swift; sourceTree = "<group>"; };
 		9A1D05F11D93E9F100ACF44C /* UIControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
 		9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDatePicker.swift; sourceTree = "<group>"; };
 		9A1D05F31D93E9F100ACF44C /* UIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageView.swift; sourceTree = "<group>"; };
@@ -247,16 +225,12 @@
 		9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIProgressView.swift; sourceTree = "<group>"; };
 		9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISegmentedControl.swift; sourceTree = "<group>"; };
 		9A1D05F71D93E9F100ACF44C /* UISwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISwitch.swift; sourceTree = "<group>"; };
-		9A1D05F81D93E9F100ACF44C /* UITableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
-		9A1D05F91D93E9F100ACF44C /* UITableViewHeaderFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewHeaderFooterView.swift; sourceTree = "<group>"; };
 		9A1D05FA1D93E9F100ACF44C /* UITextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextField.swift; sourceTree = "<group>"; };
 		9A1D05FB1D93E9F100ACF44C /* UITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		9A1D05FC1D93E9F100ACF44C /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
-		9A1D05FD1D93E9F100ACF44C /* UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorViewTests.swift; sourceTree = "<group>"; };
 		9A1D06251D93EA7E00ACF44C /* UIBarButtonItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBarButtonItemTests.swift; sourceTree = "<group>"; };
 		9A1D06261D93EA7E00ACF44C /* UIButtonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButtonTests.swift; sourceTree = "<group>"; };
-		9A1D06271D93EA7E00ACF44C /* UICollectionReusableViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionReusableViewTests.swift; sourceTree = "<group>"; };
 		9A1D06281D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIControl+EnableSendActionsForControlEvents.swift"; sourceTree = "<group>"; };
 		9A1D06291D93EA7E00ACF44C /* UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlTests.swift; sourceTree = "<group>"; };
 		9A1D062A1D93EA7E00ACF44C /* UIDatePickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDatePickerTests.swift; sourceTree = "<group>"; };
@@ -265,11 +239,8 @@
 		9A1D062D1D93EA7E00ACF44C /* UIProgressViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIProgressViewTests.swift; sourceTree = "<group>"; };
 		9A1D062E1D93EA7E00ACF44C /* UISegmentedControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISegmentedControlTests.swift; sourceTree = "<group>"; };
 		9A1D062F1D93EA7E00ACF44C /* UISwitchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISwitchTests.swift; sourceTree = "<group>"; };
-		9A1D06301D93EA7E00ACF44C /* UITableViewCellTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewCellTests.swift; sourceTree = "<group>"; };
-		9A1D06311D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewHeaderFooterViewTests.swift; sourceTree = "<group>"; };
 		9A1D06321D93EA7E00ACF44C /* UITextFieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldTests.swift; sourceTree = "<group>"; };
 		9A1D06331D93EA7E00ACF44C /* UITextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextViewTests.swift; sourceTree = "<group>"; };
-		9A1D06341D93EA7E00ACF44C /* UIViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerTests.swift; sourceTree = "<group>"; };
 		9A1D06351D93EA7E00ACF44C /* UIViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewTests.swift; sourceTree = "<group>"; };
 		9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Intercepting.swift"; sourceTree = "<group>"; };
 		9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntimeUtilities.h; sourceTree = "<group>"; };
@@ -427,7 +398,6 @@
 				9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */,
 				9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */,
 				9A1D05EF1D93E9F100ACF44C /* UIButton.swift */,
-				9A1D05F01D93E9F100ACF44C /* UICollectionReusableView.swift */,
 				9A1D05F11D93E9F100ACF44C /* UIControl.swift */,
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
@@ -435,12 +405,9 @@
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
-				9A1D05F81D93E9F100ACF44C /* UITableViewCell.swift */,
-				9A1D05F91D93E9F100ACF44C /* UITableViewHeaderFooterView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
 				9A1D05FC1D93E9F100ACF44C /* UIView.swift */,
-				9A1D05FD1D93E9F100ACF44C /* UIViewController.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -451,7 +418,6 @@
 				9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift */,
 				9A1D06251D93EA7E00ACF44C /* UIBarButtonItemTests.swift */,
 				9A1D06261D93EA7E00ACF44C /* UIButtonTests.swift */,
-				9A1D06271D93EA7E00ACF44C /* UICollectionReusableViewTests.swift */,
 				9A1D06281D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift */,
 				9A1D06291D93EA7E00ACF44C /* UIControlTests.swift */,
 				9A1D062A1D93EA7E00ACF44C /* UIDatePickerTests.swift */,
@@ -460,11 +426,8 @@
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewTests.swift */,
 				9A1D062E1D93EA7E00ACF44C /* UISegmentedControlTests.swift */,
 				9A1D062F1D93EA7E00ACF44C /* UISwitchTests.swift */,
-				9A1D06301D93EA7E00ACF44C /* UITableViewCellTests.swift */,
-				9A1D06311D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift */,
 				9A1D06321D93EA7E00ACF44C /* UITextFieldTests.swift */,
 				9A1D06331D93EA7E00ACF44C /* UITextViewTests.swift */,
-				9A1D06341D93EA7E00ACF44C /* UIViewControllerTests.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewTests.swift */,
 			);
 			path = UIKit;
@@ -535,7 +498,6 @@
 				4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */,
 				9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */,
 				9A1D05DF1D93E99100ACF44C /* Association.swift */,
-				9A1D05E41D93E9E200ACF44C /* Reusable.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
@@ -934,7 +896,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
-				9A1D05E81D93E9E200ACF44C /* Reusable.swift in Sources */,
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */,
@@ -943,19 +904,15 @@
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
 				9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9ADE4A941DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
-				9A1D061D1D93EA0100ACF44C /* UITableViewCell.swift in Sources */,
 				9A1D05E31D93E99100ACF44C /* Association.swift in Sources */,
 				9A1D06161D93EA0100ACF44C /* UIControl.swift in Sources */,
 				9A1D06141D93EA0100ACF44C /* UIButton.swift in Sources */,
-				9A1D06221D93EA0100ACF44C /* UIViewController.swift in Sources */,
 				9A1D065E1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
-				9A1D06151D93EA0100ACF44C /* UICollectionReusableView.swift in Sources */,
 				9AF0EA781D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A1D06191D93EA0100ACF44C /* UILabel.swift in Sources */,
 				4A0E11021D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A1D061A1D93EA0100ACF44C /* UIProgressView.swift in Sources */,
-				9A1D061E1D93EA0100ACF44C /* UITableViewHeaderFooterView.swift in Sources */,
 				9A1D06121D93EA0100ACF44C /* UIBarButtonItem.swift in Sources */,
 				9A1D06111D93EA0100ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D061B1D93EA0100ACF44C /* UISegmentedControl.swift in Sources */,
@@ -970,12 +927,9 @@
 				7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */,
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
-				9A1D063D1D93EA7E00ACF44C /* UICollectionReusableViewTests.swift in Sources */,
 				9A1D06451D93EA7E00ACF44C /* UIImageViewTests.swift in Sources */,
 				9A1D06551D93EA7E00ACF44C /* UITextViewTests.swift in Sources */,
 				9A1D063B1D93EA7E00ACF44C /* UIButtonTests.swift in Sources */,
-				9A1D06571D93EA7E00ACF44C /* UIViewControllerTests.swift in Sources */,
-				9A1D064F1D93EA7E00ACF44C /* UITableViewCellTests.swift in Sources */,
 				9A1D064B1D93EA7E00ACF44C /* UISegmentedControlTests.swift in Sources */,
 				9A1D063F1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				9A1D06371D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift in Sources */,
@@ -984,7 +938,6 @@
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A1D06411D93EA7E00ACF44C /* UIControlTests.swift in Sources */,
 				9A1D06491D93EA7E00ACF44C /* UIProgressViewTests.swift in Sources */,
-				9A1D06511D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				BEE020661D637B0000DF261F /* TestError.swift in Sources */,
 				9A1D06531D93EA7E00ACF44C /* UITextFieldTests.swift in Sources */,
 			);
@@ -996,7 +949,6 @@
 			files = (
 				9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9ADE4A931DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
-				9A1D05E71D93E9E200ACF44C /* Reusable.swift in Sources */,
 				9A1D065D1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				C7142DBE1CDEA194009F402D /* CocoaAction.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
@@ -1011,7 +963,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A1D05E51D93E9E200ACF44C /* Reusable.swift in Sources */,
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A1D06771D9415FF00ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
@@ -1042,7 +993,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
-				9A1D05E61D93E9E200ACF44C /* Reusable.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
@@ -1051,21 +1001,17 @@
 				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				C7142DBD1CDEA194009F402D /* CocoaAction.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
-				9A1D060B1D93EA0000ACF44C /* UITableViewCell.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
 				9A1D05E11D93E99100ACF44C /* Association.swift in Sources */,
 				9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */,
 				9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
-				9A1D06101D93EA0000ACF44C /* UIViewController.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
-				9A1D06031D93EA0000ACF44C /* UICollectionReusableView.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
 				4A0E11001D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9ADE4A921DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D06081D93EA0000ACF44C /* UIProgressView.swift in Sources */,
-				9A1D060C1D93EA0000ACF44C /* UITableViewHeaderFooterView.swift in Sources */,
 				9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */,
 				9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D06091D93EA0000ACF44C /* UISegmentedControl.swift in Sources */,
@@ -1081,12 +1027,9 @@
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,
 				9A1D064C1D93EA7E00ACF44C /* UISwitchTests.swift in Sources */,
-				9A1D063C1D93EA7E00ACF44C /* UICollectionReusableViewTests.swift in Sources */,
 				9A1D06441D93EA7E00ACF44C /* UIImageViewTests.swift in Sources */,
 				9A1D06541D93EA7E00ACF44C /* UITextViewTests.swift in Sources */,
 				9A1D063A1D93EA7E00ACF44C /* UIButtonTests.swift in Sources */,
-				9A1D06561D93EA7E00ACF44C /* UIViewControllerTests.swift in Sources */,
-				9A1D064E1D93EA7E00ACF44C /* UITableViewCellTests.swift in Sources */,
 				9A1D064A1D93EA7E00ACF44C /* UISegmentedControlTests.swift in Sources */,
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift in Sources */,
@@ -1096,7 +1039,6 @@
 				9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				9A1D06401D93EA7E00ACF44C /* UIControlTests.swift in Sources */,
 				9A1D06481D93EA7E00ACF44C /* UIProgressViewTests.swift in Sources */,
-				9A1D06501D93EA7E00ACF44C /* UITableViewHeaderFooterViewTests.swift in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A1D06521D93EA7E00ACF44C /* UITextFieldTests.swift in Sources */,
 			);

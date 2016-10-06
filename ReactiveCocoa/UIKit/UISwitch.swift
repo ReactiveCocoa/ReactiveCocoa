@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UISwitch {
+extension Reactive where Base: UISwitch {
 	/// Wraps a switch's `on` value in a bindable property.
 	public var isOn: MutableProperty<Bool> {
 		return value(getter: { $0.isOn }, setter: { $0.isOn = $1 })

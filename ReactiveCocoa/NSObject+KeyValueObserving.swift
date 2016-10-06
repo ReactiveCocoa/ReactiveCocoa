@@ -2,7 +2,7 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-extension NSObject {
+extension Reactive where Base: NSObject {
 	/// Create a producer which sends the current value and all the subsequent
 	/// changes of the property specified by the key path.
 	///
@@ -16,12 +16,12 @@ extension NSObject {
 	public func values(forKeyPath keyPath: String) -> SignalProducer<AnyObject?, NoError> {
 		return SignalProducer { observer, disposable in
 			disposable += KeyValueObserver.observe(
-				self,
+				self.base,
 				keyPath: keyPath,
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.rac.lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
 }
@@ -136,7 +136,7 @@ extension KeyValueObserver {
 				headSerialDisposable.innerDisposable = headDisposable
 
 				if shouldObserveDeinit {
-					let disposable = value.rac.lifetime.ended.observeCompleted {
+					let disposable = value.reactive.lifetime.ended.observeCompleted {
 						action(nil)
 					}
 					headDisposable += disposable
@@ -162,7 +162,7 @@ extension KeyValueObserver {
 				}
 
 				if shouldObserveDeinit {
-					let disposable = value.rac.lifetime.ended.observeCompleted {
+					let disposable = value.reactive.lifetime.ended.observeCompleted {
 						action(nil)
 					}
 					headSerialDisposable.innerDisposable = disposable

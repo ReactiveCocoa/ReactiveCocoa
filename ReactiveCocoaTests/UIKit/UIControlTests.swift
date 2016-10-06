@@ -25,7 +25,7 @@ class UIControlTests: XCTestCase {
         let control = UIControl(frame: CGRect.zero)
         _control = control
         
-        control.rac.isEnabled <~ SignalProducer(value: false)
+        control.reactive.isEnabled <~ SignalProducer(value: false)
         XCTAssert(_control?.isEnabled == false)
     }
     
@@ -33,7 +33,7 @@ class UIControlTests: XCTestCase {
         let control = UIControl(frame: CGRect.zero)
         _control = control
         
-        control.rac.isSelected <~ SignalProducer(value: true)
+        control.reactive.isSelected <~ SignalProducer(value: true)
         XCTAssert(_control?.isSelected == true)
     }
     
@@ -41,7 +41,7 @@ class UIControlTests: XCTestCase {
         let control = UIControl(frame: CGRect.zero)
         _control = control
         
-        control.rac.isHighlighted <~ SignalProducer(value: true)
+        control.reactive.isHighlighted <~ SignalProducer(value: true)
         XCTAssert(_control?.isHighlighted == true)
     }
     
@@ -50,7 +50,7 @@ class UIControlTests: XCTestCase {
         control.isEnabled = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        control.rac.isEnabled <~ SignalProducer(signal: pipeSignal)
+        control.reactive.isEnabled <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(control.isEnabled)
@@ -63,7 +63,7 @@ class UIControlTests: XCTestCase {
         control.isSelected = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        control.rac.isSelected <~ SignalProducer(signal: pipeSignal)
+        control.reactive.isSelected <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(control.isSelected)
@@ -76,7 +76,7 @@ class UIControlTests: XCTestCase {
         control.isHighlighted = false
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        control.rac.isHighlighted <~ SignalProducer(signal: pipeSignal)
+        control.reactive.isHighlighted <~ SignalProducer(signal: pipeSignal)
         
         observer.send(value: true)
         XCTAssertTrue(control.isHighlighted)
@@ -91,8 +91,8 @@ class UIControlTests: XCTestCase {
         
         let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
         let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
-        control.rac.isSelected <~ SignalProducer(signal: pipeSignalSelected)
-        control.rac.isEnabled <~ SignalProducer(signal: pipeSignalEnabled)
+        control.reactive.isSelected <~ SignalProducer(signal: pipeSignalSelected)
+        control.reactive.isEnabled <~ SignalProducer(signal: pipeSignalEnabled)
         
         observerSelected.send(value: true)
         observerEnabled.send(value: true)

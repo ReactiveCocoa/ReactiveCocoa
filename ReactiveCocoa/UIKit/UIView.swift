@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UIView {
+extension Reactive where Base: UIView {
 	/// Wraps a view's `alpha` value in a bindable property.
 	public var alpha: BindingTarget<CGFloat> {
 		return makeBindingTarget { $0.alpha = $1 }

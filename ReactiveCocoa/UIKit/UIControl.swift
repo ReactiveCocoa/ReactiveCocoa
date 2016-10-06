@@ -22,17 +22,17 @@ private class UnsafeControlReceiver<Control: UIControl>: NSObject {
 	}
 }
 
-extension Reactivity where Reactant: UIControl {
-	public func trigger(for events: UIControlEvents) -> Signal<Reactant, NoError> {
+extension Reactive where Base: UIControl {
+	public func trigger(for events: UIControlEvents) -> Signal<Base, NoError> {
 		return Signal { observer in
 			let receiver = UnsafeControlReceiver(observer: observer)
-			reactant.addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+			base.addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
 
-			let disposable = reactant.rac.lifetime.ended.observeCompleted(observer.sendCompleted)
+			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return ActionDisposable { [weak reactant] in
+			return ActionDisposable { [weak base] in
 				disposable?.dispose()
-				reactant?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+				base?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
 			}
 		}
 	}
@@ -43,8 +43,8 @@ extension Reactivity where Reactant: UIControl {
 	/// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged`
 	/// events to detect changes and keep the value up-to-date.
 	//
-	internal func value<T>(getter: @escaping (Reactant) -> T, setter: @escaping (Reactant, T) -> ()) -> MutableProperty<T> {
-		return associatedProperty(reactant, key: &valueChangedKey, initial: getter, setter: setter) { property in
+	internal func value<T>(getter: @escaping (Base) -> T, setter: @escaping (Base, T) -> ()) -> MutableProperty<T> {
+		return associatedProperty(base, key: &valueChangedKey, initial: getter, setter: setter) { property in
 			property <~ self.trigger(for: [.valueChanged, .editingChanged]).map(getter)
 		}
 	}

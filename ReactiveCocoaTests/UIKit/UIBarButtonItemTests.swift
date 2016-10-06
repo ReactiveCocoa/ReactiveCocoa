@@ -28,7 +28,7 @@ class UIBarButtonItemTests: XCTestCase {
         let action = Action<(),(),NoError> {
             SignalProducer(value: ())
         }
-        barButtonItem.rac.action <~ SignalProducer(value: CocoaAction(action, input: ()))
+        barButtonItem.reactive.action <~ SignalProducer(value: CocoaAction(action, input: ()))
      }
     
     func testEnabledProperty() {
@@ -36,7 +36,7 @@ class UIBarButtonItemTests: XCTestCase {
         barButtonItem.isEnabled = true
         
         let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-        barButtonItem.rac.isEnabled <~ SignalProducer(signal: pipeSignal)
+        barButtonItem.reactive.isEnabled <~ SignalProducer(signal: pipeSignal)
         
         
         observer.send(value: false)

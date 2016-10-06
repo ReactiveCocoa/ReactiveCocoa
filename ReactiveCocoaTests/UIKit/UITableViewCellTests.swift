@@ -21,10 +21,10 @@ class UITableViewCellTests: XCTestCase {
             fatalError()
         }
 
-        label.rac.text <~
+        label.reactive.text <~
             titleProperty
                 .producer
-                .take(until: cell.rac.prepareForReuse)
+                .take(until: cell.reactive.prepareForReuse)
 
         XCTAssertEqual(label.text, "John")
 

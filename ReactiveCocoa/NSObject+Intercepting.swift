@@ -3,7 +3,7 @@ import ReactiveSwift
 import enum Result.NoError
 import ReactiveCocoaPrivate
 
-extension NSObject {
+extension Reactive where Base: NSObject {
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
 		return signal(for: selector) { observer in
 			return { _ in observer.send(value: ()) }
@@ -31,10 +31,10 @@ extension NSObject {
 
 		let (signal, observer) = Signal<U, NoError>.pipe()
 		let action = action(observer)
-		let isSuccessful = RACRegisterBlockForSelector(self, selector, nil, action)
+		let isSuccessful = RACRegisterBlockForSelector(base, selector, nil, action)
 		assert(isSuccessful)
 
-		rac.lifetime.ended.observeCompleted(observer.sendCompleted)
+		lifetime.ended.observeCompleted(observer.sendCompleted)
 		map.setObject(signal, forKey: selectorName)
 
 		return signal

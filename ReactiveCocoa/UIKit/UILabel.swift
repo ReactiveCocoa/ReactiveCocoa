@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UILabel {
+extension Reactive where Base: UILabel {
 	/// Wraps a label's `text` value in a bindable property.
 	public var text: BindingTarget<String?> {
 		return makeBindingTarget { $0.text = $1 }

@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UIImageView {
+extension Reactive where Base: UIImageView {
 	/// Wraps a imageView's `image` value in a bindable property.
 	public var image: BindingTarget<UIImage?> {
 		return makeBindingTarget { $0.image = $1 }

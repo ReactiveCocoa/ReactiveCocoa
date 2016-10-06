@@ -16,7 +16,7 @@ import enum Result.NoError
 	func prepareForReuse()
 }
 
-extension Reactivity where Reactant: NSObject, Reactant: Reusable {
+extension Reactive where Base: NSObject, Base: Reusable {
 	/// A signal which will send a `Next` event whenever `prepareForReuse` is invoked upon
 	/// the receiver.
 	///
@@ -40,6 +40,6 @@ extension Reactivity where Reactant: NSObject, Reactant: Reusable {
 	/// ```
 	///
 	public var prepareForReuse: Signal<(), NoError> {
-		return reactant.trigger(for: #selector(Reactant.prepareForReuse))
+		return trigger(for: #selector(Base.prepareForReuse))
 	}
 }

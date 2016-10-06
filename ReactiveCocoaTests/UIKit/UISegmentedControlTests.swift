@@ -19,7 +19,7 @@ class UISegmentedControlTests: XCTestCase {
         XCTAssertEqual(s.numberOfSegments, 3)
         
         let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
-        s.rac.selectedSegmentIndex <~ SignalProducer(signal: pipeSignal)
+        s.reactive.selectedSegmentIndex <~ SignalProducer(signal: pipeSignal)
         
         XCTAssertEqual(s.selectedSegmentIndex, UISegmentedControlNoSegment)
         observer.send(value: 1)

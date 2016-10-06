@@ -10,11 +10,11 @@ import ReactiveSwift
 import AppKit
 import enum Result.NoError
 
-extension Reactivity where Reactant: NSTextField {
+extension Reactive where Base: NSTextField {
 	/// Sends the field's string value whenever it changes.
 	public var textSignal: SignalProducer<String, NoError> {
-		return NotificationCenter.default
-			.rac_notifications(forName: .NSControlTextDidChange, object: reactant)
+		return NotificationCenter.default.reactive
+			.notifications(forName: .NSControlTextDidChange, object: base)
 			.map { notification in
 				(notification.object as! NSTextField).stringValue
 			}

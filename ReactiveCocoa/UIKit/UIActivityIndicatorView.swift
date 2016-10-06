@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UIActivityIndicatorView {
+extension Reactive where Base: UIActivityIndicatorView {
 
 	/// Wraps an indicator's `isAnimating()` state in a bindable property.
 	/// Setting a new value to the property would call `startAnimating()` or

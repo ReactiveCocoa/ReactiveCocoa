@@ -29,7 +29,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac.viewDidDisappear.observeValues {
+        viewController.reactive.viewDidDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -44,7 +44,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac.viewWillDisappear.observeValues {
+        viewController.reactive.viewWillDisappear.observeValues {
             expectation.fulfill()
         }
         
@@ -59,7 +59,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac.viewDidAppear.observeValues {
+        viewController.reactive.viewDidAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -74,7 +74,7 @@ class UIViewControllerTests: XCTestCase {
         let viewController = UIViewController()
         _viewController = viewController
         
-        viewController.rac.viewWillAppear.observeValues {
+        viewController.reactive.viewWillAppear.observeValues {
             expectation.fulfill()
         }
         
@@ -90,13 +90,14 @@ class UIViewControllerTests: XCTestCase {
         _viewController = viewController
         
 			viewController
+				.reactive
 				.trigger(for: #selector(UIViewController.dismiss(animated:completion:)))
 				.signal
 				.observeValues { _ in
             expectation.fulfill()
         }
                 
-        viewController.rac.dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
+        viewController.reactive.dismissAnimated <~ SignalProducer(value: (animated: true, completion: nil))
     }
     
     func testDismissViewController_via_cocoaDismiss() {
@@ -108,6 +109,7 @@ class UIViewControllerTests: XCTestCase {
         _viewController = viewController
         
 			viewController
+				.reactive
 				.trigger(for: #selector(UIViewController.dismiss(animated:completion:)))
 				.signal
 				.observeValues { _ in

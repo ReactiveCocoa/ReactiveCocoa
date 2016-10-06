@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UITextField {
+extension Reactive where Base: UITextField {
 	/// Wraps a textField's `text` value in a bindable property.
 	public var text: MutableProperty<String?> {
 		let getter: (UITextField) -> String? = { $0.text }
@@ -17,10 +17,10 @@ extension Reactivity where Reactant: UITextField {
 		#if os(iOS)
 			return value(getter: getter, setter: setter)
 		#else
-			return associatedProperty(reactant, key: &textKey, initial: getter, setter: setter) { property in
+			return associatedProperty(base, key: &textKey, initial: getter, setter: setter) { property in
 				property <~
-					NotificationCenter.default
-						.rac_notifications(forName: .UITextFieldTextDidChange, object: reactant)
+					NotificationCenter.default.reactive
+						.notifications(forName: .UITextFieldTextDidChange, object: base)
 						.map { ($0.object as! UITextField).text }
 			}
 		#endif

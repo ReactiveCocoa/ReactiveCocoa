@@ -9,10 +9,10 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UISegmentedControl {
+extension Reactive where Base: UISegmentedControl {
 	/// Wraps a segmentedControls `selectedSegmentIndex` state in a bindable property.
 	public var selectedSegmentIndex: MutableProperty<Int> {
-		let property = associatedProperty(reactant,
+		let property = associatedProperty(base,
 		                                  key: &selectedSegmentIndexKey,
 		                                  initial: { $0.selectedSegmentIndex },
 		                                  setter: { $0.selectedSegmentIndex = $1 })

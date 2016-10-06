@@ -9,7 +9,7 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactivity where Reactant: UIProgressView {
+extension Reactive where Base: UIProgressView {
 	/// Wraps a progressView's `progress` value in a bindable property.
 	public var progress: BindingTarget<Float> {
 		return makeBindingTarget { $0.progress = $1 }

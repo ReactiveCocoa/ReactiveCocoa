@@ -20,7 +20,7 @@ class UITextViewTests: XCTestCase {
         let textView = UITextView(frame: CGRect.zero)
         textView.text = "Test"
         
-        textView.rac.text.startWithValues { text in
+        textView.reactive.text.startWithValues { text in
             XCTAssertEqual(text, textView.text)
             expectation.fulfill()
         }

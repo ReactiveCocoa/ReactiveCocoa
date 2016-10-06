@@ -12,19 +12,33 @@ import UIKit
 import XCTest
 
 class UITextViewTests: XCTestCase {
-    
-    func testTextProperty() {
-        let expectation = self.expectation(description: "Expected `rac_text`'s value to equal to the textViews's text")
-        defer { self.waitForExpectations(timeout: 2, handler: nil) }
-        
-        let textView = UITextView(frame: CGRect.zero)
-        textView.text = "Test"
-        
-        textView.reactive.text.startWithValues { text in
-            XCTAssertEqual(text, textView.text)
-            expectation.fulfill()
-        }
-        
-        NotificationCenter.default.post(name: NSNotification.Name.UITextViewTextDidChange, object: textView)
-    }
+	func testTexts() {
+		let expectation = self.expectation(description: "Expected `texts`'s value to equal to the textViews's text")
+		defer { self.waitForExpectations(timeout: 2, handler: nil) }
+
+		let textView = UITextView(frame: CGRect.zero)
+		textView.text = "Test"
+
+		textView.reactive.texts.observeValues { text in
+			XCTAssertEqual(text, textView.text)
+			expectation.fulfill()
+		}
+
+		NotificationCenter.default.post(name: NSNotification.Name.UITextViewTextDidEndEditing, object: textView)
+	}
+
+	func testContinuousTexts() {
+		let expectation = self.expectation(description: "Expected `continuousTexts`'s value to equal to the textViews's text")
+		defer { self.waitForExpectations(timeout: 2, handler: nil) }
+
+		let textView = UITextView(frame: CGRect.zero)
+		textView.text = "Test"
+
+		textView.reactive.continuousTexts.observeValues { text in
+			XCTAssertEqual(text, textView.text)
+			expectation.fulfill()
+		}
+
+		NotificationCenter.default.post(name: NSNotification.Name.UITextViewTextDidChange, object: textView)
+	}
 }

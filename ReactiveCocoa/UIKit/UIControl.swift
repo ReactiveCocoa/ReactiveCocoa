@@ -78,19 +78,6 @@ extension Reactive where Base: UIControl {
 		}
 	}
 
-	#if os(iOS)
-	/// Creates a bindable property to wrap a control's value.
-	///
-	/// This property uses `UIControlEvents.ValueChanged` and `UIControlEvents.EditingChanged`
-	/// events to detect changes and keep the value up-to-date.
-	//
-	internal func value<T>(getter: @escaping (Base) -> T, setter: @escaping (Base, T) -> ()) -> MutableProperty<T> {
-		return associatedProperty(base, key: &valueChangedKey, initial: getter, setter: setter) { property in
-			property <~ self.trigger(for: [.valueChanged, .editingChanged]).map(getter)
-		}
-	}
-	#endif
-
 	/// Wraps a control's `enabled` state in a bindable property.
 	public var isEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isEnabled = $1 }
@@ -108,4 +95,3 @@ extension Reactive where Base: UIControl {
 }
 
 private var associatedActionKey = 0
-private var valueChangedKey: UInt8 = 0

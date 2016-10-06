@@ -7,11 +7,16 @@
 //
 
 import ReactiveSwift
+import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UIDatePicker {
 	// Wraps a datePicker's `date` value in a bindable property.
-	public var date: MutableProperty<Date> {
-		return value(getter: { $0.date }, setter: { $0.date = $1 })
+	public var date: BindingTarget<Date> {
+		return makeBindingTarget { $0.date = $1 }
+	}
+
+	public var dates: Signal<Date, NoError> {
+		return trigger(for: .valueChanged).map { [unowned base] in base.date }
 	}
 }

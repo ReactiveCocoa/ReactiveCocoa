@@ -7,19 +7,16 @@
 //
 
 import ReactiveSwift
+import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UISegmentedControl {
 	/// Wraps a segmentedControls `selectedSegmentIndex` state in a bindable property.
-	public var selectedSegmentIndex: MutableProperty<Int> {
-		let property = associatedProperty(base,
-		                                  key: &selectedSegmentIndexKey,
-		                                  initial: { $0.selectedSegmentIndex },
-		                                  setter: { $0.selectedSegmentIndex = $1 })
+	public var selectedSegmentIndex: BindingTarget<Int> {
+		return makeBindingTarget { $0.selectedSegmentIndex = $1 }
+	}
 
-		property <~ trigger(for: .valueChanged).map { $0.selectedSegmentIndex }
-		return property
+	public var selectedSegmentIndexes: Signal<Int, NoError> {
+		return trigger(for: .valueChanged).map { [unowned base] in base.selectedSegmentIndex }
 	}
 }
-
-private var selectedSegmentIndexKey: UInt8 = 0

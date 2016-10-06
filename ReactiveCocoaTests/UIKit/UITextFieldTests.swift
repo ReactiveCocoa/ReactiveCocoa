@@ -12,23 +12,33 @@ import UIKit
 import XCTest
 
 class UITextFieldTests: XCTestCase {
+	func testTexts() {
+		let expectation = self.expectation(description: "Expected `texts`'s value to equal to the textField's text")
+		defer { self.waitForExpectations(timeout: 2, handler: nil) }
 
-    func testTextProperty() {
-        let expectation = self.expectation(description: "Expected `rac_text`'s value to equal to the textField's text")
-        defer { self.waitForExpectations(timeout: 2, handler: nil) }
+		let textField = UITextField(frame: CGRect.zero)
+		textField.text = "Test"
 
-        let textField = UITextField(frame: CGRect.zero)
-        textField.text = "Test"
-        
-        textField.reactive.text.signal.observeValues { text in
-            XCTAssertEqual(text, textField.text)
-            expectation.fulfill()
-        }
+		textField.reactive.texts.observeValues { text in
+			XCTAssertEqual(text, textField.text)
+			expectation.fulfill()
+		}
 
-#if os(iOS)
-        textField.sendActions(for: .editingChanged)
-#else
-        NotificationCenter.default.post(name: .UITextFieldTextDidChange, object: textField)
-#endif
-    }
+		textField.sendActions(for: .editingDidEnd)
+	}
+
+	func testContinuousTexts() {
+		let expectation = self.expectation(description: "Expected `continuousTexts`'s value to equal to the textField's text")
+		defer { self.waitForExpectations(timeout: 2, handler: nil) }
+
+		let textField = UITextField(frame: CGRect.zero)
+		textField.text = "Test"
+
+		textField.reactive.continuousTexts.observeValues { text in
+			XCTAssertEqual(text, textField.text)
+			expectation.fulfill()
+		}
+
+		textField.sendActions(for: .editingChanged)
+	}
 }

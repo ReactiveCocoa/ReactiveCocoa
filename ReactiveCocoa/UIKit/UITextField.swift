@@ -7,25 +7,19 @@
 //
 
 import ReactiveSwift
+import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UITextField {
-	/// Wraps a textField's `text` value in a bindable property.
-	public var text: MutableProperty<String?> {
-		let getter: (UITextField) -> String? = { $0.text }
-		let setter: (UITextField, String?) -> () = { $0.text = $1 }
-		#if os(iOS)
-			return value(getter: getter, setter: setter)
-		#else
-			return associatedProperty(base, key: &textKey, initial: getter, setter: setter) { property in
-				property <~
-					NotificationCenter.default.reactive
-						.notifications(forName: .UITextFieldTextDidChange, object: base)
-						.map { ($0.object as! UITextField).text }
-			}
-		#endif
+	public var text: BindingTarget<String?> {
+		return makeBindingTarget { $0.text = $1 }
 	}
 
-}
+	public var texts: Signal<String?, NoError> {
+		return trigger(for: .editingDidEnd).map { [unowned base] in base.text }
+	}
 
-private var textKey: UInt8 = 0
+	public var continuousTexts: Signal<String?, NoError> {
+		return trigger(for: .editingChanged).map { [unowned base] in base.text }
+	}
+}

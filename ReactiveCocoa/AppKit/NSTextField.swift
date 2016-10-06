@@ -11,12 +11,16 @@ import AppKit
 import enum Result.NoError
 
 extension Reactive where Base: NSTextField {
-	/// Sends the field's string value whenever it changes.
-	public var textSignal: SignalProducer<String, NoError> {
-		return NotificationCenter.default.reactive
+	public var continuousStringValues: Signal<String, NoError> {
+		var signal: Signal<String, NoError>!
+
+		NotificationCenter.default
+			.reactive
 			.notifications(forName: .NSControlTextDidChange, object: base)
-			.map { notification in
-				(notification.object as! NSTextField).stringValue
-			}
+			.take(during: lifetime)
+			.map { ($0.object as! NSTextField).stringValue }
+			.startWithSignal { innerSignal, _ in signal = innerSignal }
+
+		return signal
 	}
 }

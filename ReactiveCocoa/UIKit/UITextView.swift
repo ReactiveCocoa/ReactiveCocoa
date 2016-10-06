@@ -12,10 +12,33 @@ import enum Result.NoError
 
 extension Reactive where Base: UITextView {
 	/// Sends the textView's string value whenever it changes.
-	public var text: SignalProducer<String, NoError> {
-		return NotificationCenter.default.reactive
+	public var text: BindingTarget<String> {
+		return makeBindingTarget { $0.text = $1 }
+	}
+
+	public var texts: Signal<String, NoError> {
+		var signal: Signal<String, NoError>!
+
+		NotificationCenter.default
+			.reactive
+			.notifications(forName: .UITextViewTextDidEndEditing, object: base)
+			.take(during: lifetime)
+			.map { ($0.object as! UITextView).text! }
+			.startWithSignal { innerSignal, _ in signal = innerSignal }
+
+		return signal
+	}
+
+	public var continuousTexts: Signal<String, NoError> {
+		var signal: Signal<String, NoError>!
+
+		NotificationCenter.default
+			.reactive
 			.notifications(forName: .UITextViewTextDidChange, object: base)
-			.map { ($0.object as? UITextView)?.text }
-			.skipNil()
+			.take(during: lifetime)
+			.map { ($0.object as! UITextView).text! }
+			.startWithSignal { innerSignal, _ in signal = innerSignal }
+
+		return signal
 	}
 }

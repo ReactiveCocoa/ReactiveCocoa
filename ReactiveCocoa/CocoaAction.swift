@@ -4,18 +4,14 @@ import enum Result.NoError
 
 /// Wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.
-public final class CocoaAction: NSObject {
-	/// Creates an always disabled action that can be used as a default for
-	/// things like `rac_pressed`.
-	public static var disabled: CocoaAction {
-		return CocoaAction(Action<Any?, (), NoError>(enabledIf: Property(value: false)) { _ in .empty },
-		                   input: nil)
+///
+/// - important: The `Action` is weakly referenced.
+public final class CocoaAction<Control>: NSObject {
+	/// The selector for message senders.
+	public static var selector: Selector {
+		return #selector(CocoaAction<Control>.execute(_:))
 	}
 
-	/// The selector that a caller should invoke upon a CocoaAction in order to
-	/// execute it.
-	public static let selector: Selector = #selector(CocoaAction.execute(_:))
-	
 	/// Whether the action is enabled.
 	///
 	/// This property will only change on the main thread, and will generate a
@@ -33,9 +29,7 @@ public final class CocoaAction: NSObject {
 	/// Initializes a Cocoa action that will invoke the given Action by
 	/// transforming the object given to execute().
 	///
-	/// - note: You must cast the passed in object to the control type you need
-	///         since there is no way to know where this cocoa action will be
-	///         added as a target.
+	/// - important: The `Action` is weakly referenced.
 	///
 	/// - parameters:
 	///   - action: Executable action.
@@ -43,16 +37,27 @@ public final class CocoaAction: NSObject {
 	///                     action and returns a value (e.g. 
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
-	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (AnyObject?) -> Input) {
-		_execute = { input in
-			let producer = action.apply(inputTransform(input))
-			producer.start()
+	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (Control) -> Input) {
+		_execute = { [weak action] input in
+			if let action = action {
+				let control = input as! Control
+				let producer = action.apply(inputTransform(control))
+				producer.start()
+			}
 		}
 
 		isEnabled = action.isEnabled
 		isExecuting = action.isExecuting
 		
 		super.init()
+	}
+
+	/// Initializes a Cocoa action that will invoke the given Action.
+	///
+	/// - parameters:
+	///   - action: Executable action.
+	public convenience init<Output, Error>(_ action: Action<(), Output, Error>) {
+		self.init(action, { _ in })
 	}
 	
 	/// Initializes a Cocoa action that will invoke the given Action by always
@@ -72,18 +77,5 @@ public final class CocoaAction: NSObject {
 	///   - input: A value for the action passed during initialization.
 	@IBAction public func execute(_ input: AnyObject?) {
 		_execute(input)
-	}
-}
-
-extension Action {
-	/// A UI bindable `CocoaAction`.
-	///
-	/// - warning: The default behavior force casts the `AnyObject?` input to 
-	///            match the action's `Input` type. This makes it unsafe for use 
-	///            when the action is parameterized for something like `Void` 
-	///            input. In those cases, explicitly assign a value to this
-	///            property that transforms the input to suit your needs.
-	public var unsafeCocoaAction: CocoaAction {
-		return CocoaAction(self) { $0 as! Input }
 	}
 }

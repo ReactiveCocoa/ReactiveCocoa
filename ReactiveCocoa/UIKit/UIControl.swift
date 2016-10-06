@@ -10,29 +10,70 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
-private class UnsafeControlReceiver<Control: UIControl>: NSObject {
-	private let observer: Observer<Control, NoError>
+private class UnsafeControlReceiver: NSObject {
+	private let observer: Observer<(), NoError>
 
-	fileprivate init(observer: Observer<Control, NoError>) {
+	fileprivate init(observer: Observer<(), NoError>) {
 		self.observer = observer
 	}
 
 	@objc fileprivate func sendNext(_ receiver: Any?) {
-		observer.send(value: receiver as! Control)
+		observer.send(value: ())
 	}
 }
 
 extension Reactive where Base: UIControl {
-	public func trigger(for events: UIControlEvents) -> Signal<Base, NoError> {
+	internal var associatedAction: Atomic<(action: CocoaAction<Base>, controlEvents: UIControlEvents, disposable: Disposable)?> {
+		return associatedObject(base,
+		                        key: &associatedActionKey,
+		                        initial: { _ in Atomic(nil) })
+	}
+
+	public var action: CocoaAction<Base>? {
+		return associatedAction.value?.action
+	}
+
+	public var controlEventsForAction: UIControlEvents? {
+		return associatedAction.value?.controlEvents
+	}
+
+	public func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
+		associatedAction.modify { associatedAction in
+			if let old = associatedAction {
+				old.disposable.dispose()
+			}
+
+			if let action = action {
+				base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
+
+				let disposable = CompositeDisposable()
+				disposable += isEnabled <~ action.isEnabled
+				disposable += { [weak base] in
+					base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
+				}
+
+				associatedAction = (action, controlEvents, ScopedDisposable(disposable))
+			} else {
+				associatedAction = nil
+			}
+		}
+	}
+
+	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
 		return Signal { observer in
 			let receiver = UnsafeControlReceiver(observer: observer)
-			base.addTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+			base.addTarget(receiver,
+			                   action: #selector(UnsafeControlReceiver.sendNext),
+			                   for: controlEvents)
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
 			return ActionDisposable { [weak base] in
 				disposable?.dispose()
-				base?.removeTarget(receiver, action: #selector(UnsafeControlReceiver.sendNext), for: events)
+
+				base?.removeTarget(receiver,
+				                   action: #selector(UnsafeControlReceiver.sendNext),
+				                   for: controlEvents)
 			}
 		}
 	}
@@ -66,4 +107,5 @@ extension Reactive where Base: UIControl {
 	}
 }
 
+private var associatedActionKey = 0
 private var valueChangedKey: UInt8 = 0

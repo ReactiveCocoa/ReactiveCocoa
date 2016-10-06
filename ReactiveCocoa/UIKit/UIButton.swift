@@ -10,25 +10,17 @@ import ReactiveSwift
 import UIKit
 
 extension Reactive where Base: UIButton {
-	/// Exposes a property that binds an action to button presses. The action is set as
-	/// a target of the button for `TouchUpInside` events. When property changes occur the
-	/// previous action is removed as a target. This also binds the enabled state of the
-	/// action to the `enabled` property on the button.
-	public var pressed: MutableProperty<CocoaAction> {
-		return associatedObject(base, key: &pressedKey) { host in
-			let initial = CocoaAction.disabled
-			let property = MutableProperty(initial)
-
-			property.producer
-				.combinePrevious(initial)
-				.startWithValues { [weak host] previous, next in
-					host?.removeTarget(previous, action: CocoaAction.selector, for: .touchUpInside)
-					host?.addTarget(next, action: CocoaAction.selector, for: .touchUpInside)
+	public var pressed: CocoaAction<Base>? {
+		get {
+			return associatedAction.withValue { info in
+				return info.flatMap { info in
+					return info.controlEvents == .touchUpInside ? info.action : nil
 				}
+			}
+		}
 
-			isEnabled <~ property.flatMap(.latest) { $0.isEnabled }
-
-			return property
+		nonmutating set {
+			setAction(newValue, for: .touchUpInside)
 		}
 	}
 

@@ -1,11 +1,3 @@
-//
-//  UIBarButtonItemTests.swift
-//  Rex
-//
-//  Created by Andy Jacobs on 21/08/15.
-//  Copyright (c) 2015 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit

@@ -1,11 +1,3 @@
-//
-//  UISwitch.swift
-//  Rex
-//
-//  Created by David Rodrigues on 07/04/16.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import enum Result.NoError
 import UIKit

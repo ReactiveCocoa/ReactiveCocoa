@@ -1,11 +1,3 @@
-//
-//  UIControl+EnableSendActionsForControlEvents.swift
-//  Rex
-//
-//  Created by David Rodrigues on 24/04/16.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import UIKit
 
 private let rac_swizzleToken: Void = {

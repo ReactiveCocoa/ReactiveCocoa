@@ -1,11 +1,3 @@
-//
-//  UIActivityIndicatorView.swift
-//  Rex
-//
-//  Created by Evgeny Kazakov on 02/07/16.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import UIKit
 

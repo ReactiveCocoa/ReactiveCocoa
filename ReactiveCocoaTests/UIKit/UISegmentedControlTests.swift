@@ -1,11 +1,3 @@
-//
-//  UISegmentedControlTests.swift
-//  Rex
-//
-//  Created by Markus Chmelar on 07/06/16.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import XCTest
 import ReactiveSwift
 import ReactiveCocoa

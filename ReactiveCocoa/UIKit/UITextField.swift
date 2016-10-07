@@ -1,11 +1,3 @@
-//
-//  UITextField.swift
-//  Rex
-//
-//  Created by Rui Peres on 17/01/2016.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import enum Result.NoError
 import UIKit

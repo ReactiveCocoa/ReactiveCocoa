@@ -1,11 +1,3 @@
-//
-//  UIDatePicker.swift
-//  Rex
-//
-//  Created by Guido Marucci Blas on 3/25/16.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import enum Result.NoError
 import UIKit

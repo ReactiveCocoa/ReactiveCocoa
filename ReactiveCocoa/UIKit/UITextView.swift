@@ -1,11 +1,3 @@
-//
-//  UITextView.swift
-//  Rex
-//
-//  Created by Rui Peres on 05/04/2016.
-//  Copyright © 2016 Neil Pankey. All rights reserved.
-//
-
 import ReactiveSwift
 import UIKit
 import enum Result.NoError

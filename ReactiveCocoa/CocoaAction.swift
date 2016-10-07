@@ -38,12 +38,10 @@ public final class CocoaAction<Control>: NSObject {
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
 	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (Control) -> Input) {
-		_execute = { [weak action] input in
-			if let action = action {
-				let control = input as! Control
-				let producer = action.apply(inputTransform(control))
-				producer.start()
-			}
+		_execute = { input in
+			let control = input as! Control
+			let producer = action.apply(inputTransform(control))
+			producer.start()
 		}
 
 		isEnabled = action.isEnabled

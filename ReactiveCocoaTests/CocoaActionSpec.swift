@@ -67,15 +67,14 @@ class CocoaActionSpec: QuickSpec {
 		}
 
 		context("lifetime") {
-			it("unsafeCocoaAction should not create a retain cycle") {
-				weak var weakAction: Action<Int, Int, NoError>?
-				var action: Action<Int, Int, NoError>? = Action { _ in
-					return SignalProducer(value: 42)
-				}
-				weakAction = action
+			it("CocoaAction should not create a retain cycle") {
+				weak var weakAction = action
 				expect(weakAction).notTo(beNil())
 
 				action = nil
+				expect(weakAction).toNot(beNil())
+
+				cocoaAction = nil
 				expect(weakAction).to(beNil())
 			}
 		}

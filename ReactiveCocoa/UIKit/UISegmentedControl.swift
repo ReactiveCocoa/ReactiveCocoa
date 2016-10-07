@@ -10,6 +10,7 @@ extension Reactive where Base: UISegmentedControl {
 
 	/// A signal of indexes of selections emitted by the segmented control.
 	public var selectedSegmentIndexes: Signal<Int, NoError> {
-		return trigger(for: .valueChanged).map { [unowned base] in base.selectedSegmentIndex }
+		return trigger(for: .valueChanged)
+			.map { [unowned base = self.base] in base.selectedSegmentIndex }
 	}
 }

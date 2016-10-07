@@ -38,7 +38,7 @@ extension Reactive where Base: UIControl {
 
 				let disposable = CompositeDisposable()
 				disposable += isEnabled <~ action.isEnabled
-				disposable += { [weak base] in
+				disposable += { [weak base = self.base] in
 					base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
 				}
 
@@ -66,7 +66,7 @@ extension Reactive where Base: UIControl {
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return ActionDisposable { [weak base] in
+			return ActionDisposable { [weak base = self.base] in
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,

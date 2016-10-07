@@ -16,7 +16,7 @@ extension Reactive where Base: NSObject {
 	internal func makeBindingTarget<U>(action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
 		let scheduler = associatedValue { _ in UIScheduler() }
 
-		return BindingTarget(on: scheduler, lifetime: lifetime) { [weak base] value in
+		return BindingTarget(on: scheduler, lifetime: lifetime) { [weak base = self.base] value in
 			if let base = base {
 				action(base, value)
 			}

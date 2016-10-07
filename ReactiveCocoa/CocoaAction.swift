@@ -6,10 +6,10 @@ import enum Result.NoError
 /// `UIControl`), with KVO, or with Cocoa Bindings.
 ///
 /// - important: The `Action` is weakly referenced.
-public final class CocoaAction<Control>: NSObject {
+public final class CocoaAction<Sender>: NSObject {
 	/// The selector for message senders.
 	public static var selector: Selector {
-		return #selector(CocoaAction<Control>.execute(_:))
+		return #selector(CocoaAction<Sender>.execute(_:))
 	}
 
 	/// Whether the action is enabled.
@@ -37,9 +37,9 @@ public final class CocoaAction<Control>: NSObject {
 	///                     action and returns a value (e.g. 
 	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
 	///                     switch is currently on.
-	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (Control) -> Input) {
+	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (Sender) -> Input) {
 		_execute = { input in
-			let control = input as! Control
+			let control = input as! Sender
 			let producer = action.apply(inputTransform(control))
 			producer.start()
 		}

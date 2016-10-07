@@ -2,10 +2,8 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-/// Wraps an Action for use by a GUI control (such as `NSControl` or
+/// CocoaAction wraps an Action for use by a GUI control (such as `NSControl` or
 /// `UIControl`), with KVO, or with Cocoa Bindings.
-///
-/// - important: The `Action` is weakly referenced.
 public final class CocoaAction<Sender>: NSObject {
 	/// The selector for message senders.
 	public static var selector: Selector {
@@ -24,23 +22,18 @@ public final class CocoaAction<Sender>: NSObject {
 	/// KVO notification for every change.
 	public let isExecuting: Property<Bool>
 
-	private let _execute: (AnyObject?) -> Void
+	private let _execute: (Sender) -> Void
 
-	/// Initializes a Cocoa action that will invoke the given Action by
-	/// transforming the object given to execute().
-	///
-	/// - important: The `Action` is weakly referenced.
+	/// Initialize a CocoaAction that invokes the given Action by mapping the
+	/// sender to the input type of the Action.
 	///
 	/// - parameters:
-	///   - action: Executable action.
-	///   - inputTransform: Closure that accepts the UI control performing the
-	///                     action and returns a value (e.g. 
-	///                     `(UISwitch) -> (Bool)` to reflect whether a provided
-	///                     switch is currently on.
+	///   - action: The Action.
+	///   - inputTransform: A closure that maps Sender to the input type of the
+	///                     Action.
 	public init<Input, Output, Error>(_ action: Action<Input, Output, Error>, _ inputTransform: @escaping (Sender) -> Input) {
-		_execute = { input in
-			let control = input as! Sender
-			let producer = action.apply(inputTransform(control))
+		_execute = { sender in
+			let producer = action.apply(inputTransform(sender))
 			producer.start()
 		}
 
@@ -50,30 +43,30 @@ public final class CocoaAction<Sender>: NSObject {
 		super.init()
 	}
 
-	/// Initializes a Cocoa action that will invoke the given Action.
+	/// Initialize a CocoaAction that invokes the given Action.
 	///
 	/// - parameters:
-	///   - action: Executable action.
+	///   - action: The Action.
 	public convenience init<Output, Error>(_ action: Action<(), Output, Error>) {
 		self.init(action, { _ in })
 	}
 	
-	/// Initializes a Cocoa action that will invoke the given Action by always
-	/// providing the given input.
+	/// Initialize a CocoaAction that invokes the given Action with the given
+	/// constant.
 	///
 	/// - parameters:
-	///   - action: Executable action.
-	///   - input: A value given as input to the action.
+	///   - action: The Action.
+	///   - input: The constant value as the input to the action.
 	public convenience init<Input, Output, Error>(_ action: Action<Input, Output, Error>, input: Input) {
 		self.init(action, { _ in input })
 	}
 
-	/// Attempts to execute the underlying action with the given input, subject
+	/// Attempt to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
 	///
 	/// - parameters:
-	///   - input: A value for the action passed during initialization.
-	@IBAction public func execute(_ input: AnyObject?) {
-		_execute(input)
+	///   - sender: The sender which initiates the attempt.
+	@IBAction public func execute(_ sender: Any?) {
+		_execute(sender as! Sender)
 	}
 }

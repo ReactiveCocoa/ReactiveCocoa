@@ -29,15 +29,7 @@ extension Reactive where Base: UIControl {
 		                        initial: { _ in Atomic(nil) })
 	}
 
-	public var action: CocoaAction<Base>? {
-		return associatedAction.value?.action
-	}
-
-	public var controlEventsForAction: UIControlEvents? {
-		return associatedAction.value?.controlEvents
-	}
-
-	public func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
+	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
 		associatedAction.modify { associatedAction in
 			if let old = associatedAction {
 				old.disposable.dispose()

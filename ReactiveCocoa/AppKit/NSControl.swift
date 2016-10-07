@@ -11,6 +11,10 @@ import enum Result.NoError
 import AppKit
 
 extension Reactive where Base: NSControl {
+	public var isEnabled: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isEnabled = $1 }
+	}
+
 	public var attributedString: BindingTarget<NSAttributedString> {
 		return makeBindingTarget { $0.attributedStringValue = $1 }
 	}

@@ -15,7 +15,7 @@ extension Reactive where Base: NSControl {
 		return makeBindingTarget { $0.isEnabled = $1 }
 	}
 
-	public var attributedString: BindingTarget<NSAttributedString> {
+	public var attributedStringValue: BindingTarget<NSAttributedString> {
 		return makeBindingTarget { $0.attributedStringValue = $1 }
 	}
 

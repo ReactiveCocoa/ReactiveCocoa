@@ -6,7 +6,7 @@ extension Reactive where Base: NSObject {
 	/// Create a producer which sends the current value and all the subsequent
 	/// changes of the property specified by the key path.
 	///
-	/// The producer completes when `self` deinitializes.
+	/// The producer completes when the object deinitializes.
 	///
 	/// - parameters:
 	///   - keyPath: The key path of the property to be observed.

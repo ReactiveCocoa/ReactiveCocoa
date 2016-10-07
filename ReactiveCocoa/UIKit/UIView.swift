@@ -10,18 +10,17 @@ import ReactiveSwift
 import UIKit
 
 extension Reactive where Base: UIView {
-	/// Wraps a view's `alpha` value in a bindable property.
+	/// Sets the alpha value of the view.
 	public var alpha: BindingTarget<CGFloat> {
 		return makeBindingTarget { $0.alpha = $1 }
 	}
 
-	/// Wraps a view's `hidden` state in a bindable property.
+	/// Sets whether the view is hidden.
 	public var isHidden: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isHidden = $1 }
 	}
 
-
-	/// Wraps a view's `userInteractionEnabled` state in a bindable property.
+	/// Sets whether the view accepts user interactions.
 	public var isUserInteractionEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isUserInteractionEnabled = $1 }
 	}

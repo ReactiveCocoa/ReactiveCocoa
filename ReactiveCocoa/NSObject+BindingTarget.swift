@@ -2,9 +2,9 @@ import Foundation
 import ReactiveSwift
 
 extension Reactive where Base: NSObject {
-	/// Creates a binding target which uses the lifetime of `base`, and weakly
-	/// references `base` so that the supplied `action` is triggered only if
-	/// `base` has not deinitialized.
+	/// Creates a binding target which uses the lifetime of the object, and weakly
+	/// references the object so that the supplied `action` is triggered only if
+	/// the object has not deinitialized.
 	///
 	/// - important: The binding target is bound to the main queue.
 	///
@@ -12,7 +12,7 @@ extension Reactive where Base: NSObject {
 	///   - action: The action to consume values from the bindings.
 	///
 	/// - returns:
-	///   A binding target that holds no strong references to `base`.
+	///   A binding target that holds no strong references to the object.
 	internal func makeBindingTarget<U>(action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
 		let scheduler = associatedValue { _ in UIScheduler() }
 

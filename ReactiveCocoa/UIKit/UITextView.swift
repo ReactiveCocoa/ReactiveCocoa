@@ -11,11 +11,12 @@ import UIKit
 import enum Result.NoError
 
 extension Reactive where Base: UITextView {
-	/// Sends the textView's string value whenever it changes.
+	/// Sets the text of the text view.
 	public var text: BindingTarget<String> {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
+	/// A signal of text values emitted by the text view upon end of editing.
 	public var textValues: Signal<String, NoError> {
 		var signal: Signal<String, NoError>!
 
@@ -29,6 +30,7 @@ extension Reactive where Base: UITextView {
 		return signal
 	}
 
+	/// A signal of text values emitted by the text view upon any changes.
 	public var continuousTextValues: Signal<String, NoError> {
 		var signal: Signal<String, NoError>!
 

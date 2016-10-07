@@ -4,13 +4,31 @@ import enum Result.NoError
 import ReactiveCocoaPrivate
 
 extension Reactive where Base: NSObject {
+	/// Create a signal which sends a `next` event at the end of every invocation
+	/// of `selector` on the object.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns:
+	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
 		return signal(for: selector) { observer in
 			return { _ in observer.send(value: ()) }
 		}
 	}
 
-	private func signal<U>(for selector: Selector, action: (Observer<U, NoError>) -> rac_receiver_t) -> Signal<U, NoError> {
+	/// Create a signal which sends a `next` event at the end of every invocation
+	/// of `selector` on the object.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///   - setup: The setup closure of how received events in the runtime are
+	///            piped to the returned signal.
+	///
+	/// - returns:
+	///   A trigger signal.
+	private func signal<U>(for selector: Selector, setup: (Observer<U, NoError>) -> rac_receiver_t) -> Signal<U, NoError> {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
 
@@ -22,7 +40,7 @@ extension Reactive where Base: NSObject {
 		}
 
 		let (signal, observer) = Signal<U, NoError>.pipe()
-		let action = action(observer)
+		let action = setup(observer)
 		let isSuccessful = RACRegisterBlockForSelector(base, selector, nil, action)
 		assert(isSuccessful)
 

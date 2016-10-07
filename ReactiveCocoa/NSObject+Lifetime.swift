@@ -5,7 +5,7 @@ private var lifetimeKey: UInt8 = 0
 private var lifetimeTokenKey: UInt8 = 0
 
 extension Reactive where Base: NSObject {
-	/// Returns a lifetime that ends when the receiver is deallocated.
+	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
 		objc_sync_enter(base)
 		defer { objc_sync_exit(base) }

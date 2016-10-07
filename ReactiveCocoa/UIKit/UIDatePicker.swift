@@ -11,11 +11,12 @@ import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UIDatePicker {
-	// Wraps a datePicker's `date` value in a bindable property.
+	/// Sets the date of the date picker.
 	public var date: BindingTarget<Date> {
 		return makeBindingTarget { $0.date = $1 }
 	}
 
+	/// A signal of dates emitted by the date picker.
 	public var dates: Signal<Date, NoError> {
 		return trigger(for: .valueChanged).map { [unowned base] in base.date }
 	}

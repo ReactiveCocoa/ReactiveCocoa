@@ -10,10 +10,13 @@ import ReactiveSwift
 import UIKit
 
 extension Reactive where Base: UIBarButtonItem {
+	/// The current associated action of `self`.
 	private var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: Disposable)?> {
 		return associatedValue { _ in Atomic(nil) }
 	}
 
+	/// The action to be triggered when the button is pressed. It also controls
+	/// the enabled state of the button.
 	public var pressed: CocoaAction<Base>? {
 		get {
 			return associatedAction.value?.action

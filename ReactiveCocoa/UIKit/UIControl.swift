@@ -23,10 +23,18 @@ private class UnsafeControlReceiver: NSObject {
 }
 
 extension Reactive where Base: UIControl {
+	/// The current associated action of `self`, with its registered event mask
+	/// and its disposable.
 	internal var associatedAction: Atomic<(action: CocoaAction<Base>, controlEvents: UIControlEvents, disposable: Disposable)?> {
 		return associatedValue { _ in Atomic(nil) }
 	}
 
+	/// Set the associated action of `self` to `action`, and register it for the
+	/// control events specified by `controlEvents`.
+	///
+	/// - parameters:
+	///   - action: The action to be associated.
+	///   - controlEvents: The control event mask.
 	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
 		associatedAction.modify { associatedAction in
 			if let old = associatedAction {
@@ -49,6 +57,14 @@ extension Reactive where Base: UIControl {
 		}
 	}
 
+	/// Create a signal which sends a `next` event for each of the specified
+	/// control events.
+	///
+	/// - parameters:
+	///   - controlEvents: The control event mask.
+	///
+	/// - returns:
+	///   A trigger signal.
 	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
 		return Signal { observer in
 			let receiver = UnsafeControlReceiver(observer: observer)
@@ -68,17 +84,17 @@ extension Reactive where Base: UIControl {
 		}
 	}
 
-	/// Wraps a control's `enabled` state in a bindable property.
+	/// Sets whether the control is enabled.
 	public var isEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isEnabled = $1 }
 	}
 
-	/// Wraps a control's `selected` state in a bindable property.
+	/// Sets whether the control is selected.
 	public var isSelected: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isSelected = $1 }
 	}
 
-	/// Wraps a control's `highlighted` state in a bindable property.
+	/// Sets whether the control is highlighted.
 	public var isHighlighted: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isHighlighted = $1 }
 	}

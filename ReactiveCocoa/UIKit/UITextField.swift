@@ -15,11 +15,11 @@ extension Reactive where Base: UITextField {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
-	public var texts: Signal<String?, NoError> {
+	public var textValues: Signal<String?, NoError> {
 		return trigger(for: .editingDidEnd).map { [unowned base] in base.text }
 	}
 
-	public var continuousTexts: Signal<String?, NoError> {
+	public var continuousTextValues: Signal<String?, NoError> {
 		return trigger(for: .editingChanged).map { [unowned base] in base.text }
 	}
 }

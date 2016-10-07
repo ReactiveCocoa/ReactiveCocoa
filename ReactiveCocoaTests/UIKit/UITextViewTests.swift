@@ -19,7 +19,7 @@ class UITextViewTests: XCTestCase {
 		let textView = UITextView(frame: CGRect.zero)
 		textView.text = "Test"
 
-		textView.reactive.texts.observeValues { text in
+		textView.reactive.textValues.observeValues { text in
 			XCTAssertEqual(text, textView.text)
 			expectation.fulfill()
 		}
@@ -34,7 +34,7 @@ class UITextViewTests: XCTestCase {
 		let textView = UITextView(frame: CGRect.zero)
 		textView.text = "Test"
 
-		textView.reactive.continuousTexts.observeValues { text in
+		textView.reactive.continuousTextValues.observeValues { text in
 			XCTAssertEqual(text, textView.text)
 			expectation.fulfill()
 		}

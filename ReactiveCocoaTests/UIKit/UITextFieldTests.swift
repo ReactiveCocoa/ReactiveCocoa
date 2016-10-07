@@ -19,7 +19,7 @@ class UITextFieldTests: XCTestCase {
 		let textField = UITextField(frame: CGRect.zero)
 		textField.text = "Test"
 
-		textField.reactive.texts.observeValues { text in
+		textField.reactive.textValues.observeValues { text in
 			XCTAssertEqual(text, textField.text)
 			expectation.fulfill()
 		}
@@ -34,7 +34,7 @@ class UITextFieldTests: XCTestCase {
 		let textField = UITextField(frame: CGRect.zero)
 		textField.text = "Test"
 
-		textField.reactive.continuousTexts.observeValues { text in
+		textField.reactive.continuousTextValues.observeValues { text in
 			XCTAssertEqual(text, textField.text)
 			expectation.fulfill()
 		}

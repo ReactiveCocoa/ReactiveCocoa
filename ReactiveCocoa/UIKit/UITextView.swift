@@ -16,7 +16,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
-	public var texts: Signal<String, NoError> {
+	public var textValues: Signal<String, NoError> {
 		var signal: Signal<String, NoError>!
 
 		NotificationCenter.default
@@ -29,7 +29,7 @@ extension Reactive where Base: UITextView {
 		return signal
 	}
 
-	public var continuousTexts: Signal<String, NoError> {
+	public var continuousTextValues: Signal<String, NoError> {
 		var signal: Signal<String, NoError>!
 
 		NotificationCenter.default

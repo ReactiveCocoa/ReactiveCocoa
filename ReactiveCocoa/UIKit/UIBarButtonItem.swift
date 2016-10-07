@@ -11,9 +11,7 @@ import UIKit
 
 extension Reactive where Base: UIBarButtonItem {
 	private var associatedAction: Atomic<CocoaAction<Base>?> {
-		return associatedObject(base,
-		                        key: &associatedActionKey,
-		                        initial: { _ in Atomic(nil) })
+		return associatedValue { _ in Atomic(nil) }
 	}
 
 	public var pressed: CocoaAction<Base>? {
@@ -28,5 +26,3 @@ extension Reactive where Base: UIBarButtonItem {
 		}
 	}
 }
-
-private var associatedActionKey = 0

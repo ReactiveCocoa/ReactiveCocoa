@@ -80,7 +80,7 @@ extension Reactive where Base: NSControl {
 	}
 
 	private var trigger: Signal<(), NoError> {
-		let receiver: ActionMessageReceiver = associatedObject(base, key: &controlTriggerKey) { base in
+		let receiver: ActionMessageReceiver = associatedValue { base in
 			let receiver = ActionMessageReceiver()
 			base.target = receiver
 			base.action = #selector(ActionMessageReceiver.receive)
@@ -109,5 +109,3 @@ private class ActionMessageReceiver: NSObject {
 		observer.send(value: ())
 	}
 }
-
-var controlTriggerKey = 0

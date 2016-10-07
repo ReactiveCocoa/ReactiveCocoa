@@ -24,9 +24,7 @@ private class UnsafeControlReceiver: NSObject {
 
 extension Reactive where Base: UIControl {
 	internal var associatedAction: Atomic<(action: CocoaAction<Base>, controlEvents: UIControlEvents, disposable: Disposable)?> {
-		return associatedObject(base,
-		                        key: &associatedActionKey,
-		                        initial: { _ in Atomic(nil) })
+		return associatedValue { _ in Atomic(nil) }
 	}
 
 	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
@@ -85,5 +83,3 @@ extension Reactive where Base: UIControl {
 		return makeBindingTarget { $0.isHighlighted = $1 }
 	}
 }
-
-private var associatedActionKey = 0

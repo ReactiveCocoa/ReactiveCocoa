@@ -14,7 +14,7 @@ extension Reactive where Base: NSObject {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
 
-		let map = associatedObject(base, key: &mapKey) { _ in NSMutableDictionary() }
+		let map = associatedValue { _ in NSMutableDictionary() }
 
 		let selectorName = String(describing: selector) as NSString
 		if let signal = map.object(forKey: selectorName) as? Signal<U, NoError> {

@@ -21,10 +21,10 @@
 		7DFBED211CDB8D8300EE435B /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
-		9A1D05E01D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
-		9A1D05E11D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
-		9A1D05E21D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
-		9A1D05E31D93E99100ACF44C /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* Association.swift */; };
+		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
+		9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
+		9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
+		9A1D05E31D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */; };
 		9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */; };
 		9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */; };
@@ -88,6 +88,9 @@
 		9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
+		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
+		9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
+		9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
@@ -214,7 +217,7 @@
 		57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9A1D05DF1D93E99100ACF44C /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
+		9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Association.swift"; sourceTree = "<group>"; };
 		9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
 		9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarItem.swift; sourceTree = "<group>"; };
@@ -247,6 +250,7 @@
 		9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntimeUtilities.h; sourceTree = "<group>"; };
 		9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RACObjCRuntimeUtilities.m; sourceTree = "<group>"; };
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
+		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaAction.swift; sourceTree = "<group>"; };
 		9ADE4A881DA6D206005C2AC8 /* NSControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSControl.swift; sourceTree = "<group>"; };
@@ -510,7 +514,7 @@
 				9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */,
 				4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */,
 				9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */,
-				9A1D05DF1D93E99100ACF44C /* Association.swift */,
+				9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
@@ -532,6 +536,7 @@
 			children = (
 				9ADE4A8C1DA6D94C005C2AC8 /* AppKit */,
 				9A1D06231D93EA7E00ACF44C /* UIKit */,
+				9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */,
 				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
@@ -918,7 +923,7 @@
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
 				9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9ADE4A941DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
-				9A1D05E31D93E99100ACF44C /* Association.swift in Sources */,
+				9A1D05E31D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9A1D06161D93EA0100ACF44C /* UIControl.swift in Sources */,
 				9A1D06141D93EA0100ACF44C /* UIButton.swift in Sources */,
 				9A1D065E1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
@@ -939,6 +944,7 @@
 			files = (
 				9A1D06591D93EA7E00ACF44C /* UIViewTests.swift in Sources */,
 				7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */,
+				9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				9A1D06451D93EA7E00ACF44C /* UIImageViewTests.swift in Sources */,
@@ -967,7 +973,7 @@
 				9ADE4A7E1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
-				9A1D05E21D93E99100ACF44C /* Association.swift in Sources */,
+				9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				4A0E11011D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 			);
@@ -980,7 +986,7 @@
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A1D06771D9415FF00ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
-				9A1D05E01D93E99100ACF44C /* Association.swift in Sources */,
+				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9ADE4A961DA6F018005C2AC8 /* NSTextField.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
@@ -1000,6 +1006,7 @@
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
+				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1017,7 +1024,7 @@
 				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
-				9A1D05E11D93E99100ACF44C /* Association.swift in Sources */,
+				9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */,
 				9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
@@ -1050,6 +1057,7 @@
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewTests.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelTests.swift in Sources */,
+				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerTests.swift in Sources */,
 				9A1D06381D93EA7E00ACF44C /* UIBarButtonItemTests.swift in Sources */,
 				9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,

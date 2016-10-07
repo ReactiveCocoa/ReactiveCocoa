@@ -14,7 +14,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A binding target that holds no strong references to `base`.
 	internal func makeBindingTarget<U>(action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
-		let scheduler = associatedObject(base, key: &schedulerKey, initial: { _ in UIScheduler() })
+		let scheduler = associatedValue { _ in UIScheduler() }
 
 		return BindingTarget(on: scheduler, lifetime: lifetime) { [weak base] value in
 			if let base = base {
@@ -23,5 +23,3 @@ extension Reactive where Base: NSObject {
 		}
 	}
 }
-
-private var schedulerKey = 0

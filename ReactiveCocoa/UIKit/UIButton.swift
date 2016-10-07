@@ -29,6 +29,11 @@ extension Reactive where Base: UIButton {
 	public var title: BindingTarget<String> {
 		return makeBindingTarget { $0.setTitle($1, for: .normal) }
 	}
+
+	/// Sets the title of the button for the specified state.
+	public func title(for state: UIControlState) -> BindingTarget<String> {
+		return makeBindingTarget { $0.setTitle($1, for: state) }
+	}
 }
 
 private var pressedKey: UInt8 = 0

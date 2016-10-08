@@ -28,5 +28,3 @@ extension Reactive where Base: UIButton {
 		return makeBindingTarget { $0.setTitle($1, for: state) }
 	}
 }
-
-private var pressedKey: UInt8 = 0

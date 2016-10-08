@@ -50,5 +50,3 @@ extension Reactive where Base: NSObject {
 		return signal
 	}
 }
-
-private var mapKey = 0

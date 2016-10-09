@@ -13,35 +13,20 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		return signal(for: selector) { observer in
-			return { _ in observer.send(value: ()) }
-		}
-	}
-
-	/// Create a signal which sends a `next` event at the end of every invocation
-	/// of `selector` on the object.
-	///
-	/// - parameters:
-	///   - selector: The selector to observe.
-	///   - setup: The setup closure of how received events in the runtime are
-	///            piped to the returned signal.
-	///
-	/// - returns:
-	///   A trigger signal.
-	private func signal<U>(for selector: Selector, setup: (Observer<U, NoError>) -> rac_receiver_t) -> Signal<U, NoError> {
 		objc_sync_enter(self)
 		defer { objc_sync_exit(self) }
 
 		let map = associatedValue { _ in NSMutableDictionary() }
 
 		let selectorName = String(describing: selector) as NSString
-		if let signal = map.object(forKey: selectorName) as? Signal<U, NoError> {
+		if let signal = map.object(forKey: selectorName) as? Signal<(), NoError> {
 			return signal
 		}
 
-		let (signal, observer) = Signal<U, NoError>.pipe()
-		let action = setup(observer)
-		let isSuccessful = RACRegisterBlockForSelector(base, selector, nil, action)
+		let (signal, observer) = Signal<(), NoError>.pipe()
+		let isSuccessful = base.rac_setupInvocationObservation(for: selector,
+		                                                       protocol: nil,
+		                                                       receiver: observer.send(value:))
 		assert(isSuccessful)
 
 		lifetime.ended.observeCompleted(observer.sendCompleted)

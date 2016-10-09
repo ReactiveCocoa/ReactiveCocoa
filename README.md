@@ -52,7 +52,7 @@ For more information about the concepts in ReactiveCocoa, see [ReactiveSwift][].
 ## Objective-C and Swift
 
 After announced Swift, ReactiveCocoa was rewritten in Swift. As of [version
-5.0][CHANGELOG], the Objective-C API and the Swift API are entirely separated into different projects([ReactiveObjC][] and [ReactiveSwift][]).
+5.0][CHANGELOG], the Objective-C API and the Swift API are entirely separated into different projects ([ReactiveObjC][] and [ReactiveSwift][]).
 
 There is a bridge to convert between those APIs ([ReactiveObjCBridge][]) which is mostly meant as a compatibility layer for older ReactiveCocoa projects.
 

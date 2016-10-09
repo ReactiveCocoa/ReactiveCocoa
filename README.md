@@ -51,17 +51,13 @@ For more information about the concepts in ReactiveCocoa, see [ReactiveSwift][].
 
 ## Objective-C and Swift
 
-Although ReactiveCocoa was started as an Objective-C framework, as of [version
-3.0][CHANGELOG], all major feature development is concentrated on the [Swift API][].
+After announced Swift, ReactiveCocoa was rewritten in Swift. As of [version
+5.0][CHANGELOG], the Objective-C API and the Swift API are entirely separated into different projects ([ReactiveObjC][] and [ReactiveSwift][]).
 
-RAC’s [Objective-C API][] and Swift API are entirely separate, but there is
-a [bridge][Objective-C Bridging] to convert between the two. This
-is mostly meant as a compatibility layer for older ReactiveCocoa projects, or to
-use Cocoa extensions which haven’t been added to the Swift API yet.
+There is a bridge to convert between those APIs ([ReactiveObjCBridge][]) which is mostly meant as a compatibility layer for older ReactiveCocoa projects.
 
 The Objective-C API will continue to exist and be supported for the foreseeable
-future, but it won’t receive many improvements. For more information about using
-this API, please consult our [legacy documentation][].
+future, but it won’t receive many improvements. For more information about using this API, please consult our [legacy documentation][].
 
 **We highly recommend that all new projects use the Swift API.**
 
@@ -102,6 +98,8 @@ a tour of ReactiveCocoa’s concepts, and the [Basic Operators][] for some
 introductory examples of using it.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
+[ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC
+[ReactiveObjCBridge]: https://github.com/ReactiveCocoa/ReactiveObjCBridge
 [Actions]: Documentation/FrameworkOverview.md#actions
 [Basic Operators]: Documentation/BasicOperators.md
 [CHANGELOG]: CHANGELOG.md
@@ -109,8 +107,6 @@ introductory examples of using it.
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Legacy Documentation]: https://github.com/ReactiveCocoa/ReactiveObjC/blob/master/Documentation/
-[Objective-C API]: ReactiveCocoa/Objective-C
-[Objective-C Bridging]: Documentation/ObjectiveCBridging.md
 [Signal producers]: Documentation/FrameworkOverview.md#signal-producers
 [Signals]: Documentation/FrameworkOverview.md#signals
 [Swift API]: ReactiveCocoa/Swift

@@ -1,7 +1,7 @@
 import Foundation
 import ReactiveSwift
 import enum Result.NoError
-import ReactiveCocoaPrivate
+import ReactiveCocoaUtils.Private
 
 extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every invocation

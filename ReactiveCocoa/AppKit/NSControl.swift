@@ -93,32 +93,19 @@ extension Reactive where Base: NSControl {
 	/// A trigger signal that sends a `next` event for every action messages
 	/// received from the control, and completes when the control deinitializes.
 	private var trigger: Signal<(), NoError> {
-		let receiver: ActionMessageReceiver = associatedValue { base in
-			let receiver = ActionMessageReceiver()
+		return associatedValue { base in
+			let (signal, observer) = Signal<(), NoError>.pipe()
+
+			let receiver = CocoaTrigger(observer)
 			base.target = receiver
-			base.action = #selector(ActionMessageReceiver.receive)
+			base.action = #selector(CocoaTrigger.sendNext)
 
-			return receiver
+			lifetime.ended.observeCompleted {
+				_ = receiver
+				observer.sendCompleted()
+			}
+
+			return signal
 		}
-
-		return receiver.trigger
-	}
-}
-
-private class ActionMessageReceiver: NSObject {
-	let trigger: Signal<(), NoError>
-	private let observer: Signal<(), NoError>.Observer
-
-	override init() {
-		(trigger, observer) = Signal<(), NoError>.pipe()
-		super.init()
-	}
-
-	deinit {
-		observer.sendCompleted()
-	}
-
-	@objc func receive(_ sender: Any?) {
-		observer.send(value: ())
 	}
 }

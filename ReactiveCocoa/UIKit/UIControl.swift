@@ -2,18 +2,6 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
-private class UnsafeControlReceiver: NSObject {
-	private let observer: Observer<(), NoError>
-
-	fileprivate init(observer: Observer<(), NoError>) {
-		self.observer = observer
-	}
-
-	@objc fileprivate func sendNext(_ receiver: Any?) {
-		observer.send(value: ())
-	}
-}
-
 extension Reactive where Base: UIControl {
 	/// The current associated action of `self`, with its registered event mask
 	/// and its disposable.
@@ -59,9 +47,9 @@ extension Reactive where Base: UIControl {
 	///   A trigger signal.
 	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
 		return Signal { observer in
-			let receiver = UnsafeControlReceiver(observer: observer)
+			let receiver = CocoaTrigger(observer)
 			base.addTarget(receiver,
-			                   action: #selector(UnsafeControlReceiver.sendNext),
+			                   action: #selector(CocoaTrigger.sendNext),
 			                   for: controlEvents)
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
@@ -70,7 +58,7 @@ extension Reactive where Base: UIControl {
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,
-				                   action: #selector(UnsafeControlReceiver.sendNext),
+				                   action: #selector(CocoaTrigger.sendNext),
 				                   for: controlEvents)
 			}
 		}

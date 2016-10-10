@@ -251,7 +251,7 @@ static Class RACSwizzleClass(NSObject *self) {
 
 @implementation NSObject (RACObjCRuntimeUtilities)
 
--(BOOL) rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(void))receiver {
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(void))receiver {
 	SEL aliasSelector = RACAliasForSelector(selector);
 
 	__block void (^existingReceiver)(void) = objc_getAssociatedObject(self, aliasSelector);

@@ -2,7 +2,8 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-internal class CocoaTrigger: NSObject {
+/// A target that accepts action messages.
+internal class CocoaTarget: NSObject {
 	let observer: Observer<(), NoError>
 
 	init(_ observer: Observer<(), NoError>) {

@@ -179,7 +179,7 @@ For more information about cancellation, see the RAC [Design Guidelines][].
 
 ## Schedulers
 
-A **scheduler**, represented by the [`SchedulerType`][Scheduler] protocol, is a
+A **scheduler**, represented by the [`Scheduler`][Scheduler] protocol, is a
 serial execution queue to perform work or deliver results upon.
 
 [Signals](#signals) and [signal producers](#signal-producers) can be ordered to
@@ -199,12 +199,12 @@ do not allow tasks to be reordered or depend on one another.
 [Design Guidelines]: DesignGuidelines.md
 [BasicOperators]: BasicOperators.md
 [README]: ../README.md
-[Signal]: ../ReactiveCocoa/Swift/Signal.swift
-[SignalProducer]: ../ReactiveCocoa/Swift/SignalProducer.swift
-[Action]: ../ReactiveCocoa/Swift/Action.swift
-[CocoaAction]: ../ReactiveCocoa/Swift/CocoaAction.swift
-[Disposable]: ../ReactiveCocoa/Swift/Disposable.swift
-[Scheduler]: ../ReactiveCocoa/Swift/Scheduler.swift
-[Property]: ../ReactiveCocoa/Swift/Property.swift
-[Event]: ../ReactiveCocoa/Swift/Event.swift
-[Observer]: ../ReactiveCocoa/Swift/Observer.swift
+[Signal]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Signal.swift
+[SignalProducer]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/SignalProducer.swift
+[Action]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Action.swift
+[CocoaAction]: ../ReactiveCocoa/CocoaAction.swift
+[Disposable]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Disposable.swift
+[Scheduler]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Scheduler.swift
+[Property]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Property.swift
+[Event]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Event.swift
+[Observer]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Observer.swift

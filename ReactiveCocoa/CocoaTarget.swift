@@ -3,7 +3,7 @@ import ReactiveSwift
 import enum Result.NoError
 
 /// A target that accepts action messages.
-internal class CocoaTarget: NSObject {
+internal final class CocoaTarget: NSObject {
 	let observer: Observer<(), NoError>
 
 	init(_ observer: Observer<(), NoError>) {

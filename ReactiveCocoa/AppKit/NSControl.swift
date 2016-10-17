@@ -98,7 +98,7 @@ extension Reactive where Base: NSControl {
 
 			let receiver = CocoaTarget(observer)
 			base.target = receiver
-			base.action = #selector(CocoaTarget.sendNext)
+			base.action = #selector(receiver.sendNext)
 
 			lifetime.ended.observeCompleted {
 				_ = receiver

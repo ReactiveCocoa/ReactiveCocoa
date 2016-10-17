@@ -17,9 +17,7 @@ extension Reactive where Base: UIControl {
 	///   - controlEvents: The control event mask.
 	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
 		associatedAction.modify { associatedAction in
-			if let old = associatedAction {
-				old.disposable.dispose()
-			}
+			associatedAction?.disposable.dispose()
 
 			if let action = action {
 				base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)

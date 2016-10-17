@@ -27,7 +27,7 @@ extension Reactive where Base: NSObject {
 		let isSuccessful = base._rac_setupInvocationObservation(for: selector,
 		                                                       protocol: nil,
 		                                                       receiver: observer.send(value:))
-		assert(isSuccessful)
+		precondition(isSuccessful)
 
 		lifetime.ended.observeCompleted(observer.sendCompleted)
 		map.setObject(signal, forKey: selectorName)

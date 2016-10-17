@@ -42,7 +42,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 			.map { $0 as! Value }
 	}
 
-	public lazy var signal: Signal<Value?, NoError> = { [unowned self] in
+	public private(set) lazy var signal: Signal<Value?, NoError> = {
 		var signal: Signal<DynamicProperty.Value, NoError>!
 		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
 		return signal

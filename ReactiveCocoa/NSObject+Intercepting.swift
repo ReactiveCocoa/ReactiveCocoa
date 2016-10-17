@@ -19,7 +19,7 @@ extension Reactive where Base: NSObject {
 		let map = associatedValue { _ in NSMutableDictionary() }
 
 		let selectorName = String(describing: selector) as NSString
-		if let signal = map.object(forKey: selectorName) as? Signal<(), NoError> {
+		if let signal = map.object(forKey: selectorName) as! Signal<(), NoError>? {
 			return signal
 		}
 

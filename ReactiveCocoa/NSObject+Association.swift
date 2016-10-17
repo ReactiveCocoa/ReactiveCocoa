@@ -12,7 +12,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   The associated value for the specified key.
 	internal func associatedValue<T>(forKey key: StaticString = #function, initial: (Base) -> T) -> T {
-		var value = objc_getAssociatedObject(base, key.utf8Start) as? T
+		var value = objc_getAssociatedObject(base, key.utf8Start) as! T?
 		if value == nil {
 			value = initial(base)
 			objc_setAssociatedObject(base, key.utf8Start, value, .OBJC_ASSOCIATION_RETAIN)

@@ -31,7 +31,7 @@ private let rac_swizzleToken: Void = {
 /// the pair target+action.
 extension UIControl {
 	override open class func initialize() {
-		if self !== UIControl.self {
+		guard self === UIControl.self else {
 			return
 		}
 

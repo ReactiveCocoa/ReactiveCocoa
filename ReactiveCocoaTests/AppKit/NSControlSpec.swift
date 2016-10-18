@@ -10,6 +10,7 @@ class NSControlSpec: QuickSpec {
 		describe("NSControl") {
 			var window: NSWindow!
 			var control: NSButton!
+			weak var _control: NSControl?
 
 			beforeEach {
 				window = NSWindow()
@@ -18,7 +19,16 @@ class NSControlSpec: QuickSpec {
 				control.setButtonType(.onOff)
 				control.state = NSOffState
 
+				_control = control
+
 				window.contentView!.addSubview(control)
+			}
+
+			afterEach {
+				control.removeFromSuperview()
+				control = nil
+
+				expect(_control).to(beNil())
 			}
 
 			it("should emit changes in Int") {

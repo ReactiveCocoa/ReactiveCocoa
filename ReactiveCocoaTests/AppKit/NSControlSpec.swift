@@ -25,8 +25,10 @@ class NSControlSpec: QuickSpec {
 			}
 
 			afterEach {
-				control.removeFromSuperview()
-				control = nil
+				autoreleasepool {
+					control.removeFromSuperview()
+					control = nil
+				}
 
 				expect(_control).to(beNil())
 			}

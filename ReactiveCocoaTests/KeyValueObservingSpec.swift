@@ -11,10 +11,13 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.reactive.values(forKeyPath: "rac_value").startWithValues { value in
-					expect(value).notTo(beNil())
-					values.append(value as! Int)
-				}
+
+				object.reactive
+					.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+					.startWithValues { value in
+						expect(value).notTo(beNil())
+						values.append(value as! Int)
+					}
 
 				expect(values) == [ 0 ]
 
@@ -28,10 +31,13 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should sends the current value and then the changes for the key path, even if the value actually remains unchanged") {
 				let object = ObservableObject()
 				var values: [Int] = []
-				object.reactive.values(forKeyPath: "rac_value").startWithValues { value in
-					expect(value).notTo(beNil())
-					values.append(value as! Int)
-				}
+
+				object.reactive
+					.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+					.startWithValues { value in
+						expect(value).notTo(beNil())
+						values.append(value as! Int)
+					}
 
 				expect(values) == [ 0 ]
 
@@ -49,9 +55,9 @@ class KeyValueObservingSpec: QuickSpec {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
 
-					object.reactive.values(forKeyPath: "rac_value").startWithCompleted {
-						completed = true
-					}
+					object.reactive
+						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+						.startWithCompleted { completed = true }
 
 					expect(completed) == false
 				}()
@@ -63,7 +69,8 @@ class KeyValueObservingSpec: QuickSpec {
 				var interrupted = false
 
 				let object = ObservableObject()
-				let disposable = object.reactive.values(forKeyPath: "rac_value")
+				let disposable = object.reactive
+					.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 					.startWithInterrupted { interrupted = true }
 
 				expect(interrupted) == false
@@ -78,7 +85,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 				parentObject
 					.reactive
-					.values(forKeyPath: "rac_object.rac_value")
+					.values(forKeyPath: #keyPath(NestedObservableObject.rac_object.rac_value))
 					.map { $0 as! NSNumber }
 					.map { $0.intValue }
 					.startWithValues {
@@ -105,6 +112,8 @@ class KeyValueObservingSpec: QuickSpec {
 				let parentObject = NestedObservableObject()
 				var innerObject = Optional(ObservableObject())
 				parentObject.rac_weakObject = innerObject
+
+				// `#keyPath` does not work with weak relationships.
 
 				var values: [Int] = []
 				parentObject
@@ -160,7 +169,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 					testObject
 						.reactive
-						.values(forKeyPath: "rac_value")
+						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 						.skip(first: 1)
 						.take(first: 1)
 						.map { $0 as! NSNumber }
@@ -182,7 +191,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 					testObject
 						.reactive
-						.values(forKeyPath: "rac_value")
+						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 						.skip(first: 1)
 						.take(first: 1)
 						.observe(on: UIScheduler())
@@ -205,7 +214,7 @@ class KeyValueObservingSpec: QuickSpec {
 
 					testObject
 						.reactive
-						.values(forKeyPath: "rac_value")
+						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 						.observe(on: UIScheduler())
 						.map { $0 as! NSNumber }
 						.map { $0.intValue }
@@ -251,7 +260,7 @@ class KeyValueObservingSpec: QuickSpec {
 					DispatchQueue.concurrentPerform(iterations: numIterations) { index in
 						testObject
 							.reactive
-							.values(forKeyPath: "rac_value")
+							.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 							.skip(first: 1)
 							.observe(on: deliveringObserver)
 							.map { $0 as! NSNumber }
@@ -272,7 +281,10 @@ class KeyValueObservingSpec: QuickSpec {
 
 					iterationQueue.async {
 						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
-							let disposable = testObject.reactive.values(forKeyPath: "rac_value").startWithCompleted {}
+							let disposable = testObject.reactive
+								.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+								.startWithCompleted {}
+
 							serialDisposable.innerDisposable = disposable
 
 							concurrentQueue.async {
@@ -295,7 +307,8 @@ class KeyValueObservingSpec: QuickSpec {
 						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 					}
 
-					let replayProducer = testObject.reactive.values(forKeyPath: "rac_value")
+					let replayProducer = testObject.reactive
+						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 						.map { $0 as! NSNumber }
 						.map { $0.intValue }
 						.map { $0 % 2 == 0 }

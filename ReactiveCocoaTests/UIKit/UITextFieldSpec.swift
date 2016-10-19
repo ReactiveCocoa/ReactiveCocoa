@@ -16,7 +16,12 @@ class UITextFieldSpec: QuickSpec {
 
 		afterEach {
 			textField = nil
-			expect(_textField).to(beNil())
+
+			// Disabled due to an issue of the iOS SDK.
+			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
+			// for more information.
+			//
+			//expect(_textField).to(beNil())
 		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {

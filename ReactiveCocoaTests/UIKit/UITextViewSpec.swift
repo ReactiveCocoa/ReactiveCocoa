@@ -16,7 +16,12 @@ class UITextViewSpec: QuickSpec {
 
 		afterEach {
 			textView = nil
-			expect(_textView).to(beNil())
+
+			// Disabled due to an issue of the iOS SDK.
+			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
+			// for more information.
+			//
+			// expect(_textView).to(beNil())
 		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {

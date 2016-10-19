@@ -16,7 +16,12 @@ class UISwitchSpec: QuickSpec {
 
 		afterEach {
 			toggle = nil
-			expect(_toggle).to(beNil())
+
+			// Disabled due to an issue of the iOS SDK.
+			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
+			// for more information.
+			//
+			// expect(_toggle).to(beNil())
 		}
 
 		it("should accept changes from bindings to its `isOn` state") {

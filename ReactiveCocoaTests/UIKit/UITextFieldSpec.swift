@@ -10,18 +10,17 @@ class UITextFieldSpec: QuickSpec {
 		weak var _textField: UITextField?
 
 		beforeEach {
-			textField = UITextField(frame: .zero)
-			_textField = textField
+			autoreleasepool {
+				textField = UITextField(frame: .zero)
+				_textField = textField
+			}
 		}
 
 		afterEach {
-			textField = nil
-
-			// Disabled due to an issue of the iOS SDK.
-			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
-			// for more information.
-			//
-			//expect(_textField).to(beNil())
+			autoreleasepool {
+				textField = nil
+			}
+			expect(_textField).to(beNil())
 		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {

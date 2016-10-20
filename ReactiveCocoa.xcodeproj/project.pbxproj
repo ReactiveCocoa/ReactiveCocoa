@@ -94,16 +94,12 @@
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
-		9A6AAA1E1DB8F50D0013AAEA /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */; };
-		9A6AAA1F1DB8F50D0013AAEA /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */; };
-		9A6AAA201DB8F50D0013AAEA /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */; };
-		9A6AAA211DB8F50D0013AAEA /* Reusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */; };
 		9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */; };
 		9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */; };
-		9A6AAA2C1DB8F8640013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
-		9A6AAA2D1DB8F8650013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
@@ -269,7 +265,6 @@
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
-		9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reusable.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReusableComponentsSpec.swift; path = AppKit/ReusableComponentsSpec.swift; sourceTree = "<group>"; };
@@ -544,7 +539,6 @@
 				9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */,
 				9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
-				9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
@@ -951,7 +945,6 @@
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */,
-				9A6AAA2D1DB8F8650013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
 				9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
@@ -961,7 +954,6 @@
 				9A1D06141D93EA0100ACF44C /* UIButton.swift in Sources */,
 				9A1D065E1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				9AF0EA781D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
-				9A6AAA211DB8F50D0013AAEA /* Reusable.swift in Sources */,
 				9A1D06191D93EA0100ACF44C /* UILabel.swift in Sources */,
 				4A0E11021D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
@@ -988,6 +980,7 @@
 				9A1D064B1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
 				9A1D063F1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				9A1D06371D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
+				9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				9A1D06471D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A1D06391D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
@@ -1004,7 +997,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
-				9A6AAA201DB8F50D0013AAEA /* Reusable.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
 				9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9ADE4A931DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
@@ -1028,7 +1020,6 @@
 				9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9ADE4A961DA6F018005C2AC8 /* NSTextField.swift in Sources */,
-				9A6AAA1E1DB8F50D0013AAEA /* Reusable.swift in Sources */,
 				9A2E425E1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
@@ -1063,8 +1054,6 @@
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
-				9A6AAA2C1DB8F8640013AAEA /* ReusableComponentsSpec.swift in Sources */,
-				9A6AAA1F1DB8F50D0013AAEA /* Reusable.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */,
@@ -1109,6 +1098,7 @@
 				9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				9A1D06381D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
 				9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
+				9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				9A1D06401D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
 				9A1D06481D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,

@@ -101,6 +101,9 @@
 		9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */; };
+		9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */; };
+		9A6AAA2C1DB8F8640013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A6AAA2D1DB8F8650013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
@@ -269,6 +272,8 @@
 		9A6AAA1D1DB8F50D0013AAEA /* Reusable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reusable.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
+		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReusableComponentsSpec.swift; path = AppKit/ReusableComponentsSpec.swift; sourceTree = "<group>"; };
+		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaAction.swift; sourceTree = "<group>"; };
@@ -445,6 +450,7 @@
 		9A1D06231D93EA7E00ACF44C /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */,
 				9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift */,
 				9A1D06251D93EA7E00ACF44C /* UIBarButtonItemSpec.swift */,
 				9A1D06261D93EA7E00ACF44C /* UIButtonSpec.swift */,
@@ -467,6 +473,7 @@
 			isa = PBXGroup;
 			children = (
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
+				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
 			);
 			name = AppKit;
 			sourceTree = "<group>";
@@ -944,6 +951,7 @@
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */,
+				9A6AAA2D1DB8F8650013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
 				9A1D067A1D94160100ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
@@ -1039,6 +1047,7 @@
 				D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
+				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
@@ -1054,6 +1063,7 @@
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
+				9A6AAA2C1DB8F8640013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				9A6AAA1F1DB8F50D0013AAEA /* Reusable.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,

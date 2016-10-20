@@ -360,6 +360,7 @@ class KeyValueObservingSpec: QuickSpec {
 			}
 		}
 	}
+	//加了一个
 }
 
 private class ObservableObject: NSObject {

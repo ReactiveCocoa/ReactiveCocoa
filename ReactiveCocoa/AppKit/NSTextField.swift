@@ -3,6 +3,11 @@ import AppKit
 import enum Result.NoError
 
 extension Reactive where Base: NSTextField {
+	/// Wraps the `stringValue` binding target for cross-platform compatibility
+	public var text: BindingTarget<String> {
+		return stringValue
+	}
+
 	/// A signal of values in `String` from the text field upon any changes.
 	public var continuousStringValues: Signal<String, NoError> {
 		return NotificationCenter.default

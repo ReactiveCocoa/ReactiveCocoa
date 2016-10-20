@@ -1,11 +1,3 @@
-//
-//  DynamicPropertySpec.swift
-//  ReactiveCocoa
-//
-//  Created by Justin Spahr-Summers on 2015-01-23.
-//  Copyright (c) 2015 GitHub. All rights reserved.
-//
-
 import ReactiveSwift
 import Result
 import Nimble

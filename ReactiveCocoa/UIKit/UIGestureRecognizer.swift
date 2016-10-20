@@ -9,7 +9,7 @@ extension Reactive where Base: UIGestureRecognizer {
 	/// - returns:
 	///   A trigger signal.
 	
-	public func trigger() -> Signal<(), NoError> {
+	public var recognised: Signal<(), NoError> {
 		return Signal { observer in
 			let receiver = CocoaTarget(observer)
 			base.addTarget(receiver, action: #selector(receiver.sendNext))

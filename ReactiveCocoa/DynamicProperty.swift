@@ -28,7 +28,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 
 	/// The lifetime of the property.
 	public var lifetime: Lifetime {
-		return object?.rac_lifetime ?? .empty
+		return object?.reactive.lifetime ?? .empty
 	}
 
 	/// A producer that will create a Key-Value Observer for the given object,
@@ -38,7 +38,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
-		return (object.map { $0.values(forKeyPath: keyPath) } ?? .empty)
+		return (object.map { $0.reactive.values(forKeyPath: keyPath) } ?? .empty)
 			.map { $0 as! Value }
 	}
 
@@ -63,6 +63,6 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 
 		/// A DynamicProperty will stay alive as long as its object is alive.
 		/// This is made possible by strong reference cycles.
-		_ = object?.rac_lifetime.ended.observeCompleted { _ = self }
+		_ = object?.reactive.lifetime.ended.observeCompleted { _ = self }
 	}
 }

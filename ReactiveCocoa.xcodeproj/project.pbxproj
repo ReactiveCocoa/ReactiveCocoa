@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
 		419139491DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
+		4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
 		4A0E11001D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
 		4A0E11011D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
@@ -220,6 +221,7 @@
 
 /* Begin PBXFileReference section */
 		419139431DB910570043C9D1 /* UIGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizer.swift; sourceTree = "<group>"; };
+		4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizerSpec.swift; sourceTree = "<group>"; };
 		4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Lifetime.swift"; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
@@ -451,6 +453,7 @@
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
 				9A1D06331D93EA7E00ACF44C /* UITextViewSpec.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewSpec.swift */,
+				4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -1078,6 +1081,7 @@
 				9A1D063A1D93EA7E00ACF44C /* UIButtonSpec.swift in Sources */,
 				9A1D064A1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
+				4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,

@@ -42,7 +42,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	```swift
 	NotificationCenter.default.reactive
 		.notifications(forName: .MyNotification)
-		.take(until: self.reactive.lifetime)
+		.take(during: self.reactive.lifetime)
 	```
 
 1. **Method call interception**

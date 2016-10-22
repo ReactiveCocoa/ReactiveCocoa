@@ -30,7 +30,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 1. **Expressive, safe key path observation**
 
 	You may easily obtain a stream of values for a certain key path, without the
-	need to deal with the obscured KVO API.
+	need to deal with the obscure KVO API.
 	```swift
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 	```

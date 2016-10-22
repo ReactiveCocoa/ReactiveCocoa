@@ -14,8 +14,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
   
-  # Right now this points to a commit, but eventually it will be a git tag instead. That tag will be something like `:tag => "#{s.version}"`, generating 5.0.0-alpha.2 for example.
-  s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :commit => "2bee28d" }
+  s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :tag => "#{s.version}" }
   s.source_files = "ReactiveCocoa/*.{swift,h,m}"
   s.private_header_files = "ReactiveCocoa/RACObjCRuntimeUtilities.h"
   s.osx.source_files = "ReactiveCocoa/AppKit/*.{swift}"

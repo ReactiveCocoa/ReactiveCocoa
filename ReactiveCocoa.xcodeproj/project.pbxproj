@@ -94,6 +94,10 @@
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
+		9A6AAA191DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9A6AAA1A1DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9A6AAA1B1DB808A90013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9A6AAA1C1DB808AA0013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */; };
 		9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */; };
@@ -659,6 +663,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */,
+				9A6AAA1C1DB808AA0013AAEA /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,6 +672,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */,
+				9A6AAA1B1DB808A90013AAEA /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -675,6 +681,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D04725F019E49ED7006002AA /* ReactiveCocoa.h in Headers */,
+				9A6AAA191DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -683,6 +690,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */,
+				9A6AAA1A1DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1139,7 +1147,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -1155,7 +1163,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Test;
 		};
@@ -1171,7 +1179,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Release;
 		};
@@ -1187,7 +1195,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -1259,7 +1267,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -1275,7 +1283,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Test;
 		};
@@ -1291,7 +1299,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Release;
 		};
@@ -1307,7 +1315,7 @@
 					"DTRACE_PROBES_DISABLED=1",
 				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -1359,7 +1367,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate/";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -1371,7 +1379,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate/";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Release;
 		};
@@ -1409,7 +1417,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -1421,7 +1429,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Release;
 		};
@@ -1478,7 +1486,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate/";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -1503,7 +1511,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -1547,7 +1555,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate/";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Test;
 		};
@@ -1572,7 +1580,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/ReactiveCocoa/ReactiveCocoaPrivate";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
 			};
 			name = Test;
 		};

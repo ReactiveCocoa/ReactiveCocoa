@@ -1,5 +1,5 @@
 ![](Logo/header.png)
-##### Reactive extensions to Cocoa frameworks, built on top of [ReactiveSwift][].
+#### Reactive extensions to Cocoa frameworks, built on top of [ReactiveSwift][].
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](#cocoapods) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
@@ -9,48 +9,67 @@
 
 __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative primitives from [ReactiveSwift](). Let's go through a few core aspects of ReactiveCocoa:
 
-1. **Unidirectional UI bindings**
+1. **UI Bindings**
 
-	You may establish bindings from any streams of values to the `BindingTarget`s
-	exposed by the UI components.
+	UI components exposes `BindingTarget`s, which accept bindings from any
+	kind of streams of values via the `<~` operator.
 
 	```swift
+	// Bind the `name` property of `person` to the text value of an `UILabel`.
 	nameLabel.text <~ person.name
 	```
 
 1. **Controls and User Interactions**
 
-	You may observe many kinds of user interactions as streams of values. For
-	example, UI controls expose signals that send user initiated
-	changes in its state.
+	Interactive UI components expose `Signal`s for control events
+	and updates in the control value upon user interactions.
+	
+	A selected set of controls provide a convenience, expressive binding
+	API for `Action`s.
+	
+	
 	```swift
-	perferences.allowsCookies <~ cookieMonsterView.toggle.isOnValues 
+	// Update `allowsCookies` whenever the toggle is flipped.
+	perferences.allowsCookies <~ toggle.reactive.isOnValues 
+	
+	// Compute live character counts from the continuous stream of user initiated
+	// changes in the text.
+	textField.reactive.continuousTextValues.map { $0.characters.count }
+	
+	// Trigger `commit` whenever the button is pressed.
+	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```
+	
+1. **Declarative Objective-C Dynamism**
 
-1. **Expressive, safe key path observation**
-
-	You may easily obtain a stream of values for a certain key path, without the
-	need to deal with the obscure KVO API.
+	Create signals that are sourced by intercepting Objective-C objects,
+	e.g. method call interception and object deinitialization.
+	
 	```swift
-	let producer = object.reactive.values(forKeyPath: #keyPath(key))
-	```
-
-1. **Object deinitialization**
-
-	You may couple resources to or compose signal with the `Lifetime` of every
-  `NSObject`.
-	```swift
-	NotificationCenter.default.reactive
-		.notifications(forName: .MyNotification)
-		.take(during: self.reactive.lifetime)
-	```
-
-1. **Method call interception**
-
-	You may ask to intercept a particular method, and get notified after it is
-	called.
-	```swift
+	// Notify after every time `viewWillAppear(_:)` is called.
 	let appearing = object.reactive.trigger(for: #selector(viewWillAppear(_:)))
+	
+	// Observe the lifetime of `object`.
+	object.reactive.lifetime.ended.observeCompleted(doCleanup)
+	```
+
+1. **Expressive, Safe Key Path Observation**
+
+	Establish key-value observations in the form of `SignalProducer`s and
+	`DynamicProperty`s, and enjoy the inherited composability.
+	
+	```swift
+	// A producer that sends the current value of `keyPath`, followed by
+	// subsequent changes.
+	//
+	// Terminate the KVO observation if the lifetime of `self` ends.
+	let producer = object.reactive.values(forKeyPath: #keyPath(key))
+		.take(during: self.reactive.lifetime)
+	
+	// A parameterized property that represents the supplied key path of the
+	// wrapped object. It holds a weak reference to the wrapped object.
+	let property = DynamicProperty<String>(object: person,
+	                                       keyPath: #keyPath(person.name))
 	```
 
 But there are still more to be discovered, and more to be introduced. Read our in-code documentations and release notes to

@@ -7,7 +7,7 @@
 [&raquo; Still using Swift 2.x?](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v4.0.0)
 
 ### What is ReactiveSwift?
-__ReactiveSwift__ builds around the grand concept of ___stream of values over time___, and offers composable, declaractive and flexible primitives. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundementally an act of observation.
+__ReactiveSwift__ offers composable, declaractive and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundementally an act of observation.
 
 For more information about the core primitives, see [ReactiveSwift]().
 

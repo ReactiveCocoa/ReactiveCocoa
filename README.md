@@ -3,7 +3,7 @@
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](#cocoapods) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
-[&raquo; Looking for the Objective-C API?][] [&raquo; Still using Swift 2.x?][]
+⚠️ [Looking for the Objective-C API?][] ⚠️ [Still using Swift 2.x?][]
 
 ## What is ReactiveSwift?
 __ReactiveSwift__ offers composable, declaractive and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundementally an act of observation.
@@ -131,8 +131,8 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 [Carthage]: https://github.com/Carthage/Carthage
 [CocoaPods]: https://cocoapods.org/
 [submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
-[&raquo; Looking for the Objective-C API?]: https://github.com/ReactiveCocoa/ReactiveObjC
-[&raquo; Still using Swift 2.x?]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v4.0.0
+[Looking for the Objective-C API?]: https://github.com/ReactiveCocoa/ReactiveObjC
+[Still using Swift 2.x?]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v4.0.0
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions

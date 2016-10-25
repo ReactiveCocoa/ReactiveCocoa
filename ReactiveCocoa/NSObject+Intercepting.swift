@@ -12,7 +12,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		return base.synchronize {
+		return base.synchronized {
 			let map = associatedValue { _ in NSMutableDictionary() }
 
 			let selectorName = String(describing: selector) as NSString

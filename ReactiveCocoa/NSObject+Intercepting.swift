@@ -12,8 +12,8 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		objc_sync_enter(self)
-		defer { objc_sync_exit(self) }
+		objc_sync_enter(base)
+		defer { objc_sync_exit(base) }
 
 		let map = associatedValue { _ in NSMutableDictionary() }
 

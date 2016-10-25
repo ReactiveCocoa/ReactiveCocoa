@@ -1,3 +1,3 @@
-github "jspahrsummers/xcconfigs" "1ef9763"
-github "norio-nomura/Quick" "nn-swift-3-compatibility"
-github "andersio/Nimble" "swift3-beta-4"
+github "jspahrsummers/xcconfigs" "3d9d996"
+github "Quick/Quick" ~> 0.10
+github "Quick/Nimble" ~> 5.0

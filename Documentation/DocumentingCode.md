@@ -97,6 +97,7 @@ init(withBar bar: Bar = Bar.defaultBar()) {
 ///
 /// - parameters:
 ///   - bar: Instance of Bar.
+```
 
 - The `precondition`, `parameters` and `return` delimiters should come last in that order in the markup block before the method's signature.
 

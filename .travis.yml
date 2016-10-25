@@ -11,7 +11,7 @@ script:
 xcode_workspace: ReactiveCocoa.xcworkspace
 matrix:
   include:
-    - xcode_scheme: ReactiveCocoa-Mac
+    - xcode_scheme: ReactiveCocoa-macOS
       env:
         - XCODE_SDK=macosx
         - XCODE_ACTION="build test"
@@ -35,9 +35,33 @@ matrix:
     - script:
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage build --no-skip-current
+        - carthage build --no-skip-current --platform mac
       env:
-        - JOB=CARTHAGE
+        - JOB=CARTHAGE-macOS
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current --platform iOS
+      env:
+        - JOB=CARTHAGE-iOS
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current --platform tvOS
+      env:
+        - JOB=CARTHAGE-tvOS
+    - script:
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage build --no-skip-current --platform watchOS
+      env:
+        - JOB=CARTHAGE-watchOS
+    - script:
+      - gem install cocoapods
+      - pod repo update --silent
+      - pod lib lint --allow-warnings
+      env:
+        - JOB=PODSPEC
 notifications:
   email: false
   slack:

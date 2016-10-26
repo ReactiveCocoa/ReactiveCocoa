@@ -74,7 +74,7 @@ class InterceptingSpec: QuickSpec {
 
 			it("should not deadlock") {
 				for _ in 1 ... 10 {
-					var isDeadlock = true
+					var isDeadlocked = true
 
 					DispatchQueue.global(priority: .high).async {
 						_ = object.reactive.trigger(for: #selector(object.increment))
@@ -82,11 +82,11 @@ class InterceptingSpec: QuickSpec {
 						DispatchQueue.global(priority: .high).async {
 							_ = object.reactive.trigger(for: #selector(object.increment))
 
-							isDeadlock = false
+							isDeadlocked = false
 						}
 					}
 
-					expect(isDeadlock).toEventually(beFalsy())
+					expect(isDeadlocked).toEventually(beFalsy())
 				}
 			}
 		}

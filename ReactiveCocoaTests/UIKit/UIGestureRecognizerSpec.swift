@@ -40,6 +40,38 @@ class UIGestureRecognizerSpec: QuickSpec {
 			gestureRecognizer.fireGestureEvent(.ended)
 			expect(counter) == 4
 		}
+		
+		it("should send it's gesture recognizer in signal") {
+			let signal = gestureRecognizer.reactive.stateChanged
+			var counter = 0
+			signal.observeValues{ signalGestureRecognizer in
+				if signalGestureRecognizer === gestureRecognizer{
+					counter += 1
+				}
+			}
+			gestureRecognizer.fireGestureEvent( .began)
+			expect(counter) == 1
+		}
+		
+		it("should send it's gesture recognizer with the fired state") {
+			let signal = gestureRecognizer.reactive.stateChanged
+			weak var signalGestureRecognizer:TestTapGestureRecognizer?
+			signal.observeValues{ recognizer in
+				signalGestureRecognizer = recognizer
+			}
+			
+			gestureRecognizer.fireGestureEvent(.possible)
+			expect(signalGestureRecognizer?.state) == .possible
+			
+			gestureRecognizer.fireGestureEvent( .began)
+			expect(signalGestureRecognizer?.state) == .began
+			
+			gestureRecognizer.fireGestureEvent(.changed)
+			expect(signalGestureRecognizer?.state) == .changed
+			
+			gestureRecognizer.fireGestureEvent(.ended)
+			expect(signalGestureRecognizer?.state) == .ended
+		}
 	}
 }
 

@@ -20,8 +20,8 @@ class UIGestureRecognizerSpec: QuickSpec {
 			expect(_gestureRecognizer).to(beNil())
 		}
 		
-		it("should send a value when the gesture is recognised") {
-			let signal = gestureRecognizer.reactive.recognised
+		it("should send a value when the gesture state changes") {
+			let signal = gestureRecognizer.reactive.stateChanged
 			
 			var counter = 0
 			signal.observeValues { _ in counter += 1 }

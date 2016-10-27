@@ -12,8 +12,6 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private var property: MutableProperty<Value?>?
-
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: Value? {

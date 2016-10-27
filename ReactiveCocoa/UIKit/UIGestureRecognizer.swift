@@ -9,9 +9,11 @@ extension Reactive where Base: UIGestureRecognizer {
 	/// - returns:
 	///   A trigger signal.
 	
-	public var recognised: Signal<(), NoError> {
+	public var recognised: Signal<Base, NoError> {
 		return Signal { observer in
-			let receiver = CocoaTarget(observer)
+			let receiver = CocoaTarget<Base>(observer, transform: { gestureRecognizer in
+				return gestureRecognizer as! Base
+			})
 			base.addTarget(receiver, action: #selector(receiver.sendNext))
 			
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
@@ -23,3 +25,5 @@ extension Reactive where Base: UIGestureRecognizer {
 		}
 	}
 }
+
+

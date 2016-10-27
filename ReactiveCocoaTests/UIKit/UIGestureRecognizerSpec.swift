@@ -24,7 +24,7 @@ class UIGestureRecognizerSpec: QuickSpec {
 			let signal = gestureRecognizer.reactive.recognised
 			
 			var counter = 0
-			signal.observeValues { counter += 1 }
+			signal.observeValues { _ in counter += 1 }
 			
 			expect(counter) == 0
 			gestureRecognizer.fireGestureEvent(.possible)

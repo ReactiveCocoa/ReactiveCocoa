@@ -49,7 +49,7 @@ private struct TargetActionPair {
 	let action: Selector
 }
 
-private class TestTapGestureRecognizer: UITapGestureRecognizer {
+final private class TestTapGestureRecognizer: UITapGestureRecognizer {
 	var targetActionPair: TargetActionPair?
 	var forceState: UIGestureRecognizerState = .ended
 	override var state: UIGestureRecognizerState {

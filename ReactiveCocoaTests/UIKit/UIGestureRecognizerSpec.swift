@@ -39,7 +39,6 @@ class UIGestureRecognizerSpec: QuickSpec {
 			
 			gestureRecognizer.fireGestureEvent(.ended)
 			expect(counter) == 4
-
 		}
 	}
 }

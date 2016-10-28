@@ -22,6 +22,7 @@ protocol CocoaTargetProtocol: class {
 	associatedtype Value
 	init(_ observer: Observer<Value, NoError>, transform: @escaping (Any?) -> Value)
 }
+
 extension CocoaTarget:CocoaTargetProtocol{}
 
 extension CocoaTargetProtocol where Value == Void {

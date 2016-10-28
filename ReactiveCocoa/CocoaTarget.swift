@@ -18,7 +18,7 @@ internal final class CocoaTarget<Value>: NSObject {
 	}
 }
 
-protocol CocoaTargetProtocol: class {
+internal protocol CocoaTargetProtocol: class {
 	associatedtype Value
 	init(_ observer: Observer<Value, NoError>, transform: @escaping (Any?) -> Value)
 }

@@ -9,6 +9,9 @@ extension Reactive where Base: UITextView {
 	}
 
 	/// A signal of text values emitted by the text view upon end of editing.
+	///
+	/// - note: To observe text values that change on all editing events,
+	///   see `continuousTextValues`.
 	public var textValues: Signal<String, NoError> {
 		return NotificationCenter.default
 			.reactive
@@ -18,6 +21,8 @@ extension Reactive where Base: UITextView {
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
+	///
+	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String, NoError> {
 		return NotificationCenter.default
 			.reactive

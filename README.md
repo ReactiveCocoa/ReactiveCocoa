@@ -35,7 +35,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
-	perferences.allowsCookies <~ toggle.reactive.isOnValues 
+	preferences.allowsCookies <~ toggle.reactive.isOnValues 
 	
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.

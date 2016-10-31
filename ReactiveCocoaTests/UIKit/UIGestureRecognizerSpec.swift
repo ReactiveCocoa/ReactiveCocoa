@@ -75,24 +75,25 @@ class UIGestureRecognizerSpec: QuickSpec {
 	}
 }
 
-fileprivate struct TargetActionPair {
-	let target: AnyObject
-	let action: Selector
-}
+private final class TestTapGestureRecognizer: UITapGestureRecognizer {
+	private struct TargetActionPair {
+		let target: AnyObject
+		let action: Selector
+	}
 
-final fileprivate class TestTapGestureRecognizer: UITapGestureRecognizer {
-	var targetActionPair: TargetActionPair?
-	var forceState: UIGestureRecognizerState = .ended
-	override var state: UIGestureRecognizerState {
+	private var targetActionPair: TargetActionPair?
+	private var forceState: UIGestureRecognizerState = .ended
+
+	fileprivate override var state: UIGestureRecognizerState {
 		get { return forceState }
 		set { self.state = newValue }
 	}
 	
-	override func addTarget(_ target: Any, action: Selector) {
+	fileprivate override func addTarget(_ target: Any, action: Selector) {
 		targetActionPair = TargetActionPair(target: target as AnyObject, action: action)
 	}
 	
-	func fireGestureEvent(_ state: UIGestureRecognizerState) {
+	fileprivate func fireGestureEvent(_ state: UIGestureRecognizerState) {
 		guard let targetAction = self.targetActionPair else { return }
 		forceState = state
 		_ = targetAction.target.perform(targetAction.action, with: self)

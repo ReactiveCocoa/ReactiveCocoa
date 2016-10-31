@@ -22,7 +22,7 @@ internal protocol CocoaTargetProtocol: class {
 	init(_ observer: Observer<Value, NoError>, transform: @escaping (Any?) -> Value)
 }
 
-extension CocoaTarget: CocoaTargetProtocol{}
+extension CocoaTarget: CocoaTargetProtocol {}
 
 extension CocoaTargetProtocol where Value == Void {
 	internal init(_ observer: Observer<(), NoError>) {

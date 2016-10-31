@@ -75,12 +75,12 @@ class UIGestureRecognizerSpec: QuickSpec {
 	}
 }
 
-private struct TargetActionPair {
+fileprivate struct TargetActionPair {
 	let target: AnyObject
 	let action: Selector
 }
 
-final private class TestTapGestureRecognizer: UITapGestureRecognizer {
+final fileprivate class TestTapGestureRecognizer: UITapGestureRecognizer {
 	var targetActionPair: TargetActionPair?
 	var forceState: UIGestureRecognizerState = .ended
 	override var state: UIGestureRecognizerState {

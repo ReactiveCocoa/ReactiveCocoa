@@ -77,7 +77,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	                                       keyPath: #keyPath(person.name))
 	```
 
-But there are still more to be discovered, and more to be introduced. Read our in-code documentations and release notes to
+But there are still more to be discovered and introduced. Read our in-code documentations and release notes to
 find out more.
 
 ## Getting started
@@ -86,7 +86,7 @@ ReactiveCocoa supports macOS 10.9+, iOS 8.0+, watchOS 2.0+, and tvOS 9.0+.
 
 #### Carthage
 
-If you are using [Carthage][] to manage your dependencies, simply add
+If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
@@ -97,7 +97,7 @@ If you use Carthage to build your dependencies, make sure you have added `Reacti
 
 #### CocoaPods
 
-If you are using [CocoaPods][] to manage your dependencies, simply add
+If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```

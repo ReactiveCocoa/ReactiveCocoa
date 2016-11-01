@@ -1,74 +1,112 @@
 ![](Logo/header.png)
+#### Reactive extensions to Cocoa frameworks, built on top of [ReactiveSwift][].
 
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](https://cocoapods.org/pods/ReactiveCocoa) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](#cocoapods) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
-ReactiveCocoa (RAC) is a Cocoa framework built on top of [ReactiveSwift][]. It
-provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.
+⚠️ [Looking for the Objective-C API?][] ⚠️ [Still using Swift 2.x?][]
 
- 1. [Introduction](#introduction)
- 1. [Objective-C and Swift](#objective-c-and-swift)
- 1. [Getting started](#getting-started)
+## What is ReactiveSwift?
+__ReactiveSwift__ offers composable, declaractive and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundementally an act of observation.
 
-If you’re already familiar with functional reactive programming or what
-ReactiveCocoa is about, check out the [Documentation][] folder for more in-depth
-information about how it all works. Then, dive straight into our [documentation
-comments][Code] for learning more about individual APIs.
+For more information about the core primitives, see [ReactiveSwift][].
 
-If you have a question, please see if any discussions in our [GitHub
-issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?q=is%3Aissue+label%3Aquestion+) or [Stack
-Overflow](http://stackoverflow.com/questions/tagged/reactive-cocoa) have already
-answered it. If not, please feel free to [file your
-own](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new)!
+## What is ReactiveCocoa?
 
-#### Compatibility
+__ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative [ReactiveSwift][] primitives.
 
-This documents the RAC 5 which targets `Swift 3.0.x`. For `Swift 2.x` support see [RAC
-4](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v4.0.0).
+1. **UI Bindings**
 
-## Introduction
+	UI components exposes [`BindingTarget`][]s, which accept bindings from any
+	kind of streams of values via the `<~` operator.
 
-ReactiveCocoa is inspired by [functional reactive
-programming](https://joshaber.github.io/2013/02/11/input-and-output/).
-Rather than using mutable variables which are replaced and modified in-place,
-RAC offers “event streams,” represented by the [`Signal`][Signals] and
-[`SignalProducer`][Signal producers] types, that send values over time.
+	```swift
+	// Bind the `name` property of `person` to the text value of an `UILabel`.
+	nameLabel.text <~ person.name
+	```
 
-Event streams unify all of Cocoa’s common patterns for asynchrony and event
-handling, including:
+1. **Controls and User Interactions**
 
- * Delegate methods
- * Callback blocks
- * `NSNotification`s
- * Control actions and responder chain events
- * [Futures and promises](https://en.wikipedia.org/wiki/Futures_and_promises)
- * [Key-value observing](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html) (KVO)
+	Interactive UI components expose [`Signal`][]s for control events
+	and updates in the control value upon user interactions.
+	
+	A selected set of controls provide a convenience, expressive binding
+	API for [`Action`][]s.
+	
+	
+	```swift
+	// Update `allowsCookies` whenever the toggle is flipped.
+	preferences.allowsCookies <~ toggle.reactive.isOnValues 
+	
+	// Compute live character counts from the continuous stream of user initiated
+	// changes in the text.
+	textField.reactive.continuousTextValues.map { $0.characters.count }
+	
+	// Trigger `commit` whenever the button is pressed.
+	button.reactive.pressed = CocoaAction(viewModel.commit)
+	```
+	
+1. **Declarative Objective-C Dynamism**
 
-Because all of these different mechanisms can be represented in the _same_ way,
-it’s easy to declaratively chain and combine them together, with less spaghetti
-code and state to bridge the gap.
+	Create signals that are sourced by intercepting Objective-C objects,
+	e.g. method call interception and object deinitialization.
+	
+	```swift
+	// Notify after every time `viewWillAppear(_:)` is called.
+	let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
+	
+	// Observe the lifetime of `object`.
+	object.reactive.lifetime.ended.observeCompleted(doCleanup)
+	```
 
-For more information about the concepts in ReactiveCocoa, see [ReactiveSwift][].
+1. **Expressive, Safe Key Path Observation**
 
-## Objective-C and Swift
+	Establish key-value observations in the form of [`SignalProducer`][]s and
+	`DynamicProperty`s, and enjoy the inherited composability.
+	
+	```swift
+	// A producer that sends the current value of `keyPath`, followed by
+	// subsequent changes.
+	//
+	// Terminate the KVO observation if the lifetime of `self` ends.
+	let producer = object.reactive.values(forKeyPath: #keyPath(key))
+		.take(during: self.reactive.lifetime)
+	
+	// A parameterized property that represents the supplied key path of the
+	// wrapped object. It holds a weak reference to the wrapped object.
+	let property = DynamicProperty<String>(object: person,
+	                                       keyPath: #keyPath(person.name))
+	```
 
-After announced Swift, ReactiveCocoa was rewritten in Swift. As of [version
-5.0][CHANGELOG], the Objective-C API and the Swift API are entirely separated into different projects ([ReactiveObjC][] and [ReactiveSwift][]).
-
-There is a bridge to convert between those APIs ([ReactiveObjCBridge][]) which is mostly meant as a compatibility layer for older ReactiveCocoa projects.
-
-The Objective-C API will continue to exist and be supported for the foreseeable
-future, but it won’t receive many improvements. For more information about using this API, please consult our [legacy documentation][].
-
-**We highly recommend that all new projects use the Swift API.**
+But there are still more to be discovered, and more to be introduced. Read our in-code documentations and release notes to
+find out more.
 
 ## Getting started
 
-ReactiveCocoa supports `OS X 10.9+`, `iOS 8.0+`, `watchOS 2.0`, and `tvOS 9.0`.
+ReactiveCocoa supports macOS 10.9+, iOS 8.0+, watchOS 2.0+, and tvOS 9.0+.
 
-To add RAC to your application:
+#### Carthage
 
- 1. Add the ReactiveCocoa repository as a
-    [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
+If you are using [Carthage][] to manage your dependency, simply add
+ReactiveCocoa to your `Cartfile`:
+
+```
+github "ReactiveCocoa/ReactiveCocoa"
+```
+
+If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
+
+#### CocoaPods
+
+If you are using [CocoaPods][] to manage your dependency, simply add
+ReactiveCocoa to your `Podfile`:
+
+```
+pod 'ReactiveCocoa', :git => 'https://github.com/ReactiveCocoa/ReactiveCocoa.git'
+```
+
+#### Git submodule
+
+ 1. Add the ReactiveCocoa repository as a [submodule][] of your
     application’s repository.
  1. Run `git submodule update --init --recursive` from within the ReactiveCocoa folder.
  1. Drag and drop `ReactiveCocoa.xcodeproj`,
@@ -81,32 +119,21 @@ To add RAC to your application:
  1. If your application target does not contain Swift code at all, you should also
     set the `EMBEDDED_CONTENT_CONTAINS_SWIFT` build setting to “Yes”.
 
-Or, if you’re using [Carthage](https://github.com/Carthage/Carthage), simply add
-ReactiveCocoa to your `Cartfile`:
+## Have a question?
+If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. Feel free to file an issue if you do not manage to find any solution from the archives.
 
-```
-github "ReactiveCocoa/ReactiveCocoa"
-```
-Make sure to add `ReactiveCocoa.framework`, `ReactiveSwift`, and `Result.framework` to "Linked Frameworks and Libraries" and "copy-frameworks" Build Phases.
-
-If you would prefer to use [CocoaPods](https://cocoapods.org), there are some
-[unofficial podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa)
-that have been generously contributed by third parties.
-
-Once you’ve set up your project, check out the [Framework Overview][] for
-a tour of ReactiveCocoa’s concepts, and the [Basic Operators][] for some
-introductory examples of using it.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC
-[ReactiveObjCBridge]: https://github.com/ReactiveCocoa/ReactiveObjCBridge
-[Actions]: Documentation/FrameworkOverview.md#actions
-[Basic Operators]: Documentation/BasicOperators.md
+[GitHub issues]: https://github.com/ReactiveCocoa/ReactiveCocoa/issues?q=is%3Aissue+label%3Aquestion+
+[Stack Overflow]: http://stackoverflow.com/questions/tagged/reactive-cocoa
 [CHANGELOG]: CHANGELOG.md
-[Code]: ReactiveCocoa
-[Documentation]: Documentation
-[Framework Overview]: Documentation/FrameworkOverview.md
-[Legacy Documentation]: https://github.com/ReactiveCocoa/ReactiveObjC/blob/master/Documentation/
-[Signal producers]: Documentation/FrameworkOverview.md#signal-producers
-[Signals]: Documentation/FrameworkOverview.md#signals
-[Swift API]: ReactiveCocoa/Swift
+[Carthage]: https://github.com/Carthage/Carthage
+[CocoaPods]: https://cocoapods.org/
+[submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
+[Looking for the Objective-C API?]: https://github.com/ReactiveCocoa/ReactiveObjC
+[Still using Swift 2.x?]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/v4.0.0
+[`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
+[`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
+[`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target

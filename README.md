@@ -6,7 +6,7 @@
 ⚠️ [Looking for the Objective-C API?][] ⚠️ [Still using Swift 2.x?][]
 
 ## What is ReactiveSwift?
-__ReactiveSwift__ offers composable, declaractive and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundementally an act of observation.
+__ReactiveSwift__ offers composable, declarative and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundamentally an act of observation.
 
 For more information about the core primitives, see [ReactiveSwift][].
 
@@ -77,7 +77,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	                                       keyPath: #keyPath(person.name))
 	```
 
-But there are still more to be discovered, and more to be introduced. Read our in-code documentations and release notes to
+But there are still more to be discovered and introduced. Read our in-code documentations and release notes to
 find out more.
 
 ## Getting started
@@ -86,7 +86,7 @@ ReactiveCocoa supports macOS 10.9+, iOS 8.0+, watchOS 2.0+, and tvOS 9.0+.
 
 #### Carthage
 
-If you are using [Carthage][] to manage your dependency, simply add
+If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
@@ -97,7 +97,7 @@ If you use Carthage to build your dependencies, make sure you have added `Reacti
 
 #### CocoaPods
 
-If you are using [CocoaPods][] to manage your dependency, simply add
+If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```

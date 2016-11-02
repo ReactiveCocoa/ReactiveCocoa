@@ -23,5 +23,3 @@ extension Reactive where Base: UIGestureRecognizer {
 		}
 	}
 }
-
-

@@ -61,5 +61,21 @@ class UIViewSpec: QuickSpec {
 			observer.send(value: false)
 			expect(view.isUserInteractionEnabled) == false
 		}
+
+		it("should accept changes from bindings to its background color") {
+			view.backgroundColor = .white
+
+			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			view.reactive.backgroundColor <~ SignalProducer(signal: pipeSignal)
+
+			observer.send(value: .yellow)
+			expect(view.backgroundColor).to(equal(UIColor.yellow))
+
+			observer.send(value: .green)
+			expect(view.backgroundColor).to(equal(UIColor.green))
+
+			observer.send(value: .red)
+			expect(view.backgroundColor).to(equal(UIColor.red))
+		}
 	}
 }

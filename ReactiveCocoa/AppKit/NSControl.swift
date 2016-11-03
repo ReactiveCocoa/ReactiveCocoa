@@ -96,7 +96,7 @@ extension Reactive where Base: NSControl {
 		return associatedValue { base in
 			let (signal, observer) = Signal<(), NoError>.pipe()
 
-			let receiver = CocoaTarget<()>(observer)
+			let receiver = CocoaTarget(observer)
 			base.target = receiver
 			base.action = #selector(receiver.sendNext)
 

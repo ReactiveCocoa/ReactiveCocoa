@@ -41,7 +41,7 @@ class UIBarButtonItemSpec: QuickSpec {
 			barButtonItem.reactive.title <~ SignalProducer(signal: pipeSignal)
 
 			observer.send(value: "title")
-			expect(barButtonItem.title).to(equal("title"))
+			expect(barButtonItem.title) == "title"
 
 			observer.send(value: nil)
 			expect(barButtonItem.title).to(beNil())
@@ -55,7 +55,7 @@ class UIBarButtonItemSpec: QuickSpec {
 			expect(image).notTo(beNil())
 
 			observer.send(value: image)
-			expect(barButtonItem.image).to(equal(image))
+			expect(barButtonItem.image) == image
 
 			observer.send(value: nil)
 			expect(barButtonItem.image).to(beNil())

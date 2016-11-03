@@ -27,10 +27,10 @@ class NSLayoutConstraintSpec: QuickSpec {
 			constraint.reactive.constant <~ pipeSignal
 
 			observer.send(value: 5.0)
-			expect(constraint.constant).to(equal(5.0))
+			expect(constraint.constant) ≈ 5.0
 
 			observer.send(value: -3.0)
-			expect(constraint.constant).to(equal(-3.0))
+			expect(constraint.constant) ≈ -3.0
 		}
     }
 }

@@ -44,7 +44,7 @@ class UIGestureRecognizerSpec: QuickSpec {
 		it("should send it's gesture recognizer in signal") {
 			let signal = gestureRecognizer.reactive.stateChanged
 			var counter = 0
-			signal.observeValues{ signalGestureRecognizer in
+			signal.observeValues { signalGestureRecognizer in
 				if signalGestureRecognizer === gestureRecognizer{
 					counter += 1
 				}
@@ -55,8 +55,8 @@ class UIGestureRecognizerSpec: QuickSpec {
 		
 		it("should send it's gesture recognizer with the fired state") {
 			let signal = gestureRecognizer.reactive.stateChanged
-			weak var signalGestureRecognizer:TestTapGestureRecognizer?
-			signal.observeValues{ recognizer in
+			weak var signalGestureRecognizer: TestTapGestureRecognizer?
+			signal.observeValues { recognizer in
 				signalGestureRecognizer = recognizer
 			}
 			

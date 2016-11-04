@@ -12,8 +12,6 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 
-	private var property: MutableProperty<Value?>?
-
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: Value? {
@@ -57,12 +55,12 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	public init(object: NSObject?, keyPath: String) {
+	public init(object: NSObject, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
 
 		/// A DynamicProperty will stay alive as long as its object is alive.
 		/// This is made possible by strong reference cycles.
-		_ = object?.reactive.lifetime.ended.observeCompleted { _ = self }
+		_ = object.reactive.lifetime.ended.observeCompleted { _ = self }
 	}
 }

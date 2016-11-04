@@ -1,3 +1,0 @@
-explicit module ReactiveCocoaUtils.Private {
-	header "../RACObjCRuntimeUtilities.h"
-}

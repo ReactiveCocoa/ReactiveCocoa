@@ -58,13 +58,6 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 
 static void RACSwizzleForwardInvocation(Class class) {
 	SEL forwardInvocationSEL = @selector(forwardInvocation:);
-	Method forwardInvocationMethod = class_getInstanceMethod(class, forwardInvocationSEL);
-
-	// Preserve any existing implementation of -forwardInvocation:.
-	void (*originalForwardInvocation)(id, SEL, NSInvocation *) = NULL;
-	if (forwardInvocationMethod != NULL) {
-		originalForwardInvocation = (__typeof__(originalForwardInvocation))method_getImplementation(forwardInvocationMethod);
-	}
 
 	// Set up a new version of -forwardInvocation:.
 	//
@@ -78,6 +71,19 @@ static void RACSwizzleForwardInvocation(Class class) {
 	id newForwardInvocation = ^(id self, NSInvocation *invocation) {
 		BOOL matched = RACForwardInvocation(self, invocation);
 		if (matched) return;
+
+        // Fetch newest implementation of -forwardInvocation:.
+        //
+        // Implementation we preserved may be replaced in later.
+        // If we are using old implementation will lead to an unexpected situration.
+        // This process adds the compatibility with libraries such as Aspects,
+        // jsPatch or waxPatch whom hook functions with forwardInvocation:.
+        Class originalClass = [self class];
+        Method forwardInvocationMethod = class_getInstanceMethod(originalClass, forwardInvocationSEL);
+        void (*originalForwardInvocation)(id, SEL, NSInvocation *) = NULL;
+        if (forwardInvocationMethod != NULL) {
+            originalForwardInvocation = (__typeof__(originalForwardInvocation))method_getImplementation(forwardInvocationMethod);
+        }
 
 		if (originalForwardInvocation == NULL) {
 			[self doesNotRecognizeSelector:invocation.selector];

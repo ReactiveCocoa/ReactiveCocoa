@@ -10,7 +10,7 @@ extension Reactive where Base: NSLayoutConstraint {
 
 	/// Sets the constant.
 	public var constant: BindingTarget<CGFloat> {
-		return makeBindingTarget(action: { $0.constant = $1 })
+		return makeBindingTarget { $0.constant = $1 }
 	}
 
 }

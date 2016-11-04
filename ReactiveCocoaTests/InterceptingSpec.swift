@@ -71,6 +71,24 @@ class InterceptingSpec: QuickSpec {
 				expect(counter1) == 2
 				expect(counter2) == 2
 			}
+
+			it("should not deadlock") {
+				for _ in 1 ... 10 {
+					var isDeadlocked = true
+
+					DispatchQueue.global(priority: .high).async {
+						_ = object.reactive.trigger(for: #selector(object.increment))
+
+						DispatchQueue.global(priority: .high).async {
+							_ = object.reactive.trigger(for: #selector(object.increment))
+
+							isDeadlocked = false
+						}
+					}
+
+					expect(isDeadlocked).toEventually(beFalsy())
+				}
+			}
 		}
 	}
 }

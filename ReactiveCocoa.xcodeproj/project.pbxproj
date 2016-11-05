@@ -18,6 +18,10 @@
 		4ABEFE201DCFCEF80066A8C2 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */; };
 		4ABEFE211DCFCF090066A8C2 /* UITableViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */; };
 		4ABEFE221DCFCF0A0066A8C2 /* UITableViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */; };
+		4ABEFE251DCFCF630066A8C2 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */; };
+		4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */; };
+		4ABEFE281DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */; };
+		4ABEFE291DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */; };
 		538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7B1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
@@ -253,6 +257,8 @@
 		4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Lifetime.swift"; sourceTree = "<group>"; };
 		4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableView.swift; sourceTree = "<group>"; };
 		4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewSpec.swift; sourceTree = "<group>"; };
+		4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionView.swift; sourceTree = "<group>"; };
+		4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionViewSpec.swift; sourceTree = "<group>"; };
 		538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraint.swift; sourceTree = "<group>"; };
 		538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintSpec.swift; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -477,6 +483,7 @@
 				9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */,
 				9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */,
 				9A1D05EF1D93E9F100ACF44C /* UIButton.swift */,
+				4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */,
 				9A1D05F11D93E9F100ACF44C /* UIControl.swift */,
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
@@ -500,6 +507,7 @@
 				9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift */,
 				9A1D06251D93EA7E00ACF44C /* UIBarButtonItemSpec.swift */,
 				9A1D06261D93EA7E00ACF44C /* UIButtonSpec.swift */,
+				4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */,
 				9A1D06281D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift */,
 				9A1D06291D93EA7E00ACF44C /* UIControlSpec.swift */,
 				9A1D062A1D93EA7E00ACF44C /* UIDatePickerSpec.swift */,
@@ -1002,6 +1010,7 @@
 			files = (
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
+				4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */,
 				9ADE4A7F1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
@@ -1056,6 +1065,7 @@
 				9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				4ABEFE221DCFCF0A0066A8C2 /* UITableViewSpec.swift in Sources */,
 				9A1D06491D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
+				4ABEFE291DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */,
 				BEE020661D637B0000DF261F /* TestError.swift in Sources */,
 				9A1D06531D93EA7E00ACF44C /* UITextFieldSpec.swift in Sources */,
 			);
@@ -1123,6 +1133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ABEFE251DCFCF630066A8C2 /* UICollectionView.swift in Sources */,
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
@@ -1164,6 +1175,7 @@
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,
 				9A1D064C1D93EA7E00ACF44C /* UISwitchSpec.swift in Sources */,
+				4ABEFE281DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */,
 				9A1D06441D93EA7E00ACF44C /* UIImageViewSpec.swift in Sources */,
 				9A1D06541D93EA7E00ACF44C /* UITextViewSpec.swift in Sources */,
 				9A1D063A1D93EA7E00ACF44C /* UIButtonSpec.swift in Sources */,

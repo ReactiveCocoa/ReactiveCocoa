@@ -304,13 +304,13 @@
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
-		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReusableComponentsSpec.swift; path = AppKit/ReusableComponentsSpec.swift; sourceTree = "<group>"; };
+		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaAction.swift; sourceTree = "<group>"; };
 		9ADE4A881DA6D206005C2AC8 /* NSControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSControl.swift; sourceTree = "<group>"; };
-		9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSControlSpec.swift; path = AppKit/NSControlSpec.swift; sourceTree = "<group>"; };
+		9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSControlSpec.swift; sourceTree = "<group>"; };
 		9ADE4A901DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+ReactiveExtensionsProvider.swift"; sourceTree = "<group>"; };
 		9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTextField.swift; sourceTree = "<group>"; };
 		9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifetimeSpec.swift; sourceTree = "<group>"; };
@@ -531,7 +531,7 @@
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
 			);
-			name = AppKit;
+			path = AppKit;
 			sourceTree = "<group>";
 		};
 		A97451321B3A935E00F48E55 /* watchOS */ = {

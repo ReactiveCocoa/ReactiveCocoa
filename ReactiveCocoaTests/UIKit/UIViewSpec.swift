@@ -69,13 +69,13 @@ class UIViewSpec: QuickSpec {
 			view.reactive.backgroundColor <~ SignalProducer(signal: pipeSignal)
 
 			observer.send(value: .yellow)
-			expect(view.backgroundColor).to(equal(UIColor.yellow))
+			expect(view.backgroundColor) == .yellow
 
 			observer.send(value: .green)
-			expect(view.backgroundColor).to(equal(UIColor.green))
+			expect(view.backgroundColor) == .green
 
 			observer.send(value: .red)
-			expect(view.backgroundColor).to(equal(UIColor.red))
+			expect(view.backgroundColor) == .red
 		}
 	}
 }

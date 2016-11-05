@@ -22,6 +22,8 @@
 		4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */; };
 		4ABEFE281DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */; };
 		4ABEFE291DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */; };
+		4ABEFE2B1DCFD0030066A8C2 /* NSTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2A1DCFD0030066A8C2 /* NSTableView.swift */; };
+		4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */; };
 		538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7B1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
@@ -259,6 +261,8 @@
 		4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewSpec.swift; sourceTree = "<group>"; };
 		4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionView.swift; sourceTree = "<group>"; };
 		4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UICollectionViewSpec.swift; sourceTree = "<group>"; };
+		4ABEFE2A1DCFD0030066A8C2 /* NSTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTableView.swift; sourceTree = "<group>"; };
+		4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTableViewSpec.swift; sourceTree = "<group>"; };
 		538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraint.swift; sourceTree = "<group>"; };
 		538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintSpec.swift; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -468,9 +472,10 @@
 		9A1D05E91D93E9F100ACF44C /* AppKit */ = {
 			isa = PBXGroup;
 			children = (
-				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
-				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
 				9ADE4A881DA6D206005C2AC8 /* NSControl.swift */,
+				4ABEFE2A1DCFD0030066A8C2 /* NSTableView.swift */,
+				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
+				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -529,6 +534,7 @@
 			isa = PBXGroup;
 			children = (
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
+				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
 			);
 			path = AppKit;
@@ -1093,6 +1099,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ABEFE2B1DCFD0030066A8C2 /* NSTableView.swift in Sources */,
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A1D06771D9415FF00ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
@@ -1126,6 +1133,7 @@
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
+				4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

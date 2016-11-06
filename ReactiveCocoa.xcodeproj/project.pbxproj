@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
+		419139491DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
+		4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
 		4A0E11001D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
 		4A0E11011D2A92720065D310 /* NSObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */; };
@@ -100,6 +103,7 @@
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
+		9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		9A6AAA191DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9A6AAA1A1DB808A80013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9A6AAA1B1DB808A90013AAEA /* RACObjCRuntimeUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -240,6 +244,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		419139431DB910570043C9D1 /* UIGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizer.swift; sourceTree = "<group>"; };
+		4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizerSpec.swift; sourceTree = "<group>"; };
 		4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Lifetime.swift"; sourceTree = "<group>"; };
 		538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraint.swift; sourceTree = "<group>"; };
 		538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintSpec.swift; sourceTree = "<group>"; };
@@ -475,6 +481,7 @@
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
 				9A1D05FC1D93E9F100ACF44C /* UIView.swift */,
+				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -497,6 +504,7 @@
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
 				9A1D06331D93EA7E00ACF44C /* UITextViewSpec.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewSpec.swift */,
+				4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -996,6 +1004,7 @@
 				538DCB7B1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
 				9ADE4A941DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				9A1D05E31D93E99100ACF44C /* NSObject+Association.swift in Sources */,
+				419139491DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */,
 				9A1D06161D93EA0100ACF44C /* UIControl.swift in Sources */,
 				9A1D06141D93EA0100ACF44C /* UIButton.swift in Sources */,
 				9A1D065E1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
@@ -1016,6 +1025,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */,
 				9A1D06591D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */,
 				9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
@@ -1117,6 +1127,7 @@
 				9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */,
 				9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */,
+				419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
@@ -1147,6 +1158,7 @@
 				9A1D063A1D93EA7E00ACF44C /* UIButtonSpec.swift in Sources */,
 				9A1D064A1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
+				4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,

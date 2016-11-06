@@ -61,6 +61,8 @@ Properties are now composable! They have many of the same operators as `Signal` 
 
 ## Atomic
 
+The `Atomic.modify` closure now takes an `inout` instead of relying on a return value. This provides a minor speed boost, but also makes it possible to return a separate value from the closure to be used after the lock is released.
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

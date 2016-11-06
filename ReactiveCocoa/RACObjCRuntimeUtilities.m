@@ -22,6 +22,12 @@ static NSMutableSet *swizzledClasses() {
 	return set;
 }
 
+@interface RACSwiftInvocationArguments (Private)
+
+-(instancetype) initWithInvocation:(NSInvocation *)invocation;
+
+@end
+
 static SEL RACAliasForSelector(SEL originalSelector) {
 	NSString *selectorName = NSStringFromSelector(originalSelector);
 	return NSSelectorFromString([RACSignalForSelectorAliasPrefix stringByAppendingString:selectorName]);
@@ -29,7 +35,7 @@ static SEL RACAliasForSelector(SEL originalSelector) {
 
 static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	SEL aliasSelector = RACAliasForSelector(invocation.selector);
-	__block void(^receiver)(void) = objc_getAssociatedObject(self, aliasSelector);
+	__block void(^receiver)(RACSwiftInvocationArguments*) = objc_getAssociatedObject(self, aliasSelector);
 
 	Class class = object_getClass(invocation.target);
 	BOOL respondsToAlias = [class instancesRespondToSelector:aliasSelector];
@@ -40,7 +46,7 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 
 	if (receiver == nil) return respondsToAlias;
 
-	receiver();
+	receiver([[RACSwiftInvocationArguments alloc] initWithInvocation:invocation]);
 	return YES;
 }
 
@@ -251,7 +257,7 @@ static Class RACSwizzleClass(NSObject *self) {
 
 @implementation NSObject (RACObjCRuntimeUtilities)
 
--(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(void))receiver {
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(RACSwiftInvocationArguments*))receiver {
 	SEL aliasSelector = RACAliasForSelector(selector);
 
 	__block void (^existingReceiver)(void) = objc_getAssociatedObject(self, aliasSelector);
@@ -301,6 +307,30 @@ static Class RACSwizzleClass(NSObject *self) {
 	}
 	
 	return YES;
+}
+@end
+
+@implementation RACSwiftInvocationArguments
+NSInvocation* invocation;
+
+-(instancetype) initWithInvocation:(NSInvocation *)inv {
+	self = [super init];
+	if (self) {
+		invocation = inv;
+	}
+	return self;
+}
+
+-(NSInteger)getCount {
+	return [[invocation methodSignature] numberOfArguments];
+}
+
+-(const char *)argumentTypeAt:(NSInteger)position {
+	return [[invocation methodSignature] getArgumentTypeAtIndex:position];
+}
+
+-(void)copyArgumentAt:(NSInteger)position to:(void *)buffer {
+	[invocation getArgument:buffer atIndex:position];
 }
 
 @end

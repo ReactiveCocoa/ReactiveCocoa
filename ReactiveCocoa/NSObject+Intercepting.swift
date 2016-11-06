@@ -34,7 +34,7 @@ extension Reactive where Base: NSObject {
 			let (signal, observer) = Signal<(), NoError>.pipe()
 			let isSuccessful = base._rac_setupInvocationObservation(for: selector,
 			                                                        protocol: `protocol`,
-			                                                        receiver: observer.send(value:))
+			                                                        receiver: { _ in observer.send(value: ()) })
 			precondition(isSuccessful)
 
 			lifetime.ended.observeCompleted(observer.sendCompleted)

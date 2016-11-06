@@ -57,6 +57,8 @@ Prior to RAC 5.0, `Signal`s lived and continued to emit values (and side effects
 
 ## Properties
 
+Properties are now composable! They have many of the same operators as `Signal` and `SignalProducer`: `map`, `filter`, `combineLatest`, `zip`, `flatten`, etc.
+
 ## Atomic
 
 # 4.0

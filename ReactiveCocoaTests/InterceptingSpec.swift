@@ -44,6 +44,7 @@ class InterceptingSpec: QuickSpec {
 
 				let signal = object.reactive.trigger(for: selector,
 				                                     from: TestProtocol.self)
+				expect(object.responds(to: selector)) == true
 
 				var counter = 0
 				signal.observeValues { counter += 1 }
@@ -55,6 +56,7 @@ class InterceptingSpec: QuickSpec {
 
 				(object as TestProtocol).optionalMethod!()
 				expect(counter) == 2
+
 			}
 
 			it("should complete when the object deinitializes") {

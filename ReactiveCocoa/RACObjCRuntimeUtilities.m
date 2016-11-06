@@ -111,7 +111,7 @@ static void RACSwizzleRespondsToSelector(Class class) {
 		Method method = rac_getImmediateInstanceMethod(class, selector);
 
 		if (method != NULL && method_getImplementation(method) == _objc_msgForward) {
-			SEL aliasSelector = (selector);
+			SEL aliasSelector = RACAliasForSelector(selector);
 			if (objc_getAssociatedObject(self, aliasSelector) != nil) return YES;
 		}
 

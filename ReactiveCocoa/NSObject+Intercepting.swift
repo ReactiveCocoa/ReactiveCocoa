@@ -44,3 +44,34 @@ extension Reactive where Base: NSObject {
 		}
 	}
 }
+
+private enum TypeEncoding: Int8 {
+	// Integer
+	case char = 99
+	case int = 105
+	case short = 115
+	case long = 108
+	case longLong = 113
+
+	// Unsigned Integer
+	case unsignedChar = 67
+	case unsignedInt = 73
+	case unsignedShort = 83
+	case unsignedLong = 76
+	case unsignedLongLong = 81
+
+	// FP
+	case float = 102
+	case double = 100
+
+	case bool = 66
+	case void = 118
+	case cString = 42
+	case object = 64
+	case type = 35
+	case selector = 58
+	case array = 91
+	case bitfield = 98
+	case pointer = 94
+	// Note: Structure `{` and union `(` are not supported.
+}

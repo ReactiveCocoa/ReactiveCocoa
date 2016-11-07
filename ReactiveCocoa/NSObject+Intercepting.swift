@@ -143,10 +143,6 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 				bridged.append(extract((AnyClass?).self))
 			case .selector:
 				bridged.append(arguments.selectorString(at: position))
-			case .cString:
-				var pointer: UnsafePointer<Int8>?
-				arguments.copyArgument(at: position, to: &pointer)
-				bridged.append(pointer)
 			case .undefined:
 				var size = 0, alignment = 0
 				NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
@@ -164,30 +160,26 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 
 
 private enum TypeEncoding: Int8 {
-	// Integer
 	case char = 99
 	case int = 105
 	case short = 115
 	case long = 108
 	case longLong = 113
 
-	// Unsigned Integer
 	case unsignedChar = 67
 	case unsignedInt = 73
 	case unsignedShort = 83
 	case unsignedLong = 76
 	case unsignedLongLong = 81
 
-	// FP
 	case float = 102
 	case double = 100
 
 	case bool = 66
-	case cString = 42
+
 	case object = 64
 	case type = 35
 	case selector = 58
-	// Note: Structure `{` and union `(` are not supported.
 
 	case undefined = -1
 }

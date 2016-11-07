@@ -61,8 +61,8 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	} else {
 		__block void(^block)(RACSwiftInvocationArguments*) = receiver.block;
 		block([[RACSwiftInvocationArguments alloc] initWithInvocation:invocation]);
-
 	}
+
 	return YES;
 }
 

@@ -95,7 +95,8 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 
 		// Ignore `self` and `_cmd`.
 		for position in 2 ..< count {
-			let encoding = TypeEncoding(rawValue: arguments.argumentType(at: position).pointee) ?? .undefined
+			let rawEncoding = arguments.argumentType(at: position)
+			let encoding = TypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
 
 			func extract<U>(_ type: U.Type) -> U {
 				let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
@@ -111,58 +112,49 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 
 			switch encoding {
 			case .char:
-				bridged.append(extract(CChar.self))
+				bridged.append(NSNumber(value: extract(CChar.self)))
 			case .int:
-				bridged.append(extract(CInt.self))
+				bridged.append(NSNumber(value: extract(CInt.self)))
 			case .short:
-				bridged.append(extract(CShort.self))
+				bridged.append(NSNumber(value: extract(CShort.self)))
 			case .long:
-				bridged.append(extract(CLong.self))
+				bridged.append(NSNumber(value: extract(CLong.self)))
 			case .longLong:
-				bridged.append(extract(CLongLong.self))
-
+				bridged.append(NSNumber(value: extract(CLongLong.self)))
 			case .unsignedChar:
-				bridged.append(extract(CUnsignedChar.self))
+				bridged.append(NSNumber(value: extract(CUnsignedChar.self)))
 			case .unsignedInt:
-				bridged.append(extract(CUnsignedInt.self))
+				bridged.append(NSNumber(value: extract(CUnsignedInt.self)))
 			case .unsignedShort:
-				bridged.append(extract(CUnsignedShort.self))
+				bridged.append(NSNumber(value: extract(CUnsignedShort.self)))
 			case .unsignedLong:
-				bridged.append(extract(CUnsignedLong.self))
-
-			case .bitfield:
-				fallthrough
+				bridged.append(NSNumber(value: extract(CUnsignedLong.self)))
 			case .unsignedLongLong:
-				bridged.append(extract(CUnsignedLongLong.self))
-
+				bridged.append(NSNumber(value: extract(CUnsignedLongLong.self)))
 			case .float:
-				bridged.append(extract(CFloat.self))
+				bridged.append(NSNumber(value: extract(CFloat.self)))
 			case .double:
-				bridged.append(extract(CDouble.self))
-
+				bridged.append(NSNumber(value: extract(CDouble.self)))
 			case .bool:
-				bridged.append(extract(CBool.self))
-			case .void:
-				bridged.append(())
-
-			case .cString:
-				var pointer: UnsafePointer<Int8>?
-				arguments.copyArgument(at: position, to: &pointer)
-				bridged.append(pointer.map(String.init(cString:)))
-
+				bridged.append(NSNumber(value: extract(CBool.self)))
 			case .object:
 				bridged.append(extract((AnyObject?).self))
 			case .type:
 				bridged.append(extract((AnyClass?).self))
-
 			case .selector:
 				bridged.append(arguments.selectorString(at: position))
-
-			case .array:
-				bridged.append(extract(OpaquePointer.self))
-
+			case .cString:
+				var pointer: UnsafePointer<Int8>?
+				arguments.copyArgument(at: position, to: &pointer)
+				bridged.append(pointer)
 			case .undefined:
-				bridged.append(nil)
+				var size = 0, alignment = 0
+				NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
+				let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
+				defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
+
+				arguments.copyArgument(at: position, to: buffer)
+				bridged.append(NSValue(bytes: buffer, objCType: rawEncoding))
 			}
 		}
 
@@ -191,13 +183,10 @@ private enum TypeEncoding: Int8 {
 	case double = 100
 
 	case bool = 66
-	case void = 118
 	case cString = 42
 	case object = 64
 	case type = 35
 	case selector = 58
-	case array = 91
-	case bitfield = 98
 	// Note: Structure `{` and union `(` are not supported.
 
 	case undefined = -1

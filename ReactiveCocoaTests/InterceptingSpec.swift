@@ -119,7 +119,6 @@ class InterceptingSpec: QuickSpec {
 
 class InterceptedObject: NSObject, TestProtocol {
 	var counter = 0
-	var testProtocolCounter = 0
 
 	dynamic func increment() {
 		counter += 1

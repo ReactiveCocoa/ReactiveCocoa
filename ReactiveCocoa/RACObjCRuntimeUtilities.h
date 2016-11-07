@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(const char *)argumentTypeAt:(NSInteger)position;
 -(void)copyArgumentAt:(NSInteger)position to:(void *)buffer;
+-(NSString*)selectorStringAt:(NSInteger)position;
 
 @end
 

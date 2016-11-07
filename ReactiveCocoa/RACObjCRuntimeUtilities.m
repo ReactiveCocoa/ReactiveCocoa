@@ -321,7 +321,7 @@ NSInvocation* invocation;
 	return self;
 }
 
--(NSInteger)getCount {
+-(NSInteger)count {
 	return [[invocation methodSignature] numberOfArguments];
 }
 
@@ -331,6 +331,12 @@ NSInvocation* invocation;
 
 -(void)copyArgumentAt:(NSInteger)position to:(void *)buffer {
 	[invocation getArgument:buffer atIndex:position];
+}
+
+-(NSString*)selectorStringAt:(NSInteger)position {
+	SEL selector;
+	[invocation getArgument:&selector atIndex:position];
+	return NSStringFromSelector(selector);
 }
 
 @end

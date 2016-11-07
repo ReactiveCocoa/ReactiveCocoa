@@ -22,6 +22,15 @@ static NSMutableSet *swizzledClasses() {
 	return set;
 }
 
+@interface RACForwardingInfo : NSObject
+
+@property (readonly, nonatomic) BOOL isTrigger;
+@property (readonly, nonatomic, retain) id block;
+
+-(instancetype) initWithBlock:(id)block isTrigger:(BOOL)isTrigger;
+
+@end
+
 @interface RACSwiftInvocationArguments (Private)
 
 -(instancetype) initWithInvocation:(NSInvocation *)invocation;
@@ -35,7 +44,7 @@ static SEL RACAliasForSelector(SEL originalSelector) {
 
 static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	SEL aliasSelector = RACAliasForSelector(invocation.selector);
-	__block void(^receiver)(RACSwiftInvocationArguments*) = objc_getAssociatedObject(self, aliasSelector);
+	RACForwardingInfo* receiver = objc_getAssociatedObject(self, aliasSelector);
 
 	Class class = object_getClass(invocation.target);
 	BOOL respondsToAlias = [class instancesRespondToSelector:aliasSelector];
@@ -46,7 +55,14 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 
 	if (receiver == nil) return respondsToAlias;
 
-	receiver([[RACSwiftInvocationArguments alloc] initWithInvocation:invocation]);
+	if (receiver.isTrigger) {
+		__block void(^block)(void) = receiver.block;
+		block();
+	} else {
+		__block void(^block)(RACSwiftInvocationArguments*) = receiver.block;
+		block([[RACSwiftInvocationArguments alloc] initWithInvocation:invocation]);
+
+	}
 	return YES;
 }
 
@@ -257,15 +273,24 @@ static Class RACSwizzleClass(NSObject *self) {
 
 @implementation NSObject (RACObjCRuntimeUtilities)
 
--(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(RACSwiftInvocationArguments*))receiver {
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol argsReceiver:(void (^)(RACSwiftInvocationArguments*))receiverBlock {
+	return [self _rac_setupInvocationObservationForSelector:selector protocol:protocol isTrigger:false receiver:receiverBlock];
+}
+
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol receiver:(void (^)(void))receiverBlock {
+	return [self _rac_setupInvocationObservationForSelector:selector protocol:protocol isTrigger:true receiver:receiverBlock];
+}
+
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol isTrigger:(BOOL)isTrigger receiver:(id)receiverBlock {
 	SEL aliasSelector = RACAliasForSelector(selector);
 
-	__block void (^existingReceiver)(void) = objc_getAssociatedObject(self, aliasSelector);
+	RACForwardingInfo* existingReceiver = objc_getAssociatedObject(self, aliasSelector);
 	if (existingReceiver != nil) return NO;
 
 	Class class = RACSwizzleClass(self);
 	NSCAssert(class != nil, @"Could not swizzle class of %@", self);
 
+	RACForwardingInfo* receiver = [[RACForwardingInfo alloc] initWithBlock:receiverBlock isTrigger:isTrigger];
 	objc_setAssociatedObject(self, aliasSelector, receiver, OBJC_ASSOCIATION_RETAIN);
 
 	Method targetMethod = class_getInstanceMethod(class, selector);
@@ -337,6 +362,19 @@ NSInvocation* invocation;
 	SEL selector;
 	[invocation getArgument:&selector atIndex:position];
 	return NSStringFromSelector(selector);
+}
+
+@end
+
+@implementation RACForwardingInfo
+
+-(instancetype) initWithBlock:(id)block isTrigger:(BOOL)isTrigger {
+	self = [super init];
+	if (self) {
+		_block = block;
+		_isTrigger = isTrigger;
+	}
+	return self;
 }
 
 @end

@@ -41,6 +41,7 @@ class InterceptingSpec: QuickSpec {
 
 			it("should send a value when the selector is invoked without implementation") {
 				let selector = #selector(TestProtocol.optionalMethod)
+				expect(object.responds(to: selector)) == false
 
 				let signal = object.reactive.trigger(for: selector,
 				                                     from: TestProtocol.self)

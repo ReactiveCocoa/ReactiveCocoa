@@ -51,7 +51,7 @@ Lots has changed, but if you're already migrating to Swift 3 then that should no
 
 ### Lifetime Semantics
 
-Prior to RAC 5.0, `Signal`s lived and continued to emit values (and side effects) until they completed. This was very confusing, even for RAC veterans. So [changes have been made](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2959) to the lifetime semantics. `Signal`s now live and continue to emit events while either (a) they have observers or (b) they are retained. This clears up a number of unexpected cases and makes `Signal`s much less dangerous.
+Prior to RAC 5.0, `Signal`s lived and continued to emit values (and side effects) until they completed. This was very confusing, even for RAC veterans. So [changes have been made](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2959) to the lifetime semantics. `Signal`s now live and continue to emit events only while either (a) they have observers or (b) they are retained. This clears up a number of unexpected cases and makes `Signal`s much less dangerous.
 
 ## SignalProducer
 
@@ -61,7 +61,7 @@ Properties are now composable! They have many of the same operators as `Signal` 
 
 ## Atomic
 
-The `Atomic.modify` closure now takes an `inout` instead of relying on a return value. This provides a minor speed boost, but also makes it possible to return a separate value from the closure to be used after the lock is released.
+The `Atomic.modify` closure now takes an `inout` instead of relying on a return value. This provides a minor speed boost, because the compiler can avoid a copy in some cases, but also makes it possible to return a separate value from the closure to be used after the lock is released.
 
 # 4.0
 

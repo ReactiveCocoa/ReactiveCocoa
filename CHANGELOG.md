@@ -63,6 +63,17 @@ Properties are now composable! They have many of the same operators as `Signal` 
 
 The `Atomic.modify` closure now takes an `inout` instead of relying on a return value. This provides a minor speed boost, because the compiler can avoid a copy in some cases, but also makes it possible to return a separate value from the closure to be used after the lock is released.
 
+### Migrating from the ReactiveObjC APIs
+
+| ReactiveObjC       | ReactiveCocoa |
+| ------------------ | ------------- |
+| `rac_liftSelector:withSignals:` | Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`. |
+| `rac_signalForSelector:fromProtocol:` | `NSObject.reactive.trigger(for:from:)` and `NSObject.reactive.signal(for:from:)` |
+| `rac_willDeallocSignal` | `NSObject.reactive.lifetime`, in conjunction with the `take(during:)` operator. |
+| `RAC(label, text)` | UI components expose binding targets via `NSObject.reactive`, e.g. `UILabel.reactive.text`, that can be used with the `<~` unidirectional binding operator. |
+| `RACObserve(object, keyPath)` | `NSObject.reactive.values(forKeyPath:)` |
+| Control value changes, e.g. `textField.rac_text` | UI components expose signals via `NSObject.reactive`, e.g. `UITextField.reactive.continuousTextValues`. |
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

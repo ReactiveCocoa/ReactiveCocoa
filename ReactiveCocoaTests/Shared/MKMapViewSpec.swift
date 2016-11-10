@@ -36,5 +36,51 @@ class MKMapViewSpec: QuickSpec {
 			observer.send(value: MKMapType.hybrid)
 			expect(mapView.mapType) == MKMapType.hybrid
 		}
+
+		it("should accept changes from bindings to its zoom enabled state") {
+			expect(mapView.isZoomEnabled) == true
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+
+			mapView.reactive.isZoomEnabled <~ pipeSignal
+
+			observer.send(value: false)
+			expect(mapView.isZoomEnabled) == false
+		}
+
+		it("should accept changes from bindings to its scroll enabled state") {
+			expect(mapView.isScrollEnabled) == true
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+
+			mapView.reactive.isScrollEnabled <~ pipeSignal
+
+			observer.send(value: false)
+			expect(mapView.isScrollEnabled) == false
+		}
+
+		#if !os(tvOS)
+		it("should accept changes from bindings to its pitch enabled state") {
+			expect(mapView.isPitchEnabled) == true
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+
+			mapView.reactive.isPitchEnabled <~ pipeSignal
+
+			observer.send(value: false)
+			expect(mapView.isPitchEnabled) == false
+		}
+
+		it("should accept changes from bindings to its rotate enabled state") {
+			expect(mapView.isRotateEnabled) == true
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+
+			mapView.reactive.isRotateEnabled <~ pipeSignal
+
+			observer.send(value: false)
+			expect(mapView.isRotateEnabled) == false
+		}
+		#endif
     }
 }

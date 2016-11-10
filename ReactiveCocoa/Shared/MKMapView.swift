@@ -9,4 +9,27 @@ extension Reactive where Base: MKMapView {
 		return makeBindingTarget { $0.mapType = $1 }
 	}
 
+	/// Sets if zoom is enabled for map.
+	public var isZoomEnabled: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isZoomEnabled = $1 }
+	}
+
+	/// Sets if scroll is enabled for map.
+	public var isScrollEnabled: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isScrollEnabled = $1 }
+	}
+
+	#if !os(tvOS)
+	/// Sets if pitch is enabled for map.
+	@available(tvOS, unavailable)
+	public var isPitchEnabled: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isPitchEnabled = $1 }
+	}
+
+	/// Sets if rotation is enabled for map.
+	@available(tvOS, unavailable)
+	public var isRotateEnabled: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isRotateEnabled = $1 }
+	}
+	#endif
 }

@@ -21,13 +21,11 @@ extension Reactive where Base: MKMapView {
 
 	#if !os(tvOS)
 	/// Sets if pitch is enabled for map.
-	@available(tvOS, unavailable)
 	public var isPitchEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isPitchEnabled = $1 }
 	}
 
 	/// Sets if rotation is enabled for map.
-	@available(tvOS, unavailable)
 	public var isRotateEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isRotateEnabled = $1 }
 	}

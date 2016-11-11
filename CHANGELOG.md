@@ -67,8 +67,9 @@ The `Atomic.modify` closure now takes an `inout` instead of relying on a return 
 
 | ReactiveObjC       | ReactiveCocoa |
 | ------------------ | ------------- |
-| `rac_liftSelector:withSignals:` | Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`. |
-| `rac_signalForSelector:fromProtocol:` | `NSObject.reactive.trigger(for:from:)` and `NSObject.reactive.signal(for:from:)` |
+| `rac_liftSelector:withSignals:` | Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`.<br><pre>Signal.combineLatest([signal1, signal2])<br>    .observeValues(self.perform(first:second:))</pre> |
+| `rac_signalForSelector:` | `NSObject.reactive.trigger(for:)` and `NSObject.reactive.signal(for:)` |
+| `rac_signalForSelector:fromProtocol:` | Currently no counterpart. |
 | `rac_willDeallocSignal` | `NSObject.reactive.lifetime`, in conjunction with the `take(during:)` operator. |
 | `RAC(label, text)` | UI components expose binding targets via `NSObject.reactive`, e.g. `UILabel.reactive.text`, that can be used with the `<~` unidirectional binding operator. |
 | `RACObserve(object, keyPath)` | `NSObject.reactive.values(forKeyPath:)` |

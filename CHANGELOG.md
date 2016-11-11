@@ -1,5 +1,11 @@
 # 5.0
 
+### Table of Contents
+1. [Repository Split](#repository-split)
+1. [API Renaming](#api-renaming)
+1. [Changes in ReactiveSwift 1.0](#changes-in-reactiveswift-10)
+1. [Migrating from the ReactiveObjC API](#migrating-from-the-reactiveobjc-api)
+
 ### Repository Split
 In version 5.0, we split ReactiveCocoa into multiple repositories for reasons explained in the sections below. The following should help you get started with choosing the repositories you require:
 
@@ -9,19 +15,19 @@ In version 5.0, we split ReactiveCocoa into multiple repositories for reasons ex
 
 **If you’re using both the Swift and Objective-C APIs**, you likely require both ReactiveCocoa and [ReactiveObjCBridge][], which depend on [ReactiveSwift][] and [ReactiveObjC][].
 
-##### ReactiveCocoa
+#### ReactiveCocoa
 The ReactiveCocoa library is newly focused on Swift and the UI layers of Apple’s platforms, building on the work of [Rex](https://github.com/neilpa/Rex).
 
 Reactive programming provides significant benefit in UI programming. RAC 3 and 4 focused on building out the new core Swift API. But we feel that those APIs have matured and it’s time for RAC-friendly extensions to AppKit and UIKit.
 
-##### ReactiveSwift
+#### ReactiveSwift
 The core, platform-independent Swift APIs have been extracted to a new framework, [ReactiveSwift][].
 
 As Swift continues to grow as a language and a platform, we hope that it will expand beyond Cocoa and Apple’s platforms. Separating the Swift code makes it possible to use the reactive paradigm on other platforms.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 
-##### ReactiveObjC
+#### ReactiveObjC
 The 3.x and 4.x releases of ReactiveCocoa included the Objective-C code from ReactiveCocoa 2.x. That code has been moved to [ReactiveObjC][] because:
 
  1. It’s independent of the Swift code
@@ -39,7 +45,7 @@ This bridge is an important tool for users that are working in mixed-language co
 
 [ReactiveObjCBridge]: https://github.com/ReactiveCocoa/ReactiveObjCBridge
 
-### API Names
+### API Renaming
 
 We mostly adjusted the ReactiveCocoa API to follow the [Swift 3 API Design Guidelines](https://swift.org/blog/swift-3-api-design/), or to match the Cocoa and Foundation API changes that came with Swift 3 and the latest platform SDKs.
 
@@ -47,34 +53,136 @@ Lots has changed, but if you're already migrating to Swift 3 then that should no
 
 **Tip:** You can apply all the suggested fix-its in the current scope by choosing Editor > Fix All In Scope from the main menu in Xcode, or by using the associated keyboard shortcut.
 
-### Signal
+### Changes in ReactiveSwift 1.0
 
-##### Lifetime Semantics
+#### Signal: Lifetime Semantics
 
 Prior to RAC 5.0, `Signal`s lived and continued to emit values (and side effects) until they completed. This was very confusing, even for RAC veterans. So [changes have been made](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2959) to the lifetime semantics. `Signal`s now live and continue to emit events only while either (a) they have observers or (b) they are retained. This clears up a number of unexpected cases and makes `Signal`s much less dangerous.
 
-### SignalProducer
+#### SignalProducer: `buffer` has been removed.
+Consider using `Signal.pipe` for `buffer(0)`, `MutableProperty` for `buffer(1)` or `replayLazily(upTo: 1)` for `buffer(n)`.
 
-### Properties
-
+#### Properties: Composition
 Properties are now composable! They have many of the same operators as `Signal` and `SignalProducer`: `map`, `filter`, `combineLatest`, `zip`, `flatten`, etc.
 
-### Atomic
+#### Properties: Lifetime Semantics
+Composed properties, including those created via `Property(initial:then:)`, are semantically a view to their ultimate sources. In other words, the lifetime, the signal and the producer would respect the ultimate sources, and deinitialization of an instance of composed property would not have an effect on these.
 
-The `Atomic.modify` closure now takes an `inout` instead of relying on a return value. This provides a minor speed boost, because the compiler can avoid a copy in some cases, but also makes it possible to return a separate value from the closure to be used after the lock is released.
+```swift
+let property = MutableProperty(1)
+var composed: Property<Int> = property.map { $0 + 10 }
+composed.startWithValues { print("\($0)") }
+composed = nil
 
-### Migrating from the ReactiveObjC APIs
+property.value = 2
+// The produced signal is still alive, printing `12` to the output stream.
+```
 
-| ReactiveObjC       | ReactiveCocoa |
-| ------------------ | ------------- |
-| `rac_liftSelector:withSignals:` | Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`.<br><pre>Signal.combineLatest([signal1, signal2])<br>    .observeValues(self.perform(first:second:))</pre> |
-| `rac_signalForSelector:` | `NSObject.reactive.trigger(for:)` and `NSObject.reactive.signal(for:)` |
-| `rac_signalForSelector:fromProtocol:` | Currently no counterpart. |
-| `rac_willDeallocSignal` | `NSObject.reactive.lifetime`, in conjunction with the `take(during:)` operator. |
-| `RAC(label, text)` | UI components expose binding targets via `NSObject.reactive`, e.g. `UILabel.reactive.text`, that can be used with the `<~` unidirectional binding operator. |
-| `RACObserve(object, keyPath)` | `NSObject.reactive.values(forKeyPath:)` |
-| Control value changes, e.g. `textField.rac_text` | UI components expose signals via `NSObject.reactive`, e.g. `UITextField.reactive.continuousTextValues`. |
+#### Atomic: A more efficient `modify`
 
+`Atomic.modify` now passes its value to the supplied action as an `inout`. This enables the compiler to optimize it as an in-place mutation, which benefits collections, large `struct`s and `struct`s with considerable amount of references.
+
+Moreover, `Atomic.modify` now returns the returned value from the supplied action, instead of the old value as in RAC 4.x, so as to reduce unnecessary copying.
+
+```swift
+// ReactiveCocoa 4.0
+let old = atomicCount.modify { $0 + 1 }
+
+// ReactiveSwift 1.0
+let old = atomicCount.modify { value in
+    let old = value
+    value += 1
+    return old
+}
+```
+
+### Migrating from the ReactiveObjC API
+
+<table>
+	<tr>
+		<th>ReactiveObjC</th>
+		<th>ReactiveCocoa 5.0</th>
+	</tr>
+	<tr>
+		<th colspan="2">Primitives</th>
+	</tr>
+	<tr>
+		<td>Cold `RACSignal`</td>
+		<td>`SignalProducer`</td>
+	</tr>
+	<tr>
+		<td>Hot `RACSignal`</td>
+		<td>`Signal`</td>
+	</tr>
+	<tr>
+		<td>Serial `RACCommand`</td>
+		<td>`Action`</td>
+	</tr>
+	<tr>
+		<td>Concurrent `RACCommand`</td>
+		<td>Currently no counterpart.</td>
+	</tr>
+	<tr>
+		<th colspan="2">Macros</th>
+	</tr>
+	<tr>
+		<td>`RAC(label, text)`</td>
+		<td>Discover binding targets via `.reactive` on UI components.
+			<p><pre lang="swift">label.reactive.text \<~ viewModel.name</pre></p>
+		</td>
+	</tr>
+	<tr>
+		<td>`RACObserve(object, keyPath)`</td>
+		<td>`NSObject.reactive.values(forKeyPath:)`</td>
+	</tr>
+	<tr>
+		<th colspan="2">NSObject interception</th>
+	</tr>
+	<tr>
+		<td>`rac_willDeallocSignal`</td>
+		<td>`NSObject.reactive.lifetime`, in conjunction with the `take(during:)` operator.
+			<p><pre lang="swift">signal.take(during: object.reactive.lifetime)</pre></p>
+		</td>
+	</tr>
+	<tr>
+		<td>`rac_liftSelector:withSignals:`</td>
+		<td>Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`.
+			<p>
+				<pre lang="swift">
+Signal.combineLatest([signal1, signal2])
+	.observeValues(self.perform(first:second:))
+				</pre>
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td>`rac_signalForSelector:`</td>
+		<td>`NSObject.reactive.trigger(for:)` and `NSObject.reactive.signal(for:)`</td>
+	</tr>
+	<tr>
+		<td>`rac_signalForSelector:fromProtocol:`</td>
+		<td>Currently no counterpart.</td>
+	</tr>
+	<tr>
+		<th colspan="2">Control bindings and observations</th>
+	</tr>
+	<tr>
+		<td>Control value changes, e.g. `textField.rac_text`</td>
+		<td>Discover control value signals via `.reactive` on UI components.
+			<p><pre lang="swift">viewModel.searchString \<~ textField.reactive.textValues</pre></p>
+		</td>
+	</tr>
+	<tr>
+		<td>`rac_signalForControlEvents:`</td>
+		<td>`UIControl.reactive.trigger(for:)`</td>
+	</tr>
+	<tr>
+		<td>`rac_command`</td>
+		<td>Discover action binding APIs via `.reactive` on UI components.
+			<p><pre lang="swift">button.pressed = CocoaAction(viewModel.submitAction)</pre></p>
+		</td>
+	</tr>
+</table>
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

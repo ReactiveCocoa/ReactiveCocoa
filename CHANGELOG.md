@@ -98,90 +98,115 @@ let old = atomicCount.modify { value in
 
 ### Migrating from the ReactiveObjC API
 
+#### Primitives
 <table>
+	<thead>
 	<tr>
 		<th>ReactiveObjC</th>
 		<th>ReactiveCocoa 5.0</th>
 	</tr>
+	</thead>
+	<tbody>
 	<tr>
-		<th colspan="2">Primitives</th>
+		<td>Cold <code>RACSignal</code></td>
+		<td><code>SignalProducer</code></td>
 	</tr>
 	<tr>
-		<td>Cold `RACSignal`</td>
-		<td>`SignalProducer`</td>
+		<td>Hot <code>RACSignal</code></td>
+		<td><code>Signal</code></td>
 	</tr>
 	<tr>
-		<td>Hot `RACSignal`</td>
-		<td>`Signal`</td>
+		<td>Serial <code>RACCommand</code></td>
+		<td><code>Action</code></td>
 	</tr>
 	<tr>
-		<td>Serial `RACCommand`</td>
-		<td>`Action`</td>
-	</tr>
-	<tr>
-		<td>Concurrent `RACCommand`</td>
+		<td>Concurrent <code>RACCommand</code></td>
 		<td>Currently no counterpart.</td>
 	</tr>
+	</tbody>
+</table>
+
+#### Macros
+<table>
+	<thead>
 	<tr>
-		<th colspan="2">Macros</th>
+		<th>ReactiveObjC</th>
+		<th>ReactiveCocoa 5.0</th>
 	</tr>
+	</thead>
+	<tbody>
 	<tr>
-		<td>`RAC(label, text)`</td>
-		<td>Discover binding targets via `.reactive` on UI components.
+		<td><code>RAC(label, text)</code></td>
+		<td>Discover binding targets via <code>.reactive</code> on UI components.
 			<p><pre lang="swift">label.reactive.text \<~ viewModel.name</pre></p>
 		</td>
 	</tr>
 	<tr>
-		<td>`RACObserve(object, keyPath)`</td>
+		<td><code>RACObserve(object, keyPath)</code></td>
 		<td>`NSObject.reactive.values(forKeyPath:)`</td>
 	</tr>
+	</tbody>
+</table>
+#### NSObject interception
+<table>
+	<thead>
 	<tr>
-		<th colspan="2">NSObject interception</th>
+		<th>ReactiveObjC</th>
+		<th>ReactiveCocoa 5.0</th>
 	</tr>
+	</thead>
+	<tbody>
 	<tr>
-		<td>`rac_willDeallocSignal`</td>
-		<td>`NSObject.reactive.lifetime`, in conjunction with the `take(during:)` operator.
+		<td><code>rac_willDeallocSignal</code></td>
+		<td><code>NSObject.reactive.lifetime</code>, in conjunction with the <code>take(during:)</code> operator.
 			<p><pre lang="swift">signal.take(during: object.reactive.lifetime)</pre></p>
 		</td>
 	</tr>
 	<tr>
-		<td>`rac_liftSelector:withSignals:`</td>
-		<td>Apply `combineLatest` to your signals, and pass the method as the action to `observeValues`.
+		<td><code>rac_liftSelector:withSignals:</code></td>
+		<td>Apply <code>combineLatest</code> to your signals, and pass the method as the action to <code>observeValues</code>.
 			<p>
-				<pre lang="swift">
-Signal.combineLatest([signal1, signal2])
-	.observeValues(self.perform(first:second:))
-				</pre>
+<pre lang="swift">Signal.combineLatest([signal1, signal2])
+	.observeValues(self.perform(first:second:))</pre>
 			</p>
 		</td>
 	</tr>
 	<tr>
-		<td>`rac_signalForSelector:`</td>
-		<td>`NSObject.reactive.trigger(for:)` and `NSObject.reactive.signal(for:)`</td>
+		<td><code>rac_signalForSelector:</code></td>
+		<td><code>NSObject.reactive.trigger(for:)</code> and <code>NSObject.reactive.signal(for:)</code></td>
 	</tr>
 	<tr>
-		<td>`rac_signalForSelector:fromProtocol:`</td>
+		<td><code>rac_signalForSelector:fromProtocol:</code></td>
 		<td>Currently no counterpart.</td>
 	</tr>
+	</tbody>
+</table>
+#### Control bindings and observations
+<table>
+	<thead>
 	<tr>
-		<th colspan="2">Control bindings and observations</th>
+		<th>ReactiveObjC</th>
+		<th>ReactiveCocoa 5.0</th>
 	</tr>
+	</thead>
+	<tbody>
 	<tr>
-		<td>Control value changes, e.g. `textField.rac_text`</td>
-		<td>Discover control value signals via `.reactive` on UI components.
+		<td>Control value changes, e.g. <code>textField.rac_text</code></td>
+		<td>Discover control value signals via <code>.reactive</code> on UI components.
 			<p><pre lang="swift">viewModel.searchString \<~ textField.reactive.textValues</pre></p>
 		</td>
 	</tr>
 	<tr>
-		<td>`rac_signalForControlEvents:`</td>
-		<td>`UIControl.reactive.trigger(for:)`</td>
+		<td><code>rac_signalForControlEvents:</code></td>
+		<td><code>UIControl.reactive.trigger(for:)</code></td>
 	</tr>
 	<tr>
-		<td>`rac_command`</td>
-		<td>Discover action binding APIs via `.reactive` on UI components.
+		<td><code>rac_command`</td>
+		<td>Discover action binding APIs via <code>.reactive</code> on UI components.
 			<p><pre lang="swift">button.pressed = CocoaAction(viewModel.submitAction)</pre></p>
 		</td>
 	</tr>
+	</tbody>
 </table>
 # 4.0
 

@@ -13,3 +13,19 @@ extension Reactive where Base: UISegmentedControl {
 		return controlEvents(.valueChanged).map { $0.selectedSegmentIndex }
 	}
 }
+
+extension UISegmentedControl {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UISegmentedControl,
+		source: Source
+	) -> Disposable? where Source.Value == Int, Source.Error == NoError {
+		return target.reactive.selectedSegmentIndex <~ source
+	}
+}
+
+extension UISegmentedControl: BindingSourceProtocol {
+	public func observe(_ observer: Observer<Int, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.selectedSegmentIndexes.take(during: lifetime).observe(observer)
+	}
+}

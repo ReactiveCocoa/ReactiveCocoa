@@ -1,5 +1,6 @@
 import ReactiveSwift
 import ReactiveCocoa
+import Foundation
 import UIKit
 import Quick
 import Nimble
@@ -22,6 +23,15 @@ class UITextFieldSpec: QuickSpec {
 				textField = nil
 			}
 			expect(_textField).to(beNil())
+		}
+
+		it("should not result in ambiguous reference") {
+			MutableProperty<String?>(nil) <~ textField
+
+			textField <~ MutableProperty<String>("")
+			textField <~ MutableProperty<String?>("")
+			textField <~ MutableProperty(NSAttributedString())
+			textField <~ MutableProperty<NSAttributedString?>(nil)
 		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {

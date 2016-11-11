@@ -28,6 +28,15 @@ class UITextViewSpec: QuickSpec {
 			expect(_textView).toEventually(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			MutableProperty<String?>(nil) <~ textView
+
+			textView <~ MutableProperty<String>("")
+			textView <~ MutableProperty<String?>("")
+			textView <~ MutableProperty(NSAttributedString())
+			textView <~ MutableProperty<NSAttributedString?>(nil)
+		}
+
 		it("should emit user initiated changes to its text value when the editing ends") {
 			textView.text = "Test"
 

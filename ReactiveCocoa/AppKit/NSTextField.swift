@@ -23,3 +23,9 @@ extension Reactive where Base: NSTextField {
 			.map { ($0.object as! NSTextField).attributedStringValue }
 	}
 }
+
+extension NSTextField: BindingSourceProtocol {
+	public func observe(_ observer: Observer<String, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.stringValues.take(during: lifetime).observe(observer)
+	}
+}

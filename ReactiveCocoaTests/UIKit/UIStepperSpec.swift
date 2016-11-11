@@ -20,6 +20,12 @@ class UIStepperSpec: QuickSpec {
 			expect(_stepper).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			MutableProperty(0.0) <~ stepper
+			MutableProperty<Double?>(nil) <~ stepper
+			stepper <~ MutableProperty<Double>(0.0)
+		}
+
 		it("should accept changes from bindings to its value") {
 			expect(stepper.value) == 0.0
 

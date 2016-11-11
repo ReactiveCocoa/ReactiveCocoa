@@ -24,6 +24,13 @@ class UIDatePickerSpec: QuickSpec {
 			expect(_picker).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			MutableProperty(Date()) <~ picker
+			MutableProperty<Date?>(nil) <~ picker
+
+			picker <~ MutableProperty(Date())
+		}
+
 		it("should accept changes from bindings to its date value") {
 			picker.reactive.date.consume(date)
 			expect(picker.date) == date

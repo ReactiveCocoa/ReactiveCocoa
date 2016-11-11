@@ -43,3 +43,43 @@ extension Reactive where Base: UITextField {
 		return controlEvents(.editingChanged).map { $0.attributedText }
 	}
 }
+
+extension UITextField {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextField,
+		source: Source
+	) -> Disposable? where Source.Value == String?, Source.Error == NoError {
+		return target.reactive.text <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextField,
+		source: Source
+	) -> Disposable? where Source.Value == String, Source.Error == NoError {
+		return target.reactive.text <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextField,
+		source: Source
+	) -> Disposable? where Source.Value == NSAttributedString?, Source.Error == NoError {
+		return target.reactive.attributedText <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextField,
+		source: Source
+	) -> Disposable? where Source.Value == NSAttributedString, Source.Error == NoError {
+		return target.reactive.attributedText <~ source
+	}
+}
+
+extension UITextField: BindingSourceProtocol {
+	public func observe(_ observer: Observer<String?, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.textValues.take(during: lifetime).observe(observer)
+	}
+}

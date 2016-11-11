@@ -59,3 +59,44 @@ extension Reactive where Base: UITextView {
 		return attributedTextValues(forName: .UITextViewTextDidChange)
 	}
 }
+
+extension UITextView {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextView,
+		source: Source
+	) -> Disposable? where Source.Value == String, Source.Error == NoError {
+		return target.reactive.text <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextView,
+		source: Source
+	) -> Disposable? where Source.Value == String?, Source.Error == NoError {
+		return target.reactive.text <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextView,
+		source: Source
+	) -> Disposable? where Source.Value == NSAttributedString, Source.Error == NoError {
+		return target.reactive.attributedText <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UITextView,
+		source: Source
+	) -> Disposable? where Source.Value == NSAttributedString?, Source.Error == NoError {
+		return target.reactive.attributedText <~ source
+	}
+}
+
+extension UITextView: BindingSourceProtocol {
+	public func observe(_ observer: Observer<String?, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.textValues.take(during: lifetime).observe(observer)
+	}
+}
+

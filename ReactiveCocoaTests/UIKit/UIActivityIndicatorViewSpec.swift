@@ -19,6 +19,10 @@ class UIActivityIndicatorSpec: QuickSpec {
 			expect(_activityIndicatorView).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			activityIndicatorView <~ MutableProperty(false)
+		}
+
 		it("should accept changes from bindings to its animating state") {
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
 			activityIndicatorView.reactive.isAnimating <~ SignalProducer(pipeSignal)

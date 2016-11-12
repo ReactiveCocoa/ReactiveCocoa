@@ -60,7 +60,7 @@ Lots has changed, but if you're already migrating to Swift 3 then that should no
 Prior to RAC 5.0, `Signal`s lived and continued to emit values (and side effects) until they completed. This was very confusing, even for RAC veterans. So [changes have been made](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/2959) to the lifetime semantics. `Signal`s now live and continue to emit events only while either (a) they have observers or (b) they are retained. This clears up a number of unexpected cases and makes `Signal`s much less dangerous.
 
 #### SignalProducer: `buffer` has been removed.
-Consider using `Signal.pipe` for `buffer(0)`, `MutableProperty` for `buffer(1)` or `replayLazily(upTo: 1)` for `buffer(n)`.
+Consider using `Signal.pipe` for `buffer(0)`, `MutableProperty` for `buffer(1)` or `replayLazily(upTo: n)` for `buffer(n)`.
 
 #### Properties: Composition
 Properties are now composable! They have many of the same operators as `Signal` and `SignalProducer`: `map`, `filter`, `combineLatest`, `zip`, `flatten`, etc.

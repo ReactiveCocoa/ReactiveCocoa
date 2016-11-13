@@ -22,7 +22,7 @@ extension Reactive where Base: UISlider {
 	/// A signal of float values emitted by the slider while being dragged by
 	/// the user.
 	///
-	/// - note: If slider's `isContinuous` property is `true` then values are
+	/// - note: If slider's `isContinuous` property is `false` then values are
 	///         sent only when user releases the slider.
 	public var continuousValues: Signal<Float, NoError> {
 		return trigger(for: .valueChanged)

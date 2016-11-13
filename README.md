@@ -5,6 +5,8 @@
 
 ⚠️ [Looking for the Objective-C API?][] ⚠️ [Still using Swift 2.x?][]
 
+🎉 [Migrating from RAC 4.x?][CHANGELOG]
+
 ## What is ReactiveSwift?
 __ReactiveSwift__ offers composable, declarative and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundamentally an act of observation.
 

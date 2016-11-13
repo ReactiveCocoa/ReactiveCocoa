@@ -38,6 +38,8 @@
 		53A6BED61DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
 		53A6BED71DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
 		53A6BED81DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
+		53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CB1DD6F97400C799E1 /* UISlider.swift */; };
+		53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */; };
 		57A4D2081BA13D7A00F7D4B1 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
@@ -277,6 +279,8 @@
 		538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintSpec.swift; sourceTree = "<group>"; };
 		53A6BED11DD4BCA90016C058 /* MKMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MKMapView.swift; sourceTree = "<group>"; };
 		53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MKMapViewSpec.swift; sourceTree = "<group>"; };
+		53AC46CB1DD6F97400C799E1 /* UISlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISlider.swift; sourceTree = "<group>"; };
+		53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISliderSpec.swift; sourceTree = "<group>"; };
 		57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Application.xcconfig"; sourceTree = "<group>"; };
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -511,6 +515,7 @@
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
+				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
 				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
@@ -536,6 +541,7 @@
 				9A1D062C1D93EA7E00ACF44C /* UILabelSpec.swift */,
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
 				9A1D062E1D93EA7E00ACF44C /* UISegmentedControlSpec.swift */,
+				53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */,
 				9A1D062F1D93EA7E00ACF44C /* UISwitchSpec.swift */,
 				4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */,
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
@@ -1173,6 +1179,7 @@
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
+				53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
 				9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */,
@@ -1218,6 +1225,7 @@
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9ADFE5A21DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
+				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,
 				9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				53A6BED71DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
 				9A1D06381D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,

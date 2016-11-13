@@ -57,7 +57,7 @@ class UISliderSpec: QuickSpec {
 			slider.value = 0.25
 
 			var updatedValue: Float?
-			slider.reactive.continuousValues.observeValues { value in
+			slider.reactive.values.observeValues { value in
 				updatedValue = value
 			}
 

@@ -52,5 +52,17 @@ class UISliderSpec: QuickSpec {
 			observer.send(value: 0.7)
 			expect(slider.maximumValue) ≈ 0.7
 		}
+
+		it("should emit user's changes for its value") {
+			slider.value = 0.25
+
+			var updatedValue: Float?
+			slider.reactive.continuousValues.observeValues { value in
+				updatedValue = value
+			}
+
+			slider.sendActions(for: .valueChanged)
+			expect(updatedValue) ≈ 0.25
+		}
     }
 }

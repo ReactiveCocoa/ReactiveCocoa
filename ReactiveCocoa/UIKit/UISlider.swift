@@ -1,5 +1,6 @@
 import UIKit
 import ReactiveSwift
+import enum Result.NoError
 
 extension Reactive where Base: UISlider {
 
@@ -18,4 +19,13 @@ extension Reactive where Base: UISlider {
 		return makeBindingTarget { $0.maximumValue = $1 }
 	}
 
+	/// A signal of float values emitted by the slider while being dragged by
+	/// the user.
+	///
+	/// - note: If slider's `isContinuous` property is `true` then values are
+	///         sent only when user releases the slider.
+	public var continuousValues: Signal<Float, NoError> {
+		return trigger(for: .valueChanged)
+			.map { [unowned base = self.base] in base.value }
+	}
 }

@@ -61,6 +61,7 @@ class UISliderSpec: QuickSpec {
 				updatedValue = value
 			}
 
+			expect(updatedValue).to(beNil())
 			slider.sendActions(for: .valueChanged)
 			expect(updatedValue) ≈ 0.25
 		}

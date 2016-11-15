@@ -506,6 +506,7 @@
 		9A1D05EB1D93E9F100ACF44C /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				CD91E3D41DDAC67700FA70D0 /* iOS */,
 				9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */,
 				9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */,
 				9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */,
@@ -513,15 +514,11 @@
 				9A1D05EF1D93E9F100ACF44C /* UIButton.swift */,
 				4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */,
 				9A1D05F11D93E9F100ACF44C /* UIControl.swift */,
-				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
-				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
-				531866F71DD7920400D1285F /* UIStepper.swift */,
-				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
 				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
@@ -591,6 +588,17 @@
 				BE330A0E1D634F1E00806963 /* ReactiveSwift.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CD91E3D41DDAC67700FA70D0 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
+				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
+				531866F71DD7920400D1285F /* UIStepper.swift */,
+				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
+			);
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		D04725E019E49ED7006002AA = {

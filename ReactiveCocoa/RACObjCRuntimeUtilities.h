@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+IMP _rac_objc_msgForward();
+
 @interface RACSwiftInvocationArguments : NSObject
 
 @property(readonly, nonatomic) NSInteger count;

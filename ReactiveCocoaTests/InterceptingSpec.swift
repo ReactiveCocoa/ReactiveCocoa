@@ -90,6 +90,538 @@ class InterceptingSpec: QuickSpec {
 					expect(isDeadlocked).toEventually(beFalsy())
 				}
 			}
+
+			it("should send completed on deallocation") {
+				var completed = false
+				var deallocated = false
+
+				autoreleasepool {
+					let object = InterceptedObject()
+
+					object.reactive.lifetime.ended.observeCompleted {
+						deallocated = true
+					}
+
+					object.reactive.trigger(for: #selector(object.lifeIsGood)).observeCompleted {
+						completed = true
+					}
+
+					expect(deallocated) == false
+					expect(completed) == false
+				}
+
+				expect(deallocated) == true
+				expect(completed) == true
+			}
+
+			it("should send arguments for invocation and invoke the original method on previously KVO'd receiver") {
+				var latestValue: Bool?
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.startWithValues { objectValue in
+						latestValue = objectValue as! Bool?
+					}
+
+				expect(latestValue).to(beNil())
+
+				var firstValue: Bool?
+				var secondValue: String?
+
+				object.reactive
+					.signal(for: #selector(object.set(first:second:)))
+					.observeValues { x in
+						firstValue = x[0] as! Bool?
+						secondValue = x[1] as! String?
+					}
+
+				object.set(first: true, second: "Winner")
+
+				expect(object.hasInvokedSetObjectValueAndSecondObjectValue) == true
+				expect(object.objectValue as! Bool?) == true
+				expect(object.secondObjectValue as! String?) == "Winner"
+
+				expect(latestValue) == true
+
+				expect(firstValue) == true
+				expect(secondValue) == "Winner"
+			}
+/**
+			it("should send arguments for invocation and invoke the a KVO-swizzled then RAC-swizzled setter") {
+				var latestValue: Bool?
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.startWithValues { objectValue in
+						latestValue = objectValue as! Bool?
+					}
+
+				expect(latestValue).to(beNil())
+
+				var value: Bool?
+				object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
+					value = x[0] as! Bool?
+				}
+
+				object.objectValue = true
+
+				expect(object.objectValue as! Bool?) == true
+				expect(latestValue) == true
+				expect(value) == true
+			}
+**/
+			it("should send arguments for invocation and invoke the a RAC-swizzled then KVO-swizzled setter") {
+				let object = InterceptedObject()
+
+				var value: Bool?
+				object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
+					value = x[0] as! Bool?
+				}
+
+				var latestValue: Bool?
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.startWithValues { objectValue in
+						latestValue = objectValue as! Bool?
+					}
+
+				expect(latestValue).to(beNil())
+
+				object.objectValue = true
+
+				expect(object.objectValue as! Bool?) == true
+				expect(latestValue) == true
+				expect(value) == true
+			}
+
+			it("should send arguments for invocation and invoke the original method when receiver is subsequently KVO'd") {
+				let object = InterceptedObject()
+
+				var firstValue: Bool?
+				var secondValue: String?
+
+				object.reactive.signal(for: #selector(object.set(first:second:))).observeValues { x in
+					firstValue = x[0] as! Bool?
+					secondValue = x[1] as! String?
+				}
+
+				var latestValue: Bool?
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.startWithValues { objectValue in
+						latestValue = objectValue as! Bool?
+					}
+
+				expect(latestValue).to(beNil())
+
+				object.set(first: true, second: "Winner")
+
+				expect(object.hasInvokedSetObjectValueAndSecondObjectValue) == true
+				expect(object.objectValue as! Bool?) == true
+				expect(object.secondObjectValue as! String?) == "Winner"
+
+				expect(latestValue) == true
+
+				expect(firstValue) == true
+				expect(secondValue) == "Winner"
+			}
+
+			it("should properly implement -respondsToSelector: when called on KVO'd receiver") {
+				let object = InterceptedObject()
+
+				// First, setup KVO on `object`, which gives us the desired side-effect
+				// of `object` taking on a KVO-custom subclass.
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				let selector = NSSelectorFromString("anyOldSelector:")
+
+				// With the KVO subclass in place, call -rac_signalForSelector: to
+				// implement -anyOldSelector: directly on the KVO subclass.
+				_ = object.reactive.trigger(for: selector)
+
+				expect(object.responds(to: selector)) == true
+			}
+
+			it("should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd") {
+				let object = InterceptedObject()
+
+				let selector = NSSelectorFromString("anyOldSelector:")
+
+				// Implement -anyOldSelector: on the object first
+				_ = object.reactive.trigger(for: selector)
+
+				expect(object.responds(to: selector)) == true
+
+				// Then KVO the object
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				expect(object.responds(to: selector)) == true
+			}
+
+			it("should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again") {
+				let object = InterceptedObject()
+
+				let selector = NSSelectorFromString("anyOldSelector:")
+
+				// Implement -anyOldSelector: on the object first
+				_ = object.reactive.trigger(for: selector)
+
+				expect(object.responds(to: selector)) == true
+
+				// Then KVO the object
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				expect(object.responds(to: selector)) == true
+
+				let selector2 = NSSelectorFromString("anotherSelector:")
+
+				// Then implement -anotherSelector: on the object
+				_ = object.reactive.trigger(for: selector2)
+
+				expect(object.responds(to: selector2)) == true
+			}
+
+			it("should call the right signal for two instances of the same class, adding signals for the same selector") {
+				let object1 = InterceptedObject()
+				let object2 = InterceptedObject()
+
+				let selector = NSSelectorFromString("lifeIsGood:")
+
+				var value1: Int?
+				object1.reactive.signal(for: selector).observeValues { x in
+					value1 = x[0] as! Int?
+				}
+
+				var value2: Int?
+				object2.reactive.signal(for: selector).observeValues { x in
+					value2 = x[0] as! Int?
+				}
+
+				object1.lifeIsGood(42)
+				expect(value1) == 42
+				expect(value2).to(beNil())
+
+				object2.lifeIsGood(420)
+				expect(value1) == 42
+				expect(value2) == 420
+			}
+
+			it("should send on signal after the original method is invoked") {
+				let object = InterceptedObject()
+
+				var invokedMethodBefore = false
+				object.reactive.trigger(for: #selector(object.set(first:second:))).observeValues {
+					invokedMethodBefore = object.hasInvokedSetObjectValueAndSecondObjectValue
+				}
+
+				object.set(first: true, second: "Winner")
+				expect(invokedMethodBefore) == true
+			}
+		}
+/**
+		describe("interoperability") {
+			var invoked: Bool!
+			var object: InterceptedObject!
+			var originalClass: AnyClass!
+
+			beforeEach {
+				invoked = false
+				object = InterceptedObject()
+				originalClass = InterceptedObject.self
+			}
+
+			it("should invoke the swizzled `forwardInvocation:` on an instance isa-swizzled by both RAC and KVO.") {
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+
+				let swizzledSelector = #selector(object.lifeIsGood)
+
+				// Redirect `swizzledSelector` to the forwarding machinery.
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)
+				let typeDescription = method_getTypeEncoding(method)
+				let originalImp = class_replaceMethod(originalClass, swizzledSelector, _rac_objc_msgForward(), typeDescription)
+
+				defer {
+					class_replaceMethod(originalClass, swizzledSelector, originalImp, typeDescription)
+				}
+
+				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
+				let patchForwardInvocationBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _, invocation in
+					if ((invocation as! NSInvocationProtocol).selector == swizzledSelector) {
+						expect(invoked) == false
+						invoked = true
+					}
+				}
+
+				let newForwardInvocation = imp_implementationWithBlock(patchForwardInvocationBlock as Any)
+				let oldForwardInvocation = class_replaceMethod(originalClass, NSObject.forwardInvocationSelector, newForwardInvocation, "v@:@")
+
+				defer {
+					class_replaceMethod(originalClass, NSObject.forwardInvocationSelector, oldForwardInvocation, "v@:@")
+				}
+
+				object.lifeIsGood(nil)
+				expect(invoked) == true
+			}
+
+			it("should invoke the swizzled `forwardInvocation:` on an instance isa-swizzled by RAC.") {
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+
+				let swizzledSelector = #selector(object.lifeIsGood)
+
+				// Redirect `swizzledSelector` to the forwarding machinery.
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)
+				let typeEncoding = method_getTypeEncoding(method)
+				let originalImp = class_replaceMethod(originalClass, swizzledSelector, _rac_objc_msgForward(), typeEncoding)
+
+				defer {
+					class_replaceMethod(originalClass, swizzledSelector, originalImp, typeEncoding)
+				}
+
+				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
+				let patchForwardInvocationBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _, invocation in
+					if ((invocation as! NSInvocationProtocol).selector == swizzledSelector) {
+						expect(invoked) == false
+						invoked = true
+					}
+				}
+
+				let newForwardInvocation = imp_implementationWithBlock(patchForwardInvocationBlock as Any)
+				let oldForwardInvocation = class_replaceMethod(originalClass, NSObject.forwardInvocationSelector, newForwardInvocation, "v@:@")
+
+				defer {
+					class_replaceMethod(originalClass, NSObject.forwardInvocationSelector, oldForwardInvocation, "v@:@")
+				}
+
+				object.lifeIsGood(nil)
+				expect(invoked) == true
+			}
+
+			it("should invoke the swizzled selector on an instance isa-swizzled by RAC.") {
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+
+				let swizzledSelector = #selector(object.lifeIsGood)
+
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)
+				let typeEncoding = method_getTypeEncoding(method)
+
+				let methodSwizzlingBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _ in
+					expect(invoked) == false
+					invoked = true
+				}
+
+				let newImplementation = imp_implementationWithBlock(methodSwizzlingBlock as Any)
+				let oldImplementation = class_replaceMethod(originalClass, swizzledSelector, newImplementation, typeEncoding)
+
+				defer {
+					class_replaceMethod(originalClass, swizzledSelector, oldImplementation, typeEncoding)
+				}
+
+				object.lifeIsGood(nil)
+				expect(invoked) == true
+			}
+
+			it("should invoke the swizzled setter on an instance isa-swizzled by RAC.") {
+				_ = object.reactive.trigger(for: #selector(setter: object.objectValue))
+
+				let swizzledSelector = #selector(object.lifeIsGood)
+
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)
+				let typeEncoding = method_getTypeEncoding(method)
+
+				let methodSwizzlingBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _ in
+					expect(invoked) == false
+					invoked = true
+				}
+
+				let newImplementation = imp_implementationWithBlock(methodSwizzlingBlock as Any)
+				let oldImplementation = class_replaceMethod(originalClass, swizzledSelector, newImplementation, typeEncoding)
+
+				defer {
+					class_replaceMethod(originalClass, swizzledSelector, oldImplementation, typeEncoding)
+				}
+
+				object.lifeIsGood(nil)
+				expect(invoked) == true
+			}
+		}
+**/
+		it("should swizzle an NSObject method") {
+			let object = NSObject()
+
+			var value: [Any?]?
+
+			object.reactive
+				.signal(for: #selector(getter: object.description))
+				.observeValues { x in
+					value = x
+				}
+
+			expect(value) == nil
+
+			expect(object.description).notTo(beNil())
+			expect(value).toNot(beNil())
+		}
+
+		describe("a class that already overrides -forwardInvocation:") {
+			it("should invoke the superclass' implementation") {
+				let object = ForwardInvocationTestObject()
+
+				var value: Int?
+				object.reactive
+					.signal(for: #selector(object.lifeIsGood))
+					.observeValues { x in
+						value = x[0] as! Int?
+					}
+
+				object.lifeIsGood(42)
+				expect(value) == 42
+
+				expect(object.forwardedCount) == 0
+
+				object.perform(ForwardInvocationTestObject.forwardedSelector)
+
+				expect(object.forwardedCount) == 1
+				expect(object.forwardedSelector) == ForwardInvocationTestObject.forwardedSelector
+			}
+
+			it("should not infinite recurse when KVO'd after RAC swizzled") {
+				let object = ForwardInvocationTestObject()
+
+				var value: Int?
+
+				object.reactive
+					.signal(for: #selector(object.lifeIsGood))
+					.observeValues { x in
+						value = x[0] as! Int?
+					}
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				object.lifeIsGood(42)
+				expect(value) == 42
+
+				expect(object.forwardedCount) == 0
+
+				object.perform(ForwardInvocationTestObject.forwardedSelector)
+
+				expect(object.forwardedCount) == 1
+				expect(object.forwardedSelector) == ForwardInvocationTestObject.forwardedSelector
+			}
+		}
+
+		describe("two classes in the same hierarchy") {
+			var superclassObj: InterceptedObject!
+			var superclassTuple: [Any?]?
+
+			var subclassObj: InterceptedObjectSubclass!
+			var subclassTuple: [Any?]?
+
+			beforeEach {
+				superclassObj = InterceptedObject()
+				expect(superclassObj).notTo(beNil())
+
+				subclassObj = InterceptedObjectSubclass()
+				expect(subclassObj).notTo(beNil())
+			}
+
+			it("should not collide") {
+				superclassObj.reactive
+					.signal(for: #selector(InterceptedObject.foo))
+					.observeValues { args in
+						superclassTuple = args
+					}
+
+				subclassObj
+					.reactive
+					.signal(for: #selector(InterceptedObject.foo))
+					.observeValues { args in
+						subclassTuple = args
+					}
+
+				expect(superclassObj.foo(40, "foo")) == "Not Subclass 40 foo"
+
+				let expectedValues = [40, "foo"] as NSArray
+				expect(superclassTuple as NSArray?) == expectedValues
+
+				expect(subclassObj.foo(40, "foo")) == "Subclass 40 foo"
+
+				expect(subclassTuple as NSArray?) == expectedValues
+			}
+
+			it("should not collide when the superclass is invoked asynchronously") {
+				superclassObj.reactive
+					.signal(for: #selector(InterceptedObject.set(first:second:)))
+					.observeValues { args in
+						superclassTuple = args
+					}
+
+				subclassObj
+					.reactive
+					.signal(for: #selector(InterceptedObject.set(first:second:)))
+					.observeValues { args in
+						subclassTuple = args
+					}
+
+				superclassObj.set(first: "foo", second:"42")
+				expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == true
+
+				let expectedValues = ["foo", "42"] as NSArray
+				expect(superclassTuple as NSArray?) == expectedValues
+
+				subclassObj.set(first: "foo", second:"42")
+				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == false
+				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).toEventually(beTruthy())
+
+				expect(subclassTuple as NSArray?) == expectedValues
+			}
+		}
+
+		describe("class reporting") {
+			var object: InterceptedObject!
+			var originalClass: AnyClass!
+
+			beforeEach {
+				object = InterceptedObject()
+				originalClass = InterceptedObject.self
+			}
+
+			it("should report the original class") {
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+				expect(object._class).to(beIdenticalTo(originalClass))
+			}
+
+			it("should report the original class when it's KVO'd after dynamically subclassing") {
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				expect(object._class).to(beIdenticalTo(originalClass))
+			}
+
+			it("should report the original class when it's KVO'd before dynamically subclassing") {
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
+				expect(object._class).to(beIdenticalTo(originalClass))
+			}
 		}
 
 		describe("signal(for:)") {
@@ -291,13 +823,97 @@ class InterceptingSpec: QuickSpec {
 	}
 }
 
-class InterceptedObject: NSObject {
+extension NSObject {
+	fileprivate static var forwardInvocationSelector: Selector {
+		return Selector((("forwardInvocation:")))
+	}
+
+	/// Get the runtime class through the Objective-C `-class` instance method.
+	///
+	/// Swift's `type(of:)` does not respect NSObject's `-class`, and returns the
+	/// runtime subclasses.
+	public var _class: AnyClass {
+		typealias ClassMethod = @convention(c) (AnyObject?, Selector?) -> AnyClass
+
+		let classSelector = Selector((("class")))
+		let method = class_getInstanceMethod(object_getClass(self), classSelector)
+		let impl = unsafeBitCast(method_getImplementation(method), to: ClassMethod.self)
+		return impl(self, classSelector)
+	}
+}
+
+private class ForwardInvocationTestObject: InterceptedObject {
+	static let forwardedSelector = Selector((("forwarded")))
+
+	var forwardedCount = 0
+	var forwardedSelector: Selector?
+
+	override open class func initialize() {
+		struct Static {
+			static var token: Int = {
+				let impl: @convention(block) (AnyObject?, AnyObject?) -> Void = { object, invocation in
+					let object = object as! ForwardInvocationTestObject
+					object.forwardedCount += 1
+					object.forwardedSelector = invocation!.selector
+				}
+
+				let isSuccessful = class_addMethod(ForwardInvocationTestObject.self, NSObject.forwardInvocationSelector, imp_implementationWithBlock(impl as Any), UnsafeRawPointer(("v@:@" as StaticString).utf8Start).assumingMemoryBound(to: Int8.self))
+				assert(isSuccessful)
+				assert(ForwardInvocationTestObject.instancesRespond(to: NSObject.forwardInvocationSelector))
+
+				let isSuccessful2 = class_addMethod(ForwardInvocationTestObject.self, ForwardInvocationTestObject.forwardedSelector, _rac_objc_msgForward(), UnsafeRawPointer(("v@:" as StaticString).utf8Start).assumingMemoryBound(to: Int8.self))
+				assert(isSuccessful)
+				assert(ForwardInvocationTestObject.instancesRespond(to: ForwardInvocationTestObject.forwardedSelector))
+
+				return 0
+			}()
+		}
+
+		_ = Static.token
+	}
+}
+
+@objc private protocol NSInvocationProtocol {
+	var target: NSObject { get }
+	var selector: Selector { get }
+
+	func invoke()
+}
+
+private class InterceptedObjectSubclass: InterceptedObject {
+	dynamic override func foo(_ number: Int, _ string: String) -> String {
+		return "Subclass \(number) \(string)"
+	}
+
+	dynamic override func set(first: Any?, second: Any?) {
+		DispatchQueue.main.async {
+			super.set(first: first, second: second)
+		}
+	}
+}
+
+private class InterceptedObject: NSObject {
 	var counter = 0
+	dynamic var hasInvokedSetObjectValueAndSecondObjectValue = false
+	dynamic var objectValue: Any?
+	dynamic var secondObjectValue: Any?
 
 	dynamic func increment() {
 		counter += 1
 	}
-	
+
+	dynamic func foo(_ number: Int, _ string: String) -> String {
+		return "Not Subclass \(number) \(string)"
+	}
+
+	dynamic func lifeIsGood(_ value: Any?) {}
+	dynamic func set(first: Any?, second: Any?) {
+		objectValue = first
+		secondObjectValue = second
+
+		hasInvokedSetObjectValueAndSecondObjectValue = true
+	}
+
 	dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
 	dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
 	dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}

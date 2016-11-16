@@ -22,6 +22,10 @@ static NSMutableSet *swizzledClasses() {
 	return set;
 }
 
+IMP _rac_objc_msgForward() {
+	return _objc_msgForward;
+}
+
 @interface RACForwardingInfo : NSObject
 
 @property (readonly, nonatomic) BOOL isTrigger;

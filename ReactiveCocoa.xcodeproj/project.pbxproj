@@ -26,6 +26,8 @@
 		4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */; };
 		4ABEFE301DCFD0530066A8C2 /* NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */; };
 		4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */; };
+		531866F81DD7920400D1285F /* UIStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F71DD7920400D1285F /* UIStepper.swift */; };
+		531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F91DD7925600D1285F /* UIStepperSpec.swift */; };
 		538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
 		538DCB7B1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
@@ -275,6 +277,8 @@
 		4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTableViewSpec.swift; sourceTree = "<group>"; };
 		4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionView.swift; sourceTree = "<group>"; };
 		4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSpec.swift; sourceTree = "<group>"; };
+		531866F71DD7920400D1285F /* UIStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepper.swift; sourceTree = "<group>"; };
+		531866F91DD7925600D1285F /* UIStepperSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepperSpec.swift; sourceTree = "<group>"; };
 		538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraint.swift; sourceTree = "<group>"; };
 		538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintSpec.swift; sourceTree = "<group>"; };
 		53A6BED11DD4BCA90016C058 /* MKMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MKMapView.swift; sourceTree = "<group>"; };
@@ -502,6 +506,7 @@
 		9A1D05EB1D93E9F100ACF44C /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				CD91E3D41DDAC67700FA70D0 /* iOS */,
 				9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */,
 				9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */,
 				9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */,
@@ -509,14 +514,11 @@
 				9A1D05EF1D93E9F100ACF44C /* UIButton.swift */,
 				4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */,
 				9A1D05F11D93E9F100ACF44C /* UIControl.swift */,
-				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
-				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
-				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
 				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
@@ -542,6 +544,7 @@
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
 				9A1D062E1D93EA7E00ACF44C /* UISegmentedControlSpec.swift */,
 				53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */,
+				531866F91DD7925600D1285F /* UIStepperSpec.swift */,
 				9A1D062F1D93EA7E00ACF44C /* UISwitchSpec.swift */,
 				4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */,
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
@@ -585,6 +588,17 @@
 				BE330A0E1D634F1E00806963 /* ReactiveSwift.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CD91E3D41DDAC67700FA70D0 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
+				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
+				531866F71DD7920400D1285F /* UIStepper.swift */,
+				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
+			);
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		D04725E019E49ED7006002AA = {
@@ -1196,6 +1210,7 @@
 				9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				4ABEFE1F1DCFCEF60066A8C2 /* UITableView.swift in Sources */,
 				9A1D06081D93EA0000ACF44C /* UIProgressView.swift in Sources */,
+				531866F81DD7920400D1285F /* UIStepper.swift in Sources */,
 				538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
 				9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */,
 				9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */,
@@ -1220,6 +1235,7 @@
 				9A1D064A1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */,
+				531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,

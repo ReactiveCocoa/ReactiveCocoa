@@ -18,9 +18,8 @@ Pod::Spec.new do |s|
   s.source_files = "ReactiveCocoa/*.{swift,h,m}", "ReactiveCocoa/Shared/*.{swift}"
   s.private_header_files = "ReactiveCocoa/RACObjCRuntimeUtilities.h"
   s.osx.source_files = "ReactiveCocoa/AppKit/*.{swift}"
-  s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}"
+  s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}", "ReactiveCocoa/UIKit/iOS/*.{swift}"
   s.tvos.source_files = "ReactiveCocoa/UIKit/*.{swift}"
-  s.tvos.exclude_files = "ReactiveCocoa/UIKit/*{UIDatePicker,UISwitch,UISlider}*"
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
   s.module_map = "ReactiveCocoa/module.modulemap"
   

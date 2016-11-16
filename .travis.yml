@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode8.1sneakpeek
+osx_image: xcode8.1
 before_install: true
 install: true
 git:

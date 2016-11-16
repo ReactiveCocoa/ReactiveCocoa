@@ -299,37 +299,55 @@ class KeyValueObservingSpec: QuickSpec {
 				}
 
 				it("async disposal of signal with in-flight changes") {
-					let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
 					let otherScheduler: QueueScheduler
+
+					var token = Optional(Lifetime.Token())
+					let lifetime = Lifetime(token!)
+
 					if #available(*, OSX 10.10) {
 						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
 					} else {
 						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 					}
 
-					let replayProducer = testObject.reactive
-						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
-						.map { $0 as! NSNumber }
-						.map { $0.intValue }
-						.map { $0 % 2 == 0 }
-						.observe(on: otherScheduler)
-						.take(until: teardown)
-						.replayLazily(upTo: 1)
+					// Create a scope to limit the lifetime `values(forKeyPath:)`.
+					var replayProducer: SignalProducer<Bool, NoError>? = {
+						return testObject.reactive
+							.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+							.map { $0 as! NSNumber }
+							.map { $0.intValue }
+							.map { $0 % 2 == 0 }
+							.observe(on: otherScheduler)
+							.take(during: lifetime)
+							.replayLazily(upTo: 1)
+					}()
 
-					replayProducer.start { _ in }
+					// `replayProducer` ceases its reference to the values producer after
+					// it starts.
+					replayProducer!.start()
 
-					iterationQueue.async {
-						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+					iterationQueue.suspend()
+
+					let half = numIterations / 2
+
+					for index in 0 ..< numIterations {
+						iterationQueue.async { [testObject = testObject!] in
 							testObject.rac_value = index
+						}
+
+						if index == half {
+							iterationQueue.async(flags: .barrier) { [replayProducer = replayProducer!] in
+								token = nil
+								expect(replayProducer.last()).toNot(beNil())
+							}
 						}
 					}
 
-					iterationQueue.async(flags: .barrier) {
-						teardownObserver.send(value: ())
-					}
+					testObject = nil
+					replayProducer = nil
+					iterationQueue.resume()
 
-					let event = replayProducer.last()
-					expect(event).toNot(beNil())
+					iterationQueue.sync(flags: .barrier, execute: {})
 				}
 			}
 		}

@@ -181,11 +181,27 @@ let old = atomicCount.modify { value in
 
 #### BindingTarget
 
-The new `BindingTargetProtocol` protocol has been formally introduced to represent an entity to which can form a unidirectional binding via the `<~` operator. A new type `BindingTarget` has also been introduced to represent non-observable targets that are expected to only be written to.
+The new `BindingTargetProtocol` protocol has been formally introduced to represent an entity to which can form a unidirectional binding using the `<~` operator. A new type `BindingTarget` has also been introduced to represent non-observable targets that are expected to only be written to.
+
+```swift
+// The `UIControl` exposes a `isEnabled` binding target. 
+control.isEnabled <~ viewModel.isEnabled
+```
 
 #### Lifetime
 
-`Lifetime` is introduced to represent the lifetime of any arbitrary reference types. It works by completing the signal when its wrapping `Lifetime.Token` deinitializes with the associated reference type.
+`Lifetime` is introduced to represent the lifetime of any arbitrary reference types. It works by completing the signal when its wrapping `Lifetime.Token` deinitializes with the associated reference type. While it is provided as `NSObject.reactive.lifetime` on Objective-C objects, it can also be associated manually with Swift classes to provide the same semantics.
+
+```swift
+public final class MyController {
+	private let token = Lifetime.Token()
+	public let lifetime: Lifetime
+	
+	public init() {
+		lifetime = Lifetime(token)
+	}
+}
+```
 
 ### Migrating from the ReactiveObjC API
 

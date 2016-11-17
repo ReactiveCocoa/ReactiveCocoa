@@ -2,7 +2,8 @@
 
 ### Table of Contents
 1. [Repository Split](#repository-split)
-1. [API Renaming](#api-renaming)
+1. [Swift 3.0 API Renaming](#swift-30-api-renaming)
+1. [New in 5.0: Cocoa Extensions](#new-in-50-cocoa-extensions)
 1. [Changes in ReactiveSwift 1.0](#changes-in-reactiveswift-10)
 1. [Migrating from the ReactiveObjC API](#migrating-from-the-reactiveobjc-api)
 
@@ -45,13 +46,95 @@ This bridge is an important tool for users that are working in mixed-language co
 
 [ReactiveObjCBridge]: https://github.com/ReactiveCocoa/ReactiveObjCBridge
 
-### API Renaming
+### Swift 3.0 API Renaming
 
 We mostly adjusted the ReactiveCocoa API to follow the [Swift 3 API Design Guidelines](https://swift.org/blog/swift-3-api-design/), or to match the Cocoa and Foundation API changes that came with Swift 3 and the latest platform SDKs.
 
 Lots has changed, but if you're already migrating to Swift 3 then that should not come as a surprise. Fortunately for you, we've provided annotations in the source that should help you while using the Swift 3 migration tool that ships with Xcode 8. When changes aren't picked up by the migrator, they are often provided for you as Fix-Its.
 
 **Tip:** You can apply all the suggested fix-its in the current scope by choosing Editor > Fix All In Scope from the main menu in Xcode, or by using the associated keyboard shortcut.
+
+### New in 5.0: Cocoa Extensions
+
+#### Foundation: Object Interception
+
+RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered for ReactiveSwift.
+	
+1. **Method Call Interception**
+
+	Create signals that are sourced by intercepting Objective-C objects.
+	
+	```swift
+	// Notify after every time `viewWillAppear(_:)` is called.
+	let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
+	```
+	
+1. **Object Lifetime**
+
+	Obtain a `Lifetime` token for any `NSObject` to observe their deinitialization.
+
+	```swift
+	// Observe the lifetime of `object`.
+	object.reactive.lifetime.ended.observeCompleted(doCleanup)
+	```
+
+1. **Expressive, Safe Key Path Observation**
+
+	Establish key-value observations in the form of [`SignalProducer`][]s and
+	strong-typed `DynamicProperty`s, and enjoy the inherited composability.
+	
+	```swift
+	// A producer that sends the current value of `keyPath`, followed by
+	// subsequent changes.
+	//
+	// Terminate the KVO observation if the lifetime of `self` ends.
+	let producer = object.reactive.values(forKeyPath: #keyPath(key))
+		.take(during: self.reactive.lifetime)
+	
+	// A parameterized property that represents the supplied key path of the
+	// wrapped object. It holds a weak reference to the wrapped object.
+	let property = DynamicProperty<String>(object: person,
+	                                       keyPath: #keyPath(person.name))
+	```
+
+These are accessible via the `reactive` magic property that is available on any ObjC objects.
+
+#### AppKit & UIKit: UI bindings
+
+UI components now expose a collection of binding targets to which can be bound from any arbitrary streams of values.
+
+1. **UI Bindings**
+
+	UI components exposes [`BindingTarget`][]s, which accept bindings from any
+	kind of streams of values via the `<~` operator.
+
+	```swift
+	// Bind the `name` property of `person` to the text value of an `UILabel`.
+	nameLabel.text <~ person.name
+	```
+
+1. **Controls and User Interactions**
+
+	Interactive UI components expose [`Signal`][]s for control events
+	and updates in the control value upon user interactions.
+	
+	A selected set of controls provide a convenience, expressive binding
+	API for [`Action`][]s.
+	
+	
+	```swift
+	// Update `allowsCookies` whenever the toggle is flipped.
+	preferences.allowsCookies <~ toggle.reactive.isOnValues 
+	
+	// Compute live character counts from the continuous stream of user initiated
+	// changes in the text.
+	textField.reactive.continuousTextValues.map { $0.characters.count }
+	
+	// Trigger `commit` whenever the button is pressed.
+	button.reactive.pressed = CocoaAction(viewModel.commit)
+	```
+
+These are accessible via the `reactive` magic property that is available on any ObjC objects.
 
 ### Changes in ReactiveSwift 1.0
 
@@ -93,6 +176,30 @@ let old = atomicCount.modify { value in
     let old = value
     value += 1
     return old
+}
+```
+
+#### BindingTarget
+
+The new `BindingTargetProtocol` protocol has been formally introduced to represent an entity to which can form a unidirectional binding using the `<~` operator. A new type `BindingTarget` has also been introduced to represent non-observable targets that are expected to only be written to.
+
+```swift
+// The `UIControl` exposes a `isEnabled` binding target. 
+control.isEnabled <~ viewModel.isEnabled
+```
+
+#### Lifetime
+
+`Lifetime` is introduced to represent the lifetime of any arbitrary reference types. It works by completing the signal when its wrapping `Lifetime.Token` deinitializes with the associated reference type. While it is provided as `NSObject.reactive.lifetime` on Objective-C objects, it can also be associated manually with Swift classes to provide the same semantics.
+
+```swift
+public final class MyController {
+	private let token = Lifetime.Token()
+	public let lifetime: Lifetime
+	
+	public init() {
+		lifetime = Lifetime(token)
+	}
 }
 ```
 
@@ -663,3 +770,8 @@ soon as possible on the main thread—even synchronously (if possible), thereby
 replacing RAC 2’s `-performOnMainThread` operator—while
 `QueueScheduler.mainQueueScheduler` will always enqueue work after the current
 run loop iteration, and can be used to schedule work at a future date.
+
+[`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
+[`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
+[`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target

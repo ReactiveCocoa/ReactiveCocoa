@@ -29,7 +29,7 @@ extension NSObject {
 	///
 	/// - returns:
 	///   The associated value, or `nil` if no value is associated with the key.
-	internal func value(forAssociatedKey key: UnsafeRawPointer) -> Any? {
+	@nonobjc internal func value(forAssociatedKey key: UnsafeRawPointer) -> Any? {
 		return objc_getAssociatedObject(self, key)
 	}
 
@@ -40,7 +40,7 @@ extension NSObject {
 	///   - key: The key.
 	///   - weak: `true` if the value should be weakly referenced. `false`
 	///           otherwise.
-	internal func setValue(_ value: Any?, forAssociatedKey key: UnsafeRawPointer, weak: Bool = false) {
+	@nonobjc internal func setValue(_ value: Any?, forAssociatedKey key: UnsafeRawPointer, weak: Bool = false) {
 		objc_setAssociatedObject(self, key, value, weak ? .OBJC_ASSOCIATION_ASSIGN : .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
 }

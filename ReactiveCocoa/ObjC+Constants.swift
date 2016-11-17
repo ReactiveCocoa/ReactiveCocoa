@@ -13,23 +13,3 @@ internal enum ObjCMethodEncoding {
 		return UnsafeRawPointer(string.utf8Start).assumingMemoryBound(to: CChar.self)
 	}
 }
-
-@objc internal protocol ObjCInvocation {
-	var target: NSObject? { get set }
-	var selector: Selector? { get set }
-
-	@objc(methodSignature)
-	var objcMethodSignature: AnyObject { get }
-
-	@objc(getArgument:atIndex:)
-	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
-
-	func invoke()
-}
-
-@objc internal protocol ObjCMethodSignature {
-	var numberOfArguments: UInt { get }
-
-	@objc(getArgumentTypeAtIndex:)
-	func argumentType(at index: UInt) -> UnsafePointer<CChar>
-}

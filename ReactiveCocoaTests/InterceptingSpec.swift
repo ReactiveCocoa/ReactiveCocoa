@@ -76,10 +76,18 @@ class InterceptingSpec: QuickSpec {
 				for _ in 1 ... 10 {
 					var isDeadlocked = true
 
-					DispatchQueue.global(priority: .high).async {
+					func createQueue() -> DispatchQueue {
+						if #available(*, macOS 10.10) {
+							return .global(qos: .userInitiated)
+						} else {
+							return .global(priority: .high)
+						}
+					}
+
+					createQueue().async {
 						_ = object.reactive.trigger(for: #selector(object.increment))
 
-						DispatchQueue.global(priority: .high).async {
+						createQueue().async {
 							_ = object.reactive.trigger(for: #selector(object.increment))
 
 							isDeadlocked = false

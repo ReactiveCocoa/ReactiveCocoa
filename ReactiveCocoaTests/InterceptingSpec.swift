@@ -468,7 +468,7 @@ class InterceptingSpec: QuickSpec {
 					value = x
 				}
 
-			expect(value) == nil
+			expect(value).to(beNil())
 
 			expect(object.description).notTo(beNil())
 			expect(value).toNot(beNil())

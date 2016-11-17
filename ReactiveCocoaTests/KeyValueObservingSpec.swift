@@ -310,9 +310,7 @@ class KeyValueObservingSpec: QuickSpec {
 						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
 					}
 
-					// Create a scope to limit the lifetime `values(forKeyPath:)`.
-					var replayProducer: SignalProducer<Bool, NoError>? = {
-						return testObject.reactive
+					let replayProducer = testObject.reactive
 							.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 							.map { $0 as! NSNumber }
 							.map { $0.intValue }
@@ -320,33 +318,27 @@ class KeyValueObservingSpec: QuickSpec {
 							.observe(on: otherScheduler)
 							.take(during: lifetime)
 							.replayLazily(upTo: 1)
-					}()
 
-					// `replayProducer` ceases its reference to the values producer after
-					// it starts.
-					replayProducer!.start()
+					replayProducer.start()
 
 					iterationQueue.suspend()
 
 					let half = numIterations / 2
 
 					for index in 0 ..< numIterations {
-						iterationQueue.async { [testObject = testObject!] in
+						iterationQueue.async {
 							testObject.rac_value = index
 						}
 
 						if index == half {
-							iterationQueue.async(flags: .barrier) { [replayProducer = replayProducer!] in
+							iterationQueue.async(flags: .barrier) {
 								token = nil
 								expect(replayProducer.last()).toNot(beNil())
 							}
 						}
 					}
 
-					testObject = nil
-					replayProducer = nil
 					iterationQueue.resume()
-
 					iterationQueue.sync(flags: .barrier, execute: {})
 				}
 			}

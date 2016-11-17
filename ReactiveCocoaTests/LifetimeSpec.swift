@@ -25,25 +25,21 @@ class LifetimeSpec: QuickSpec {
 				for _ in 1 ... 10 {
 					var isDeadlocked = true
 
-					if #available(*, macOS 10.10) {
-						DispatchQueue.global(qos: .userInitiated).async {
-							_ = object.reactive.lifetime
-
-							DispatchQueue.global(qos: .userInitiated).async {
-								_ = object.reactive.lifetime
-
-								isDeadlocked = false
-							}
+					func createQueue() -> DispatchQueue {
+						if #available(*, macOS 10.10) {
+							return .global(qos: .userInitiated)
+						} else {
+							return .global(priority: .high)
 						}
-					} else {
-						DispatchQueue.global(priority: .high).async {
+					}
+
+					createQueue().async {
+						_ = object.reactive.lifetime
+
+						createQueue().async {
 							_ = object.reactive.lifetime
 
-							DispatchQueue.global(priority: .high).async {
-								_ = object.reactive.lifetime
-
-								isDeadlocked = false
-							}
+							isDeadlocked = false
 						}
 					}
 

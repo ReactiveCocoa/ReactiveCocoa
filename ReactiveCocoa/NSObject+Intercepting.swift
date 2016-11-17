@@ -64,16 +64,18 @@ extension Reactive where Base: NSObject {
 	}
 }
 
-private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocationArguments) -> Void {
+private func bridge(_ observer: Observer<[Any?], NoError>) -> (Any) -> Void {
 	return { arguments in
-		let count = arguments.count
+		let arguments = arguments as AnyObject
+		let methodSignature = arguments.objcMethodSignature!
+		let count = UInt(methodSignature.numberOfArguments!)
 
 		var bridged = [Any?]()
-		bridged.reserveCapacity(count - 2)
+		bridged.reserveCapacity(Int(count - 2))
 
 		// Ignore `self` and `_cmd`.
 		for position in 2 ..< count {
-			let rawEncoding = arguments.argumentType(at: position)
+			let rawEncoding = methodSignature.argumentType(at: position)
 			let encoding = TypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
 
 			func extract<U>(_ type: U.Type) -> U {
@@ -84,7 +86,7 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 					                   alignedTo: MemoryLayout<U>.alignment)
 				}
 
-				arguments.copyArgument(at: position, to: pointer)
+				arguments.copy(to: pointer, forArgumentAt: Int(position))
 				return pointer.assumingMemoryBound(to: type).pointee
 			}
 
@@ -120,14 +122,14 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 			case .type:
 				bridged.append(extract((AnyClass?).self))
 			case .selector:
-				bridged.append(arguments.selectorString(at: position))
+				bridged.append(extract((Selector?).self))
 			case .undefined:
 				var size = 0, alignment = 0
 				NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
 				let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
 				defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
 
-				arguments.copyArgument(at: position, to: buffer)
+				arguments.copy(to: buffer, forArgumentAt: Int(position))
 				bridged.append(NSValue(bytes: buffer, objCType: rawEncoding))
 			}
 		}
@@ -136,6 +138,25 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (RACSwiftInvocatio
 	}
 }
 
+@objc private protocol ObjCInvocation {
+	var target: NSObject? { get set }
+	var selector: Selector? { get set }
+
+	@objc(methodSignature)
+	var objcMethodSignature: AnyObject { get }
+
+	@objc(getArgument:atIndex:)
+	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
+
+	func invoke()
+}
+
+@objc private protocol ObjCMethodSignature {
+	var numberOfArguments: UInt { get }
+
+	@objc(getArgumentTypeAtIndex:)
+	func argumentType(at index: UInt) -> UnsafePointer<CChar>
+}
 
 private enum TypeEncoding: Int8 {
 	case char = 99

@@ -35,12 +35,6 @@ IMP _rac_objc_msgForward() {
 
 @end
 
-@interface RACSwiftInvocationArguments (Private)
-
--(instancetype) initWithInvocation:(NSInvocation *)invocation;
-
-@end
-
 static SEL RACAliasForSelector(SEL originalSelector) {
 	NSString *selectorName = NSStringFromSelector(originalSelector);
 	return NSSelectorFromString([RACSignalForSelectorAliasPrefix stringByAppendingString:selectorName]);
@@ -63,8 +57,8 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 		__block void(^block)(void) = receiver.block;
 		block();
 	} else {
-		__block void(^block)(RACSwiftInvocationArguments*) = receiver.block;
-		block([[RACSwiftInvocationArguments alloc] initWithInvocation:invocation]);
+		__block void(^block)(id) = receiver.block;
+		block(invocation);
 	}
 
 	return YES;
@@ -277,7 +271,7 @@ static Class RACSwizzleClass(NSObject *self) {
 
 @implementation NSObject (RACObjCRuntimeUtilities)
 
--(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol argsReceiver:(void (^)(RACSwiftInvocationArguments*))receiverBlock {
+-(BOOL) _rac_setupInvocationObservationForSelector:(SEL)selector protocol:(Protocol *)protocol argsReceiver:(void (^)(id))receiverBlock {
 	return [self _rac_setupInvocationObservationForSelector:selector protocol:protocol isTrigger:false receiver:receiverBlock];
 }
 
@@ -337,37 +331,6 @@ static Class RACSwizzleClass(NSObject *self) {
 	
 	return YES;
 }
-@end
-
-@implementation RACSwiftInvocationArguments
-NSInvocation* invocation;
-
--(instancetype) initWithInvocation:(NSInvocation *)inv {
-	self = [super init];
-	if (self) {
-		invocation = inv;
-	}
-	return self;
-}
-
--(NSInteger)count {
-	return [[invocation methodSignature] numberOfArguments];
-}
-
--(const char *)argumentTypeAt:(NSInteger)position {
-	return [[invocation methodSignature] getArgumentTypeAtIndex:position];
-}
-
--(void)copyArgumentAt:(NSInteger)position to:(void *)buffer {
-	[invocation getArgument:buffer atIndex:position];
-}
-
--(NSString*)selectorStringAt:(NSInteger)position {
-	SEL selector;
-	[invocation getArgument:&selector atIndex:position];
-	return NSStringFromSelector(selector);
-}
-
 @end
 
 @implementation RACForwardingInfo

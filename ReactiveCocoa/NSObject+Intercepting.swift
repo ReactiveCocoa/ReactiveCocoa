@@ -138,26 +138,6 @@ private func bridge(_ observer: Observer<[Any?], NoError>) -> (Any) -> Void {
 	}
 }
 
-@objc private protocol ObjCInvocation {
-	var target: NSObject? { get set }
-	var selector: Selector? { get set }
-
-	@objc(methodSignature)
-	var objcMethodSignature: AnyObject { get }
-
-	@objc(getArgument:atIndex:)
-	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
-
-	func invoke()
-}
-
-@objc private protocol ObjCMethodSignature {
-	var numberOfArguments: UInt { get }
-
-	@objc(getArgumentTypeAtIndex:)
-	func argumentType(at index: UInt) -> UnsafePointer<CChar>
-}
-
 private enum TypeEncoding: Int8 {
 	case char = 99
 	case int = 105

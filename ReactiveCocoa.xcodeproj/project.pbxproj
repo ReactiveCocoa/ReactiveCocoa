@@ -162,6 +162,10 @@
 		9ADFE5A61DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */; };
 		9ADFE5A71DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */; };
 		9ADFE5A81DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */; };
+		9AE7C2A41DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */; };
+		9AE7C2A51DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */; };
+		9AE7C2A61DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */; };
+		9AE7C2A71DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */; };
 		9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
@@ -340,6 +344,7 @@
 		9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifetimeSpec.swift; sourceTree = "<group>"; };
 		9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Synchronizing.swift"; sourceTree = "<group>"; };
 		9AE7C2A21DDD768500F7534C /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Selectors.swift"; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
@@ -635,6 +640,7 @@
 				9A1D06751D9415FB00ACF44C /* RACObjCRuntimeUtilities.h */,
 				9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */,
 				9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */,
+				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
 				9ADE4A901DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift */,
 				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
@@ -643,7 +649,7 @@
 				9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */,
 				9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */,
 				9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */,
-				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
+				9AE7C2A31DDD7F5100F7534C /* ObjC+Selectors.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
@@ -1056,6 +1062,7 @@
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
 				4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */,
 				9ADE4A7F1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
+				9AE7C2A71DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */,
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				4ABEFE201DCFCEF80066A8C2 /* UITableView.swift in Sources */,
@@ -1131,6 +1138,7 @@
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				4A0E11011D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
+				9AE7C2A61DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */,
 				9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1146,6 +1154,7 @@
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
+				9AE7C2A41DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */,
 				9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */,
 				9ADFE5A51DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
@@ -1193,6 +1202,7 @@
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
+				9AE7C2A51DDD7F5100F7534C /* ObjC+Selectors.swift in Sources */,
 				9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */,

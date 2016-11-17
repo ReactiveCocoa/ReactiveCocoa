@@ -4,8 +4,8 @@
 }
 
 @objc internal protocol ObjCInvocation {
-	var target: NSObject? { get set }
-	var selector: Selector? { get set }
+	@objc(setSelector:)
+	func setSelector(_ selector: Selector)
 
 	@objc(methodSignature)
 	var objcMethodSignature: AnyObject { get }

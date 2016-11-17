@@ -1,4 +1,8 @@
 internal struct ObjCClass {
+	enum Error: Swift.Error {
+		case methodAlreadyExist
+	}
+
 	let reference: AnyClass
 
 	var name: String {
@@ -29,19 +33,21 @@ internal struct ObjCClass {
 		}
 	}
 
-	func addMethod(with implementation: CFunction, for selector: Selector, types: UnsafePointer<Int8>) {
-		class_addMethod(reference, selector, implementation.reference, types)
+	func addMethod(with implementation: CFunction, for selector: Selector, types: UnsafePointer<Int8>) throws {
+		if !class_addMethod(reference, selector, implementation.reference, types) {
+			throw Error.methodAlreadyExist
+		}
 	}
 
-	func replaceMethod(with implementation: CFunction, for selector: Selector, types: UnsafePointer<Int8>) -> CFunction? {
-		let imp = class_replaceMethod(reference, selector, implementation.reference, types)
+	func replaceMethod(with implementation: CFunction?, for selector: Selector, types: UnsafePointer<Int8>) -> CFunction? {
+		let imp = class_replaceMethod(reference, selector, implementation?.reference, types)
 		return imp.map(CFunction.init)
 	}
 
 	func method(for selector: Selector, searchesAncestors: Bool = true) -> ObjCMethod? {
 		if searchesAncestors {
 			if let method = class_getInstanceMethod(reference, selector) {
-				return ObjCMethod(method, in: self)
+				return ObjCMethod(method)
 			}
 		} else {
 			var count: UInt32 = 0
@@ -52,7 +58,7 @@ internal struct ObjCClass {
 
 			for method in methods {
 				if method_getName(method!) == selector {
-					return ObjCMethod(method!, in: self)
+					return ObjCMethod(method!)
 				}
 			}
 		}
@@ -89,7 +95,6 @@ extension ObjCClass {
 }
 
 internal struct ObjCMethod {
-	fileprivate let parent: ObjCClass
 	fileprivate let reference: Method
 
 	var function: CFunction {
@@ -100,22 +105,19 @@ internal struct ObjCMethod {
 		return method_getTypeEncoding(reference)
 	}
 
-	init(_ reference: Method, in class: ObjCClass) {
+	init(_ reference: Method) {
 		self.reference = reference
-		self.parent = `class`
-	}
-
-	func replaceImplementation(_ implementation: CFunction) -> CFunction? {
-		return parent.replaceMethod(with: function,
-		                            for: method_getName(reference),
-		                            types: method_getTypeEncoding(reference))
 	}
 }
 
 internal struct CFunction {
-	static let forwarding = CFunction(_rac_objc_msgForward())
+	static let forwarding = CFunction(_rac_objc_msgForward)
 
 	fileprivate let reference: IMP
+
+	var isForwarder: Bool {
+		return reference == CFunction.forwarding.reference
+	}
 
 	init<U>(assuming block: U) {
 		self.reference = unsafeBitCast(block, to: IMP.self)
@@ -127,5 +129,11 @@ internal struct CFunction {
 
 	init(block: Any) {
 		self.reference = imp_implementationWithBlock(block)
+	}
+}
+
+extension CFunction: Equatable {
+	static func ==(left: CFunction, right: CFunction) -> Bool {
+		return left.reference == right.reference
 	}
 }

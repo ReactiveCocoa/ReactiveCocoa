@@ -146,30 +146,30 @@ class InterceptingSpec: QuickSpec {
 				expect(firstValue) == true
 				expect(secondValue) == "Winner"
 			}
-			/**
+
 			it("should send arguments for invocation and invoke the a KVO-swizzled then RAC-swizzled setter") {
-			var latestValue: Bool?
+				var latestValue: Bool?
 
-			object.reactive
-			.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
-			.startWithValues { objectValue in
-			latestValue = objectValue as! Bool?
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.startWithValues { objectValue in
+						latestValue = objectValue as! Bool?
+				}
+
+				expect(latestValue).to(beNil())
+
+				var value: Bool?
+				object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
+					value = x[0] as! Bool?
+				}
+
+				object.objectValue = true
+
+				expect(object.objectValue as! Bool?) == true
+				expect(latestValue) == true
+				expect(value) == true
 			}
 
-			expect(latestValue).to(beNil())
-
-			var value: Bool?
-			object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
-			value = x[0] as! Bool?
-			}
-
-			object.objectValue = true
-
-			expect(object.objectValue as! Bool?) == true
-			expect(latestValue) == true
-			expect(value) == true
-			}
-			**/
 			it("should send arguments for invocation and invoke the a RAC-swizzled then KVO-swizzled setter") {
 				let object = InterceptedObject()
 
@@ -228,67 +228,6 @@ class InterceptingSpec: QuickSpec {
 				expect(secondValue) == "Winner"
 			}
 
-			it("should properly implement -respondsToSelector: when called on KVO'd receiver") {
-				let object = InterceptedObject()
-
-				// First, setup KVO on `object`, which gives us the desired side-effect
-				// of `object` taking on a KVO-custom subclass.
-				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
-					.start()
-
-				let selector = NSSelectorFromString("anyOldSelector:")
-
-				// With the KVO subclass in place, call -rac_signalForSelector: to
-				// implement -anyOldSelector: directly on the KVO subclass.
-				_ = object.reactive.trigger(for: selector)
-
-				expect(object.responds(to: selector)) == true
-			}
-
-			it("should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd") {
-				let object = InterceptedObject()
-
-				let selector = NSSelectorFromString("anyOldSelector:")
-
-				// Implement -anyOldSelector: on the object first
-				_ = object.reactive.trigger(for: selector)
-
-				expect(object.responds(to: selector)) == true
-
-				// Then KVO the object
-				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
-					.start()
-
-				expect(object.responds(to: selector)) == true
-			}
-
-			it("should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again") {
-				let object = InterceptedObject()
-
-				let selector = NSSelectorFromString("anyOldSelector:")
-
-				// Implement -anyOldSelector: on the object first
-				_ = object.reactive.trigger(for: selector)
-
-				expect(object.responds(to: selector)) == true
-
-				// Then KVO the object
-				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
-					.start()
-
-				expect(object.responds(to: selector)) == true
-
-				let selector2 = NSSelectorFromString("anotherSelector:")
-
-				// Then implement -anotherSelector: on the object
-				_ = object.reactive.trigger(for: selector2)
-
-				expect(object.responds(to: selector2)) == true
-			}
-
 			it("should call the right signal for two instances of the same class, adding signals for the same selector") {
 				let object1 = InterceptedObject()
 				let object2 = InterceptedObject()
@@ -326,7 +265,7 @@ class InterceptingSpec: QuickSpec {
 				expect(invokedMethodBefore) == true
 			}
 		}
-/**
+
 		describe("interoperability") {
 			var invoked: Bool!
 			var object: InterceptedObject!
@@ -349,20 +288,32 @@ class InterceptingSpec: QuickSpec {
 
 				// Redirect `swizzledSelector` to the forwarding machinery.
 				let method = originalClass.method(for: swizzledSelector)!
-				let original = method.replaceImplementation(.forwarding)
-				defer { _ = original.map(method.replaceImplementation) }
+				let original = originalClass.replaceMethod(with: .forwarding,
+				                                           for: swizzledSelector,
+				                                           types: method.typeEncoding)
+				defer {
+					_ = originalClass.replaceMethod(with: original,
+					                                for: swizzledSelector,
+					                                types: method.typeEncoding)
+				}
 
 				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
-				let forwardInvocationBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _, invocation in
-					if ((invocation as! NSInvocationProtocol).selector == swizzledSelector) {
+				let forwardInvocationBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _, invocation in
+					if (invocation.selector == swizzledSelector) {
 						expect(invoked) == false
 						invoked = true
 					}
 				}
 
 				let method2 = originalClass.method(for: ObjCSelector.forwardInvocation)!
-				let original2 = method2.replaceImplementation(CFunction(block: forwardInvocationBlock))
-				defer { _ = original2.map(method2.replaceImplementation) }
+				let original2 = originalClass.replaceMethod(with: CFunction(block: forwardInvocationBlock),
+				                                            for: ObjCSelector.forwardInvocation,
+				                                            types: method2.typeEncoding)
+				defer {
+					_ = originalClass.replaceMethod(with: original2,
+					                                for: ObjCSelector.forwardInvocation,
+					                                types: method2.typeEncoding)
+				}
 
 				object.lifeIsGood(nil)
 				expect(invoked) == true
@@ -375,20 +326,32 @@ class InterceptingSpec: QuickSpec {
 
 				// Redirect `swizzledSelector` to the forwarding machinery.
 				let method = originalClass.method(for: swizzledSelector)!
-				let original = method.replaceImplementation(.forwarding)
-				defer { _ = original.map(method.replaceImplementation) }
+				let original = originalClass.replaceMethod(with: .forwarding,
+				                                           for: swizzledSelector,
+				                                           types: method.typeEncoding)
+				defer {
+					_ = originalClass.replaceMethod(with: original,
+					                                for: swizzledSelector,
+					                                types: method.typeEncoding)
+				}
 
 				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
-				let forwardInvocationBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _, invocation in
-					if ((invocation as! NSInvocationProtocol).selector == swizzledSelector) {
+				let forwardInvocationBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _, invocation in
+					if (invocation.selector == swizzledSelector) {
 						expect(invoked) == false
 						invoked = true
 					}
 				}
 
 				let method2 = originalClass.method(for: ObjCSelector.forwardInvocation)!
-				let original2 = method2.replaceImplementation(CFunction(block: forwardInvocationBlock))
-				defer { _ = original2.map(method2.replaceImplementation) }
+				let original2 = originalClass.replaceMethod(with: CFunction(block: forwardInvocationBlock),
+				                                            for: ObjCSelector.forwardInvocation,
+				                                            types: method2.typeEncoding)
+				defer {
+					_ = originalClass.replaceMethod(with: original2,
+					                                for: ObjCSelector.forwardInvocation,
+					                                types: method2.typeEncoding)
+				}
 
 				object.lifeIsGood(nil)
 				expect(invoked) == true
@@ -399,20 +362,26 @@ class InterceptingSpec: QuickSpec {
 
 				let swizzledSelector = #selector(object.lifeIsGood)
 
-				let lifeIsGoodBlock: @convention(block) (AnyObject?, AnyObject?) -> Void = { _ in
+				let lifeIsGoodBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _ in
 					expect(invoked) == false
 					invoked = true
 				}
 
 				let method = originalClass.method(for: swizzledSelector)!
-				let original = method.replaceImplementation(CFunction(block: lifeIsGoodBlock))
-				defer { _ = original.map(method.replaceImplementation) }
-
+				let original = originalClass.replaceMethod(with: CFunction(block: lifeIsGoodBlock),
+				                                           for: swizzledSelector,
+				                                           types: method.typeEncoding)
+				defer {
+					_ = originalClass.replaceMethod(with: original,
+					                                for: swizzledSelector,
+					                                types: method.typeEncoding)
+				}
+				
 				object.lifeIsGood(nil)
 				expect(invoked) == true
 			}
 		}
-**/
+
 		it("should swizzle an NSObject method") {
 			let object = NSObject()
 
@@ -794,14 +763,14 @@ private class ForwardInvocationTestObject: InterceptedObject {
 					object.forwardedSelector = invocation.selector
 				}
 
-				ObjCClass(ForwardInvocationTestObject.self)
+				try! ObjCClass(ForwardInvocationTestObject.self)
 					.addMethod(with: CFunction(assuming: impl),
 					           for: ObjCSelector.forwardInvocation,
 					           types: ObjCMethodEncoding.forwardInvocation)
 
 				assert(ForwardInvocationTestObject.instancesRespond(to: ObjCSelector.forwardInvocation))
 
-				ObjCClass(ForwardInvocationTestObject.self)
+				try! ObjCClass(ForwardInvocationTestObject.self)
 					.addMethod(with: .forwarding,
 					           for: ForwardInvocationTestObject.forwardedSelector,
 					           types: ObjCMethodEncoding.forwardInvocation)

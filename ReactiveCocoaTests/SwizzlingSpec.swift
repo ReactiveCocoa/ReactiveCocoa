@@ -11,7 +11,7 @@ class SwizzlingSpec: QuickSpec {
 				let object = SwizzledObject()
 				expect(type(of: object)).to(beIdenticalTo(SwizzledObject.self))
 
-				let subclass = Swizzler.swizzleClass(of: object)
+				let subclass = swizzleClass(object)
 				expect(type(of: object)).to(beIdenticalTo(subclass.reference))
 
 				let objcClass = (object as AnyObject).objcClass
@@ -23,18 +23,18 @@ class SwizzlingSpec: QuickSpec {
 
 			it("should reuse the runtime subclass across instances") {
 				let object = SwizzledObject()
-				let subclass = Swizzler.swizzleClass(of: object)
+				let subclass = swizzleClass(object)
 
 				let object2 = SwizzledObject()
-				let subclass2 = Swizzler.swizzleClass(of: object2)
+				let subclass2 = swizzleClass(object2)
 
 				expect(subclass) == subclass2
 			}
 
 			it("should return the known runtime subclass") {
 				let object = SwizzledObject()
-				let subclass = Swizzler.swizzleClass(of: object)
-				let subclass2 = Swizzler.swizzleClass(of: object)
+				let subclass = swizzleClass(object)
+				let subclass2 = swizzleClass(object)
 
 				expect(subclass) == subclass2
 			}

@@ -2,6 +2,8 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
+private let swizzledClasses = Atomic<Set<ObjCClass>>([])
+
 extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every invocation
 	/// of `selector` on the object.
@@ -13,23 +15,7 @@ extension Reactive where Base: NSObject {
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
 		return base.synchronized {
-			let map = associatedValue { _ in NSMutableDictionary() }
-
-			let selectorName = String(describing: selector) as NSString
-			if let signal = map.object(forKey: selectorName) as! Signal<(), NoError>? {
-				return signal
-			}
-
-			let (signal, observer) = Signal<(), NoError>.pipe()
-			let isSuccessful = base._rac_setupInvocationObservation(for: selector,
-			                                                        protocol: nil,
-			                                                        receiver: observer.send(value:))
-			precondition(isSuccessful)
-
-			lifetime.ended.observeCompleted(observer.sendCompleted)
-			map.setObject(signal, forKey: selectorName)
-
-			return signal
+			return setupInterception(base, for: selector).map { _ in }
 		}
 	}
 
@@ -43,99 +29,250 @@ extension Reactive where Base: NSObject {
 	///   A signal that sends an array of bridged arguments.
 	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
 		return base.synchronized {
-			let map = associatedValue { _ in NSMutableDictionary() }
-
-			let selectorName = String(describing: selector) as NSString
-			if let signal = map.object(forKey: selectorName) as! Signal<[Any?], NoError>? {
-				return signal
-			}
-
-			let (signal, observer) = Signal<[Any?], NoError>.pipe()
-			let isSuccessful = base._rac_setupInvocationObservation(for: selector,
-			                                                        protocol: nil,
-			                                                        argsReceiver: bridge(observer))
-			precondition(isSuccessful)
-
-			lifetime.ended.observeCompleted(observer.sendCompleted)
-			map.setObject(signal, forKey: selectorName)
-
-			return signal
+			return setupInterception(base, for: selector).map(unpackInvocation)
 		}
 	}
 }
 
-private func bridge(_ observer: Observer<[Any?], NoError>) -> (Any) -> Void {
-	return { arguments in
-		let arguments = arguments as AnyObject
-		let methodSignature = arguments.objcMethodSignature!
-		let count = UInt(methodSignature.numberOfArguments!)
+private func setupInterception(_ object: NSObject, for selector: Selector) -> Signal<AnyObject, NoError> {
+	let invokingAlias = selector.invokingAlias
 
-		var bridged = [Any?]()
-		bridged.reserveCapacity(Int(count - 2))
+	if let signal = object.value(forAssociatedKey: invokingAlias.utf8Start) as! Signal<AnyObject, NoError>? {
+		return signal
+	}
 
-		// Ignore `self` and `_cmd`.
-		for position in 2 ..< count {
-			let rawEncoding = methodSignature.argumentType(at: position)
-			let encoding = TypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
+	let signal = Signal<AnyObject, NoError> { observer in
+		let disposable = CompositeDisposable()
 
-			func extract<U>(_ type: U.Type) -> U {
-				let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
-				                                               alignedTo: MemoryLayout<U>.alignment)
-				defer {
-					pointer.deallocate(bytes: MemoryLayout<U>.size,
-					                   alignedTo: MemoryLayout<U>.alignment)
-				}
+		disposable += object.reactive.lifetime.ended
+			.observeCompleted(observer.sendCompleted)
 
-				arguments.copy(to: pointer, forArgumentAt: Int(position))
-				return pointer.assumingMemoryBound(to: type).pointee
-			}
+		let subclass = swizzleClass(object)
 
-			switch encoding {
-			case .char:
-				bridged.append(NSNumber(value: extract(CChar.self)))
-			case .int:
-				bridged.append(NSNumber(value: extract(CInt.self)))
-			case .short:
-				bridged.append(NSNumber(value: extract(CShort.self)))
-			case .long:
-				bridged.append(NSNumber(value: extract(CLong.self)))
-			case .longLong:
-				bridged.append(NSNumber(value: extract(CLongLong.self)))
-			case .unsignedChar:
-				bridged.append(NSNumber(value: extract(CUnsignedChar.self)))
-			case .unsignedInt:
-				bridged.append(NSNumber(value: extract(CUnsignedInt.self)))
-			case .unsignedShort:
-				bridged.append(NSNumber(value: extract(CUnsignedShort.self)))
-			case .unsignedLong:
-				bridged.append(NSNumber(value: extract(CUnsignedLong.self)))
-			case .unsignedLongLong:
-				bridged.append(NSNumber(value: extract(CUnsignedLongLong.self)))
-			case .float:
-				bridged.append(NSNumber(value: extract(CFloat.self)))
-			case .double:
-				bridged.append(NSNumber(value: extract(CDouble.self)))
-			case .bool:
-				bridged.append(NSNumber(value: extract(CBool.self)))
-			case .object:
-				bridged.append(extract((AnyObject?).self))
-			case .type:
-				bridged.append(extract((AnyClass?).self))
-			case .selector:
-				bridged.append(extract((Selector?).self))
-			case .undefined:
-				var size = 0, alignment = 0
-				NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
-				let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
-				defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
-
-				arguments.copy(to: buffer, forArgumentAt: Int(position))
-				bridged.append(NSValue(bytes: buffer, objCType: rawEncoding))
+		swizzledClasses.modify { classes in
+			if !classes.contains(subclass) {
+				classes.insert(subclass)
+				enableMessageForwarding(subclass)
 			}
 		}
 
-		observer.send(value: bridged)
+		guard let method = subclass.method(for: selector) else {
+			fatalError("Selector `\(selector)` does not exist in class `\(subclass.superclass!.name)`.")
+		}
+
+		if !method.function.isForwarder {
+			assert(checkTypeEncoding(method.typeEncoding))
+
+			if let existingMethod = subclass.method(for: selector, searchesAncestors: false) {
+				// Make a method alias for the existing method implementation, if it is
+				// defined in the runtime subclass.
+				let interopAlias = selector.interopAlias
+				try! subclass.addMethod(with: existingMethod.function,
+				                        for: interopAlias,
+				                        types: existingMethod.typeEncoding)
+			}
+
+			// Redefine the selector to call -forwardInvocation:.
+			_ = subclass.replaceMethod(with: .forwarding,
+			                           for: selector,
+			                           types: method.typeEncoding)
+		}
+
+		object.setValue(observer.send(value:), forAssociatedKey: selector.utf8Start)
+		return disposable
 	}
+
+	object.setValue(signal, forAssociatedKey: invokingAlias.utf8Start)
+	return signal
+}
+
+extension Selector {
+	fileprivate var invokingAlias: Selector {
+		return "rac0_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
+	}
+
+	fileprivate var interopAlias: Selector {
+		return "rac1_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
+	}
+
+	fileprivate var utf8Start: UnsafePointer<Int8> {
+		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
+	}
+}
+
+private func enableMessageForwarding(_ objcClass: ObjCClass) {
+	// Set up a new version of -forwardInvocation:.
+	//
+	// If the selector has been passed to -rac_signalForSelector:, invoke
+	// the aliased method, and forward the arguments to any attached signals.
+	//
+	// If the selector has not been passed to -rac_signalForSelector:,
+	// invoke any existing implementation of -forwardInvocation:. If there
+	// was no existing implementation, throw an unrecognized selector
+	// exception.
+	typealias ForwardInvocationImpl = @convention(c) (NSObject, Selector, AnyObject) -> Void
+	let newForwardInvocation: ForwardInvocationImpl = { object, _, invocation in
+		var shouldForward = true
+
+		let selector = invocation.selector!
+		let invokingAlias = selector.invokingAlias
+		let interopAlias = selector.interopAlias
+
+		let realClass = ObjCClass.type(of: object)
+		let perceivedClass = ObjCClass(object.objcClass)
+
+		defer {
+			if let observer = object.value(forAssociatedKey: selector.utf8Start) as! ((AnyObject) -> Void)? {
+				observer(invocation)
+			}
+		}
+
+		// RAC exchanges implementations at runtime so as to invoke the desired
+		// version without using fragile dependencies like libffi. This means
+		// all instances that had been applied `signalForSelector:` are
+		// non-threadsafe as any mutable instances.
+
+		if realClass.reference.instancesRespond(to: interopAlias) {
+			// `self` uses a runtime subclass generated by third-party APIs, and RAC
+			// found an existing implementation for the selector at the setup time.
+			// Call that implementation if it is not the ObjC message forwarder.
+			let interopImpl = realClass.method(for: interopAlias)!.function
+
+			if !interopImpl.isForwarder {
+				let method = realClass.method(for: selector)!
+				let previousImpl = realClass.replaceMethod(with: interopImpl,
+				                                           for: selector,
+				                                           types: method.typeEncoding)
+
+				invocation.invoke()
+
+				_ = realClass.replaceMethod(with: previousImpl,
+				                            for: selector,
+				                            types: method.typeEncoding)
+
+				return
+			}
+		}
+
+		if perceivedClass.reference.instancesRespond(to: selector) {
+			// The stated class has an implementation of the selector. Call that
+			// implementation if it is not the ObjC message forwarder.
+			let method = perceivedClass.method(for: selector)!
+			let originalImpl = method.function
+
+			if !originalImpl.isForwarder {
+				_ = realClass.replaceMethod(with: originalImpl,
+				                            for: invokingAlias,
+				                            types: method.typeEncoding)
+
+				invocation.setSelector(invokingAlias)
+				invocation.invoke()
+
+				return
+			}
+		}
+
+		// Forward the invocation to the closest `forwardInvocation:` in the
+		// inheritance hierarchy.
+		var target = objc_super()
+		target.receiver = Unmanaged.passUnretained(object)
+		target.super_class = perceivedClass.reference
+
+		typealias SuperForwardInvocation = @convention(c) (UnsafeMutablePointer<objc_super>, Selector, AnyObject) -> Void
+		let send = unsafeBitCast(_rac_objc_msgSendSuper, to: SuperForwardInvocation.self)
+		send(&target, ObjCSelector.forwardInvocation, invocation)
+	}
+
+	_ = objcClass.replaceMethod(with: CFunction(assuming: newForwardInvocation),
+	                            for: ObjCSelector.forwardInvocation,
+	                            types: ObjCMethodEncoding.forwardInvocation)
+}
+
+func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
+	// Some types, including vector types, are not encoded. In these cases the
+	// signature starts with the size of the argument frame.
+	assert(types.pointee < Int8(UInt8(ascii: "1")) || types.pointee > Int8(UInt8(ascii: "9")),
+	       "unknown method return type not supported in type encoding: \(String(cString: types))")
+
+	assert(types.pointee != Int8(UInt8(ascii: "(")), "union method return type not supported")
+	assert(types.pointee != Int8(UInt8(ascii: "{")), "struct method return type not supported")
+	assert(types.pointee != Int8(UInt8(ascii: "[")), "array method return type not supported")
+
+	assert(types.pointee != Int8(UInt8(ascii: "j")), "complex method return type not supported")
+
+	return true
+}
+
+private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
+	let invocation = invocation as AnyObject
+	let methodSignature = invocation.objcMethodSignature!
+	let count = UInt(methodSignature.numberOfArguments!)
+
+	var bridged = [Any?]()
+	bridged.reserveCapacity(Int(count - 2))
+
+	// Ignore `self` and `_cmd`.
+	for position in 2 ..< count {
+		let rawEncoding = methodSignature.argumentType(at: position)
+		let encoding = TypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
+
+		func extract<U>(_ type: U.Type) -> U {
+			let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
+			                                               alignedTo: MemoryLayout<U>.alignment)
+			defer {
+				pointer.deallocate(bytes: MemoryLayout<U>.size,
+				                   alignedTo: MemoryLayout<U>.alignment)
+			}
+
+			invocation.copy(to: pointer, forArgumentAt: Int(position))
+			return pointer.assumingMemoryBound(to: type).pointee
+		}
+
+		switch encoding {
+		case .char:
+			bridged.append(NSNumber(value: extract(CChar.self)))
+		case .int:
+			bridged.append(NSNumber(value: extract(CInt.self)))
+		case .short:
+			bridged.append(NSNumber(value: extract(CShort.self)))
+		case .long:
+			bridged.append(NSNumber(value: extract(CLong.self)))
+		case .longLong:
+			bridged.append(NSNumber(value: extract(CLongLong.self)))
+		case .unsignedChar:
+			bridged.append(NSNumber(value: extract(CUnsignedChar.self)))
+		case .unsignedInt:
+			bridged.append(NSNumber(value: extract(CUnsignedInt.self)))
+		case .unsignedShort:
+			bridged.append(NSNumber(value: extract(CUnsignedShort.self)))
+		case .unsignedLong:
+			bridged.append(NSNumber(value: extract(CUnsignedLong.self)))
+		case .unsignedLongLong:
+			bridged.append(NSNumber(value: extract(CUnsignedLongLong.self)))
+		case .float:
+			bridged.append(NSNumber(value: extract(CFloat.self)))
+		case .double:
+			bridged.append(NSNumber(value: extract(CDouble.self)))
+		case .bool:
+			bridged.append(NSNumber(value: extract(CBool.self)))
+		case .object:
+			bridged.append(extract((AnyObject?).self))
+		case .type:
+			bridged.append(extract((AnyClass?).self))
+		case .selector:
+			bridged.append(extract((Selector?).self))
+		case .undefined:
+			var size = 0, alignment = 0
+			NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
+			let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
+			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
+
+			invocation.copy(to: buffer, forArgumentAt: Int(position))
+			bridged.append(NSValue(bytes: buffer, objCType: rawEncoding))
+		}
+	}
+
+	return bridged
 }
 
 private enum TypeEncoding: Int8 {

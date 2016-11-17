@@ -12,11 +12,35 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   The associated value for the specified key.
 	internal func associatedValue<T>(forKey key: StaticString = #function, initial: (Base) -> T) -> T {
-		var value = objc_getAssociatedObject(base, key.utf8Start) as! T?
+		var value = base.value(forAssociatedKey: key.utf8Start) as! T?
 		if value == nil {
 			value = initial(base)
-			objc_setAssociatedObject(base, key.utf8Start, value, .OBJC_ASSOCIATION_RETAIN)
+			base.setValue(value, forAssociatedKey: key.utf8Start)
 		}
 		return value!
+	}
+}
+
+extension NSObject {
+	/// Retrieve the associated value for the specified key.
+	///
+	/// - parameters:
+	///   - key: The key.
+	///
+	/// - returns:
+	///   The associated value, or `nil` if no value is associated with the key.
+	internal func value(forAssociatedKey key: UnsafeRawPointer) -> Any? {
+		return objc_getAssociatedObject(self, key)
+	}
+
+	/// Set the associated value for the specified key.
+	///
+	/// - parameters:
+	///   - value: The value to be associated.
+	///   - key: The key.
+	///   - weak: `true` if the value should be weakly referenced. `false`
+	///           otherwise.
+	internal func setValue(_ value: Any?, forAssociatedKey key: UnsafeRawPointer, weak: Bool = false) {
+		objc_setAssociatedObject(self, key, value, weak ? .OBJC_ASSOCIATION_ASSIGN : .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
 }

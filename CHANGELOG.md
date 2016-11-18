@@ -245,12 +245,12 @@ public final class MyController {
 	<tr>
 		<td><code>RAC(label, text)</code></td>
 		<td>Discover binding targets via <code>.reactive</code> on UI components.
-			<p><pre lang="swift">label.reactive.text \<~ viewModel.name</pre></p>
+			<p><pre lang="swift">label.reactive.text <~ viewModel.name</pre></p>
 		</td>
 	</tr>
 	<tr>
 		<td><code>RACObserve(object, keyPath)</code></td>
-		<td>`NSObject.reactive.values(forKeyPath:)`</td>
+		<td><code>NSObject.reactive.values(forKeyPath:)</code></td>
 	</tr>
 	</tbody>
 </table>
@@ -274,7 +274,8 @@ public final class MyController {
 		<td>Apply <code>combineLatest</code> to your signals, and pass the method as the action to <code>observeValues</code>.
 			<p>
 <pre lang="swift">Signal.combineLatest([signal1, signal2])
-	.observeValues(self.perform(first:second:))</pre>
+	.take(during: self.reactive.lifetime)
+	.observeValues { [weak self] in self?.perform(first: $1, second: $2) }</pre>
 			</p>
 		</td>
 	</tr>
@@ -300,7 +301,7 @@ public final class MyController {
 	<tr>
 		<td>Control value changes, e.g. <code>textField.rac_text</code></td>
 		<td>Discover control value signals via <code>.reactive</code> on UI components.
-			<p><pre lang="swift">viewModel.searchString \<~ textField.reactive.textValues</pre></p>
+			<p><pre lang="swift">viewModel.searchString <~ textField.reactive.textValues</pre></p>
 		</td>
 	</tr>
 	<tr>

@@ -6,6 +6,16 @@ private func subclassName(of class: ObjCClass) -> String {
 	return `class`.name.appending("_RACSwift")
 }
 
+/// ISA-swizzle the class of the supplied instance.
+///
+/// - note: If the instance has already been isa-swizzled, the swizzling happens
+///         in place in the runtime subclass created by external parties.
+///
+/// - parameters:
+///   - instance: The instance to be swizzled.
+///
+/// - returns:
+///   The runtime subclass of the perceived class of the instance.
 internal func swizzleClass(_ instance: NSObject) -> ObjCClass {
 	let key = (#function as StaticString).utf8Start
 

@@ -8,6 +8,9 @@ extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every invocation
 	/// of `selector` on the object.
 	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
 	/// - parameters:
 	///   - selector: The selector to observe.
 	///
@@ -22,6 +25,9 @@ extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event, containing an array of bridged
 	/// arguments, at the end of every invocation of `selector` on the object.
 	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
 	/// - parameters:
 	///   - selector: The selector to observe.
 	///
@@ -35,70 +41,47 @@ extension Reactive where Base: NSObject {
 }
 
 private func setupInterception(_ object: NSObject, for selector: Selector) -> Signal<AnyObject, NoError> {
-	let invokingAlias = selector.invokingAlias
+	let interopAlias = selector.interopAlias
 
-	if let signal = object.value(forAssociatedKey: invokingAlias.utf8Start) as! Signal<AnyObject, NoError>? {
-		return signal
+	if let state = object.value(forAssociatedKey: interopAlias.utf8Start) as! InterceptingState? {
+		return state.signal
 	}
 
-	let signal = Signal<AnyObject, NoError> { observer in
-		let disposable = CompositeDisposable()
+	let subclass: AnyClass = swizzleClass(object)
 
-		disposable += object.reactive.lifetime.ended
-			.observeCompleted(observer.sendCompleted)
+	swizzledClasses.modify { classes in
+		if !classes.contains(ObjectIdentifier(subclass)) {
+			classes.insert(ObjectIdentifier(subclass))
+			enableMessageForwarding(subclass)
+		}
+	}
 
-		let subclass: AnyClass = swizzleClass(object)
+	guard let method = class_getInstanceMethod(subclass, selector) else {
+		fatalError("Selector `\(selector)` does not exist in class `\(String(cString: class_getName(class_getSuperclass(subclass))))`.")
+	}
 
-		swizzledClasses.modify { classes in
-			if !classes.contains(ObjectIdentifier(subclass)) {
-				classes.insert(ObjectIdentifier(subclass))
-				enableMessageForwarding(subclass)
-			}
+	let impl = method_getImplementation(method)
+
+	if impl != _rac_objc_msgForward {
+		let typeEncoding = method_getTypeEncoding(method)!
+		assert(checkTypeEncoding(typeEncoding))
+
+		if let existingMethod = class_getImmediateMethod(subclass, selector) {
+			// Make a method alias for the existing method implementation, if it is
+			// defined in the runtime subclass.
+			let existingImpl = method_getImplementation(existingMethod)
+			let success = class_addMethod(subclass, interopAlias, existingImpl, typeEncoding)
+			precondition(success, "Unexpected state: Cannot overwrite a preserved implementation of \(selector) from the runtime subclass of `\(String(cString: class_getName(class_getSuperclass(subclass))))`.")
 		}
 
-		guard let method = class_getInstanceMethod(subclass, selector) else {
-			fatalError("Selector `\(selector)` does not exist in class `\(String(cString: class_getName(class_getSuperclass(subclass))))`.")
-		}
-
-		let impl = method_getImplementation(method)
-
-		if impl != _rac_objc_msgForward {
-			let typeEncoding = method_getTypeEncoding(method)!
-			assert(checkTypeEncoding(typeEncoding))
-
-			if let existingMethod = class_getImmediateMethod(subclass, selector) {
-				// Make a method alias for the existing method implementation, if it is
-				// defined in the runtime subclass.
-				let interopAlias = selector.interopAlias
-				let existingImpl = method_getImplementation(existingMethod)
-				let success = class_addMethod(subclass, interopAlias, existingImpl, typeEncoding)
-				precondition(success, "Unexpected state: Cannot overwrite a preserved implementation of \(selector) from the runtime subclass of `\(String(cString: class_getName(class_getSuperclass(subclass))))`.")
-			}
-
-			// Redefine the selector to call -forwardInvocation:.
-			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
-		}
-
-		object.setValue(observer.send(value:), forAssociatedKey: selector.utf8Start)
-		return disposable
+		// Redefine the selector to call -forwardInvocation:.
+		_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
 	}
 
-	object.setValue(signal, forAssociatedKey: invokingAlias.utf8Start)
-	return signal
-}
+	let state = InterceptingState(lifetime: object.reactive.lifetime)
+	object.setValue(state, forAssociatedKey: interopAlias.utf8Start)
 
-extension Selector {
-	fileprivate var invokingAlias: Selector {
-		return "rac0_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
-	}
-
-	fileprivate var interopAlias: Selector {
-		return "rac1_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
-	}
-
-	fileprivate var utf8Start: UnsafePointer<Int8> {
-		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
-	}
+	return state.signal
 }
 
 private func enableMessageForwarding(_ objcClass: AnyClass) {
@@ -113,18 +96,12 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 	// exception.
 	typealias ForwardInvocationImpl = @convention(c) (NSObject, Selector, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { object, _, invocation in
-		var shouldForward = true
-
 		let selector = invocation.selector!
-		let invokingAlias = selector.invokingAlias
 		let interopAlias = selector.interopAlias
 
-		let realClass: AnyClass = object_getClass(object)
-		let perceivedClass: AnyClass = object.objcClass
-
 		defer {
-			if let observer = object.value(forAssociatedKey: selector.utf8Start) as! ((AnyObject) -> Void)? {
-				observer(invocation)
+			if let state = object.value(forAssociatedKey: interopAlias.utf8Start) as! InterceptingState? {
+				state.observer.send(value: invocation)
 			}
 		}
 
@@ -132,6 +109,8 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 		// version without using fragile dependencies like libffi. This means
 		// all instances that had been applied `signalForSelector:` are
 		// non-threadsafe as any mutable instances.
+
+		let realClass: AnyClass = object_getClass(object)
 
 		if realClass.instancesRespond(to: interopAlias) {
 			// `self` uses a runtime subclass generated by third-party APIs, and RAC
@@ -153,6 +132,9 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 			}
 		}
 
+		let perceivedClass: AnyClass = object.objcClass
+		let invokingAlias = selector.invokingAlias
+
 		if perceivedClass.instancesRespond(to: selector) {
 			// The stated class has an implementation of the selector. Call that
 			// implementation if it is not the ObjC message forwarder.
@@ -170,13 +152,10 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 
 		// Forward the invocation to the closest `forwardInvocation:` in the
 		// inheritance hierarchy.
-		var target = objc_super()
-		target.receiver = Unmanaged.passUnretained(object)
-		target.super_class = perceivedClass
-
-		typealias SuperForwardInvocation = @convention(c) (UnsafeMutablePointer<objc_super>, Selector, AnyObject) -> Void
-		let send = unsafeBitCast(_rac_objc_msgSendSuper, to: SuperForwardInvocation.self)
-		send(&target, ObjCSelector.forwardInvocation, invocation)
+		typealias SuperForwardInvocation = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
+		let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
+		forwardInvocation(object, ObjCSelector.forwardInvocation, invocation)
 	}
 
 	_ = class_replaceMethod(objcClass,
@@ -185,7 +164,29 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 	                        ObjCMethodEncoding.forwardInvocation)
 }
 
-func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
+private final class InterceptingState {
+	let (signal, observer) = Signal<AnyObject, NoError>.pipe()
+
+	init(lifetime: Lifetime) {
+		lifetime.ended.observeCompleted(observer.sendCompleted)
+	}
+}
+
+extension Selector {
+	fileprivate var invokingAlias: Selector {
+		return "rac0_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
+	}
+
+	fileprivate var interopAlias: Selector {
+		return "rac1_".appending(String(cString: sel_getName(self))).withCString(sel_registerName)
+	}
+
+	fileprivate var utf8Start: UnsafePointer<Int8> {
+		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
+	}
+}
+
+private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 	// Some types, including vector types, are not encoded. In these cases the
 	// signature starts with the size of the argument frame.
 	assert(types.pointee < Int8(UInt8(ascii: "1")) || types.pointee > Int8(UInt8(ascii: "9")),

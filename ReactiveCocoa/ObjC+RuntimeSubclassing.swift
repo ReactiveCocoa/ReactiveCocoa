@@ -2,10 +2,6 @@ import ReactiveSwift
 
 private let swizzledExternalClasses = Atomic<Set<ObjectIdentifier>>([])
 
-private func subclassName(of class: AnyClass) -> String {
-	return String(cString: class_getName(`class`)).appending("_RACSwift")
-}
-
 /// ISA-swizzle the class of the supplied instance.
 ///
 /// - note: If the instance has already been isa-swizzled, the swizzling happens
@@ -57,6 +53,10 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		instance.setValue(subclass, forAssociatedKey: key)
 		return subclass
 	}
+}
+
+private func subclassName(of class: AnyClass) -> String {
+	return String(cString: class_getName(`class`)).appending("_RACSwift")
 }
 
 private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass) {

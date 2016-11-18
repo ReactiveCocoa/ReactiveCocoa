@@ -4,6 +4,7 @@ import ReactiveSwift
 
 private final class Receiver: NSObject {
 	dynamic func message1() {}
+
 	dynamic func message2() {}
 }
 

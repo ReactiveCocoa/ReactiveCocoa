@@ -41,8 +41,10 @@ extension Reactive where Base: NSObject {
 }
 
 private var interopImplKey = 0
-private var interceptingStatesKey: StaticString = "RACIntercepting"
+private var interceptingStatesKey = 0
+private var interceptedSelectorsKey = 0
 
+// A container to circumvent Swift dynamic bridging overhead.
 private final class Box<Value> {
 	var value: Value
 
@@ -52,29 +54,32 @@ private final class Box<Value> {
 }
 
 private func setupInterception(_ object: NSObject, for selector: Selector) -> Signal<AnyObject, NoError> {
-	let states = object.reactive.associatedValue(forKey: interceptingStatesKey) { _ in
-		return Box([Selector: InterceptingState]())
-	}
-
-	if let state = states.value[selector] {
+	let currentStates = object.value(forAssociatedKey: &interceptingStatesKey) as! Box<[Selector: InterceptingState]>?
+	if let state = currentStates?.value[selector] {
 		return state.signal
 	}
 
+	let newStates = currentStates ?? {
+		let box = Box([Selector: InterceptingState]())
+		object.setValue(box, forAssociatedKey: &interceptingStatesKey)
+		return box
+	}()
+
 	let subclass: AnyClass = swizzleClass(object)
 
-	let interopImpls = swizzledClasses.modify { classes -> Atomic<[Selector: IMP]> in
+	swizzledClasses.modify { classes in
 		if !classes.contains(ObjectIdentifier(subclass)) {
 			classes.insert(ObjectIdentifier(subclass))
 			enableMessageForwarding(subclass)
+			setupMethodSignatureCaching(subclass)
 		}
 
-		if let impls = objc_getAssociatedObject(subclass, &interopImplKey) as! Atomic<[Selector: IMP]>? {
-			return impls
-		} else {
-			let impls = Atomic<[Selector: IMP]>([:])
-			objc_setAssociatedObject(subclass, &interopImplKey, impls, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			return impls
+		var selectors = objc_getAssociatedObject(subclass, &interceptedSelectorsKey) as! Box<[Selector: AnyObject]>?
+		if selectors == nil {
+			selectors = Box([:])
+			objc_setAssociatedObject(subclass, &interceptedSelectorsKey, selectors!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 		}
+		selectors!.value[selector] = getSignature(subclass, selector)
 	}
 
 	guard let method = class_getInstanceMethod(subclass, selector) else {
@@ -91,7 +96,15 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 			// Make a method alias for the existing method implementation, if it is
 			// defined in the runtime subclass.
 			let existingImpl = method_getImplementation(existingMethod)
-			interopImpls.modify { $0[selector] = existingImpl }
+
+			swizzledClasses.modify { _ in
+				var map = objc_getAssociatedObject(subclass, &interopImplKey) as! Box<[Selector: IMP]>?
+				if map == nil {
+					map = Box([:])
+					objc_setAssociatedObject(subclass, &interopImplKey, map!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				}
+				map!.value[selector] = existingImpl
+			}
 		}
 
 		// Redefine the selector to call -forwardInvocation:.
@@ -99,9 +112,16 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 	}
 
 	let state = InterceptingState(lifetime: object.reactive.lifetime)
-	states.value[selector] = state
+	newStates.value[selector] = state
 
 	return state.signal
+}
+
+private func getSignature(_ objcClass: AnyClass, _ selector: Selector) -> AnyObject {
+	let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature")!
+	let method = class_getInstanceMethod(objcClass, selector)
+	let typeEncoding = method_getTypeEncoding(method)!
+	return NSMethodSignature.signature(withObjCTypes: typeEncoding)
 }
 
 private func enableMessageForwarding(_ objcClass: AnyClass) {
@@ -114,12 +134,16 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 	// invoke any existing implementation of -forwardInvocation:. If there
 	// was no existing implementation, throw an unrecognized selector
 	// exception.
+
+	let realClass: AnyClass = objcClass
+	let perceivedClass: AnyClass = class_getSuperclass(objcClass)
+
 	typealias ForwardInvocationImpl = @convention(block) (NSObject, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { object, invocation in
 		let selector = invocation.selector!
 
 		defer {
-			if let states = object.value(forAssociatedKey: interceptingStatesKey.utf8Start) as! Box<[Selector: InterceptingState]>?,
+			if let states = object.value(forAssociatedKey: &interceptingStatesKey) as! Box<[Selector: InterceptingState]>?,
 			   let state = states.value[selector] {
 				state.observer.send(value: invocation)
 			}
@@ -130,15 +154,13 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 		// all instances that had been applied `signalForSelector:` are
 		// non-threadsafe as any mutable instances.
 
-		let realClass: AnyClass = objcClass
-		let perceivedClass: AnyClass = object.objcClass
 		let method = class_getInstanceMethod(perceivedClass, selector)
 		let typeEncoding = method_getTypeEncoding(method)
-		let interopImpls = objc_getAssociatedObject(realClass, &interopImplKey) as! Atomic<[Selector: IMP]>
+		let interopImpls = objc_getAssociatedObject(realClass, &interopImplKey) as! Box<[Selector: IMP]>?
 
 		let invokingImpl: IMP?
 
-		if let interopImpl = interopImpls.modify({ $0[selector] }) {
+		if let interopImpl = interopImpls?.value[selector] {
 			// `self` uses a runtime subclass generated by third-party APIs, and RAC
 			// found an existing implementation for the selector at the setup time.
 			// Call that implementation if it is not the ObjC message forwarder.
@@ -169,6 +191,29 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 	                        ObjCSelector.forwardInvocation,
 	                        imp_implementationWithBlock(newForwardInvocation as Any),
 	                        ObjCMethodEncoding.forwardInvocation)
+}
+
+private func setupMethodSignatureCaching(_ objcClass: AnyClass) {
+	let realClass: AnyClass = objcClass
+	let perceivedClass: AnyClass = class_getSuperclass(objcClass)
+
+	let newMethodSignatureForSelector: @convention(block) (NSObject, Selector) -> AnyObject? = { object, selector in
+		let interceptedSelectors = objc_getAssociatedObject(realClass, &interceptedSelectorsKey) as! Box<[Selector: AnyObject]>
+
+		if let signature = interceptedSelectors.value[selector] {
+			return signature
+		}
+
+		typealias SuperMethodSignatureForSelector = @convention(c) (AnyObject, Selector, Selector) -> AnyObject?
+		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.methodSignatureForSelector)
+		let methodSignatureForSelector = unsafeBitCast(impl, to: SuperMethodSignatureForSelector.self)
+		return methodSignatureForSelector(object, ObjCSelector.methodSignatureForSelector, selector)
+	}
+
+	_ = class_replaceMethod(objcClass,
+	                        ObjCSelector.methodSignatureForSelector,
+	                        imp_implementationWithBlock(newMethodSignatureForSelector as Any),
+	                        ObjCMethodEncoding.methodSignatureForSelector)
 }
 
 private final class InterceptingState {

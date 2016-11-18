@@ -30,4 +30,7 @@
 
 	@objc(getArgumentTypeAtIndex:)
 	func argumentType(at index: UInt) -> UnsafePointer<CChar>
+
+	@objc(signatureWithObjCTypes:)
+	static func signature(withObjCTypes typeEncoding: UnsafePointer<Int8>) -> AnyObject
 }

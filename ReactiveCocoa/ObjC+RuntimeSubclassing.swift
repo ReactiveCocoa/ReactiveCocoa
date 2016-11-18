@@ -1,9 +1,9 @@
 import ReactiveSwift
 
-private let swizzledExternalClasses = Atomic<Set<ObjCClass>>([])
+private let swizzledExternalClasses = Atomic<Set<ObjectIdentifier>>([])
 
-private func subclassName(of class: ObjCClass) -> String {
-	return `class`.name.appending("_RACSwift")
+private func subclassName(of class: AnyClass) -> String {
+	return String(cString: class_getName(`class`)).appending("_RACSwift")
 }
 
 /// ISA-swizzle the class of the supplied instance.
@@ -16,15 +16,15 @@ private func subclassName(of class: ObjCClass) -> String {
 ///
 /// - returns:
 ///   The runtime subclass of the perceived class of the instance.
-internal func swizzleClass(_ instance: NSObject) -> ObjCClass {
+internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 	let key = (#function as StaticString).utf8Start
 
-	if let knownSubclass = instance.value(forAssociatedKey: key) as! ObjCClass? {
+	if let knownSubclass = instance.value(forAssociatedKey: key) as! AnyClass? {
 		return knownSubclass
 	}
 
-	let perceivedClass = ObjCClass(instance.objcClass)
-	let realClass = ObjCClass.type(of: instance)
+	let perceivedClass: AnyClass = instance.objcClass
+	let realClass: AnyClass = object_getClass(instance)!
 
 	if perceivedClass != realClass {
 		// If the class is already lying about what it is, it's probably a KVO
@@ -33,8 +33,8 @@ internal func swizzleClass(_ instance: NSObject) -> ObjCClass {
 		//
 		// Use this runtime subclass directly.
 		swizzledExternalClasses.modify { classes in
-			if !classes.contains(realClass) {
-				classes.insert(realClass)
+			if !classes.contains(ObjectIdentifier(realClass)) {
+				classes.insert(ObjectIdentifier(realClass))
 				replaceGetClass(in: realClass, decoy: perceivedClass)
 			}
 		}
@@ -42,34 +42,39 @@ internal func swizzleClass(_ instance: NSObject) -> ObjCClass {
 		return realClass
 	} else {
 		let name = subclassName(of: perceivedClass)
-		let subclass: ObjCClass
-
-		if let existingClass = ObjCClass(name: name) {
-			subclass = existingClass
-		} else {
-			subclass = ObjCClass.allocate(name: name, superclass: perceivedClass) { subclass in
+		let subclass: AnyClass = name.withCString { name in
+			if let existingClass = objc_getClass(name) as! AnyClass? {
+				return existingClass
+			} else {
+				let subclass: AnyClass = objc_allocateClassPair(perceivedClass, name, 0)!
 				replaceGetClass(in: subclass, decoy: perceivedClass)
+				objc_registerClassPair(subclass)
+				return subclass
 			}
 		}
 
-		instance.setClass(subclass)
+		object_setClass(instance, subclass)
 		instance.setValue(subclass, forAssociatedKey: key)
 		return subclass
 	}
 }
 
-private func replaceGetClass(in class: ObjCClass, decoy perceivedClass: ObjCClass) {
+private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass) {
 	let getClass: @convention(block) (Any) -> AnyClass = { _ in
-		return perceivedClass.reference
+		return perceivedClass
 	}
 
+	let impl = imp_implementationWithBlock(getClass as Any)
+
 	// Swizzle `-class`.
-	_ = `class`.replaceMethod(with: CFunction(block: getClass),
-														for: ObjCSelector.getClass,
-														types: ObjCMethodEncoding.getClass)
+	_ = class_replaceMethod(`class`,
+	                        ObjCSelector.getClass,
+	                        impl,
+	                        ObjCMethodEncoding.getClass)
 
 	// Swizzle `+class`.
-	_ = `class`.metaclass.replaceMethod(with: CFunction(block: getClass),
-																			for: ObjCSelector.getClass,
-																			types: ObjCMethodEncoding.getClass)
+	_ = class_replaceMethod(object_getClass(`class`),
+	                        ObjCSelector.getClass,
+	                        impl,
+	                        ObjCMethodEncoding.getClass)
 }

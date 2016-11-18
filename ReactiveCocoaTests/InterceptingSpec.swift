@@ -269,12 +269,12 @@ class InterceptingSpec: QuickSpec {
 		describe("interoperability") {
 			var invoked: Bool!
 			var object: InterceptedObject!
-			var originalClass: ObjCClass!
+			var originalClass: AnyClass!
 
 			beforeEach {
 				invoked = false
 				object = InterceptedObject()
-				originalClass = ObjCClass(InterceptedObject.self)
+				originalClass = InterceptedObject.self
 			}
 
 			it("should invoke the swizzled `forwardInvocation:` on an instance isa-swizzled by both RAC and KVO.") {
@@ -287,14 +287,18 @@ class InterceptingSpec: QuickSpec {
 				let swizzledSelector = #selector(object.lifeIsGood)
 
 				// Redirect `swizzledSelector` to the forwarding machinery.
-				let method = originalClass.method(for: swizzledSelector)!
-				let original = originalClass.replaceMethod(with: .forwarding,
-				                                           for: swizzledSelector,
-				                                           types: method.typeEncoding)
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)!
+				let typeEncoding = method_getTypeEncoding(method)
+
+				let original = class_replaceMethod(originalClass,
+				                                   swizzledSelector,
+				                                   _rac_objc_msgForward,
+				                                   typeEncoding)
 				defer {
-					_ = originalClass.replaceMethod(with: original,
-					                                for: swizzledSelector,
-					                                types: method.typeEncoding)
+					_ = class_replaceMethod(originalClass,
+					                        swizzledSelector,
+					                        original,
+					                        typeEncoding)
 				}
 
 				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
@@ -305,14 +309,18 @@ class InterceptingSpec: QuickSpec {
 					}
 				}
 
-				let method2 = originalClass.method(for: ObjCSelector.forwardInvocation)!
-				let original2 = originalClass.replaceMethod(with: CFunction(block: forwardInvocationBlock),
-				                                            for: ObjCSelector.forwardInvocation,
-				                                            types: method2.typeEncoding)
+				let method2 = class_getInstanceMethod(originalClass, ObjCSelector.forwardInvocation)!
+				let typeEncoding2 = method_getTypeEncoding(method2)
+
+				let original2 = class_replaceMethod(originalClass,
+				                                    ObjCSelector.forwardInvocation,
+				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
+				                                    typeEncoding2)
 				defer {
-					_ = originalClass.replaceMethod(with: original2,
-					                                for: ObjCSelector.forwardInvocation,
-					                                types: method2.typeEncoding)
+					_ = class_replaceMethod(originalClass,
+					                        ObjCSelector.forwardInvocation,
+					                        original2,
+					                        typeEncoding2)
 				}
 
 				object.lifeIsGood(nil)
@@ -325,14 +333,18 @@ class InterceptingSpec: QuickSpec {
 				let swizzledSelector = #selector(object.lifeIsGood)
 
 				// Redirect `swizzledSelector` to the forwarding machinery.
-				let method = originalClass.method(for: swizzledSelector)!
-				let original = originalClass.replaceMethod(with: .forwarding,
-				                                           for: swizzledSelector,
-				                                           types: method.typeEncoding)
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)!
+				let typeEncoding = method_getTypeEncoding(method)
+
+				let original = class_replaceMethod(originalClass,
+				                                   swizzledSelector,
+				                                   _rac_objc_msgForward,
+				                                   typeEncoding)
 				defer {
-					_ = originalClass.replaceMethod(with: original,
-					                                for: swizzledSelector,
-					                                types: method.typeEncoding)
+					_ = class_replaceMethod(originalClass,
+					                        swizzledSelector,
+					                        original,
+					                        typeEncoding)
 				}
 
 				// Swizzle `forwardInvocation:` to intercept `swizzledSelector`.
@@ -343,14 +355,18 @@ class InterceptingSpec: QuickSpec {
 					}
 				}
 
-				let method2 = originalClass.method(for: ObjCSelector.forwardInvocation)!
-				let original2 = originalClass.replaceMethod(with: CFunction(block: forwardInvocationBlock),
-				                                            for: ObjCSelector.forwardInvocation,
-				                                            types: method2.typeEncoding)
+				let method2 = class_getInstanceMethod(originalClass, ObjCSelector.forwardInvocation)!
+				let typeEncoding2 = method_getTypeEncoding(method2)
+
+				let original2 = class_replaceMethod(originalClass,
+				                                    ObjCSelector.forwardInvocation,
+				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
+				                                    typeEncoding2)
 				defer {
-					_ = originalClass.replaceMethod(with: original2,
-					                                for: ObjCSelector.forwardInvocation,
-					                                types: method2.typeEncoding)
+					_ = class_replaceMethod(originalClass,
+					                        ObjCSelector.forwardInvocation,
+					                        original2,
+					                        typeEncoding2)
 				}
 
 				object.lifeIsGood(nil)
@@ -367,16 +383,20 @@ class InterceptingSpec: QuickSpec {
 					invoked = true
 				}
 
-				let method = originalClass.method(for: swizzledSelector)!
-				let original = originalClass.replaceMethod(with: CFunction(block: lifeIsGoodBlock),
-				                                           for: swizzledSelector,
-				                                           types: method.typeEncoding)
+				let method = class_getInstanceMethod(originalClass, swizzledSelector)!
+				let typeEncoding = method_getTypeEncoding(method)
+
+				let original = class_replaceMethod(originalClass,
+				                                   swizzledSelector,
+				                                   imp_implementationWithBlock(lifeIsGoodBlock as Any),
+				                                   typeEncoding)
 				defer {
-					_ = originalClass.replaceMethod(with: original,
-					                                for: swizzledSelector,
-					                                types: method.typeEncoding)
+					_ = class_replaceMethod(originalClass,
+					                        swizzledSelector,
+					                        original,
+					                        typeEncoding)
 				}
-				
+
 				object.lifeIsGood(nil)
 				expect(invoked) == true
 			}
@@ -763,18 +783,20 @@ private class ForwardInvocationTestObject: InterceptedObject {
 					object.forwardedSelector = invocation.selector
 				}
 
-				try! ObjCClass(ForwardInvocationTestObject.self)
-					.addMethod(with: CFunction(assuming: impl),
-					           for: ObjCSelector.forwardInvocation,
-					           types: ObjCMethodEncoding.forwardInvocation)
+				let success = class_addMethod(ForwardInvocationTestObject.self,
+				                ObjCSelector.forwardInvocation,
+				                unsafeBitCast(impl, to: IMP.self),
+				                ObjCMethodEncoding.forwardInvocation)
 
+				assert(success)
 				assert(ForwardInvocationTestObject.instancesRespond(to: ObjCSelector.forwardInvocation))
 
-				try! ObjCClass(ForwardInvocationTestObject.self)
-					.addMethod(with: .forwarding,
-					           for: ForwardInvocationTestObject.forwardedSelector,
-					           types: ObjCMethodEncoding.forwardInvocation)
+				let success2 = class_addMethod(ForwardInvocationTestObject.self,
+				                               ForwardInvocationTestObject.forwardedSelector,
+				                               _rac_objc_msgForward,
+				                               ObjCMethodEncoding.forwardInvocation)
 
+				assert(success2)
 				assert(ForwardInvocationTestObject.instancesRespond(to: ForwardInvocationTestObject.forwardedSelector))
 
 				return 0

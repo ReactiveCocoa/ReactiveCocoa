@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:ReactiveCocoa-macOS.playground">
+   </FileRef>
+   <FileRef
+      location = "group:ReactiveCocoa-iOS.playground">
+   </FileRef>
+   <FileRef
       location = "group:ReactiveCocoa.xcodeproj">
    </FileRef>
    <FileRef

@@ -10,6 +10,11 @@ if [ -z "$BUILD_DIRECTORY" ]; then
 	exit 1
 fi
 
+if [ -z "$PLAYGROUND" ]; then
+	echo "\$PLAYGROUND is not set."
+	exit 1
+fi
+
 if [ -z "$XCODE_PLAYGROUND_TARGET" ]; then
 	echo "\$XCODE_PLAYGROUND_TARGET is not set."
 	exit 1
@@ -17,7 +22,7 @@ fi
 
 PAGES_PATH=${BUILD_DIRECTORY}/Build/Products/${CONFIGURATION}/all-playground-pages.swift
 
-cat ReactiveCocoa.playground/Sources/*.swift ReactiveCocoa.playground/Pages/**/*.swift > ${PAGES_PATH}
+cat ${PLAYGROUND}/Sources/*.swift ${PLAYGROUND}/Pages/**/*.swift > ${PAGES_PATH}
 
 swift -v -target ${XCODE_PLAYGROUND_TARGET} -D NOT_IN_PLAYGROUND -F ${BUILD_DIRECTORY}/Build/Products/${CONFIGURATION} ${PAGES_PATH} > /dev/null
 result=$?

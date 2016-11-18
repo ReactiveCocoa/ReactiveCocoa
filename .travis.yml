@@ -17,6 +17,7 @@ matrix:
         - XCODE_ACTION="build test"
         - XCODE_DESTINATION="arch=x86_64"
         - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
+        - PLAYGROUND="ReactiveCocoa-macOS.playground"
     - xcode_scheme: ReactiveCocoa-iOS
       env:
         - XCODE_SDK=iphonesimulator

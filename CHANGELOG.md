@@ -275,7 +275,7 @@ public final class MyController {
 			<p>
 <pre lang="swift">Signal.combineLatest([signal1, signal2])
 	.take(during: self.reactive.lifetime)
-	.observeValues { [weak self] in self?.perform(first: $1, second: $2) }</pre>
+	.observeValues { [weak self] in self?.perform(first: $0, second: $1) }</pre>
 			</p>
 		</td>
 	</tr>

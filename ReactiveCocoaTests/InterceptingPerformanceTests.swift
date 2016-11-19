@@ -2,32 +2,52 @@ import XCTest
 @testable import ReactiveCocoa
 import ReactiveSwift
 
-private final class Receiver: NSObject {
-	dynamic func message1() {}
+private final class Receiver1: NSObject {
+	dynamic func message() {}
+}
 
-	dynamic func message2() {}
+private final class Receiver2: NSObject {
+	dynamic var value: Int = 0
+}
+
+private final class Receiver3: NSObject {
+	dynamic var value: Int = 0
 }
 
 class InterceptingTests: XCTestCase {
-	fileprivate var receiver: Receiver!
+	func testInterceptedMessage() {
+		let receiver = Receiver1()
+		_ = receiver.reactive.trigger(for: #selector(receiver.message))
 
-	override func setUp() {
-		receiver = Receiver()
-	}
-
-	func testDirectMessage() {
 		measure {
 			for _ in 0 ..< 50000 {
-				self.receiver.message1()
+				receiver.message()
 			}
 		}
 	}
 
-	func testInterceptedMessage() {
-		_ = receiver.reactive.trigger(for: #selector(receiver.message2))
+	func testRACKVOInterceptedMessage() {
+		let receiver = Receiver2()
+
+		_ = receiver.reactive.trigger(for: #selector(setter: receiver.value))
+		receiver.reactive.values(forKeyPath: #keyPath(Receiver2.value)).start()
+
 		measure {
-			for _ in 0 ..< 50000 {
-				self.receiver.message2()
+			for i in 0 ..< 50000 {
+				receiver.value = i
+			}
+		}
+	}
+
+	func testKVORACInterceptedMessage() {
+		let receiver = Receiver3()
+
+		receiver.reactive.values(forKeyPath: #keyPath(Receiver3.value)).start()
+		_ = receiver.reactive.trigger(for: #selector(setter: receiver.value))
+
+		measure {
+			for i in 0 ..< 50000 {
+				receiver.value = i
 			}
 		}
 	}

@@ -1,8 +1,12 @@
 // Unavailable classes like `NSInvocation` can still be passed into Swift as
-// `AnyObject`, and receive messages via `AnyObject`'s message dispatching.
+// `AnyClass` and `AnyObject`, and receive messages as `AnyClass` and
+// `AnyObject` existentials.
 //
 // These `@objc` protocols host the method signatures so that they can be used
 // with `AnyObject`.
+
+internal let NSInvocation: AnyClass = NSClassFromString("NSInvocation")!
+internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature")!
 
 // `-class` and `+class`.
 @objc internal protocol ObjCClassReporting {

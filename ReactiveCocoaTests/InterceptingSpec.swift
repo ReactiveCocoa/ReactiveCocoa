@@ -228,6 +228,54 @@ class InterceptingSpec: QuickSpec {
 				expect(secondValue) == "Winner"
 			}
 
+			it("should send a value event for every invocation of a method on a receiver that is subsequently KVO'd twice") {
+				var counter = 0
+
+				object.reactive.trigger(for: #selector(setter: InterceptedObject.objectValue))
+					.observeValues { counter += 1 }
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+					.dispose()
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				expect(counter) == 0
+
+				object.objectValue = 1
+				expect(counter) == 1
+
+				object.objectValue = 1
+				expect(counter) == 2
+			}
+
+			it("should send a value event for every invocation of a method on a receiver that is KVO'd twice while being swizzled by RAC in between") {
+				var counter = 0
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+					.dispose()
+
+				object.reactive.trigger(for: #selector(setter: InterceptedObject.objectValue))
+					.observeValues { counter += 1 }
+
+				object.reactive
+					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.start()
+
+				expect(counter) == 0
+
+				object.objectValue = 1
+				expect(counter) == 1
+
+				object.objectValue = 1
+				expect(counter) == 2
+			}
+
 			it("should call the right signal for two instances of the same class, adding signals for the same selector") {
 				let object1 = InterceptedObject()
 				let object2 = InterceptedObject()

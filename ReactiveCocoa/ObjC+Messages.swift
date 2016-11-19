@@ -22,6 +22,9 @@
 	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
 
 	func invoke()
+
+	@objc(invocationWithMethodSignature:)
+	static func invocation(withMethodSignature signature: AnyObject) -> AnyObject
 }
 
 // Methods of `NSMethodSignature`.

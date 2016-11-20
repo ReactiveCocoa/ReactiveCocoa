@@ -1,15 +1,19 @@
 extension Selector {
+	/// `self` as a pointer. It is uniqued across instances, similar to
+	/// `StaticString`.
 	internal var utf8Start: UnsafePointer<Int8> {
 		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
 	}
 
-	final class Box {
+	/// Selector alias cache.
+	final class Cache {
 		var selectors: [Selector: Selector] = [:]
 	}
 
+	/// An alias of `self`, used in method interception.
 	internal var alias: Selector {
 		enum Static {
-			static let cache = ThreadLocal { Box() }
+			static let cache = ThreadLocal { Cache() }
 		}
 
 		let localCache = Static.cache.local
@@ -23,9 +27,12 @@ extension Selector {
 		}
 	}
 
+	/// An alias of `self`, used in method interception specifically for
+	/// preserving (if found) an immediate implementation of `self` in the
+	/// runtime subclass.
 	internal var interopAlias: Selector {
 		enum Static {
-			static let cache = ThreadLocal { Box() }
+			static let cache = ThreadLocal { Cache() }
 		}
 
 		let localCache = Static.cache.local
@@ -39,6 +46,7 @@ extension Selector {
 		}
 	}
 
+	///
 	internal func prefixing(_ prefix: StaticString) -> Selector {
 		let length = Int(strlen(utf8Start))
 		let prefixedLength = length + prefix.utf8CodeUnitCount

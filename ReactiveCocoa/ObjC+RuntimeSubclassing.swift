@@ -57,6 +57,11 @@ private func subclassName(of class: AnyClass) -> String {
 	return String(cString: class_getName(`class`)).appending("_RACSwift")
 }
 
+/// Swizzle the `-class` and `+class` methods.
+///
+/// - parameters:
+///   - class: The class to swizzle.
+///   - perceivedClass: The class to be reported by the methods.
 private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass) {
 	let getClass: @convention(block) (Any) -> AnyClass = { _ in
 		return perceivedClass
@@ -64,13 +69,11 @@ private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass)
 
 	let impl = imp_implementationWithBlock(getClass as Any)
 
-	// Swizzle `-class`.
 	_ = class_replaceMethod(`class`,
 	                        ObjCSelector.getClass,
 	                        impl,
 	                        ObjCMethodEncoding.getClass)
 
-	// Swizzle `+class`.
 	_ = class_replaceMethod(object_getClass(`class`),
 	                        ObjCSelector.getClass,
 	                        impl,

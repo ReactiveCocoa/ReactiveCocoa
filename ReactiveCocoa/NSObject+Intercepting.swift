@@ -211,8 +211,6 @@ private final class InterceptingState {
 }
 
 private var isSwizzledKey = 0
-private var interopImplKey = 0
-private var interceptingStatesKey = 0
 private var interceptedSelectorsKey = 0
 
 private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {

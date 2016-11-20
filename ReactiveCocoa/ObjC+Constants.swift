@@ -10,7 +10,6 @@ internal enum ObjCMethodEncoding {
 	static let forwardInvocation = extract("v@:@")
 	static let methodSignatureForSelector = extract("v@::")
 	static let getClass = extract("#@:")
-	static let repsondsToSelector = extract("c@::")
 
 	private static func extract(_ string: StaticString) -> UnsafePointer<CChar> {
 		return UnsafeRawPointer(string.utf8Start).assumingMemoryBound(to: CChar.self)

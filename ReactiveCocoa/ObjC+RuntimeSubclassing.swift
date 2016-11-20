@@ -1,7 +1,6 @@
 import ReactiveSwift
 
 private var isSwizzledKey = 0
-private var test = 0
 
 /// ISA-swizzle the class of the supplied instance.
 ///
@@ -28,20 +27,9 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		// dynamic subclass or something else that we shouldn't subclass at runtime.
 		synchronized(realClass) {
 			let isSwizzled = objc_getAssociatedObject(realClass, &isSwizzledKey) as! Bool? ?? false
-
 			if !isSwizzled {
 				replaceGetClass(in: realClass, decoy: perceivedClass)
 				objc_setAssociatedObject(realClass, &isSwizzledKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-
-				let token = Lifetime.Token()
-				objc_setAssociatedObject(realClass, &test, token, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-
-				Lifetime(token).ended.observeCompleted {
-
-					let a = 1
-					_ = a
-
-				}
 			}
 		}
 

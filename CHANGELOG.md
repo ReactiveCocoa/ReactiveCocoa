@@ -110,7 +110,7 @@ UI components now expose a collection of binding targets to which can be bound f
 
 	```swift
 	// Bind the `name` property of `person` to the text value of an `UILabel`.
-	nameLabel.text <~ person.name
+	nameLabel.reactive.text <~ person.name
 	```
 
 1. **Controls and User Interactions**

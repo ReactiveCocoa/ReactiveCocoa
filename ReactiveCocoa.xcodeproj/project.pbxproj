@@ -125,6 +125,7 @@
 		9A54A21C1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
 		9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
 		9A54A21E1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
+		9A54A24F1DE123BD001739B3 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A24E1DE123BD001739B3 /* Atomic.swift */; };
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
@@ -356,6 +357,7 @@
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
 		9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingPerformanceTests.swift; sourceTree = "<group>"; };
 		9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Selector.swift"; sourceTree = "<group>"; };
+		9A54A24E1DE123BD001739B3 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
@@ -669,6 +671,7 @@
 		D04725EC19E49ED7006002AA /* ReactiveCocoa */ = {
 			isa = PBXGroup;
 			children = (
+				9A54A24E1DE123BD001739B3 /* Atomic.swift */,
 				9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
@@ -1218,6 +1221,7 @@
 				9A2E425E1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
+				9A54A24F1DE123BD001739B3 /* Atomic.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,

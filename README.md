@@ -23,7 +23,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 	```swift
 	// Bind the `name` property of `person` to the text value of an `UILabel`.
-	nameLabel.text <~ person.name
+	nameLabel.reactive.text <~ person.name
 	```
 
 1. **Controls and User Interactions**

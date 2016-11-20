@@ -3,9 +3,43 @@ extension Selector {
 		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
 	}
 
-	internal func prefixing(_ prefix: StaticString) -> Selector {
-		assert(prefix.isASCII)
+	final class Box {
+		var selectors: [Selector: Selector] = [:]
+	}
 
+	internal var alias: Selector {
+		enum Static {
+			static let cache = ThreadLocal { Box() }
+		}
+
+		let localCache = Static.cache.local
+
+		if let selector = localCache.selectors[self] {
+			return selector
+		} else {
+			let selector = prefixing("rac0_")
+			localCache.selectors[self] = selector
+			return selector
+		}
+	}
+
+	internal var interopAlias: Selector {
+		enum Static {
+			static let cache = ThreadLocal { Box() }
+		}
+
+		let localCache = Static.cache.local
+
+		if let selector = localCache.selectors[self] {
+			return selector
+		} else {
+			let selector = prefixing("rac1_")
+			localCache.selectors[self] = selector
+			return selector
+		}
+	}
+
+	internal func prefixing(_ prefix: StaticString) -> Selector {
 		let length = Int(strlen(utf8Start))
 		let prefixedLength = length + prefix.utf8CodeUnitCount
 

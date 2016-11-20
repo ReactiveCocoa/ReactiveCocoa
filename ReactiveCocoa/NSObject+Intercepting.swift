@@ -35,8 +35,8 @@ extension Reactive where Base: NSObject {
 }
 
 private func setupInterception(_ object: NSObject, for selector: Selector) -> Signal<AnyObject, NoError> {
-	let alias = selector.prefixing("rac0_")
-	let interopAlias = selector.prefixing("rac1_")
+	let alias = selector.alias
+	let interopAlias = selector.interopAlias
 
 	guard let method = class_getInstanceMethod(object.objcClass, selector) else {
 		fatalError("Selector `\(selector)` does not exist in class `\(String(describing: object.objcClass))`.")
@@ -119,8 +119,8 @@ private func enableMessageForwarding(_ objcClass: AnyClass) {
 	typealias ForwardInvocationImpl = @convention(block) (NSObject, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { object, invocation in
 		let selector = invocation.selector!
-		let alias = selector.prefixing("rac0_")
-		let interopAlias = selector.prefixing("rac1_")
+		let alias = selector.alias
+		let interopAlias = selector.interopAlias
 
 		defer {
 			if let state = object.value(forAssociatedKey: alias.utf8Start) as! InterceptingState? {

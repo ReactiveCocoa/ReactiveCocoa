@@ -5,6 +5,9 @@
       location = "group:ReactiveCocoa-macOS.playground">
    </FileRef>
    <FileRef
+      location = "group:ReactiveCocoa-tvOS.playground">
+   </FileRef>
+   <FileRef
       location = "group:ReactiveCocoa-iOS.playground">
    </FileRef>
    <FileRef

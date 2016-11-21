@@ -1,8 +1,9 @@
 import XCTest
 @testable import ReactiveCocoa
 import ReactiveSwift
+import enum Result.NoError
 
-private let iterationCount = 5000
+private let iterationCount = 50000
 
 private final class Receiver1: NSObject {
 	dynamic func message() {}
@@ -61,6 +62,24 @@ class InterceptingTests: XCTestCase {
 		receiver6.reactive.values(forKeyPath: #keyPath(Receiver6.value)).start()
 	}
 
+	func testSimpleSignal() {
+		class TestObject: NSObject {
+			let (trigger, observer) = Signal<(), NoError>.pipe()
+
+			dynamic func invoke() {
+				observer.send(value: ())
+			}
+		}
+
+		let object = TestObject()
+
+		measure {
+			for _ in 0 ..< iterationCount {
+				object.invoke()
+			}
+		}
+	}
+
 	func testInterceptedMessage() {
 		let receiver = Receiver1()
 		_ = receiver.reactive.trigger(for: #selector(receiver.message))
@@ -98,7 +117,7 @@ class InterceptingTests: XCTestCase {
 		}
 	}
 
-	func testRACKVOInterceptSetterThenGet() {
+	func testRACKVOInterceptGetterThenGet() {
 		let receiver = Receiver4()
 
 		_ = receiver.reactive.trigger(for: #selector(getter: receiver.value))
@@ -111,7 +130,7 @@ class InterceptingTests: XCTestCase {
 		}
 	}
 
-	func testKVORACInterceptSetterThenGet() {
+	func testKVORACInterceptGetterThenGet() {
 		let receiver = Receiver5()
 
 		receiver.reactive.values(forKeyPath: #keyPath(Receiver5.value)).start()
@@ -124,7 +143,7 @@ class InterceptingTests: XCTestCase {
 		}
 	}
 
-	func testJustKVOInterceptSetterThenSet() {
+	func testJustKVOInterceptGetterThenSet() {
 		let receiver = Receiver6()
 		receiver.reactive.values(forKeyPath: #keyPath(Receiver6.value)).start()
 

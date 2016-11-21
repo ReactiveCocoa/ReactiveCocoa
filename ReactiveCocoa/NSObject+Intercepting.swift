@@ -12,6 +12,9 @@ fileprivate let signatureCacheKey = AssociationKey<SignatureCache>()
 /// Holds the method selector cache of the runtime subclass.
 fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
 
+/// Holds the template cache of the runtime subclass.
+fileprivate let templateCacheKey = AssociationKey<[Selector: IMP]>(default: [:])
+
 extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every invocation
 	/// of `selector` on the object.
@@ -27,7 +30,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		return base.intercept(selector).map { _ in }
+		return base.intercept(selector, wantsArguments: false).map { _ in }
 	}
 
 	/// Create a signal which sends a `next` event, containing an array of bridged
@@ -44,7 +47,9 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A signal that sends an array of bridged arguments.
 	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
-		return base.intercept(selector).map(unpackInvocation)
+		// FIXME: Use `map(!)` when the compiler doesn't resolve `!` to the boolean
+		//        `!`.
+		return base.intercept(selector, wantsArguments: true).map { $0! }
 	}
 }
 
@@ -58,7 +63,7 @@ extension NSObject {
 	/// - returns:
 	///   A signal that sends the corresponding `NSInvocation` after every
 	///   invocation of the method.
-	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
+	@nonobjc fileprivate func intercept(_ selector: Selector, wantsArguments: Bool) -> Signal<[Any?]?, NoError> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
 			fatalError("Selector `\(selector)` does not exist in class `\(String(describing: objcClass))`.")
 		}
@@ -68,18 +73,23 @@ extension NSObject {
 
 		return synchronized {
 			let alias = selector.alias
-			let stateKey = AssociationKey<InterceptingState?>(alias)
 			let interopAlias = selector.interopAlias
+			let stateKey = AssociationKey<InterceptingState?>(interopAlias)
 
 			if let state = associations.value(forKey: stateKey) {
+				if wantsArguments {
+					state.wantsArguments()
+				}
 				return state.signal
 			}
 
 			let subclass: AnyClass = swizzleClass(self)
 			let subclassAssociations = Associations(subclass as AnyObject)
 
+			var signature: AnyObject!
+
 			// FIXME: Compiler asks to handle a mysterious throw.
-			try! ReactiveCocoa.synchronized(subclass) {
+			let templateImpl: IMP? = try! ReactiveCocoa.synchronized(subclass) {
 				let isSwizzled = subclassAssociations.value(forKey: interceptedKey)
 
 				let signatureCache: SignatureCache
@@ -102,9 +112,28 @@ extension NSObject {
 
 				selectorCache.cache(selector)
 
-				if signatureCache[selector] == nil {
-					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
+				if let s = signatureCache[selector] {
+					signature = s
+				} else {
+					signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
 					signatureCache[selector] = signature
+				}
+
+				let templateImpl: IMP?
+
+				if let generator = InterceptionTemplate.template(forTypeEncoding: typeEncoding) {
+					var templateCache = subclassAssociations.value(forKey: templateCacheKey)
+					if let impl = templateCache[selector] {
+						templateImpl = impl
+					} else {
+						templateImpl = generator(subclass.objcClass, subclass, selector, interopAlias, Unmanaged.passUnretained(signature))
+						if templateImpl != nil {
+							templateCache[selector] = templateImpl
+							subclassAssociations.setValue(templateCache, forKey: templateCacheKey)
+						}
+					}
+				} else {
+					templateImpl = nil
 				}
 
 				// If an immediate implementation of the selector is found in the
@@ -116,19 +145,28 @@ extension NSObject {
 				if !class_respondsToSelector(subclass, interopAlias) {
 					let immediateImpl = class_getImmediateMethod(subclass, selector)
 						.flatMap(method_getImplementation)
-						.flatMap { $0 != _rac_objc_msgForward ? $0 : nil }
+						.flatMap { $0 != _rac_objc_msgForward && $0 != templateImpl ? $0 : nil }
 
 					if let impl = immediateImpl {
 						class_addMethod(subclass, interopAlias, impl, typeEncoding)
 					}
 				}
+
+				return templateImpl
 			}
 
 			let state = InterceptingState(lifetime: reactive.lifetime)
+			if wantsArguments {
+				state.wantsArguments()
+			}
 			associations.setValue(state, forKey: stateKey)
 
-			// Start forwarding the messages of the selector.
-			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
+			if let impl = templateImpl {
+				_ = class_replaceMethod(subclass, selector, impl, typeEncoding)
+			} else {
+				// Start forwarding the messages of the selector.
+				_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
+			}
 			
 			return state.signal
 		}
@@ -149,9 +187,9 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 		let interopAlias = selectorCache.interopAlias(for: selector)
 
 		defer {
-			let stateKey = AssociationKey<InterceptingState?>(alias)
+			let stateKey = AssociationKey<InterceptingState?>(interopAlias)
 			if let state = objectRef.takeUnretainedValue().associations.value(forKey: stateKey) {
-				state.observer.send(value: invocation)
+				state.send(state.packsArguments ? unpackInvocation(invocation) : nil)
 			}
 		}
 
@@ -238,14 +276,25 @@ private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache
 
 /// The state of an intercepted method specific to an instance.
 private final class InterceptingState {
-	let (signal, observer) = Signal<AnyObject, NoError>.pipe()
+	fileprivate let signal: Signal<[Any?]?, NoError>
+	private let observer: Signal<[Any?]?, NoError>.Observer
+	private(set) var packsArguments = false
 
 	/// Initialize a state specific to an instance.
 	///
 	/// - parameters:
 	///   - lifetime: The lifetime of the instance.
 	init(lifetime: Lifetime) {
+		(signal, observer) = Signal<[Any?]?, NoError>.pipe()
 		lifetime.ended.observeCompleted(observer.sendCompleted)
+	}
+
+	func wantsArguments() {
+		packsArguments = true
+	}
+
+	func send(_ values: [Any?]?) {
+		observer.send(value: values)
 	}
 }
 
@@ -429,4 +478,351 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	}
 
 	return bridged
+}
+
+private class InterceptionTemplate {
+	// Implementation Note:
+	//
+	// This combination was benckmarked to be consistently the fastest. Packing
+	// other arguments into `SelectorAliases` might cause a regression in single
+	// digit percentage.
+	typealias Template = (_ perceived: AnyClass, _ real: AnyClass, _ selector: Selector, _ interopAlias: Selector, _ methodSignature: Unmanaged<AnyObject>) -> IMP
+
+	private static let shared: [String: Template] = [
+		"v@:": _v0_id_sel,
+		"v@:c": _v0_id_sel_i8,
+		"v@:l": _v0_id_sel_i32,
+		"v@:q": _v0_id_sel_i64,
+		"v@:@": _v0_id_sel_id,
+		"v@:@q": _v0_id_sel_id_i64,
+		"v@:@l": _v0_id_sel_id_i32,
+		"v@:@d": _v0_id_sel_id_f64,
+		"v@:@f": _v0_id_sel_id_f32,
+		"v@:@@": _v0_id_sel_id_id,
+		"v@:@@q": _v0_id_sel_id_id_i64,
+		"v@:@@@": _v0_id_sel_id_id_id
+	]
+
+	static func template(forTypeEncoding types: UnsafePointer<Int8>) -> Template? {
+		var iterator = types
+		var characters = [UInt8]()
+
+		let nul = Int8(UInt8(ascii: "\0"))
+		let zero = Int8(UInt8(ascii: "0"))
+		let nine = Int8(UInt8(ascii: "9"))
+
+		while iterator.pointee != nul {
+			characters.append(UInt8(iterator.pointee))
+			iterator = NSGetSizeAndAlignment(iterator, nil, nil)
+			while !(iterator.pointee < zero || iterator.pointee > nine) {
+				iterator += 1
+			}
+		}
+
+		let cleanEncoding = String(bytes: characters, encoding: .ascii)!
+		return shared[cleanEncoding]
+	}
+}
+
+private final class SelectorAliases {
+	let alias: Selector
+	let interopAlias: Selector
+
+	init(alias: Selector, interopAlias: Selector) {
+		self.alias = alias
+		self.interopAlias = interopAlias
+	}
+}
+
+private typealias SuperForwardInvocation = @convention(c) (Unmanaged<NSObject>, Selector, AnyObject) -> Void
+
+private enum Implementation<Impl> {
+	case method(Impl)
+	case forward(SuperForwardInvocation)
+}
+
+private func getImplementation<Impl>(_ perceivedClass: AnyClass, _ realClass: AnyClass, _ selector: Selector, _ interopAlias: Selector, _ type: Impl.Type) -> Implementation<Impl> {
+	let method = class_getInstanceMethod(perceivedClass, selector)!
+
+	if class_respondsToSelector(realClass, interopAlias) {
+		let interopImpl = class_getMethodImplementation(realClass, interopAlias)!
+		return .method(unsafeBitCast(interopImpl, to: Impl.self))
+	} else if let impl = method_getImplementation(method), impl != _rac_objc_msgForward {
+		return .method(unsafeBitCast(impl, to: Impl.self))
+	} else {
+		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
+		let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
+		return .forward(forwardInvocation)
+	}
+}
+
+private func getState(_ objectRef: Unmanaged<NSObject>, for interopAlias: Selector) -> InterceptingState? {
+	let stateKey = AssociationKey<InterceptingState?>(interopAlias)
+	return objectRef.takeUnretainedValue().associations.value(forKey: stateKey)
+}
+
+private func packInvocation(
+	_ target: Unmanaged<NSObject>,
+	_ selector: Selector,
+	_ signature: Unmanaged<AnyObject>
+) -> AnyObject {
+	let invocation = NSInvocation.invocation(withMethodSignature: signature.takeUnretainedValue())
+	invocation.setUnmanagedTarget(target)
+	invocation.setSelector(selector)
+	return invocation
+}
+
+private func packInvocation<A>(
+	_ target: Unmanaged<NSObject>,
+	_ selector: Selector,
+	_ signature: Unmanaged<AnyObject>,
+	_ first: A
+) -> AnyObject {
+	let invocation = NSInvocation.invocation(withMethodSignature: signature.takeUnretainedValue())
+	invocation.setUnmanagedTarget(target)
+	invocation.setSelector(selector)
+	var first = first
+	invocation.copy(from: &first, forArgumentAt: 2)
+	return invocation
+}
+
+private func packInvocation<A, B>(
+	_ target: Unmanaged<NSObject>,
+	_ selector: Selector,
+	_ signature: Unmanaged<AnyObject>,
+	_ first: A,
+	_ second: B
+) -> AnyObject {
+	let invocation = NSInvocation.invocation(withMethodSignature: signature.takeUnretainedValue())
+	invocation.setUnmanagedTarget(target)
+	invocation.setSelector(selector)
+	var first = first
+	var second = second
+	invocation.copy(from: &first, forArgumentAt: 2)
+	invocation.copy(from: &second, forArgumentAt: 3)
+	return invocation
+}
+
+private func packInvocation<A, B, C>(
+	_ target: Unmanaged<NSObject>,
+	_ selector: Selector,
+	_ signature: Unmanaged<AnyObject>,
+	_ first: A,
+	_ second: B,
+	_ third: C
+) -> AnyObject {
+	let invocation = NSInvocation.invocation(withMethodSignature: signature.takeUnretainedValue())
+	invocation.setUnmanagedTarget(target)
+	invocation.setSelector(selector)
+	var first = first
+	var second = second
+	var third = third
+	invocation.copy(from: &first, forArgumentAt: 2)
+	invocation.copy(from: &second, forArgumentAt: 3)
+	invocation.copy(from: &third, forArgumentAt: 4)
+	return invocation
+}
+
+private let _v0_id_sel: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>) -> Void = { objectRef in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_i8: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, CChar) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, CChar) -> Void = { objectRef, a in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_i32: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, CLong) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, CLong) -> Void = { objectRef, a in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_i64: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, CLongLong) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, CLongLong) -> Void = { objectRef, a in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?) -> Void = { objectRef, a in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue()] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_i64: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, CLongLong) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, CLongLong) -> Void = { objectRef, a, b in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_i32: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, CLong) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, CLong) -> Void = { objectRef, a, b in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_f64: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, CDouble) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, CDouble) -> Void = { objectRef, a, b in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_f32: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, CFloat) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, CFloat) -> Void = { objectRef, a, b in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_id: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?) -> Void = { objectRef, a, b in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b?.takeUnretainedValue()] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_id_i64: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?, CLongLong) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?, CLongLong) -> Void = { objectRef, a, b, c in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b, c)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b, c))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b?.takeUnretainedValue(), c] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
+}
+
+private let _v0_id_sel_id_id_id: InterceptionTemplate.Template = { perceivedClass, realClass, selector, interopAlias, signature in
+	typealias CImpl = @convention(c) (Unmanaged<NSObject>, Selector, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?) -> Void
+
+	let impl: @convention(block) (Unmanaged<NSObject>, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?, Unmanaged<AnyObject>?) -> Void = { objectRef, a, b, c in
+		switch getImplementation(perceivedClass, realClass, selector, interopAlias, CImpl.self) {
+		case let .method(body): body(objectRef, selector, a, b, c)
+		case let .forward(f): f(objectRef, ObjCSelector.forwardInvocation, packInvocation(objectRef, selector, signature, a, b, c))
+		}
+
+		if let state = getState(objectRef, for: interopAlias) {
+			state.send(state.packsArguments ? [a?.takeUnretainedValue(), b?.takeUnretainedValue(), c?.takeUnretainedValue()] : nil)
+		}
+	}
+
+	return imp_implementationWithBlock(impl as Any)
 }

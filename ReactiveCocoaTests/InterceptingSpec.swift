@@ -681,15 +681,21 @@ class InterceptingSpec: QuickSpec {
 
 				call(offset: 0)
 				expect(arguments.count) == 1
-				validate(arguments: arguments[0], offset: 0)
+				if arguments.count >= 1 {
+					validate(arguments: arguments[0], offset: 0)
+				}
 
 				call(offset: 1)
 				expect(arguments.count) == 2
-				validate(arguments: arguments[1], offset: 1)
+				if arguments.count >= 1 {
+					validate(arguments: arguments[1], offset: 1)
+				}
 
 				call(offset: 2)
 				expect(arguments.count) == 3
-				validate(arguments: arguments[2], offset: 2)
+				if arguments.count >= 3 {
+					validate(arguments: arguments[2], offset: 2)
+				}
 			}
 
 			it("should send a value with bridged reference arguments") {
@@ -711,12 +717,14 @@ class InterceptingSpec: QuickSpec {
 
 				expect(arguments.count) == 1
 
-				expect((arguments[0][0] as! NSObject)) == token
-				expect(arguments[0][1] as! NSObject?) == token
-				expect(arguments[0][2] as! NSObject?) == token
-				expect(arguments[0][3] as! AnyClass is InterceptingSpec.Type) == true
-				expect(arguments[0][4] as! AnyClass? is InterceptingSpec.Type) == true
-				expect(arguments[0][5] as! AnyClass? is InterceptingSpec.Type) == true
+				if arguments.count >= 1 {
+					expect((arguments[0][0] as! NSObject)) == token
+					expect(arguments[0][1] as! NSObject?) == token
+					expect(arguments[0][2] as! NSObject?) == token
+					expect(arguments[0][3] as! AnyClass is InterceptingSpec.Type) == true
+					expect(arguments[0][4] as! AnyClass? is InterceptingSpec.Type) == true
+					expect(arguments[0][5] as! AnyClass? is InterceptingSpec.Type) == true
+				}
 
 				object.testReferences(nonnull: token,
 				                      nullable: nil,
@@ -727,12 +735,14 @@ class InterceptingSpec: QuickSpec {
 
 				expect(arguments.count) == 2
 
-				expect((arguments[1][0] as! NSObject)) == token
-				expect(arguments[1][1] as! NSObject?).to(beNil())
-				expect(arguments[1][2] as! NSObject?).to(beNil())
-				expect(arguments[1][3] as! AnyClass is InterceptingSpec.Type) == true
-				expect(arguments[1][4] as! AnyClass?).to(beNil())
-				expect(arguments[1][5] as! AnyClass?).to(beNil())
+				if arguments.count >= 2 {
+					expect((arguments[1][0] as! NSObject)) == token
+					expect(arguments[1][1] as! NSObject?).to(beNil())
+					expect(arguments[1][2] as! NSObject?).to(beNil())
+					expect(arguments[1][3] as! AnyClass is InterceptingSpec.Type) == true
+					expect(arguments[1][4] as! AnyClass?).to(beNil())
+					expect(arguments[1][5] as! AnyClass?).to(beNil())
+				}
 			}
 
 			it("should send a value with bridged struct arguments") {
@@ -759,15 +769,33 @@ class InterceptingSpec: QuickSpec {
 
 				call(offset: 0)
 				expect(arguments.count) == 1
-				validate(arguments: arguments[0], offset: 0)
+				if arguments.count >= 1 {
+					validate(arguments: arguments[0], offset: 0)
+				}
 
 				call(offset: 1)
 				expect(arguments.count) == 2
-				validate(arguments: arguments[1], offset: 1)
+				if arguments.count >= 2 {
+					validate(arguments: arguments[1], offset: 1)
+				}
 
 				call(offset: 2)
 				expect(arguments.count) == 3
-				validate(arguments: arguments[2], offset: 2)
+				if arguments.count >= 3 {
+					validate(arguments: arguments[2], offset: 2)
+				}
+			}
+
+			it("should emit the object being passed") {
+				let signal = object.reactive.signal(for: #selector(setter: object.objectValue))
+
+				var latestValue: Any?
+				signal.observeValues { latestValue = $0[0] }
+				expect(latestValue).to(beNil())
+
+				let array = NSArray()
+				object.objectValue = array
+				expect(latestValue).to(beIdenticalTo(array))
 			}
 
 			it("should complete when the object deinitializes") {

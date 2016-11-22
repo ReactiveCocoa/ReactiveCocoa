@@ -7,6 +7,11 @@ extension Reactive where Base: UITextView {
 	public var text: BindingTarget<String> {
 		return makeBindingTarget { $0.text = $1 }
 	}
+	
+	/// Sets the attributed text of the text view.
+	public var attributedText: BindingTarget<NSAttributedString> {
+		return makeBindingTarget { $0.attributedText = $1 }
+	}
 
 	private func textValues(forName name: NSNotification.Name) -> Signal<String, NoError> {
 		return NotificationCenter.default

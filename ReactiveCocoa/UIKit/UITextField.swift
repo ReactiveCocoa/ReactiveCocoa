@@ -7,6 +7,11 @@ extension Reactive where Base: UITextField {
 	public var text: BindingTarget<String?> {
 		return makeBindingTarget { $0.text = $1 }
 	}
+	
+	/// Sets the attributed text of the text field.
+	public var attributedText: BindingTarget<NSAttributedString?> {
+		return makeBindingTarget { $0.attributedText = $1 }
+	}
 
 	/// A signal of text values emitted by the text field upon end of editing.
 	///

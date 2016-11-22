@@ -9,7 +9,7 @@ extension Reactive where Base: UITextView {
 	}
 	
 	/// Sets the attributed text of the text view.
-	public var attributedText: BindingTarget<NSAttributedString> {
+	public var attributedText: BindingTarget<NSAttributedString?> {
 		return makeBindingTarget { $0.attributedText = $1 }
 	}
 

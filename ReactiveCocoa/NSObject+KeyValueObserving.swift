@@ -2,7 +2,7 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-extension Reactive where Base: NSObject {
+extension ReactiveProtocol where Base: NSObject {
 	/// Create a producer which sends the current value and all the subsequent
 	/// changes of the property specified by the key path.
 	///
@@ -21,7 +21,7 @@ extension Reactive where Base: NSObject {
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += (self.base as NSObject).reactive.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
 }

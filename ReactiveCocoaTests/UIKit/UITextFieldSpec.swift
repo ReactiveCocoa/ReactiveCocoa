@@ -22,6 +22,22 @@ class UITextFieldSpec: QuickSpec {
 			}
 			expect(_textField).to(beNil())
 		}
+		
+		it("should accept changes from bindings to its attributed text value") {
+			let firstChange = NSAttributedString(string: "first")
+			let secondChange = NSAttributedString(string: "second")
+			
+			textField.attributedText = NSAttributedString(string: "")
+			
+			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			
+			observer.send(value: firstChange)
+			expect(textField.attributedText) == firstChange
+			
+			observer.send(value: secondChange)
+			expect(textField.attributedText) == secondChange
+		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {
 			textField.text = "Test"

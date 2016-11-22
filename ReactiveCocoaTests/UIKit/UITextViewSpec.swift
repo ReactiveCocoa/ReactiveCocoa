@@ -23,6 +23,22 @@ class UITextViewSpec: QuickSpec {
 				expect(_textView).toEventually(beNil())
 			}
 
+			it("should accept changes from bindings to its attributed text value") {
+				let firstChange = NSAttributedString(string: "first")
+				let secondChange = NSAttributedString(string: "second")
+				
+				textView.attributedText = NSAttributedString(string: "")
+				
+				let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+				textView.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+				
+				observer.send(value: firstChange)
+				expect(textView.attributedText) == firstChange
+				
+				observer.send(value: secondChange)
+				expect(textView.attributedText) == secondChange
+			}
+
 			it("should emit user initiated changes to its text value when the editing ends") {
 				textView.text = "Test"
 

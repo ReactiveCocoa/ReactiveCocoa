@@ -20,11 +20,19 @@ if [ -z "$XCODE_PLAYGROUND_TARGET" ]; then
 	exit 1
 fi
 
-PAGES_PATH=${BUILD_DIRECTORY}/Build/Products/${CONFIGURATION}/all-playground-pages.swift
+BUILD_DIR_PATH=
+
+if [ "$XCODE_SDK" == "macosx" ]; then
+	BUILD_DIR_PATH=Products/${CONFIGURATION}
+else
+	BUILD_DIR_PATH=Intermediates/CodeCoverage/Products/${CONFIGURATION}-${XCODE_SDK}
+fi
+
+PAGES_PATH=${BUILD_DIRECTORY}/Build/${BUILD_DIR_PATH}/all-playground-pages.swift
 
 cat ${PLAYGROUND}/Sources/*.swift ${PLAYGROUND}/Pages/**/*.swift > ${PAGES_PATH}
 
-swift -v -target ${XCODE_PLAYGROUND_TARGET} -D NOT_IN_PLAYGROUND -F ${BUILD_DIRECTORY}/Build/Products/${CONFIGURATION} ${PAGES_PATH} > /dev/null
+swift -v -target ${XCODE_PLAYGROUND_TARGET} -D NOT_IN_PLAYGROUND -F ${BUILD_DIRECTORY}/Build/${BUILD_DIR_PATH} ${PAGES_PATH} > /dev/null
 result=$?
 
 # Cleanup

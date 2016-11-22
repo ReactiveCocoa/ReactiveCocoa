@@ -11,6 +11,7 @@ import enum Result.NoError
 public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
+	private let _producer: (NSObject) -> SignalProducer<Any?, NoError>
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
@@ -36,8 +37,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
-		return (object.map { $0.reactive.values(forKeyPath: keyPath) } ?? .empty)
-			.map { $0 as! Value }
+		return (object.map(_producer) ?? .empty).map { $0 as! Value }
 	}
 
 	public private(set) lazy var signal: Signal<Value?, NoError> = {
@@ -45,6 +45,16 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
 		return signal
 	}()
+
+	internal init<Object: NSObject>(object: Object, keyPath: String, producer: @escaping (NSObject) -> SignalProducer<Any?, NoError>) {
+		self.object = object
+		self.keyPath = keyPath
+		self._producer = producer
+
+		/// A DynamicProperty will stay alive as long as its object is alive.
+		/// This is made possible by strong reference cycles.
+		_ = (object as NSObject).reactive.lifetime.ended.observeCompleted { _ = self }
+	}
 
 	/// Initializes a property that will observe and set the given key path of
 	/// the given object. The generic type `Value` can be any Swift type, and will
@@ -55,12 +65,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - parameters:
 	///   - object: An object to be observed.
 	///   - keyPath: Key path to observe on the object.
-	public init(object: NSObject, keyPath: String) {
-		self.object = object
-		self.keyPath = keyPath
-
-		/// A DynamicProperty will stay alive as long as its object is alive.
-		/// This is made possible by strong reference cycles.
-		_ = object.reactive.lifetime.ended.observeCompleted { _ = self }
+	public convenience init<Object: NSObject>(object: Object, keyPath: String) {
+		self.init(object: object, keyPath: keyPath) { $0.reactive.values(forKeyPath: keyPath) }
 	}
 }

@@ -35,3 +35,9 @@ extension ReactiveProtocol where Base: NSManagedObject {
 		}
 	}
 }
+
+extension DynamicProperty {
+	public convenience init<Object: NSManagedObject>(object: Object, keyPath: String) {
+		self.init(object: object, keyPath: keyPath) { ($0 as! NSManagedObject).reactive.values(forKeyPath: keyPath) }
+	}
+}

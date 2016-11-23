@@ -23,22 +23,6 @@ class UITextFieldSpec: QuickSpec {
 			}
 			expect(_textField).to(beNil())
 		}
-		
-		it("should accept changes from bindings to its attributed text value") {
-			let firstChange = NSAttributedString(string: "first")
-			let secondChange = NSAttributedString(string: "second")
-			
-			textField.attributedText = NSAttributedString(string: "")
-			
-			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
-			
-			observer.send(value: firstChange)
-			expect(textField.attributedText) == firstChange
-			
-			observer.send(value: secondChange)
-			expect(textField.attributedText) == secondChange
-		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {
 			textField.text = "Test"
@@ -62,6 +46,46 @@ class UITextFieldSpec: QuickSpec {
 
 			textField.sendActions(for: .editingChanged)
 			expect(latestValue) == textField.text
+		}
+		
+		it("should accept changes from bindings to its attributed text value") {
+			let firstChange = NSAttributedString(string: "first")
+			let secondChange = NSAttributedString(string: "second")
+			
+			textField.attributedText = NSAttributedString(string: "")
+			
+			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			
+			observer.send(value: firstChange)
+			expect(textField.attributedText) == firstChange
+			
+			observer.send(value: secondChange)
+			expect(textField.attributedText) == secondChange
+		}
+		
+		it("should emit user initiated changes to its attributed text value when the editing ends") {
+			textField.attributedText = NSAttributedString(string: "Test")
+			
+			var latestValue: NSAttributedString?
+			textField.reactive.attributedTextValues.observeValues { attributedText in
+				latestValue = attributedText
+			}
+			
+			textField.sendActions(for: .editingDidEnd)
+			expect(latestValue) == textField.attributedText
+		}
+		
+		it("should emit user initiated changes to its attributed text value continuously") {
+			textField.attributedText = NSAttributedString(string: "Test")
+			
+			var latestValue: NSAttributedString?
+			textField.reactive.continuousAttributedTextValues.observeValues { attributedText in
+				latestValue = attributedText
+			}
+			
+			textField.sendActions(for: .editingChanged)
+			expect(latestValue) == textField.attributedText
 		}
 	}
 }

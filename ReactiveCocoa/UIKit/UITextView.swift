@@ -20,14 +20,14 @@ extension Reactive where Base: UITextView {
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
-	public var textValues: Signal<String, NoError> {
+	public var textValues: Signal<String?, NoError> {
 		return textValues(forName: .UITextViewTextDidEndEditing)
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
-	public var continuousTextValues: Signal<String, NoError> {
+	public var continuousTextValues: Signal<String?, NoError> {
 		return textValues(forName: .UITextViewTextDidChange)
 	}
 	

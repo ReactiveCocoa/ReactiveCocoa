@@ -29,11 +29,10 @@ class UITextViewSpec: QuickSpec {
 
 			var latestValue: String?
 			textView.reactive.textValues.observeValues { text in
-			latestValue = text
+				latestValue = text
 			}
 
-			NotificationCenter.default.post(name: .UITextViewTextDidEndEditing,
-			object: textView)
+			NotificationCenter.default.post(name: .UITextViewTextDidEndEditing, object: textView)
 			expect(latestValue) == textView.text
 		}
 
@@ -41,8 +40,8 @@ class UITextViewSpec: QuickSpec {
 			textView.text = "Test"
 
 			var latestValue: String?
-				textView.reactive.continuousTextValues.observeValues { text in
-					latestValue = text
+			textView.reactive.continuousTextValues.observeValues { text in
+				latestValue = text
 			}
 
 			NotificationCenter.default.post(name: .UITextViewTextDidChange,

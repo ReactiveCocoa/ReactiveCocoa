@@ -4,7 +4,7 @@ import enum Result.NoError
 
 extension Reactive where Base: UITextView {
 	/// Sets the text of the text view.
-	public var text: BindingTarget<String> {
+	public var text: BindingTarget<String?> {
 		return makeBindingTarget { $0.text = $1 }
 	}
 	

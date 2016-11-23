@@ -3,6 +3,7 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
+import enum Result.NoError
 
 class UITextFieldSpec: QuickSpec {
 	override func spec() {

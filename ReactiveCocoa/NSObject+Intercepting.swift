@@ -87,12 +87,12 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 		synchronized(subclass) {
 			let isSwizzled = objc_getAssociatedObject(subclass, &isSwizzledKey) as! Bool? ?? false
 
-			let signatureCache: Atomic<[Selector: AnyObject]>
+			let signatureCache: SignatureCache
 
 			if isSwizzled {
-				signatureCache = objc_getAssociatedObject(subclass, &interceptedSelectorsKey) as! Atomic<[Selector: AnyObject]>
+				signatureCache = objc_getAssociatedObject(subclass, &interceptedSelectorsKey) as! SignatureCache
 			} else {
-				signatureCache = Atomic([:])
+				signatureCache = SignatureCache()
 
 				objc_setAssociatedObject(subclass, &interceptedSelectorsKey, signatureCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 				objc_setAssociatedObject(subclass, &isSwizzledKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -101,10 +101,9 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 				setupMethodSignatureCaching(subclass, signatureCache)
 			}
 
-			signatureCache.modify { signatures in
-				if signatures[selector] == nil {
-					signatures[selector] = NSMethodSignature.signature(withObjCTypes: typeEncoding)
-				}
+			if signatureCache[selector] == nil {
+				let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
+				signatureCache[selector] = signature
 			}
 
 			if !class_respondsToSelector(subclass, interopAlias) {
@@ -220,11 +219,11 @@ private func enableMessageForwarding(_ realClass: AnyClass) {
 /// - parameters:
 ///   - realClass: The runtime subclass to be swizzled.
 ///   - signatureCache: The method signature cache.
-private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache: Atomic<[Selector: AnyObject]>) {
+private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache: SignatureCache) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)
 
 	let newMethodSignatureForSelector: @convention(block) (NSObject, Selector) -> AnyObject? = { object, selector in
-		if let signature = signatureCache.withValue({ $0[selector] }) {
+		if let signature = signatureCache[selector] {
 			return signature
 		}
 
@@ -250,6 +249,38 @@ private final class InterceptingState {
 	///   - lifetime: The lifetime of the instance.
 	init(lifetime: Lifetime) {
 		lifetime.ended.observeCompleted(observer.sendCompleted)
+	}
+}
+
+// The signature cache for classes that have been swizzled for method
+// interception.
+//
+// Read-copy-update is used here, since the cache has multiple readers but only
+// one writer.
+private final class SignatureCache {
+	// `Dictionary` takes 8 bytes for the reference to its storage and does CoW.
+	// So it should not encounter any corrupted, partially updated state.
+	private var map = [Selector: AnyObject]()
+
+	init() {}
+
+	/// Get or set the signature for the specified selector.
+	///
+	/// - warning: Any invocation of the setter must be serialized.
+	///
+	/// - parameters:
+	///   - selector: The selector.
+	subscript(selector: Selector) -> AnyObject? {
+		get {
+			return map[selector]
+		}
+		set {
+			if map[selector] == nil {
+				var newMap = map
+				newMap[selector] = newValue
+				map = newMap
+			}
+		}
 	}
 }
 

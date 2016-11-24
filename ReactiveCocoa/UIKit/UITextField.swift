@@ -43,7 +43,7 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe attributed text values only when editing ends, see `attributedTextValues`.
 	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
-		return trigger(for: .editingDidEnd)
+		return trigger(for: .editingChanged)
 			.map { [unowned base = self.base] in base.attributedText }
 	}
 }

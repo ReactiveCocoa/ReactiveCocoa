@@ -58,10 +58,10 @@ class UITextFieldSpec: QuickSpec {
 			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
 			
 			observer.send(value: firstChange)
-			expect(textField.attributedText) == firstChange
+			expect(textField.attributedText?.string) == firstChange.string
 			
 			observer.send(value: secondChange)
-			expect(textField.attributedText) == secondChange
+			expect(textField.attributedText?.string) == secondChange.string
 		}
 		
 		it("should emit user initiated changes to its attributed text value when the editing ends") {
@@ -85,7 +85,7 @@ class UITextFieldSpec: QuickSpec {
 			}
 			
 			textField.sendActions(for: .editingChanged)
-			expect(latestValue) == textField.attributedText
+			expect(latestValue?.string) == textField.attributedText?.string
 		}
 	}
 }

@@ -8,7 +8,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
-	private func textValues(forName name: NSNotification.Name) -> Signal<String, NoError> {
+	private func textValues(forName name: NSNotification.Name) -> Signal<String?, NoError> {
 		return NotificationCenter.default
 			.reactive
 			.notifications(forName: name, object: base)
@@ -55,7 +55,7 @@ extension Reactive where Base: UITextView {
 	/// A signal of attributed text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
-	public var attributedContinuousTextValues: Signal<NSAttributedString?, NoError> {
+	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
 		return attributedTextValues(forName: .UITextViewTextDidChange)
 	}
 }

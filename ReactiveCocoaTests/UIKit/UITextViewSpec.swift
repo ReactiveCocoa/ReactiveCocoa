@@ -9,6 +9,10 @@ class UITextViewSpec: QuickSpec {
 	override func spec() {
 		var textView: UITextView!
 		weak var _textView: UITextView?
+		let attributes = [
+			NSFontAttributeName: UIFont(name: "Georgia", size: 18.0)!,
+			NSForegroundColorAttributeName: UIColor.red
+		]
 
 		beforeEach {
 			autoreleasepool {
@@ -44,14 +48,13 @@ class UITextViewSpec: QuickSpec {
 				latestValue = text
 			}
 
-			NotificationCenter.default.post(name: .UITextViewTextDidChange,
-			object: textView)
+			NotificationCenter.default.post(name: .UITextViewTextDidChange, object: textView)
 			expect(latestValue) == textView.text
 		}
 		
 		it("should accept changes from bindings to its attributed text value") {
-			let firstChange = NSAttributedString(string: "first")
-			let secondChange = NSAttributedString(string: "second")
+			let firstChange = NSAttributedString(string: "first", attributes: attributes)
+			let secondChange = NSAttributedString(string: "second", attributes: attributes)
 			
 			textView.attributedText = NSAttributedString(string: "")
 			
@@ -66,26 +69,26 @@ class UITextViewSpec: QuickSpec {
 		}
 		
 		it("should emit user initiated changes to its attributed text value when the editing ends") {
-			textView.attributedText = NSAttributedString(string: "Test")
+			textView.attributedText = NSAttributedString(string: "Test", attributes: attributes)
 			
 			var latestValue: NSAttributedString?
 			textView.reactive.attributedTextValues.observeValues { attributedText in
 				latestValue = attributedText
 			}
 			
-			textView.sendActions(for: .editingDidEnd)
+			NotificationCenter.default.post(name: .UITextViewTextDidEndEditing, object: textView)
 			expect(latestValue) == textView.attributedText
 		}
 		
 		it("should emit user initiated changes to its attributed text value continuously") {
-			textView.attributedText = NSAttributedString(string: "Test")
+			textView.attributedText = NSAttributedString(string: "Test", attributes: attributes)
 			
 			var latestValue: NSAttributedString?
 			textView.reactive.continuousAttributedTextValues.observeValues { attributedText in
 				latestValue = attributedText
 			}
 			
-			textView.sendActions(for: .editingChanged)
+			NotificationCenter.default.post(name: .UITextViewTextDidChange, object: textView)
 			expect(latestValue) == textView.attributedText
 		}
 	}

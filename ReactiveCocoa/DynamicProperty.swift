@@ -37,7 +37,13 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
 		return (object.map { $0.reactive.values(forKeyPath: keyPath) } ?? .empty)
-			.map { $0 as! Value }
+			.map {
+				guard let value = $0 as? Value else {
+					assertionFailure("Expected value to be \(Value.self), but \(type(of: $0)) found.")
+					return nil
+				}
+				return value
+		}
 	}
 
 	public private(set) lazy var signal: Signal<Value?, NoError> = {

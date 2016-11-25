@@ -10,10 +10,10 @@ class UITextViewSpec: QuickSpec {
 		var textView: UITextView!
 		weak var _textView: UITextView?
 		let attributes = [
-			NSFontAttributeName: UIFont(name: "Georgia", size: 18.0)!,
+			NSFontAttributeName: UIFont.systemFont(ofSize: 18),
 			NSForegroundColorAttributeName: UIColor.red
 		]
-
+		
 		beforeEach {
 			autoreleasepool {
 				textView = UITextView(frame: .zero)

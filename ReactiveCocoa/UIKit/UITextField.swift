@@ -24,4 +24,26 @@ extension Reactive where Base: UITextField {
 		return trigger(for: .editingChanged)
 			.map { [unowned base = self.base] in base.text }
 	}
+	
+	/// Sets the attributed text of the text field.
+	public var attributedText: BindingTarget<NSAttributedString?> {
+		return makeBindingTarget { $0.attributedText = $1 }
+	}
+	
+	/// A signal of attributed text values emitted by the text field upon end of editing.
+	///
+	/// - note: To observe attributed text values that change on all editing events,
+	///   see `continuousAttributedTextValues`.
+	public var attributedTextValues: Signal<NSAttributedString?, NoError> {
+		return trigger(for: .editingDidEnd)
+			.map { [unowned base = self.base] in base.attributedText }
+	}
+	
+	/// A signal of attributed text values emitted by the text field upon any changes.
+	///
+	/// - note: To observe attributed text values only when editing ends, see `attributedTextValues`.
+	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
+		return trigger(for: .editingChanged)
+			.map { [unowned base = self.base] in base.attributedText }
+	}
 }

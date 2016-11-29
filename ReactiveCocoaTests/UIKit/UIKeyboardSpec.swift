@@ -6,13 +6,14 @@ import Nimble
 
 class UIKeyboardSpec: QuickSpec {
 	override func spec() {
-		describe("UIView.Type.reactive.keyboardChange") {
+		describe("NotificationCenter.reactive.keyboardChange") {
 			it("should emit a `value` event when the notification is posted") {
 				var context: KeyboardChangeContext?
 
-				UIView.reactive.keyboardChange.observeValues { c in
-					context = c
-				}
+				let testCenter = NotificationCenter()
+
+				testCenter.reactive.keyboardChange
+					.observeValues { context = $0 }
 
 				let dummyInfo: [AnyHashable: Any] = [
 					UIKeyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: 10),
@@ -21,9 +22,9 @@ class UIKeyboardSpec: QuickSpec {
 					UIKeyboardAnimationCurveUserInfoKey: UIViewAnimationCurve.easeInOut
 				]
 
-				NotificationCenter.default.post(name: .UIKeyboardWillChangeFrame,
-				                                object: nil,
-				                                userInfo: dummyInfo)
+				testCenter.post(name: .UIKeyboardWillChangeFrame,
+				                object: nil,
+				                userInfo: dummyInfo)
 
 				expect(context).toNot(beNil())
 

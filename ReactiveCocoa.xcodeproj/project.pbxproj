@@ -140,6 +140,8 @@
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
+		9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
+		9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */; };
 		9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
@@ -331,6 +333,8 @@
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
+		9AAD49871DED2C350068EC9B /* UIKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboard.swift; sourceTree = "<group>"; };
+		9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboardSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaAction.swift; sourceTree = "<group>"; };
 		9ADE4A881DA6D206005C2AC8 /* NSControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSControl.swift; sourceTree = "<group>"; };
@@ -550,6 +554,7 @@
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
 				9A1D06331D93EA7E00ACF44C /* UITextViewSpec.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewSpec.swift */,
+				9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -597,6 +602,7 @@
 				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
 				531866F71DD7920400D1285F /* UIStepper.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
+				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -1193,6 +1199,7 @@
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9A1D06781D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
+				9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */,
 				53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
@@ -1224,6 +1231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A1D06581D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
+				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,

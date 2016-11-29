@@ -4,6 +4,9 @@ before_install: true
 install: true
 git:
   submodules: false
+branches:
+  only:
+    - master
 before_script:
   - git submodule update --init --recursive
 script:

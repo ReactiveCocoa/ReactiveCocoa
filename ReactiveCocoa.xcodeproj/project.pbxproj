@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */; };
+		3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */; };
 		419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
 		419139491DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
 		4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
@@ -268,6 +270,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControl.swift; sourceTree = "<group>"; };
+		3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControlSpec.swift; sourceTree = "<group>"; };
 		419139431DB910570043C9D1 /* UIGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizer.swift; sourceTree = "<group>"; };
 		4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizerSpec.swift; sourceTree = "<group>"; };
 		4A0E10FE1D2A92720065D310 /* NSObject+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Lifetime.swift"; sourceTree = "<group>"; };
@@ -555,6 +559,7 @@
 				9A1D06331D93EA7E00ACF44C /* UITextViewSpec.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewSpec.swift */,
 				9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */,
+				3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -603,6 +608,7 @@
 				531866F71DD7920400D1285F /* UIStepper.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
 				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
+				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -1223,6 +1229,7 @@
 				9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D06091D93EA0000ACF44C /* UISegmentedControl.swift in Sources */,
 				9ADE4A7D1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
+				3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1251,6 +1258,7 @@
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,
 				9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
+				3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */,
 				53A6BED71DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
 				9A1D06381D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
 				9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,

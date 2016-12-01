@@ -13,8 +13,19 @@ extension Reactive where Base: UIRefreshControl {
 		return makeBindingTarget { $0.attributedTitle = $1 }
 	}
 
-	/// A trigger that sends `next` when the user performs a refresh.
-	public var refresh: Signal<Void, NoError> {
-		return trigger(for: .valueChanged)
+	/// The action to be triggered when the refresh control is refreshed. It
+	/// also controls the enabled state of the refresh control.
+	public var refreshed: CocoaAction<Base>? {
+		get {
+			return associatedAction.withValue { info in
+				return info.flatMap { info in
+					return info.controlEvents == .valueChanged ? info.action : nil
+				}
+			}
+		}
+
+		nonmutating set {
+			setAction(newValue, for: .valueChanged)
+		}
 	}
 }

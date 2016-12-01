@@ -46,16 +46,22 @@ class UIRefreshControlSpec: QuickSpec {
 			expect(refreshControl.attributedTitle).to(beNil())
 		}
 
-		it("should emit user's changes for its value") {
-			var count = 0
+		it("should execute the `refreshed` action upon receiving a `valueChanged` action message.") {
+			refreshControl.isEnabled = true
+			refreshControl.isUserInteractionEnabled = true
 
-			refreshControl.reactive.refresh.observeValues {
-				count += 1
+			let refreshed = MutableProperty(false)
+			let action = Action<(), Bool, NoError> { _ in
+				SignalProducer(value: true)
 			}
 
-			expect(count) == 0
+			refreshed <~ SignalProducer(signal: action.values)
+
+			refreshControl.reactive.refreshed = CocoaAction(action)
+			expect(refreshed.value) == false
+
 			refreshControl.sendActions(for: .valueChanged)
-			expect(count) == 1
+			expect(refreshed.value) == true
 		}
 	}
 }

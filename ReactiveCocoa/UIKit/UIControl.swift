@@ -35,20 +35,20 @@ extension Reactive where Base: UIControl {
 		}
 	}
 
-	/// Create a signal which sends a `next` event for each of the specified
+	/// Create a signal which sends a `value` event for each of the specified
 	/// control events.
 	///
 	/// - parameters:
 	///   - controlEvents: The control event mask.
 	///
 	/// - returns:
-	///   A trigger signal.
-	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
+	///   A signal that sends the control each time the control event occurs.
+	public func controlEvents(_ controlEvents: UIControlEvents) -> Signal<Base, NoError> {
 		return Signal { observer in
-			let receiver = CocoaTarget(observer)
+			let receiver = CocoaTarget(observer) { $0 as! Base }
 			base.addTarget(receiver,
-			                   action: #selector(receiver.sendNext),
-			                   for: controlEvents)
+			               action: #selector(receiver.sendNext),
+			               for: controlEvents)
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
@@ -60,6 +60,11 @@ extension Reactive where Base: UIControl {
 				                   for: controlEvents)
 			}
 		}
+	}
+
+	@available(*, unavailable, renamed: "controlEvents(_:)")
+	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
+		fatalError()
 	}
 
 	/// Sets whether the control is enabled.

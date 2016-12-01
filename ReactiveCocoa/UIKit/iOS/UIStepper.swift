@@ -22,7 +22,6 @@ extension Reactive where Base: UIStepper {
 	/// A signal of double values emitted by the stepper upon each user's
 	/// interaction.
 	public var values: Signal<Double, NoError> {
-		return trigger(for: .valueChanged)
-			.map { [unowned base = self.base] in base.value }
+		return controlEvents(.valueChanged).map { $0.value }
 	}
 }

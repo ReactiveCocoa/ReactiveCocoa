@@ -14,7 +14,7 @@ extension Reactive where Base: UIRefreshControl {
 	}
 
 	/// The action to be triggered when the refresh control is refreshed. It
-	/// also controls the enabled state of the refresh control.
+	/// also controls the enabled and refreshing states of the refresh control.
 	public var refreshed: CocoaAction<Base>? {
 		get {
 			return associatedAction.withValue { info in
@@ -25,7 +25,26 @@ extension Reactive where Base: UIRefreshControl {
 		}
 
 		nonmutating set {
-			setAction(newValue, for: .valueChanged)
+			associatedAction.modify { associatedAction in
+				associatedAction?.disposable.dispose()
+
+				let controlEvents = UIControlEvents.valueChanged
+
+				if let action = newValue {
+					base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
+
+					let disposable = CompositeDisposable()
+					disposable += isEnabled <~ action.isEnabled
+					disposable += isRefreshing <~ action.isExecuting
+					disposable += { [weak base = self.base] in
+						base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
+					}
+
+					associatedAction = (action, controlEvents, ScopedDisposable(disposable))
+				} else {
+					associatedAction = nil
+				}
+			}
 		}
 	}
 }

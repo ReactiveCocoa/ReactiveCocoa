@@ -15,7 +15,7 @@ extension Reactive where Base: UIRefreshControl {
 
 	/// The action to be triggered when the refresh control is refreshed. It
 	/// also controls the enabled and refreshing states of the refresh control.
-	public var refreshed: CocoaAction<Base>? {
+	public var refresh: CocoaAction<Base>? {
 		get {
 			return associatedAction.withValue { info in
 				return info.flatMap { info in

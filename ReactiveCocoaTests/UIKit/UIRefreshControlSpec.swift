@@ -63,5 +63,22 @@ class UIRefreshControlSpec: QuickSpec {
 			refreshControl.sendActions(for: .valueChanged)
 			expect(refreshed.value) == true
 		}
+
+		it("should set `isRefreshing` while `refresh` is executing.") {
+			refreshControl.isEnabled = true
+			refreshControl.isUserInteractionEnabled = true
+
+			let action = Action<(), Bool, NoError> { _ in
+				SignalProducer(value: true).delay(1, on: QueueScheduler.main)
+			}
+
+			refreshControl.reactive.refresh = CocoaAction(action)
+			expect(refreshControl.isRefreshing) == false
+
+			refreshControl.sendActions(for: .valueChanged)
+			expect(refreshControl.isRefreshing) == true
+
+			expect(refreshControl.isRefreshing).toEventually(equal(false), timeout: 2)
+		}
 	}
 }

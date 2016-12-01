@@ -25,26 +25,8 @@ extension Reactive where Base: UIRefreshControl {
 		}
 
 		nonmutating set {
-			associatedAction.modify { associatedAction in
-				associatedAction?.disposable.dispose()
-
-				let controlEvents = UIControlEvents.valueChanged
-
-				if let action = newValue {
-					base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
-
-					let disposable = CompositeDisposable()
-					disposable += isEnabled <~ action.isEnabled
-					disposable += isRefreshing <~ action.isExecuting
-					disposable += { [weak base = self.base] in
-						base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
-					}
-
-					associatedAction = (action, controlEvents, ScopedDisposable(disposable))
-				} else {
-					associatedAction = nil
-				}
-			}
+			let disposable = action.map { isRefreshing <~ $0.isExecuting }
+			setAction(newValue, for: .touchUpInside, disposable: disposable)
 		}
 	}
 }

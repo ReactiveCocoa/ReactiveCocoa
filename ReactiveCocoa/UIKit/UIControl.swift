@@ -15,7 +15,8 @@ extension Reactive where Base: UIControl {
 	/// - parameters:
 	///   - action: The action to be associated.
 	///   - controlEvents: The control event mask.
-	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
+	///	  - disposable: An external disposable.
+	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents, disposable extraDisposable: Disposable? = nil) {
 		associatedAction.modify { associatedAction in
 			associatedAction?.disposable.dispose()
 
@@ -27,6 +28,7 @@ extension Reactive where Base: UIControl {
 				disposable += { [weak base = self.base] in
 					base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
 				}
+				disposable += extraDisposable
 
 				associatedAction = (action, controlEvents, ScopedDisposable(disposable))
 			} else {

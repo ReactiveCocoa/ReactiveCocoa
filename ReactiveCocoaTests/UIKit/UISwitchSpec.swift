@@ -41,7 +41,7 @@ class UISwitchSpec: QuickSpec {
 			expect(latestValue!) == true
 		}
 
-		it("should execute the `valueChanged` actoun upon receiving a `valueChanged` action message.") {
+		it("should execute the `toggled` action upon receiving a `valueChanged` action message.") {
 			toggle.isOn = false
 			toggle.isEnabled = true
 			toggle.isUserInteractionEnabled = true
@@ -52,7 +52,7 @@ class UISwitchSpec: QuickSpec {
 			}
 			isOn <~ SignalProducer(signal: action.values)
 			
-			toggle.reactive.valueChanged = CocoaAction(action) { return $0.isOn }
+			toggle.reactive.toggled = CocoaAction(action) { return $0.isOn }
 			
 			expect(isOn.value) == false
 			

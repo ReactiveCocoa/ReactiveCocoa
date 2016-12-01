@@ -46,7 +46,7 @@ class UIRefreshControlSpec: QuickSpec {
 			expect(refreshControl.attributedTitle).to(beNil())
 		}
 
-		it("should execute the `refreshed` action upon receiving a `valueChanged` action message.") {
+		it("should execute the `refresh` action upon receiving a `valueChanged` action message.") {
 			refreshControl.isEnabled = true
 			refreshControl.isUserInteractionEnabled = true
 

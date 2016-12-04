@@ -15,20 +15,23 @@ extension Reactive where Base: UIControl {
 	/// - parameters:
 	///   - action: The action to be associated.
 	///   - controlEvents: The control event mask.
-	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents) {
+	///	  - disposable: An outside disposable that will be bound to the scope of
+	///					the given `action`.
+	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents, disposable: Disposable? = nil) {
 		associatedAction.modify { associatedAction in
 			associatedAction?.disposable.dispose()
 
 			if let action = action {
 				base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
 
-				let disposable = CompositeDisposable()
-				disposable += isEnabled <~ action.isEnabled
-				disposable += { [weak base = self.base] in
+				let compositeDisposable = CompositeDisposable()
+				compositeDisposable += isEnabled <~ action.isEnabled
+				compositeDisposable += { [weak base = self.base] in
 					base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
 				}
+				compositeDisposable += disposable
 
-				associatedAction = (action, controlEvents, ScopedDisposable(disposable))
+				associatedAction = (action, controlEvents, ScopedDisposable(compositeDisposable))
 			} else {
 				associatedAction = nil
 			}

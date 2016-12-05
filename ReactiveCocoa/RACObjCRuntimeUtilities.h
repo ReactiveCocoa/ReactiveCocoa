@@ -1,6 +1,9 @@
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 
 NS_ASSUME_NONNULL_BEGIN
+void _rac_objc_setAssociatedObject(const void* object, const void* key, id _Nullable value, objc_AssociationPolicy policy);
+
 @interface NSObject (RACObjCRuntimeUtilities)
 
 /// Register a block which would be triggered when `selector` is called.

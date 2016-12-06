@@ -3,6 +3,7 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
+import enum Result.NoError
 
 class UITextFieldSpec: QuickSpec {
 	override func spec() {
@@ -45,6 +46,46 @@ class UITextFieldSpec: QuickSpec {
 
 			textField.sendActions(for: .editingChanged)
 			expect(latestValue) == textField.text
+		}
+		
+		it("should accept changes from bindings to its attributed text value") {
+			let firstChange = NSAttributedString(string: "first")
+			let secondChange = NSAttributedString(string: "second")
+			
+			textField.attributedText = NSAttributedString(string: "")
+			
+			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			
+			observer.send(value: firstChange)
+			expect(textField.attributedText?.string) == firstChange.string
+			
+			observer.send(value: secondChange)
+			expect(textField.attributedText?.string) == secondChange.string
+		}
+		
+		it("should emit user initiated changes to its attributed text value when the editing ends") {
+			textField.attributedText = NSAttributedString(string: "Test")
+			
+			var latestValue: NSAttributedString?
+			textField.reactive.attributedTextValues.observeValues { attributedText in
+				latestValue = attributedText
+			}
+			
+			textField.sendActions(for: .editingDidEnd)
+			expect(latestValue) == textField.attributedText
+		}
+		
+		it("should emit user initiated changes to its attributed text value continuously") {
+			textField.attributedText = NSAttributedString(string: "Test")
+			
+			var latestValue: NSAttributedString?
+			textField.reactive.continuousAttributedTextValues.observeValues { attributedText in
+				latestValue = attributedText
+			}
+			
+			textField.sendActions(for: .editingChanged)
+			expect(latestValue?.string) == textField.attributedText?.string
 		}
 	}
 }

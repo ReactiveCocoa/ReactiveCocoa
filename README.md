@@ -23,7 +23,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 	```swift
 	// Bind the `name` property of `person` to the text value of an `UILabel`.
-	nameLabel.text <~ person.name
+	nameLabel.reactive.text <~ person.name
 	```
 
 1. **Controls and User Interactions**
@@ -92,7 +92,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa"
+github "ReactiveCocoa/ReactiveCocoa" "5.0.0-alpha.3"
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -103,7 +103,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', :git => 'https://github.com/ReactiveCocoa/ReactiveCocoa.git'
+pod 'ReactiveCocoa', '5.0.0-alpha.3'
 ```
 
 #### Git submodule

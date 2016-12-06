@@ -299,8 +299,11 @@ class KeyValueObservingSpec: QuickSpec {
 				}
 
 				it("async disposal of signal with in-flight changes") {
-					let (teardown, teardownObserver) = Signal<(), NoError>.pipe()
 					let otherScheduler: QueueScheduler
+
+					var token = Optional(Lifetime.Token())
+					let lifetime = Lifetime(token!)
+
 					if #available(*, OSX 10.10) {
 						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
 					} else {
@@ -308,28 +311,35 @@ class KeyValueObservingSpec: QuickSpec {
 					}
 
 					let replayProducer = testObject.reactive
-						.values(forKeyPath: #keyPath(ObservableObject.rac_value))
-						.map { $0 as! NSNumber }
-						.map { $0.intValue }
-						.map { $0 % 2 == 0 }
-						.observe(on: otherScheduler)
-						.take(until: teardown)
-						.replayLazily(upTo: 1)
+							.values(forKeyPath: #keyPath(ObservableObject.rac_value))
+							.map { $0 as! NSNumber }
+							.map { $0.intValue }
+							.map { $0 % 2 == 0 }
+							.observe(on: otherScheduler)
+							.take(during: lifetime)
+							.replayLazily(upTo: 1)
 
-					replayProducer.start { _ in }
+					replayProducer.start()
 
-					iterationQueue.async {
-						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
+					iterationQueue.suspend()
+
+					let half = numIterations / 2
+
+					for index in 0 ..< numIterations {
+						iterationQueue.async {
 							testObject.rac_value = index
+						}
+
+						if index == half {
+							iterationQueue.async(flags: .barrier) {
+								token = nil
+								expect(replayProducer.last()).toNot(beNil())
+							}
 						}
 					}
 
-					iterationQueue.async(flags: .barrier) {
-						teardownObserver.send(value: ())
-					}
-
-					let event = replayProducer.last()
-					expect(event).toNot(beNil())
+					iterationQueue.resume()
+					iterationQueue.sync(flags: .barrier, execute: {})
 				}
 			}
 		}

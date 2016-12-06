@@ -25,7 +25,6 @@ extension Reactive where Base: UISlider {
 	/// - note: If slider's `isContinuous` property is `false` then values are
 	///         sent only when user releases the slider.
 	public var values: Signal<Float, NoError> {
-		return trigger(for: .valueChanged)
-			.map { [unowned base = self.base] in base.value }
+		return controlEvents(.valueChanged).map { $0.value }
 	}
 }

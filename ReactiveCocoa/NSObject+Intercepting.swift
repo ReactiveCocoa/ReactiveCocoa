@@ -144,14 +144,14 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 private func enableMessageForwarding(_ realClass: AnyClass) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)
 
-	typealias ForwardInvocationImpl = @convention(block) (NSObject, AnyObject) -> Void
-	let newForwardInvocation: ForwardInvocationImpl = { object, invocation in
+	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
+	let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
 		let selector = invocation.selector!
 		let alias = selector.alias
 		let interopAlias = selector.interopAlias
 
 		defer {
-			if let state = object.value(forAssociatedKey: alias.utf8Start) as! InterceptingState? {
+			if let state = objectRef.takeUnretainedValue().value(forAssociatedKey: alias.utf8Start) as! InterceptingState? {
 				state.observer.send(value: invocation)
 			}
 		}
@@ -201,10 +201,10 @@ private func enableMessageForwarding(_ realClass: AnyClass) {
 		// Forward the invocation to the closest `forwardInvocation(_:)` in the
 		// inheritance hierarchy, or the default handler returned by the runtime
 		// if it finds no implementation.
-		typealias SuperForwardInvocation = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+		typealias SuperForwardInvocation = @convention(c) (Unmanaged<NSObject>, Selector, AnyObject) -> Void
 		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
 		let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
-		forwardInvocation(object, ObjCSelector.forwardInvocation, invocation)
+		forwardInvocation(objectRef, ObjCSelector.forwardInvocation, invocation)
 	}
 
 	_ = class_replaceMethod(realClass,
@@ -222,15 +222,15 @@ private func enableMessageForwarding(_ realClass: AnyClass) {
 private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache: SignatureCache) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)
 
-	let newMethodSignatureForSelector: @convention(block) (NSObject, Selector) -> AnyObject? = { object, selector in
+	let newMethodSignatureForSelector: @convention(block) (Unmanaged<NSObject>, Selector) -> AnyObject? = { objectRef, selector in
 		if let signature = signatureCache[selector] {
 			return signature
 		}
 
-		typealias SuperMethodSignatureForSelector = @convention(c) (AnyObject, Selector, Selector) -> AnyObject?
+		typealias SuperMethodSignatureForSelector = @convention(c) (Unmanaged<NSObject>, Selector, Selector) -> AnyObject?
 		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.methodSignatureForSelector)
 		let methodSignatureForSelector = unsafeBitCast(impl, to: SuperMethodSignatureForSelector.self)
-		return methodSignatureForSelector(object, ObjCSelector.methodSignatureForSelector, selector)
+		return methodSignatureForSelector(objectRef, ObjCSelector.methodSignatureForSelector, selector)
 	}
 
 	_ = class_replaceMethod(realClass,

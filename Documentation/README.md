@@ -2,7 +2,11 @@
 
 ReactiveCocoa is based on ReactiveSwift and extends ReactiveSwift by Cocoa (esp. UIKit and AppKit) specific aspects. 
 
-For documentation of the basics, please refer to the [ReactiveSwift Documentation][ReactiveSwiftDocumentation].
+For documentation of the basics, please refer to the [ReactiveSwift Documentation][ReactiveSwiftDocumentation]. Specifically, you can find documentation about
+
+* [Framework Overview][]
+* [Basic Operators][]
+* [Design Guidelines][]
 
 This document outlines the additions that ReactiveCocoa brings over ReactiveSwift.
 
@@ -98,6 +102,9 @@ ReactiveCocoa provides UI bindings for UIKit and AppKit via the `reactive` struc
     CocoaAction wraps an Action for use by a GUI control (such as `NSControl` or `UIControl`), with KVO, or with Cocoa Bindings.
 
 [ReactiveSwiftDocumentation]: https://github.com/ReactiveCocoa/ReactiveSwift/tree/master/Documentation
+[Framework Overview]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md
+[Basic Operators]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/BasicOperators.md
+[Design Guidelines]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/DesignGuidelines.md
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions

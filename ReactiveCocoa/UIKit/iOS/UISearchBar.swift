@@ -15,6 +15,8 @@ extension Reactive where Base: UISearchBar {
 	private var delegate: ReactiveUISearchBarDelegate {
 		if let delegate = objc_getAssociatedObject(base, &delegateKey) as? ReactiveUISearchBarDelegate {
 			return delegate
+		} else if let _ = base.delegate {
+			fatalError("Cannot use reactive values on UISearchBar with a custom delegate!")
 		}
 
 		let delegate = ReactiveUISearchBarDelegate()
@@ -30,6 +32,10 @@ extension Reactive where Base: UISearchBar {
 
 	/// A signal of text values emitted by the search bar upon end of editing.
 	///
+	/// - important: Creating this `Signal` requires the reactive extension
+	///	  provider to become the `delegate` of the search bar. Setting your own 
+	///   `delegate` is not supported and will result in a runtime error.
+	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String?, NoError> {
@@ -38,6 +44,10 @@ extension Reactive where Base: UISearchBar {
 	}
 
 	/// A signal of text values emitted by the search bar upon any changes.
+	///
+	/// - important: Creating this `Signal` requires the reactive extension
+	///	  provider to become the `delegate` of the search bar. Setting your own
+	///   `delegate` is not supported and will result in a runtime error.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {

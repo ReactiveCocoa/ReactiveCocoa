@@ -1,11 +1,3 @@
-//
-//  NSPopUpButtonSpec.swift
-//  ReactiveCocoa
-//
-//  Created by Seil Oh on 2016. 12. 13..
-//  Copyright © 2016년 GitHub. All rights reserved.
-//
-
 import Quick
 import Nimble
 import ReactiveCocoa
@@ -14,15 +6,11 @@ import Result
 import AppKit
 
 final class NSPopUpButtonSepc: QuickSpec {
-	
 	override func spec() {
-		
 		describe("NSPopUpButton") {
 			var button: NSPopUpButton!
 			var window: NSWindow!
-			
 			weak var _button: NSButton?
-			
 			let testTitles = (0..<100).map { $0.description }
 			
 			beforeEach {
@@ -62,25 +50,26 @@ final class NSPopUpButtonSepc: QuickSpec {
 			}
 			
 			it("should accept changes from its bindings to its index values") {
-				
 				let (signal, observer) = Signal<Int, NoError>.pipe()
 				button.reactive.selectedIndex <~ SignalProducer(signal: signal)
+				
 				observer.send(value: 1)
 				expect(button.selectedItem?.title) == "1"
+				
 				observer.send(value: 99)
 				expect(button.selectedItem?.title) == "99"
 			}
 			
 			it("should accept changes from its bindings to its title values") {
-				
 				let (signal, observer) = Signal<String, NoError>.pipe()
 				button.reactive.selectedTitle <~ SignalProducer(signal: signal)
+				
 				observer.send(value: "1")
 				expect(button.selectedItem?.title) == "1"
+				
 				observer.send(value: "99")
 				expect(button.selectedItem?.title) == "99"
 			}
 		}
-		
 	}
 }

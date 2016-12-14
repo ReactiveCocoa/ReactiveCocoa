@@ -32,9 +32,9 @@ extension Reactive where Base: UISearchBar {
 
 	/// A signal of text values emitted by the search bar upon end of editing.
 	///
-	/// - important: Creating this `Signal` requires the reactive extension
-	///	  provider to become the `delegate` of the search bar. Setting your own 
-	///   `delegate` is not supported and will result in a runtime error.
+	/// - important: Creating this Signal will make the reactive extension
+	///   provider the delegate of the search bar. Setting your own delegate is
+	///   not supported and will result in a runtime error.
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
@@ -45,9 +45,9 @@ extension Reactive where Base: UISearchBar {
 
 	/// A signal of text values emitted by the search bar upon any changes.
 	///
-	/// - important: Creating this `Signal` requires the reactive extension
-	///	  provider to become the `delegate` of the search bar. Setting your own
-	///   `delegate` is not supported and will result in a runtime error.
+	/// - important: Creating this Signal will make the reactive extension 
+	///   provider the delegate of the search bar. Setting your own delegate is 
+	///   not supported and will result in a runtime error.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {

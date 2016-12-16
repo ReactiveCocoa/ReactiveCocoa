@@ -32,7 +32,7 @@ class UISearchBarSpec: QuickSpec {
 			searchBar.text = ""
 
 			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			searchBar.reactive.text <~ SignalProducer(signal: pipeSignal)
+			searchBar.reactive.text <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(searchBar.text) == firstChange

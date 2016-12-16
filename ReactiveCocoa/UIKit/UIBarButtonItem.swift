@@ -3,7 +3,7 @@ import UIKit
 
 extension Reactive where Base: UIBarButtonItem {
 	/// The current associated action of `self`.
-	private var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: Disposable)?> {
+	private var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: Disposable?)?> {
 		return associatedValue { _ in Atomic(nil) }
 	}
 
@@ -23,7 +23,7 @@ extension Reactive where Base: UIBarButtonItem {
 						let disposable = isEnabled <~ action.isEnabled
 						return (action, disposable)
 				})?
-				.disposable.dispose()
+				.disposable?.dispose()
 		}
 	}
 }

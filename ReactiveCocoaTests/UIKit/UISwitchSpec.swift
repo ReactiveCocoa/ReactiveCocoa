@@ -16,19 +16,14 @@ class UISwitchSpec: QuickSpec {
 
 		afterEach {
 			toggle = nil
-
-			// Disabled due to an issue of the iOS SDK.
-			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
-			// for more information.
-			//
-			// expect(_toggle).to(beNil())
+			expect(_toggle).to(beNil())
 		}
 
 		it("should accept changes from bindings to its `isOn` state") {
 			toggle.isOn = false
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			toggle.reactive.isOn <~ SignalProducer(signal: pipeSignal)
+			toggle.reactive.isOn <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(toggle.isOn) == true

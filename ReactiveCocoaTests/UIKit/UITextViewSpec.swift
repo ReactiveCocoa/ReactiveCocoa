@@ -59,7 +59,7 @@ class UITextViewSpec: QuickSpec {
 			textView.attributedText = NSAttributedString(string: "")
 			
 			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-			textView.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			textView.reactive.attributedText <~ SignalProducer(pipeSignal)
 			
 			observer.send(value: firstChange)
 			expect(textView.attributedText) == firstChange

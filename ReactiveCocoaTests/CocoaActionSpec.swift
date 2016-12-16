@@ -66,6 +66,34 @@ class CocoaActionSpec: QuickSpec {
 			_ = cocoaAction
 		}
 
+		it("should emit `isExecuting` changes only on the main thread") {
+			var counter = 0
+
+			cocoaAction.isExecuting.producer
+				.startWithValues { _ in
+					counter += Thread.current.isMainThread ? 1 : 0
+				}
+
+			expect(counter) == 1
+
+			action.apply(0).start()
+			expect(counter) == 3
+		}
+
+		it("should emit `isEnabled` changes only on the main thread") {
+			var counter = 0
+
+			cocoaAction.isEnabled.producer
+				.startWithValues { _ in
+					counter += Thread.current.isMainThread ? 1 : 0
+				}
+
+			expect(counter) == 1
+
+			action.apply(0).start()
+			expect(counter) == 3
+		}
+
 		context("lifetime") {
 			it("CocoaAction should not create a retain cycle") {
 				weak var weakAction = action

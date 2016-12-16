@@ -13,7 +13,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns:
 	///   A binding target that holds no strong references to the object.
-	internal func makeBindingTarget<U>(_ key: StaticString = #function, action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
+	public func makeBindingTarget<U>(_ key: StaticString = #function, action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
 		return BindingTarget(on: UIScheduler(), lifetime: lifetime) { [weak base = self.base] value in
 			if let base = base {
 				action(base, value)

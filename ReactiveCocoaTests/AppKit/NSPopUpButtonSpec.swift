@@ -30,28 +30,23 @@ final class NSPopUpButtonSepc: QuickSpec {
 			}
 			
 			it("should emit selected index changes") {
-				var values = [Int?]()
+				var values = [Int]()
 				button.reactive.selectedIndexes.observeValues { values.append($0) }
 		
 				button.menu?.performActionForItem(at: 1)
 				button.menu?.performActionForItem(at: 99)
-				button.menu?.performActionForItem(at: -1)
-//				TODO: find out how to invoke nil as user action
 			
-				expect(values[0]) == 1
-				expect(values[1]) == 99
+				expect(values) == [1, 99]
 			}
 			
 			it("should emit selected title changes") {
-				var values = [String?]()
+				var values = [String]()
 				button.reactive.selectedTitles.observeValues { values.append($0) }
 			
 				button.menu?.performActionForItem(at: 1)
 				button.menu?.performActionForItem(at: 99)
-				//TODO: find out how to invoke nil as user action
 				
-				expect(values[0]) == "1"
-				expect(values[1]) == "99"
+				expect(values) == ["1", "99"]
 			}
 			
 			it("should accept changes from its bindings to its index values") {

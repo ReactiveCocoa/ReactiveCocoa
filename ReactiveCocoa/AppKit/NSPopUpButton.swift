@@ -5,10 +5,9 @@ import enum Result.NoError
 extension Reactive where Base: NSPopUpButton {
 	
 	/// A signal of selected indexes
-	public var selectedIndexes: Signal<Int?, NoError> {
-		return self.objectValues
-			.map { [unowned base = self.base] _ -> Int? in
-				guard base.indexOfSelectedItem != -1 else { return nil }
+	public var selectedIndexes: Signal<Int, NoError> {
+		return self.integerValues
+			.map { [unowned base = self.base] _ -> Int in
 				return base.indexOfSelectedItem
 			}
 	}
@@ -21,11 +20,12 @@ extension Reactive where Base: NSPopUpButton {
 	}
 	
 	/// A signal of selected title
-	public var selectedTitles: Signal<String?, NoError> {
+	public var selectedTitles: Signal<String, NoError> {
 		return self.objectValues
 			.map { [unowned base = self.base] _ -> String? in
 				return base.titleOfSelectedItem
 			}
+			.skipNil()
 	}
 	
 	/// Sets the button with title.

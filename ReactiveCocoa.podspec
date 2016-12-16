@@ -23,5 +23,5 @@ Pod::Spec.new do |s|
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
   s.module_map = "ReactiveCocoa/module.modulemap"
   
-  s.dependency 'ReactiveSwift', '~> 1.0.0-alpha.4'
+  s.dependency 'ReactiveSwift', '~> 1.0.0-rc.1'
 end

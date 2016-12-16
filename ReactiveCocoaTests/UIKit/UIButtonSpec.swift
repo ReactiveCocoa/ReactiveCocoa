@@ -25,7 +25,7 @@ class UIButtonSpec: QuickSpec {
 			let secondTitle = "Second title"
 
 			let (pipeSignal, observer) = Signal<String, NoError>.pipe()
-			button.reactive.title <~ SignalProducer(signal: pipeSignal)
+			button.reactive.title <~ SignalProducer(pipeSignal)
 			button.setTitle("", for: .selected)
 			button.setTitle("", for: .highlighted)
 
@@ -49,7 +49,7 @@ class UIButtonSpec: QuickSpec {
 				SignalProducer(value: true)
 			}
 
-			pressed <~ SignalProducer(signal: action.values)
+			pressed <~ SignalProducer(action.values)
 
 			button.reactive.pressed = CocoaAction(action)
 			expect(pressed.value) == false

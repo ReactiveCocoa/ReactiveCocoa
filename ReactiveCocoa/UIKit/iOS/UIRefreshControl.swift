@@ -25,7 +25,7 @@ extension Reactive where Base: UIRefreshControl {
 		}
 
 		nonmutating set {
-			let disposable = newValue.map { isRefreshing <~ $0.isExecuting }
+			let disposable = newValue.flatMap { isRefreshing <~ $0.isExecuting }
 			setAction(newValue, for: .valueChanged, disposable: disposable)
 		}
 	}

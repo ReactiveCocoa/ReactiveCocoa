@@ -186,6 +186,8 @@
 		BF4335681E02EF0600AC88DD /* UIScrollViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF775E1DFAD8A50058006E /* UISearchBar.swift */; };
+		BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */; };
 		CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
@@ -366,6 +368,8 @@
 		BF4335641E02AC7600AC88DD /* UIScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollView.swift; sourceTree = "<group>"; };
 		BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollViewSpec.swift; sourceTree = "<group>"; };
 		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
+		BFCF775E1DFAD8A50058006E /* UISearchBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBar.swift; sourceTree = "<group>"; };
+		BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBarSpec.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
 		CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaActionSpec.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -556,6 +560,7 @@
 				9A1D062C1D93EA7E00ACF44C /* UILabelSpec.swift */,
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
 				BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */,
+				BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */,
 				9A1D062E1D93EA7E00ACF44C /* UISegmentedControlSpec.swift */,
 				53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */,
 				531866F91DD7925600D1285F /* UIStepperSpec.swift */,
@@ -610,11 +615,12 @@
 			isa = PBXGroup;
 			children = (
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
+				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
+				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
+				BFCF775E1DFAD8A50058006E /* UISearchBar.swift */,
 				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
 				531866F71DD7920400D1285F /* UIStepper.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
-				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
-				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -1206,6 +1212,7 @@
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
+				BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
@@ -1246,6 +1253,7 @@
 			files = (
 				9A1D06581D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
+				BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */,
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,

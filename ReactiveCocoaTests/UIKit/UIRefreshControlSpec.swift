@@ -21,7 +21,7 @@ class UIRefreshControlSpec: QuickSpec {
 
 		it("should accept changes from bindings to its refreshing state") {
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			refreshControl.reactive.isRefreshing <~ SignalProducer(signal: pipeSignal)
+			refreshControl.reactive.isRefreshing <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(refreshControl.isRefreshing) == true
@@ -32,7 +32,7 @@ class UIRefreshControlSpec: QuickSpec {
 
 		it("should accept changes from bindings to its attributed title state") {
 			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-			refreshControl.reactive.attributedTitle <~ SignalProducer(signal: pipeSignal)
+			refreshControl.reactive.attributedTitle <~ SignalProducer(pipeSignal)
 
 			let string = NSAttributedString(string: "test")
 
@@ -55,7 +55,7 @@ class UIRefreshControlSpec: QuickSpec {
 				SignalProducer(value: true)
 			}
 
-			refreshed <~ SignalProducer(signal: action.values)
+			refreshed <~ SignalProducer(action.values)
 
 			refreshControl.reactive.refresh = CocoaAction(action)
 			expect(refreshed.value) == false

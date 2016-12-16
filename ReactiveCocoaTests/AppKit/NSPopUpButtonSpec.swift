@@ -30,38 +30,47 @@ final class NSPopUpButtonSepc: QuickSpec {
 			}
 			
 			it("should emit selected index changes") {
-				var values = [Int]()
+				var values = [Int?]()
 				button.reactive.selectedIndexes.observeValues { values.append($0) }
-				
+		
 				button.menu?.performActionForItem(at: 1)
 				button.menu?.performActionForItem(at: 99)
-				
-				expect(values) == [1, 99]
+				button.menu?.performActionForItem(at: -1)
+//				TODO: find out how to invoke nil as user action
+			
+				expect(values[0]) == 1
+				expect(values[1]) == 99
 			}
 			
 			it("should emit selected title changes") {
-				var values = [String]()
+				var values = [String?]()
 				button.reactive.selectedTitles.observeValues { values.append($0) }
-				
+			
 				button.menu?.performActionForItem(at: 1)
 				button.menu?.performActionForItem(at: 99)
+				//TODO: find out how to invoke nil as user action
 				
-				expect(values) == ["1", "99"]
+				expect(values[0]) == "1"
+				expect(values[1]) == "99"
 			}
 			
 			it("should accept changes from its bindings to its index values") {
-				let (signal, observer) = Signal<Int, NoError>.pipe()
+				let (signal, observer) = Signal<Int?, NoError>.pipe()
 				button.reactive.selectedIndex <~ SignalProducer(signal: signal)
 				
 				observer.send(value: 1)
-				expect(button.selectedItem?.title) == "1"
+				expect(button.indexOfSelectedItem) == 1
 				
 				observer.send(value: 99)
-				expect(button.selectedItem?.title) == "99"
+				expect(button.indexOfSelectedItem) == 99
+				
+				observer.send(value: nil)
+				expect(button.indexOfSelectedItem) == -1
+				expect(button.selectedItem?.title).to(beNil())
 			}
 			
 			it("should accept changes from its bindings to its title values") {
-				let (signal, observer) = Signal<String, NoError>.pipe()
+				let (signal, observer) = Signal<String?, NoError>.pipe()
 				button.reactive.selectedTitle <~ SignalProducer(signal: signal)
 				
 				observer.send(value: "1")
@@ -69,6 +78,10 @@ final class NSPopUpButtonSepc: QuickSpec {
 				
 				observer.send(value: "99")
 				expect(button.selectedItem?.title) == "99"
+				
+				observer.send(value: nil)
+				expect(button.selectedItem?.title).to(beNil())
+				expect(button.indexOfSelectedItem) == -1
 			}
 		}
 	}

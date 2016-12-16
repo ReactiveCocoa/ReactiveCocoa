@@ -27,7 +27,7 @@ class UIBarButtonItemSpec: QuickSpec {
 
 		it("should accept changes from bindings to its enabling state") {
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			barButtonItem.reactive.isEnabled <~ SignalProducer(signal: pipeSignal)
+			barButtonItem.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: false)
 			expect(barButtonItem.isEnabled) == false
@@ -38,7 +38,7 @@ class UIBarButtonItemSpec: QuickSpec {
 
 		it("should accept changes from bindings to its title") {
 			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			barButtonItem.reactive.title <~ SignalProducer(signal: pipeSignal)
+			barButtonItem.reactive.title <~ SignalProducer(pipeSignal)
 
 			observer.send(value: "title")
 			expect(barButtonItem.title) == "title"
@@ -49,7 +49,7 @@ class UIBarButtonItemSpec: QuickSpec {
 
 		it("should accept changes from bindings to its image") {
 			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
-			barButtonItem.reactive.image <~ SignalProducer(signal: pipeSignal)
+			barButtonItem.reactive.image <~ SignalProducer(pipeSignal)
 
 			let image = UIImage()
 			expect(image).notTo(beNil())

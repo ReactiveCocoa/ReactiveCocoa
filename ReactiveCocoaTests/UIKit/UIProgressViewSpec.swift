@@ -27,7 +27,7 @@ class UIProgressViewSpec: QuickSpec {
 			progressView.progress = 1.0
 
 			let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
-			progressView.reactive.progress <~ SignalProducer(signal: pipeSignal)
+			progressView.reactive.progress <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(progressView.progress) ≈ firstChange

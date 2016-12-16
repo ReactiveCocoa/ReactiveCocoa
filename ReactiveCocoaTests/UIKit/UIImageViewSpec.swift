@@ -25,7 +25,7 @@ class UIImageViewSpec: QuickSpec {
 			let secondChange = UIImage()
 
 			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
-			imageView.reactive.image <~ SignalProducer(signal: pipeSignal)
+			imageView.reactive.image <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(imageView.image) == firstChange
@@ -39,7 +39,7 @@ class UIImageViewSpec: QuickSpec {
 			let secondChange = UIImage()
 
 			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
-			imageView.reactive.highlightedImage <~ SignalProducer(signal: pipeSignal)
+			imageView.reactive.highlightedImage <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(imageView.highlightedImage) == firstChange

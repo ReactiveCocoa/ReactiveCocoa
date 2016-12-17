@@ -214,6 +214,8 @@
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
+		D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */; };
+		D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -398,6 +400,8 @@
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicPropertySpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButtonSpec.swift; sourceTree = "<group>"; };
+		D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -511,6 +515,7 @@
 				4ABEFE2A1DCFD0030066A8C2 /* NSTableView.swift */,
 				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
 				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
+				D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -576,6 +581,7 @@
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
 				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
+				D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -1169,6 +1175,7 @@
 				9A2E425E1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
+				D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
@@ -1188,6 +1195,7 @@
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
+				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,

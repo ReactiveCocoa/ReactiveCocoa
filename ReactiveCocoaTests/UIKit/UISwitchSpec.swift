@@ -50,7 +50,7 @@ class UISwitchSpec: QuickSpec {
 			let action = Action<Bool, Bool, NoError> { isOn in
 				return SignalProducer(value: isOn)
 			}
-			isOn <~ SignalProducer(signal: action.values)
+			isOn <~ SignalProducer(action.values)
 			
 			toggle.reactive.toggled = CocoaAction(action) { return $0.isOn }
 			

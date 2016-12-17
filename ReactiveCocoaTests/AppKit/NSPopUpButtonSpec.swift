@@ -51,7 +51,7 @@ final class NSPopUpButtonSepc: QuickSpec {
 			
 			it("should accept changes from its bindings to its index values") {
 				let (signal, observer) = Signal<Int?, NoError>.pipe()
-				button.reactive.selectedIndex <~ SignalProducer(signal: signal)
+				button.reactive.selectedIndex <~ SignalProducer(signal)
 				
 				observer.send(value: 1)
 				expect(button.indexOfSelectedItem) == 1
@@ -66,7 +66,7 @@ final class NSPopUpButtonSepc: QuickSpec {
 			
 			it("should accept changes from its bindings to its title values") {
 				let (signal, observer) = Signal<String?, NoError>.pipe()
-				button.reactive.selectedTitle <~ SignalProducer(signal: signal)
+				button.reactive.selectedTitle <~ SignalProducer(signal)
 				
 				observer.send(value: "1")
 				expect(button.selectedItem?.title) == "1"

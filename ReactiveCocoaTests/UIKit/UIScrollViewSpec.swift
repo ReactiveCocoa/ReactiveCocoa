@@ -30,7 +30,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.contentInset = .zero
 
 			let (pipeSignal, observer) = Signal<UIEdgeInsets, NoError>.pipe()
-			scrollView.reactive.contentInset <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.contentInset <~ SignalProducer(pipeSignal)
 
 			observer.send(value: UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4))
 			expect(scrollView.contentInset) == UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4)
@@ -43,7 +43,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.scrollIndicatorInsets = .zero
 
 			let (pipeSignal, observer) = Signal<UIEdgeInsets, NoError>.pipe()
-			scrollView.reactive.scrollIndicatorInsets <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.scrollIndicatorInsets <~ SignalProducer(pipeSignal)
 
 			observer.send(value: UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4))
 			expect(scrollView.scrollIndicatorInsets) == UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4)
@@ -56,7 +56,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.isScrollEnabled = true
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			scrollView.reactive.isScrollEnabled <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.isScrollEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(scrollView.isScrollEnabled) == true
@@ -76,7 +76,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.zoomScale = 1
 
 			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
-			scrollView.reactive.zoomScale <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.zoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 3)
 			expect(scrollView.zoomScale) == 3
@@ -88,7 +88,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.minimumZoomScale = 0
 
 			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
-			scrollView.reactive.minimumZoomScale <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.minimumZoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 42)
 			expect(scrollView.minimumZoomScale) == 42
@@ -100,7 +100,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.maximumZoomScale = 0
 
 			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
-			scrollView.reactive.maximumZoomScale <~ SignalProducer(signal: pipeSignal)
+			scrollView.reactive.maximumZoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 42)
 			expect(scrollView.maximumZoomScale) == 42

@@ -40,5 +40,30 @@ class UISwitchSpec: QuickSpec {
 			toggle.sendActions(for: .valueChanged)
 			expect(latestValue!) == true
 		}
+
+		it("should execute the `toggled` action upon receiving a `valueChanged` action message.") {
+			toggle.isOn = false
+			toggle.isEnabled = true
+			toggle.isUserInteractionEnabled = true
+			
+			let isOn = MutableProperty(false)
+			let action = Action<Bool, Bool, NoError> { isOn in
+				return SignalProducer(value: isOn)
+			}
+			isOn <~ SignalProducer(action.values)
+			
+			toggle.reactive.toggled = CocoaAction(action) { return $0.isOn }
+			
+			expect(isOn.value) == false
+			
+			toggle.isOn = true
+			toggle.sendActions(for: .valueChanged)
+			expect(isOn.value) == true
+			
+			toggle.isOn = false
+			toggle.sendActions(for: .valueChanged)
+			expect(isOn.value) == false
+			
+		}
 	}
 }

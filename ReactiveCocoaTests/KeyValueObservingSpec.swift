@@ -285,7 +285,7 @@ class KeyValueObservingSpec: QuickSpec {
 								.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 								.startWithCompleted {}
 
-							serialDisposable.innerDisposable = disposable
+							serialDisposable.inner = disposable
 
 							concurrentQueue.async {
 								testObject.rac_value = index

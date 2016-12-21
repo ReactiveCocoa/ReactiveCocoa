@@ -2,6 +2,10 @@
 
 This document lists debugging techniques and infrastructure helpful for debugging ReactiveCocoa applications.
 
+#### Use of unresolved operator '<~' or <Class> not found in RAC 5
+
+Since the split into ReactiveCocoa and ReactiveSwift, you'll need to `import ReactiveSwift` as well when using classes or operators that are implemented in ReactiveSwift.
+
 #### Unscrambling Swift compiler errors
 
 Type inferrence can be a source of hard-to-debug compiler errors. There are two potential places to be wrong when type inferrence used:

@@ -28,6 +28,8 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	nameLabel.reactive.text <~ person.name
 	```
 
+	_Note_: You'll need to import ReactiveSwift as well to make use of the `<~` operator.
+
 1. **Controls and User Interactions**
 
 	Interactive UI components expose [`Signal`][]s for control events

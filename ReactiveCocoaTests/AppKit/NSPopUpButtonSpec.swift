@@ -5,7 +5,7 @@ import ReactiveSwift
 import Result
 import AppKit
 
-final class NSPopUpButtonSepc: QuickSpec {
+final class NSPopUpButtonSpec: QuickSpec {
 	override func spec() {
 		describe("NSPopUpButton") {
 			var button: NSPopUpButton!

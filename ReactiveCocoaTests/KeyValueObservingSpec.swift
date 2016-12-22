@@ -154,6 +154,17 @@ class KeyValueObservingSpec: QuickSpec {
 				expect(weakOriginalInner).to(beNil())
 			}
 
+			it("should not crash an Operation") {
+				// Related issue:
+				// https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3329
+				func invoke() {
+					let op = Operation()
+					op.reactive.values(forKeyPath: "isFinished").start()
+				}
+
+				invoke()
+			}
+
 			describe("thread safety") {
 				var testObject: ObservableObject!
 				var concurrentQueue: DispatchQueue!

@@ -124,6 +124,17 @@
 		9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
 		9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
 		9A2E42611DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
+		9A4287A21DE403720031867F /* NSManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A11DE403720031867F /* NSManagedObject.swift */; };
+		9A4287A31DE403720031867F /* NSManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A11DE403720031867F /* NSManagedObject.swift */; };
+		9A4287A41DE403720031867F /* NSManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A11DE403720031867F /* NSManagedObject.swift */; };
+		9A4287A51DE403720031867F /* NSManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A11DE403720031867F /* NSManagedObject.swift */; };
+		9A4287A81DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A71DE4096E0031867F /* NSManagedObjectSpec.swift */; };
+		9A4287A91DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A71DE4096E0031867F /* NSManagedObjectSpec.swift */; };
+		9A4287AA1DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287A71DE4096E0031867F /* NSManagedObjectSpec.swift */; };
+		9A4287AC1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */; };
+		9A4287AD1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */; };
+		9A4287AE1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */; };
+		9A4287AF1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */; };
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
@@ -137,11 +148,19 @@
 		9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A92AC201E064F2500D16628 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA140951DE9F2E000C5E04F /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9A92AC211E064F2A00D16628 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA140971DE9F2E800C5E04F /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
 		9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
+		9AA1409A1DE9F2F600C5E04F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA140991DE9F2F600C5E04F /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9AA1409C1DE9F2FD00C5E04F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA1409B1DE9F2FD00C5E04F /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9AA1409E1DE9F30600C5E04F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA1409D1DE9F30600C5E04F /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9AA140A01DE9F31200C5E04F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA1409F1DE9F31200C5E04F /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9AA140A21DE9F31C00C5E04F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA140A11DE9F31C00C5E04F /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9AA140A41DE9F32400C5E04F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA140A31DE9F32400C5E04F /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
 		9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */; };
 		9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
@@ -337,12 +356,27 @@
 		9A1D06761D9415FB00ACF44C /* RACObjCRuntimeUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RACObjCRuntimeUtilities.m; sourceTree = "<group>"; };
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
+		9A4287A11DE403720031867F /* NSManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSManagedObject.swift; path = ReactiveCocoa/CoreData/NSManagedObject.swift; sourceTree = SOURCE_ROOT; };
+		9A4287A71DE4096E0031867F /* NSManagedObjectSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSManagedObjectSpec.swift; path = CoreData/NSManagedObjectSpec.swift; sourceTree = "<group>"; };
+		9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactiveProtocol.swift; sourceTree = "<group>"; };
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
+		9AA140951DE9F2E000C5E04F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		9AA140971DE9F2E800C5E04F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		9AA140991DE9F2F600C5E04F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.1.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
+		9AA1409B1DE9F2FD00C5E04F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.1.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		9AA1409D1DE9F30600C5E04F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS3.1.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
+		9AA1409F1DE9F31200C5E04F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS3.1.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		9AA140A11DE9F31C00C5E04F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		9AA140A31DE9F32400C5E04F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.0.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
+		9AA140A51DE9F35700C5E04F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		9AA140A71DE9F35D00C5E04F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		9AA140A91DE9F36600C5E04F /* WatchKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS3.1.sdk/System/Library/Frameworks/WatchKit.framework; sourceTree = DEVELOPER_DIR; };
+		9AA140AB1DE9F36C00C5E04F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		9AAD49871DED2C350068EC9B /* UIKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboard.swift; sourceTree = "<group>"; };
 		9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboardSpec.swift; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
@@ -413,6 +447,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AA140A41DE9F32400C5E04F /* MapKit.framework in Frameworks */,
+				9AA140A21DE9F31C00C5E04F /* CoreData.framework in Frameworks */,
 				BE330A191D634F5900806963 /* ReactiveSwift.framework in Frameworks */,
 				57A4D2081BA13D7A00F7D4B1 /* Result.framework in Frameworks */,
 			);
@@ -433,6 +469,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AA140A01DE9F31200C5E04F /* CoreData.framework in Frameworks */,
+				9AA1409E1DE9F30600C5E04F /* MapKit.framework in Frameworks */,
 				BE330A171D634F4E00806963 /* ReactiveSwift.framework in Frameworks */,
 				A9B315C91B3940980001CB9C /* Result.framework in Frameworks */,
 			);
@@ -442,6 +480,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A92AC211E064F2A00D16628 /* MapKit.framework in Frameworks */,
+				9A92AC201E064F2500D16628 /* CoreData.framework in Frameworks */,
 				BE330A0F1D634F1E00806963 /* ReactiveSwift.framework in Frameworks */,
 				CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */,
 			);
@@ -463,6 +503,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AA1409C1DE9F2FD00C5E04F /* CoreData.framework in Frameworks */,
+				9AA1409A1DE9F2F600C5E04F /* MapKit.framework in Frameworks */,
 				BE330A131D634F2E00806963 /* ReactiveSwift.framework in Frameworks */,
 				CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */,
 			);
@@ -580,6 +622,23 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
+		9A4287A01DE403400031867F /* Core Data */ = {
+			isa = PBXGroup;
+			children = (
+				9A4287A11DE403720031867F /* NSManagedObject.swift */,
+			);
+			name = "Core Data";
+			path = AppKit;
+			sourceTree = "<group>";
+		};
+		9A4287A61DE4094D0031867F /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				9A4287A71DE4096E0031867F /* NSManagedObjectSpec.swift */,
+			);
+			name = CoreData;
+			sourceTree = "<group>";
+		};
 		9ADE4A8C1DA6D94C005C2AC8 /* AppKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -606,6 +665,18 @@
 		BE330A0D1D634F1E00806963 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9AA140AB1DE9F36C00C5E04F /* UIKit.framework */,
+				9AA140A91DE9F36600C5E04F /* WatchKit.framework */,
+				9AA140A71DE9F35D00C5E04F /* UIKit.framework */,
+				9AA140A51DE9F35700C5E04F /* AppKit.framework */,
+				9AA140A31DE9F32400C5E04F /* MapKit.framework */,
+				9AA140A11DE9F31C00C5E04F /* CoreData.framework */,
+				9AA1409F1DE9F31200C5E04F /* CoreData.framework */,
+				9AA1409D1DE9F30600C5E04F /* MapKit.framework */,
+				9AA1409B1DE9F2FD00C5E04F /* CoreData.framework */,
+				9AA140991DE9F2F600C5E04F /* MapKit.framework */,
+				9AA140971DE9F2E800C5E04F /* MapKit.framework */,
+				9AA140951DE9F2E000C5E04F /* CoreData.framework */,
 				BE330A1A1D634F5F00806963 /* ReactiveSwift.framework */,
 				BE330A181D634F5900806963 /* ReactiveSwift.framework */,
 				BE330A161D634F4E00806963 /* ReactiveSwift.framework */,
@@ -673,9 +744,11 @@
 				9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */,
 				9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
+				9A4287AB1DE4A7AF0031867F /* ReactiveProtocol.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
+				9A4287A01DE403400031867F /* Core Data */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
 			);
 			path = ReactiveCocoa;
@@ -693,6 +766,7 @@
 		D04725F919E49ED7006002AA /* ReactiveCocoaTests */ = {
 			isa = PBXGroup;
 			children = (
+				9A4287A61DE4094D0031867F /* CoreData */,
 				9ADE4A8C1DA6D94C005C2AC8 /* AppKit */,
 				9A1D06231D93EA7E00ACF44C /* UIKit */,
 				538DCB771DCA5E3200332880 /* Shared */,
@@ -1082,11 +1156,13 @@
 			files = (
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
+				9A4287AF1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */,
 				4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */,
 				9ADE4A7F1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9A1D06201D93EA0100ACF44C /* UITextView.swift in Sources */,
 				9A6AAA241DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				4ABEFE201DCFCEF80066A8C2 /* UITableView.swift in Sources */,
+				9A4287A51DE403720031867F /* NSManagedObject.swift in Sources */,
 				9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */,
 				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
@@ -1132,6 +1208,7 @@
 				9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				538DCB7F1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */,
 				9A1D06471D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
+				9A4287AA1DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */,
 				9A1D06391D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
 				9ADFE5A31DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
@@ -1150,6 +1227,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
+				9A4287AE1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */,
+				9A4287A41DE403720031867F /* NSManagedObject.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
 				9A1D06791D94160000ACF44C /* RACObjCRuntimeUtilities.m in Sources */,
 				9ADE4A931DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
@@ -1178,6 +1257,7 @@
 				9ADFE5A51DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9ADE4A961DA6F018005C2AC8 /* NSTextField.swift in Sources */,
+				9A4287A21DE403720031867F /* NSManagedObject.swift in Sources */,
 				9A2E425E1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
@@ -1185,6 +1265,7 @@
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
+				9A4287AC1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */,
 				4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1204,6 +1285,7 @@
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
+				9A4287A81DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
@@ -1243,6 +1325,7 @@
 				9ADE4A921DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				9ADFE5A61DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
+				9A4287A31DE403720031867F /* NSManagedObject.swift in Sources */,
 				4ABEFE1F1DCFCEF60066A8C2 /* UITableView.swift in Sources */,
 				9A1D06081D93EA0000ACF44C /* UIProgressView.swift in Sources */,
 				531866F81DD7920400D1285F /* UIStepper.swift in Sources */,
@@ -1250,6 +1333,7 @@
 				9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */,
 				9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D06091D93EA0000ACF44C /* UISegmentedControl.swift in Sources */,
+				9A4287AD1DE4A7AF0031867F /* ReactiveProtocol.swift in Sources */,
 				9ADE4A7D1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */,
 			);
@@ -1263,6 +1347,7 @@
 				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
 				BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */,
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
+				9A4287A91DE4096E0031867F /* NSManagedObjectSpec.swift in Sources */,
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,
 				9A1D064C1D93EA7E00ACF44C /* UISwitchSpec.swift in Sources */,

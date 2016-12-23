@@ -27,7 +27,7 @@ class UILabelSpec: QuickSpec {
 			label.text = ""
 
 			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			label.reactive.text <~ SignalProducer(signal: pipeSignal)
+			label.reactive.text <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(label.text) == firstChange
@@ -46,7 +46,7 @@ class UILabelSpec: QuickSpec {
 			label.attributedText = NSAttributedString(string: "")
 
 			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-			label.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			label.reactive.attributedText <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(label.attributedText) == firstChange
@@ -63,7 +63,7 @@ class UILabelSpec: QuickSpec {
 
 			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
 			label.textColor = UIColor.black
-			label.reactive.textColor <~ SignalProducer(signal: pipeSignal)
+			label.reactive.textColor <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(label.textColor) == firstChange

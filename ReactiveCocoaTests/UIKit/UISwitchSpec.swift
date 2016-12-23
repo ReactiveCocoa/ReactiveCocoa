@@ -16,19 +16,14 @@ class UISwitchSpec: QuickSpec {
 
 		afterEach {
 			toggle = nil
-
-			// Disabled due to an issue of the iOS SDK.
-			// Please refer to https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3251
-			// for more information.
-			//
-			// expect(_toggle).to(beNil())
+			expect(_toggle).to(beNil())
 		}
 
 		it("should accept changes from bindings to its `isOn` state") {
 			toggle.isOn = false
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			toggle.reactive.isOn <~ SignalProducer(signal: pipeSignal)
+			toggle.reactive.isOn <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(toggle.isOn) == true
@@ -44,6 +39,31 @@ class UISwitchSpec: QuickSpec {
 			toggle.isOn = true
 			toggle.sendActions(for: .valueChanged)
 			expect(latestValue!) == true
+		}
+
+		it("should execute the `toggled` action upon receiving a `valueChanged` action message.") {
+			toggle.isOn = false
+			toggle.isEnabled = true
+			toggle.isUserInteractionEnabled = true
+			
+			let isOn = MutableProperty(false)
+			let action = Action<Bool, Bool, NoError> { isOn in
+				return SignalProducer(value: isOn)
+			}
+			isOn <~ SignalProducer(action.values)
+			
+			toggle.reactive.toggled = CocoaAction(action) { return $0.isOn }
+			
+			expect(isOn.value) == false
+			
+			toggle.isOn = true
+			toggle.sendActions(for: .valueChanged)
+			expect(isOn.value) == true
+			
+			toggle.isOn = false
+			toggle.sendActions(for: .valueChanged)
+			expect(isOn.value) == false
+			
 		}
 	}
 }

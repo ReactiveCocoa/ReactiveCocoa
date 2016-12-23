@@ -154,6 +154,17 @@ class KeyValueObservingSpec: QuickSpec {
 				expect(weakOriginalInner).to(beNil())
 			}
 
+			it("should not crash an Operation") {
+				// Related issue:
+				// https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3329
+				func invoke() {
+					let op = Operation()
+					op.reactive.values(forKeyPath: "isFinished").start()
+				}
+
+				invoke()
+			}
+
 			describe("thread safety") {
 				var testObject: ObservableObject!
 				var concurrentQueue: DispatchQueue!
@@ -285,7 +296,7 @@ class KeyValueObservingSpec: QuickSpec {
 								.values(forKeyPath: #keyPath(ObservableObject.rac_value))
 								.startWithCompleted {}
 
-							serialDisposable.innerDisposable = disposable
+							serialDisposable.inner = disposable
 
 							concurrentQueue.async {
 								testObject.rac_value = index

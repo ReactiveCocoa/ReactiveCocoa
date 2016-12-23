@@ -23,7 +23,7 @@ class UIControlSpec: QuickSpec {
 			control.isEnabled = false
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			control.reactive.isEnabled <~ SignalProducer(signal: pipeSignal)
+			control.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(control.isEnabled) == true
@@ -36,7 +36,7 @@ class UIControlSpec: QuickSpec {
 			control.isSelected = false
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			control.reactive.isSelected <~ SignalProducer(signal: pipeSignal)
+			control.reactive.isSelected <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(control.isSelected) == true
@@ -49,7 +49,7 @@ class UIControlSpec: QuickSpec {
 			control.isHighlighted = false
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			control.reactive.isHighlighted <~ SignalProducer(signal: pipeSignal)
+			control.reactive.isHighlighted <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(control.isHighlighted) == true
@@ -64,8 +64,8 @@ class UIControlSpec: QuickSpec {
 
 			let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
 			let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
-			control.reactive.isSelected <~ SignalProducer(signal: pipeSignalSelected)
-			control.reactive.isEnabled <~ SignalProducer(signal: pipeSignalEnabled)
+			control.reactive.isSelected <~ SignalProducer(pipeSignalSelected)
+			control.reactive.isEnabled <~ SignalProducer(pipeSignalEnabled)
 
 			observerSelected.send(value: true)
 			observerEnabled.send(value: true)

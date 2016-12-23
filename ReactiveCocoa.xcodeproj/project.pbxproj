@@ -217,8 +217,12 @@
 		BE330A191D634F5900806963 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE330A181D634F5900806963 /* ReactiveSwift.framework */; };
 		BE330A1B1D634F5F00806963 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE330A1A1D634F5F00806963 /* ReactiveSwift.framework */; };
 		BEE020661D637B0000DF261F /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
+		BF4335651E02AC7600AC88DD /* UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335641E02AC7600AC88DD /* UIScrollView.swift */; };
+		BF4335681E02EF0600AC88DD /* UIScrollViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF775E1DFAD8A50058006E /* UISearchBar.swift */; };
+		BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */; };
 		CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
@@ -247,6 +251,8 @@
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
+		D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */; };
+		D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -407,7 +413,11 @@
 		BE330A161D634F4E00806963 /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = "build/Debug-watchos/ReactiveSwift.framework"; sourceTree = "<group>"; };
 		BE330A181D634F5900806963 /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = "build/Debug-appletvos/ReactiveSwift.framework"; sourceTree = "<group>"; };
 		BE330A1A1D634F5F00806963 /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = "build/Debug-appletvos/ReactiveSwift.framework"; sourceTree = "<group>"; };
+		BF4335641E02AC7600AC88DD /* UIScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollView.swift; sourceTree = "<group>"; };
+		BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollViewSpec.swift; sourceTree = "<group>"; };
 		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
+		BFCF775E1DFAD8A50058006E /* UISearchBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBar.swift; sourceTree = "<group>"; };
+		BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBarSpec.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
 		CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaActionSpec.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -440,6 +450,8 @@
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicPropertySpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButtonSpec.swift; sourceTree = "<group>"; };
+		D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -553,6 +565,7 @@
 				4ABEFE2A1DCFD0030066A8C2 /* NSTableView.swift */,
 				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
 				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
+				D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -572,6 +585,7 @@
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
+				BF4335641E02AC7600AC88DD /* UIScrollView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
 				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
@@ -596,6 +610,8 @@
 				9A1D062B1D93EA7E00ACF44C /* UIImageViewSpec.swift */,
 				9A1D062C1D93EA7E00ACF44C /* UILabelSpec.swift */,
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
+				BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */,
+				BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */,
 				9A1D062E1D93EA7E00ACF44C /* UISegmentedControlSpec.swift */,
 				53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */,
 				531866F91DD7925600D1285F /* UIStepperSpec.swift */,
@@ -617,6 +633,7 @@
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
 				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
+				D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -650,11 +667,12 @@
 			isa = PBXGroup;
 			children = (
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
+				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
+				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
+				BFCF775E1DFAD8A50058006E /* UISearchBar.swift */,
 				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
 				531866F71DD7920400D1285F /* UIStepper.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
-				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
-				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -1242,6 +1260,7 @@
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A54A24F1DE123BD001739B3 /* Atomic.swift in Sources */,
+				D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
@@ -1264,6 +1283,7 @@
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
+				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */,
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
@@ -1283,6 +1303,7 @@
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
+				BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A24A8401DE1386800987AF9 /* ThreadLocal.swift in Sources */,
@@ -1303,6 +1324,7 @@
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
+				BF4335651E02AC7600AC88DD /* UIScrollView.swift in Sources */,
 				53A6BED31DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				4A0E11001D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9ADE4A921DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
@@ -1329,6 +1351,7 @@
 			files = (
 				9A1D06581D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
+				BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */,
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,
@@ -1350,6 +1373,7 @@
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,
 				9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
+				BF4335681E02EF0600AC88DD /* UIScrollViewSpec.swift in Sources */,
 				3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */,
 				53A6BED71DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
 				9A1D06381D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,

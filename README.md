@@ -7,6 +7,8 @@
 
 🎉 [Migrating from RAC 4.x?][CHANGELOG]
 
+🚄 [Release Roadmap](#release-roadmap)
+
 ## What is ReactiveSwift?
 __ReactiveSwift__ offers composable, declarative and flexible primitives that are built around the grand concept of ___streams of values over time___. These primitives can be used to uniformly represent common Cocoa and generic programming patterns that are fundamentally an act of observation.
 
@@ -25,6 +27,8 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	// Bind the `name` property of `person` to the text value of an `UILabel`.
 	nameLabel.reactive.text <~ person.name
 	```
+
+	_Note_: You'll need to import ReactiveSwift as well to make use of the `<~` operator.
 
 1. **Controls and User Interactions**
 
@@ -92,7 +96,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" "5.0.0-alpha.3"
+github "ReactiveCocoa/ReactiveCocoa" "5.0.0-alpha.6"
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -103,7 +107,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '5.0.0-alpha.3'
+pod 'ReactiveCocoa', '5.0.0-alpha.6'
 ```
 
 #### Git submodule
@@ -124,6 +128,32 @@ pod 'ReactiveCocoa', '5.0.0-alpha.3'
 ## Have a question?
 If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. Feel free to file an issue if you do not manage to find any solution from the archives.
 
+## Release Roadmap
+**Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
+
+### In Development: ReactiveCocoa 5.0
+It targets Swift 3.0.x and ReactiveSwift 1.0. The tentative schedule of a Gold Master release is January 2017.
+
+A Release Candidate would be released after an important bug fix is cleared, which should happen no later than Christmas 2016.
+
+### Plan of Record
+#### ReactiveCocoa 6.0
+It targets Swift 3.1.x and ReactiveSwift 2.0. The estimated schedule is Spring 2017.
+
+Since ReactiveSwift 2.0 would contain breaking changes, the public API of ReactiveCocoa is considered breaking too.
+
+As resilience would be enforced in Swift 4.0, it is important for us to have a clean and steady API to start with. The expectation is to **have the API reviewing to be concluded in ReactiveCocoa 6.0**, before we move on to ReactiveSwift 3.0 and Swift 4.0. Any contribution to help realising this goal is welcomed.
+
+#### ReactiveCocoa 7.0
+It targets Swift 4.0.x and ReactiveSwift 3.0. The estimated schedule is late 2017.
+
+The release may contain breaking changes due to changes in ReactiveSwift 3.0.
+
+ReactiveCocoa 7.0 would focus on three main goals:
+
+1. Swift 4.0 Resilience
+1. Migration to ReactiveSwift 3.0
+1. Support new features introduced to AppKit, UIKit and Swift.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC

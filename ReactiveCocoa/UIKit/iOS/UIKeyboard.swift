@@ -42,7 +42,7 @@ public struct KeyboardChangeContext {
 }
 
 extension Reactive where Base: NotificationCenter {
-	/// Create a `Signal` that nofities whenever the system keyboard announces an
+	/// Create a `Signal` that notifies whenever the system keyboard announces an
 	/// upcoming change in its frame.
 	///
 	/// - returns: A `Signal` that emits the context of every change in the

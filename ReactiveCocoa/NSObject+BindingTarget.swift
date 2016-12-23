@@ -6,15 +6,15 @@ extension Reactive where Base: NSObject {
 	/// references the object so that the supplied `action` is triggered only if
 	/// the object has not deinitialized.
 	///
-	/// - important: The binding target is bound to the main queue.
-	///
 	/// - parameters:
+	///   - scheduler: An optional scheduler that the binding target uses. If it
+	///                is not specified, a UI scheduler would be used.
 	///   - action: The action to consume values from the bindings.
 	///
 	/// - returns:
 	///   A binding target that holds no strong references to the object.
-	internal func makeBindingTarget<U>(_ key: StaticString = #function, action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
-		return BindingTarget(on: UIScheduler(), lifetime: lifetime) { [weak base = self.base] value in
+	public func makeBindingTarget<U>(on scheduler: SchedulerProtocol = UIScheduler(), _ action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
+		return BindingTarget(on: scheduler, lifetime: lifetime) { [weak base = self.base] value in
 			if let base = base {
 				action(base, value)
 			}

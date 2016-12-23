@@ -55,7 +55,7 @@ class UITextFieldSpec: QuickSpec {
 			textField.attributedText = NSAttributedString(string: "")
 			
 			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
-			textField.reactive.attributedText <~ SignalProducer(signal: pipeSignal)
+			textField.reactive.attributedText <~ SignalProducer(pipeSignal)
 			
 			observer.send(value: firstChange)
 			expect(textField.attributedText?.string) == firstChange.string

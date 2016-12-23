@@ -8,8 +8,10 @@
 internal let NSInvocation: AnyClass = NSClassFromString("NSInvocation")!
 internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature")!
 
-// `-class` and `+class`.
+// Signatures defined in `@objc` protocols would be available for ObjC message
+// sending via `AnyObject`.
 @objc internal protocol ObjCClassReporting {
+// An alias for `-class`, which is unavailable in Swift.
 	@objc(class)
 	var objcClass: AnyClass! { get }
 }

@@ -1,14 +1,11 @@
 import Foundation
 import ReactiveSwift
 
-private var lifetimeKey: UInt8 = 0
-private var lifetimeTokenKey: UInt8 = 0
-
 extension Reactive where Base: NSObject {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
 		return base.synchronized {
-			if let lifetime = base.value(forAssociatedKey: &lifetimeKey) as! Lifetime? {
+			if let lifetime = base.value(forAssociationKey: AssociationKey.lifetime) as! Lifetime? {
 				return lifetime
 			}
 
@@ -22,8 +19,8 @@ extension Reactive where Base: NSObject {
 			// beginning of the deallocation chain, and only after the KVO `-dealloc`.
 			synchronized(objcClass) {
 				// Swizzle the class only if it has not been swizzled before.
-				if objc_getAssociatedObject(objcClass, &lifetimeKey) == nil {
-					objc_setAssociatedObject(objcClass, &lifetimeKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				if objc_getAssociatedObject(objcClass, AssociationKey.lifetime) == nil {
+					objc_setAssociatedObject(objcClass, AssociationKey.lifetime, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
 					var existingImpl: IMP? = nil
 
@@ -33,7 +30,7 @@ extension Reactive where Base: NSObject {
 						// mess with the object deallocation chain.
 
 						// Release the lifetime token.
-						_rac_objc_setAssociatedObject(objectRef, &lifetimeTokenKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+						_rac_objc_setAssociatedObject(objectRef, AssociationKey.lifetimeToken, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
 						let impl: IMP
 
@@ -67,8 +64,8 @@ extension Reactive where Base: NSObject {
 				}
 			}
 
-			objc_setAssociatedObject(base, &lifetimeTokenKey, token, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			objc_setAssociatedObject(base, &lifetimeKey, lifetime, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			base.setValue(token, forAssociationKey: AssociationKey.lifetimeToken)
+			base.setValue(lifetime, forAssociationKey: AssociationKey.lifetime)
 
 			return lifetime
 		}

@@ -1,7 +1,5 @@
 import ReactiveSwift
 
-private var isSwizzledKey = 0
-
 /// ISA-swizzle the class of the supplied instance.
 ///
 /// - note: If the instance has already been isa-swizzled, the swizzling happens
@@ -15,7 +13,7 @@ private var isSwizzledKey = 0
 internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 	let key = (#function as StaticString).utf8Start
 
-	if let knownSubclass = instance.value(forAssociatedKey: key) as! AnyClass? {
+	if let knownSubclass = instance.value(forAssociationKey: key) as! AnyClass? {
 		return knownSubclass
 	}
 
@@ -26,10 +24,10 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		// If the class is already lying about what it is, it's probably a KVO
 		// dynamic subclass or something else that we shouldn't subclass at runtime.
 		synchronized(realClass) {
-			let isSwizzled = objc_getAssociatedObject(realClass, &isSwizzledKey) as! Bool? ?? false
+			let isSwizzled = objc_getAssociatedObject(realClass, AssociationKey.runtimeSubclassed) as! Bool? ?? false
 			if !isSwizzled {
 				replaceGetClass(in: realClass, decoy: perceivedClass)
-				objc_setAssociatedObject(realClass, &isSwizzledKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				objc_setAssociatedObject(realClass, AssociationKey.runtimeSubclassed, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 			}
 		}
 
@@ -48,7 +46,7 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		}
 
 		object_setClass(instance, subclass)
-		instance.setValue(subclass, forAssociatedKey: key)
+		instance.setValue(subclass, forAssociationKey: key)
 		return subclass
 	}
 }

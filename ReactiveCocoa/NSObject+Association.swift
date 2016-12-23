@@ -1,5 +1,15 @@
 import ReactiveSwift
 
+internal struct AssociationKey {
+	private static let contiguous = UnsafeMutablePointer<UInt8>.allocate(capacity: 5)
+
+	static let intercepted = contiguous
+	static let signatureCache = contiguous + 1
+	static let runtimeSubclassed = contiguous + 2
+	static let lifetime = contiguous + 3
+	static let lifetimeToken = contiguous + 4
+}
+
 extension Reactive where Base: NSObject {
 	/// Retrieve the associated value for the specified key. If the value does not
 	/// exist, `initial` would be called and the returned value would be
@@ -12,10 +22,10 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   The associated value for the specified key.
 	internal func associatedValue<T>(forKey key: StaticString = #function, initial: (Base) -> T) -> T {
-		var value = base.value(forAssociatedKey: key.utf8Start) as! T?
+		var value = base.value(forAssociationKey: key.utf8Start) as! T?
 		if value == nil {
 			value = initial(base)
-			base.setValue(value, forAssociatedKey: key.utf8Start)
+			base.setValue(value, forAssociationKey: key.utf8Start)
 		}
 		return value!
 	}
@@ -29,7 +39,7 @@ extension NSObject {
 	///
 	/// - returns:
 	///   The associated value, or `nil` if no value is associated with the key.
-	@nonobjc internal func value(forAssociatedKey key: UnsafeRawPointer) -> Any? {
+	@nonobjc internal func value(forAssociationKey key: UnsafeRawPointer) -> Any? {
 		return objc_getAssociatedObject(self, key)
 	}
 
@@ -40,7 +50,7 @@ extension NSObject {
 	///   - key: The key.
 	///   - weak: `true` if the value should be weakly referenced. `false`
 	///           otherwise.
-	@nonobjc internal func setValue(_ value: Any?, forAssociatedKey key: UnsafeRawPointer, weak: Bool = false) {
+	@nonobjc internal func setValue(_ value: Any?, forAssociationKey key: UnsafeRawPointer, weak: Bool = false) {
 		objc_setAssociatedObject(self, key, value, weak ? .OBJC_ASSOCIATION_ASSIGN : .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
 }

@@ -67,9 +67,6 @@ extension Reactive where Base: NSObject {
 ///   A signal that sends the corresponding `NSInvocation` after every
 ///   invocation of the method.
 private func setupInterception(_ object: NSObject, for selector: Selector) -> Signal<AnyObject, NoError> {
-	let alias = selector.alias
-	let interopAlias = selector.interopAlias
-
 	guard let method = class_getInstanceMethod(object.objcClass, selector) else {
 		fatalError("Selector `\(selector)` does not exist in class `\(String(describing: object.objcClass))`.")
 	}
@@ -78,6 +75,9 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 	assert(checkTypeEncoding(typeEncoding))
 
 	return object.synchronized {
+		let alias = selector.alias
+		let interopAlias = selector.interopAlias
+
 		if let state = object.value(forAssociationKey: alias.utf8Start) as! InterceptingState? {
 			return state.signal
 		}
@@ -88,22 +88,30 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 			let isSwizzled = objc_getAssociatedObject(subclass, AssociationKey.intercepted) as! Bool? ?? false
 
 			let signatureCache: SignatureCache
+			let selectorCache: SelectorCache
 
 			if isSwizzled {
 				signatureCache = objc_getAssociatedObject(subclass, AssociationKey.signatureCache) as! SignatureCache
+				selectorCache = objc_getAssociatedObject(subclass, AssociationKey.selectorCache) as! SelectorCache
 			} else {
 				signatureCache = SignatureCache()
-
-				objc_setAssociatedObject(subclass, AssociationKey.signatureCache, signatureCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-				objc_setAssociatedObject(subclass, AssociationKey.intercepted, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-
-				enableMessageForwarding(subclass)
-				setupMethodSignatureCaching(subclass, signatureCache)
+				selectorCache = SelectorCache()
 			}
+
+			selectorCache.allocate(selector)
 
 			if signatureCache[selector] == nil {
 				let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
 				signatureCache[selector] = signature
+			}
+
+			if !isSwizzled {
+				objc_setAssociatedObject(subclass, AssociationKey.signatureCache, signatureCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				objc_setAssociatedObject(subclass, AssociationKey.selectorCache, selectorCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				objc_setAssociatedObject(subclass, AssociationKey.intercepted, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+
+				enableMessageForwarding(subclass, selectorCache)
+				setupMethodSignatureCaching(subclass, signatureCache)
 			}
 
 			if !class_respondsToSelector(subclass, interopAlias) {
@@ -141,14 +149,14 @@ private func setupInterception(_ object: NSObject, for selector: Selector) -> Si
 ///
 /// - parameters:
 ///   - realClass: The runtime subclass to be swizzled.
-private func enableMessageForwarding(_ realClass: AnyClass) {
+private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: SelectorCache) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)
 
 	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
 		let selector = invocation.selector!
-		let alias = selector.alias
-		let interopAlias = selector.interopAlias
+		let alias = selectorCache[main: selector]
+		let interopAlias = selectorCache[interop: selector]
 
 		defer {
 			if let state = objectRef.takeUnretainedValue().value(forAssociationKey: alias.utf8Start) as! InterceptingState? {
@@ -252,6 +260,54 @@ private final class InterceptingState {
 	}
 }
 
+private final class SelectorCache {
+	private var map: [Selector: (main: Selector, interop: Selector)] = [:]
+
+	init() {}
+
+	/// Cache the aliases of the specified selector in the cache.
+	///
+	/// - warning: Any invocation of this method must be synchronized against the
+	///            runtime subclass.
+	@discardableResult
+	func allocate(_ selector: Selector) -> (main: Selector, interop: Selector) {
+		if let pair = map[selector] {
+			return pair
+		}
+
+		var copy = map
+		let aliases = (selector.alias, selector.interopAlias)
+		copy[selector] = aliases
+		map = copy
+
+		return aliases
+	}
+
+	/// Get the alias of the specified selector.
+	///
+	/// - parameters:
+	///   - selector: The selector alias.
+	subscript(main selector: Selector) -> Selector {
+		if let (main, _) = map[selector] {
+			return main
+		}
+
+		return selector.alias
+	}
+
+	/// Get the secondary alias of the specified selector.
+	///
+	/// - parameters:
+	///   - selector: The selector alias.
+	subscript(interop selector: Selector) -> Selector {
+		if let (_, interop) = map[selector] {
+			return interop
+		}
+
+		return selector.interopAlias
+	}
+}
+
 // The signature cache for classes that have been swizzled for method
 // interception.
 //
@@ -260,16 +316,17 @@ private final class InterceptingState {
 private final class SignatureCache {
 	// `Dictionary` takes 8 bytes for the reference to its storage and does CoW.
 	// So it should not encounter any corrupted, partially updated state.
-	private var map = [Selector: AnyObject]()
+	private var map: [Selector: AnyObject] = [:]
 
 	init() {}
 
 	/// Get or set the signature for the specified selector.
 	///
-	/// - warning: Any invocation of the setter must be serialized.
+	/// - warning: Any invocation of the setter must be synchronized against the
+	///            runtime subclass.
 	///
 	/// - parameters:
-	///   - selector: The selector.
+	///   - selector: The method signature.
 	subscript(selector: Selector) -> AnyObject? {
 		get {
 			return map[selector]

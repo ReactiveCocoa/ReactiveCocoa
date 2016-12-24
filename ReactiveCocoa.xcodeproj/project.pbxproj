@@ -116,10 +116,6 @@
 		9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BB1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
 		9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */; };
-		9A24A83F1DE1386800987AF9 /* ThreadLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */; };
-		9A24A8401DE1386800987AF9 /* ThreadLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */; };
-		9A24A8411DE1386800987AF9 /* ThreadLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */; };
-		9A24A8421DE1386800987AF9 /* ThreadLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */; };
 		9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */; };
 		9A24A8461DE142A500987AF9 /* SwizzlingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */; };
 		9A24A8471DE142A600987AF9 /* SwizzlingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */; };
@@ -369,7 +365,6 @@
 		9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Intercepting.swift"; sourceTree = "<group>"; };
 		9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCRuntimeAliases.h; sourceTree = "<group>"; };
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
-		9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThreadLocal.swift; sourceTree = "<group>"; };
 		9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwizzlingSpec.swift; sourceTree = "<group>"; };
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
 		9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingPerformanceTests.swift; sourceTree = "<group>"; };
@@ -720,7 +715,6 @@
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
 				9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */,
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
-				9A24A83E1DE1386800987AF9 /* ThreadLocal.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
@@ -1161,7 +1155,6 @@
 				9ADFE5A81DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AA0BD921DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
-				9A24A8421DE1386800987AF9 /* ThreadLocal.swift in Sources */,
 				9A1D061A1D93EA0100ACF44C /* UIProgressView.swift in Sources */,
 				9AA0BD7F1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
 				9A2E42611DAA6737006D909F /* CocoaTarget.swift in Sources */,
@@ -1221,7 +1214,6 @@
 				9AA0BD8C1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9ADFE5A71DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				9ADE4A7E1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
-				9A24A8411DE1386800987AF9 /* ThreadLocal.swift in Sources */,
 				9AA0BD831DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AA0BD911DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
@@ -1262,7 +1254,6 @@
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9AA0BD811DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
-				9A24A83F1DE1386800987AF9 /* ThreadLocal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1302,7 +1293,6 @@
 				BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,
 				9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
-				9A24A8401DE1386800987AF9 /* ThreadLocal.swift in Sources */,
 				CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AE7C2A51DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
 				9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */,

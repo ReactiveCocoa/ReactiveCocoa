@@ -1,13 +1,14 @@
 import ReactiveSwift
 
 internal struct AssociationKey {
-	private static let contiguous = UnsafeMutablePointer<UInt8>.allocate(capacity: 5)
+	private static let contiguous = UnsafeMutablePointer<UInt8>.allocate(capacity: 6)
 
 	static let intercepted = contiguous
 	static let signatureCache = contiguous + 1
-	static let runtimeSubclassed = contiguous + 2
-	static let lifetime = contiguous + 3
-	static let lifetimeToken = contiguous + 4
+	static let selectorCache = contiguous + 2
+	static let runtimeSubclassed = contiguous + 3
+	static let lifetime = contiguous + 4
+	static let lifetimeToken = contiguous + 5
 }
 
 extension Reactive where Base: NSObject {

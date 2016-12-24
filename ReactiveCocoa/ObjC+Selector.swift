@@ -5,48 +5,18 @@ extension Selector {
 		return unsafeBitCast(self, to: UnsafePointer<Int8>.self)
 	}
 
-	/// Selector alias cache.
-	final class Cache {
-		var selectors: [Selector: Selector] = [:]
-	}
-
 	/// An alias of `self`, used in method interception.
 	internal var alias: Selector {
-		enum Static {
-			static let cache = ThreadLocal { Cache() }
-		}
-
-		let localCache = Static.cache.local
-
-		if let selector = localCache.selectors[self] {
-			return selector
-		} else {
-			let selector = prefixing("rac0_")
-			localCache.selectors[self] = selector
-			return selector
-		}
+		return prefixing("rac0_")
 	}
 
 	/// An alias of `self`, used in method interception specifically for
 	/// preserving (if found) an immediate implementation of `self` in the
 	/// runtime subclass.
 	internal var interopAlias: Selector {
-		enum Static {
-			static let cache = ThreadLocal { Cache() }
-		}
-
-		let localCache = Static.cache.local
-
-		if let selector = localCache.selectors[self] {
-			return selector
-		} else {
-			let selector = prefixing("rac1_")
-			localCache.selectors[self] = selector
-			return selector
-		}
+		return prefixing("rac1_")
 	}
 
-	///
 	internal func prefixing(_ prefix: StaticString) -> Selector {
 		let length = Int(strlen(utf8Start))
 		let prefixedLength = length + prefix.utf8CodeUnitCount

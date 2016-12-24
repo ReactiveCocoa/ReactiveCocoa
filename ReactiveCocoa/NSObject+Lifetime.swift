@@ -1,11 +1,20 @@
 import Foundation
 import ReactiveSwift
 
+/// Holds the `Lifetime` of the object.
+fileprivate let isSwizzledKey = AssociationKey<Bool>(default: false)
+
+/// Holds the `Lifetime` of the object.
+fileprivate let lifetimeKey = AssociationKey<Lifetime?>(default: nil)
+
+/// Holds the `Lifetime.Token` of the object.
+fileprivate let lifetimeTokenKey = AssociationKey<Lifetime.Token?>(default: nil)
+
 extension Reactive where Base: NSObject {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
 		return base.synchronized {
-			if let lifetime = base.associatedValue(forKey: AssociationKey.lifetime) as! Lifetime? {
+			if let lifetime = base.associations.value(forKey: lifetimeKey) {
 				return lifetime
 			}
 
@@ -13,14 +22,16 @@ extension Reactive where Base: NSObject {
 			let lifetime = Lifetime(token)
 
 			let objcClass: AnyClass = (base as AnyObject).objcClass
+			let objcClassAssociations = Associations(objcClass as AnyObject)
+
 			let deallocSelector = sel_registerName("dealloc")!
 
 			// Swizzle `-dealloc` so that the lifetime token is released at the
 			// beginning of the deallocation chain, and only after the KVO `-dealloc`.
 			synchronized(objcClass) {
 				// Swizzle the class only if it has not been swizzled before.
-				if objc_getAssociatedObject(objcClass, AssociationKey.lifetime) == nil {
-					objc_setAssociatedObject(objcClass, AssociationKey.lifetime, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				if !objcClassAssociations.value(forKey: isSwizzledKey) {
+					objcClassAssociations.setValue(true, forKey: isSwizzledKey)
 
 					var existingImpl: IMP? = nil
 
@@ -30,7 +41,7 @@ extension Reactive where Base: NSObject {
 						// mess with the object deallocation chain.
 
 						// Release the lifetime token.
-						_rac_objc_setAssociatedObject(objectRef, AssociationKey.lifetimeToken, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+						unsafeSetAssociatedValue(nil, forKey: lifetimeTokenKey, forObjectAt: objectRef)
 
 						let impl: IMP
 
@@ -64,8 +75,8 @@ extension Reactive where Base: NSObject {
 				}
 			}
 
-			base.setAssociatedValue(token, forKey: AssociationKey.lifetimeToken)
-			base.setAssociatedValue(lifetime, forKey: AssociationKey.lifetime)
+			base.associations.setValue(token, forKey: lifetimeTokenKey)
+			base.associations.setValue(lifetime, forKey: lifetimeKey)
 
 			return lifetime
 		}

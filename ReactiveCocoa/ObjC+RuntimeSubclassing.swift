@@ -1,5 +1,12 @@
 import ReactiveSwift
 
+/// Whether the runtime subclass has already been swizzled.
+fileprivate let runtimeSubclassedKey = AssociationKey(default: false)
+
+/// A known RAC runtime subclass of the instance. `nil` if the runtime subclass
+/// has not been requested for the instance before.
+fileprivate let knownRuntimeSubclassKey = AssociationKey<AnyClass?>(default: nil)
+
 /// ISA-swizzle the class of the supplied instance.
 ///
 /// - note: If the instance has already been isa-swizzled, the swizzling happens
@@ -11,23 +18,22 @@ import ReactiveSwift
 /// - returns:
 ///   The runtime subclass of the perceived class of the instance.
 internal func swizzleClass(_ instance: NSObject) -> AnyClass {
-	let key = (#function as StaticString).utf8Start
-
-	if let knownSubclass = instance.associatedValue(forKey: key) as! AnyClass? {
+	if let knownSubclass = instance.associations.value(forKey: knownRuntimeSubclassKey) {
 		return knownSubclass
 	}
 
 	let perceivedClass: AnyClass = instance.objcClass
 	let realClass: AnyClass = object_getClass(instance)!
+	let realClassAssociations = Associations(realClass as AnyObject)
 
 	if perceivedClass != realClass {
 		// If the class is already lying about what it is, it's probably a KVO
 		// dynamic subclass or something else that we shouldn't subclass at runtime.
 		synchronized(realClass) {
-			let isSwizzled = objc_getAssociatedObject(realClass, AssociationKey.runtimeSubclassed) as! Bool? ?? false
+			let isSwizzled = realClassAssociations.value(forKey: runtimeSubclassedKey)
 			if !isSwizzled {
 				replaceGetClass(in: realClass, decoy: perceivedClass)
-				objc_setAssociatedObject(realClass, AssociationKey.runtimeSubclassed, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+				realClassAssociations.setValue(true, forKey: runtimeSubclassedKey)
 			}
 		}
 
@@ -46,7 +52,7 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		}
 
 		object_setClass(instance, subclass)
-		instance.setAssociatedValue(subclass, forKey: key)
+		instance.associations.setValue(subclass, forKey: knownRuntimeSubclassKey)
 		return subclass
 	}
 }

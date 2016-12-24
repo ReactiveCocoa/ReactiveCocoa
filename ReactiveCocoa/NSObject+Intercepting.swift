@@ -2,6 +2,16 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
+/// Whether the runtime subclass has already been prepared for method
+/// interception.
+fileprivate let interceptedKey = AssociationKey(default: false)
+
+/// Holds the method signature cache of the runtime subclass.
+fileprivate let signatureCacheKey = AssociationKey<SignatureCache>()
+
+/// Holds the method selector cache of the runtime subclass.
+fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
+
 extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every invocation
 	/// of `selector` on the object.
@@ -58,31 +68,33 @@ extension NSObject {
 
 		return synchronized {
 			let alias = selector.alias
+			let stateKey = AssociationKey<InterceptingState?>(alias)
 			let interopAlias = selector.interopAlias
 
-			if let state = associatedValue(forKey: alias.utf8Start) as! InterceptingState? {
+			if let state = associations.value(forKey: stateKey) {
 				return state.signal
 			}
 
 			let subclass: AnyClass = swizzleClass(self)
+			let subclassAssociations = Associations(subclass as AnyObject)
 
 			// FIXME: Compiler asks to handle a mysterious throw.
 			try! ReactiveCocoa.synchronized(subclass) {
-				let isSwizzled = objc_getAssociatedObject(subclass, AssociationKey.intercepted) as! Bool? ?? false
+				let isSwizzled = subclassAssociations.value(forKey: interceptedKey)
 
 				let signatureCache: SignatureCache
 				let selectorCache: SelectorCache
 
 				if isSwizzled {
-					signatureCache = objc_getAssociatedObject(subclass, AssociationKey.signatureCache) as! SignatureCache
-					selectorCache = objc_getAssociatedObject(subclass, AssociationKey.selectorCache) as! SelectorCache
+					signatureCache = subclassAssociations.value(forKey: signatureCacheKey)
+					selectorCache = subclassAssociations.value(forKey: selectorCacheKey)
 				} else {
 					signatureCache = SignatureCache()
 					selectorCache = SelectorCache()
 
-					objc_setAssociatedObject(subclass, AssociationKey.signatureCache, signatureCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-					objc_setAssociatedObject(subclass, AssociationKey.selectorCache, selectorCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-					objc_setAssociatedObject(subclass, AssociationKey.intercepted, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+					subclassAssociations.setValue(signatureCache, forKey: signatureCacheKey)
+					subclassAssociations.setValue(selectorCache, forKey: selectorCacheKey)
+					subclassAssociations.setValue(true, forKey: interceptedKey)
 
 					enableMessageForwarding(subclass, selectorCache)
 					setupMethodSignatureCaching(subclass, signatureCache)
@@ -113,7 +125,7 @@ extension NSObject {
 			}
 
 			let state = InterceptingState(lifetime: reactive.lifetime)
-			setAssociatedValue(state, forKey: alias.utf8Start)
+			associations.setValue(state, forKey: stateKey)
 
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
@@ -137,7 +149,8 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 		let interopAlias = selectorCache.interopAlias(for: selector)
 
 		defer {
-			if let state = objectRef.takeUnretainedValue().associatedValue(forKey: alias.utf8Start) as! InterceptingState? {
+			let stateKey = AssociationKey<InterceptingState?>(alias)
+			if let state = objectRef.takeUnretainedValue().associations.value(forKey: stateKey) {
 				state.observer.send(value: invocation)
 			}
 		}

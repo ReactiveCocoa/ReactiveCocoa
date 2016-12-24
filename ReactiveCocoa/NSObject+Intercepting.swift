@@ -17,7 +17,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		return base.setupInterception(for: selector).map { _ in }
+		return base.intercept(selector).map { _ in }
 	}
 
 	/// Create a signal which sends a `next` event, containing an array of bridged
@@ -34,7 +34,7 @@ extension Reactive where Base: NSObject {
 	/// - returns:
 	///   A signal that sends an array of bridged arguments.
 	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
-		return base.setupInterception(for: selector).map(unpackInvocation)
+		return base.intercept(selector).map(unpackInvocation)
 	}
 }
 
@@ -48,7 +48,7 @@ extension NSObject {
 	/// - returns:
 	///   A signal that sends the corresponding `NSInvocation` after every
 	///   invocation of the method.
-	@nonobjc fileprivate func setupInterception(for selector: Selector) -> Signal<AnyObject, NoError> {
+	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
 			fatalError("Selector `\(selector)` does not exist in class `\(String(describing: objcClass))`.")
 		}
@@ -79,22 +79,20 @@ extension NSObject {
 				} else {
 					signatureCache = SignatureCache()
 					selectorCache = SelectorCache()
-				}
 
-				selectorCache.allocate(selector)
-
-				if signatureCache[selector] == nil {
-					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
-					signatureCache[selector] = signature
-				}
-
-				if !isSwizzled {
 					objc_setAssociatedObject(subclass, AssociationKey.signatureCache, signatureCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 					objc_setAssociatedObject(subclass, AssociationKey.selectorCache, selectorCache, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 					objc_setAssociatedObject(subclass, AssociationKey.intercepted, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
 					enableMessageForwarding(subclass, selectorCache)
 					setupMethodSignatureCaching(subclass, signatureCache)
+				}
+
+				selectorCache.cache(selector)
+
+				if signatureCache[selector] == nil {
+					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
+					signatureCache[selector] = signature
 				}
 
 				// If an immediate implementation of the selector is found in the
@@ -104,12 +102,9 @@ extension NSObject {
 				// Example: KVO setters if the instance is swizzled by KVO before RAC
 				//          does.
 				if !class_respondsToSelector(subclass, interopAlias) {
-					let immediateMethod = class_getImmediateMethod(subclass, selector)
-
-					let immediateImpl: IMP? = immediateMethod.flatMap {
-						let immediateImpl = method_getImplementation($0)
-						return immediateImpl.flatMap { $0 != _rac_objc_msgForward ? $0 : nil }
-					}
+					let immediateImpl = class_getImmediateMethod(subclass, selector)
+						.flatMap(method_getImplementation)
+						.flatMap { $0 != _rac_objc_msgForward ? $0 : nil }
 
 					if let impl = immediateImpl {
 						class_addMethod(subclass, interopAlias, impl, typeEncoding)
@@ -138,8 +133,8 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
 		let selector = invocation.selector!
-		let alias = selectorCache[main: selector]
-		let interopAlias = selectorCache[interop: selector]
+		let alias = selectorCache.alias(for: selector)
+		let interopAlias = selectorCache.interopAlias(for: selector)
 
 		defer {
 			if let state = objectRef.takeUnretainedValue().associatedValue(forKey: alias.utf8Start) as! InterceptingState? {
@@ -251,15 +246,13 @@ private final class SelectorCache {
 	/// - warning: Any invocation of this method must be synchronized against the
 	///            runtime subclass.
 	@discardableResult
-	func allocate(_ selector: Selector) -> (main: Selector, interop: Selector) {
+	func cache(_ selector: Selector) -> (main: Selector, interop: Selector) {
 		if let pair = map[selector] {
 			return pair
 		}
 
-		var copy = map
 		let aliases = (selector.alias, selector.interopAlias)
-		copy[selector] = aliases
-		map = copy
+		map[selector] = aliases
 
 		return aliases
 	}
@@ -268,7 +261,7 @@ private final class SelectorCache {
 	///
 	/// - parameters:
 	///   - selector: The selector alias.
-	subscript(main selector: Selector) -> Selector {
+	func alias(for selector: Selector) -> Selector {
 		if let (main, _) = map[selector] {
 			return main
 		}
@@ -280,7 +273,7 @@ private final class SelectorCache {
 	///
 	/// - parameters:
 	///   - selector: The selector alias.
-	subscript(interop selector: Selector) -> Selector {
+	func interopAlias(for selector: Selector) -> Selector {
 		if let (_, interop) = map[selector] {
 			return interop
 		}
@@ -314,9 +307,7 @@ private final class SignatureCache {
 		}
 		set {
 			if map[selector] == nil {
-				var newMap = map
-				newMap[selector] = newValue
-				map = newMap
+				map[selector] = newValue
 			}
 		}
 	}
@@ -376,39 +367,41 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 			return pointer.assumingMemoryBound(to: type).pointee
 		}
 
+		let value: Any?
+
 		switch encoding {
 		case .char:
-			bridged.append(NSNumber(value: extract(CChar.self)))
+			value = NSNumber(value: extract(CChar.self))
 		case .int:
-			bridged.append(NSNumber(value: extract(CInt.self)))
+			value = NSNumber(value: extract(CInt.self))
 		case .short:
-			bridged.append(NSNumber(value: extract(CShort.self)))
+			value = NSNumber(value: extract(CShort.self))
 		case .long:
-			bridged.append(NSNumber(value: extract(CLong.self)))
+			value = NSNumber(value: extract(CLong.self))
 		case .longLong:
-			bridged.append(NSNumber(value: extract(CLongLong.self)))
+			value = NSNumber(value: extract(CLongLong.self))
 		case .unsignedChar:
-			bridged.append(NSNumber(value: extract(CUnsignedChar.self)))
+			value = NSNumber(value: extract(CUnsignedChar.self))
 		case .unsignedInt:
-			bridged.append(NSNumber(value: extract(CUnsignedInt.self)))
+			value = NSNumber(value: extract(CUnsignedInt.self))
 		case .unsignedShort:
-			bridged.append(NSNumber(value: extract(CUnsignedShort.self)))
+			value = NSNumber(value: extract(CUnsignedShort.self))
 		case .unsignedLong:
-			bridged.append(NSNumber(value: extract(CUnsignedLong.self)))
+			value = NSNumber(value: extract(CUnsignedLong.self))
 		case .unsignedLongLong:
-			bridged.append(NSNumber(value: extract(CUnsignedLongLong.self)))
+			value = NSNumber(value: extract(CUnsignedLongLong.self))
 		case .float:
-			bridged.append(NSNumber(value: extract(CFloat.self)))
+			value = NSNumber(value: extract(CFloat.self))
 		case .double:
-			bridged.append(NSNumber(value: extract(CDouble.self)))
+			value = NSNumber(value: extract(CDouble.self))
 		case .bool:
-			bridged.append(NSNumber(value: extract(CBool.self)))
+			value = NSNumber(value: extract(CBool.self))
 		case .object:
-			bridged.append(extract((AnyObject?).self))
+			value = extract((AnyObject?).self)
 		case .type:
-			bridged.append(extract((AnyClass?).self))
+			value = extract((AnyClass?).self)
 		case .selector:
-			bridged.append(extract((Selector?).self))
+			value = extract((Selector?).self)
 		case .undefined:
 			var size = 0, alignment = 0
 			NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
@@ -416,8 +409,10 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
 
 			invocation.copy(to: buffer, forArgumentAt: Int(position))
-			bridged.append(NSValue(bytes: buffer, objCType: rawEncoding))
+			value = NSValue(bytes: buffer, objCType: rawEncoding)
 		}
+
+		bridged.append(value)
 	}
 
 	return bridged

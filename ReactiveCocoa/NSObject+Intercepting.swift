@@ -192,9 +192,7 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			// reflects the latest implementation of the selector in the perceived
 			// class.
 
-			let method = class_getImmediateMethod(realClass, alias)
-
-			if method == nil || method_getImplementation(method!) != impl {
+			if class_getMethodImplementation(realClass, alias) != impl {
 				// Update the alias if and only if the implementation has changed, so as
 				// to avoid thrashing the IMP cache.
 				_ = class_replaceMethod(realClass, alias, impl, typeEncoding)

@@ -13,7 +13,7 @@ import ReactiveSwift
 internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 	let key = (#function as StaticString).utf8Start
 
-	if let knownSubclass = instance.value(forAssociationKey: key) as! AnyClass? {
+	if let knownSubclass = instance.associatedValue(forKey: key) as! AnyClass? {
 		return knownSubclass
 	}
 
@@ -46,7 +46,7 @@ internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 		}
 
 		object_setClass(instance, subclass)
-		instance.setValue(subclass, forAssociationKey: key)
+		instance.setAssociatedValue(subclass, forKey: key)
 		return subclass
 	}
 }

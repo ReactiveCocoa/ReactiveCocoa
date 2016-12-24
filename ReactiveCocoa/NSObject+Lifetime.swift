@@ -5,7 +5,7 @@ extension Reactive where Base: NSObject {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
 		return base.synchronized {
-			if let lifetime = base.value(forAssociationKey: AssociationKey.lifetime) as! Lifetime? {
+			if let lifetime = base.associatedValue(forKey: AssociationKey.lifetime) as! Lifetime? {
 				return lifetime
 			}
 
@@ -64,8 +64,8 @@ extension Reactive where Base: NSObject {
 				}
 			}
 
-			base.setValue(token, forAssociationKey: AssociationKey.lifetimeToken)
-			base.setValue(lifetime, forAssociationKey: AssociationKey.lifetime)
+			base.setAssociatedValue(token, forKey: AssociationKey.lifetimeToken)
+			base.setAssociatedValue(lifetime, forKey: AssociationKey.lifetime)
 
 			return lifetime
 		}

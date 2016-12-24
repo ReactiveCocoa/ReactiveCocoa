@@ -60,7 +60,7 @@ extension NSObject {
 			let alias = selector.alias
 			let interopAlias = selector.interopAlias
 
-			if let state = value(forAssociationKey: alias.utf8Start) as! InterceptingState? {
+			if let state = associatedValue(forKey: alias.utf8Start) as! InterceptingState? {
 				return state.signal
 			}
 
@@ -118,7 +118,7 @@ extension NSObject {
 			}
 
 			let state = InterceptingState(lifetime: reactive.lifetime)
-			setValue(state, forAssociationKey: alias.utf8Start)
+			setAssociatedValue(state, forKey: alias.utf8Start)
 
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
@@ -142,7 +142,7 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 		let interopAlias = selectorCache[interop: selector]
 
 		defer {
-			if let state = objectRef.takeUnretainedValue().value(forAssociationKey: alias.utf8Start) as! InterceptingState? {
+			if let state = objectRef.takeUnretainedValue().associatedValue(forKey: alias.utf8Start) as! InterceptingState? {
 				state.observer.send(value: invocation)
 			}
 		}

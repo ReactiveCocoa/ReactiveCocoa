@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   
   s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :tag => "#{s.version}" }
   s.source_files = "ReactiveCocoa/*.{swift,h,m}", "ReactiveCocoa/Shared/*.{swift}"
-  s.private_header_files = "ReactiveCocoa/RACObjCRuntimeUtilities.h"
+  s.private_header_files = "ReactiveCocoa/ObjCRuntimeAliases.h"
   s.osx.source_files = "ReactiveCocoa/AppKit/*.{swift}"
   s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}", "ReactiveCocoa/UIKit/iOS/*.{swift}"
   s.tvos.source_files = "ReactiveCocoa/UIKit/*.{swift}"

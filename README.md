@@ -96,7 +96,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" "5.0.0-alpha.6"
+github "ReactiveCocoa/ReactiveCocoa" "5.0.0-rc.1"
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -107,7 +107,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '5.0.0-alpha.6'
+pod 'ReactiveCocoa', '5.0.0-rc.1'
 ```
 
 #### Git submodule
@@ -134,7 +134,7 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 ### In Development: ReactiveCocoa 5.0
 It targets Swift 3.0.x and ReactiveSwift 1.0. The tentative schedule of a Gold Master release is January 2017.
 
-A Release Candidate would be released after an important bug fix is cleared, which should happen no later than Christmas 2016.
+[Release Candidate 1](https://github.com/ReactiveCocoa/ReactiveCocoa/releases/tag/5.0.0-rc.1/) has been released.
 
 ### Plan of Record
 #### ReactiveCocoa 6.0

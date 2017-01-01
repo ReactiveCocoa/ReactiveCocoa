@@ -72,7 +72,6 @@ extension NSObject {
 		assert(checkTypeEncoding(typeEncoding))
 
 		return synchronized {
-			let alias = selector.alias
 			let interopAlias = selector.interopAlias
 			let stateKey = AssociationKey<InterceptingState?>(interopAlias)
 
@@ -106,7 +105,7 @@ extension NSObject {
 					subclassAssociations.setValue(selectorCache, forKey: selectorCacheKey)
 					subclassAssociations.setValue(true, forKey: interceptedKey)
 
-					enableMessageForwarding(subclass, selectorCache)
+					enableMessageForwarding(subclass, selectorCache, typeEncoding)
 					setupMethodSignatureCaching(subclass, signatureCache)
 				}
 
@@ -177,7 +176,7 @@ extension NSObject {
 ///
 /// - parameters:
 ///   - realClass: The runtime subclass to be swizzled.
-private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: SelectorCache) {
+private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: SelectorCache, _ typeEncoding: UnsafePointer<Int8>) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)
 
 	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
@@ -185,16 +184,6 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 		let selector = invocation.selector!
 		let alias = selectorCache.alias(for: selector)
 		let interopAlias = selectorCache.interopAlias(for: selector)
-
-		defer {
-			let stateKey = AssociationKey<InterceptingState?>(interopAlias)
-			if let state = objectRef.takeUnretainedValue().associations.value(forKey: stateKey) {
-				state.send(state.packsArguments ? unpackInvocation(invocation) : nil)
-			}
-		}
-
-		let method = class_getInstanceMethod(perceivedClass, selector)!
-		let typeEncoding = method_getTypeEncoding(method)
 
 		if class_respondsToSelector(realClass, interopAlias) {
 			// RAC has preserved an immediate implementation found in the runtime
@@ -210,11 +199,7 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			let previousImpl = class_replaceMethod(realClass, selector, interopImpl, typeEncoding)
 			invocation.invoke()
 			_ = class_replaceMethod(realClass, selector, previousImpl, typeEncoding)
-
-			return
-		}
-
-		if let impl = method_getImplementation(method), impl != _rac_objc_msgForward {
+		} else if let impl = class_getMethodImplementation(perceivedClass, selector), impl != _rac_objc_msgForward {
 			// The perceived class, or its ancestors, responds to the selector.
 			//
 			// The implementation is invoked through the selector alias, which
@@ -229,17 +214,19 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 
 			invocation.setSelector(alias)
 			invocation.invoke()
-
-			return
+		} else {
+			// Forward the invocation to the closest `forwardInvocation(_:)` in the
+			// inheritance hierarchy, or the default handler returned by the runtime
+			// if it finds no implementation.
+			let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
+			let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
+			forwardInvocation(objectRef, ObjCSelector.forwardInvocation, invocation)
 		}
 
-		// Forward the invocation to the closest `forwardInvocation(_:)` in the
-		// inheritance hierarchy, or the default handler returned by the runtime
-		// if it finds no implementation.
-		typealias SuperForwardInvocation = @convention(c) (Unmanaged<NSObject>, Selector, AnyObject) -> Void
-		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
-		let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
-		forwardInvocation(objectRef, ObjCSelector.forwardInvocation, invocation)
+		let stateKey = AssociationKey<InterceptingState?>(interopAlias)
+		if let state = objectRef.takeUnretainedValue().associations.value(forKey: stateKey) {
+			state.send(state.packsArguments ? unpackInvocation(invocation) : nil)
+		}
 	}
 
 	_ = class_replaceMethod(realClass,
@@ -542,12 +529,10 @@ private enum Implementation<Impl> {
 }
 
 private func getImplementation<Impl>(_ perceivedClass: AnyClass, _ realClass: AnyClass, _ selector: Selector, _ interopAlias: Selector, _ type: Impl.Type) -> Implementation<Impl> {
-	let method = class_getInstanceMethod(perceivedClass, selector)!
-
 	if class_respondsToSelector(realClass, interopAlias) {
 		let interopImpl = class_getMethodImplementation(realClass, interopAlias)!
 		return .method(unsafeBitCast(interopImpl, to: Impl.self))
-	} else if let impl = method_getImplementation(method), impl != _rac_objc_msgForward {
+	} else if let impl = class_getMethodImplementation(perceivedClass, selector), impl != _rac_objc_msgForward {
 		return .method(unsafeBitCast(impl, to: Impl.self))
 	} else {
 		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)

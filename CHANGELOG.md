@@ -273,9 +273,9 @@ public final class MyController {
 	</tr>
 	<tr>
 		<td><code>rac_liftSelector:withSignals:</code></td>
-		<td>Apply <code>combineLatest</code> to your signals, and pass the method as the action to <code>observeValues</code>.
+		<td>Apply <code>combineLatest</code> to your signals, and invoke the method in <code>observeValues</code>.
 			<p>
-<pre lang="swift">Signal.combineLatest([signal1, signal2])
+<pre lang="swift">Signal.combineLatest(signal1, signal2)
 	.take(during: self.reactive.lifetime)
 	.observeValues { [weak self] in self?.perform(first: $0, second: $1) }</pre>
 			</p>
@@ -301,8 +301,8 @@ public final class MyController {
 	</thead>
 	<tbody>
 	<tr>
-		<td>Control value changes, e.g. <code>textField.rac_text</code></td>
-		<td>Discover control value signals via <code>.reactive</code> on UI components.
+		<td>Control value changes, e.g. <code>textField.rac_textSignal()</code></td>
+		<td>Discover control value `Signal`s via <code>.reactive</code> on UI components.
 			<p><pre lang="swift">viewModel.searchString <~ textField.reactive.textValues</pre></p>
 		</td>
 	</tr>
@@ -311,9 +311,9 @@ public final class MyController {
 		<td><code>UIControl.reactive.trigger(for:)</code></td>
 	</tr>
 	<tr>
-		<td><code>rac_command`</td>
+		<td><code>rac_command</td>
 		<td>Discover action binding APIs via <code>.reactive</code> on UI components.
-			<p><pre lang="swift">button.pressed = CocoaAction(viewModel.submitAction)</pre></p>
+			<p><pre lang="swift">button.reactive.pressed = CocoaAction(viewModel.submitAction)</pre></p>
 		</td>
 	</tr>
 	</tbody>

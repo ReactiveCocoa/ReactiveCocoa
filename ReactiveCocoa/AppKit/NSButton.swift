@@ -14,11 +14,13 @@ extension Reactive where Base: NSButton {
 		}
 
 		nonmutating set {
-			base.target = newValue
-			base.action = newValue.map { _ in CocoaAction<Base>.selector }
 			associatedAction
 				.swap(newValue.map { action in
-					let disposable = isEnabled <~ action.isEnabled
+					let disposable = CompositeDisposable()
+					disposable += isEnabled <~ action.isEnabled
+					disposable += trigger.observeValues { [unowned base = self.base] in
+						action.execute(base)
+					}
 					return (action, disposable)
 				})?
 				.disposable?.dispose()

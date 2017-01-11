@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */; };
 		006518761E26865800C3139A /* NSButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006518751E26865800C3139A /* NSButton.swift */; };
 		3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */; };
 		3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */; };
@@ -307,6 +308,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButtonSpec.swift; sourceTree = "<group>"; };
 		006518751E26865800C3139A /* NSButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButton.swift; sourceTree = "<group>"; };
 		3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControl.swift; sourceTree = "<group>"; };
 		3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControlSpec.swift; sourceTree = "<group>"; };
@@ -630,6 +632,7 @@
 				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
 				D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */,
+				004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -1274,6 +1277,7 @@
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
+				004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */,
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */,

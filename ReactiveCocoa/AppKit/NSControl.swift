@@ -92,7 +92,7 @@ extension Reactive where Base: NSControl {
 
 	/// A trigger signal that sends a `next` event for every action messages
 	/// received from the control, and completes when the control deinitializes.
-	private var trigger: Signal<(), NoError> {
+	internal var trigger: Signal<(), NoError> {
 		return associatedValue { base in
 			let (signal, observer) = Signal<(), NoError>.pipe()
 

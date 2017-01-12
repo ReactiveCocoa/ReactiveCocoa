@@ -4,7 +4,7 @@ import AppKit
 
 extension Reactive where Base: NSButton {
 
-	internal var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: Disposable?)?> {
+	internal var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: CompositeDisposable)?> {
 		return associatedValue { _ in Atomic(nil) }
 	}
 
@@ -15,15 +15,17 @@ extension Reactive where Base: NSButton {
 
 		nonmutating set {
 			associatedAction
-				.swap(newValue.map { action in
-					let disposable = CompositeDisposable()
-					disposable += isEnabled <~ action.isEnabled
-					disposable += trigger.observeValues { [unowned base = self.base] in
-						action.execute(base)
+				.modify { action in
+					action?.disposable.dispose()
+					action = newValue.map { action in
+						let disposable = CompositeDisposable()
+						disposable += isEnabled <~ action.isEnabled
+						disposable += trigger.observeValues { [unowned base = self.base] in
+							action.execute(base)
+						}
+						return (action, disposable)
 					}
-					return (action, disposable)
-				})?
-				.disposable?.dispose()
+			}
 		}
 	}
 }

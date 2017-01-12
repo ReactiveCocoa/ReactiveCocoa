@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ReactiveCocoa"
-  s.version      = "5.0.0-alpha.3"
+  s.version      = "5.0.0-rc.1"
   s.summary      = "Streams of values over time"
   s.description  = <<-DESC
                    ReactiveCocoa (RAC) is a Cocoa framework built on top of ReactiveSwift. It provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.
@@ -16,13 +16,12 @@ Pod::Spec.new do |s|
   
   s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :tag => "#{s.version}" }
   s.source_files = "ReactiveCocoa/*.{swift,h,m}", "ReactiveCocoa/Shared/*.{swift}"
-  s.private_header_files = "ReactiveCocoa/RACObjCRuntimeUtilities.h"
+  s.private_header_files = "ReactiveCocoa/ObjCRuntimeAliases.h"
   s.osx.source_files = "ReactiveCocoa/AppKit/*.{swift}"
-  s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}"
+  s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}", "ReactiveCocoa/UIKit/iOS/*.{swift}"
   s.tvos.source_files = "ReactiveCocoa/UIKit/*.{swift}"
-  s.tvos.exclude_files = "ReactiveCocoa/UIKit/*{UIDatePicker,UISwitch}*"
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
   s.module_map = "ReactiveCocoa/module.modulemap"
   
-  s.dependency 'ReactiveSwift', '~> 1.0.0-alpha.3'
+  s.dependency 'ReactiveSwift', '~> 1.0.0'
 end

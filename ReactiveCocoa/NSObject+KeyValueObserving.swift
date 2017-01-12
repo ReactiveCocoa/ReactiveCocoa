@@ -133,7 +133,7 @@ extension KeyValueObserver {
 				}
 
 				let headDisposable = CompositeDisposable()
-				headSerialDisposable.innerDisposable = headDisposable
+				headSerialDisposable.inner = headDisposable
 
 				if shouldObserveDeinit {
 					let disposable = value.reactive.lifetime.ended.observeCompleted {
@@ -165,7 +165,7 @@ extension KeyValueObserver {
 					let disposable = value.reactive.lifetime.ended.observeCompleted {
 						action(nil)
 					}
-					headSerialDisposable.innerDisposable = disposable
+					headSerialDisposable.inner = disposable
 				}
 
 				// Send the latest value of the key.

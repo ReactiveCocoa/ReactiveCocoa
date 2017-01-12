@@ -2,8 +2,8 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-/// CocoaAction wraps an Action for use by a GUI control (such as `NSControl` or
-/// `UIControl`), with KVO, or with Cocoa Bindings.
+/// CocoaAction wraps an `Action` for use by a UI control (such as `NSControl` or
+/// `UIControl`).
 public final class CocoaAction<Sender>: NSObject {
 	/// The selector for message senders.
 	public static var selector: Selector {
@@ -12,14 +12,12 @@ public final class CocoaAction<Sender>: NSObject {
 
 	/// Whether the action is enabled.
 	///
-	/// This property will only change on the main thread, and will generate a
-	/// KVO notification for every change.
+	/// This property will only change on the main thread.
 	public let isEnabled: Property<Bool>
 	
 	/// Whether the action is executing.
 	///
-	/// This property will only change on the main thread, and will generate a
-	/// KVO notification for every change.
+	/// This property will only change on the main thread.
 	public let isExecuting: Property<Bool>
 
 	private let _execute: (Sender) -> Void
@@ -37,9 +35,11 @@ public final class CocoaAction<Sender>: NSObject {
 			producer.start()
 		}
 
-		isEnabled = action.isEnabled
-		isExecuting = action.isExecuting
-		
+		isEnabled = Property(initial: action.isEnabled.value,
+		                     then: action.isEnabled.producer.observe(on: UIScheduler()))
+		isExecuting = Property(initial: action.isExecuting.value,
+		                       then: action.isExecuting.producer.observe(on: UIScheduler()))
+
 		super.init()
 	}
 
@@ -66,7 +66,7 @@ public final class CocoaAction<Sender>: NSObject {
 	///
 	/// - parameters:
 	///   - sender: The sender which initiates the attempt.
-	@IBAction public func execute(_ sender: Any?) {
+	@IBAction public func execute(_ sender: Any) {
 		_execute(sender as! Sender)
 	}
 }

@@ -20,6 +20,19 @@ class NSButtonSpec: QuickSpec {
 			expect(_button).to(beNil())
 		}
 
+		it("should accept changes from bindings to its enabling state") {
+			button.isEnabled = false
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			button.reactive.isEnabled <~ SignalProducer(pipeSignal)
+
+			observer.send(value: true)
+			expect(button.isEnabled) == true
+
+			observer.send(value: false)
+			expect(button.isEnabled) == false
+		}
+
 		it("should execute the `pressed` action upon receiving a click") {
 			button.isEnabled = true
 

@@ -37,8 +37,10 @@ class NSButtonSpec: QuickSpec {
 			button.isEnabled = true
 
 			let pressed = MutableProperty(false)
+
+			let (executionSignal, observer) = Signal<Bool, NoError>.pipe()
 			let action = Action<(), Bool, NoError> { _ in
-				SignalProducer(value: true)
+				SignalProducer(executionSignal)
 			}
 
 			pressed <~ SignalProducer(action.values)
@@ -46,6 +48,12 @@ class NSButtonSpec: QuickSpec {
 			expect(pressed.value) == false
 
 			button.performClick(nil)
+			expect(button.isEnabled) == false
+
+			observer.send(value: true)
+			observer.sendCompleted()
+
+			expect(button.isEnabled) == true
 			expect(pressed.value) == true
 		}
 	}

@@ -35,4 +35,12 @@ extension Reactive where Base: NSPopUpButton {
 			$0.selectItem(withTitle: $1 ?? "")
 		}
 	}
+
+	public var selectedItems: Signal<NSMenuItem, NoError> {
+		return self.objectValues
+			.map { [unowned base = self.base] _ -> NSMenuItem? in
+				return base.selectedItem
+			}
+			.skipNil()
+	}
 }

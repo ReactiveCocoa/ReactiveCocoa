@@ -84,7 +84,7 @@ let searchString = textField.reactive.continuousTextValues
     .logEvents(identifier: "✨My awesome stream ✨")
 ```
 
-There also cases, specially with [hot signals][Signal], when there is simply too much output. For those, you can specify which events you are interested in:
+There also cases, especially with [hot signals][Signal], when there is simply too much output. For those, you can specify which events you are interested in:
 
 ```swift
 let searchString = textField.reactive.continuousTextValues
@@ -92,5 +92,5 @@ let searchString = textField.reactive.continuousTextValues
     .logEvents(events: [.disposed])
 ```
 
-[Signal]: ../Sources/Signal.swift
+[Signal]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Signal.swift
 

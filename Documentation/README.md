@@ -38,8 +38,8 @@ ReactiveCocoa includes a few object interception tools from ReactiveObjC, remast
     
     The [`DynamicProperty`][] type can be used to bridge to Objective-C APIs that require Key-Value Coding (KVC) or Key-Value Observing (KVO), like `NSOperation`. Note that most AppKit and UIKit properties do _not_ support KVO, so their changes should be observed through other mechanisms.
     
-    For binding UI, [UIKit and AppKit bindings](ui-bindings) provided by ReactiveCocoa are preferred. 
     
+    For binding UI, [UIKit][UIKit-bindings] and [AppKit](AppKit-bindings) bindings provided by ReactiveCocoa are preferred.
     In all other cases, [`MutableProperty`][] should be preferred over dynamic properties whenever possible!
 
 1. **Expressive, Safe Key Path Observation**
@@ -108,6 +108,8 @@ ReactiveCocoa provides UI bindings for UIKit and AppKit via the `reactive` struc
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
-[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target
-[`MutableProperty`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Property.swift#L534
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#properties
+[`MutableProperty`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Property.swift#L583
 [`DynamicProperty`]: https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/DynamicProperty.swift
+[UIKit-bindings]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/ReactiveCocoa/UIKit
+[AppKit-bindings]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/ReactiveCocoa/AppKit

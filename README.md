@@ -23,7 +23,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 1. **UI Bindings**
 
-	UI components exposes [`BindingTarget`][]s, which accept bindings from any
+	UI components expose [`BindingTarget`][]s, which accept bindings from any
 	kind of streams of values via the `<~` operator.
 
 	```swift
@@ -171,4 +171,4 @@ ReactiveCocoa 7.0 would focus on three main goals:
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
-[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#properties

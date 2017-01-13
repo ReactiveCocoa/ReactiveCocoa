@@ -108,6 +108,6 @@ ReactiveCocoa provides UI bindings for UIKit and AppKit via the `reactive` struc
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
-[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#properties
 [`MutableProperty`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Sources/Property.swift#L583
 [`DynamicProperty`]: https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/DynamicProperty.swift

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */; };
+		006518761E26865800C3139A /* NSButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006518751E26865800C3139A /* NSButton.swift */; };
 		3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */; };
 		3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */; };
 		419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
@@ -310,6 +312,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButtonSpec.swift; sourceTree = "<group>"; };
+		006518751E26865800C3139A /* NSButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButton.swift; sourceTree = "<group>"; };
 		3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControl.swift; sourceTree = "<group>"; };
 		3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControlSpec.swift; sourceTree = "<group>"; };
 		419139431DB910570043C9D1 /* UIGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizer.swift; sourceTree = "<group>"; };
@@ -564,6 +568,7 @@
 				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
 				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
 				D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */,
+				006518751E26865800C3139A /* NSButton.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -632,6 +637,7 @@
 				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
 				9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */,
 				D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */,
+				004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -1245,6 +1251,7 @@
 				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
 				9AE7C2A41DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
+				006518761E26865800C3139A /* NSButton.swift in Sources */,
 				9A54A21B1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
 				9AA0BD8A1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */,
@@ -1279,6 +1286,7 @@
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
+				004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */,
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */,

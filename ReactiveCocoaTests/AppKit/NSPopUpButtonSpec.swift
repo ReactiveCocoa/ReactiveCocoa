@@ -78,6 +78,17 @@ final class NSPopUpButtonSpec: QuickSpec {
 				expect(button.selectedItem?.title).to(beNil())
 				expect(button.indexOfSelectedItem) == -1
 			}
+
+			it("should emit selected item changes") {
+				var values = [NSMenuItem]()
+				button.reactive.selectedItems.observeValues { values.append($0) }
+
+				button.menu?.performActionForItem(at: 1)
+				button.menu?.performActionForItem(at: 99)
+
+				let titles = values.map { $0.title }
+				expect(titles) == ["1", "99"]
+			}
 		}
 	}
 }

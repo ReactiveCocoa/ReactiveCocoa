@@ -37,32 +37,32 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 	Interactive UI components expose [`Signal`][]s for control events
 	and updates in the control value upon user interactions.
-	
+
 	A selected set of controls provide a convenience, expressive binding
 	API for [`Action`][]s.
-	
-	
+
+
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
-	preferences.allowsCookies <~ toggle.reactive.isOnValues 
-	
+	preferences.allowsCookies <~ toggle.reactive.isOnValues
+
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.
 	textField.reactive.continuousTextValues.map { $0.characters.count }
-	
+
 	// Trigger `commit` whenever the button is pressed.
 	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```
-	
+
 1. **Declarative Objective-C Dynamism**
 
 	Create signals that are sourced by intercepting Objective-C objects,
 	e.g. method call interception and object deinitialization.
-	
+
 	```swift
 	// Notify after every time `viewWillAppear(_:)` is called.
 	let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
-	
+
 	// Observe the lifetime of `object`.
 	object.reactive.lifetime.ended.observeCompleted(doCleanup)
 	```
@@ -71,7 +71,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 	Establish key-value observations in the form of [`SignalProducer`][]s and
 	`DynamicProperty`s, and enjoy the inherited composability.
-	
+
 	```swift
 	// A producer that sends the current value of `keyPath`, followed by
 	// subsequent changes.
@@ -79,7 +79,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	// Terminate the KVO observation if the lifetime of `self` ends.
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
-	
+
 	// A parameterized property that represents the supplied key path of the
 	// wrapped object. It holds a weak reference to the wrapped object.
 	let property = DynamicProperty<String>(object: person,
@@ -99,7 +99,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" "5.0.0-rc.1"
+github "ReactiveCocoa/ReactiveCocoa" "5.0.0"
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -110,7 +110,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '5.0.0-rc.1'
+pod 'ReactiveCocoa', '~> 5.0.0'
 ```
 
 #### Git submodule
@@ -134,12 +134,6 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 ## Release Roadmap
 **Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
 
-### In Development: ReactiveCocoa 5.0
-It targets Swift 3.0.x and ReactiveSwift 1.0. The tentative schedule of a Gold Master release is January 2017.
-
-[Release Candidate 1](https://github.com/ReactiveCocoa/ReactiveCocoa/releases/tag/5.0.0-rc.1/) has been released.
-
-### Plan of Record
 #### ReactiveCocoa 6.0
 It targets Swift 3.1.x and ReactiveSwift 2.0. The estimated schedule is Spring 2017.
 

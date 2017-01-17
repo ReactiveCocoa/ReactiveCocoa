@@ -28,3 +28,19 @@ extension Reactive where Base: UISlider {
 		return controlEvents(.valueChanged).map { $0.value }
 	}
 }
+
+extension UISlider {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UISlider,
+		source: Source
+	) -> Disposable? where Source.Value == Float, Source.Error == NoError {
+		return target.reactive.value <~ source
+	}
+}
+
+extension UISlider: BindingSourceProtocol {
+	public func observe(_ observer: Observer<Float, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.values.take(during: lifetime).observe(observer)
+	}
+}

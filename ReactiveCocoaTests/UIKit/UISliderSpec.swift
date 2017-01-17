@@ -20,6 +20,13 @@ class UISliderSpec: QuickSpec {
 			expect(_slider).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			MutableProperty(0.0) <~ slider
+			MutableProperty<Float?>(nil) <~ slider
+			
+			slider <~ MutableProperty<Float>(0.0)
+		}
+
 		it("should accept changes from bindings to its value") {
 			expect(slider.value) == 0.0
 

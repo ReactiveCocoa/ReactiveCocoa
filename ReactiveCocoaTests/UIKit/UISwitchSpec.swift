@@ -19,6 +19,13 @@ class UISwitchSpec: QuickSpec {
 			expect(_toggle).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			MutableProperty(false) <~ toggle
+			MutableProperty<Bool?>(nil) <~ toggle
+
+			toggle <~ MutableProperty<Bool>(true)
+		}
+
 		it("should accept changes from bindings to its `isOn` state") {
 			toggle.isOn = false
 

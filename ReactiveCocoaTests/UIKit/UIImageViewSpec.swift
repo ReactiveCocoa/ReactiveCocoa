@@ -20,6 +20,11 @@ class UIImageViewSpec: QuickSpec {
 			expect(_imageView).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			imageView <~ MutableProperty(UIImage())
+			imageView <~ MutableProperty<UIImage?>(nil)
+		}
+
 		it("should accept changes from bindings to its displaying image") {
 			let firstChange = UIImage()
 			let secondChange = UIImage()

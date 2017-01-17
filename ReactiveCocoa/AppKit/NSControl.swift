@@ -109,3 +109,77 @@ extension Reactive where Base: NSControl {
 		}
 	}
 }
+
+extension NSControl {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == String, Source.Error == NoError {
+		return target.reactive.stringValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == NSAttributedString, Source.Error == NoError {
+		return target.reactive.attributedStringValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == Bool, Source.Error == NoError {
+		return target.reactive.boolValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == Int32, Source.Error == NoError {
+		return target.reactive.intValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == Int, Source.Error == NoError {
+		return target.reactive.integerValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == Double, Source.Error == NoError {
+		return target.reactive.doubleValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+	) -> Disposable? where Source.Value == Float, Source.Error == NoError {
+		return target.reactive.floatValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+		) -> Disposable? where Source.Value == Any, Source.Error == NoError {
+		return target.reactive.objectValue <~ source
+	}
+
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: NSControl,
+		source: Source
+		) -> Disposable? where Source.Value == Any?, Source.Error == NoError {
+		return target.reactive.objectValue <~ source
+	}
+}

@@ -33,6 +33,18 @@ class NSControlSpec: QuickSpec {
 				expect(_control).to(beNil())
 			}
 
+			it("should not result in ambiguous reference") {
+				control <~ MutableProperty<String>("")
+				control <~ MutableProperty<NSAttributedString>(NSAttributedString())
+				control <~ MutableProperty<Bool>(false)
+				control <~ MutableProperty<Int32>(0)
+				control <~ MutableProperty<Int>(0)
+				control <~ MutableProperty<Double>(0.0)
+				control <~ MutableProperty<Float>(0.0)
+				control <~ MutableProperty<Any>(0)
+				control <~ MutableProperty<Any?>(nil)
+			}
+
 			it("should emit changes in Int") {
 				var values = [Int]()
 				control.reactive.integerValues.observeValues { values.append($0) }

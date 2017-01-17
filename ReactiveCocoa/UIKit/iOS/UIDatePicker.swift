@@ -13,3 +13,20 @@ extension Reactive where Base: UIDatePicker {
 		return controlEvents(.valueChanged).map { $0.date }
 	}
 }
+
+extension UIDatePicker {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UIDatePicker,
+		source: Source
+	) -> Disposable? where Source.Value == Date, Source.Error == NoError {
+		return target.reactive.date <~ source
+	}
+}
+
+extension UIDatePicker: BindingSourceProtocol {
+	public func observe(_ observer: Observer<Date, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.dates.take(during: lifetime).observe(observer)
+	}
+}
+

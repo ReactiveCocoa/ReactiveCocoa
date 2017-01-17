@@ -19,7 +19,7 @@ class UIBarButtonItemSpec: QuickSpec {
 			barButtonItem = nil
 			expect(_barButtonItem).to(beNil())
 		}
-
+		
 		it("should not be retained with the presence of a `pressed` action") {
 			let action = Action<(),(),NoError> { SignalProducer(value: ()) }
 			barButtonItem.reactive.pressed = CocoaAction(action)

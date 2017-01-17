@@ -28,3 +28,19 @@ extension Reactive where Base: UISwitch {
 		return controlEvents(.valueChanged).map { $0.isOn }
 	}
 }
+
+extension UISwitch {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UISwitch,
+		source: Source
+	) -> Disposable? where Source.Value == Bool, Source.Error == NoError {
+		return target.reactive.isOn <~ source
+	}
+}
+
+extension UISwitch: BindingSourceProtocol {
+	public func observe(_ observer: Observer<Bool, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.isOnValues.take(during: lifetime).observe(observer)
+	}
+}

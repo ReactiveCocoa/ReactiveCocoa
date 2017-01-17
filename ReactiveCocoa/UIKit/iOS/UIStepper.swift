@@ -25,3 +25,19 @@ extension Reactive where Base: UIStepper {
 		return controlEvents(.valueChanged).map { $0.value }
 	}
 }
+
+extension UIStepper {
+	@discardableResult
+	public static func <~ <Source: BindingSourceProtocol>(
+		target: UIStepper,
+		source: Source
+	) -> Disposable? where Source.Value == Double, Source.Error == NoError {
+		return target.reactive.value <~ source
+	}
+}
+
+extension UIStepper: BindingSourceProtocol {
+	public func observe(_ observer: Observer<Double, NoError>, during lifetime: Lifetime) -> Disposable? {
+		return reactive.values.take(during: lifetime).observe(observer)
+	}
+}

@@ -20,6 +20,10 @@ class UIProgressViewSpec: QuickSpec {
 			expect(_progressView).to(beNil())
 		}
 
+		it("should not result in ambiguous reference") {
+			progressView <~ MutableProperty<Float>(0.0)
+		}
+
 		it("should accept changes from bindings to its progress value") {
 			let firstChange: Float = 0.5
 			let secondChange: Float = 0.0

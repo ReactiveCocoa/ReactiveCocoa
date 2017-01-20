@@ -43,4 +43,20 @@ extension Reactive where Base: NSPopUpButton {
 			}
 			.skipNil()
 	}
+
+
+	/// A signal of selected tags
+	public var selectedTags: Signal<Int, NoError> {
+		return self.integerValues
+			.map { [unowned base = self.base] _ -> Int in
+				return base.selectedTag()
+		}
+	}
+
+	/// Sets the button with an index.
+	public var selectedTag: BindingTarget<Int> {
+		return makeBindingTarget {
+			$0.selectItem(withTag: $1)
+		}
+	}
 }

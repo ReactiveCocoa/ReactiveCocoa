@@ -22,4 +22,9 @@ extension Reactive where Base: NSTextField {
 		return notifications
 			.map { ($0.object as! NSTextField).attributedStringValue }
 	}
+
+	/// Sets the color of the text with an `NSColor`.
+	public var textColor: BindingTarget<NSColor> {
+		return makeBindingTarget { $0.textColor = $1 }
+	}
 }

@@ -2,27 +2,24 @@ import ReactiveSwift
 import enum Result.NoError
 import UIKit
 
-private class ReactiveUISearchBarDelegate: NSObject, UISearchBarDelegate {
+private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISearchBarDelegate {
+	@objc func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+		forwardee?.searchBarTextDidEndEditing?(searchBar)
+	}
 
-	@objc func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {}
-	@objc func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {}
+	@objc func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+		forwardee?.searchBar?(searchBar, textDidChange: searchText)
+	}
 }
 
-private var delegateKey: UInt8 = 0
+private let proxyKey = AssociationKey<SearchBarDelegateProxy?>()
 
 extension Reactive where Base: UISearchBar {
-
-	private var delegate: ReactiveUISearchBarDelegate {
-		if let delegate = objc_getAssociatedObject(base, &delegateKey) as? ReactiveUISearchBarDelegate {
-			return delegate
-		} else if let _ = base.delegate {
-			fatalError("Cannot use reactive values on UISearchBar with a custom delegate!")
-		}
-
-		let delegate = ReactiveUISearchBarDelegate()
-		base.delegate = delegate
-		objc_setAssociatedObject(base, &delegateKey, delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-		return delegate
+	private var proxy: SearchBarDelegateProxy {
+		return SearchBarDelegateProxy.proxy(for: base,
+		                                    setter: #selector(setter: base.delegate),
+		                                    getter: #selector(getter: base.delegate),
+		                                    proxyKey)
 	}
 
 	/// Sets the text of the search bar.
@@ -39,7 +36,7 @@ extension Reactive where Base: UISearchBar {
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String?, NoError> {
-		return delegate.reactive.trigger(for: #selector(UISearchBarDelegate.searchBarTextDidEndEditing))
+		return proxy.intercept(#selector(UISearchBarDelegate.searchBarTextDidEndEditing))
 			.map { [unowned base] in base.text }
 	}
 
@@ -51,7 +48,7 @@ extension Reactive where Base: UISearchBar {
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {
-		return delegate.reactive.trigger(for: #selector(UISearchBarDelegate.searchBar(_:textDidChange:)))
+		return proxy.intercept(#selector(UISearchBarDelegate.searchBar(_:textDidChange:)))
 			.map { [unowned base] in base.text }
 	}
 	

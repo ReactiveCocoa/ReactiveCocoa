@@ -1,0 +1,7 @@
+framework module ReactiveCocoa {
+	umbrella header "ReactiveCocoa.h"
+	private header "ObjCRuntimeAliases.h"
+
+	export *
+	module * { export * }
+}

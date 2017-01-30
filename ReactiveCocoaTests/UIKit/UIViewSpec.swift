@@ -24,7 +24,7 @@ class UIViewSpec: QuickSpec {
 			view.isHidden = true
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			view.reactive.isHidden <~ SignalProducer(signal: pipeSignal)
+			view.reactive.isHidden <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(view.isHidden) == true
@@ -40,7 +40,7 @@ class UIViewSpec: QuickSpec {
 			let secondChange = CGFloat(0.7)
 
 			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
-			view.reactive.alpha <~ SignalProducer(signal: pipeSignal)
+			view.reactive.alpha <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
 			expect(view.alpha) ≈ firstChange
@@ -53,13 +53,29 @@ class UIViewSpec: QuickSpec {
 			view.isUserInteractionEnabled = true
 
 			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
-			view.reactive.isUserInteractionEnabled <~ SignalProducer(signal: pipeSignal)
+			view.reactive.isUserInteractionEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
 			expect(view.isUserInteractionEnabled) == true
 			
 			observer.send(value: false)
 			expect(view.isUserInteractionEnabled) == false
+		}
+
+		it("should accept changes from bindings to its background color") {
+			view.backgroundColor = .white
+
+			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			view.reactive.backgroundColor <~ SignalProducer(pipeSignal)
+
+			observer.send(value: .yellow)
+			expect(view.backgroundColor) == .yellow
+
+			observer.send(value: .green)
+			expect(view.backgroundColor) == .green
+
+			observer.send(value: .red)
+			expect(view.backgroundColor) == .red
 		}
 	}
 }

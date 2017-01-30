@@ -28,4 +28,10 @@ extension Reactive where Base: NSTextField {
 	public var text: BindingTarget<String> {
 		return stringValue
 	}
+
+	/// Wraps the `stringValue` binding target from NSControl for
+	/// cross-platform compatibility
+	public var attributedText: BindingTarget<NSAttributedString> {
+		return attributedStringValue
+	}
 }

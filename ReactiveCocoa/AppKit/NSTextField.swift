@@ -33,5 +33,10 @@ extension Reactive where Base: NSTextField {
 	/// cross-platform compatibility
 	public var attributedText: BindingTarget<NSAttributedString> {
 		return attributedStringValue
+    }
+
+	/// Sets the color of the text with an `NSColor`.
+	public var textColor: BindingTarget<NSColor> {
+		return makeBindingTarget { $0.textColor = $1 }
 	}
 }

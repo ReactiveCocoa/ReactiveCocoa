@@ -2,6 +2,38 @@ import ReactiveSwift
 import enum Result.NoError
 import AppKit
 
+public extension NSButton {
+	public enum State {
+		case on
+		case off
+		case mixed
+
+		init?(rawValue: Int) {
+			switch rawValue {
+			case NSOnState:
+				self = .on
+			case NSOffState:
+				self = .off
+			case NSMixedState:
+				self = .mixed
+			default:
+				return nil
+			}
+		}
+
+		var rawValue: Int {
+			switch self {
+			case .on:
+				return NSOnState
+			case .off:
+				return NSOffState
+			case .mixed:
+				return NSMixedState
+			}
+		}
+	}
+}
+
 extension Reactive where Base: NSButton {
 
 	internal var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: CompositeDisposable)?> {
@@ -26,6 +58,17 @@ extension Reactive where Base: NSButton {
 						return (action, disposable)
 					}
 			}
+		}
+	}
+
+	/// A signal of integer states, emitted by the button.
+	public var states: Signal<NSButton.State, NoError> {
+		return trigger.map { [unowned base = self.base] in return NSButton.State(rawValue: base.state)! }
+	}
+
+	public var state: BindingTarget<NSButton.State> {
+		return makeBindingTarget {
+			$0.state = $1.rawValue
 		}
 	}
 }

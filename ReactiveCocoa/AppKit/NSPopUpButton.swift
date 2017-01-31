@@ -53,7 +53,7 @@ extension Reactive where Base: NSPopUpButton {
 		}
 	}
 
-	/// Sets the button with an index.
+	/// Sets the selected tag
 	public var selectedTag: BindingTarget<Int> {
 		return makeBindingTarget {
 			$0.selectItem(withTag: $1)

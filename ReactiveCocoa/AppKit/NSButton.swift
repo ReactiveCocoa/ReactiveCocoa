@@ -38,4 +38,9 @@ extension Reactive where Base: NSButton {
 	public var state: BindingTarget<Int> {
 		return makeBindingTarget { $0.state = $1 }
 	}
+
+	/// Sets the button's image
+	public var image: BindingTarget<NSImage?> {
+		return makeBindingTarget { $0.image = $1 }
+	}
 }

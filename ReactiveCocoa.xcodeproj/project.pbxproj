@@ -57,6 +57,8 @@
 		7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		834DE1011E4109750099F4E5 /* NSImageViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1001E4109750099F4E5 /* NSImageViewSpec.swift */; };
+		834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */; };
+		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -344,6 +346,8 @@
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		834DE1001E4109750099F4E5 /* NSImageViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageViewSpec.swift; sourceTree = "<group>"; };
+		834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSegmentedControl.swift; sourceTree = "<group>"; };
+		834DE1131E4122910099F4E5 /* NSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSlider.swift; sourceTree = "<group>"; };
 		8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
 		9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Association.swift"; sourceTree = "<group>"; };
 		9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
@@ -573,6 +577,8 @@
 				9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */,
 				D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */,
 				006518751E26865800C3139A /* NSButton.swift */,
+				834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */,
+				834DE1131E4122910099F4E5 /* NSSlider.swift */,
 				8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */,
 			);
 			path = AppKit;
@@ -1272,7 +1278,9 @@
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */,
+				834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
+				834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,

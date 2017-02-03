@@ -87,5 +87,16 @@ class UITextFieldSpec: QuickSpec {
 			textField.sendActions(for: .editingChanged)
 			expect(latestValue?.string) == textField.attributedText?.string
 		}
+
+		it("should accept changes from bindings to its secureTextEntry attribute") {
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			textField.reactive.isSecureTextEntry <~ pipeSignal
+
+			observer.send(value: true)
+			expect(textField.isSecureTextEntry) == true
+
+			observer.send(value: false)
+			expect(textField.isSecureTextEntry) == false
+		}
 	}
 }

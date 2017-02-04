@@ -16,7 +16,7 @@ In version 5.0, we split ReactiveCocoa into multiple repositories for reasons ex
 
 **If you’re using both the Swift and Objective-C APIs**, you likely require both ReactiveCocoa and [ReactiveObjCBridge][], which depend on [ReactiveSwift][] and [ReactiveObjC][].
 
-**Attention:** If youre using ReactiveCocoa, you'll most likely need to import ReactiveSwift as well when using classes or operators that are implemented in ReactiveSwift.
+**Attention:** If you're using ReactiveCocoa, you'll most likely need to import ReactiveSwift as well when using classes or operators that are implemented in ReactiveSwift.
 
 #### ReactiveCocoa
 The ReactiveCocoa library is newly focused on Swift and the UI layers of Apple’s platforms, building on the work of [Rex](https://github.com/neilpa/Rex).
@@ -41,7 +41,7 @@ We hope that this move will enable continued support of ReactiveObjC.
 
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC
 
-##### ReactiveObjCBridge
+#### ReactiveObjCBridge
 Moving the Swift and Objective-C APIs to separate repositories meant that a new home was needed for the bridging layer between the two.
 
 This bridge is an important tool for users that are working in mixed-language code bases. Whether you are slowly adding Swift to a mature product built with the ReactiveCocoa Objective-C APIs, or looking to adopt ReactiveCocoa in a mixed code base, the bridge is required to communicate between Swift and Objective-C code.

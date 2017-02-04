@@ -42,4 +42,9 @@ extension Reactive where Base: UITextField {
 	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
 		return controlEvents(.editingChanged).map { $0.attributedText }
 	}
+
+	/// Sets the secure text entry attribute on the text field.
+	public var isSecureTextEntry: BindingTarget<Bool> {
+		return makeBindingTarget { $0.isSecureTextEntry = $1 }
+	}
 }

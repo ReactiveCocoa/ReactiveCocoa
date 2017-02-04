@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-const IMP _rac_objc_msgForward;
+extern const IMP _rac_objc_msgForward;
 
 /// A trampoline of `objc_setAssociatedObject` that is made to circumvent the
 /// reference counting calls in the imported version in Swift.

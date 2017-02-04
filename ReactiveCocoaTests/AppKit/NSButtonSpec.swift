@@ -33,6 +33,50 @@ class NSButtonSpec: QuickSpec {
 			expect(button.isEnabled) == false
 		}
 
+		it("should accept changes from bindings to its state") {
+			button.allowsMixedState = true
+			button.state = NSOffState
+
+			let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
+			button.reactive.state <~ SignalProducer(pipeSignal)
+
+			observer.send(value: NSOffState)
+			expect(button.state) == NSOffState
+
+			observer.send(value: NSMixedState)
+			expect(button.state) == NSMixedState
+
+			observer.send(value: NSOnState)
+			expect(button.state) == NSOnState
+		}
+
+		it("should send along state changes") {
+			button.setButtonType(.pushOnPushOff)
+			button.allowsMixedState = false
+			button.state = NSOffState
+
+			let state = MutableProperty(NSOffState)
+			state <~ button.reactive.states
+
+			button.performClick(nil)
+			expect(state.value) == NSOnState
+
+			button.performClick(nil)
+			expect(state.value) == NSOffState
+
+			button.allowsMixedState = true
+
+			button.performClick(nil)
+			expect(state.value) == NSMixedState
+
+			button.performClick(nil)
+			expect(state.value) == NSOnState
+
+			button.performClick(nil)
+			expect(state.value) == NSOffState
+
+		}
+
 		it("should execute the `pressed` action upon receiving a click") {
 			button.isEnabled = true
 

@@ -37,18 +37,28 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
 
-internal protocol DelegateProxyProtocol: class {
-	associatedtype Delegate: NSObjectProtocol
+extension DelegateProxy {
+	// FIXME: This is a workaround to a compiler issue, where any use of `Self`
+	//        through a protocol would result in the following error messages:
+	//        1. PHI node operands are not the same type as the result!
+	//        2. LLVM ERROR: Broken function found, compilation aborted!
+	internal static func proxy<P: DelegateProxy<Delegate>>(
+		for instance: NSObject,
+		setter: Selector,
+		getter: Selector,
+		_ key: StaticString = #function
+	) -> P {
+		return _proxy(for: instance, setter: setter, getter: getter, key) as! P
+	}
 
-	weak var forwardee: Delegate? { get set }
+	private static func _proxy(
+		for instance: NSObject,
+		setter: Selector,
+		getter: Selector,
+		_ key: StaticString = #function
+	) -> AnyObject {
+		let key = AssociationKey<DelegateProxy<Delegate>?>(key)
 
-	init(_ originalSetter: @escaping (AnyObject) -> Void)
-}
-
-extension DelegateProxy: DelegateProxyProtocol {}
-
-extension DelegateProxyProtocol {
-	internal static func proxy(for instance: NSObject, setter: Selector, getter: Selector, _ key: AssociationKey<Self?>) -> Self {
 		return instance.synchronized {
 			if let proxy = instance.associations.value(forKey: key) {
 				return proxy
@@ -58,7 +68,7 @@ extension DelegateProxyProtocol {
 
 			// Hide the original setter, and redirect subsequent delegate assignment
 			// to the proxy.
-			synchronized(subclass) {
+			try! ReactiveCocoa.synchronized(subclass) {
 				let subclassAssociations = Associations(subclass as AnyObject)
 
 				if !subclassAssociations.value(forKey: hasSwizzledKey) {
@@ -81,8 +91,8 @@ extension DelegateProxyProtocol {
 
 			// Set the proxy as the delegate.
 			let realClass: AnyClass = class_getSuperclass(subclass)
-			let originalSetterImpl = class_getMethodImplementation(realClass, setter)
-			let getterImpl = class_getMethodImplementation(realClass, getter)
+			let originalSetterImpl: IMP = class_getMethodImplementation(realClass, setter)
+			let getterImpl: IMP = class_getMethodImplementation(realClass, getter)
 
 			typealias Setter = @convention(c) (AnyObject, Selector, AnyObject) -> Void
 			typealias Getter = @convention(c) (AnyObject, Selector) -> NSObject?
@@ -97,7 +107,9 @@ extension DelegateProxyProtocol {
 
 			instance.associations.setValue(proxy, forKey: key)
 
-			proxy.forwardee = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
+			let original = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
+			proxy.forwardee = original
+
 			unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
 			
 			return proxy

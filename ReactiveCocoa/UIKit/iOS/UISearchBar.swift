@@ -12,14 +12,11 @@ private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISear
 	}
 }
 
-private let proxyKey = AssociationKey<SearchBarDelegateProxy?>()
-
 extension Reactive where Base: UISearchBar {
 	private var proxy: SearchBarDelegateProxy {
-		return SearchBarDelegateProxy.proxy(for: base,
-		                                    setter: #selector(setter: base.delegate),
-		                                    getter: #selector(getter: base.delegate),
-		                                    proxyKey)
+		return .proxy(for: base,
+		              setter: #selector(setter: base.delegate),
+		              getter: #selector(getter: base.delegate))
 	}
 
 	/// Sets the text of the search bar.

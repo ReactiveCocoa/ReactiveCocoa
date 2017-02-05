@@ -149,6 +149,10 @@
 		9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A7488481E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
@@ -390,6 +394,7 @@
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
+		9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxy.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Runtime.swift"; sourceTree = "<group>"; };
 		9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+RuntimeSubclassing.swift"; sourceTree = "<group>"; };
@@ -725,6 +730,7 @@
 				9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
+				9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */,
 				9ADE4A901DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift */,
 				9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */,
 				9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */,
@@ -1152,6 +1158,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
 				4ABEFE261DCFCF640066A8C2 /* UICollectionView.swift in Sources */,
@@ -1231,6 +1238,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
+				9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
 				9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
 				9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
@@ -1262,6 +1270,7 @@
 				9AA0BD8F1DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
+				9A7488481E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9AE7C2A41DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
 				006518761E26865800C3139A /* NSButton.swift in Sources */,
 				9A54A21B1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
@@ -1323,6 +1332,7 @@
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,
+				9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
 				BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */,
 				9A1D06061D93EA0000ACF44C /* UIImageView.swift in Sources */,

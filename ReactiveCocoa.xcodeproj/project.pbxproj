@@ -230,8 +230,10 @@
 		BF4335681E02EF0600AC88DD /* UIScrollViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */; };
 		BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
 		BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */; };
+		BFBD68451E48DBD3003CB580 /* UIPickerViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD68431E48DA21003CB580 /* UIPickerViewSpec.swift */; };
 		BFCF775F1DFAD8A50058006E /* UISearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF775E1DFAD8A50058006E /* UISearchBar.swift */; };
 		BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */; };
+		BFE1458A1E439AB000208736 /* UIPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE145881E43991A00208736 /* UIPickerView.swift */; };
 		CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
@@ -431,8 +433,10 @@
 		BF4335641E02AC7600AC88DD /* UIScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollView.swift; sourceTree = "<group>"; };
 		BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollViewSpec.swift; sourceTree = "<group>"; };
 		BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalProducerNimbleMatchers.swift; sourceTree = "<group>"; };
+		BFBD68431E48DA21003CB580 /* UIPickerViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIPickerViewSpec.swift; sourceTree = "<group>"; };
 		BFCF775E1DFAD8A50058006E /* UISearchBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBar.swift; sourceTree = "<group>"; };
 		BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBarSpec.swift; sourceTree = "<group>"; };
+		BFE145881E43991A00208736 /* UIPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIPickerView.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
 		CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaActionSpec.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -628,6 +632,7 @@
 				4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */,
 				9A1D062B1D93EA7E00ACF44C /* UIImageViewSpec.swift */,
 				9A1D062C1D93EA7E00ACF44C /* UILabelSpec.swift */,
+				BFBD68431E48DA21003CB580 /* UIPickerViewSpec.swift */,
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
 				BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */,
 				BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */,
@@ -689,6 +694,7 @@
 			children = (
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
+				BFE145881E43991A00208736 /* UIPickerView.swift */,
 				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
 				BFCF775E1DFAD8A50058006E /* UISearchBar.swift */,
 				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
@@ -1351,6 +1357,7 @@
 				9AA0BD901DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */,
 				9AA0BD7D1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
+				BFE1458A1E439AB000208736 /* UIPickerView.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
@@ -1385,6 +1392,7 @@
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				BFA6B94E1A7604D500C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				B696FB821A7640C00075236D /* TestError.swift in Sources */,
+				BFBD68451E48DBD3003CB580 /* UIPickerViewSpec.swift in Sources */,
 				9A1D064C1D93EA7E00ACF44C /* UISwitchSpec.swift in Sources */,
 				4ABEFE281DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */,
 				9A1D06441D93EA7E00ACF44C /* UIImageViewSpec.swift in Sources */,

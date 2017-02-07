@@ -10,7 +10,7 @@ extension Reactive where Base: NSSegmentedControl {
 
 	/// A signal of indexes of selections emitted by the segmented control.
 	public var selectedSegments: Signal<Int, NoError> {
-		return trigger.map { [unowned base = self.base] in base.selectedSegment }
+		return proxy.signal.map { $0.selectedSegment }
 	}
 
 	/// The below are provided for cross-platform compatibility

@@ -59,20 +59,20 @@ final class UIPickerViewSpec: QuickSpec {
 		}
 
 		it("should emit user initiated changes for row selection") {
-			var latestValue = (0, 0)
+			var latestValue: UIPickerViewSelection!
 			pickerView.reactive.selections.observeValues {
 				latestValue = $0
 			}
 
 			pickerView.selectRow(1, inComponent: 0, animated: false)
 			pickerView.delegate!.pickerView!(pickerView, didSelectRow: 1, inComponent: 0)
-			expect(latestValue.0) == pickerView.selectedRow(inComponent: 0)
-			expect(latestValue.1) == 0
+			expect(latestValue.component) == 0
+			expect(latestValue.row) == 1
 
 			pickerView.selectRow(2, inComponent: 1, animated: false)
 			pickerView.delegate!.pickerView!(pickerView, didSelectRow: 2, inComponent: 1)
-			expect(latestValue.0) == pickerView.selectedRow(inComponent: 1)
-			expect(latestValue.1) == 1
+			expect(latestValue.component) == 1
+			expect(latestValue.row) == 2
 		}
 
 		it("invokes reloadAllComponents whenever the bound signal sends a value") {

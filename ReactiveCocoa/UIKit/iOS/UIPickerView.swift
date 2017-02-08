@@ -8,6 +8,11 @@ private class PickerViewDelegateProxy: DelegateProxy<UIPickerViewDelegate>, UIPi
 	}
 }
 
+public struct UIPickerViewSelection {
+	public let row: Int
+	public let component: Int
+}
+
 extension Reactive where Base: UIPickerView {
 
 	private var proxy: PickerViewDelegateProxy {
@@ -36,8 +41,8 @@ extension Reactive where Base: UIPickerView {
 	///
 	/// - returns:
 	///   A trigger signal.
-	public var selections: Signal<(Int, Int), NoError> {
+	public var selections: Signal<UIPickerViewSelection, NoError> {
 		return proxy.intercept(#selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
-			.map { ($0[1] as! Int, $0[2] as! Int) }
+			.map { UIPickerViewSelection(row: $0[1] as! Int, component: $0[2] as! Int) }
 	}
 }

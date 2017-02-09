@@ -59,7 +59,7 @@ final class UIPickerViewSpec: QuickSpec {
 		}
 
 		it("should emit user initiated changes for row selection") {
-			var latestValue: UIPickerViewSelection!
+			var latestValue: (row: Int, component: Int)!
 			pickerView.reactive.selections.observeValues {
 				latestValue = $0
 			}

@@ -22,7 +22,7 @@ ReactiveCocoa includes a few object interception tools from ReactiveObjC, remast
     
     ```swift
     // Notify after every time `viewWillAppear(_:)` is called.
-    let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
+    let appearing = viewController.reactive.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
     ```
     
 1. **Object Lifetime**

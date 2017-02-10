@@ -26,6 +26,12 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 		return self.reactive.trigger(for: selector)
 	}
 
+	func intercept(_ selector: Selector) -> Signal<[Any?], NoError> {
+		interceptedSelectors.insert(selector)
+		originalSetter(self)
+		return self.reactive.signal(for: selector)
+	}
+
 	override func responds(to selector: Selector!) -> Bool {
 		if interceptedSelectors.contains(selector) {
 			return true

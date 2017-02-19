@@ -2,7 +2,7 @@
 > ## IMPORTANT: To use `ReactiveCocoa-iOS.playground`, please:
 
 1. Retrieve the project dependencies using one of the following terminal commands from the ReactiveCocoa project root directory:
-- `git submodule update --init`
+- `git submodule update --init --recursive`
 **OR**, if you have [Carthage](https://github.com/Carthage/Carthage) installed
 - `carthage checkout --no-use-binaries`
 1. Open `ReactiveCocoa.xcworkspace`

@@ -18,8 +18,7 @@ extension Reactive where Base: NSObject {
 				return lifetime
 			}
 
-			let token = Lifetime.Token()
-			let lifetime = Lifetime(token)
+			let (lifetime, token) = Lifetime.make()
 
 			let objcClass: AnyClass = (base as AnyObject).objcClass
 			let objcClassAssociations = Associations(objcClass as AnyObject)

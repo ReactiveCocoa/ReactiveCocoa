@@ -1,4 +1,4 @@
-github "Quick/Nimble" "v5.1.1"
+github "Quick/Nimble" "8116a83864ee78339798c3ef425c42f6ca6bf034"
 github "Quick/Quick" "v1.1.0"
 github "ReactiveCocoa/ReactiveSwift" "1.1.0"
 github "antitypical/Result" "3.1.0"

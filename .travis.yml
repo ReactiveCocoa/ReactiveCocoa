@@ -42,26 +42,18 @@ matrix:
         - XCODE_ACTION=build
         - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform mac
       env:
         - JOB=CARTHAGE-macOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform iOS
       env:
         - JOB=CARTHAGE-iOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform tvOS
       env:
         - JOB=CARTHAGE-tvOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform watchOS
       env:
         - JOB=CARTHAGE-watchOS

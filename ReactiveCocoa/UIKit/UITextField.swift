@@ -28,6 +28,11 @@ extension Reactive where Base: UITextField {
 		return makeBindingTarget { $0.attributedText = $1 }
 	}
 	
+	/// Sets the textColor of the text field.
+	public var textColor: BindingTarget<UIColor> {
+		return makeBindingTarget { $0.textColor = $1 }
+	}
+	
 	/// A signal of attributed text values emitted by the text field upon end of editing.
 	///
 	/// - note: To observe attributed text values that change on all editing events,

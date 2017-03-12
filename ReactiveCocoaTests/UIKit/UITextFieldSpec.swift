@@ -98,5 +98,16 @@ class UITextFieldSpec: QuickSpec {
 			observer.send(value: false)
 			expect(textField.isSecureTextEntry) == false
 		}
+		
+		it("should accept changes from bindings to its textColor attribute") {
+			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			textField.reactive.textColor <~ pipeSignal
+			
+			observer.send(value: UIColor.red)
+			expect(textField.textColor == UIColor.red) == true
+			
+			observer.send(value: UIColor.blue)
+			expect(textField.textColor == UIColor.red) == false
+		}
 	}
 }

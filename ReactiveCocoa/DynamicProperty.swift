@@ -36,7 +36,7 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
 	public var producer: SignalProducer<Value?, NoError> {
-		return (object.map { $0.reactive.values(forKeyPath: keyPath) } ?? .empty)
+		return (object.map { $0.reactive.producer(forKeyPath: keyPath) } ?? .empty)
 			.map { $0 as! Value }
 	}
 

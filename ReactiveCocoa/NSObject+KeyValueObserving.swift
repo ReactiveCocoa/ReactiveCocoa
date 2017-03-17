@@ -24,6 +24,32 @@ extension Reactive where Base: NSObject {
 			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
 		}
 	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns:
+	///   A producer emitting values of the property specified by the key path.
+	public func signal(forKeyPath keyPath: String) -> Signal<Any?, NoError> {
+		return Signal { observer in
+			let disposable = CompositeDisposable()
+			disposable += KeyValueObserver.observe(
+				self.base,
+				keyPath: keyPath,
+				options: [.new],
+				action: observer.send
+			)
+			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			return disposable
+		}
+	}
 }
 
 internal final class KeyValueObserver: NSObject {
@@ -126,7 +152,7 @@ extension KeyValueObserver {
 		let observer: KeyValueObserver
 
 		if isNested {
-			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
+			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options.union(.initial)) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(nil)
 					return

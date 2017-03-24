@@ -110,13 +110,13 @@ extension KeyValueObserver {
 		//
 		// Attempting to observe non-weak properties using dynamic getters will
 		// result in broken behavior, so don't even try.
-		let shouldObserveDeinit = keyPathHead.withCString { cString -> Bool in
+		let (shouldObserveDeinit, isWeak) = keyPathHead.withCString { cString -> (Bool, Bool) in
 			if let propertyPointer = class_getProperty(type(of: object), cString) {
 				let attributes = PropertyAttributes(property: propertyPointer)
-				return attributes.isObject && attributes.isWeak && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock
+				return (attributes.isObject && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock, attributes.isWeak)
 			}
 
-			return false
+			return (false, false)
 		}
 
 		// Establish the observation.
@@ -137,7 +137,12 @@ extension KeyValueObserver {
 
 				if shouldObserveDeinit {
 					let disposable = value.reactive.lifetime.ended.observeCompleted {
-						action(nil)
+						if isWeak {
+							action(nil)
+						}
+
+						// Detach the key path tail observers eagarly.
+						headSerialDisposable.inner = nil
 					}
 					headDisposable += disposable
 				}

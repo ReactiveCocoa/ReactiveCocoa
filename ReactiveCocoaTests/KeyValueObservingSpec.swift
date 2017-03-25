@@ -144,8 +144,30 @@ class KeyValueObservingSpec: QuickSpec {
 				expect(values) == [0, 1, 0, 10]
 			}
 
+			it("should not retain the replaced value") {
+				let parentObject = NestedObservableObject()
+
+				autoreleasepool {
+					_ = parentObject.reactive
+						.values(forKeyPath: "rac_object")
+						.start()
+				}
+
+				weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
+				expect(weakOriginalInner).toNot(beNil())
+
+				parentObject.rac_object = ObservableObject()
+				expect(weakOriginalInner).to(beNil())
+			}
+
 			it("should not retain replaced value in a nested key path") {
 				let parentObject = NestedObservableObject()
+
+				autoreleasepool {
+					_ = parentObject.reactive
+						.values(forKeyPath: "rac_object.rac_value")
+						.start()
+				}
 
 				weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
 				expect(weakOriginalInner).toNot(beNil())

@@ -278,16 +278,18 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 					expect(values) == [1, 0, 10]
 				}
 
-				// NOTE: https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3413#issuecomment-288329465
-				pending("should not retain replaced value in a nested key path") {
+				it("should not retain replaced value in a nested key path") {
 					let parentObject = NestedObservableObject()
-					context.nestedChanges(parentObject)
-						.start()
-
 					weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
 					expect(weakOriginalInner).toNot(beNil())
 
-					parentObject.rac_object = ObservableObject()
+					autoreleasepool {
+						_ = context
+							.nestedChanges(parentObject)
+							.start()
+						parentObject.rac_object = ObservableObject()
+					}
+
 					expect(weakOriginalInner).toEventually(beNil())
 				}
 			}

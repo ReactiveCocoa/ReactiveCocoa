@@ -70,33 +70,17 @@ extension DelegateProxy {
 				return proxy
 			}
 
-			let subclass: AnyClass = swizzleClass(instance)
+			let newSetterImpl: @convention(block) (NSObject, NSObject) -> Void = { object, delegate in
+				let proxy = object.associations.value(forKey: key)!
+				proxy.forwardee = (delegate as! Delegate)
+			}
 
 			// Hide the original setter, and redirect subsequent delegate assignment
 			// to the proxy.
-			try! ReactiveCocoa.synchronized(subclass) {
-				let subclassAssociations = Associations(subclass as AnyObject)
-
-				if !subclassAssociations.value(forKey: hasSwizzledKey) {
-					subclassAssociations.setValue(true, forKey: hasSwizzledKey)
-
-					let method = class_getInstanceMethod(subclass, setter)
-					let typeEncoding = method_getTypeEncoding(method)!
-
-					let newSetterImpl: @convention(block) (NSObject, NSObject) -> Void = { object, delegate in
-						let proxy = object.associations.value(forKey: key)!
-						proxy.forwardee = (delegate as! Delegate)
-					}
-
-					class_replaceMethod(subclass,
-					                    setter,
-					                    imp_implementationWithBlock(newSetterImpl as Any),
-					                    typeEncoding)
-				}
-			}
+			instance.swizzle((setter, newSetterImpl), key: hasSwizzledKey)
 
 			// Set the proxy as the delegate.
-			let realClass: AnyClass = class_getSuperclass(subclass)
+			let realClass: AnyClass = class_getSuperclass(object_getClass(instance))
 			let originalSetterImpl: IMP = class_getMethodImplementation(realClass, setter)
 			let getterImpl: IMP = class_getMethodImplementation(realClass, getter)
 

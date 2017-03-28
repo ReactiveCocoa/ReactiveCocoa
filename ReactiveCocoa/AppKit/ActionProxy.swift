@@ -5,19 +5,19 @@ import enum Result.NoError
 internal final class ActionProxy<Owner: AnyObject> {
 	internal weak var target: AnyObject?
 	internal var action: Selector?
-	internal let signal: Signal<Owner, NoError>
+	internal let invoked: Signal<Owner, NoError>
 
 	private let observer: Signal<Owner, NoError>.Observer
 	private unowned let owner: Owner
 
 	internal init(owner: Owner, lifetime: Lifetime) {
 		self.owner = owner
-		(signal, observer) = Signal<Owner, NoError>.pipe()
+		(invoked, observer) = Signal<Owner, NoError>.pipe()
 		lifetime.ended.observeCompleted(observer.sendCompleted)
 	}
 
 	// In AppKit, action messages always have only one parameter.
-	@objc func consume(_ sender: Any?) {
+	@objc func invoke(_ sender: Any?) {
 		if let action = action {
 			NSApp.sendAction(action, to: target, from: sender)
 		}
@@ -49,7 +49,7 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 			proxy.action = base.action
 
 			base.target = proxy
-			base.action = #selector(proxy.consume(_:))
+			base.action = #selector(proxy.invoke(_:))
 
 			let newTargetSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, target in
 				let proxy = object.associations.value(forKey: key)!

@@ -17,7 +17,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `NSAttributedString`, emitted by the control.
 	public var attributedStringValues: Signal<NSAttributedString, NoError> {
-		return proxy.signal.map { $0.attributedStringValue }
+		return proxy.invoked.map { $0.attributedStringValue }
 	}
 
 	/// Sets the value of the control with a `Bool`.
@@ -27,7 +27,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Bool`, emitted by the control.
 	public var boolValues: Signal<Bool, NoError> {
-		return proxy.signal.map { $0.integerValue != NSOffState }
+		return proxy.invoked.map { $0.integerValue != NSOffState }
 	}
 
 	/// Sets the value of the control with a `Double`.
@@ -37,7 +37,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Double`, emitted by the control.
 	public var doubleValues: Signal<Double, NoError> {
-		return proxy.signal.map { $0.doubleValue }
+		return proxy.invoked.map { $0.doubleValue }
 	}
 
 	/// Sets the value of the control with a `Float`.
@@ -47,7 +47,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Float`, emitted by the control.
 	public var floatValues: Signal<Float, NoError> {
-		return proxy.signal.map { $0.floatValue }
+		return proxy.invoked.map { $0.floatValue }
 	}
 
 	/// Sets the value of the control with an `Int32`.
@@ -57,7 +57,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Int32`, emitted by the control.
 	public var intValues: Signal<Int32, NoError> {
-		return proxy.signal.map { $0.intValue }
+		return proxy.invoked.map { $0.intValue }
 	}
 
 	/// Sets the value of the control with an `Int`.
@@ -67,7 +67,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Int`, emitted by the control.
 	public var integerValues: Signal<Int, NoError> {
-		return proxy.signal.map { $0.integerValue }
+		return proxy.invoked.map { $0.integerValue }
 	}
 
 	/// Sets the value of the control.
@@ -77,7 +77,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `Any?`, emitted by the control.
 	public var objectValues: Signal<Any?, NoError> {
-		return proxy.signal.map { $0.objectValue }
+		return proxy.invoked.map { $0.objectValue }
 	}
 
 	/// Sets the value of the control with a `String`.
@@ -87,7 +87,7 @@ extension Reactive where Base: NSControl {
 
 	/// A signal of values in `String`, emitted by the control.
 	public var stringValues: Signal<String, NoError> {
-		return proxy.signal.map { $0.stringValue }
+		return proxy.invoked.map { $0.stringValue }
 	}
 }
 

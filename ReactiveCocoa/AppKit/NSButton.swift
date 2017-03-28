@@ -20,7 +20,7 @@ extension Reactive where Base: NSButton {
 					action = newValue.map { action in
 						let disposable = CompositeDisposable()
 						disposable += isEnabled <~ action.isEnabled
-						disposable += proxy.signal.observeValues(action.execute)
+						disposable += proxy.invoked.observeValues(action.execute)
 						return (action, disposable)
 					}
 			}
@@ -29,7 +29,7 @@ extension Reactive where Base: NSButton {
 
 	/// A signal of integer states (On, Off, Mixed), emitted by the button.
 	public var states: Signal<Int, NoError> {
-		return proxy.signal.map { $0.state }
+		return proxy.invoked.map { $0.state }
 	}
 
 	/// Sets the button's state

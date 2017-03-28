@@ -8,11 +8,21 @@ fileprivate let runtimeSubclassedKey = AssociationKey(default: false)
 fileprivate let knownRuntimeSubclassKey = AssociationKey<AnyClass?>(default: nil)
 
 extension NSObject {
+	/// Swizzle the given selectors.
+	///
+	/// - warning: The swizzling **does not** apply on a per-instance basis. In
+	///            other words, repetitive swizzling of the same selector would
+	///            overwrite previous swizzling attempts, despite a different
+	///            instance being supplied.
+	///
+	/// - parameters:
+	///   - pairs: Tuples of selectors and the respective implementions to be
+	///            swapped in.
+	///   - key: An association key which determines if the swizzling has already
+	///          been performed.
 	internal func swizzle(_ pairs: (Selector, Any)..., key hasSwizzledKey: AssociationKey<Bool>) {
 		let subclass: AnyClass = swizzleClass(self)
 
-		// Hide the original setter, and redirect subsequent delegate assignment
-		// to the proxy.
 		try! ReactiveCocoa.synchronized(subclass) {
 			let subclassAssociations = Associations(subclass as AnyObject)
 
@@ -34,6 +44,11 @@ extension NSObject {
 ///
 /// - note: If the instance has already been isa-swizzled, the swizzling happens
 ///         in place in the runtime subclass created by external parties.
+///
+/// - warning: The swizzling **does not** apply on a per-instance basis. In
+///            other words, repetitive swizzling of the same selector would
+///            overwrite previous swizzling attempts, despite a different
+///            instance being supplied.
 ///
 /// - parameters:
 ///   - instance: The instance to be swizzled.

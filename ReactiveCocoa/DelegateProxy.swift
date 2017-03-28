@@ -75,6 +75,8 @@ extension DelegateProxy {
 				proxy.forwardee = (delegate as! Delegate)
 			}
 
+			// Hide the original setter, and redirect subsequent delegate assignment
+			// to the proxy.
 			instance.swizzle((setter, newSetterImpl), key: hasSwizzledKey)
 
 			// Set the proxy as the delegate.

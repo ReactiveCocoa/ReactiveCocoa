@@ -37,7 +37,7 @@ extension Reactive where Base: UIPickerView {
 	/// - returns:
 	///   A trigger signal.
 	public var selections: Signal<(row: Int, component: Int), NoError> {
-		return proxy.intercept(#selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
+		return proxy.reactive.signal(for: #selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
 			.map { (row: $0[1] as! Int, component: $0[2] as! Int) }
 	}
 }

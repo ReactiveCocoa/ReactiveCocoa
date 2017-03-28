@@ -19,11 +19,7 @@ internal final class ActionProxy<Owner: AnyObject> {
 	// In AppKit, action messages always have only one parameter.
 	@objc func consume(_ sender: Any?) {
 		if let action = action {
-			if let target = target {
-				_ = target.perform(action, with: sender)
-			} else {
-				NSApp.sendAction(action, to: nil, from: sender)
-			}
+			NSApp.sendAction(action, to: target, from: sender)
 		}
 
 		observer.send(value: owner)

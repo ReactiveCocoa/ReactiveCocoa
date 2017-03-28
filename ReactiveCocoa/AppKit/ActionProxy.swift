@@ -55,49 +55,21 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 			base.target = proxy
 			base.action = #selector(proxy.consume(_:))
 
-			// Swizzle the instance only after setting up the proxy.
-			let subclass: AnyClass = swizzleClass(base)
-
-			let targetSetter = #selector(setter: base.target)
-			let actionSetter = #selector(setter: base.action)
-
-			// Swizzle the original setters, and redirect subsequent target and action
-			// assignments to the proxy.
-			try! ReactiveCocoa.synchronized(subclass) {
-				print(subclass)
-				let subclassAssociations = Associations(subclass as AnyObject)
-
-				if !subclassAssociations.value(forKey: hasSwizzledKey) {
-					subclassAssociations.setValue(true, forKey: hasSwizzledKey)
-
-					let targetSetterMethod = class_getInstanceMethod(subclass, targetSetter)
-					let targetSetterTypeEncoding = method_getTypeEncoding(targetSetterMethod)!
-
-					let newTargetSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, target in
-						let proxy = object.associations.value(forKey: key)!
-						proxy.target = target
-					}
-
-					class_replaceMethod(subclass,
-					                    targetSetter,
-					                    imp_implementationWithBlock(newTargetSetterImpl as Any),
-					                    targetSetterTypeEncoding)
-
-					let actionSetterMethod = class_getInstanceMethod(subclass, actionSetter)
-					let actionSetterTypeEncoding = method_getTypeEncoding(actionSetterMethod)!
-
-					let newActionSetterImpl: @convention(block) (NSObject, Selector?) -> Void = { object, selector in
-						let proxy = object.associations.value(forKey: key)!
-						proxy.action = selector
-					}
-
-					class_replaceMethod(subclass,
-					                    actionSetter,
-					                    imp_implementationWithBlock(newActionSetterImpl as Any),
-					                    actionSetterTypeEncoding)
-				}
+			let newTargetSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, target in
+				let proxy = object.associations.value(forKey: key)!
+				proxy.target = target
 			}
-			
+
+			let newActionSetterImpl: @convention(block) (NSObject, Selector?) -> Void = { object, selector in
+				let proxy = object.associations.value(forKey: key)!
+				proxy.action = selector
+			}
+
+			// Swizzle the instance only after setting up the proxy.
+			base.swizzle((#selector(setter: base.target), newTargetSetterImpl),
+			             (#selector(setter: base.action), newActionSetterImpl),
+			             key: hasSwizzledKey)
+
 			return proxy
 		}
 	}

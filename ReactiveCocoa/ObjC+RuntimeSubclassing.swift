@@ -7,6 +7,29 @@ fileprivate let runtimeSubclassedKey = AssociationKey(default: false)
 /// has not been requested for the instance before.
 fileprivate let knownRuntimeSubclassKey = AssociationKey<AnyClass?>(default: nil)
 
+extension NSObject {
+	internal func swizzle(_ pairs: (Selector, Any)..., key hasSwizzledKey: AssociationKey<Bool>) {
+		let subclass: AnyClass = swizzleClass(self)
+
+		// Hide the original setter, and redirect subsequent delegate assignment
+		// to the proxy.
+		try! ReactiveCocoa.synchronized(subclass) {
+			let subclassAssociations = Associations(subclass as AnyObject)
+
+			if !subclassAssociations.value(forKey: hasSwizzledKey) {
+				subclassAssociations.setValue(true, forKey: hasSwizzledKey)
+
+				for (selector, body) in pairs {
+					let method = class_getInstanceMethod(subclass, selector)
+					let typeEncoding = method_getTypeEncoding(method)!
+
+					class_replaceMethod(subclass, selector, imp_implementationWithBlock(body), typeEncoding)
+				}
+			}
+		}
+	}
+}
+
 /// ISA-swizzle the class of the supplied instance.
 ///
 /// - note: If the instance has already been isa-swizzled, the swizzling happens

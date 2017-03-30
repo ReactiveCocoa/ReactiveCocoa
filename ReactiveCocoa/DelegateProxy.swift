@@ -39,7 +39,7 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 			return true
 		}
 
-		return forwardee?.responds(to: selector) ?? super.responds(to: selector)
+		return (forwardee?.responds(to: selector) ?? false) || super.responds(to: selector)
 	}
 }
 

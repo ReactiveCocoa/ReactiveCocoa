@@ -99,11 +99,11 @@ extension DelegateProxy {
 
 			instance.associations.setValue(proxy, forKey: key)
 
+			// `proxy.forwardee` would invoke the original setter regardless of
+			// `original` being `nil` or not.
 			let original = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
 			proxy.forwardee = original
 
-			unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
-			
 			return proxy
 		}
 	}

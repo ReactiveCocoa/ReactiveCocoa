@@ -126,7 +126,7 @@ class InterceptingSpec: QuickSpec {
 				var latestValue: Bool?
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.startWithValues { objectValue in
 						latestValue = objectValue as! Bool?
 				}
@@ -159,7 +159,7 @@ class InterceptingSpec: QuickSpec {
 				var latestValue: Bool?
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.startWithValues { objectValue in
 						latestValue = objectValue as! Bool?
 				}
@@ -189,7 +189,7 @@ class InterceptingSpec: QuickSpec {
 				var latestValue: Bool?
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.startWithValues { objectValue in
 						latestValue = objectValue as! Bool?
 				}
@@ -217,7 +217,7 @@ class InterceptingSpec: QuickSpec {
 				var latestValue: Bool?
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.startWithValues { objectValue in
 						latestValue = objectValue as! Bool?
 				}
@@ -243,12 +243,12 @@ class InterceptingSpec: QuickSpec {
 					.observeValues { counter += 1 }
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 					.dispose()
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				expect(counter) == 0
@@ -264,7 +264,7 @@ class InterceptingSpec: QuickSpec {
 				var counter = 0
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 					.dispose()
 
@@ -272,7 +272,7 @@ class InterceptingSpec: QuickSpec {
 					.observeValues { counter += 1 }
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				expect(counter) == 0
@@ -335,7 +335,7 @@ class InterceptingSpec: QuickSpec {
 
 			it("should invoke the swizzled `forwardInvocation:` on an instance isa-swizzled by both RAC and KVO.") {
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
@@ -509,7 +509,7 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				object.lifeIsGood(42)
@@ -609,7 +609,7 @@ class InterceptingSpec: QuickSpec {
 				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))
 
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				expect((object as AnyObject).objcClass).to(beIdenticalTo(originalClass))
@@ -617,7 +617,7 @@ class InterceptingSpec: QuickSpec {
 
 			it("should report the original class when it's KVO'd before dynamically subclassing") {
 				object.reactive
-					.values(forKeyPath: #keyPath(InterceptedObject.objectValue))
+					.producer(forKeyPath: #keyPath(InterceptedObject.objectValue))
 					.start()
 
 				_ = object.reactive.trigger(for: #selector(object.lifeIsGood))

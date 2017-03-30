@@ -39,26 +39,26 @@ class InterceptingTests: XCTestCase {
 		// Setter: RAC then KVO
 		let receiver2 = Receiver2()
 		_ = receiver2.reactive.trigger(for: #selector(setter: receiver2.value))
-		receiver2.reactive.values(forKeyPath: #keyPath(Receiver2.value)).start()
+		receiver2.reactive.producer(forKeyPath: #keyPath(Receiver2.value)).start()
 
 		// Setter: KVO then RAC
 		let receiver3 = Receiver3()
-		receiver3.reactive.values(forKeyPath: #keyPath(Receiver3.value)).start()
+		receiver3.reactive.producer(forKeyPath: #keyPath(Receiver3.value)).start()
 		_ = receiver3.reactive.trigger(for: #selector(setter: receiver3.value))
 
 		// RAC swizzled getter, and then KVO swizzled setter.
 		let receiver4 = Receiver4()
 		_ = receiver4.reactive.trigger(for: #selector(getter: receiver4.value))
-		receiver4.reactive.values(forKeyPath: #keyPath(Receiver4.value)).start()
+		receiver4.reactive.producer(forKeyPath: #keyPath(Receiver4.value)).start()
 
 		// KVO swizzled setter, and then RAC swizzled getter.
 		let receiver5 = Receiver5()
-		receiver5.reactive.values(forKeyPath: #keyPath(Receiver5.value)).start()
+		receiver5.reactive.producer(forKeyPath: #keyPath(Receiver5.value)).start()
 		_ = receiver5.reactive.trigger(for: #selector(getter: receiver5.value))
 
 		// Normal KVO
 		let receiver6 = Receiver6()
-		receiver6.reactive.values(forKeyPath: #keyPath(Receiver6.value)).start()
+		receiver6.reactive.producer(forKeyPath: #keyPath(Receiver6.value)).start()
 	}
 
 	func testInterceptedMessage() {
@@ -76,7 +76,7 @@ class InterceptingTests: XCTestCase {
 		let receiver = Receiver2()
 
 		_ = receiver.reactive.trigger(for: #selector(setter: receiver.value))
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver2.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver2.value)).start()
 
 		measure {
 			for i in 0 ..< iterationCount {
@@ -88,7 +88,7 @@ class InterceptingTests: XCTestCase {
 	func testKVORACInterceptSetterThenSet() {
 		let receiver = Receiver3()
 
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver3.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver3.value)).start()
 		_ = receiver.reactive.trigger(for: #selector(setter: receiver.value))
 
 		measure {
@@ -102,7 +102,7 @@ class InterceptingTests: XCTestCase {
 		let receiver = Receiver4()
 
 		_ = receiver.reactive.trigger(for: #selector(getter: receiver.value))
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver4.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver4.value)).start()
 
 		measure {
 			for _ in 0 ..< iterationCount {
@@ -114,7 +114,7 @@ class InterceptingTests: XCTestCase {
 	func testKVORACInterceptSetterThenGet() {
 		let receiver = Receiver5()
 
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver5.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver5.value)).start()
 		_ = receiver.reactive.trigger(for: #selector(getter: receiver.value))
 
 		measure {
@@ -126,7 +126,7 @@ class InterceptingTests: XCTestCase {
 
 	func testJustKVOInterceptSetterThenSet() {
 		let receiver = Receiver6()
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver6.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver6.value)).start()
 
 		measure {
 			for i in 0 ..< iterationCount {
@@ -137,7 +137,7 @@ class InterceptingTests: XCTestCase {
 
 	func testJustKVOInterceptSetterThenGet() {
 		let receiver = Receiver6()
-		receiver.reactive.values(forKeyPath: #keyPath(Receiver6.value)).start()
+		receiver.reactive.producer(forKeyPath: #keyPath(Receiver6.value)).start()
 
 		measure {
 			for _ in 0 ..< iterationCount {

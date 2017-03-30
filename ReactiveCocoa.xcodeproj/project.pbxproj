@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */; };
 		006518761E26865800C3139A /* NSButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006518751E26865800C3139A /* NSButton.swift */; };
+		3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
+		3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
+		3B30EE8E1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
 		3BCAAC7A1DEE19BC00B30335 /* UIRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */; };
 		3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */; };
 		419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
@@ -328,6 +331,7 @@
 /* Begin PBXFileReference section */
 		004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButtonSpec.swift; sourceTree = "<group>"; };
 		006518751E26865800C3139A /* NSButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButton.swift; sourceTree = "<group>"; };
+		3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecationsSpec.swift; sourceTree = "<group>"; };
 		3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControl.swift; sourceTree = "<group>"; };
 		3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControlSpec.swift; sourceTree = "<group>"; };
 		419139431DB910570043C9D1 /* UIGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIGestureRecognizer.swift; sourceTree = "<group>"; };
@@ -795,6 +799,7 @@
 				9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */,
 				9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */,
 				9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */,
+				3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */,
 				D04725FA19E49ED7006002AA /* Supporting Files */,
 			);
 			path = ReactiveCocoaTests;
@@ -1219,6 +1224,7 @@
 				9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */,
 				9A1D06591D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				53A6BED81DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
+				3B30EE8E1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */,
 				9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
@@ -1335,6 +1341,7 @@
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
+				3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */,
 			);
@@ -1417,6 +1424,7 @@
 				531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
+				3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A54A2121DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
 				9ADFE5A21DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,

@@ -153,6 +153,9 @@
 		9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		9A892D8F1E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
+		9A892D901E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
+		9A892D911E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
 		9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
@@ -398,6 +401,7 @@
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxy.swift; sourceTree = "<group>"; };
+		9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxySpec.swift; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Runtime.swift"; sourceTree = "<group>"; };
 		9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+RuntimeSubclassing.swift"; sourceTree = "<group>"; };
@@ -783,6 +787,7 @@
 				538DCB771DCA5E3200332880 /* Shared */,
 				9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */,
 				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
+				9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */,
@@ -1227,6 +1232,7 @@
 				9A1D06371D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				538DCB7F1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */,
+				9A892D911E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				9A1D06471D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A1D06391D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
@@ -1321,6 +1327,7 @@
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
+				9A892D8F1E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */,
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
@@ -1406,6 +1413,7 @@
 				9A24A8461DE142A500987AF9 /* SwizzlingSpec.swift in Sources */,
 				9A1D063E1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				4191394E1DBA01A00043C9D1 /* UIGestureRecognizerSpec.swift in Sources */,
+				9A892D901E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,

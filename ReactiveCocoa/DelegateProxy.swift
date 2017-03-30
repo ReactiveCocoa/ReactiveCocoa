@@ -10,9 +10,11 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 
 	internal var interceptedSelectors: Set<Selector> = []
 
+	private let lifetime: Lifetime
 	private let originalSetter: (AnyObject) -> Void
 
-	required init(_ originalSetter: @escaping (AnyObject) -> Void) {
+	required init(lifetime: Lifetime, _ originalSetter: @escaping (AnyObject) -> Void) {
+		self.lifetime = lifetime
 		self.originalSetter = originalSetter
 	}
 
@@ -23,13 +25,13 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 	func intercept(_ selector: Selector) -> Signal<(), NoError> {
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
-		return self.reactive.trigger(for: selector)
+		return self.reactive.trigger(for: selector).take(during: lifetime)
 	}
 
 	func intercept(_ selector: Selector) -> Signal<[Any?], NoError> {
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
-		return self.reactive.signal(for: selector)
+		return self.reactive.signal(for: selector).take(during: lifetime)
 	}
 
 	override func responds(to selector: Selector!) -> Bool {
@@ -37,7 +39,7 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 			return true
 		}
 
-		return forwardee?.responds(to: selector) ?? super.responds(to: selector)
+		return (forwardee?.responds(to: selector) ?? false) || super.responds(to: selector)
 	}
 }
 
@@ -70,9 +72,9 @@ extension DelegateProxy {
 				return proxy
 			}
 
-			let newSetterImpl: @convention(block) (NSObject, NSObject) -> Void = { object, delegate in
+			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
 				let proxy = object.associations.value(forKey: key)!
-				proxy.forwardee = (delegate as! Delegate)
+				proxy.forwardee = (delegate as! Delegate?)
 			}
 
 			// Hide the original setter, and redirect subsequent delegate assignment
@@ -84,24 +86,24 @@ extension DelegateProxy {
 			let originalSetterImpl: IMP = class_getMethodImplementation(realClass, setter)
 			let getterImpl: IMP = class_getMethodImplementation(realClass, getter)
 
-			typealias Setter = @convention(c) (AnyObject, Selector, AnyObject) -> Void
-			typealias Getter = @convention(c) (AnyObject, Selector) -> NSObject?
+			typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?
 
 			// As Objective-C classes may cache the information of their delegate at
 			// the time the delegates are set, the information has to be "flushed"
 			// whenever the proxy forwardee is replaced or a selector is intercepted.
-			let proxy = self.init { [weak instance] proxy in
+			let proxy = self.init(lifetime: instance.reactive.lifetime) { [weak instance] proxy in
 				guard let instance = instance else { return }
 				unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
 			}
 
 			instance.associations.setValue(proxy, forKey: key)
 
+			// `proxy.forwardee` would invoke the original setter regardless of
+			// `original` being `nil` or not.
 			let original = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
 			proxy.forwardee = original
 
-			unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
-			
 			return proxy
 		}
 	}

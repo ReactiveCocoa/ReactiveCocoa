@@ -809,10 +809,10 @@ class InterceptingSpec: QuickSpec {
 				for _ in 1 ... 10 {
 					var isDeadlocked = true
 
-					DispatchQueue.global(priority: .high).async {
+					DispatchQueue.testQueue().async {
 						_ = object.reactive.signal(for: #selector(object.increment))
 
-						DispatchQueue.global(priority: .high).async {
+						DispatchQueue.testQueue().async {
 							_ = object.reactive.signal(for: #selector(object.increment))
 
 							isDeadlocked = false
@@ -822,6 +822,16 @@ class InterceptingSpec: QuickSpec {
 					expect(isDeadlocked).toEventually(beFalsy())
 				}
 			}
+		}
+	}
+}
+
+extension DispatchQueue {
+	static func testQueue() -> DispatchQueue {
+		if #available(*, iOS 8.0, macOS 10.10) {
+			return DispatchQueue.global(qos: .userInteractive)
+		} else {
+			return DispatchQueue.global(priority: .high)
 		}
 	}
 }

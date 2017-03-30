@@ -6,6 +6,8 @@ import Result
 
 class UISwitchSpec: QuickSpec {
 	override func spec() {
+		UIControl.swizzleForTesting()
+
 		var toggle: UISwitch!
 		weak var _toggle: UISwitch?
 

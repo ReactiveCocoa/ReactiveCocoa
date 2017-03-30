@@ -6,6 +6,8 @@ import Result
 
 class UISegmentedControlSpec: QuickSpec {
 	override func spec() {
+		UIControl.swizzleForTesting()
+
 		it("should accept changes from bindings to its selected segment index") {
 			let s = UISegmentedControl(items: ["0", "1", "2"])
 			s.selectedSegmentIndex = UISegmentedControlNoSegment

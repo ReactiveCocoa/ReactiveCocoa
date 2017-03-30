@@ -8,6 +8,8 @@ import CoreGraphics
 
 class InterceptingSpec: QuickSpec {
 	override func spec() {
+		ForwardInvocationTestObject.swizzleForTesting()
+
 		describe("trigger(for:)") {
 			var object: InterceptedObject!
 			weak var _object: InterceptedObject?
@@ -830,7 +832,7 @@ private class ForwardInvocationTestObject: InterceptedObject {
 	var forwardedCount = 0
 	var forwardedSelector: Selector?
 
-	override open class func initialize() {
+	static func swizzleForTesting() {
 		struct Static {
 			static var token: Int = {
 				let impl: @convention(c) (Any, Selector, AnyObject) -> Void = { object, _, invocation in

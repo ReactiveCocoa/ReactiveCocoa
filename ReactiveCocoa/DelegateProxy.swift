@@ -70,9 +70,9 @@ extension DelegateProxy {
 				return proxy
 			}
 
-			let newSetterImpl: @convention(block) (NSObject, NSObject) -> Void = { object, delegate in
+			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
 				let proxy = object.associations.value(forKey: key)!
-				proxy.forwardee = (delegate as! Delegate)
+				proxy.forwardee = (delegate as! Delegate?)
 			}
 
 			// Hide the original setter, and redirect subsequent delegate assignment
@@ -84,8 +84,8 @@ extension DelegateProxy {
 			let originalSetterImpl: IMP = class_getMethodImplementation(realClass, setter)
 			let getterImpl: IMP = class_getMethodImplementation(realClass, getter)
 
-			typealias Setter = @convention(c) (AnyObject, Selector, AnyObject) -> Void
-			typealias Getter = @convention(c) (AnyObject, Selector) -> NSObject?
+			typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?
 
 			// As Objective-C classes may cache the information of their delegate at
 			// the time the delegates are set, the information has to be "flushed"

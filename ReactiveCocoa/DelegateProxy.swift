@@ -10,9 +10,11 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 
 	internal var interceptedSelectors: Set<Selector> = []
 
+	private let lifetime: Lifetime
 	private let originalSetter: (AnyObject) -> Void
 
-	required init(_ originalSetter: @escaping (AnyObject) -> Void) {
+	required init(lifetime: Lifetime, _ originalSetter: @escaping (AnyObject) -> Void) {
+		self.lifetime = lifetime
 		self.originalSetter = originalSetter
 	}
 
@@ -23,13 +25,13 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 	func intercept(_ selector: Selector) -> Signal<(), NoError> {
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
-		return self.reactive.trigger(for: selector)
+		return self.reactive.trigger(for: selector).take(during: lifetime)
 	}
 
 	func intercept(_ selector: Selector) -> Signal<[Any?], NoError> {
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
-		return self.reactive.signal(for: selector)
+		return self.reactive.signal(for: selector).take(during: lifetime)
 	}
 
 	override func responds(to selector: Selector!) -> Bool {
@@ -90,7 +92,7 @@ extension DelegateProxy {
 			// As Objective-C classes may cache the information of their delegate at
 			// the time the delegates are set, the information has to be "flushed"
 			// whenever the proxy forwardee is replaced or a selector is intercepted.
-			let proxy = self.init { [weak instance] proxy in
+			let proxy = self.init(lifetime: instance.reactive.lifetime) { [weak instance] proxy in
 				guard let instance = instance else { return }
 				unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
 			}

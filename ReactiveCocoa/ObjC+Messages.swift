@@ -14,10 +14,16 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 // An alias for `-class`, which is unavailable in Swift.
 	@objc(class)
 	var objcClass: AnyClass! { get }
+
+	@objc(class)
+	static var objcClass: AnyClass! { get }
 }
 
 // Methods of `NSInvocation`.
 @objc internal protocol ObjCInvocation {
+	@objc(setTarget:)
+	func setUnmanagedTarget(_ target: Unmanaged<NSObject>)
+
 	@objc(setSelector:)
 	func setSelector(_ selector: Selector)
 
@@ -26,6 +32,9 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 
 	@objc(getArgument:atIndex:)
 	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
+
+	@objc(setArgument:atIndex:)
+	func copy(from buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
 
 	func invoke()
 

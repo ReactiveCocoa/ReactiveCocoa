@@ -80,6 +80,8 @@ class NSButtonSpec: QuickSpec {
 		if #available(OSX 10.11, *) {
 			it("should send along state changes embedded within NSStackView") {
 				
+				let window = NSWindow()
+				
 				let button1 = NSButton()
 				let button2 = NSButton()
 				

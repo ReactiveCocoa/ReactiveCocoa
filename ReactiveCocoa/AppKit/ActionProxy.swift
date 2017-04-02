@@ -43,22 +43,37 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 			}
 
 			let proxy = ActionProxy<Base>(owner: base, lifetime: lifetime)
-			base.associations.setValue(proxy, forKey: key)
 
 			proxy.target = base.target
 			proxy.action = base.action
 
+			// The proxy must be associated after it is set as the target, since
+			// `base` may be an isa-swizzled instance that is using the injected
+			// setters below.
 			base.target = proxy
 			base.action = #selector(proxy.invoke(_:))
+			base.associations.setValue(proxy, forKey: key)
 
 			let newTargetSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, target in
-				let proxy = object.associations.value(forKey: key)!
-				proxy.target = target
+				if let proxy = object.associations.value(forKey: key) {
+					proxy.target = target
+				} else {
+					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+					let impl = class_getMethodImplementation(object.objcClass, #selector(setter: ActionMessageSending.target))
+					let targetSetter = unsafeBitCast(impl, to: Setter.self)
+					targetSetter(object, #selector(setter: ActionMessageSending.target), target)
+				}
 			}
 
 			let newActionSetterImpl: @convention(block) (NSObject, Selector?) -> Void = { object, selector in
-				let proxy = object.associations.value(forKey: key)!
-				proxy.action = selector
+				if let proxy = object.associations.value(forKey: key) {
+					proxy.action = selector
+				} else {
+					typealias Setter = @convention(c) (NSObject, Selector, Selector?) -> Void
+					let impl = class_getMethodImplementation(object.objcClass, #selector(setter: ActionMessageSending.action))
+					let actionSetter = unsafeBitCast(impl, to: Setter.self)
+					actionSetter(object, #selector(setter: ActionMessageSending.action), selector)
+				}
 			}
 
 			// Swizzle the instance only after setting up the proxy.

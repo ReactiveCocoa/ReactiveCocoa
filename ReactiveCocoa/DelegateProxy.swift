@@ -73,8 +73,14 @@ extension DelegateProxy {
 			}
 
 			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
-				let proxy = object.associations.value(forKey: key)!
-				proxy.forwardee = (delegate as! Delegate?)
+				if let proxy = object.associations.value(forKey: key) {
+					proxy.forwardee = (delegate as! Delegate?)
+				} else {
+					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+					let impl = class_getMethodImplementation(object.objcClass, setter)
+					let delegateSetter = unsafeBitCast(impl, to: Setter.self)
+					delegateSetter(object, setter, delegate)
+				}
 			}
 
 			// Hide the original setter, and redirect subsequent delegate assignment

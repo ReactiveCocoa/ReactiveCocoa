@@ -9,14 +9,21 @@ class NSButtonSpec: QuickSpec {
 	override func spec() {
 		var button: NSButton!
 		weak var _button: NSButton?
+		
+		var window: NSWindow!
 
 		beforeEach {
 			button = NSButton(frame: .zero)
 			_button = button
+			window = NSWindow()
+			window.contentView?.addSubview(button)
 		}
 
 		afterEach {
-			button = nil
+			autoreleasepool {
+				button.removeFromSuperview()
+				button = nil
+			}
 			expect(_button).to(beNil())
 		}
 

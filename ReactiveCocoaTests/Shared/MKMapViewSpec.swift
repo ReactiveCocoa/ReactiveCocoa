@@ -17,10 +17,10 @@ class MKMapViewSpec: QuickSpec {
 		}
 
 		afterEach {
-			mapView = nil
-			// using toEventually(beNil()) here
-			// since it takes time to release MKMapView
-			expect(_mapView).toEventually(beNil())
+			autoreleasepool {
+				_mapView = nil
+			}
+			expect(_mapView).to(beNil())
 		}
 
 		it("should accept changes from bindings to its map type") {

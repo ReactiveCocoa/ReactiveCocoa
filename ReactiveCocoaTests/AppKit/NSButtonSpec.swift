@@ -83,6 +83,46 @@ class NSButtonSpec: QuickSpec {
 			expect(state.value) == NSOffState
 
 		}
+		
+		if #available(OSX 10.11, *) {
+			it("should send along state changes embedded within NSStackView") {
+				
+				let window = NSWindow()
+				
+				let button1 = NSButton()
+				let button2 = NSButton()
+				
+				button1.setButtonType(.pushOnPushOff)
+				button1.allowsMixedState = false
+				button1.state = NSOffState
+				
+				button2.setButtonType(.pushOnPushOff)
+				button2.allowsMixedState = false
+				button2.state = NSOnState
+				
+				let stackView = NSStackView()
+				stackView.addArrangedSubview(button1)
+				stackView.addArrangedSubview(button2)
+				
+				window.contentView?.addSubview(stackView)
+				
+				let state = MutableProperty(NSOffState)
+				state <~ button1.reactive.states
+				state <~ button2.reactive.states
+				
+				button1.performClick(nil)
+				expect(state.value) == NSOnState
+				
+				button2.performClick(nil)
+				expect(state.value) == NSOffState
+				
+				autoreleasepool {
+					button1.removeFromSuperview()
+					button2.removeFromSuperview()
+					stackView.removeFromSuperview()
+				}
+			}
+		}
 
 		it("should execute the `pressed` action upon receiving a click") {
 			button.isEnabled = true

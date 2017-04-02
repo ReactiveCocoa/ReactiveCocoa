@@ -296,7 +296,7 @@ class DelegateProxySpec: QuickSpec {
 					expect(fooCounter) == 2
 				}
 
-				it("should be automatically set as the object's delegate even if it has already been isa-swizzled by RAC for intercepting the delegate setter.") {
+				xit("should be automatically set as the object's delegate even if it has already been isa-swizzled by RAC for intercepting the delegate setter.") {
 					var counter = 0
 
 					object.reactive
@@ -365,7 +365,7 @@ class DelegateProxySpec: QuickSpec {
 					expect(fooCounter) == 2
 				}
 
-				it("should be automatically set as the object's delegate even if it is subsequently isa-swizzled by KVO for observing the delegate key path.") {
+				xit("should be automatically set as the object's delegate even if it is subsequently isa-swizzled by KVO for observing the delegate key path.") {
 					expect(object.delegate).to(beNil())
 
 					setProxy()

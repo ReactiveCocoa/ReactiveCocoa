@@ -4,17 +4,17 @@ import enum Result.NoError
 import ReactiveSwift
 @testable import ReactiveCocoa
 
-@objc protocol ObjectDelegate: NSObjectProtocol {
+@objc private protocol ObjectDelegate: NSObjectProtocol {
 	func foo()
 	@objc optional func bar()
 	@objc optional func nop()
 }
 
-class Object: NSObject {
+private class Object: NSObject {
 	var delegateSetCount = 0
 	var delegateSelectors: [Selector] = []
 
-	weak var delegate: ObjectDelegate? {
+	dynamic weak var delegate: ObjectDelegate? {
 		didSet {
 			delegateSetCount += 1
 			delegateSelectors = Array()
@@ -39,7 +39,7 @@ class Object: NSObject {
 	}
 }
 
-class ObjectDelegateCounter: NSObject, ObjectDelegate {
+private class ObjectDelegateCounter: NSObject, ObjectDelegate {
 	var fooCounter = 0
 	var nopCounter = 0
 
@@ -52,7 +52,7 @@ class ObjectDelegateCounter: NSObject, ObjectDelegate {
 	}
 }
 
-class ObjectDelegateProxy: DelegateProxy<ObjectDelegate>, ObjectDelegate {
+private class ObjectDelegateProxy: DelegateProxy<ObjectDelegate>, ObjectDelegate {
 	func foo() {
 		forwardee?.foo()
 	}
@@ -84,6 +84,17 @@ class DelegateProxySpec: QuickSpec {
 
 			it("should be automatically set as the object's delegate.") {
 				expect(object.delegate).to(beIdenticalTo(proxy))
+			}
+
+			it("should not be erased when the delegate is set with a new one.") {
+				object.delegate = nil
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(proxy.forwardee).to(beNil())
+
+				let counter = ObjectDelegateCounter()
+				object.delegate = counter
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(proxy.forwardee).to(beIdenticalTo(counter))
 			}
 
 			it("should respond to the protocol requirement checks.") {
@@ -210,6 +221,172 @@ class DelegateProxySpec: QuickSpec {
 				expect(object.delegateSetCount) == 3
 				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.bar)]
 				expect(object.delegate).to(beIdenticalTo(proxy))
+			}
+			
+			describe("interoperability") {
+				var object: Object!
+				var proxy: DelegateProxy<ObjectDelegate>!
+				var fooCounter = 0
+				
+				beforeEach {
+					object = Object()
+					fooCounter = 0
+				}
+
+				func setProxy() {
+					proxy = ObjectDelegateProxy.proxy(for: object,
+					                                  setter: #selector(setter: object.delegate),
+					                                  getter: #selector(getter: object.delegate))
+
+					let signal: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+					signal.observeValues { fooCounter += 1 }
+				}
+
+				it("should not affect instances sharing the same runtime subclass") {
+					_ = object.reactive.producer(forKeyPath: #keyPath(Object.delegateSetCount)).start()
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					// Another object without RAC swizzling.
+					let object2 = Object()
+					_ = object2.reactive.producer(forKeyPath: #keyPath(Object.delegateSetCount)).start()
+
+					expect(object.objcClass).to(beIdenticalTo(object2.objcClass))
+
+					let className = NSStringFromClass(object_getClass(object))
+					expect(className).to(beginWith("NSKVONotifying_"))
+					expect(className).toNot(endWith("_RACSwift"))
+
+					let delegate = ObjectDelegateCounter()
+					object2.delegate = delegate
+					expect(object2.delegate).to(beIdenticalTo(delegate))
+				}
+
+				it("should be automatically set as the object's delegate even if it has already been isa-swizzled by KVO.") {
+					_ = object.reactive.producer(forKeyPath: #keyPath(Object.delegateSetCount)).start()
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
+
+				it("should be automatically set as the object's delegate even if it has already been isa-swizzled by RAC.") {
+					_ = object.reactive.trigger(for: #selector(getter: Object.delegateSetCount))
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
+
+				it("should be automatically set as the object's delegate even if it has already been isa-swizzled by RAC for intercepting the delegate setter.") {
+					var counter = 0
+
+					object.reactive
+						.trigger(for: #selector(setter: Object.delegate))
+						.observeValues { counter += 1 }
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 1
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 1
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
+
+				it("should be automatically set as the object's delegate even if it is subsequently isa-swizzled by RAC for intercepting the delegate setter.") {
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					var counter = 0
+
+					object.reactive
+						.trigger(for: #selector(setter: Object.delegate))
+						.observeValues { counter += 1 }
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 1
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
+
+				it("should be automatically set as the object's delegate even if it has already been isa-swizzled by KVO for observing the delegate key path.") {
+					var counter = 0
+
+					object.reactive
+						.signal(forKeyPath: #keyPath(Object.delegate))
+						.observeValues { _ in counter += 1 }
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 0
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 0
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
+
+				it("should be automatically set as the object's delegate even if it is subsequently isa-swizzled by KVO for observing the delegate key path.") {
+					expect(object.delegate).to(beNil())
+
+					setProxy()
+					expect(object.delegate).to(beIdenticalTo(proxy))
+
+					object.delegate?.foo()
+					expect(fooCounter) == 1
+
+					var counter = 0
+
+					object.reactive
+						.signal(forKeyPath: #keyPath(Object.delegate))
+						.observeValues { _ in counter += 1 }
+
+					object.delegate = nil
+					expect(object.delegate).to(beIdenticalTo(proxy))
+					expect(counter) == 1
+
+					object.delegate?.foo()
+					expect(fooCounter) == 2
+				}
 			}
 		}
 	}

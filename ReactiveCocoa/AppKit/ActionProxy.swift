@@ -2,7 +2,7 @@ import AppKit
 import ReactiveSwift
 import enum Result.NoError
 
-internal final class ActionProxy<Owner: AnyObject> {
+internal final class ActionProxy<Owner: AnyObject>: NSObject {
 	internal weak var target: AnyObject?
 	internal var action: Selector?
 	internal let invoked: Signal<Owner, NoError>
@@ -19,7 +19,11 @@ internal final class ActionProxy<Owner: AnyObject> {
 	// In AppKit, action messages always have only one parameter.
 	@objc func invoke(_ sender: Any?) {
 		if let action = action {
-			NSApp.sendAction(action, to: target, from: sender)
+			if let app = NSApp {
+				app.sendAction(action, to: target, from: sender)
+			} else {
+				_ = target?.perform(action, with: sender)
+			}
 		}
 
 		observer.send(value: owner)

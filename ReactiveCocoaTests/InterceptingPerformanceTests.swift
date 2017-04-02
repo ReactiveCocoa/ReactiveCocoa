@@ -2,7 +2,7 @@ import XCTest
 @testable import ReactiveCocoa
 import ReactiveSwift
 
-private let iterationCount = 5000
+private let iterationCount = 500
 
 private final class Receiver1: NSObject {
 	dynamic func message() {}

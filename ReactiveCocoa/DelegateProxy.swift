@@ -44,6 +44,7 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 }
 
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
+private let proxyMapKey = AssociationKey<[(Selector, AnyObject)]>(default: [])
 
 extension DelegateProxy {
 	// FIXME: This is a workaround to a compiler issue, where any use of `Self`
@@ -53,27 +54,27 @@ extension DelegateProxy {
 	internal static func proxy<P: DelegateProxy<Delegate>>(
 		for instance: NSObject,
 		setter: Selector,
-		getter: Selector,
-		_ key: StaticString = #function
+		getter: Selector
 	) -> P {
-		return _proxy(for: instance, setter: setter, getter: getter, key) as! P
+		return _proxy(for: instance, setter: setter, getter: getter) as! P
 	}
 
 	private static func _proxy(
 		for instance: NSObject,
 		setter: Selector,
-		getter: Selector,
-		_ key: StaticString = #function
+		getter: Selector
 	) -> AnyObject {
-		let key = AssociationKey<DelegateProxy<Delegate>?>(key)
-
 		return instance.synchronized {
-			if let proxy = instance.associations.value(forKey: key) {
+			let proxyMap = instance.associations.value(forKey: proxyMapKey)
+
+			if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 {
 				return proxy
 			}
 
 			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
-				if let proxy = object.associations.value(forKey: key) {
+				let proxyMap = object.associations.value(forKey: proxyMapKey)
+
+				if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 as! DelegateProxy<Delegate>? {
 					proxy.forwardee = (delegate as! Delegate?)
 				} else {
 					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
@@ -103,7 +104,7 @@ extension DelegateProxy {
 				unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
 			}
 
-			instance.associations.setValue(proxy, forKey: key)
+			instance.associations.setValue(proxyMap + [(setter, proxy)], forKey: proxyMapKey)
 
 			// `proxy.forwardee` would invoke the original setter regardless of
 			// `original` being `nil` or not.

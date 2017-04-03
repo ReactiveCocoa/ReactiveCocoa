@@ -21,7 +21,7 @@ extension Reactive where Base: NSObject {
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += self.lifetime.observeEnded(observer.sendCompleted)
 		}
 	}
 
@@ -46,7 +46,7 @@ extension Reactive where Base: NSObject {
 				options: [.new],
 				action: observer.send
 			)
-			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += self.lifetime.observeEnded(observer.sendCompleted)
 			return disposable
 		}
 	}
@@ -162,7 +162,7 @@ extension KeyValueObserver {
 				headSerialDisposable.inner = headDisposable
 
 				if shouldObserveDeinit {
-					let disposable = value.reactive.lifetime.ended.observeCompleted {
+					let disposable = value.reactive.lifetime.observeEnded {
 						if isWeak {
 							action(nil)
 						}
@@ -187,15 +187,18 @@ extension KeyValueObserver {
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
+				guard let value = object?.value(forKey: keyPathHead) as AnyObject? else {
 					action(nil)
 					return
 				}
 
-				if shouldObserveDeinit {
-					let disposable = value.reactive.lifetime.ended.observeCompleted {
+				// For a direct key path, the deinitialization needs to be
+				// observed only if the key path is a weak property.
+				if shouldObserveDeinit && isWeak {
+					let disposable = lifetime(of: value).observeEnded {
 						action(nil)
 					}
+
 					headSerialDisposable.inner = disposable
 				}
 

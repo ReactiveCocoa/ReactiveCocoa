@@ -10,6 +10,27 @@ fileprivate let lifetimeKey = AssociationKey<Lifetime?>(default: nil)
 /// Holds the `Lifetime.Token` of the object.
 fileprivate let lifetimeTokenKey = AssociationKey<Lifetime.Token?>(default: nil)
 
+internal func lifetime(of object: AnyObject) -> Lifetime {
+	if let object = object as? NSObject {
+		return object.reactive.lifetime
+	}
+
+	return synchronized(object) {
+		let associations = Associations(object)
+
+		if let lifetime = associations.value(forKey: lifetimeKey) {
+			return lifetime
+		}
+
+		let (lifetime, token) = Lifetime.make()
+
+		associations.setValue(token, forKey: lifetimeTokenKey)
+		associations.setValue(lifetime, forKey: lifetimeKey)
+
+		return lifetime
+	}
+}
+
 extension Reactive where Base: NSObject {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {

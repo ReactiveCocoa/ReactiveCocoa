@@ -44,8 +44,8 @@ extension Reactive where Base: UIControl {
 	/// - parameters:
 	///   - controlEvents: The control event mask.
 	///
-	/// - returns:
-	///   A signal that sends the control each time the control event occurs.
+	/// - returns: A signal that sends the control each time the control event 
+	///            occurs.
 	public func controlEvents(_ controlEvents: UIControlEvents) -> Signal<Base, NoError> {
 		return Signal { observer in
 			let receiver = CocoaTarget(observer) { $0 as! Base }

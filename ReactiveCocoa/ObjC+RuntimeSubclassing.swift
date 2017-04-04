@@ -53,8 +53,7 @@ extension NSObject {
 /// - parameters:
 ///   - instance: The instance to be swizzled.
 ///
-/// - returns:
-///   The runtime subclass of the perceived class of the instance.
+/// - returns: The runtime subclass of the perceived class of the instance.
 internal func swizzleClass(_ instance: NSObject) -> AnyClass {
 	if let knownSubclass = instance.associations.value(forKey: knownRuntimeSubclassKey) {
 		return knownSubclass

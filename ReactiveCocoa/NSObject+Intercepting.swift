@@ -13,8 +13,8 @@ fileprivate let signatureCacheKey = AssociationKey<SignatureCache>()
 fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
 
 extension Reactive where Base: NSObject {
-	/// Create a signal which sends a `next` event at the end of every invocation
-	/// of `selector` on the object.
+	/// Create a signal which sends a `next` event at the end of every 
+	/// invocation of `selector` on the object.
 	///
 	/// It completes when the object deinitializes.
 	///
@@ -24,14 +24,14 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - selector: The selector to observe.
 	///
-	/// - returns:
-	///   A trigger signal.
+	/// - returns: A trigger signal.
 	public func trigger(for selector: Selector) -> Signal<(), NoError> {
 		return base.intercept(selector).map { _ in }
 	}
 
-	/// Create a signal which sends a `next` event, containing an array of bridged
-	/// arguments, at the end of every invocation of `selector` on the object.
+	/// Create a signal which sends a `next` event, containing an array of 
+	/// bridged arguments, at the end of every invocation of `selector` on the 
+	/// object.
 	///
 	/// It completes when the object deinitializes.
 	///
@@ -41,8 +41,7 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - selector: The selector to observe.
 	///
-	/// - returns:
-	///   A signal that sends an array of bridged arguments.
+	/// - returns: A signal that sends an array of bridged arguments.
 	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
 		return base.intercept(selector).map(unpackInvocation)
 	}
@@ -55,9 +54,8 @@ extension NSObject {
 	///   - object: The object to be intercepted.
 	///   - selector: The selector of the method to be intercepted.
 	///
-	/// - returns:
-	///   A signal that sends the corresponding `NSInvocation` after every
-	///   invocation of the method.
+	/// - returns: A signal that sends the corresponding `NSInvocation` after 
+	///            every invocation of the method.
 	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
 			fatalError("Selector `\(selector)` does not exist in class `\(String(describing: objcClass))`.")
@@ -331,8 +329,7 @@ private final class SignatureCache {
 /// - parameters:
 ///   - types: The type encoding C string of the method.
 ///
-/// - returns:
-///   `true`.
+/// - returns: `true`.
 private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 	// Some types, including vector types, are not encoded. In these cases the
 	// signature starts with the size of the argument frame.
@@ -353,8 +350,7 @@ private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 /// - parameters:
 ///   - invocation: The `NSInvocation` to unpack.
 ///
-/// - returns:
-///   An array of objects.
+/// - returns: An array of objects.
 private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	let invocation = invocation as AnyObject
 	let methodSignature = invocation.objcMethodSignature!

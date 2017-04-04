@@ -57,8 +57,7 @@ extension Reactive where Base: NSObject {
 	///   - key: An optional key to differentiate different values.
 	///   - initial: The action that supples an initial value.
 	///
-	/// - returns:
-	///   The associated value for the specified key.
+	/// - returns: The associated value for the specified key.
 	internal func associatedValue<T>(forKey key: StaticString = #function, initial: (Base) -> T) -> T {
 		let key = AssociationKey<T?>(key)
 

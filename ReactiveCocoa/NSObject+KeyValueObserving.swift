@@ -11,8 +11,8 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - keyPath: The key path of the property to be observed.
 	///
-	/// - returns:
-	///   A producer emitting values of the property specified by the key path.
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
 	public func producer(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
 		return SignalProducer { observer, disposable in
 			disposable += KeyValueObserver.observe(
@@ -35,8 +35,8 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - keyPath: The key path of the property to be observed.
 	///
-	/// - returns:
-	///   A producer emitting values of the property specified by the key path.
+	/// - returns: A producer emitting values of the property specified by the 
+	///            key path.
 	public func signal(forKeyPath keyPath: String) -> Signal<Any?, NoError> {
 		return Signal { observer in
 			let disposable = CompositeDisposable()
@@ -106,8 +106,8 @@ extension KeyValueObserver {
 	///   - options: The desired configuration of the observation.
 	///   - action: The action to be invoked upon arrival of changes.
 	///
-	/// - returns:
-	///   A disposable that would tear down the observation upon disposal.
+	/// - returns: A disposable that would tear down the observation upon 
+	///            disposal.
 	static func observe(
 		_ object: NSObject,
 		keyPath: String,

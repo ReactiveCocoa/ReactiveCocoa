@@ -130,3 +130,14 @@ init(count: Int)
 /// DON'T:
 /// Does something magical and returns pixie dust from `self`.
 ```
+
+- Document return value on the same line as `return:` delimiter.
+
+```
+/// DO:
+/// - returns: A signal with mapped value over given function
+///
+/// DON'T:
+/// - returns:
+///   A signal with mapped value over given function   
+```

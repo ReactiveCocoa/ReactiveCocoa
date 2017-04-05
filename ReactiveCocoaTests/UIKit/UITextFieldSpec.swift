@@ -7,7 +7,9 @@ import enum Result.NoError
 
 class UITextFieldSpec: QuickSpec {
 	override func spec() {
-		UIControl.swizzleForTesting()
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
 
 		var textField: UITextField!
 		weak var _textField: UITextField?

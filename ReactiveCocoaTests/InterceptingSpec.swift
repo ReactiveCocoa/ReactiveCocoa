@@ -8,8 +8,10 @@ import CoreGraphics
 
 class InterceptingSpec: QuickSpec {
 	override func spec() {
-		ForwardInvocationTestObject.swizzleForTesting()
-
+		beforeSuite {
+			ForwardInvocationTestObject.swizzleForTesting()
+		}
+		
 		describe("trigger(for:)") {
 			var object: InterceptedObject!
 			weak var _object: InterceptedObject?

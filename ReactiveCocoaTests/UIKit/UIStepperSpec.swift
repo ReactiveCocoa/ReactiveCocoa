@@ -7,7 +7,9 @@ import UIKit
 
 class UIStepperSpec: QuickSpec {
 	override func spec() {
-		UIControl.swizzleForTesting()
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
 		
 		var stepper: UIStepper!
 		weak var _stepper: UIStepper?

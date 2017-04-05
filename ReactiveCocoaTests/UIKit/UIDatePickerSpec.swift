@@ -6,7 +6,9 @@ import Nimble
 
 class UIDatePickerSpec: QuickSpec {
 	override func spec() {
-		UIControl.swizzleForTesting()
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
 
 		var date: Date!
 		var picker: UIDatePicker!

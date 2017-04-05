@@ -834,7 +834,7 @@ private class ForwardInvocationTestObject: InterceptedObject {
 	var forwardedCount = 0
 	var forwardedSelector: Selector?
 
-	static func _initialize() {
+	fileprivate static func _initialize() {
 		let impl: @convention(c) (Any, Selector, AnyObject) -> Void = { object, _, invocation in
 			let object = object as! ForwardInvocationTestObject
 			object.forwardedCount += 1

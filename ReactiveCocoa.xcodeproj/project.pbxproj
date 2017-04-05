@@ -223,6 +223,14 @@
 		9AF0EA781D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		A9B315C91B3940980001CB9C /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
+		A9EB3D211E94F0AF002A9BCC /* UINavigationItemSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */; };
+		A9EB3D221E94F308002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
+		A9EB3D231E94F314002A9BCC /* UINavigationItemSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */; };
+		A9EB3D291E94F3D3002A9BCC /* UITabBarItemSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D261E94F3C7002A9BCC /* UITabBarItemSpec.swift */; };
+		A9EB3D2B1E94F3D9002A9BCC /* UITabBarItemSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D261E94F3C7002A9BCC /* UITabBarItemSpec.swift */; };
+		A9EB3D2C1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */; };
+		A9EB3D2D1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */; };
 		B696FB811A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		BE330A0F1D634F1E00806963 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE330A0E1D634F1E00806963 /* ReactiveSwift.framework */; };
@@ -432,6 +440,10 @@
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		A97451361B3A935E00F48E55 /* watchOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		A9B315541B3940610001CB9C /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationItem.swift; sourceTree = "<group>"; };
+		A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationItemSpec.swift; sourceTree = "<group>"; };
+		A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITabBarItem.swift; sourceTree = "<group>"; };
+		A9EB3D261E94F3C7002A9BCC /* UITabBarItemSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITabBarItemSpec.swift; sourceTree = "<group>"; };
 		B696FB801A7640C00075236D /* TestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
 		BE330A0E1D634F1E00806963 /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = build/Debug/ReactiveSwift.framework; sourceTree = "<group>"; };
 		BE330A101D634F2900806963 /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = build/Debug/ReactiveSwift.framework; sourceTree = "<group>"; };
@@ -618,10 +630,12 @@
 				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
+				A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
 				BF4335641E02AC7600AC88DD /* UIScrollView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
 				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
+				A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
 				9A1D05FC1D93E9F100ACF44C /* UIView.swift */,
@@ -643,6 +657,7 @@
 				4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */,
 				9A1D062B1D93EA7E00ACF44C /* UIImageViewSpec.swift */,
 				9A1D062C1D93EA7E00ACF44C /* UILabelSpec.swift */,
+				A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */,
 				BFBD68431E48DA21003CB580 /* UIPickerViewSpec.swift */,
 				9A1D062D1D93EA7E00ACF44C /* UIProgressViewSpec.swift */,
 				BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */,
@@ -652,6 +667,7 @@
 				531866F91DD7925600D1285F /* UIStepperSpec.swift */,
 				9A1D062F1D93EA7E00ACF44C /* UISwitchSpec.swift */,
 				4ABEFDE31DCFCCD70066A8C2 /* UITableViewSpec.swift */,
+				A9EB3D261E94F3C7002A9BCC /* UITabBarItemSpec.swift */,
 				9A1D06321D93EA7E00ACF44C /* UITextFieldSpec.swift */,
 				9A1D06331D93EA7E00ACF44C /* UITextViewSpec.swift */,
 				9A1D06351D93EA7E00ACF44C /* UIViewSpec.swift */,
@@ -1177,6 +1193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9EB3D221E94F308002A9BCC /* UINavigationItem.swift in Sources */,
 				9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
 				9A1D061F1D93EA0100ACF44C /* UITextField.swift in Sources */,
@@ -1205,6 +1222,7 @@
 				4A0E11021D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9ADFE5A81DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
+				A9EB3D2D1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */,
 				9AA0BD921DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9A1D061A1D93EA0100ACF44C /* UIProgressView.swift in Sources */,
 				9AA0BD7F1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
@@ -1221,6 +1239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9EB3D231E94F314002A9BCC /* UINavigationItemSpec.swift in Sources */,
 				9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */,
 				9A1D06591D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				53A6BED81DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
@@ -1241,6 +1260,7 @@
 				9A892D911E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				9A1D06471D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				9A1D06391D93EA7E00ACF44C /* UIBarButtonItemSpec.swift in Sources */,
+				A9EB3D2B1E94F3D9002A9BCC /* UITabBarItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
 				9ADFE5A31DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06411D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
@@ -1351,6 +1371,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */,
 				4ABEFE251DCFCF630066A8C2 /* UICollectionView.swift in Sources */,
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
@@ -1388,6 +1409,7 @@
 				4ABEFE1F1DCFCEF60066A8C2 /* UITableView.swift in Sources */,
 				9A1D06081D93EA0000ACF44C /* UIProgressView.swift in Sources */,
 				531866F81DD7920400D1285F /* UIStepper.swift in Sources */,
+				A9EB3D2C1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */,
 				538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
 				9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */,
 				9AA0BD991DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */,
@@ -1404,6 +1426,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9EB3D211E94F0AF002A9BCC /* UINavigationItemSpec.swift in Sources */,
 				9A1D06581D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
 				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
 				BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */,
@@ -1441,6 +1464,7 @@
 				9A1D06401D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
 				9A1D06481D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
+				A9EB3D291E94F3D3002A9BCC /* UITabBarItemSpec.swift in Sources */,
 				538DCB7E1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */,
 				9A1D06521D93EA7E00ACF44C /* UITextFieldSpec.swift in Sources */,
 			);

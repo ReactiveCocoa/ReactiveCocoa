@@ -24,4 +24,6 @@ Pod::Spec.new do |s|
   s.module_map = "ReactiveCocoa/module.modulemap"
 
   s.dependency 'ReactiveSwift', '~> 1.1'
+
+  s.pod_target_xcconfig = {"OTHER_SWIFT_FLAGS[config=Release]" => "-suppress-warnings" }
 end

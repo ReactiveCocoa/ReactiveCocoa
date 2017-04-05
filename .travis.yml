@@ -60,7 +60,7 @@ matrix:
     - script:
       - gem install cocoapods
       - pod repo update --silent
-      - pod lib lint --allow-warnings
+      - pod lib lint ReactiveCocoa.podspec
       env:
         - JOB=PODSPEC
 notifications:

@@ -11,7 +11,7 @@ public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError mayb
 	return NonNilMatcherFunc { actualExpression, failureMessage in
 		precondition(maybeSendError == nil || !complete, "Signals can't both send an error and complete")
 
-		failureMessage.postfixMessage = "Send values \(values). Send error \(maybeSendError). Complete: \(complete)"
+		failureMessage.postfixMessage = "Send values \(values). Send error \(String(describing: maybeSendError)). Complete: \(complete)"
 		let maybeProducer = try actualExpression.evaluate()
 
 		if let signalProducer = maybeProducer {

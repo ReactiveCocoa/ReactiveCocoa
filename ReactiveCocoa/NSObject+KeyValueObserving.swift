@@ -264,7 +264,7 @@ internal struct PropertyAttributes {
 		let _next = NSGetSizeAndAlignment(typeString, nil, nil)
 		guard _next != typeString else {
 			let string = String(validatingUTF8: attrString)
-			preconditionFailure("Could not read past type in attribute string: \(string).")
+			preconditionFailure("Could not read past type in attribute string: \(String(describing: string)).")
 		}
 		var next = UnsafeMutablePointer<Int8>(mutating: _next)
 
@@ -355,7 +355,7 @@ internal struct PropertyAttributes {
 
 			case Code.Attribute.oldTypeEncoding:
 				let string = String(validatingUTF8: attrString)
-				assertionFailure("Old-style type encoding is unsupported in attribute string \"\(string)\"")
+				assertionFailure("Old-style type encoding is unsupported in attribute string \"\(String(describing: string))\"")
 
 				// skip over this type encoding
 				while next.pointee != Code.comma && next.pointee != Code.nul {
@@ -369,14 +369,14 @@ internal struct PropertyAttributes {
 
 				let flag = String(validatingUTF8: pointer)
 				let string = String(validatingUTF8: attrString)
-				preconditionFailure("ERROR: Unrecognized attribute string flag '\(flag)' in attribute string \"\(string)\".")
+				preconditionFailure("ERROR: Unrecognized attribute string flag '\(String(describing: flag))' in attribute string \"\(String(describing: string))\".")
 			}
 		}
 
 		if next.pointee != Code.nul {
 			let unparsedData = String(validatingUTF8: next)
 			let string = String(validatingUTF8: attrString)
-			assertionFailure("Warning: Unparsed data \"\(unparsedData)\" in attribute string \"\(string)\".")
+			assertionFailure("Warning: Unparsed data \"\(String(describing: unparsedData))\" in attribute string \"\(String(describing: string))\".")
 		}
 
 		self.objectClass = objectClass

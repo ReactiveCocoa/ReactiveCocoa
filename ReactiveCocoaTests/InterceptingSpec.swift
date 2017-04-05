@@ -8,6 +8,10 @@ import CoreGraphics
 
 class InterceptingSpec: QuickSpec {
 	override func spec() {
+		beforeSuite {
+			ForwardInvocationTestObject._initialize()
+		}
+
 		describe("trigger(for:)") {
 			var object: InterceptedObject!
 			weak var _object: InterceptedObject?
@@ -830,36 +834,28 @@ private class ForwardInvocationTestObject: InterceptedObject {
 	var forwardedCount = 0
 	var forwardedSelector: Selector?
 
-	override open class func initialize() {
-		struct Static {
-			static var token: Int = {
-				let impl: @convention(c) (Any, Selector, AnyObject) -> Void = { object, _, invocation in
-					let object = object as! ForwardInvocationTestObject
-					object.forwardedCount += 1
-					object.forwardedSelector = invocation.selector
-				}
-
-				let success = class_addMethod(ForwardInvocationTestObject.self,
-				                ObjCSelector.forwardInvocation,
-				                unsafeBitCast(impl, to: IMP.self),
-				                ObjCMethodEncoding.forwardInvocation)
-
-				assert(success)
-				assert(ForwardInvocationTestObject.instancesRespond(to: ObjCSelector.forwardInvocation))
-
-				let success2 = class_addMethod(ForwardInvocationTestObject.self,
-				                               ForwardInvocationTestObject.forwardedSelector,
-				                               _rac_objc_msgForward,
-				                               ObjCMethodEncoding.forwardInvocation)
-
-				assert(success2)
-				assert(ForwardInvocationTestObject.instancesRespond(to: ForwardInvocationTestObject.forwardedSelector))
-
-				return 0
-			}()
+	static func _initialize() {
+		let impl: @convention(c) (Any, Selector, AnyObject) -> Void = { object, _, invocation in
+			let object = object as! ForwardInvocationTestObject
+			object.forwardedCount += 1
+			object.forwardedSelector = invocation.selector
 		}
 
-		_ = Static.token
+		let success = class_addMethod(ForwardInvocationTestObject.self,
+		                              ObjCSelector.forwardInvocation,
+		                              unsafeBitCast(impl, to: IMP.self),
+		                              ObjCMethodEncoding.forwardInvocation)
+
+		assert(success)
+		assert(ForwardInvocationTestObject.instancesRespond(to: ObjCSelector.forwardInvocation))
+
+		let success2 = class_addMethod(ForwardInvocationTestObject.self,
+		                               ForwardInvocationTestObject.forwardedSelector,
+		                               _rac_objc_msgForward,
+		                               ObjCMethodEncoding.forwardInvocation)
+
+		assert(success2)
+		assert(ForwardInvocationTestObject.instancesRespond(to: ForwardInvocationTestObject.forwardedSelector))
 	}
 }
 

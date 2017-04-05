@@ -1,6 +1,6 @@
 import UIKit
 
-private let rac_swizzleToken: Void = {
+private func rac_swizzle() {
 	let originalSelector = #selector(UIControl.sendAction(_:to:for:))
 	let swizzledSelector = #selector(UIControl.rac_sendAction(_:to:forEvent:))
 
@@ -20,9 +20,7 @@ private let rac_swizzleToken: Void = {
 	} else {
 		method_exchangeImplementations(originalMethod, swizzledMethod)
 	}
-
-	return ()
-}()
+}
 
 /// Unfortunately, there's an apparent limitation in using `sendActionsForControlEvents`
 /// on unit-tests for any control besides `UIButton` which is very unfortunate since we
@@ -30,12 +28,8 @@ private let rac_swizzleToken: Void = {
 /// in the future. To be able to test them, we're now using swizzling to manually invoke
 /// the pair target+action.
 extension UIControl {
-	override open class func initialize() {
-		guard self === UIControl.self else {
-			return
-		}
-
-		_ = rac_swizzleToken
+	static func _initialize() {
+		rac_swizzle()
 	}
 
 	// MARK: - Method Swizzling

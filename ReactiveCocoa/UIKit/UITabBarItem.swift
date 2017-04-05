@@ -10,6 +10,7 @@ extension Reactive where Base: UITabBarItem {
 	
 	/// Sets the badge color of the tab bar item.
 	@available(iOS 10, *)
+	@available(tvOS 10, *)
 	public var badgeColor: BindingTarget<UIColor?> {
 		return makeBindingTarget { $0.badgeColor = $1 }
 	}

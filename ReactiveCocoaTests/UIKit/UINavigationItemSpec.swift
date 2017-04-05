@@ -27,7 +27,7 @@ class UINavigationItemSpec: QuickSpec {
 			navigationItem.title = ""
 			
 			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			navigationItem.reactive.title <~ SignalProducer(pipeSignal)
+			navigationItem.reactive.title <~ pipeSignal
 			
 			observer.send(value: firstChange)
 			expect(navigationItem.title) == firstChange
@@ -39,23 +39,25 @@ class UINavigationItemSpec: QuickSpec {
 			expect(navigationItem.title).to(beNil())
 		}
 		
-		it("should accept changes from bindings to its prompt value") {
-			let firstChange = "first"
-			let secondChange = "second"
-			
-			navigationItem.prompt = ""
-			
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			navigationItem.reactive.prompt <~ SignalProducer(pipeSignal)
-			
-			observer.send(value: firstChange)
-			expect(navigationItem.prompt) == firstChange
-			
-			observer.send(value: secondChange)
-			expect(navigationItem.prompt) == secondChange
-			
-			observer.send(value: nil)
-			expect(navigationItem.prompt).to(beNil())
-		}
+		#if os(iOS)
+			it("should accept changes from bindings to its prompt value") {
+				let firstChange = "first"
+				let secondChange = "second"
+				
+				navigationItem.prompt = ""
+				
+				let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+				navigationItem.reactive.prompt <~ pipeSignal
+				
+				observer.send(value: firstChange)
+				expect(navigationItem.prompt) == firstChange
+				
+				observer.send(value: secondChange)
+				expect(navigationItem.prompt) == secondChange
+				
+				observer.send(value: nil)
+				expect(navigationItem.prompt).to(beNil())
+			}
+		#endif
 	}
 }

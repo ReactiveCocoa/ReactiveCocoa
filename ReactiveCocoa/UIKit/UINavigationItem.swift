@@ -7,8 +7,10 @@ extension Reactive where Base: UINavigationItem {
 		return makeBindingTarget { $0.title = $1 }
 	}
 	
-	/// Sets the prompt of the navigation item.
-	public var prompt: BindingTarget<String?> {
-		return makeBindingTarget { $0.prompt = $1 }
-	}
+	#if os(iOS)
+		/// Sets the prompt of the navigation item.
+		public var prompt: BindingTarget<String?> {
+			return makeBindingTarget { $0.prompt = $1 }
+		}
+	#endif
 }

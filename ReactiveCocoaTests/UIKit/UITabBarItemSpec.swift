@@ -27,7 +27,7 @@ class UITabBarSpec: QuickSpec {
 			tabBarItem.badgeValue = ""
 			
 			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
-			tabBarItem.reactive.badgeValue <~ SignalProducer(pipeSignal)
+			tabBarItem.reactive.badgeValue <~ pipeSignal
 			
 			observer.send(value: firstChange)
 			expect(tabBarItem.badgeValue) == firstChange
@@ -39,7 +39,7 @@ class UITabBarSpec: QuickSpec {
 			expect(tabBarItem.badgeValue).to(beNil())
 		}
 		
-		if #available(iOS 10, *) {
+		if #available(iOS 10, *), #available(tvOS 10, *) {
 			it("should accept changes from bindings to its badge color value") {
 				let firstChange: UIColor = .red
 				let secondChange: UIColor = .green
@@ -47,7 +47,7 @@ class UITabBarSpec: QuickSpec {
 				tabBarItem.badgeColor = .blue
 				
 				let (pipeSignal, observer) = Signal<UIColor?, NoError>.pipe()
-				tabBarItem.reactive.badgeColor <~ SignalProducer(pipeSignal)
+				tabBarItem.reactive.badgeColor <~ pipeSignal
 				
 				observer.send(value: firstChange)
 				expect(tabBarItem.badgeColor) == firstChange

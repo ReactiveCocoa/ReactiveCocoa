@@ -20,7 +20,7 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {
-		return controlEvents(.editingChanged).map { $0.text }
+		return controlEvents(.allEditingEvents).map { $0.text }
 	}
 	
 	/// Sets the attributed text of the text field.
@@ -45,7 +45,7 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe attributed text values only when editing ends, see `attributedTextValues`.
 	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
-		return controlEvents(.editingChanged).map { $0.attributedText }
+		return controlEvents(.allEditingEvents).map { $0.attributedText }
 	}
 
 	/// Sets the secure text entry attribute on the text field.

@@ -253,6 +253,9 @@
 		CD0C45DF1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
 		CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
+		CD42C69B1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */; };
+		CD42C69C1E951F6A00AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */; };
+		CD42C69D1E951F6A00AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */; };
 		CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
 		CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
 		CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
@@ -460,6 +463,7 @@
 		BFCF77601DFAD9120058006E /* UISearchBarSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISearchBarSpec.swift; sourceTree = "<group>"; };
 		BFE145881E43991A00208736 /* UIPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIPickerView.swift; sourceTree = "<group>"; };
 		CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicProperty.swift; sourceTree = "<group>"; };
+		CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactiveCocoaTestsConfiguration.swift; sourceTree = "<group>"; };
 		CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaActionSpec.swift; sourceTree = "<group>"; };
 		CDC42E2E1AE7AB8B00965373 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03766B119EDA60000A782A9 /* test-data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "test-data.json"; sourceTree = "<group>"; };
@@ -816,6 +820,7 @@
 				9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */,
 				9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */,
 				3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */,
+				CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */,
 				D04725FA19E49ED7006002AA /* Supporting Files */,
 			);
 			path = ReactiveCocoaTests;
@@ -1253,6 +1258,7 @@
 				9A1D063B1D93EA7E00ACF44C /* UIButtonSpec.swift in Sources */,
 				9A24A8471DE142A600987AF9 /* SwizzlingSpec.swift in Sources */,
 				9A1D064B1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
+				CD42C69D1E951F6A00AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
 				9A1D063F1D93EA7E00ACF44C /* UIControl+EnableSendActionsForControlEvents.swift in Sources */,
 				9A1D06371D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
 				9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */,
@@ -1362,6 +1368,7 @@
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
+				CD42C69B1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */,
 			);
@@ -1446,6 +1453,7 @@
 				9A892D901E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */,
 				9A1D06361D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift in Sources */,
+				CD42C69C1E951F6A00AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
 				9A1D06461D93EA7E00ACF44C /* UILabelSpec.swift in Sources */,
 				3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,

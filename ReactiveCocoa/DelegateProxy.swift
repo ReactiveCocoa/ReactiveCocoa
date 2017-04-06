@@ -71,16 +71,19 @@ extension DelegateProxy {
 				return proxy
 			}
 
+			let invokeOriginalSetter: @convention(c) (NSObject, Selector, AnyObject?) -> Void = { object, selector, delegate in
+				typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+				let impl = class_getMethodImplementation(object.objcClass, selector)
+				unsafeBitCast(impl, to: Setter.self)(object, selector, delegate)
+			}
+
 			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
 				let proxyMap = object.associations.value(forKey: proxyMapKey)
 
 				if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 as! DelegateProxy<Delegate>? {
 					proxy.forwardee = (delegate as! Delegate?)
 				} else {
-					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
-					let impl = class_getMethodImplementation(object.objcClass, setter)
-					let delegateSetter = unsafeBitCast(impl, to: Setter.self)
-					delegateSetter(object, setter, delegate)
+					invokeOriginalSetter(object, setter, delegate)
 				}
 			}
 
@@ -88,28 +91,26 @@ extension DelegateProxy {
 			// to the proxy.
 			instance.swizzle((setter, newSetterImpl), key: hasSwizzledKey)
 
-			// Set the proxy as the delegate.
-			let realClass: AnyClass = class_getSuperclass(object_getClass(instance))
-			let originalSetterImpl: IMP = class_getMethodImplementation(realClass, setter)
-			let getterImpl: IMP = class_getMethodImplementation(realClass, getter)
-
-			typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
-			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?
-
 			// As Objective-C classes may cache the information of their delegate at
 			// the time the delegates are set, the information has to be "flushed"
 			// whenever the proxy forwardee is replaced or a selector is intercepted.
 			let proxy = self.init(lifetime: instance.reactive.lifetime) { [weak instance] proxy in
 				guard let instance = instance else { return }
-				unsafeBitCast(originalSetterImpl, to: Setter.self)(instance, setter, proxy)
+				invokeOriginalSetter(instance, setter, proxy)
 			}
 
-			instance.associations.setValue(proxyMap + [(setter, proxy)], forKey: proxyMapKey)
+			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?
+			let getterImpl: IMP = class_getMethodImplementation(object_getClass(instance), getter)
+			let original = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
 
 			// `proxy.forwardee` would invoke the original setter regardless of
 			// `original` being `nil` or not.
-			let original = unsafeBitCast(getterImpl, to: Getter.self)(instance, getter) as! Delegate?
 			proxy.forwardee = original
+
+			// The proxy must be associated after it is set as the target, since
+			// `base` may be an isa-swizzled instance that is using the injected
+			// setters above.
+			instance.associations.setValue(proxyMap + [(setter, proxy)], forKey: proxyMapKey)
 
 			return proxy
 		}

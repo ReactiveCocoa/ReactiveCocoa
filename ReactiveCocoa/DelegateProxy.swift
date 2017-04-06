@@ -71,9 +71,11 @@ extension DelegateProxy {
 				return proxy
 			}
 
-			let invokeOriginalSetter: @convention(c) (NSObject, Selector, AnyObject?) -> Void = { object, selector, delegate in
+			let superclass: AnyClass = class_getSuperclass(swizzleClass(instance))
+
+			let invokeSuperSetter: @convention(c) (NSObject, AnyClass, Selector, AnyObject?) -> Void = { object, superclass, selector, delegate in
 				typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
-				let impl = class_getMethodImplementation(object.objcClass, selector)
+				let impl = class_getMethodImplementation(superclass, selector)
 				unsafeBitCast(impl, to: Setter.self)(object, selector, delegate)
 			}
 
@@ -83,7 +85,7 @@ extension DelegateProxy {
 				if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 as! DelegateProxy<Delegate>? {
 					proxy.forwardee = (delegate as! Delegate?)
 				} else {
-					invokeOriginalSetter(object, setter, delegate)
+					invokeSuperSetter(object, superclass, setter, delegate)
 				}
 			}
 
@@ -96,7 +98,7 @@ extension DelegateProxy {
 			// whenever the proxy forwardee is replaced or a selector is intercepted.
 			let proxy = self.init(lifetime: instance.reactive.lifetime) { [weak instance] proxy in
 				guard let instance = instance else { return }
-				invokeOriginalSetter(instance, setter, proxy)
+				invokeSuperSetter(instance, superclass, setter, proxy)
 			}
 
 			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?

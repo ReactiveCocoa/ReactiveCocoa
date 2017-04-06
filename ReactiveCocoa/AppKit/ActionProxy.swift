@@ -46,8 +46,9 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 				return proxy
 			}
 
-			let proxy = ActionProxy<Base>(owner: base, lifetime: lifetime)
+			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))
 
+			let proxy = ActionProxy<Base>(owner: base, lifetime: lifetime)
 			proxy.target = base.target
 			proxy.action = base.action
 
@@ -63,20 +64,20 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 					proxy.target = target
 				} else {
 					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
-					let impl = class_getMethodImplementation(object.objcClass, #selector(setter: ActionMessageSending.target))
-					let targetSetter = unsafeBitCast(impl, to: Setter.self)
-					targetSetter(object, #selector(setter: ActionMessageSending.target), target)
+					let selector = #selector(setter: ActionMessageSending.target)
+					let impl = class_getMethodImplementation(superclass, selector)
+					unsafeBitCast(impl, to: Setter.self)(object, selector, target)
 				}
 			}
 
-			let newActionSetterImpl: @convention(block) (NSObject, Selector?) -> Void = { object, selector in
+			let newActionSetterImpl: @convention(block) (NSObject, Selector?) -> Void = { object, action in
 				if let proxy = object.associations.value(forKey: key) {
-					proxy.action = selector
+					proxy.action = action
 				} else {
 					typealias Setter = @convention(c) (NSObject, Selector, Selector?) -> Void
-					let impl = class_getMethodImplementation(object.objcClass, #selector(setter: ActionMessageSending.action))
-					let actionSetter = unsafeBitCast(impl, to: Setter.self)
-					actionSetter(object, #selector(setter: ActionMessageSending.action), selector)
+					let selector = #selector(setter: ActionMessageSending.action)
+					let impl = class_getMethodImplementation(superclass, selector)
+					unsafeBitCast(impl, to: Setter.self)(object, selector, action)
 				}
 			}
 

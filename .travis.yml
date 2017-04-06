@@ -39,7 +39,7 @@ matrix:
       env:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
-        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=3.2"
+        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
     - script:
         - carthage build --no-skip-current --platform mac
       env:

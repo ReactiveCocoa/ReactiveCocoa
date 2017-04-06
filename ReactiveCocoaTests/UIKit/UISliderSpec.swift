@@ -7,6 +7,10 @@ import UIKit
 
 class UISliderSpec: QuickSpec {
     override func spec() {
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
+
 		var slider: UISlider!
 		weak var _slider: UISlider?
 

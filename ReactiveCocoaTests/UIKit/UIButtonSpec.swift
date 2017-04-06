@@ -7,6 +7,10 @@ import enum Result.NoError
 
 class UIButtonSpec: QuickSpec {
 	override func spec() {
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
+
 		var button: UIButton!
 		weak var _button: UIButton?
 

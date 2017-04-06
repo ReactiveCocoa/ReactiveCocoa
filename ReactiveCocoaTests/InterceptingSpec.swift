@@ -8,6 +8,10 @@ import CoreGraphics
 
 class InterceptingSpec: QuickSpec {
 	override func spec() {
+		beforeSuite {
+			ForwardInvocationTestObject.swizzleForTesting()
+		}
+		
 		describe("trigger(for:)") {
 			var object: InterceptedObject!
 			weak var _object: InterceptedObject?
@@ -807,10 +811,10 @@ class InterceptingSpec: QuickSpec {
 				for _ in 1 ... 10 {
 					var isDeadlocked = true
 
-					DispatchQueue.global(priority: .high).async {
+					DispatchQueue.testQueue().async {
 						_ = object.reactive.signal(for: #selector(object.increment))
 
-						DispatchQueue.global(priority: .high).async {
+						DispatchQueue.testQueue().async {
 							_ = object.reactive.signal(for: #selector(object.increment))
 
 							isDeadlocked = false
@@ -824,13 +828,23 @@ class InterceptingSpec: QuickSpec {
 	}
 }
 
+extension DispatchQueue {
+	static func testQueue() -> DispatchQueue {
+		if #available(*, iOS 8.0, macOS 10.10) {
+			return DispatchQueue.global(qos: .userInteractive)
+		} else {
+			return DispatchQueue.global(priority: .high)
+		}
+	}
+}
+
 private class ForwardInvocationTestObject: InterceptedObject {
 	static let forwardedSelector = Selector((("forwarded")))
 
 	var forwardedCount = 0
 	var forwardedSelector: Selector?
 
-	override open class func initialize() {
+	static func swizzleForTesting() {
 		struct Static {
 			static var token: Int = {
 				let impl: @convention(c) (Any, Selector, AnyObject) -> Void = { object, _, invocation in

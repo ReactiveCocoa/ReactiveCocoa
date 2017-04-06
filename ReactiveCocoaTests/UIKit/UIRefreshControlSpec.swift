@@ -6,6 +6,10 @@ import Result
 
 class UIRefreshControlSpec: QuickSpec {
 	override func spec() {
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
+
 		var refreshControl: UIRefreshControl!
 		weak var _refreshControl: UIRefreshControl!
 

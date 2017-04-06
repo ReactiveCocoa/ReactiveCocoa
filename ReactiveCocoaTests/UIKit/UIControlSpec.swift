@@ -7,6 +7,10 @@ import enum Result.NoError
 
 class UIControlSpec: QuickSpec {
 	override func spec() {
+		beforeSuite {
+			UIControl.swizzleForTesting()
+		}
+
 		var control: UIControl!
 		weak var _control: UIControl?
 

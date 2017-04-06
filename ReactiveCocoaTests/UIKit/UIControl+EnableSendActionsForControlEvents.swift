@@ -30,11 +30,7 @@ private let rac_swizzleToken: Void = {
 /// in the future. To be able to test them, we're now using swizzling to manually invoke
 /// the pair target+action.
 extension UIControl {
-	override open class func initialize() {
-		guard self === UIControl.self else {
-			return
-		}
-
+	static func swizzleForTesting() {
 		_ = rac_swizzleToken
 	}
 

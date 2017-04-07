@@ -55,18 +55,23 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 			// The proxy must be associated after it is set as the target, since
 			// `base` may be an isa-swizzled instance that is using the injected
 			// setters below.
-			base.target = proxy
-			base.action = #selector(proxy.invoke(_:))
+			typealias TargetSetter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
+			typealias ActionSetter = @convention(c) (NSObject, Selector, Selector?) -> Void
+
+			let setTargetImpl = class_getMethodImplementation(superclass, #selector(setter: base.target))
+			unsafeBitCast(setTargetImpl, to: TargetSetter.self)(base, #selector(setter: base.target), proxy)
+
+			let setActionImpl = class_getMethodImplementation(superclass, #selector(setter: base.action))
+			unsafeBitCast(setActionImpl, to: ActionSetter.self)(base, #selector(setter: base.action), #selector(proxy.invoke(_:)))
+
 			base.associations.setValue(proxy, forKey: key)
 
 			let newTargetSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, target in
 				if let proxy = object.associations.value(forKey: key) {
 					proxy.target = target
 				} else {
-					typealias Setter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
-					let selector = #selector(setter: ActionMessageSending.target)
-					let impl = class_getMethodImplementation(superclass, selector)
-					unsafeBitCast(impl, to: Setter.self)(object, selector, target)
+					let impl = class_getMethodImplementation(superclass, #selector(setter: self.base.target))
+					unsafeBitCast(impl, to: TargetSetter.self)(object, #selector(setter: self.base.target), target)
 				}
 			}
 
@@ -74,10 +79,8 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 				if let proxy = object.associations.value(forKey: key) {
 					proxy.action = action
 				} else {
-					typealias Setter = @convention(c) (NSObject, Selector, Selector?) -> Void
-					let selector = #selector(setter: ActionMessageSending.action)
-					let impl = class_getMethodImplementation(superclass, selector)
-					unsafeBitCast(impl, to: Setter.self)(object, selector, action)
+					let impl = class_getMethodImplementation(superclass, #selector(setter: self.base.action))
+					unsafeBitCast(impl, to: ActionSetter.self)(object, #selector(setter: self.base.action), action)
 				}
 			}
 

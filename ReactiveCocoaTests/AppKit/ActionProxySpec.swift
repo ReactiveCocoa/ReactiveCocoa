@@ -26,7 +26,7 @@ private class Receiver: NSObject {
 
 class ActionProxySpec: QuickSpec {
 	override func spec() {
-		describe("DelegateProxy") {
+		describe("ActionProxy") {
 			var object: Object!
 			var proxy: ActionProxy<Object>!
 
@@ -208,8 +208,11 @@ class ActionProxySpec: QuickSpec {
 					expect(object.target).to(beNil())
 
 					setProxy()
+
+					// The assignment of the proxy should not be captured by the method
+					// interception logic.
 					expect(object.target).to(beIdenticalTo(proxy))
-					expect(counter) == 1
+					expect(counter) == 0
 
 					sendMessage()
 					expect(invocationCount) == 1
@@ -254,6 +257,8 @@ class ActionProxySpec: QuickSpec {
 					expect(object.target).to(beNil())
 
 					setProxy()
+
+					// The assignment of the proxy should not be captured by KVO.
 					expect(object.target).to(beIdenticalTo(proxy))
 					expect(counter) == 0
 

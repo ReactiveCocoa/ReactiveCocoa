@@ -305,8 +305,11 @@ class DelegateProxySpec: QuickSpec {
 					expect(object.delegate).to(beNil())
 
 					setProxy()
+
+					// The assignment of the proxy should not be captured by the method
+					// interception logic.
 					expect(object.delegate).to(beIdenticalTo(proxy))
-					expect(counter) == 1
+					expect(counter) == 0
 
 					object.delegate?.foo()
 					expect(fooCounter) == 1
@@ -351,6 +354,8 @@ class DelegateProxySpec: QuickSpec {
 					expect(object.delegate).to(beNil())
 
 					setProxy()
+
+					// The assignment of the proxy should not be captured by KVO.
 					expect(object.delegate).to(beIdenticalTo(proxy))
 					expect(counter) == 0
 

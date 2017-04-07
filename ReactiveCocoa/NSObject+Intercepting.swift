@@ -117,7 +117,8 @@ extension NSObject {
 						.flatMap { $0 != _rac_objc_msgForward ? $0 : nil }
 
 					if let impl = immediateImpl {
-						class_addMethod(subclass, interopAlias, impl, typeEncoding)
+						let succeeds = class_addMethod(subclass, interopAlias, impl, typeEncoding)
+						precondition(succeeds, "RAC attempts to swizzle a selector that has message forwarding enabled with a runtime injected implementation. This is unsupported in the current version.")
 					}
 				}
 			}
@@ -127,7 +128,7 @@ extension NSObject {
 
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
-			
+
 			return state.signal
 		}
 	}
@@ -166,10 +167,39 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			//
 			// However, the IMP cache would be thrashed due to the swapping.
 
-			let interopImpl = class_getMethodImplementation(realClass, interopAlias)
-			let previousImpl = class_replaceMethod(realClass, selector, interopImpl, typeEncoding)
-			invocation.invoke()
-			_ = class_replaceMethod(realClass, selector, previousImpl, typeEncoding)
+			let topLevelClass: AnyClass = object_getClass(objectRef.takeUnretainedValue())
+
+			// The locking below prevents RAC swizzling attempts from intervening the
+			// invocation.
+			//
+			// Given the implementation of `swizzleClass`, `topLevelClass` can only be:
+			// (1) the same as `realClass`; or (2) a subclass of `realClass`. In other
+			// words, this would deadlock only if the locking order is not followed in
+			// other nested locking scenarios of these metaclasses at compile time.
+
+			synchronized(topLevelClass) {
+				func swizzle() {
+					let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)
+
+					let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
+					invocation.invoke()
+
+					_ = class_replaceMethod(topLevelClass, selector, previousImpl, typeEncoding)
+				}
+
+				if topLevelClass != realClass {
+					synchronized(realClass) {
+						// In addition to swapping in the implementation, the message
+						// forwarding needs to be temporarily disabled to prevent circular
+						// invocation.
+						_ = class_replaceMethod(realClass, selector, nil, typeEncoding)
+						swizzle()
+						_ = class_replaceMethod(realClass, selector, _rac_objc_msgForward, typeEncoding)
+					}
+				} else {
+					swizzle()
+				}
+			}
 
 			return
 		}

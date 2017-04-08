@@ -52,9 +52,8 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 			proxy.target = base.target
 			proxy.action = base.action
 
-			// The proxy must be associated after it is set as the target, since
-			// `base` may be an isa-swizzled instance that is using the injected
-			// setters below.
+			// Set the proxy as the new delegate with all dynamic interception bypassed
+			// by directly invoking setters in the original class.
 			typealias TargetSetter = @convention(c) (NSObject, Selector, AnyObject?) -> Void
 			typealias ActionSetter = @convention(c) (NSObject, Selector, Selector?) -> Void
 

@@ -17,6 +17,11 @@ extension Selector {
 		return prefixing("rac1_")
 	}
 
+	/// An alias of `self`, used for delegate proxies.
+	internal var delegateProxyAlias: Selector {
+		return prefixing("rac2_")
+	}
+
 	internal func prefixing(_ prefix: StaticString) -> Selector {
 		let length = Int(strlen(utf8Start))
 		let prefixedLength = length + prefix.utf8CodeUnitCount

@@ -44,7 +44,6 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 }
 
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
-private let proxyMapKey = AssociationKey<[(Selector, AnyObject)]>(default: [])
 
 extension DelegateProxy {
 	// FIXME: This is a workaround to a compiler issue, where any use of `Self`
@@ -65,9 +64,9 @@ extension DelegateProxy {
 		getter: Selector
 	) -> AnyObject {
 		return instance.synchronized {
-			let proxyMap = instance.associations.value(forKey: proxyMapKey)
+			let key = AssociationKey<AnyObject?>(setter.delegateProxyAlias)
 
-			if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 {
+			if let proxy = instance.associations.value(forKey: key) {
 				return proxy
 			}
 
@@ -80,9 +79,7 @@ extension DelegateProxy {
 			}
 
 			let newSetterImpl: @convention(block) (NSObject, AnyObject?) -> Void = { object, delegate in
-				let proxyMap = object.associations.value(forKey: proxyMapKey)
-
-				if let proxy = proxyMap.first(where: { $0.0 == setter })?.1 as! DelegateProxy<Delegate>? {
+				if let proxy = object.associations.value(forKey: key) as! DelegateProxy<Delegate>? {
 					proxy.forwardee = (delegate as! Delegate?)
 				} else {
 					invokeSuperSetter(object, superclass, setter, delegate)
@@ -112,7 +109,7 @@ extension DelegateProxy {
 			// The proxy must be associated after it is set as the target, since
 			// `base` may be an isa-swizzled instance that is using the injected
 			// setters above.
-			instance.associations.setValue(proxyMap + [(setter, proxy)], forKey: proxyMapKey)
+			instance.associations.setValue(proxy, forKey: key)
 
 			return proxy
 		}

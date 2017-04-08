@@ -164,6 +164,14 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 			// `#keyPath` does not work with weak relationships.
 			return observe(object, "rac_weakObject.rac_value")
 		}
+
+		func strongReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+			return observe(object, #keyPath(ObservableObject.target))
+		}
+
+		func weakReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+			return observe(object, #keyPath(ObservableObject.weakTarget))
+		}
 	}
 
 	override class func configure(_ configuration: Configuration) {
@@ -220,6 +228,79 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 					}()
 
 					expect(completed).toEventually(beTruthy())
+				}
+
+				it("should support native Swift objects") {
+					let object = ObservableObject()
+					var value: Any?
+
+					context
+						.strongReferenceChanges(object)
+						.startWithValues { value = $0 }
+
+					expect(value).to(beNil())
+
+					let token = Token()
+					object.target = token
+					expect(value).to(beIdenticalTo(token))
+				}
+
+				it("should emit a `nil` when the key path is being cleared due to the deallocation of the Objective-C object it held.") {
+					let object = ObservableObject()
+					let null = ObjectIdentifier(NSNull())
+					var ids: [ObjectIdentifier] = []
+
+					context
+						.weakReferenceChanges(object)
+						.startWithValues { ids.append($0.map { ObjectIdentifier($0 as AnyObject) } ?? null) }
+
+					expect(ids) == []
+
+					var token: NSObject? = NSObject()
+					let tokenId = ObjectIdentifier(token!)
+
+					// KVO would create autoreleasing references of the values being
+					// passed. So we have to ensure that they are cleared before
+					// we move on.
+					autoreleasepool {
+						object.weakTarget = token
+					}
+
+					expect(ids) == [tokenId]
+
+					token = nil
+
+					expect(ids) == [tokenId, null]
+					expect(object.weakTarget).to(beNil())
+				}
+
+				it("should emit a `nil` when the key path is being cleared due to the deallocation of the native Swift object it held.") {
+					let object = ObservableObject()
+					let null = ObjectIdentifier(NSNull())
+					var ids: [ObjectIdentifier] = []
+
+					context
+						.weakReferenceChanges(object)
+						.startWithValues { ids.append($0.map { ObjectIdentifier($0 as AnyObject) } ?? null) }
+
+					expect(ids) == []
+
+					var token: Token? = Token()
+					let tokenId = ObjectIdentifier(token!)
+
+					// KVO would create autoreleasing references of the values being
+					// passed. So we have to ensure that they are cleared before
+					// we move on.
+					autoreleasepool {
+						object.weakTarget = token
+					}
+
+					expect(ids) == [tokenId]
+
+					token = nil
+					
+					expect(ids) == [tokenId, null]
+					expect(object.weakTarget).to(beNil())
 				}
 			}
 
@@ -279,7 +360,10 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 				}
 
 				it("should not retain replaced value in a nested key path") {
+					// NOTE: The producer version of this test cases somehow
+					//       fails when the spec is being run alone.
 					let parentObject = NestedObservableObject()
+
 					weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
 					expect(weakOriginalInner).toNot(beNil())
 
@@ -287,10 +371,13 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 						_ = context
 							.nestedChanges(parentObject)
 							.start()
+					}
+
+					autoreleasepool {
 						parentObject.rac_object = ObservableObject()
 					}
 
-					expect(weakOriginalInner).toEventually(beNil())
+					expect(weakOriginalInner).to(beNil())
 				}
 			}
 
@@ -467,8 +554,13 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 	}
 }
 
+private final class Token {}
+
 private class ObservableObject: NSObject {
 	dynamic var rac_value: Int = 0
+
+	dynamic var target: AnyObject?
+	dynamic weak var weakTarget: AnyObject?
 }
 
 private class NestedObservableObject: NSObject {

@@ -63,6 +63,7 @@
 		834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */; };
 		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
+		9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -378,6 +379,7 @@
 		834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSegmentedControl.swift; sourceTree = "<group>"; };
 		834DE1131E4122910099F4E5 /* NSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSlider.swift; sourceTree = "<group>"; };
 		8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
+		9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxySpec.swift; sourceTree = "<group>"; };
 		9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Association.swift"; sourceTree = "<group>"; };
 		9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
 		9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
@@ -692,6 +694,7 @@
 		9ADE4A8C1DA6D94C005C2AC8 /* AppKit */ = {
 			isa = PBXGroup;
 			children = (
+				9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */,
 				4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */,
 				9ADE4A8D1DA6D965005C2AC8 /* NSControlSpec.swift */,
 				4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */,
@@ -1362,6 +1365,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				834DE1011E4109750099F4E5 /* NSImageViewSpec.swift in Sources */,
+				9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */,
 				9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				9A54A2111DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
 				538DCB7D1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */,

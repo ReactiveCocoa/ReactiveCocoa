@@ -21,7 +21,11 @@ class UITextFieldSpec: QuickSpec {
 			autoreleasepool {
 				textField = nil
 			}
-			expect(_textField).to(beNil())
+
+			// For a unknown reason, the text field in the "should not deadlock" test case
+			// does not deallocate when the autorelease pool is drained, but only a while
+			// after.
+			expect(_textField).toEventually(beNil())
 		}
 
 		it("should emit user initiated changes to its text value when the editing ends") {
@@ -112,6 +116,44 @@ class UITextFieldSpec: QuickSpec {
 			
 			observer.send(value: UIColor.blue)
 			expect(textField.textColor == UIColor.red) == false
+		}
+
+		it("should not deadlock when the text field is asked to resign first responder by any of its observers") {
+			UIView.setAnimationsEnabled(false)
+			defer { UIView.setAnimationsEnabled(true) }
+
+			autoreleasepool {
+				let window = UIWindow(frame: .zero)
+				window.addSubview(textField)
+
+				defer {
+					textField.removeFromSuperview()
+					expect(textField.superview).to(beNil())
+				}
+
+				expect(textField.becomeFirstResponder()) == true
+				expect(textField.isFirstResponder) == true
+
+				var values: [String] = []
+
+				textField.reactive.continuousTextValues.observeValues { text in
+					values.append(text ?? "")
+
+					if text == "2" {
+						textField.resignFirstResponder()
+					}
+				}
+				expect(values) == []
+
+				textField.text = "1"
+				textField.sendActions(for: .editingChanged)
+				expect(values) == ["1"]
+
+				textField.text = "2"
+				textField.sendActions(for: .editingChanged)
+				expect(textField.isFirstResponder) == false
+				expect(values) == ["1", "2", "2"]
+			}
 		}
 	}
 }

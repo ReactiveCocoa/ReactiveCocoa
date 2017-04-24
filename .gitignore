@@ -14,9 +14,18 @@ xcuserdata
 profile
 *.moved-aside
 PlaygroundUtility.remap
+*.xctimeline
+*.xcscmblueprint
 
 # SwiftPM
 .build
+Packages
 
 # Carthage
 Carthage/Build
+
+# macOS
+.DS_Store
+
+# Jazzy
+docs

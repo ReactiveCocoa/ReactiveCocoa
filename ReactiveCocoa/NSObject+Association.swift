@@ -115,7 +115,7 @@ extension Associations {
 	/// - parameters:
 	///   - value: The value to be associated.
 	///   - key: The key.
-	internal func setValue<Value>(_ value: Value?, forKey key: AssociationKey<Value>) {
+	internal func setValue<Value>(_ value: Value?, forKey key: AssociationKey<Value?>) {
 		objc_setAssociatedObject(base, key.address, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
 }

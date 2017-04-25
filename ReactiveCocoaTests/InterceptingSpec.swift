@@ -530,10 +530,10 @@ class InterceptingSpec: QuickSpec {
 
 		describe("two classes in the same hierarchy") {
 			var superclassObj: InterceptedObject!
-			var superclassTuple: [Any?]?
+			var superclassTuple: [Any]!
 
 			var subclassObj: InterceptedObjectSubclass!
-			var subclassTuple: [Any?]?
+			var subclassTuple: [Any]!
 
 			beforeEach {
 				superclassObj = InterceptedObject()
@@ -547,51 +547,51 @@ class InterceptingSpec: QuickSpec {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.foo))
 					.observeValues { args in
-						superclassTuple = args
-				}
+						superclassTuple = args.map { $0 ?? NSNull() }
+					}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.foo))
 					.observeValues { args in
-						subclassTuple = args
-				}
+						subclassTuple = args.map { $0 ?? NSNull() }
+					}
 
 				expect(superclassObj.foo(40, "foo")) == "Not Subclass 40 foo"
 
 				let expectedValues = [40, "foo"] as NSArray
-				expect(superclassTuple as NSArray?) == expectedValues
+				expect(superclassTuple as NSArray) == expectedValues
 
 				expect(subclassObj.foo(40, "foo")) == "Subclass 40 foo"
 
-				expect(subclassTuple as NSArray?) == expectedValues
+				expect(subclassTuple as NSArray) == expectedValues
 			}
 
 			it("should not collide when the superclass is invoked asynchronously") {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
 					.observeValues { args in
-						superclassTuple = args
+						superclassTuple = args.map { $0 ?? NSNull() }
 				}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
 					.observeValues { args in
-						subclassTuple = args
+						subclassTuple = args.map { $0 ?? NSNull() }
 				}
 
 				superclassObj.set(first: "foo", second:"42")
 				expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == true
 
 				let expectedValues = ["foo", "42"] as NSArray
-				expect(superclassTuple as NSArray?) == expectedValues
+				expect(superclassTuple as NSArray) == expectedValues
 
 				subclassObj.set(first: "foo", second:"42")
 				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == false
 				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).toEventually(beTruthy())
 
-				expect(subclassTuple as NSArray?) == expectedValues
+				expect(subclassTuple as NSArray) == expectedValues
 			}
 		}
 
@@ -668,19 +668,19 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: UInt) {
-					expect(arguments[0] as? CChar) == CChar.max - CChar(offset)
-					expect(arguments[1] as? CShort) == CShort.max - CShort(offset)
-					expect(arguments[2] as? CInt) == CInt.max - CInt(offset)
-					expect(arguments[3] as? CLong) == CLong.max - CLong(offset)
-					expect(arguments[4] as? CLongLong) == CLongLong.max - CLongLong(offset)
-					expect(arguments[5] as? CUnsignedChar) == CUnsignedChar.max - CUnsignedChar(offset)
-					expect(arguments[6] as? CUnsignedShort) == CUnsignedShort.max - CUnsignedShort(offset)
-					expect(arguments[7] as? CUnsignedInt) == CUnsignedInt.max - CUnsignedInt(offset)
-					expect(arguments[8] as? CUnsignedLong) == CUnsignedLong.max - CUnsignedLong(offset)
-					expect(arguments[9] as? CUnsignedLongLong) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
-					expect(arguments[10] as? CFloat) == CFloat.greatestFiniteMagnitude - CFloat(offset)
-					expect(arguments[11] as? CDouble) == CDouble.greatestFiniteMagnitude - CDouble(offset)
-					expect(arguments[12] as? CBool) == (offset % 2 == 0 ? true : false)
+					expect((arguments[0] as! NSNumber).int8Value) == CChar.max - CChar(offset)
+					expect((arguments[1] as! NSNumber).int16Value) == CShort.max - CShort(offset)
+					expect((arguments[2] as! NSNumber).int32Value) == CInt.max - CInt(offset)
+					expect((arguments[3] as! NSNumber).intValue) == CLong.max - CLong(offset)
+					expect((arguments[4] as! NSNumber).int64Value) == CLongLong.max - CLongLong(offset)
+					expect((arguments[5] as! NSNumber).uint8Value) == CUnsignedChar.max - CUnsignedChar(offset)
+					expect((arguments[6] as! NSNumber).uint16Value) == CUnsignedShort.max - CUnsignedShort(offset)
+					expect((arguments[7] as! NSNumber).uint32Value) == CUnsignedInt.max - CUnsignedInt(offset)
+					expect((arguments[8] as! NSNumber).uintValue) == CUnsignedLong.max - CUnsignedLong(offset)
+					expect((arguments[9] as! NSNumber).uint64Value) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
+					expect((arguments[10] as! NSNumber).floatValue) == CFloat.greatestFiniteMagnitude - CFloat(offset)
+					expect((arguments[11] as! NSNumber).doubleValue) == CDouble.greatestFiniteMagnitude - CDouble(offset)
+					expect((arguments[12] as! NSNumber).boolValue) == (offset % 2 == 0 ? true : false)
 				}
 
 				call(offset: 0)
@@ -755,10 +755,16 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: CGFloat) {
-					expect((arguments[0] as! CGPoint)) == CGPoint(x: offset, y: offset)
-					expect((arguments[1] as! CGSize)) == CGSize(width: offset, height: offset)
-					expect((arguments[2] as! CGRect)) == CGRect(x: offset, y: offset, width: offset, height: offset)
-					expect((arguments[3] as! CGAffineTransform)) == CGAffineTransform(translationX: offset, y: offset)
+					#if os(macOS)
+					expect((arguments[0] as! NSValue).pointValue) == CGPoint(x: offset, y: offset)
+					expect((arguments[1] as! NSValue).sizeValue) == CGSize(width: offset, height: offset)
+					expect((arguments[2] as! NSValue).rectValue) == CGRect(x: offset, y: offset, width: offset, height: offset)
+					#else
+					expect((arguments[0] as! NSValue).cgPointValue) == CGPoint(x: offset, y: offset)
+					expect((arguments[1] as! NSValue).cgSizeValue) == CGSize(width: offset, height: offset)
+					expect((arguments[2] as! NSValue).cgRectValue) == CGRect(x: offset, y: offset, width: offset, height: offset)
+					expect((arguments[3] as! NSValue).cgAffineTransformValue) == CGAffineTransform(translationX: offset, y: offset)
+					#endif
 				}
 
 				call(offset: 0)

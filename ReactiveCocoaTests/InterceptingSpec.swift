@@ -668,6 +668,21 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: UInt) {
+					#if swift(>=3.1)
+					expect((arguments[0] as! CChar)) == CChar.max - CChar(offset)
+					expect((arguments[1] as! CShort)) == CShort.max - CShort(offset)
+					expect((arguments[2] as! CInt)) == CInt.max - CInt(offset)
+					expect((arguments[3] as! CLong)) == CLong.max - CLong(offset)
+					expect((arguments[4] as! CLongLong)) == CLongLong.max - CLongLong(offset)
+					expect((arguments[5] as! CUnsignedChar)) == CUnsignedChar.max - CUnsignedChar(offset)
+					expect((arguments[6] as! CUnsignedShort)) == CUnsignedShort.max - CUnsignedShort(offset)
+					expect((arguments[7] as! CUnsignedInt)) == CUnsignedInt.max - CUnsignedInt(offset)
+					expect((arguments[8] as! CUnsignedLong)) == CUnsignedLong.max - CUnsignedLong(offset)
+					expect((arguments[9] as! CUnsignedLongLong)) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
+					expect((arguments[10] as! CFloat)) == CFloat.greatestFiniteMagnitude - CFloat(offset)
+					expect((arguments[11] as! CDouble)) == CDouble.greatestFiniteMagnitude - CDouble(offset)
+					expect((arguments[12] as! Bool)) == (offset % 2 == 0 ? true : false)
+					#else
 					expect((arguments[0] as! NSNumber).int8Value) == CChar.max - CChar(offset)
 					expect((arguments[1] as! NSNumber).int16Value) == CShort.max - CShort(offset)
 					expect((arguments[2] as! NSNumber).int32Value) == CInt.max - CInt(offset)
@@ -681,6 +696,7 @@ class InterceptingSpec: QuickSpec {
 					expect((arguments[10] as! NSNumber).floatValue) == CFloat.greatestFiniteMagnitude - CFloat(offset)
 					expect((arguments[11] as! NSNumber).doubleValue) == CDouble.greatestFiniteMagnitude - CDouble(offset)
 					expect((arguments[12] as! NSNumber).boolValue) == (offset % 2 == 0 ? true : false)
+					#endif
 				}
 
 				call(offset: 0)
@@ -755,7 +771,12 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: CGFloat) {
-					#if os(macOS)
+					#if swift(>=3.1)
+					expect((arguments[0] as! CGPoint)) == CGPoint(x: offset, y: offset)
+					expect((arguments[1] as! CGSize)) == CGSize(width: offset, height: offset)
+					expect((arguments[2] as! CGRect)) == CGRect(x: offset, y: offset, width: offset, height: offset)
+					expect((arguments[3] as! CGAffineTransform)) == CGAffineTransform(translationX: offset, y: offset)
+					#elseif os(macOS)
 					expect((arguments[0] as! NSValue).pointValue) == CGPoint(x: offset, y: offset)
 					expect((arguments[1] as! NSValue).sizeValue) == CGSize(width: offset, height: offset)
 					expect((arguments[2] as! NSValue).rectValue) == CGRect(x: offset, y: offset, width: offset, height: offset)

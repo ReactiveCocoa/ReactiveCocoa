@@ -977,7 +977,7 @@
 			dependencies = (
 			);
 			name = "ReactiveCocoa-tvOS";
-			productName = ReactiveCocoa;
+			productName = "ReactiveCocoa-tvOS";
 			productReference = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
@@ -1014,7 +1014,7 @@
 			dependencies = (
 			);
 			name = "ReactiveCocoa-watchOS";
-			productName = ReactiveCocoa;
+			productName = "ReactiveCocoa-watchOS";
 			productReference = A9B315541B3940610001CB9C /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
@@ -1032,7 +1032,7 @@
 			dependencies = (
 			);
 			name = "ReactiveCocoa-macOS";
-			productName = ReactiveCocoa;
+			productName = "ReactiveCocoa-macOS";
 			productReference = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
@@ -1050,7 +1050,7 @@
 				D04725F819E49ED7006002AA /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoa-macOSTests";
-			productName = ReactiveCocoaTests;
+			productName = "ReactiveCocoa-macOSTests";
 			productReference = D04725F519E49ED7006002AA /* ReactiveCocoaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -1068,7 +1068,7 @@
 			dependencies = (
 			);
 			name = "ReactiveCocoa-iOS";
-			productName = ReactiveCocoa;
+			productName = "ReactiveCocoa-iOS";
 			productReference = D047260C19E49F82006002AA /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
@@ -1087,7 +1087,7 @@
 				D047261919E49F82006002AA /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoa-iOSTests";
-			productName = ReactiveCocoaTests;
+			productName = "ReactiveCocoa-iOSTests";
 			productReference = D047261619E49F82006002AA /* ReactiveCocoaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};

@@ -53,8 +53,7 @@ class DynamicPropertySpec: QuickSpec {
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {
 				var values: [Int] = []
 				property.producer.startWithValues { value in
-					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == [ 0 ]
@@ -69,8 +68,7 @@ class DynamicPropertySpec: QuickSpec {
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object, even if the value actually remains unchanged") {
 				var values: [Int] = []
 				property.producer.startWithValues { value in
-					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == [ 0 ]
@@ -86,7 +84,7 @@ class DynamicPropertySpec: QuickSpec {
 				var values: [Int] = []
 				property.signal.observeValues { value in
 					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == []
@@ -101,8 +99,7 @@ class DynamicPropertySpec: QuickSpec {
 			it("should yield a signal that emits subsequent values for the key path of the underlying object, even if the value actually remains unchanged") {
 				var values: [Int] = []
 				property.signal.observeValues { value in
-					expect(value).notTo(beNil())
-					values.append(value!)
+					values.append(value)
 				}
 
 				expect(values) == []
@@ -132,7 +129,6 @@ class DynamicPropertySpec: QuickSpec {
 				}()
 
 				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
 			}
 
 			it("should have a completed signal when the underlying object deallocates") {
@@ -153,16 +149,12 @@ class DynamicPropertySpec: QuickSpec {
 				}()
 
 				expect(completed).toEventually(beTruthy())
-				expect(property.value).to(beNil())
 			}
 
-			it("should retain property while DynamicProperty's underlying object is retained"){
+			it("should not be retained by its underlying object"){
 				weak var dynamicProperty: DynamicProperty<Int>? = property
 				
 				property = nil
-				expect(dynamicProperty).toNot(beNil())
-				
-				object = nil
 				expect(dynamicProperty).to(beNil())
 			}
 
@@ -226,6 +218,31 @@ class DynamicPropertySpec: QuickSpec {
 				it("should bridge values from a source property to Objective-C") {
 					let source = MutableProperty(1)
 					property <~ source
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values sent on a signal to Objective-C, even if the view has deinitialized") {
+					let (signal, observer) = Signal<Int, NoError>.pipe()
+					property <~ signal
+					property = nil
+
+					observer.send(value: 1)
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values sent on a signal producer to Objective-C, even if the view has deinitialized") {
+					let producer = SignalProducer<Int, NoError>(value: 1)
+					property <~ producer
+					property = nil
+
+					expect(object.rac_value) == 1
+				}
+
+				it("should bridge values from a source property to Objective-C, even if the view has deinitialized") {
+					let source = MutableProperty(1)
+					property <~ source
+					property = nil
+
 					expect(object.rac_value) == 1
 				}
 			}

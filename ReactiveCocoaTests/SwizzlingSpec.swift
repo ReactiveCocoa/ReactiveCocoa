@@ -14,9 +14,9 @@ class SwizzlingSpec: QuickSpec {
 				let subclass: AnyClass = swizzleClass(object)
 				expect(type(of: object)).to(beIdenticalTo(subclass))
 
-				let objcClass = (object as AnyObject).objcClass
+				let objcClass: AnyClass = (object as AnyObject).objcClass
 				expect(objcClass).to(beIdenticalTo(SwizzledObject.self))
-				expect((objcClass as AnyObject).objcClass).to(beIdenticalTo(SwizzledObject.self))
+				expect((objcClass as AnyObject).objcClass).to(beIdenticalTo(SwizzledObject.self as AnyClass))
 
 				expect(String(cString: class_getName(subclass))).to(contain("_RACSwift"))
 			}

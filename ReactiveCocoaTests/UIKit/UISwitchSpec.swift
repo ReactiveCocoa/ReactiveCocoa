@@ -16,7 +16,9 @@ class UISwitchSpec: QuickSpec {
 
 		afterEach {
 			toggle = nil
-			expect(_toggle).to(beNil())
+			if #available(*, iOS 10.2) {
+				expect(_toggle).to(beNil())
+			}
 		}
 
 		it("should accept changes from bindings to its `isOn` state") {

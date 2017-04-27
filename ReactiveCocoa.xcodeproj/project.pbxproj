@@ -222,6 +222,9 @@
 		9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA781D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
+		9AFCBFE31EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
+		9AFCBFE41EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
+		9AFCBFE51EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
 		A9B315C91B3940980001CB9C /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
@@ -444,6 +447,7 @@
 		9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Messages.swift"; sourceTree = "<group>"; };
 		9AED64C41E496A3700321004 /* ActionProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxy.swift; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
+		9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVOKVCExtensionSpec.swift; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
@@ -830,6 +834,7 @@
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */,
+				9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */,
 				9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */,
 				9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */,
 				9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */,
@@ -1285,6 +1290,7 @@
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
 				9ADFE5A31DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06411D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
+				9AFCBFE51EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
 				9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				4ABEFE221DCFCF0A0066A8C2 /* UITableViewSpec.swift in Sources */,
 				9A1D06491D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
@@ -1372,6 +1378,7 @@
 				9ADE4A8F1DA6DA20005C2AC8 /* NSControlSpec.swift in Sources */,
 				D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				53A6BED61DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,
+				9AFCBFE31EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
@@ -1482,6 +1489,7 @@
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,
 				9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
+				9AFCBFE41EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
 				BF4335681E02EF0600AC88DD /* UIScrollViewSpec.swift in Sources */,
 				3BCAAC7D1DEE1A2D00B30335 /* UIRefreshControlSpec.swift in Sources */,
 				53A6BED71DD4BD2C0016C058 /* MKMapViewSpec.swift in Sources */,

@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode8.2
+osx_image: xcode8.3
 before_install: true
 install: true
 git:
@@ -25,8 +25,7 @@ matrix:
       env:
         - XCODE_SDK=iphonesimulator
         - XCODE_ACTION="build-for-testing test-without-building"
-        - XCODE_DESTINATION="platform=iOS Simulator,id=31E6604A-19AA-4B68-B560-C33C584BC80D" # iPhone 6s, iOS 10.2
-#        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s,OS=10.2"
+        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
 #        - XCODE_PLAYGROUND_TARGET="x86_64-apple-ios9.3"
 #        - PLAYGROUND="ReactiveCocoa-iOS.playground"
     - xcode_scheme: ReactiveCocoa-tvOS
@@ -40,35 +39,27 @@ matrix:
       env:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
-        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm"
+        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform mac
       env:
         - JOB=CARTHAGE-macOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform iOS
       env:
         - JOB=CARTHAGE-iOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform tvOS
       env:
         - JOB=CARTHAGE-tvOS
     - script:
-        - brew update
-        - brew outdated carthage || brew upgrade carthage
         - carthage build --no-skip-current --platform watchOS
       env:
         - JOB=CARTHAGE-watchOS
     - script:
       - gem install cocoapods
       - pod repo update --silent
-      - pod lib lint --allow-warnings
+      - pod lib lint ReactiveCocoa.podspec
       env:
         - JOB=PODSPEC
 notifications:

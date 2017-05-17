@@ -16,6 +16,8 @@ In version 5.0, we split ReactiveCocoa into multiple repositories for reasons ex
 
 **If you’re using both the Swift and Objective-C APIs**, you likely require both ReactiveCocoa and [ReactiveObjCBridge][], which depend on [ReactiveSwift][] and [ReactiveObjC][].
 
+**Attention:** If you're using ReactiveCocoa, you'll most likely need to import ReactiveSwift as well when using classes or operators that are implemented in ReactiveSwift.
+
 #### ReactiveCocoa
 The ReactiveCocoa library is newly focused on Swift and the UI layers of Apple’s platforms, building on the work of [Rex](https://github.com/neilpa/Rex).
 
@@ -39,7 +41,7 @@ We hope that this move will enable continued support of ReactiveObjC.
 
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC
 
-##### ReactiveObjCBridge
+#### ReactiveObjCBridge
 Moving the Swift and Objective-C APIs to separate repositories meant that a new home was needed for the bridging layer between the two.
 
 This bridge is an important tool for users that are working in mixed-language code bases. Whether you are slowly adding Swift to a mature product built with the ReactiveCocoa Objective-C APIs, or looking to adopt ReactiveCocoa in a mixed code base, the bridge is required to communicate between Swift and Objective-C code.
@@ -66,7 +68,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 	
 	```swift
 	// Notify after every time `viewWillAppear(_:)` is called.
-	let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
+	let appearing = viewController.reactive.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
 	```
 	
 1. **Object Lifetime**
@@ -271,9 +273,9 @@ public final class MyController {
 	</tr>
 	<tr>
 		<td><code>rac_liftSelector:withSignals:</code></td>
-		<td>Apply <code>combineLatest</code> to your signals, and pass the method as the action to <code>observeValues</code>.
+		<td>Apply <code>combineLatest</code> to your signals, and invoke the method in <code>observeValues</code>.
 			<p>
-<pre lang="swift">Signal.combineLatest([signal1, signal2])
+<pre lang="swift">Signal.combineLatest(signal1, signal2)
 	.take(during: self.reactive.lifetime)
 	.observeValues { [weak self] in self?.perform(first: $0, second: $1) }</pre>
 			</p>
@@ -299,8 +301,8 @@ public final class MyController {
 	</thead>
 	<tbody>
 	<tr>
-		<td>Control value changes, e.g. <code>textField.rac_text</code></td>
-		<td>Discover control value signals via <code>.reactive</code> on UI components.
+		<td>Control value changes, e.g. <code>textField.rac_textSignal()</code></td>
+		<td>Discover control value `Signal`s via <code>.reactive</code> on UI components.
 			<p><pre lang="swift">viewModel.searchString <~ textField.reactive.textValues</pre></p>
 		</td>
 	</tr>
@@ -309,9 +311,9 @@ public final class MyController {
 		<td><code>UIControl.reactive.trigger(for:)</code></td>
 	</tr>
 	<tr>
-		<td><code>rac_command`</td>
+		<td><code>rac_command</td>
 		<td>Discover action binding APIs via <code>.reactive</code> on UI components.
-			<p><pre lang="swift">button.pressed = CocoaAction(viewModel.submitAction)</pre></p>
+			<p><pre lang="swift">button.reactive.pressed = CocoaAction(viewModel.submitAction)</pre></p>
 		</td>
 	</tr>
 	</tbody>

@@ -11,9 +11,9 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - keyPath: The key path of the property to be observed.
 	///
-	/// - returns:
-	///   A producer emitting values of the property specified by the key path.
-	public func values(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
 		return SignalProducer { observer, disposable in
 			disposable += KeyValueObserver.observe(
 				self.base,
@@ -21,7 +21,33 @@ extension Reactive where Base: NSObject {
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.lifetime.ended.observeCompleted(observer.sendCompleted)
+			disposable += self.lifetime.observeEnded(observer.sendCompleted)
+		}
+	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the 
+	///            key path.
+	public func signal(forKeyPath keyPath: String) -> Signal<Any?, NoError> {
+		return Signal { observer in
+			let disposable = CompositeDisposable()
+			disposable += KeyValueObserver.observe(
+				self.base,
+				keyPath: keyPath,
+				options: [.new],
+				action: observer.send
+			)
+			disposable += self.lifetime.observeEnded(observer.sendCompleted)
+			return disposable
 		}
 	}
 }
@@ -80,8 +106,8 @@ extension KeyValueObserver {
 	///   - options: The desired configuration of the observation.
 	///   - action: The action to be invoked upon arrival of changes.
 	///
-	/// - returns:
-	///   A disposable that would tear down the observation upon disposal.
+	/// - returns: A disposable that would tear down the observation upon 
+	///            disposal.
 	static func observe(
 		_ object: NSObject,
 		keyPath: String,
@@ -110,13 +136,13 @@ extension KeyValueObserver {
 		//
 		// Attempting to observe non-weak properties using dynamic getters will
 		// result in broken behavior, so don't even try.
-		let shouldObserveDeinit = keyPathHead.withCString { cString -> Bool in
+		let (shouldObserveDeinit, isWeak) = keyPathHead.withCString { cString -> (Bool, Bool) in
 			if let propertyPointer = class_getProperty(type(of: object), cString) {
 				let attributes = PropertyAttributes(property: propertyPointer)
-				return attributes.isObject && attributes.isWeak && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock
+				return (attributes.isObject && attributes.objectClass != NSClassFromString("Protocol") && !attributes.isBlock, attributes.isWeak)
 			}
 
-			return false
+			return (false, false)
 		}
 
 		// Establish the observation.
@@ -126,7 +152,7 @@ extension KeyValueObserver {
 		let observer: KeyValueObserver
 
 		if isNested {
-			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
+			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options.union(.initial)) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
 					action(nil)
 					return
@@ -136,8 +162,13 @@ extension KeyValueObserver {
 				headSerialDisposable.inner = headDisposable
 
 				if shouldObserveDeinit {
-					let disposable = value.reactive.lifetime.ended.observeCompleted {
-						action(nil)
+					let disposable = value.reactive.lifetime.observeEnded {
+						if isWeak {
+							action(nil)
+						}
+
+						// Detach the key path tail observers eagarly.
+						headSerialDisposable.inner = nil
 					}
 					headDisposable += disposable
 				}
@@ -156,15 +187,18 @@ extension KeyValueObserver {
 			}
 		} else {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options) { object in
-				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
+				guard let value = object?.value(forKey: keyPathHead) as AnyObject? else {
 					action(nil)
 					return
 				}
 
-				if shouldObserveDeinit {
-					let disposable = value.reactive.lifetime.ended.observeCompleted {
+				// For a direct key path, the deinitialization needs to be
+				// observed only if the key path is a weak property.
+				if shouldObserveDeinit && isWeak {
+					let disposable = lifetime(of: value).observeEnded {
 						action(nil)
 					}
+
 					headSerialDisposable.inner = disposable
 				}
 
@@ -233,7 +267,7 @@ internal struct PropertyAttributes {
 		let _next = NSGetSizeAndAlignment(typeString, nil, nil)
 		guard _next != typeString else {
 			let string = String(validatingUTF8: attrString)
-			preconditionFailure("Could not read past type in attribute string: \(string).")
+			preconditionFailure("Could not read past type in attribute string: \(String(describing: string)).")
 		}
 		var next = UnsafeMutablePointer<Int8>(mutating: _next)
 
@@ -324,7 +358,7 @@ internal struct PropertyAttributes {
 
 			case Code.Attribute.oldTypeEncoding:
 				let string = String(validatingUTF8: attrString)
-				assertionFailure("Old-style type encoding is unsupported in attribute string \"\(string)\"")
+				assertionFailure("Old-style type encoding is unsupported in attribute string \"\(String(describing: string))\"")
 
 				// skip over this type encoding
 				while next.pointee != Code.comma && next.pointee != Code.nul {
@@ -338,14 +372,14 @@ internal struct PropertyAttributes {
 
 				let flag = String(validatingUTF8: pointer)
 				let string = String(validatingUTF8: attrString)
-				preconditionFailure("ERROR: Unrecognized attribute string flag '\(flag)' in attribute string \"\(string)\".")
+				preconditionFailure("ERROR: Unrecognized attribute string flag '\(String(describing: flag))' in attribute string \"\(String(describing: string))\".")
 			}
 		}
 
 		if next.pointee != Code.nul {
 			let unparsedData = String(validatingUTF8: next)
 			let string = String(validatingUTF8: attrString)
-			assertionFailure("Warning: Unparsed data \"\(unparsedData)\" in attribute string \"\(string)\".")
+			assertionFailure("Warning: Unparsed data \"\(String(describing: unparsedData))\" in attribute string \"\(String(describing: string))\".")
 		}
 
 		self.objectClass = objectClass

@@ -1,5 +1,9 @@
-![](Logo/header.png)
-#### Reactive extensions to Cocoa frameworks, built on top of [ReactiveSwift][].
+<p align="center">
+	<a href="https://github.com/ReactiveCocoa/ReactiveCocoa/"><img src="Logo/PNG/logo.png" alt="ReactiveCocoa" /></a><br /><br />
+	Reactive extensions to Cocoa frameworks, built on top of <a href="https://github.com/ReactiveCocoa/ReactiveSwift/">ReactiveSwift</a>.<br /><br />
+	<a href="http://reactivecocoa.io/slack/"><img src="Logo/PNG/JoinSlack.png" alt="Join the ReactiveSwift Slack community." width="143" height="40" /></a>
+</p>
+<br />
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](#cocoapods) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
@@ -20,7 +24,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 1. **UI Bindings**
 
-	UI components exposes [`BindingTarget`][]s, which accept bindings from any
+	UI components expose [`BindingTarget`][]s, which accept bindings from any
 	kind of streams of values via the `<~` operator.
 
 	```swift
@@ -28,36 +32,38 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	nameLabel.reactive.text <~ person.name
 	```
 
+	_Note_: You'll need to import ReactiveSwift as well to make use of the `<~` operator.
+
 1. **Controls and User Interactions**
 
 	Interactive UI components expose [`Signal`][]s for control events
 	and updates in the control value upon user interactions.
-	
+
 	A selected set of controls provide a convenience, expressive binding
 	API for [`Action`][]s.
-	
-	
+
+
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
-	preferences.allowsCookies <~ toggle.reactive.isOnValues 
-	
+	preferences.allowsCookies <~ toggle.reactive.isOnValues
+
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.
 	textField.reactive.continuousTextValues.map { $0.characters.count }
-	
+
 	// Trigger `commit` whenever the button is pressed.
 	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```
-	
+
 1. **Declarative Objective-C Dynamism**
 
 	Create signals that are sourced by intercepting Objective-C objects,
 	e.g. method call interception and object deinitialization.
-	
+
 	```swift
 	// Notify after every time `viewWillAppear(_:)` is called.
-	let appearing = view.reactive.trigger(for: #selector(viewWillAppear(_:)))
-	
+	let appearing = viewController.reactive.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
+
 	// Observe the lifetime of `object`.
 	object.reactive.lifetime.ended.observeCompleted(doCleanup)
 	```
@@ -66,7 +72,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 
 	Establish key-value observations in the form of [`SignalProducer`][]s and
 	`DynamicProperty`s, and enjoy the inherited composability.
-	
+
 	```swift
 	// A producer that sends the current value of `keyPath`, followed by
 	// subsequent changes.
@@ -74,7 +80,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	// Terminate the KVO observation if the lifetime of `self` ends.
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
-	
+
 	// A parameterized property that represents the supplied key path of the
 	// wrapped object. It holds a weak reference to the wrapped object.
 	let property = DynamicProperty<String>(object: person,
@@ -94,7 +100,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" "5.0.0-alpha.5"
+github "ReactiveCocoa/ReactiveCocoa" ~> 5.0
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -105,7 +111,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '5.0.0-alpha.5'
+pod 'ReactiveCocoa', '~> 5.0.0'
 ```
 
 #### Git submodule
@@ -129,12 +135,6 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 ## Release Roadmap
 **Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
 
-### In Development: ReactiveCocoa 5.0
-It targets Swift 3.0.x and ReactiveSwift 1.0. The tentative schedule of a Gold Master release is January 2017.
-
-A Release Candidate would be released after an important bug fix is cleared, which should happen no later than Christmas 2016.
-
-### Plan of Record
 #### ReactiveCocoa 6.0
 It targets Swift 3.1.x and ReactiveSwift 2.0. The estimated schedule is Spring 2017.
 
@@ -166,4 +166,4 @@ ReactiveCocoa 7.0 would focus on three main goals:
 [`Signal`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signals
 [`SignalProducer`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#signal-producers
 [`Action`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#actions
-[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#binding-target
+[`BindingTarget`]: https://github.com/ReactiveCocoa/ReactiveSwift/blob/master/Documentation/FrameworkOverview.md#properties

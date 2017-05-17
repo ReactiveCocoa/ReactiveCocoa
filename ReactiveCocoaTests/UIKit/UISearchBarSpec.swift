@@ -65,5 +65,63 @@ class UISearchBarSpec: QuickSpec {
 			searchBar.delegate!.searchBar!(searchBar, textDidChange: "newValue")
 			expect(latestValue) == "newValue"
 		}
+
+		it("should pass through the intercepted calls") {
+			searchBar.text = "newValue"
+
+			var latestValue: String?
+			searchBar.reactive.continuousTextValues.observeValues { text in
+				latestValue = text
+			}
+
+			let receiver = SearchBarDelegateReceiver()
+			searchBar.delegate = receiver
+			expect(receiver.textDidChangeCounter) == 0
+
+			searchBar.delegate!.searchBar!(searchBar, textDidChange: "newValue")
+			expect(latestValue) == "newValue"
+			expect(receiver.textDidChangeCounter) == 1
+		}
+
+		it("should pass through the unintercepted calls") {
+			searchBar.reactive.continuousTextValues.observe { _ in }
+
+			let receiver = SearchBarDelegateReceiver()
+			searchBar.delegate = receiver
+			expect(receiver.searchButtonClickedCounter) == 0
+
+			searchBar.delegate!.searchBarSearchButtonClicked!(searchBar)
+			expect(receiver.searchButtonClickedCounter) == 1
+		}
+
+		it("should preserve the original delegate, and pass through the unintercepted calls") {
+			let receiver = SearchBarDelegateReceiver()
+			searchBar.delegate = receiver
+			expect(receiver.searchButtonClickedCounter) == 0
+
+			searchBar.reactive.continuousTextValues.observe { _ in }
+			expect(receiver.searchButtonClickedCounter) == 0
+
+			searchBar.delegate!.searchBarSearchButtonClicked!(searchBar)
+			expect(receiver.searchButtonClickedCounter) == 1
+		}
+	}
+}
+
+class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
+	var textDidChangeCounter = 0
+	var textDidEndEditingCounter = 0
+	var searchButtonClickedCounter = 0
+
+	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+		searchButtonClickedCounter += 1
+	}
+
+	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+		textDidChangeCounter += 1
+	}
+
+	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+		textDidEndEditingCounter += 1
 	}
 }

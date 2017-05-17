@@ -6,10 +6,7 @@ extension Reactive where Base: NSPopUpButton {
 	
 	/// A signal of selected indexes
 	public var selectedIndexes: Signal<Int, NoError> {
-		return self.integerValues
-			.map { [unowned base = self.base] _ -> Int in
-				return base.indexOfSelectedItem
-			}
+		return proxy.invoked.map { $0.indexOfSelectedItem }
 	}
 	
 	/// Sets the button with an index.
@@ -21,11 +18,7 @@ extension Reactive where Base: NSPopUpButton {
 	
 	/// A signal of selected title
 	public var selectedTitles: Signal<String, NoError> {
-		return self.objectValues
-			.map { [unowned base = self.base] _ -> String? in
-				return base.titleOfSelectedItem
-			}
-			.skipNil()
+		return proxy.invoked.map { $0.titleOfSelectedItem }.skipNil()
 	}
 	
 	/// Sets the button with title.
@@ -33,6 +26,23 @@ extension Reactive where Base: NSPopUpButton {
 	public var selectedTitle: BindingTarget<String?> {
 		return makeBindingTarget {
 			$0.selectItem(withTitle: $1 ?? "")
+		}
+	}
+
+	public var selectedItems: Signal<NSMenuItem, NoError> {
+		return proxy.invoked.map { $0.selectedItem }.skipNil()
+	}
+
+
+	/// A signal of selected tags
+	public var selectedTags: Signal<Int, NoError> {
+		return proxy.invoked.map { $0.selectedTag() }
+	}
+
+	/// Sets the selected tag
+	public var selectedTag: BindingTarget<Int> {
+		return makeBindingTarget {
+			$0.selectItem(withTag: $1)
 		}
 	}
 }

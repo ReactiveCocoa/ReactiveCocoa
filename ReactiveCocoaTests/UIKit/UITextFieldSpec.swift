@@ -37,15 +37,17 @@ class UITextFieldSpec: QuickSpec {
 		}
 
 		it("should emit user initiated changes to its text value continuously") {
-			textField.text = "Test"
-
 			var latestValue: String?
 			textField.reactive.continuousTextValues.observeValues { text in
 				latestValue = text
 			}
 
-			textField.sendActions(for: .editingChanged)
-			expect(latestValue) == textField.text
+			for event in UIControlEvents.editingEvents {
+				textField.text = "Test \(event)"
+
+				textField.sendActions(for: event)
+				expect(latestValue) == textField.text
+			}
 		}
 		
 		it("should accept changes from bindings to its attributed text value") {
@@ -77,15 +79,45 @@ class UITextFieldSpec: QuickSpec {
 		}
 		
 		it("should emit user initiated changes to its attributed text value continuously") {
-			textField.attributedText = NSAttributedString(string: "Test")
-			
 			var latestValue: NSAttributedString?
 			textField.reactive.continuousAttributedTextValues.observeValues { attributedText in
 				latestValue = attributedText
 			}
-			
-			textField.sendActions(for: .editingChanged)
-			expect(latestValue?.string) == textField.attributedText?.string
+
+			for event in UIControlEvents.editingEvents {
+				textField.attributedText = NSAttributedString(string: "Test \(event)")
+
+				textField.sendActions(for: event)
+				expect(latestValue?.string) == textField.attributedText?.string
+			}
 		}
+
+		it("should accept changes from bindings to its secureTextEntry attribute") {
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			textField.reactive.isSecureTextEntry <~ pipeSignal
+
+			observer.send(value: true)
+			expect(textField.isSecureTextEntry) == true
+
+			observer.send(value: false)
+			expect(textField.isSecureTextEntry) == false
+		}
+		
+		it("should accept changes from bindings to its textColor attribute") {
+			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			textField.reactive.textColor <~ pipeSignal
+			
+			observer.send(value: UIColor.red)
+			expect(textField.textColor == UIColor.red) == true
+			
+			observer.send(value: UIColor.blue)
+			expect(textField.textColor == UIColor.red) == false
+		}
+	}
+}
+
+extension UIControlEvents {
+	fileprivate static var editingEvents: [UIControlEvents] {
+		return [.allEditingEvents, .editingDidBegin, .editingChanged, .editingDidEndOnExit, .editingDidEnd]
 	}
 }

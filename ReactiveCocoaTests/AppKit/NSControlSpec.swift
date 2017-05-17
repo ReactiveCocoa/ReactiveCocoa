@@ -130,6 +130,56 @@ class NSControlSpec: QuickSpec {
 				expect(valuesB) == [true, false]
 				expect(valuesC) == [1, 0]
 			}
+
+			it("should not overwrite the existing target") {
+				let target = TestTarget()
+				control.target = target
+				control.action = #selector(target.execute)
+
+				control.performClick(nil)
+				expect(target.counter) == 1
+
+				var signalCounter = 0
+				control.reactive.integerValues.observeValues { _ in signalCounter += 1 }
+				expect(control.target).toNot(beIdenticalTo(target))
+
+				control.performClick(nil)
+				expect(signalCounter) == 1
+				expect(target.counter) == 2
+
+				control.performClick(nil)
+				expect(signalCounter) == 2
+				expect(target.counter) == 3
+			}
+
+			it("should not overwrite the proxy") {
+				var signalCounter = 0
+				control.reactive.integerValues.observeValues { _ in signalCounter += 1 }
+
+				control.performClick(nil)
+				expect(signalCounter) == 1
+
+				let target = TestTarget()
+				control.target = target
+				control.action = #selector(target.execute)
+
+				control.performClick(nil)
+				expect(signalCounter) == 2
+				expect(target.counter) == 1
+
+
+				control.performClick(nil)
+				expect(signalCounter) == 3
+				expect(target.counter) == 2
+			}
 		}
+	}
+}
+
+private final class TestTarget {
+	var counter = 0
+
+	@objc func execute(_ sender: Any?) {
+		counter += 1
 	}
 }

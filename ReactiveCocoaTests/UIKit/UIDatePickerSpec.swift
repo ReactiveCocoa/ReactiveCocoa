@@ -25,7 +25,7 @@ class UIDatePickerSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its date value") {
-			picker.reactive.date.action(date)
+			picker.reactive.date <~ SignalProducer(value: date)
 			expect(picker.date) == date
 		}
 

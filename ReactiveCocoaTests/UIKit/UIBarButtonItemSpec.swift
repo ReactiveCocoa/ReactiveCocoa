@@ -22,7 +22,7 @@ class UIBarButtonItemSpec: QuickSpec {
 
 		it("should not be retained with the presence of a `pressed` action") {
 			let action = Action<(),(),NoError> { SignalProducer(value: ()) }
-			barButtonItem.reactive.pressed = CocoaAction(action)
+			barButtonItem.reactive.pressed <~> action
 		}
 
 		it("should accept changes from bindings to its enabling state") {

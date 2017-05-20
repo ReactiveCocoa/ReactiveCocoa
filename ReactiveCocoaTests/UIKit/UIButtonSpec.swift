@@ -51,7 +51,7 @@ class UIButtonSpec: QuickSpec {
 
 			pressed <~ SignalProducer(action.values)
 
-			button.reactive.pressed = CocoaAction(action)
+			button.reactive.pressed <~> action
 			expect(pressed.value) == false
 
 			button.sendActions(for: event)

@@ -2,11 +2,17 @@ import UIKit
 import ReactiveSwift
 import enum Result.NoError
 
+extension UISlider: ReactiveControlConfigurable {
+	public static var defaultControlEvents: UIControlEvents {
+		return .valueChanged
+	}
+}
+
 extension Reactive where Base: UISlider {
 
 	/// Sets slider's value.
-	public var value: BindingTarget<Float> {
-		return makeBindingTarget { $0.value = $1 }
+	public var value: ValueBindable<Base, Float> {
+		return self[\.value]
 	}
 
 	/// Sets slider's minimum value.
@@ -25,6 +31,6 @@ extension Reactive where Base: UISlider {
 	/// - note: If slider's `isContinuous` property is `false` then values are
 	///         sent only when user releases the slider.
 	public var values: Signal<Float, NoError> {
-		return mapControlEvents(.valueChanged) { $0.value }
+		return map(\.value)
 	}
 }

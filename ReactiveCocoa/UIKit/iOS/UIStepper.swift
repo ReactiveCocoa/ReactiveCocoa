@@ -2,11 +2,17 @@ import UIKit
 import ReactiveSwift
 import enum Result.NoError
 
+extension UIStepper: ReactiveControlConfigurable {
+	public static var defaultControlEvents: UIControlEvents {
+		return .valueChanged
+	}
+}
+
 extension Reactive where Base: UIStepper {
 
 	/// Sets the stepper's value.
-	public var value: BindingTarget<Double> {
-		return makeBindingTarget { $0.value = $1 }
+	public var value: ValueBindable<Base, Double> {
+        return self[\.value]
 	}
 
 	/// Sets stepper's minimum value.
@@ -22,6 +28,6 @@ extension Reactive where Base: UIStepper {
 	/// A signal of double values emitted by the stepper upon each user's
 	/// interaction.
 	public var values: Signal<Double, NoError> {
-		return mapControlEvents(.valueChanged) { $0.value }
+		return map(\.value)
 	}
 }

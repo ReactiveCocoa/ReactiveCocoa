@@ -2,42 +2,91 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
+public protocol ReactiveControlConfigurable: class {
+	static var defaultControlEvents: UIControlEvents { get }
+}
+
+public protocol ReactiveContinuousControlConfigurable: ReactiveControlConfigurable {
+	static var defaultContinuousControlEvents: UIControlEvents { get }
+}
+
 extension Reactive where Base: UIControl {
-	/// The current associated action of `self`, with its registered event mask
-	/// and its disposable.
-	internal var associatedAction: Atomic<(action: CocoaAction<Base>, controlEvents: UIControlEvents, disposable: Disposable)?> {
-		return associatedValue { _ in Atomic(nil) }
+    internal func makeActionBindable<U>(for controlEvent: UIControlEvents, _ transform: @escaping (Base) -> U) -> ActionBindable<Base, U> {
+		return ActionBindable(owner: base,
+		                      isEnabled: \.isEnabled,
+		                      values: { $0.reactive.mapControlEvents(controlEvent, transform) })
 	}
 
-	/// Set the associated action of `self` to `action`, and register it for the
-	/// control events specified by `controlEvents`.
+	internal func makeValueBindable<U>(
+		value: ReferenceWritableKeyPath<Base, U>,
+		values: @escaping (Base) -> Signal<U, NoError>,
+		actionDidBind: ((Base, ActionStates, CompositeDisposable) -> Void)? = nil
+	) -> ValueBindable<Base, U> {
+		return ValueBindable(owner: base,
+		                     isEnabled: \.isEnabled,
+		                     value: value,
+		                     values: { values($0) },
+		                     actionDidBind: actionDidBind)
+	}
+}
+
+// The following subscripts override the one in NSObject+BindingTarget.
+
+extension Reactive where Base: UIControl & ReactiveControlConfigurable {
+	/// Creates a value bindable with the given writable key path.
 	///
 	/// - parameters:
-	///   - action: The action to be associated.
-	///   - controlEvents: The control event mask.
-	///	  - disposable: An outside disposable that will be bound to the scope of
-	///					the given `action`.
-	internal func setAction(_ action: CocoaAction<Base>?, for controlEvents: UIControlEvents, disposable: Disposable? = nil) {
-		associatedAction.modify { associatedAction in
-			associatedAction?.disposable.dispose()
-
-			if let action = action {
-				base.addTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
-
-				let compositeDisposable = CompositeDisposable()
-				compositeDisposable += isEnabled <~ action.isEnabled
-				compositeDisposable += { [weak base = self.base] in
-					base?.removeTarget(action, action: CocoaAction<Base>.selector, for: controlEvents)
-				}
-				compositeDisposable += disposable
-
-				associatedAction = (action, controlEvents, ScopedDisposable(compositeDisposable))
-			} else {
-				associatedAction = nil
-			}
-		}
+	///   - keyPath: The key path to bind with.
+	///   - controlEvents: The control events which the bindable should react to.
+	///
+	/// - returns: A value bindable.
+	internal subscript<Value>(
+		keyPath: ReferenceWritableKeyPath<Base, Value>
+	) -> ValueBindable<Base, Value> {
+		return makeValueBindable(value: keyPath,
+								 values: { $0.reactive.map(keyPath) })
 	}
 
+	/// Create a signal which sends the value pointed by the given key path upon every
+	/// occurence of the default control events of the control.
+	///
+	/// - parameters:
+	///   - keyPath: A key path of the control.
+	///
+	/// - returns: A signal that sends the value of the control.
+	public func map<Value>(_ keyPath: KeyPath<Base, Value>) -> Signal<Value, NoError> {
+		return mapControlEvents(Base.defaultControlEvents, { $0[keyPath: keyPath] })
+	}
+}
+
+extension Reactive where Base: UIControl & ReactiveContinuousControlConfigurable {
+	/// Creates a continuous value bindable with the given writable key path.
+	///
+	/// - parameters:
+	///   - keyPath: The key path to bind with.
+	///   - controlEvents: The control events which the bindable should react to.
+	///
+	/// - returns: A value bindable.
+	internal subscript<Value>(
+		continuous keyPath: ReferenceWritableKeyPath<Base, Value>
+	) -> ValueBindable<Base, Value> {
+		return makeValueBindable(value: keyPath,
+								 values: { $0.reactive.continuousMap(keyPath) })
+	}
+
+	/// Create a signal which sends the value pointed by the given key path upon every
+	/// occurence of the default continuous control events of the control.
+	///
+	/// - parameters:
+	///   - keyPath: A key path of the control.
+	///
+	/// - returns: A signal that sends the value of the control.
+	public func continuousMap<Value>(_ keyPath: KeyPath<Base, Value>) -> Signal<Value, NoError> {
+		return mapControlEvents(Base.defaultContinuousControlEvents, { $0[keyPath: keyPath] })
+	}
+}
+
+extension Reactive where Base: UIControl {
 	/// Create a signal which sends a `value` event for each of the specified
 	/// control events.
 	///

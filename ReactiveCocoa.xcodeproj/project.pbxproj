@@ -151,6 +151,10 @@
 		9A54A21C1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
 		9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
 		9A54A21E1DE00D09001739B3 /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
+		9A6523711ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */; };
+		9A6523721ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */; };
+		9A6523731ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */; };
+		9A6523741ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */; };
 		9A6AAA0E1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA0F1DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
 		9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */; };
@@ -245,6 +249,9 @@
 		9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA781D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
+		9AF77A6F1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF77A6E1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift */; };
+		9AF77A701EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF77A6E1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift */; };
+		9AF77A711EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF77A6E1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift */; };
 		A9B315C91B3940980001CB9C /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
@@ -460,6 +467,7 @@
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
 		9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingPerformanceTests.swift; sourceTree = "<group>"; };
 		9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Selector.swift"; sourceTree = "<group>"; };
+		9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BidirectionalBinding.swift; sourceTree = "<group>"; };
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
 		9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
@@ -494,6 +502,7 @@
 		9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Messages.swift"; sourceTree = "<group>"; };
 		9AED64C41E496A3700321004 /* ActionProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxy.swift; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
+		9AF77A6E1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BidirectionalBindingSpec.swift; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
@@ -860,6 +869,7 @@
 		D04725EC19E49ED7006002AA /* ReactiveCocoa */ = {
 			isa = PBXGroup;
 			children = (
+				9A6523701ED09B2E00C3BA8D /* BidirectionalBinding.swift */,
 				9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
 				CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */,
@@ -908,6 +918,7 @@
 				538DCB771DCA5E3200332880 /* Shared */,
 				9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */,
 				9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */,
+				9AF77A6E1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift */,
 				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
 				9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
@@ -1396,6 +1407,7 @@
 				9AA0BD921DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9A1D061A1D93EA0100ACF44C /* UIProgressView.swift in Sources */,
 				9AA0BD7F1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
+				9A6523741ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */,
 				9A2E42611DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9A9037521ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9A1D06121D93EA0100ACF44C /* UIBarButtonItem.swift in Sources */,
@@ -1416,6 +1428,7 @@
 				7DFBED281CDB8DE300EE435B /* DynamicPropertySpec.swift in Sources */,
 				9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
+				9AF77A711EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */,
 				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				9A1D06451D93EA7E00ACF44C /* UIImageViewSpec.swift in Sources */,
 				9A1D06551D93EA7E00ACF44C /* UITextViewSpec.swift in Sources */,
@@ -1478,6 +1491,7 @@
 				9ADE4A7E1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9AA0BD831DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
+				9A6523731ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */,
 				9AA0BD911DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
@@ -1492,6 +1506,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A6523711ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */,
 				4ABEFE2B1DCFD0030066A8C2 /* NSTableView.swift in Sources */,
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				4ABEFE301DCFD0530066A8C2 /* NSCollectionView.swift in Sources */,
@@ -1547,6 +1562,7 @@
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */,
+				9AF77A6F1EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */,
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
@@ -1584,6 +1600,7 @@
 				53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */,
 				9AA0BD821DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
+				9A6523721ED09B2E00C3BA8D /* BidirectionalBinding.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
 				9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */,
@@ -1658,6 +1675,7 @@
 				4ABEFE211DCFCF090066A8C2 /* UITableViewSpec.swift in Sources */,
 				9A1D06401D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
 				9A7990CF1F1085D8001493A3 /* BindingTargetSpec.swift in Sources */,
+				9AF77A701EEAD94F008D1F3A /* BidirectionalBindingSpec.swift in Sources */,
 				9A1D06481D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				A9EB3D291E94F3D3002A9BCC /* UITabBarItemSpec.swift in Sources */,

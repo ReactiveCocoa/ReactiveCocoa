@@ -1,29 +1,25 @@
 import ReactiveSwift
+import Result
 import UIKit
 
 extension Reactive where Base: UIBarButtonItem {
 	/// The current associated action of `self`.
-	private var associatedAction: Atomic<(action: CocoaAction<Base>, disposable: Disposable?)?> {
-		return associatedValue { _ in Atomic(nil) }
+	private var presses: Signal<Base, NoError> {
+		return associatedValue { base in
+			let (signal, observer) = Signal<Base, NoError>.pipe()
+			let target = CocoaTarget(observer, transform: { $0 as! Base })
+			base.target = target
+			base.action = #selector(target.invoke)
+
+			return signal
+		}
 	}
 
 	/// The action to be triggered when the button is pressed. It also controls
 	/// the enabled state of the button.
-	public var pressed: CocoaAction<Base>? {
-		get {
-			return associatedAction.value?.action
-		}
-
-		nonmutating set {
-			base.target = newValue
-			base.action = newValue.map { _ in CocoaAction<Base>.selector }
-
-			associatedAction
-				.swap(newValue.map { action in
-						let disposable = isEnabled <~ action.isEnabled
-						return (action, disposable)
-				})?
-				.disposable?.dispose()
-		}
+	public var pressed: ActionBindable<Base, Void> {
+		return ActionBindable(owner: base,
+		                      isEnabled: \.isEnabled,
+							  values: { $0.reactive.presses.map { _ in } })
 	}
 }

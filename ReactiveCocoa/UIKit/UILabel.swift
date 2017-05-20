@@ -13,7 +13,14 @@ extension Reactive where Base: UILabel {
 	}
 
 	/// Sets the color of the text of the label.
-	public var textColor: BindingTarget<UIColor> {
-		return makeBindingTarget { $0.textColor = $1 }
+	public var textColor: BindingTarget<UIColor?> {
+		return self[\._textColor]
+	}
+}
+
+private extension UILabel {
+	var _textColor: UIColor? {
+		get { return textColor }
+		set { textColor = newValue }
 	}
 }

@@ -18,7 +18,7 @@ extension Reactive where Base: UIView {
 	}
 
 	/// Sets the background color of the view.
-	public var backgroundColor: BindingTarget<UIColor> {
+	public var backgroundColor: BindingTarget<UIColor?> {
 		return makeBindingTarget { $0.backgroundColor = $1 }
 	}
 }

@@ -2,14 +2,20 @@ import ReactiveSwift
 import enum Result.NoError
 import UIKit
 
+extension UISegmentedControl: ReactiveControlConfigurable {
+	public static var defaultControlEvents: UIControlEvents {
+		return [.valueChanged]
+	}
+}
+
 extension Reactive where Base: UISegmentedControl {
 	/// Changes the selected segment of the segmented control.
-	public var selectedSegmentIndex: BindingTarget<Int> {
-		return makeBindingTarget { $0.selectedSegmentIndex = $1 }
+	public var selectedSegmentIndex: ValueBindable<Base, Int> {
+		return self[\.selectedSegmentIndex]
 	}
 
 	/// A signal of indexes of selections emitted by the segmented control.
 	public var selectedSegmentIndexes: Signal<Int, NoError> {
-		return mapControlEvents(.valueChanged) { $0.selectedSegmentIndex }
+		return map(\.selectedSegmentIndex)
 	}
 }

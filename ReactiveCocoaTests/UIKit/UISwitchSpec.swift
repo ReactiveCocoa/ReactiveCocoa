@@ -54,8 +54,8 @@ class UISwitchSpec: QuickSpec {
 			}
 			isOn <~ SignalProducer(action.values)
 			
-			toggle.reactive.toggled = CocoaAction(action) { return $0.isOn }
-			
+			toggle.reactive.isOn <~> action
+
 			expect(isOn.value) == false
 			
 			toggle.isOn = true

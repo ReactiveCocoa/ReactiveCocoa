@@ -8,16 +8,42 @@ private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextVi
 	}
 }
 
+private extension UITextView {
+    // Thunks to forward calls because key paths do not support implicit IUO to Optional
+    // conversion.
+
+    var _text: String? {
+        get { return text }
+        set { text = newValue }
+    }
+
+    var _attributedText: NSAttributedString? {
+        get { return attributedText }
+        set { attributedText = newValue }
+    }
+}
+
 extension Reactive where Base: UITextView {
 	private var proxy: TextViewDelegateProxy {
 		return .proxy(for: base,
 		              setter: #selector(setter: base.delegate),
 		              getter: #selector(getter: base.delegate))
+    }
+
+	/// Sets the text of the text view.
+	public var text: ValueBindable<Base, String?> {
+        return ValueBindable(owner: base,
+                             isEnabled: \.isEditable,
+                             value: \._text,
+                             values: { $0.reactive.textValues })
 	}
 
 	/// Sets the text of the text view.
-	public var text: BindingTarget<String?> {
-		return makeBindingTarget { $0.text = $1 }
+	public var continuousText: ValueBindable<Base, String?> {
+        return ValueBindable(owner: base,
+                             isEnabled: \.isEditable,
+                             value: \._text,
+                             values: { $0.reactive.continuousTextValues })
 	}
 
 	private func textValues(forName name: NSNotification.Name) -> Signal<String?, NoError> {
@@ -42,11 +68,22 @@ extension Reactive where Base: UITextView {
 	public var continuousTextValues: Signal<String?, NoError> {
 		return textValues(forName: .UITextViewTextDidChange)
 	}
-	
+
 	/// Sets the attributed text of the text view.
-	public var attributedText: BindingTarget<NSAttributedString?> {
-		return makeBindingTarget { $0.attributedText = $1 }
+	public var attributedText: ValueBindable<Base, NSAttributedString?> {
+        return ValueBindable(owner: base,
+                             isEnabled: \.isEditable,
+                             value: \._attributedText,
+                             values: { $0.reactive.attributedTextValues })
 	}
+
+	/// Sets the attributed text of the text view.
+	public var continuousAttributedText: ValueBindable<Base, NSAttributedString?> {
+        return ValueBindable(owner: base,
+                             isEnabled: \.isEditable,
+                             value: \._attributedText,
+                             values: { $0.reactive.continuousAttributedTextValues })
+    }
 	
 	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString?, NoError> {
 		return NotificationCenter.default

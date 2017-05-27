@@ -1,9 +1,16 @@
 # master
 *Please put new entries at the top.
 
+1. Intercept delegate calls with `DelegateProxy`. It can be constructed via `NSObject.reactive.proxy(forKey:)`. (#3467, kudos to @andersio)
+
+   It is no longer necessary to subclass a `DelegateProxy` for delegate interception. However, note that `DelegateProxy` does not support protocols containing methods that are non-void returning. Unless you manually subclass `DelegateProxy` and provide implementations for these requirements, it would trap immediately when the proxy initializes with a protocol containing such a required method, or when the proxy is asked to intercept such an optional method.
+
+1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
+
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
 1. Added `cancelButtonClicked` signal to `UISearchBar`.
+
 1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
 
    Example:

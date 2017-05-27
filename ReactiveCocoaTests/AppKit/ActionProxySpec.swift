@@ -37,13 +37,39 @@ class ActionProxySpec: QuickSpec {
 
 			afterEach {
 				weak var weakObject = object
+				weak var weakProxy = proxy
 
-				object = nil
+				autoreleasepool {
+					proxy = nil
+					object = nil
+				}
+
 				expect(weakObject).to(beNil())
+				expect(weakProxy).to(beNil())
 			}
 
 			func sendMessage() {
 				_ = object.action.map { object.target?.perform($0, with: nil) }
+			}
+
+			it("should not retain the target") {
+				autoreleasepool {
+					var receiver: Receiver? = Receiver()
+					weak var weakReceiver = receiver
+
+					proxy.target = receiver
+					proxy.action = #selector(Receiver.foo)
+
+					sendMessage()
+					expect(receiver?.counter) == 1
+
+					autoreleasepool {
+						receiver = nil
+					}
+
+					expect(proxy.target).to(beNil())
+					expect(weakReceiver).to(beNil())
+				}
 			}
 
 			it("should be automatically set as the object's delegate.") {

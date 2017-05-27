@@ -2,18 +2,9 @@ import ReactiveSwift
 import enum Result.NoError
 import UIKit
 
-private class PickerViewDelegateProxy: DelegateProxy<UIPickerViewDelegate>, UIPickerViewDelegate {
-	@objc func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-		forwardee?.pickerView?(pickerView, didSelectRow: row, inComponent: component)
-	}
-}
-
 extension Reactive where Base: UIPickerView {
-
-	private var proxy: PickerViewDelegateProxy {
-		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+	private var proxy: DelegateProxy<UIPickerViewDelegate> {
+		return proxy(forKey: #keyPath(UIPickerView.delegate))
 	}
 
 	/// Sets the selected row in the specified component, without animating the

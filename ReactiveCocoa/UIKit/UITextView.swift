@@ -10,9 +10,7 @@ private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextVi
 
 extension Reactive where Base: UITextView {
 	private var proxy: TextViewDelegateProxy {
-		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+		return self.proxy(forKey: #keyPath(UITextView.delegate))
 	}
 
 	/// Sets the text of the text view.
@@ -73,7 +71,7 @@ extension Reactive where Base: UITextView {
 
 	/// A signal of range values emitted by the text view upon any selection change.
 	public var selectedRangeValues: Signal<NSRange, NoError> {
-		return proxy.intercept(#selector(UITextViewDelegate.textViewDidChangeSelection))
+		return proxy.reactive.trigger(for: #selector(UITextViewDelegate.textViewDidChangeSelection))
 			.map { [unowned base] in base.selectedRange }
 	}
 }

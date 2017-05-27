@@ -18,6 +18,9 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 
 // Methods of `NSInvocation`.
 @objc internal protocol ObjCInvocation {
+	@objc(setTarget:)
+	func setTarget(_ target: Any?)
+
 	@objc(setSelector:)
 	func setSelector(_ selector: Selector)
 

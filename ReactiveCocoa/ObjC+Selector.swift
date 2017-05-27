@@ -10,13 +10,6 @@ extension Selector {
 		return prefixing("rac0_")
 	}
 
-	/// An alias of `self`, used in method interception specifically for
-	/// preserving (if found) an immediate implementation of `self` in the
-	/// runtime subclass.
-	internal var interopAlias: Selector {
-		return prefixing("rac1_")
-	}
-
 	/// An alias of `self`, used for delegate proxies.
 	internal var delegateProxyAlias: Selector {
 		return prefixing("rac2_")

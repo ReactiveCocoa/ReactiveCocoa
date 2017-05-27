@@ -6,11 +6,8 @@ import enum Result.NoError
 /// interception.
 fileprivate let interceptedKey = AssociationKey(default: false)
 
-/// Holds the method signature cache of the runtime subclass.
-fileprivate let signatureCacheKey = AssociationKey<SignatureCache>()
-
-/// Holds the method selector cache of the runtime subclass.
-fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
+/// Holds the method signature and selector cache of the runtime subclass.
+fileprivate let cacheKey = AssociationKey<(SignatureCache, SelectorCache, ThunkCache)>()
 
 extension Reactive where Base: NSObject {
 	/// Create a signal which sends a `next` event at the end of every 
@@ -67,13 +64,13 @@ extension NSObject {
 		return synchronized {
 			let alias = selector.alias
 			let stateKey = AssociationKey<InterceptingState?>(alias)
-			let interopAlias = selector.interopAlias
 
 			if let state = associations.value(forKey: stateKey) {
 				return state.signal
 			}
 
 			let subclass: AnyClass = swizzleClass(self)
+			let perceivedClass: AnyClass = (subclass as AnyObject).objcClass
 			let subclassAssociations = Associations(subclass as AnyObject)
 
 			// FIXME: Compiler asks to handle a mysterious throw.
@@ -82,16 +79,16 @@ extension NSObject {
 
 				let signatureCache: SignatureCache
 				let selectorCache: SelectorCache
+				let thunkCache: ThunkCache
 
 				if isSwizzled {
-					signatureCache = subclassAssociations.value(forKey: signatureCacheKey)
-					selectorCache = subclassAssociations.value(forKey: selectorCacheKey)
+					(signatureCache, selectorCache, thunkCache) = subclassAssociations.value(forKey: cacheKey)
 				} else {
 					signatureCache = SignatureCache()
 					selectorCache = SelectorCache()
+					thunkCache = ThunkCache()
 
-					subclassAssociations.setValue(signatureCache, forKey: signatureCacheKey)
-					subclassAssociations.setValue(selectorCache, forKey: selectorCacheKey)
+					subclassAssociations.setValue((signatureCache, selectorCache, thunkCache), forKey: cacheKey)
 					subclassAssociations.setValue(true, forKey: interceptedKey)
 
 					enableMessageForwarding(subclass, selectorCache)
@@ -100,36 +97,119 @@ extension NSObject {
 
 				selectorCache.cache(selector)
 
-				if signatureCache[selector] == nil {
+				let signature = signatureCache[selector] ?? {
 					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
 					signatureCache[selector] = signature
-				}
+					return signature
+				}()
 
-				// If an immediate implementation of the selector is found in the
-				// runtime subclass the first time the selector is intercepted,
-				// preserve the implementation.
-				//
-				// Example: KVO setters if the instance is swizzled by KVO before RAC
-				//          does.
-				if !class_respondsToSelector(subclass, interopAlias) {
-					let immediateImpl = class_getImmediateMethod(subclass, selector)
-						.flatMap(method_getImplementation)
-						.flatMap { $0 != _rac_objc_msgForward ? $0 : nil }
+				let currentDynamicImpl = class_getImmediateMethod(subclass, selector)
+					.flatMap(method_getImplementation)
 
-					if let impl = immediateImpl {
-						let succeeds = class_addMethod(subclass, interopAlias, impl, typeEncoding)
-						precondition(succeeds, "RAC attempts to swizzle a selector that has message forwarding enabled with a runtime injected implementation. This is unsupported in the current version.")
-					}
+				if let generatedImpl = thunkCache[selector]?.impl {
+					// The interception has already been enabled.
+					precondition(currentDynamicImpl == generatedImpl, incompatibleExternalIsaSwizzlingError(for: selector))
+				} else if let matchingGenerator = getInterceptor(for: typeEncoding), currentDynamicImpl != _rac_objc_msgForward {
+					// RAC has a predefined implementation generator for this method
+					// signature.
+					let config = ThunkConfiguration(stateKey: stateKey,
+					                                selector: selector,
+					                                methodSignature: signature,
+					                                originalImplementation: currentDynamicImpl,
+					                                perceivedClass: perceivedClass)
+					let imp = imp_implementationWithBlock(matchingGenerator(config))!
+					thunkCache[selector] = (imp, currentDynamicImpl)
+
+					// Enable messages interception for the selector.
+					let previousImpl = class_replaceMethod(subclass, selector, imp, typeEncoding)
+					precondition(previousImpl == currentDynamicImpl, incompatibleExternalIsaSwizzlingError(for: selector))
+				} else {
+					// Start forwarding the messages of the selector.
+					_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
 				}
 			}
 
 			let state = InterceptingState(lifetime: reactive.lifetime)
 			associations.setValue(state, forKey: stateKey)
 
-			// Start forwarding the messages of the selector.
-			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
-
 			return state.signal
+		}
+	}
+}
+
+extension NSObject {
+	/// Swizzle the given selectors.
+	///
+	/// - warning: The swizzling **does not** apply on a per-instance basis. In
+	///            other words, repetitive swizzling of the same selector would
+	///            overwrite previous swizzling attempts, despite a different
+	///            instance being supplied.
+	///
+	/// - parameters:
+	///   - pairs: Tuples of selectors and the respective implementions to be
+	///            swapped in.
+	///   - key: An association key which determines if the swizzling has already
+	///          been performed.
+	internal func swizzle(_ pairs: (Selector, Any)..., key hasSwizzledKey: AssociationKey<Bool>) {
+		let subclass: AnyClass = swizzleClass(self)
+		let perceivedClass: AnyClass = (subclass as AnyObject).objcClass
+
+		try! ReactiveCocoa.synchronized(subclass) {
+			let subclassAssociations = Associations(subclass as AnyObject)
+
+			if !subclassAssociations.value(forKey: hasSwizzledKey) {
+				subclassAssociations.setValue(true, forKey: hasSwizzledKey)
+
+				func swizzleNormally(_ selector: Selector, _ impl: IMP) {
+					let method = class_getInstanceMethod(subclass, selector)
+					let typeEncoding = method_getTypeEncoding(method)!
+
+					let succeeds = class_addMethod(subclass, selector, impl, typeEncoding)
+					precondition(succeeds, incompatibleExternalIsaSwizzlingError(for: selector))
+				}
+
+				let isIntercepted = subclassAssociations.value(forKey: interceptedKey)
+
+				if isIntercepted {
+					let (signatureCache, _, thunkCache) = subclassAssociations.value(forKey: cacheKey)
+
+					for (selector, body) in pairs {
+						if let (oldThunkImpl, knownDynamicImpl) = thunkCache[selector] {
+							precondition(knownDynamicImpl == nil, incompatibleExternalIsaSwizzlingError(for: selector))
+
+							// Since RAC already swizzled the selector and provided a
+							// thunk, a new thunk has to be created to inject the new
+							// implementation we have.
+
+							let stateKey = AssociationKey<InterceptingState?>(selector.alias)
+							let method = class_getInstanceMethod(subclass, selector)
+							let typeEncoding = method_getTypeEncoding(method)!
+							let impl = imp_implementationWithBlock(body)
+
+							let config = ThunkConfiguration(stateKey: stateKey,
+							                                selector: selector,
+							                                methodSignature: signatureCache[selector]!,
+							                                originalImplementation: impl,
+							                                perceivedClass: perceivedClass)
+
+							let thunkImpl = imp_implementationWithBlock(getInterceptor(for: typeEncoding)!(config))!
+							thunkCache[selector] = (thunkImpl, impl)
+
+							// Swap in the new thunk.
+							let previousImpl = class_replaceMethod(subclass, selector, thunkImpl, typeEncoding)
+							precondition(previousImpl == oldThunkImpl, incompatibleExternalIsaSwizzlingError(for: selector))
+
+							imp_removeBlock(oldThunkImpl)
+						} else {
+							swizzleNormally(selector, imp_implementationWithBlock(body))
+						}
+					}
+				} else {
+					for (selector, body) in pairs {
+						swizzleNormally(selector, imp_implementationWithBlock(body))
+					}
+				}
+			}
 		}
 	}
 }
@@ -145,7 +225,6 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 	let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
 		let selector = invocation.selector!
 		let alias = selectorCache.alias(for: selector)
-		let interopAlias = selectorCache.interopAlias(for: selector)
 
 		defer {
 			let stateKey = AssociationKey<InterceptingState?>(alias)
@@ -156,53 +235,6 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 
 		let method = class_getInstanceMethod(perceivedClass, selector)!
 		let typeEncoding = method_getTypeEncoding(method)
-
-		if class_respondsToSelector(realClass, interopAlias) {
-			// RAC has preserved an immediate implementation found in the runtime
-			// subclass that was supplied by an external party.
-			//
-			// As the KVO setter relies on the selector to work, it has to be invoked
-			// by swapping in the preserved implementation and restore to the message
-			// forwarder afterwards.
-			//
-			// However, the IMP cache would be thrashed due to the swapping.
-
-			let topLevelClass: AnyClass = object_getClass(objectRef.takeUnretainedValue())
-
-			// The locking below prevents RAC swizzling attempts from intervening the
-			// invocation.
-			//
-			// Given the implementation of `swizzleClass`, `topLevelClass` can only be:
-			// (1) the same as `realClass`; or (2) a subclass of `realClass`. In other
-			// words, this would deadlock only if the locking order is not followed in
-			// other nested locking scenarios of these metaclasses at compile time.
-
-			synchronized(topLevelClass) {
-				func swizzle() {
-					let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)
-
-					let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
-					invocation.invoke()
-
-					_ = class_replaceMethod(topLevelClass, selector, previousImpl, typeEncoding)
-				}
-
-				if topLevelClass != realClass {
-					synchronized(realClass) {
-						// In addition to swapping in the implementation, the message
-						// forwarding needs to be temporarily disabled to prevent circular
-						// invocation.
-						_ = class_replaceMethod(realClass, selector, nil, typeEncoding)
-						swizzle()
-						_ = class_replaceMethod(realClass, selector, _rac_objc_msgForward, typeEncoding)
-					}
-				} else {
-					swizzle()
-				}
-			}
-
-			return
-		}
 
 		if let impl = method_getImplementation(method), impl != _rac_objc_msgForward {
 			// The perceived class, or its ancestors, responds to the selector.
@@ -265,7 +297,7 @@ private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache
 }
 
 /// The state of an intercepted method specific to an instance.
-private final class InterceptingState {
+internal final class InterceptingState {
 	let (signal, observer) = Signal<AnyObject, NoError>.pipe()
 
 	/// Initialize a state specific to an instance.
@@ -278,21 +310,21 @@ private final class InterceptingState {
 }
 
 private final class SelectorCache {
-	private var map: [Selector: (main: Selector, interop: Selector)] = [:]
+	private var map: [Selector: Selector] = [:]
 
 	init() {}
 
-	/// Cache the aliases of the specified selector in the cache.
+	/// Cache the alias of the specified selector in the cache.
 	///
 	/// - warning: Any invocation of this method must be synchronized against the
 	///            runtime subclass.
 	@discardableResult
-	func cache(_ selector: Selector) -> (main: Selector, interop: Selector) {
-		if let pair = map[selector] {
-			return pair
+	func cache(_ selector: Selector) -> Selector {
+		if let alias = map[selector] {
+			return alias
 		}
 
-		let aliases = (selector.alias, selector.interopAlias)
+		let aliases = selector.alias
 		map[selector] = aliases
 
 		return aliases
@@ -303,23 +335,11 @@ private final class SelectorCache {
 	/// - parameters:
 	///   - selector: The selector alias.
 	func alias(for selector: Selector) -> Selector {
-		if let (main, _) = map[selector] {
-			return main
+		if let alias = map[selector] {
+			return alias
 		}
 
 		return selector.alias
-	}
-
-	/// Get the secondary alias of the specified selector.
-	///
-	/// - parameters:
-	///   - selector: The selector alias.
-	func interopAlias(for selector: Selector) -> Selector {
-		if let (_, interop) = map[selector] {
-			return interop
-		}
-
-		return selector.interopAlias
 	}
 }
 
@@ -341,8 +361,38 @@ private final class SignatureCache {
 	///            runtime subclass.
 	///
 	/// - parameters:
-	///   - selector: The method signature.
+	///   - selector: The method selector.
 	subscript(selector: Selector) -> AnyObject? {
+		get {
+			return map[selector]
+		}
+		set {
+			if map[selector] == nil {
+				map[selector] = newValue
+			}
+		}
+	}
+}
+
+// The thunk cache for classes that have been swizzled for method interception.
+//
+// Read-copy-update is used here, since the cache has multiple readers but only
+// one writer.
+private final class ThunkCache {
+	// `Dictionary` takes 8 bytes for the reference to its storage and does CoW.
+	// So it should not encounter any corrupted, partially updated state.
+	private var map: [Selector: (impl: IMP, knownDynamicImpl: IMP?)] = [:]
+
+	init() {}
+
+	/// Get or set the thunk for the specified selector.
+	///
+	/// - warning: Any invocation of the setter must be synchronized against the
+	///            runtime subclass.
+	///
+	/// - parameters:
+	///   - selector: The method selector.
+	subscript(selector: Selector) -> (impl: IMP, knownDynamicImpl: IMP?)? {
 		get {
 			return map[selector]
 		}
@@ -455,4 +505,8 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	}
 
 	return bridged
+}
+
+private func incompatibleExternalIsaSwizzlingError(for selector: Selector) -> String {
+	return "RAC detected an incompatible isa-swizzling operation on the selector `\(selector)`."
 }

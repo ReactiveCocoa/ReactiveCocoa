@@ -1,3 +1,10 @@
+# master
+*Please put new entries at the top.*
+
+1. Intercepting a selector that has been swizzled by KVO beforehand no longer causes concurrent invocations of the selector to exhibit undefined behavior. (#3467, kudos to @andersio)
+
+1. Improved method interception performance for a limited set of method signatures. (#3467)
+
 # 5.0
 
 ### Table of Contents

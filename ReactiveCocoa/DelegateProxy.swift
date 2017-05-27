@@ -1,7 +1,15 @@
 import ReactiveSwift
 import enum Result.NoError
 
-internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
+public protocol DelegateProxyProtocol: class {}
+
+internal protocol _DelegateProxyProtocol: class {
+	var interceptedSelectors: Set<Selector> { get set }
+	var originalSetter: (AnyObject) -> Void { get }
+	var lifetime: Lifetime { get }
+}
+
+internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
 	internal weak var forwardee: Delegate? {
 		didSet {
 			originalSetter(self)
@@ -9,9 +17,8 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 	}
 
 	internal var interceptedSelectors: Set<Selector> = []
-
-	private let lifetime: Lifetime
-	private let originalSetter: (AnyObject) -> Void
+	internal let lifetime: Lifetime
+	internal let originalSetter: (AnyObject) -> Void
 
 	required init(lifetime: Lifetime, _ originalSetter: @escaping (AnyObject) -> Void) {
 		self.lifetime = lifetime
@@ -22,24 +29,34 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 		return interceptedSelectors.contains(selector) ? nil : forwardee
 	}
 
-	func intercept(_ selector: Selector) -> Signal<(), NoError> {
-		interceptedSelectors.insert(selector)
-		originalSetter(self)
-		return self.reactive.trigger(for: selector).take(during: lifetime)
-	}
-
-	func intercept(_ selector: Selector) -> Signal<[Any?], NoError> {
-		interceptedSelectors.insert(selector)
-		originalSetter(self)
-		return self.reactive.signal(for: selector).take(during: lifetime)
-	}
-
 	override func responds(to selector: Selector!) -> Bool {
 		if interceptedSelectors.contains(selector) {
 			return true
 		}
 
 		return (forwardee?.responds(to: selector) ?? false) || super.responds(to: selector)
+	}
+}
+
+extension Reactive where Base: NSObject, Base: DelegateProxyProtocol {
+	func trigger(for selector: Selector) -> Signal<(), NoError> {
+		let base = self.base as! _DelegateProxyProtocol
+
+		base.interceptedSelectors.insert(selector)
+		base.originalSetter(base)
+
+		return (self.base as NSObject).reactive.trigger(for: selector)
+			.take(during: base.lifetime)
+	}
+
+	func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+		let base = self.base as! _DelegateProxyProtocol
+
+		base.interceptedSelectors.insert(selector)
+		base.originalSetter(base)
+
+		return (self.base as NSObject).reactive.signal(for: selector)
+			.take(during: base.lifetime)
 	}
 }
 

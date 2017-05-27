@@ -106,7 +106,7 @@ class DelegateProxySpec: QuickSpec {
 			it("should complete its signals when the object deinitializes") {
 				var isCompleted = false
 
-				let foo: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeCompleted { isCompleted = true }
 
 				expect(isCompleted) == false
@@ -120,7 +120,7 @@ class DelegateProxySpec: QuickSpec {
 
 				object = nil
 
-				let foo: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeInterrupted { isInterrupted = true }
 
 				expect(isInterrupted) == true
@@ -130,10 +130,10 @@ class DelegateProxySpec: QuickSpec {
 				var fooCount = 0
 				var barCount = 0
 
-				let foo: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
-				let bar: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.bar))
+				let bar: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.bar))
 				bar.observeValues { barCount += 1 }
 
 				expect(fooCount) == 0
@@ -168,7 +168,7 @@ class DelegateProxySpec: QuickSpec {
 
 				var fooCount = 0
 
-				let foo: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
 				expect(fooCount) == 0
@@ -189,7 +189,7 @@ class DelegateProxySpec: QuickSpec {
 
 				var barCount = 0
 
-				let bar: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.bar))
+				let bar: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.bar))
 				bar.observeValues { barCount += 1 }
 
 				object.delegate?.bar?()
@@ -238,7 +238,7 @@ class DelegateProxySpec: QuickSpec {
 					                                  setter: #selector(setter: object.delegate),
 					                                  getter: #selector(getter: object.delegate))
 
-					let signal: Signal<(), NoError> = proxy.intercept(#selector(ObjectDelegate.foo))
+					let signal: Signal<(), NoError> = proxy.reactive.trigger(for: #selector(ObjectDelegate.foo))
 					signal.observeValues { fooCounter += 1 }
 				}
 

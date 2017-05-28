@@ -224,6 +224,10 @@
 		9AE7C2A51DDD7F5100F7534C /* ObjC+Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */; };
 		9AE7C2A61DDD7F5100F7534C /* ObjC+Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */; };
 		9AE7C2A71DDD7F5100F7534C /* ObjC+Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */; };
+		9AEC80871EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */; };
+		9AEC80881EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */; };
+		9AEC80891EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */; };
+		9AEC808A1EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */; };
 		9AED64C51E496A3700321004 /* ActionProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AED64C41E496A3700321004 /* ActionProxy.swift */; };
 		9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
 		9AF0EA761D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
@@ -451,6 +455,7 @@
 		9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Synchronizing.swift"; sourceTree = "<group>"; };
 		9AE7C2A21DDD768500F7534C /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Messages.swift"; sourceTree = "<group>"; };
+		9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+MessageForwarding.swift"; sourceTree = "<group>"; };
 		9AED64C41E496A3700321004 /* ActionProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxy.swift; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
@@ -800,6 +805,7 @@
 				9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */,
 				9ADFE5A41DC0001C001E11F7 /* NSObject+Synchronizing.swift */,
 				9AA0BD8E1DDE29F800531FCF /* NSObject+ObjCRuntime.swift */,
+				9AEC80861EDB6DB80005D52F /* ObjC+MessageForwarding.swift */,
 				9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */,
 				9AA0BD891DDE153A00531FCF /* ObjC+Constants.swift */,
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
@@ -1224,6 +1230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AEC808A1EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */,
 				A9EB3D221E94F308002A9BCC /* UINavigationItem.swift in Sources */,
 				9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A1D06131D93EA0100ACF44C /* UIBarItem.swift in Sources */,
@@ -1312,6 +1319,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AEC80891EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */,
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
@@ -1372,6 +1380,7 @@
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				4A0E10FF1D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9AA0BD811DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
+				9AEC80871EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1417,6 +1426,7 @@
 				A9EB3D811E955602002A9BCC /* UIFeedbackGenerator.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A9037501ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
+				9AEC80881EDB6DB80005D52F /* ObjC+MessageForwarding.swift in Sources */,
 				9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				A9EB3D831E955602002A9BCC /* UINotification​Feedback​Generator.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,

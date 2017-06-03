@@ -3,6 +3,9 @@
 
 1. Resigning first responder when reacting to a `UITextField` signal no longer deadlocks. (#3453)
 
+1. New operator: `take(duringLifetimeOf:)`. (#3466, kudos to @andersio)
+   It is available on `Signal` and `SignalProducer`, and supports both Objective-C and native Swift objects.
+
 # 5.0
 
 ### Table of Contents

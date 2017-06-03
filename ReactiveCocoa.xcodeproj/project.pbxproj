@@ -160,6 +160,10 @@
 		9A892D8F1E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
 		9A892D901E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
 		9A892D911E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
+		9A90374F1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */; };
+		9A9037501ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */; };
+		9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */; };
+		9A9037521ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */; };
 		9A9A129A1DC7A97100D10223 /* UIGestureRecognizerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4191394B1DBA002C0043C9D1 /* UIGestureRecognizerSpec.swift */; };
 		9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
 		9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */; };
@@ -423,6 +427,7 @@
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxy.swift; sourceTree = "<group>"; };
 		9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxySpec.swift; sourceTree = "<group>"; };
+		9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ReactiveSwift+Lifetime.swift"; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
 		9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Runtime.swift"; sourceTree = "<group>"; };
 		9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+RuntimeSubclassing.swift"; sourceTree = "<group>"; };
@@ -796,6 +801,7 @@
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
 				9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */,
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
+				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
@@ -1248,6 +1254,7 @@
 				9AA0BD7F1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
 				9A2E42611DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				53A6BED41DD4BCA90016C058 /* MKMapView.swift in Sources */,
+				9A9037521ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9A1D06121D93EA0100ACF44C /* UIBarButtonItem.swift in Sources */,
 				9A1D06111D93EA0100ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D061B1D93EA0100ACF44C /* UISegmentedControl.swift in Sources */,
@@ -1314,6 +1321,7 @@
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AA0BD911DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
+				9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				4A0E11011D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9AE7C2A61DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
@@ -1339,6 +1347,7 @@
 				9AA0BD8A1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9AED64C51E496A3700321004 /* ActionProxy.swift in Sources */,
 				9A6AAA261DB8F5280013AAEA /* ReusableComponents.swift in Sources */,
+				9A90374F1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9AA0BD7C1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
 				9ADFE5A51DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
@@ -1400,6 +1409,7 @@
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
 				A9EB3D811E955602002A9BCC /* UIFeedbackGenerator.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
+				9A9037501ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				A9EB3D831E955602002A9BCC /* UINotification​Feedback​Generator.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* ReusableComponents.swift in Sources */,

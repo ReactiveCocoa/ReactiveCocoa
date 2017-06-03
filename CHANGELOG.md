@@ -1,3 +1,8 @@
+# master
+*Please put new entries at the top.
+
+1. Resigning first responder when reacting to a `UITextField` signal no longer deadlocks. (#3453)
+
 # 5.0
 
 ### Table of Contents

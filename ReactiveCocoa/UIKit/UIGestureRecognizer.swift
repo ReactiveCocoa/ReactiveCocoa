@@ -11,13 +11,13 @@ extension Reactive where Base: UIGestureRecognizer {
 			let receiver = CocoaTarget<Base>(observer) { gestureRecognizer in
 				return gestureRecognizer as! Base
 			}
-			base.addTarget(receiver, action: #selector(receiver.sendNext))
+			base.addTarget(receiver, action: #selector(receiver.invoke))
 			
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 			
 			return ActionDisposable { [weak base = self.base] in
 				disposable?.dispose()
-				base?.removeTarget(receiver, action: #selector(receiver.sendNext))
+				base?.removeTarget(receiver, action: #selector(receiver.invoke))
 			}
 		}
 	}

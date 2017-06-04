@@ -50,7 +50,7 @@ extension Reactive where Base: UIControl {
 		return Signal { observer in
 			let receiver = CocoaTarget(observer) { $0 as! Base }
 			base.addTarget(receiver,
-			               action: #selector(receiver.sendNext),
+			               action: #selector(receiver.invoke),
 			               for: controlEvents)
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
@@ -59,7 +59,7 @@ extension Reactive where Base: UIControl {
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,
-				                   action: #selector(receiver.sendNext),
+				                   action: #selector(receiver.invoke),
 				                   for: controlEvents)
 			}
 		}

@@ -44,11 +44,23 @@ extension Reactive where Base: UIControl {
 	/// - parameters:
 	///   - controlEvents: The control event mask.
 	///
-	/// - returns: A signal that sends the control each time the control event 
-	///            occurs.
+	/// - returns: A signal that sends the control each time the control event occurs.
 	public func controlEvents(_ controlEvents: UIControlEvents) -> Signal<Base, NoError> {
+		return mapControlEvents(controlEvents, { $0 })
+	}
+
+	/// Create a signal which sends a `value` event for each of the specified
+	/// control events.
+	///
+	/// - parameters:
+	///   - controlEvents: The control event mask.
+	///   - transform: A transform to reduce `Base`.
+	///
+	/// - returns: A signal that sends the reduced value from the control each time the
+	///            control event occurs.
+	public func mapControlEvents<Value>(_ controlEvents: UIControlEvents, _ transform: @escaping (Base) -> Value) -> Signal<Value, NoError> {
 		return Signal { observer in
-			let receiver = CocoaTarget(observer) { $0 as! Base }
+			let receiver = CocoaTarget(observer) { transform($0 as! Base) }
 			base.addTarget(receiver,
 			               action: #selector(receiver.invoke),
 			               for: controlEvents)

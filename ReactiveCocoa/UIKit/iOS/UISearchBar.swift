@@ -15,8 +15,8 @@ private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISear
 extension Reactive where Base: UISearchBar {
 	private var proxy: SearchBarDelegateProxy {
 		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+		              setter: #selector(setter: Base.delegate),
+		              getter: #selector(getter: Base.delegate))
 	}
 
 	/// Sets the text of the search bar.

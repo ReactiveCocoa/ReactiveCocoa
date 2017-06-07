@@ -12,8 +12,8 @@ extension Reactive where Base: UIPickerView {
 
 	private var proxy: PickerViewDelegateProxy {
 		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+		              setter: #selector(setter: Base.delegate),
+		              getter: #selector(getter: Base.delegate))
 	}
 
 	/// Sets the selected row in the specified component, without animating the

@@ -29,7 +29,7 @@ extension Reactive where Base: UISearchBar {
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String?, NoError> {
-		return proxy.intercept(#selector(UISearchBarDelegate.searchBarTextDidEndEditing))
+		return proxy.reactive.trigger(for: #selector(UISearchBarDelegate.searchBarTextDidEndEditing))
 			.map { [unowned base] in base.text }
 	}
 
@@ -37,7 +37,7 @@ extension Reactive where Base: UISearchBar {
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {
-		return proxy.intercept(#selector(UISearchBarDelegate.searchBar(_:textDidChange:)))
+		return proxy.reactive.trigger(for: #selector(UISearchBarDelegate.searchBar(_:textDidChange:)))
 			.map { [unowned base] in base.text }
 	}
 	

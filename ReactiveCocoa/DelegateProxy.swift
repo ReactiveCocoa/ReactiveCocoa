@@ -1,40 +1,87 @@
 import ReactiveSwift
 import enum Result.NoError
 
-internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
-	internal weak var forwardee: Delegate? {
+extension Reactive where Base: NSObject, Base: DelegateProxyProtocol {
+	/// Create a signal which sends a `next` event at the end of every invocation
+	/// of `selector` on the object.
+	///
+	/// It completes when the object deinitializes.
+	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns:
+	///   A trigger signal.
+	public func trigger(for selector: Selector) -> Signal<(), NoError> {
+		let proxy = base.proxy
+		proxy.interceptedSelectors.insert(selector)
+		proxy.originalSetter(proxy)
+
+		return (proxy as NSObject)
+			.reactive
+			.trigger(for: selector)
+			.take(during: proxy.lifetime)
+	}
+
+	/// Create a signal which sends a `next` event, containing an array of bridged
+	/// arguments, at the end of every invocation of `selector` on the object.
+	///
+	/// It completes when the object deinitializes.
+	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns:
+	///   A signal that sends an array of bridged arguments.
+	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+		let proxy = base.proxy
+		proxy.interceptedSelectors.insert(selector)
+		proxy.originalSetter(proxy)
+
+		return (proxy as NSObject)
+			.reactive
+			.signal(for: selector)
+			.take(during: proxy.lifetime)
+	}
+}
+
+public protocol DelegateProxyProtocol: class {
+	associatedtype Delegate: NSObjectProtocol
+
+	var proxy: DelegateProxy<Delegate> { get }
+}
+
+public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol {
+	public weak var forwardee: Delegate? {
 		didSet {
 			originalSetter(self)
 		}
 	}
 
-	internal var interceptedSelectors: Set<Selector> = []
+	fileprivate var interceptedSelectors: Set<Selector> = []
+	fileprivate let originalSetter: (AnyObject) -> Void
+	fileprivate let lifetime: Lifetime
 
-	private let lifetime: Lifetime
-	private let originalSetter: (AnyObject) -> Void
+	public var proxy: DelegateProxy<Delegate> {
+		return self
+	}
 
-	required init(lifetime: Lifetime, _ originalSetter: @escaping (AnyObject) -> Void) {
+	public required init(lifetime: Lifetime, _ originalSetter: @escaping (AnyObject) -> Void) {
 		self.lifetime = lifetime
 		self.originalSetter = originalSetter
 	}
 
-	override func forwardingTarget(for selector: Selector!) -> Any? {
+	public override func forwardingTarget(for selector: Selector!) -> Any? {
 		return interceptedSelectors.contains(selector) ? nil : forwardee
 	}
 
-	func intercept(_ selector: Selector) -> Signal<(), NoError> {
-		interceptedSelectors.insert(selector)
-		originalSetter(self)
-		return self.reactive.trigger(for: selector).take(during: lifetime)
-	}
-
-	func intercept(_ selector: Selector) -> Signal<[Any?], NoError> {
-		interceptedSelectors.insert(selector)
-		originalSetter(self)
-		return self.reactive.signal(for: selector).take(during: lifetime)
-	}
-
-	override func responds(to selector: Selector!) -> Bool {
+	public override func responds(to selector: Selector!) -> Bool {
 		if interceptedSelectors.contains(selector) {
 			return true
 		}
@@ -50,7 +97,17 @@ extension DelegateProxy {
 	//        through a protocol would result in the following error messages:
 	//        1. PHI node operands are not the same type as the result!
 	//        2. LLVM ERROR: Broken function found, compilation aborted!
-	internal static func proxy<P: DelegateProxy<Delegate>>(
+	/// Initialize a proxy for `Delegate`, and install it into the given instance.
+	///
+	/// - parameters:
+	///   - instance: The instance to be intercepted by the proxy.
+	///   - setter: The selector of the delegate setter.
+	///   - getter: The selector of the delegate getter.
+	///   - key: A unique key which identifies the proxy.
+	///
+	/// - returns:
+	///   The delegate proxy.
+	public static func proxy<P: DelegateProxy<Delegate>>(
 		for instance: NSObject,
 		setter: Selector,
 		getter: Selector

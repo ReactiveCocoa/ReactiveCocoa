@@ -1,6 +1,10 @@
 # master
 *Please put new entries at the top.
 
+1. Introduce `mapControlEvents(_:_:)` which is set to replace `controlEvents(_:_:)` in most cases. (#3472)
+
+   You should use `mapControlEvents` in general unless the state of the control — e.g. `text`, `state` — is **not** concerned. In other words, you should avoid using `map` on a control event signal to extract the state from the control.
+
 1. Resigning first responder when reacting to a `UITextField` signal no longer deadlocks. (#3453, #3472)
 
 1. New operator: `take(duringLifetimeOf:)`. (#3466, kudos to @andersio)

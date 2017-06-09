@@ -2,7 +2,7 @@ import AppKit
 import ReactiveSwift
 import enum Result.NoError
 
-extension Reactive where Base: NSObject, Base: NSView {
+extension Reactive where Base: NSView {
 	public var prepareForReuse: Signal<(), NoError> {
 		return trigger(for: #selector(base.prepareForReuse))
 	}

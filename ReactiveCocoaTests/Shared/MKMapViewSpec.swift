@@ -17,7 +17,9 @@ class MKMapViewSpec: QuickSpec {
 		}
 
 		afterEach {
-			mapView = nil
+			autoreleasepool {
+				mapView = nil
+			}
 			// FIXME: SDK_ISSUE
 			//
 			// Temporarily disabled since the expectation keeps failing with

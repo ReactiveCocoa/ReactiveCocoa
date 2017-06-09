@@ -9,12 +9,12 @@ internal final class CocoaTarget<Value>: NSObject {
 		case sending(queue: [Value])
 	}
 
-	private let observer: Observer<Value, NoError>
+	private let observer: Signal<Value, NoError>.Observer
 	private let transform: (Any?) -> Value
 
 	private var state: State
 
-	internal init(_ observer: Observer<Value, NoError>, transform: @escaping (Any?) -> Value) {
+	internal init(_ observer: Signal<Value, NoError>.Observer, transform: @escaping (Any?) -> Value) {
 		self.observer = observer
 		self.transform = transform
 		self.state = .idle
@@ -52,15 +52,8 @@ internal final class CocoaTarget<Value>: NSObject {
 	}
 }
 
-internal protocol CocoaTargetProtocol: class {
-	associatedtype Value
-	init(_ observer: Observer<Value, NoError>, transform: @escaping (Any?) -> Value)
-}
-
-extension CocoaTarget: CocoaTargetProtocol {}
-
-extension CocoaTargetProtocol where Value == Void {
-	internal init(_ observer: Observer<(), NoError>) {
+extension CocoaTarget where Value == Void {
+	internal convenience init(_ observer: Signal<(), NoError>.Observer) {
 		self.init(observer, transform: { _ in })
 	}
 }

@@ -80,7 +80,7 @@ extension Reactive where Base: UIControl {
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return ActionDisposable { [weak base = self.base] in
+			return AnyDisposable { [weak base = self.base] in
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,

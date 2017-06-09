@@ -40,6 +40,18 @@ class UITextFieldSpec: QuickSpec {
 			expect(latestValue) == textField.text
 		}
 
+		it("should emit user initiated changes to its text value when the editing ends as a reuslt of the return key being pressed") {
+			textField.text = "Test"
+
+			var latestValue: String?
+			textField.reactive.textValues.observeValues { text in
+				latestValue = text
+			}
+
+			textField.sendActions(for: .editingDidEndOnExit)
+			expect(latestValue) == textField.text
+		}
+
 		it("should emit user initiated changes to its text value continuously") {
 			var latestValue: String?
 			textField.reactive.continuousTextValues.observeValues { text in
@@ -81,7 +93,19 @@ class UITextFieldSpec: QuickSpec {
 			textField.sendActions(for: .editingDidEnd)
 			expect(latestValue) == textField.attributedText
 		}
-		
+
+		it("should emit user initiated changes to its attributed text value when the editing ends as a reuslt of the return key being pressed") {
+			textField.attributedText = NSAttributedString(string: "Test")
+
+			var latestValue: NSAttributedString?
+			textField.reactive.attributedTextValues.observeValues { attributedText in
+				latestValue = attributedText
+			}
+
+			textField.sendActions(for: .editingDidEndOnExit)
+			expect(latestValue) == textField.attributedText
+		}
+
 		it("should emit user initiated changes to its attributed text value continuously") {
 			var latestValue: NSAttributedString?
 			textField.reactive.continuousAttributedTextValues.observeValues { attributedText in

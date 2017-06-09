@@ -13,7 +13,7 @@ extension Reactive where Base: UITextField {
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String?, NoError> {
-		return controlEvents(.editingDidEnd).map { $0.text }
+		return controlEvents([.editingDidEnd, .editingDidEndOnExit]).map { $0.text }
 	}
 
 	/// A signal of text values emitted by the text field upon any changes.
@@ -38,7 +38,7 @@ extension Reactive where Base: UITextField {
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
 	public var attributedTextValues: Signal<NSAttributedString?, NoError> {
-		return controlEvents(.editingDidEnd).map { $0.attributedText }
+		return controlEvents([.editingDidEnd, .editingDidEndOnExit]).map { $0.attributedText }
 	}
 	
 	/// A signal of attributed text values emitted by the text field upon any changes.

@@ -25,6 +25,6 @@ extension Reactive where Base: UISwitch {
 
 	/// A signal of on-off states in `Bool` emitted by the switch.
 	public var isOnValues: Signal<Bool, NoError> {
-		return controlEvents(.valueChanged).map { $0.isOn }
+		return mapControlEvents(.valueChanged) { $0.isOn }
 	}
 }

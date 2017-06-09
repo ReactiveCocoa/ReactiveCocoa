@@ -165,6 +165,7 @@ class UITextFieldSpec: QuickSpec {
 
 					if text == "2" {
 						textField.resignFirstResponder()
+						textField.text = "3"
 					}
 				}
 				expect(values) == []

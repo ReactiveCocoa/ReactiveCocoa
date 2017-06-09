@@ -41,6 +41,9 @@ extension Reactive where Base: UIControl {
 	/// Create a signal which sends a `value` event for each of the specified
 	/// control events.
 	///
+	/// - note: If you mean to observe the **value** of `self` with regard to a particular
+	///         control event, `mapControlEvents(_:_:)` should be used instead.
+	///
 	/// - parameters:
 	///   - controlEvents: The control event mask.
 	///
@@ -51,6 +54,16 @@ extension Reactive where Base: UIControl {
 
 	/// Create a signal which sends a `value` event for each of the specified
 	/// control events.
+	///
+	/// - important: You should use `mapControlEvents` in general unless the state of
+	///              the control — e.g. `text`, `state` — is not concerned. In other
+	///              words, you should avoid using `map` on a control event signal to
+	///              extract the state from the control.
+	///
+	/// - note: For observations that could potentially manipulate the first responder
+	///         status of `base`, `mapControlEvents(_:_:)` is made aware of the potential
+	///         recursion induced by UIKit and would collect the values for the control
+	///         events accordingly using the given transform.
 	///
 	/// - parameters:
 	///   - controlEvents: The control event mask.

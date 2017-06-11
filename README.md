@@ -135,23 +135,20 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 ## Release Roadmap
 **Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
 
+### In Development
 #### ReactiveCocoa 6.0
-It targets Swift 3.1.x and ReactiveSwift 2.0. The estimated schedule is Spring 2017.
+It targets Swift 3.1 and ReactiveSwift 2.0. The estimated schedule is July 2017.
 
-Since ReactiveSwift 2.0 would contain breaking changes, the public API of ReactiveCocoa is considered breaking too.
+ReactiveCocoa 6.0 has continued the work in polishing the APIs, preparing for the eventual API freeze for library resilience.
 
-As resilience would be enforced in Swift 4.0, it is important for us to have a clean and steady API to start with. The expectation is to **have the API reviewing to be concluded in ReactiveCocoa 6.0**, before we move on to ReactiveSwift 3.0 and Swift 4.0. Any contribution to help realising this goal is welcomed.
+#### Swift 3.2 and Swift 4.0 compatibility
+While the development would be Swift 3.2 and Swift 4.0 aware, ReactiveCocoa 6.0 would not declare official support until Swift 3.2 and Swift 4.0 launch.
 
+The official release for Swift 3.2 and Swift 4.0 is expected to be a minor 6.x release with full API compatibility.
+
+### Plan of Record
 #### ReactiveCocoa 7.0
-It targets Swift 4.0.x and ReactiveSwift 3.0. The estimated schedule is late 2017.
-
-The release may contain breaking changes due to changes in ReactiveSwift 3.0.
-
-ReactiveCocoa 7.0 would focus on three main goals:
-
-1. Swift 4.0 Resilience
-1. Migration to ReactiveSwift 3.0
-1. Support new features introduced to AppKit, UIKit and Swift.
+ReactiveCocoa 7.0 is expected to declare library ABI stability as it adopts generics features arriving in a later Swift 4 release, e.g. conditional conformance. There is no ETA for now.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC

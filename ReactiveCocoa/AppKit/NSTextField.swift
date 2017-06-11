@@ -36,6 +36,7 @@ extension Reactive where Base: NSTextField {
     }
 
 	/// Sets the color of the text with an `NSColor`.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.textColor)` instead.")
 	public var textColor: BindingTarget<NSColor> {
 		return makeBindingTarget { $0.textColor = $1 }
 	}

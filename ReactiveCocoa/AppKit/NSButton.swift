@@ -38,6 +38,7 @@ extension Reactive where Base: NSButton {
 	}
 
 	/// Sets the button's image
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.image)` instead.")
 	public var image: BindingTarget<NSImage?> {
 		return makeBindingTarget { $0.image = $1 }
 	}

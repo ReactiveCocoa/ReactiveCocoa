@@ -96,16 +96,19 @@ extension Reactive where Base: UIControl {
 	}
 
 	/// Sets whether the control is enabled.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.isEnabled)` instead.")
 	public var isEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isEnabled = $1 }
 	}
 
 	/// Sets whether the control is selected.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.isSelected)` instead.")
 	public var isSelected: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isSelected = $1 }
 	}
 
 	/// Sets whether the control is highlighted.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.isHighlighted)` instead.")
 	public var isHighlighted: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isHighlighted = $1 }
 	}

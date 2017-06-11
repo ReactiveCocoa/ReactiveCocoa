@@ -6,6 +6,7 @@ extension NSControl: ActionMessageSending {}
 
 extension Reactive where Base: NSControl {
 	/// Sets whether the control is enabled.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.isEnabled)` instead.")
 	public var isEnabled: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isEnabled = $1 }
 	}

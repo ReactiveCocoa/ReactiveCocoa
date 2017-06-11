@@ -9,6 +9,7 @@ extension Reactive where Base: UIRefreshControl {
 	}
 
 	/// Sets the attributed title of the refresh control.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.attributedTitle)` instead.")
 	public var attributedTitle: BindingTarget<NSAttributedString?> {
 		return makeBindingTarget { $0.attributedTitle = $1 }
 	}

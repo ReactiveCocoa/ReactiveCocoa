@@ -83,7 +83,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify weak references") {
 				"weakProperty".withCString { cString in
 					let propertyPointer = class_getProperty(type(of: object), cString)
-					expect(propertyPointer) != nil
+					expect(propertyPointer).toNot(beNil())
 
 					if let pointer = propertyPointer {
 						let attributes = PropertyAttributes(property: pointer)
@@ -98,7 +98,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify blocks") {
 				"block".withCString { cString in
 					let propertyPointer = class_getProperty(type(of: object), cString)
-					expect(propertyPointer) != nil
+					expect(propertyPointer).toNot(beNil())
 
 					if let pointer = propertyPointer {
 						let attributes = PropertyAttributes(property: pointer)
@@ -113,7 +113,7 @@ class KeyValueObservingSpec: QuickSpec {
 			it("should be able to classify non object properties") {
 				"integer".withCString { cString in
 					let propertyPointer = class_getProperty(type(of: object), cString)
-					expect(propertyPointer) != nil
+					expect(propertyPointer).toNot(beNil())
 
 					if let pointer = propertyPointer {
 						let attributes = PropertyAttributes(property: pointer)

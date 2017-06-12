@@ -556,7 +556,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					testObject.rac_value = 2
 
-					expect(atomicCounter).toEventually(equal(10000), timeout: 30.0)
+					expect(atomicCounter).toEventually(equal(Int64(numIterations * 2)), timeout: 30.0)
 				}
 
 				// ReactiveCocoa/ReactiveCocoa#1122

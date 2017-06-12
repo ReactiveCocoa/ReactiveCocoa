@@ -29,6 +29,7 @@ extension Reactive where Base: UITextField {
 	}
 	
 	/// Sets the textColor of the text field.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.textColor)` instead.")
 	public var textColor: BindingTarget<UIColor> {
 		return makeBindingTarget { $0.textColor = $1 }
 	}
@@ -49,6 +50,7 @@ extension Reactive where Base: UITextField {
 	}
 
 	/// Sets the secure text entry attribute on the text field.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.isSecureTextEntry)` instead.")
 	public var isSecureTextEntry: BindingTarget<Bool> {
 		return makeBindingTarget { $0.isSecureTextEntry = $1 }
 	}

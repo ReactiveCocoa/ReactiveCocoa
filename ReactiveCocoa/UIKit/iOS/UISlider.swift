@@ -10,11 +10,13 @@ extension Reactive where Base: UISlider {
 	}
 
 	/// Sets slider's minimum value.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.minimumValue)` instead.")
 	public var minimumValue: BindingTarget<Float> {
 		return makeBindingTarget { $0.minimumValue = $1 }
 	}
 
 	/// Sets slider's maximum value.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.maximumValue)` instead.")
 	public var maximumValue: BindingTarget<Float> {
 		return makeBindingTarget { $0.maximumValue = $1 }
 	}

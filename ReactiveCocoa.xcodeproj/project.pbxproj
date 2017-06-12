@@ -191,6 +191,10 @@
 		9AA0BD9B1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
 		9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
 		9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */; };
+		9AB049601EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */; };
+		9AB049611EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */; };
+		9AB049621EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */; };
+		9AB049631EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */; };
 		9AB15C7A1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
@@ -436,6 +440,7 @@
 		9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCRuntimeAliases.m; sourceTree = "<group>"; };
 		9AAD49871DED2C350068EC9B /* UIKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboard.swift; sourceTree = "<group>"; };
 		9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboardSpec.swift; sourceTree = "<group>"; };
+		9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reactive+BindingTarget.swift"; sourceTree = "<group>"; };
 		9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaAction.swift; sourceTree = "<group>"; };
@@ -801,6 +806,7 @@
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
 				9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */,
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
+				9AB0495F1EED98B600FB1A13 /* Reactive+BindingTarget.swift */,
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
@@ -1232,6 +1238,7 @@
 				4ABEFE201DCFCEF80066A8C2 /* UITableView.swift in Sources */,
 				9A1D06181D93EA0100ACF44C /* UIImageView.swift in Sources */,
 				9AA0BD841DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
+				9AB049631EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */,
 				9AD0F06D1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9A1D06211D93EA0100ACF44C /* UIView.swift in Sources */,
 				538DCB7B1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
@@ -1312,6 +1319,7 @@
 				9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
 				9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				9AA0BD7E1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
+				9AB049621EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */,
 				9AA0BD9A1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */,
 				9ADE4A931DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				9AA0BD8C1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
@@ -1360,6 +1368,7 @@
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */,
 				834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */,
+				9AB049601EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */,
 				53A6BED21DD4BCA90016C058 /* MKMapView.swift in Sources */,
@@ -1436,6 +1445,7 @@
 				BFE1458A1E439AB000208736 /* UIPickerView.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
+				9AB049611EED98B600FB1A13 /* Reactive+BindingTarget.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
 				BF4335651E02AC7600AC88DD /* UIScrollView.swift in Sources */,
 				53A6BED31DD4BCA90016C058 /* MKMapView.swift in Sources */,

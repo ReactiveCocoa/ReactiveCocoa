@@ -40,6 +40,28 @@ class UIButtonSpec: QuickSpec {
 			expect(button.title(for: .selected)) == ""
 		}
 
+		#if swift(>=3.2)
+		it("should accept changes from bindings to its titles under different states") {
+			let firstTitle = "First title"
+			let secondTitle = "Second title"
+
+			let (pipeSignal, observer) = Signal<String, NoError>.pipe()
+			button.reactive(UIButton.setTitle, second: .normal) <~ SignalProducer(pipeSignal)
+			button.setTitle("", for: .selected)
+			button.setTitle("", for: .highlighted)
+
+			observer.send(value: firstTitle)
+			expect(button.title(for: UIControlState())) == firstTitle
+			expect(button.title(for: .highlighted)) == ""
+			expect(button.title(for: .selected)) == ""
+
+			observer.send(value: secondTitle)
+			expect(button.title(for: UIControlState())) == secondTitle
+			expect(button.title(for: .highlighted)) == ""
+			expect(button.title(for: .selected)) == ""
+		}
+		#endif
+
 		it("should execute the `pressed` action upon receiving a `touchUpInside` action message.") {
 			button.isEnabled = true
 			button.isUserInteractionEnabled = true

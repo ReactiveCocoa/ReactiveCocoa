@@ -13,6 +13,7 @@ extension Reactive where Base: UILabel {
 	}
 
 	/// Sets the color of the text of the label.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.textColor)` instead.")
 	public var textColor: BindingTarget<UIColor> {
 		return makeBindingTarget { $0.textColor = $1 }
 	}

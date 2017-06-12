@@ -9,6 +9,7 @@ import UIKit
 extension Reactive where Base: NSLayoutConstraint {
 
 	/// Sets the constant.
+	@available(swift, deprecated: 3.2, message:"Use `reactive(\\.constant)` instead.")
 	public var constant: BindingTarget<CGFloat> {
 		return makeBindingTarget { $0.constant = $1 }
 	}

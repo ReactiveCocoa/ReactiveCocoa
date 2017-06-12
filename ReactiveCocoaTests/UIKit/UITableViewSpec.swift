@@ -38,6 +38,17 @@ final class UITableViewSpec: QuickSpec {
 
 				expect(reloadDataCount) == 2
 			}
+
+			#if swift(>=3.2)
+			it("invokes reloadData whenever the bound signal sends a value") {
+				tableView.reactive(UITableView.reloadData) <~ bindingSignal
+
+				bindingObserver.send(value: ())
+				bindingObserver.send(value: ())
+
+				expect(reloadDataCount) == 2
+			}
+			#endif
 		}
 	}
 }

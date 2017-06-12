@@ -25,15 +25,76 @@ extension ReactiveExtensionsProvider where Self: AnyObject {
 	) -> BindingTarget<Value> {
 		return BindingTarget(on: scheduler, object: self, keyPath: keyPath)
 	}
+
+	public func reactive(
+		_ method: @escaping (Self) -> () -> Void,
+		on scheduler: Scheduler = UIScheduler()
+	) -> BindingTarget<()> {
+		return BindingTarget(on: scheduler, object: self, method: method)
+	}
+
+	public func reactive<Value>(
+		_ method: @escaping (Self) -> (Value) -> Void,
+		on scheduler: Scheduler = UIScheduler()
+	) -> BindingTarget<Value> {
+		return BindingTarget(on: scheduler, object: self, method: method)
+	}
+
+	public func reactive<U, V>(
+		_ method: @escaping (Self) -> (U, V) -> Void,
+		on scheduler: Scheduler = UIScheduler()
+	) -> BindingTarget<(U, V)> {
+		return BindingTarget(on: scheduler, object: self, method: method)
+	}
+
+	public func reactive<Value, U>(
+		_ method: @escaping (Self) -> (Value, U) -> Void,
+		second: U,
+		on scheduler: Scheduler = UIScheduler()
+	) -> BindingTarget<Value> {
+		return BindingTarget(on: scheduler, object: self, method: method, second: second)
+	}
 }
 
 extension BindingTarget {
-	public init<Object: AnyObject>(object: Object, keyPath: ReferenceWritableKeyPath<Object, Value>) {
-		self.init(lifetime: ReactiveCocoa.lifetime(of: object), object: object, keyPath: keyPath)
-	}
-
-	public init<Object: AnyObject>(on scheduler: Scheduler, object: Object, keyPath: ReferenceWritableKeyPath<Object, Value>) {
+	public init<Object: AnyObject>(on scheduler: Scheduler = ImmediateScheduler(), object: Object, keyPath: ReferenceWritableKeyPath<Object, Value>) {
 		self.init(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: object), object: object, keyPath: keyPath)
 	}
 }
 #endif
+
+extension BindingTarget where Value == () {
+	public init<Object: AnyObject>(on scheduler: Scheduler = ImmediateScheduler(), object: Object, method: @escaping (Object) -> () -> Void) {
+		self.init(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: object)) { [weak object] _ in
+			if let object = object {
+				method(object)()
+			}
+		}
+	}
+}
+
+extension BindingTarget {
+	public init<Object: AnyObject>(on scheduler: Scheduler = ImmediateScheduler(), object: Object, method: @escaping (Object) -> (Value) -> Void) {
+		self.init(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: object)) { [weak object] value in
+			if let object = object {
+				method(object)(value)
+			}
+		}
+	}
+
+	public init<Object: AnyObject, U, V>(on scheduler: Scheduler = ImmediateScheduler(), object: Object, method: @escaping (Object) -> (U, V) -> Void) where Value == (U, V) {
+		self.init(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: object)) { [weak object] value in
+			if let object = object {
+				method(object)(value.0, value.1)
+			}
+		}
+	}
+
+	public init<Object: AnyObject, U>(on scheduler: Scheduler = ImmediateScheduler(), object: Object, method: @escaping (Object) -> (Value, U) -> Void, second: U) {
+		self.init(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: object)) { [weak object] value in
+			if let object = object {
+				method(object)(value, second)
+			}
+		}
+	}
+}

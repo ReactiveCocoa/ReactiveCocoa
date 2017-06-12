@@ -58,7 +58,7 @@ matrix:
         - JOB=CARTHAGE-watchOS
     - script:
       - gem install cocoapods
-      - pod repo update --silent
+      - pod repo update
       - pod lib lint ReactiveCocoa.podspec
       env:
         - JOB=PODSPEC

@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 6.0.0-alpha.1
 # 5.0.4
 1. UITextField text signals now react to `editingDidEndOnExit`. (#3474)
 

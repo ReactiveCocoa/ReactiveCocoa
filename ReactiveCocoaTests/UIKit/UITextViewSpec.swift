@@ -91,5 +91,19 @@ class UITextViewSpec: QuickSpec {
 			NotificationCenter.default.post(name: .UITextViewTextDidChange, object: textView)
 			expect(latestValue) == textView.attributedText
 		}
+
+		it("should emit user initiated changes for selection") {
+			var latestValue: NSRange!
+			textView.reactive.selectedRangeValues.observeValues {
+				latestValue = $0
+			}
+
+			textView.text = "Test"
+			textView.selectedRange = NSRange(location: 1, length: 2)
+
+			textView.delegate!.textViewDidChangeSelection!(textView)
+			expect(latestValue.location) == 1
+			expect(latestValue.length) == 2
+		}
 	}
 }

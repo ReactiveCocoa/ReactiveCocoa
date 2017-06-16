@@ -8,15 +8,23 @@ extension Reactive where Base: UIButton {
 		get {
 			return associatedAction.withValue { info in
 				return info.flatMap { info in
-					return info.controlEvents == .touchUpInside ? info.action : nil
+					return info.controlEvents == pressEvent ? info.action : nil
 				}
 			}
 		}
 
 		nonmutating set {
-			setAction(newValue, for: .touchUpInside)
+			setAction(newValue, for: pressEvent)
 		}
 	}
+
+    private var pressEvent: UIControlEvents {
+        #if os(tvOS)
+            return .primaryActionTriggered
+        #else
+            return .touchUpInside
+        #endif
+    }
 
 	/// Sets the title of the button for its normal state.
 	public var title: BindingTarget<String> {

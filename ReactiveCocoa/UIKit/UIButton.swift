@@ -19,11 +19,11 @@ extension Reactive where Base: UIButton {
 	}
 
     private var pressEvent: UIControlEvents {
-        #if os(tvOS)
-            return .primaryActionTriggered
-        #else
-            return .touchUpInside
-        #endif
+		if #available(iOS 9.0, tvOS 9.0, *) {
+			return .primaryActionTriggered
+		} else {
+			return .touchUpInside
+		}
     }
 
 	/// Sets the title of the button for its normal state.

@@ -33,6 +33,7 @@ extension Reactive where Base: UIScrollView {
 	}
 
 	/// Sets whether the scroll view scrolls to the top when the menu is tapped.
+	@available(tvOS, unavailable)
 	public var scrollsToTop: BindingTarget<Bool> {
 		return makeBindingTarget { $0.scrollsToTop = $1 }
 	}

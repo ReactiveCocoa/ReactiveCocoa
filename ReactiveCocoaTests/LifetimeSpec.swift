@@ -56,19 +56,21 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, _) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), NoError>.pipe()
 
-				signal
-					.take(duringLifetimeOf: object!)
-					.observeCompleted { isCompleted = true }
+				withExtendedLifetime(observer) {
+					signal
+						.take(duringLifetimeOf: object!)
+						.observeCompleted { isCompleted = true }
 
-				expect(weakObject).toNot(beNil())
-				expect(isCompleted) == false
+					expect(weakObject).toNot(beNil())
+					expect(isCompleted) == false
 
-				object = nil
+					object = nil
 
-				expect(weakObject).to(beNil())
-				expect(isCompleted) == true
+					expect(weakObject).to(beNil())
+					expect(isCompleted) == true
+				}
 			}
 
 			it("should work with native Swift objects") {
@@ -76,19 +78,21 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, _) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), NoError>.pipe()
 
-				signal
-					.take(duringLifetimeOf: object!)
-					.observeCompleted { isCompleted = true }
+				withExtendedLifetime(observer) {
+					signal
+						.take(duringLifetimeOf: object!)
+						.observeCompleted { isCompleted = true }
 
-				expect(weakObject).toNot(beNil())
-				expect(isCompleted) == false
+					expect(weakObject).toNot(beNil())
+					expect(isCompleted) == false
 
-				object = nil
+					object = nil
 
-				expect(weakObject).to(beNil())
-				expect(isCompleted) == true
+					expect(weakObject).to(beNil())
+					expect(isCompleted) == true
+				}
 			}
 		}
 
@@ -98,19 +102,21 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, _) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), NoError>.pipe()
 
-				SignalProducer(signal)
-					.take(duringLifetimeOf: object!)
-					.startWithCompleted { isCompleted = true }
+				withExtendedLifetime(observer) {
+					SignalProducer(signal)
+						.take(duringLifetimeOf: object!)
+						.startWithCompleted { isCompleted = true }
 
-				expect(weakObject).toNot(beNil())
-				expect(isCompleted) == false
+					expect(weakObject).toNot(beNil())
+					expect(isCompleted) == false
 
-				object = nil
+					object = nil
 
-				expect(weakObject).to(beNil())
-				expect(isCompleted) == true
+					expect(weakObject).to(beNil())
+					expect(isCompleted) == true
+				}
 			}
 
 			it("should work with native Swift objects") {
@@ -118,19 +124,21 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, _) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), NoError>.pipe()
 
-				SignalProducer(signal)
-					.take(duringLifetimeOf: object!)
-					.startWithCompleted { isCompleted = true }
+				withExtendedLifetime(observer) {
+					SignalProducer(signal)
+						.take(duringLifetimeOf: object!)
+						.startWithCompleted { isCompleted = true }
 
-				expect(weakObject).toNot(beNil())
-				expect(isCompleted) == false
+					expect(weakObject).toNot(beNil())
+					expect(isCompleted) == false
 
-				object = nil
+					object = nil
 
-				expect(weakObject).to(beNil())
-				expect(isCompleted) == true
+					expect(weakObject).to(beNil())
+					expect(isCompleted) == true
+				}
 			}
 		}
 	}

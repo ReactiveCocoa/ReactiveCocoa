@@ -1,7 +1,7 @@
 import Foundation
 import ReactiveSwift
 
-extension Reactive where Base: NSObject {
+extension Reactive where Base: NSObjectProtocol {
 	/// Creates a binding target which uses the lifetime of the object, and 
 	/// weakly references the object so that the supplied `action` is triggered 
 	/// only if the object has not deinitialized.

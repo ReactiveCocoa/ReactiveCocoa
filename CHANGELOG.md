@@ -1,6 +1,10 @@
 # master
 *Please put new entries at the top.
 
+1. `NSObject` reactive extensions now work in generic environments that are limited to `NSObjectProtocol`. (#3484, kudos to @nickdomenicali)
+
+1. New reactive extension for `UIScrollView`: `scrollsToTop`. (#3481, kudos to @Qata)
+
 # 6.0.0-rc.1
 1. `UIButton.reactive.pressed` now reacts to the `primaryActionTriggered` control event, instead of `touchUpInside`, on iOS 9.0+ and tvOS 9.0+. (#3480, kudos to @andrei-kuzma)
 

@@ -1,6 +1,8 @@
 language: objective-c
 osx_image: xcode8.3
-before_install: true
+before_install:
+  - brew uninstall carthage
+  - HOMEBREW_NO_AUTO_UPDATE=1 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/6ae4f69a652fb0ecb102b0c9216378679a4f1b92/Formula/carthage.rb # 0.22.0
 install: true
 git:
   submodules: false
@@ -12,8 +14,11 @@ before_script:
 script:
   - script/build
 xcode_workspace: ReactiveCocoa.xcworkspace
+cache:
+  directories: Carthage/Build
 matrix:
   include:
+    # Xcode 8
     - xcode_scheme: ReactiveCocoa-macOS
       env:
         - XCODE_SDK=macosx
@@ -40,28 +45,54 @@ matrix:
         - XCODE_SDK=watchsimulator
         - XCODE_ACTION=build
         - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
-    - script:
-        - carthage build --no-skip-current --platform mac
+    # Xcode 9
+    - xcode_scheme: ReactiveCocoa-macOS
+      osx_image: xcode9
       env:
-        - JOB=CARTHAGE-macOS
-    - script:
-        - carthage build --no-skip-current --platform iOS
+        - XCODE_SDK=macosx
+        - XCODE_ACTION="build test"
+        - XCODE_DESTINATION="arch=x86_64"
+        - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
+        - PLAYGROUND="ReactiveCocoa-macOS.playground"
+    - xcode_scheme: ReactiveCocoa-iOS
+      osx_image: xcode9
       env:
-        - JOB=CARTHAGE-iOS
-    - script:
-        - carthage build --no-skip-current --platform tvOS
+        - XCODE_SDK=iphonesimulator
+        - XCODE_ACTION="build-for-testing test-without-building"
+        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
+#        - XCODE_PLAYGROUND_TARGET="x86_64-apple-ios9.3"
+#        - PLAYGROUND="ReactiveCocoa-iOS.playground"
+    - xcode_scheme: ReactiveCocoa-tvOS
+      osx_image: xcode9
       env:
-        - JOB=CARTHAGE-tvOS
-    - script:
-        - carthage build --no-skip-current --platform watchOS
+        - XCODE_SDK=appletvsimulator
+        - XCODE_ACTION="build-for-testing test-without-building"
+        - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
+#        - XCODE_PLAYGROUND_TARGET="x86_64-apple-tvos9.3"
+#        - PLAYGROUND="ReactiveCocoa-tvOS.playground"
+    - xcode_scheme: ReactiveCocoa-watchOS
+      osx_image: xcode9
       env:
-        - JOB=CARTHAGE-watchOS
+        - XCODE_SDK=watchsimulator
+        - XCODE_ACTION=build
+        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
     - script:
       - gem install cocoapods
       - pod repo update
       - pod lib lint ReactiveCocoa.podspec
       env:
         - JOB=PODSPEC
+    - stage: prepare carthage cache
+      script: carthage build --cache-builds
+    - stage: carthage
+      script:
+        - carthage build --cache-builds --no-skip-current --platform mac
+    - script:
+        - carthage build --cache-builds --no-skip-current --platform iOS
+    - script:
+        - carthage build --cache-builds --no-skip-current --platform tvOS
+    - script:
+        - carthage build --cache-builds --no-skip-current --platform watchOS
 notifications:
   email: false
   slack:

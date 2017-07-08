@@ -157,6 +157,9 @@
 		9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A74884B1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		9A7990CE1F1085D8001493A3 /* BindingTargetSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */; };
+		9A7990CF1F1085D8001493A3 /* BindingTargetSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */; };
+		9A7990D01F1085D8001493A3 /* BindingTargetSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */; };
 		9A892D8F1E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
 		9A892D901E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
 		9A892D911E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */; };
@@ -426,6 +429,7 @@
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxy.swift; sourceTree = "<group>"; };
+		9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindingTargetSpec.swift; sourceTree = "<group>"; };
 		9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxySpec.swift; sourceTree = "<group>"; };
 		9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ReactiveSwift+Lifetime.swift"; sourceTree = "<group>"; };
 		9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationSpec.swift; sourceTree = "<group>"; };
@@ -831,6 +835,7 @@
 				9A1D06231D93EA7E00ACF44C /* UIKit */,
 				538DCB771DCA5E3200332880 /* Shared */,
 				9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */,
+				9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */,
 				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
 				9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
@@ -1277,6 +1282,7 @@
 				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				9A1D06451D93EA7E00ACF44C /* UIImageViewSpec.swift in Sources */,
 				9A1D06551D93EA7E00ACF44C /* UITextViewSpec.swift in Sources */,
+				9A7990D01F1085D8001493A3 /* BindingTargetSpec.swift in Sources */,
 				9A1D063B1D93EA7E00ACF44C /* UIButtonSpec.swift in Sources */,
 				9A24A8471DE142A600987AF9 /* SwizzlingSpec.swift in Sources */,
 				9A1D064B1D93EA7E00ACF44C /* UISegmentedControlSpec.swift in Sources */,
@@ -1386,6 +1392,7 @@
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
 				9A892D8F1E8D19BE00EA35F3 /* DelegateProxySpec.swift in Sources */,
 				004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */,
+				9A7990CE1F1085D8001493A3 /* BindingTargetSpec.swift in Sources */,
 				D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */,
 				BFA6B94D1A7604D400C846D1 /* SignalProducerNimbleMatchers.swift in Sources */,
 				9A24A8451DE142A400987AF9 /* SwizzlingSpec.swift in Sources */,
@@ -1500,6 +1507,7 @@
 				9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				4ABEFE211DCFCF090066A8C2 /* UITableViewSpec.swift in Sources */,
 				9A1D06401D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
+				9A7990CF1F1085D8001493A3 /* BindingTargetSpec.swift in Sources */,
 				9A1D06481D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
 				CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				A9EB3D291E94F3D3002A9BCC /* UITabBarItemSpec.swift in Sources */,

@@ -55,6 +55,105 @@ extension Reactive where Base: NSObject {
 			return disposable
 		}
 	}
+
+	#if swift(>=3.2)
+	private func producer<U>(
+		for keyPath: KeyPath<Base, U>,
+		transform: @escaping (Any?) -> U
+	) -> SignalProducer<U, NoError> {
+		return SignalProducer { observer, lifetime in
+			let disposable = KeyValueObserver.observe(
+				self.base,
+				keyPath: keyPath._kvcKeyPathString!,
+				options: [.initial, .new],
+				action: { observer.send(value: transform($0)) }
+			)
+
+			lifetime.observeEnded(disposable.dispose)
+
+			if let lifetimeDisposable = self.lifetime.observeEnded(observer.sendCompleted) {
+				lifetime.observeEnded(lifetimeDisposable.dispose)
+			}
+		}
+	}
+
+	private func signal<U>(
+		for keyPath: KeyPath<Base, U>,
+		transform: @escaping (Any?) -> U
+	) -> Signal<U, NoError> {
+		return Signal { observer in
+			let disposable = CompositeDisposable()
+			disposable += KeyValueObserver.observe(
+				self.base,
+				keyPath: keyPath._kvcKeyPathString!,
+				options: [.new],
+				action: { observer.send(value: transform($0)) }
+			)
+			disposable += self.lifetime.observeEnded(observer.sendCompleted)
+			return disposable
+		}
+	}
+
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when the object deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer<U>(for keyPath: KeyPath<Base, U?>) -> SignalProducer<U?, NoError> {
+		return producer(for: keyPath) { $0 as! U? }
+	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func signal<U>(for keyPath: KeyPath<Base, U?>) -> Signal<U?, NoError> {
+		return signal(for: keyPath) { $0 as! U? }
+	}
+
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when the object deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer<U>(for keyPath: KeyPath<Base, U>) -> SignalProducer<U, NoError> {
+		return producer(for: keyPath) { $0 as! U }
+	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, NoError> {
+		return signal(for: keyPath) { $0 as! U }
+	}
+	#endif
 }
 
 internal final class KeyValueObserver: NSObject {

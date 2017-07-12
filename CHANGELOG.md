@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 6.0.0-rc.3
 # 6.0.0-rc.2
 1. `NSObject` reactive extensions now work in generic environments that are limited to `NSObjectProtocol`. (#3484, kudos to @nickdomenicali)
 

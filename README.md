@@ -7,7 +7,7 @@
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](#carthage) [![CocoaPods compatible](https://img.shields.io/cocoapods/v/ReactiveCocoa.svg)](#cocoapods) [![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) ![Swift 3.0.x](https://img.shields.io/badge/Swift-3.0.x-orange.svg) ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OS%20X%20%7C%20watchOS%20%7C%20tvOS%20-lightgrey.svg)
 
-⚠️ [Looking for the Objective-C API?][] ⚠️ [Still using Swift 2.x?][]
+⚠️ [Looking for the Objective-C API?][]
 
 🎉 [Migrating from RAC 4.x?][CHANGELOG]
 
@@ -100,7 +100,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" ~> 5.0
+github "ReactiveCocoa/ReactiveCocoa" ~> 6.0
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -111,7 +111,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '~> 5.0.0'
+pod 'ReactiveCocoa', '~> 6.0'
 ```
 
 #### Git submodule
@@ -136,11 +136,6 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 **Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
 
 ### In Development
-#### ReactiveCocoa 6.0
-It targets Swift 3.1 and ReactiveSwift 2.0. The estimated schedule is July 2017.
-
-ReactiveCocoa 6.0 has continued the work in polishing the APIs, preparing for the eventual API freeze for library resilience.
-
 #### Swift 3.2 and Swift 4.0 compatibility
 While the development would be Swift 3.2 and Swift 4.0 aware, ReactiveCocoa 6.0 would not declare official support until Swift 3.2 and Swift 4.0 launch.
 

@@ -110,7 +110,7 @@ private func subclassName(of class: AnyClass) -> String {
 ///   - class: The class to swizzle.
 ///   - perceivedClass: The class to be reported by the methods.
 private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass) {
-	let getClass: @convention(block) (Any) -> AnyClass = { _ in
+	let getClass: @convention(block) (UnsafeRawPointer?) -> AnyClass = { _ in
 		return perceivedClass
 	}
 

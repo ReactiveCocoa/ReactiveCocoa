@@ -8,6 +8,11 @@
    label.reactive[\.text] <~ viewModel.title
    ```
 
+# 6.0.1
+1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
+
+# 6.0.0
+# 6.0.0-rc.3
 # 6.0.0-rc.2
 1. `NSObject` reactive extensions now work in generic environments that are limited to `NSObjectProtocol`. (#3484, kudos to @nickdomenicali)
 

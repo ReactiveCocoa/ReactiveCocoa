@@ -79,7 +79,7 @@ matrix:
     - script:
       - gem install cocoapods
       - pod repo update
-      - pod lib lint ReactiveCocoa.podspec
+      - pod lib lint ReactiveCocoa.podspec --allow-warnings
       env:
         - JOB=PODSPEC
     - stage: prepare carthage cache

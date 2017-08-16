@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 6.0.1
 1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
 
 # 6.0.0

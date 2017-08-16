@@ -21,3 +21,29 @@ extension Reactive where Base: NSObjectProtocol {
 		}
 	}
 }
+
+#if swift(>=3.2)
+extension Reactive where Base: AnyObject {
+	/// Creates a binding target that writes to the object with the given key path  on a
+	/// `UIScheduler`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path to be written to.
+	///
+	/// - returns: A binding target.
+	public subscript<Value>(keyPath: ReferenceWritableKeyPath<Base, Value>) -> BindingTarget<Value> {
+		return BindingTarget(on: UIScheduler(), lifetime: ReactiveCocoa.lifetime(of: base), object: base, keyPath: keyPath)
+	}
+
+	/// Creates a binding target that writes to the object with the given key path.
+	///
+	/// - parameters:
+	///   - keyPath: The key path to be written to.
+	///   - scheduler: The scheduler to perform the write on.
+	///
+	/// - returns: A binding target.
+	public subscript<Value>(keyPath: ReferenceWritableKeyPath<Base, Value>, on scheduler: Scheduler) -> BindingTarget<Value> {
+		return BindingTarget(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: base), object: base, keyPath: keyPath)
+	}
+}
+#endif

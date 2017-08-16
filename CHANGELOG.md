@@ -349,6 +349,7 @@ public final class MyController {
 	</tr>
 	</tbody>
 </table>
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

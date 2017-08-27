@@ -10,6 +10,10 @@ private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISear
 	@objc func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		forwardee?.searchBar?(searchBar, textDidChange: searchText)
 	}
+	
+	@objc func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+		forwardee?.searchBarCancelButtonClicked?(searchBar)
+	}
 }
 
 extension Reactive where Base: UISearchBar {
@@ -39,6 +43,12 @@ extension Reactive where Base: UISearchBar {
 	public var continuousTextValues: Signal<String?, NoError> {
 		return proxy.intercept(#selector(UISearchBarDelegate.searchBar(_:textDidChange:)))
 			.map { [unowned base] in base.text }
+	}
+	
+	/// A void signal emitted by the search bar upon any click on the cancel button
+	public var cancelButtonClicked: Signal<Void, NoError> {
+		return proxy.intercept(#selector(UISearchBarDelegate.searchBarCancelButtonClicked))
+			.map { () -> Void in }
 	}
 	
 }

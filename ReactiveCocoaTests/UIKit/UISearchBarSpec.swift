@@ -105,6 +105,18 @@ class UISearchBarSpec: QuickSpec {
 			searchBar.delegate!.searchBarSearchButtonClicked!(searchBar)
 			expect(receiver.searchButtonClickedCounter) == 1
 		}
+		
+		it("should pass through the unintercepted calls") {
+			searchBar.reactive.continuousTextValues.observe { _ in }
+			
+			let receiver = SearchBarDelegateReceiver()
+			searchBar.delegate = receiver
+			expect(receiver.searchBarCancelButtonClickedCounter) == 0
+			
+			searchBar.delegate!.searchBarCancelButtonClicked!(searchBar)
+			expect(receiver.searchBarCancelButtonClickedCounter) == 1
+		}
+		
 	}
 }
 
@@ -112,6 +124,7 @@ class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
 	var textDidChangeCounter = 0
 	var textDidEndEditingCounter = 0
 	var searchButtonClickedCounter = 0
+	var searchBarCancelButtonClickedCounter = 0
 
 	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 		searchButtonClickedCounter += 1
@@ -123,5 +136,9 @@ class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
 
 	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
 		textDidEndEditingCounter += 1
+	}
+	
+	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+		searchBarCancelButtonClickedCounter += 1
 	}
 }

@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+1. Added `cancelButtonClicked` signal to `UISearchBar`.
 1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
 
    Example:

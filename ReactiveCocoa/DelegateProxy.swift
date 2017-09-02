@@ -9,8 +9,7 @@ public protocol DelegateProxyProtocol: class {}
 // This is supposedly private, and is made `internal` to circumvent a serializer bug.
 internal protocol _DelegateProxyProtocol: class {
 	var _forwardee: AnyObject? { get }
-	func proxyWillIntercept(_ selector: Selector)
-	var lifetime: Lifetime { get }
+	func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError>
 }
 
 public struct DelegateProxyConfiguration {
@@ -94,6 +93,39 @@ open class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyPro
 		}
 	}
 
+	/// Create a signal which sends a `next` event at the end of every
+	/// invocation of `selector` on the object.
+	///
+	/// It completes when the object deinitializes.
+	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns: A trigger signal.
+	public func trigger(for selector: Selector) -> Signal<(), NoError> {
+		return reactive.trigger(for: selector)
+	}
+
+	/// Create a signal which sends a `next` event, containing an array of
+	/// bridged arguments, at the end of every invocation of `selector` on the
+	/// object.
+	///
+	/// It completes when the object deinitializes.
+	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns: A signal that sends an array of bridged arguments.
+	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+		return reactive.signal(for: selector)
+	}
+
 	open override func conforms(to aProtocol: Protocol) -> Bool {
 		return aProtocol === objcProtocol || super.conforms(to: aProtocol)
 	}
@@ -105,11 +137,13 @@ open class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyPro
 			|| forwardee?.responds(to: selector) ?? false
 	}
 
-	internal final func proxyWillIntercept(_ selector: Selector) {
+	internal func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError> {
 		writeLock.lock()
 		defer { writeLock.unlock() }
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
+
+		return signal.take(during: lifetime)
 	}
 }
 
@@ -133,49 +167,6 @@ internal func unsafeDelegateProxy(_ proxy: Unmanaged<NSObject>, didInvoke select
 
 internal func isDelegateProxy(_ type: AnyClass) -> Bool {
 	return type is _DelegateProxyProtocol.Type
-}
-
-extension Reactive where Base: NSObject, Base: DelegateProxyProtocol {
-	/// Create a signal which sends a `next` event at the end of every
-	/// invocation of `selector` on the object.
-	///
-	/// It completes when the object deinitializes.
-	///
-	/// - note: Observers to the resulting signal should not call the method
-	///         specified by the selector.
-	///
-	/// - parameters:
-	///   - selector: The selector to observe.
-	///
-	/// - returns: A trigger signal.
-	public func trigger(for selector: Selector) -> Signal<(), NoError> {
-		let base = self.base as! _DelegateProxyProtocol
-		base.proxyWillIntercept(selector)
-
-		return (self.base as NSObject).reactive.trigger(for: selector)
-			.take(during: base.lifetime)
-	}
-
-	/// Create a signal which sends a `next` event, containing an array of
-	/// bridged arguments, at the end of every invocation of `selector` on the
-	/// object.
-	///
-	/// It completes when the object deinitializes.
-	///
-	/// - note: Observers to the resulting signal should not call the method
-	///         specified by the selector.
-	///
-	/// - parameters:
-	///   - selector: The selector to observe.
-	///
-	/// - returns: A signal that sends an array of bridged arguments.
-	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
-		let base = self.base as! _DelegateProxyProtocol
-		base.proxyWillIntercept(selector)
-
-		return (self.base as NSObject).reactive.signal(for: selector)
-			.take(during: base.lifetime)
-	}
 }
 
 extension Reactive where Base: NSObject {

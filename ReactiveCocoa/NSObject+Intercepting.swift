@@ -46,7 +46,7 @@ extension NSObject {
 	///
 	/// - returns: A signal that sends the corresponding `NSInvocation` after 
 	///            every invocation of the method.
-	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
+	@nonobjc internal func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
 			fatalError("Selector `\(selector)` does not exist in class `\(String(describing: objcClass))`.")
 		}
@@ -95,7 +95,11 @@ extension NSObject {
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
 
-			return state.signal
+			if let proxy = self as? _DelegateProxyProtocol {
+				return proxy.runtimeWillIntercept(selector, signal: state.signal)
+			} else {
+				return state.signal
+			}
 		}
 	}
 }
@@ -126,7 +130,7 @@ private final class InterceptingState {
 ///   - invocation: The `NSInvocation` to unpack.
 ///
 /// - returns: An array of objects.
-private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
+internal func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	let invocation = invocation as AnyObject
 	let methodSignature = invocation.objcMethodSignature!
 	let count = UInt(methodSignature.numberOfArguments!)

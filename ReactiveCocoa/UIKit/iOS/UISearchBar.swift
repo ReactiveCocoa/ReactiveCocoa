@@ -33,6 +33,6 @@ extension Reactive where Base: UISearchBar {
 	
 	/// A void signal emitted by the search bar upon any click on the cancel button
 	public var cancelButtonClicked: Signal<Void, NoError> {
-		return proxy.reactive.trigger(for: #selector(proxy.delegateType.searchBarCancelButtonClicked))
+		return proxy.trigger(for: #selector(proxy.delegateType.searchBarCancelButtonClicked))
 	}
 }

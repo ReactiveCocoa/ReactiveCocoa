@@ -71,7 +71,7 @@ extension Reactive where Base: UITextView {
 
 	/// A signal of range values emitted by the text view upon any selection change.
 	public var selectedRangeValues: Signal<NSRange, NoError> {
-		return proxy.reactive.trigger(for: #selector(UITextViewDelegate.textViewDidChangeSelection))
+		return proxy.trigger(for: #selector(UITextViewDelegate.textViewDidChangeSelection))
 			.map { [unowned base] in base.selectedRange }
 	}
 }

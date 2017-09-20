@@ -48,11 +48,8 @@
 /// completed if self or observer is deallocated.
 #define RACObserve(TARGET, KEYPATH) \
 	({ \
-		_Pragma("clang diagnostic push") \
-		_Pragma("clang diagnostic ignored \"-Wreceiver-is-weak\"") \
 		__weak id target_ = (TARGET); \
 		[target_ rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]; \
-		_Pragma("clang diagnostic pop") \
 	})
 
 @class RACDisposable;

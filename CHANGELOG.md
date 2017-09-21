@@ -1,6 +1,9 @@
 # master
 *Please put new entries at the top.
 
+# 6.0.2
+1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
+
 # 6.0.1
 1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
 

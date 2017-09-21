@@ -1,6 +1,16 @@
 # master
 *Please put new entries at the top.
 
+# 6.1.0-alpha.2
+# 6.1.0-alpha.1
+1. Added `cancelButtonClicked` signal to `UISearchBar`.
+1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
+
+   Example:
+   ```swift
+   label.reactive[\.text] <~ viewModel.title
+   ```
+
 # 6.0.2
 1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
 
@@ -352,6 +362,7 @@ public final class MyController {
 	</tr>
 	</tbody>
 </table>
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

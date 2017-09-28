@@ -1,6 +1,12 @@
 # master
 *Please put new entries at the top.
 
+1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
+
+   Sources that use the MapKit bindings are now required to import ReactiveMapKit.
+
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
 1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)

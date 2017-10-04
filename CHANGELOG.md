@@ -1,7 +1,8 @@
 # master
 *Please put new entries at the top.
 
-# 7.0.0-alpha.1
+1. ReactiveCocoa is now compatible with the Swift 4.0 language mode, in addition to the Swift 3.2 compatibility mode. (#3526, kudos to @andersio)
+
 # 7.0.0-alpha.1
 1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
 

@@ -9,10 +9,18 @@ class UITextViewSpec: QuickSpec {
 	override func spec() {
 		var textView: UITextView!
 		weak var _textView: UITextView?
+
+		#if swift(>=4.0)
+		let attributes: [NSAttributedStringKey: Any] = [
+			.font: UIFont.systemFont(ofSize: 18),
+			.foregroundColor: UIColor.red
+		]
+		#else
 		let attributes = [
 			NSFontAttributeName: UIFont.systemFont(ofSize: 18),
 			NSForegroundColorAttributeName: UIColor.red
 		]
+		#endif
 		
 		beforeEach {
 			autoreleasepool {

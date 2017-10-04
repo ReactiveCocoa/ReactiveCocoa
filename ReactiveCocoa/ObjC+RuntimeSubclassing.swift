@@ -30,7 +30,7 @@ extension NSObject {
 				subclassAssociations.setValue(true, forKey: hasSwizzledKey)
 
 				for (selector, body) in pairs {
-					let method = class_getInstanceMethod(subclass, selector)
+					let method = class_getInstanceMethod(subclass, selector)!
 					let typeEncoding = method_getTypeEncoding(method)!
 
 					if method_getImplementation(method) == _rac_objc_msgForward {

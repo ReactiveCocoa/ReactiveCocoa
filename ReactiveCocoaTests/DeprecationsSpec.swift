@@ -9,7 +9,7 @@ class DeprecationsSpec: QuickSpec {
     override func spec() {
         describe("NSObject.reactive.values(forKeyPath:)") {
             class TestKVOObject: NSObject {
-                dynamic var value: Int = 0
+                @objc dynamic var value: Int = 0
             }
 
             it("should observe the initial value and changes for the key path") {

@@ -18,7 +18,7 @@ public struct DelegateProxyConfiguration {
 	fileprivate let originalSetter: (AnyObject) -> Void
 }
 
-public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
+public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
 	public final var delegateType: Delegate.Type {
 		return Delegate.self
 	}
@@ -151,8 +151,12 @@ extension Protocol {
 	fileprivate func enumerateMethods(required: Bool, body: (Selector, UnsafePointer<Int8>) -> Void) {
 		var count: UInt32 = 0
 		if let list = protocol_copyMethodDescriptionList(self, required, true, &count) {
-			UnsafeBufferPointer(start: list, count: Int(count))
-				.lazy.filter { $0.name != nil }.forEach { body($0.name, $0.types) }
+			for method in UnsafeBufferPointer(start: list, count: Int(count)) {
+				if case let (name?, types?) = (method.name, method.types) {
+					body(name, types)
+				}
+			}
+
 			free(list)
 		}
 	}

@@ -18,7 +18,7 @@ public struct DelegateProxyConfiguration {
 	fileprivate let originalSetter: (AnyObject) -> Void
 }
 
-open class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
+public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
 	public final var delegateType: Delegate.Type {
 		return Delegate.self
 	}
@@ -175,9 +175,6 @@ extension Reactive where Base: NSObject {
 	///
 	/// After the proxy is initialized, the delegate setter of `instance` would be
 	/// automatically redirected to the proxy.
-	///
-	/// - important: If you subclass `DelegateProxy`, your implementations are responsible
-	///              of forwarding the calls to the forwardee.
 	///
 	/// - warnings: `DelegateProxy` does not support protocols containing methods that are
 	///             non-void returning. It would trap immediately when the proxy

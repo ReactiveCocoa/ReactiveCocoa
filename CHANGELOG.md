@@ -9,7 +9,6 @@
 
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
-1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
 1. Added `cancelButtonClicked` signal to `UISearchBar`.
 1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
 
@@ -17,6 +16,9 @@
    ```swift
    label.reactive[\.text] <~ viewModel.title
    ```
+
+# 6.0.2
+1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
 
 # 6.0.1
 1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)

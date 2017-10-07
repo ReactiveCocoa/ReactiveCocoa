@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+# 7.0.0-alpha.1
+# 7.0.0-alpha.1
 1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
 
    Sources that use the MapKit bindings are now required to import ReactiveMapKit.

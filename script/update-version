@@ -12,7 +12,7 @@ if [[ -z "$PRERELEASE_STRIPPED" ]]; then
 	exit
 fi
 
-CURRENT_TAG=$(perl -0777 -ne '/s.version([\s]+)=([\s]+)"(.+)"/ and print $3' *.podspec)
+CURRENT_TAG=$(perl -0777 -ne '/s.version([\s]+)=([\s]+)"(.+)"/ and print $3 and last' *.podspec)
 echo "Current tag: $CURRENT_TAG"
 
 perl -0777 -i -pe 's/s.version([\s]+)=([\s]+)"'${CURRENT_TAG}'"/s.version$1=$2"'${1}'"/' *.podspec

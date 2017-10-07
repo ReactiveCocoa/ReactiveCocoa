@@ -7,6 +7,13 @@
 
 1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
 
+# 7.0.0-alpha.1
+1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
+
+   Sources that use the MapKit bindings are now required to import ReactiveMapKit.
+
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
 1. Added `cancelButtonClicked` signal to `UISearchBar`.

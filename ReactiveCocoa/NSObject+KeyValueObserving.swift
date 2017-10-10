@@ -14,14 +14,19 @@ extension Reactive where Base: NSObject {
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
 	public func producer(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
-		return SignalProducer { observer, disposable in
-			disposable += KeyValueObserver.observe(
+		return SignalProducer { observer, lifetime in
+			let disposable = KeyValueObserver.observe(
 				self.base,
 				keyPath: keyPath,
 				options: [.initial, .new],
 				action: observer.send
 			)
-			disposable += self.lifetime.observeEnded(observer.sendCompleted)
+
+			lifetime.observeEnded(disposable.dispose)
+
+			if let lifetimeDisposable = self.lifetime.observeEnded(observer.sendCompleted) {
+				lifetime.observeEnded(lifetimeDisposable.dispose)
+			}
 		}
 	}
 
@@ -153,7 +158,7 @@ extension KeyValueObserver {
 		keyPath: String,
 		options: NSKeyValueObservingOptions,
 		action: @escaping (_ value: AnyObject?) -> Void
-	) -> ActionDisposable {
+	) -> AnyDisposable {
 		// Compute the key path head and tail.
 		let components = keyPath.components(separatedBy: ".")
 		precondition(!components.isEmpty, "Received an empty key path.")
@@ -247,7 +252,7 @@ extension KeyValueObserver {
 			}
 		}
 
-		return ActionDisposable {
+		return AnyDisposable {
 			observer.detach()
 			headSerialDisposable.dispose()
 		}

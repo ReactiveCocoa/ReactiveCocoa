@@ -41,25 +41,50 @@ extension Reactive where Base: UIControl {
 	/// Create a signal which sends a `value` event for each of the specified
 	/// control events.
 	///
+	/// - note: If you mean to observe the **value** of `self` with regard to a particular
+	///         control event, `mapControlEvents(_:_:)` should be used instead.
+	///
 	/// - parameters:
 	///   - controlEvents: The control event mask.
 	///
-	/// - returns: A signal that sends the control each time the control event 
-	///            occurs.
+	/// - returns: A signal that sends the control each time the control event occurs.
 	public func controlEvents(_ controlEvents: UIControlEvents) -> Signal<Base, NoError> {
+		return mapControlEvents(controlEvents, { $0 })
+	}
+
+	/// Create a signal which sends a `value` event for each of the specified
+	/// control events.
+	///
+	/// - important: You should use `mapControlEvents` in general unless the state of
+	///              the control — e.g. `text`, `state` — is not concerned. In other
+	///              words, you should avoid using `map` on a control event signal to
+	///              extract the state from the control.
+	///
+	/// - note: For observations that could potentially manipulate the first responder
+	///         status of `base`, `mapControlEvents(_:_:)` is made aware of the potential
+	///         recursion induced by UIKit and would collect the values for the control
+	///         events accordingly using the given transform.
+	///
+	/// - parameters:
+	///   - controlEvents: The control event mask.
+	///   - transform: A transform to reduce `Base`.
+	///
+	/// - returns: A signal that sends the reduced value from the control each time the
+	///            control event occurs.
+	public func mapControlEvents<Value>(_ controlEvents: UIControlEvents, _ transform: @escaping (Base) -> Value) -> Signal<Value, NoError> {
 		return Signal { observer in
-			let receiver = CocoaTarget(observer) { $0 as! Base }
+			let receiver = CocoaTarget(observer) { transform($0 as! Base) }
 			base.addTarget(receiver,
-			               action: #selector(receiver.sendNext),
+			               action: #selector(receiver.invoke),
 			               for: controlEvents)
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return ActionDisposable { [weak base = self.base] in
+			return AnyDisposable { [weak base = self.base] in
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,
-				                   action: #selector(receiver.sendNext),
+				                   action: #selector(receiver.invoke),
 				                   for: controlEvents)
 			}
 		}

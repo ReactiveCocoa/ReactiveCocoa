@@ -2,14 +2,10 @@
 
 BUILD_DIRECTORY="build"
 CONFIGURATION=Release
+XCODE_WORKSPACE=ReactiveCocoa.xcworkspace
 
-if [[ -z $TRAVIS_XCODE_WORKSPACE ]]; then
-    echo "Error: \$TRAVIS_XCODE_WORKSPACE is not set."
-    exit 1
-fi
-
-if [[ -z $TRAVIS_XCODE_SCHEME ]]; then
-    echo "Error: \$TRAVIS_XCODE_SCHEME is not set!"
+if [[ -z $XCODE_SCHEME ]]; then
+    echo "Error: \$XCODE_SCHEME is not set!"
     exit 1
 fi
 
@@ -30,8 +26,8 @@ fi
 
 set -o pipefail
 xcodebuild $XCODE_ACTION \
-    -workspace "$TRAVIS_XCODE_WORKSPACE" \
-    -scheme "$TRAVIS_XCODE_SCHEME" \
+    -workspace "$XCODE_WORKSPACE" \
+    -scheme "$XCODE_SCHEME" \
     -sdk "$XCODE_SDK" \
     -destination "$XCODE_DESTINATION" \
     -derivedDataPath "${BUILD_DIRECTORY}" \

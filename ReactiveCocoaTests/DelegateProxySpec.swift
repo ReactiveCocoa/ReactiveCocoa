@@ -11,10 +11,10 @@ import ReactiveSwift
 }
 
 private class Object: NSObject {
-	var delegateSetCount = 0
+	@objc var delegateSetCount = 0
 	var delegateSelectors: [Selector] = []
 
-	dynamic weak var delegate: ObjectDelegate? {
+	@objc dynamic weak var delegate: ObjectDelegate? {
 		didSet {
 			delegateSetCount += 1
 			delegateSelectors = Array()
@@ -253,7 +253,7 @@ class DelegateProxySpec: QuickSpec {
 
 					expect(object.objcClass).to(beIdenticalTo(object2.objcClass))
 
-					let className = NSStringFromClass(object_getClass(object))
+					let className = NSStringFromClass(object_getClass(object)!)
 					expect(className).to(beginWith("NSKVONotifying_"))
 					expect(className).toNot(endWith("_RACSwift"))
 

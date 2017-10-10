@@ -30,7 +30,7 @@ extension NSObject {
 				subclassAssociations.setValue(true, forKey: hasSwizzledKey)
 
 				for (selector, body) in pairs {
-					let method = class_getInstanceMethod(subclass, selector)
+					let method = class_getInstanceMethod(subclass, selector)!
 					let typeEncoding = method_getTypeEncoding(method)!
 
 					if method_getImplementation(method) == _rac_objc_msgForward {
@@ -110,7 +110,7 @@ private func subclassName(of class: AnyClass) -> String {
 ///   - class: The class to swizzle.
 ///   - perceivedClass: The class to be reported by the methods.
 private func replaceGetClass(in class: AnyClass, decoy perceivedClass: AnyClass) {
-	let getClass: @convention(block) (Any) -> AnyClass = { _ in
+	let getClass: @convention(block) (UnsafeRawPointer?) -> AnyClass = { _ in
 		return perceivedClass
 	}
 

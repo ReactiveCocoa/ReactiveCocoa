@@ -42,45 +42,45 @@ class NSButtonSpec: QuickSpec {
 
 		it("should accept changes from bindings to its state") {
 			button.allowsMixedState = true
-			button.state = NSOffState
+			button.state = RACNSOffState
 
-			let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<RACNSControlState, NoError>.pipe()
 			button.reactive.state <~ SignalProducer(pipeSignal)
 
-			observer.send(value: NSOffState)
-			expect(button.state) == NSOffState
+			observer.send(value: RACNSOffState)
+			expect(button.state) == RACNSOffState
 
-			observer.send(value: NSMixedState)
-			expect(button.state) == NSMixedState
+			observer.send(value: RACNSMixedState)
+			expect(button.state) == RACNSMixedState
 
-			observer.send(value: NSOnState)
-			expect(button.state) == NSOnState
+			observer.send(value: RACNSOnState)
+			expect(button.state) == RACNSOnState
 		}
 
 		it("should send along state changes") {
 			button.setButtonType(.pushOnPushOff)
 			button.allowsMixedState = false
-			button.state = NSOffState
+			button.state = RACNSOffState
 
-			let state = MutableProperty(NSOffState)
+			let state = MutableProperty(RACNSOffState)
 			state <~ button.reactive.states
 
 			button.performClick(nil)
-			expect(state.value) == NSOnState
+			expect(state.value) == RACNSOnState
 
 			button.performClick(nil)
-			expect(state.value) == NSOffState
+			expect(state.value) == RACNSOffState
 
 			button.allowsMixedState = true
 
 			button.performClick(nil)
-			expect(state.value) == NSMixedState
+			expect(state.value) == RACNSMixedState
 
 			button.performClick(nil)
-			expect(state.value) == NSOnState
+			expect(state.value) == RACNSOnState
 
 			button.performClick(nil)
-			expect(state.value) == NSOffState
+			expect(state.value) == RACNSOffState
 
 		}
 		
@@ -94,11 +94,11 @@ class NSButtonSpec: QuickSpec {
 				
 				button1.setButtonType(.pushOnPushOff)
 				button1.allowsMixedState = false
-				button1.state = NSOffState
+				button1.state = RACNSOffState
 				
 				button2.setButtonType(.pushOnPushOff)
 				button2.allowsMixedState = false
-				button2.state = NSOnState
+				button2.state = RACNSOnState
 				
 				let stackView = NSStackView()
 				stackView.addArrangedSubview(button1)
@@ -106,15 +106,15 @@ class NSButtonSpec: QuickSpec {
 				
 				window.contentView?.addSubview(stackView)
 				
-				let state = MutableProperty(NSOffState)
+				let state = MutableProperty(RACNSOffState)
 				state <~ button1.reactive.states
 				state <~ button2.reactive.states
 				
 				button1.performClick(nil)
-				expect(state.value) == NSOnState
+				expect(state.value) == RACNSOnState
 				
 				button2.performClick(nil)
-				expect(state.value) == NSOffState
+				expect(state.value) == RACNSOffState
 				
 				autoreleasepool {
 					button1.removeFromSuperview()

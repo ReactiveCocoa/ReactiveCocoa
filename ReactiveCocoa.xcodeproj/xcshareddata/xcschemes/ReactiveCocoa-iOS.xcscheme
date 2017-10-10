@@ -96,8 +96,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      language = ""
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -106,6 +106,16 @@
                BlueprintIdentifier = "D047261519E49F82006002AA"
                BuildableName = "ReactiveCocoaTests.xctest"
                BlueprintName = "ReactiveCocoa-iOSTests"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9A16753C1F80C35100B63650"
+               BuildableName = "ReactiveMapKitTests.xctest"
+               BlueprintName = "ReactiveMapKitTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -126,6 +136,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"

@@ -353,7 +353,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   _rac_objc_msgForward,
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -375,7 +375,7 @@ class InterceptingSpec: QuickSpec {
 				let original2 = class_replaceMethod(originalClass,
 				                                    ObjCSelector.forwardInvocation,
 				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
-				                                    typeEncoding2)
+				                                    typeEncoding2) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        ObjCSelector.forwardInvocation,
@@ -399,7 +399,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   _rac_objc_msgForward,
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -421,7 +421,7 @@ class InterceptingSpec: QuickSpec {
 				let original2 = class_replaceMethod(originalClass,
 				                                    ObjCSelector.forwardInvocation,
 				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
-				                                    typeEncoding2)
+				                                    typeEncoding2) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        ObjCSelector.forwardInvocation,
@@ -438,7 +438,7 @@ class InterceptingSpec: QuickSpec {
 
 				let swizzledSelector = #selector(object.lifeIsGood)
 
-				let lifeIsGoodBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _ in
+				let lifeIsGoodBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _, _ in
 					expect(invoked) == false
 					invoked = true
 				}
@@ -449,7 +449,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   imp_implementationWithBlock(lifeIsGoodBlock as Any),
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -530,10 +530,10 @@ class InterceptingSpec: QuickSpec {
 
 		describe("two classes in the same hierarchy") {
 			var superclassObj: InterceptedObject!
-			var superclassTuple: [Any?]?
+			var superclassTuple: [Any]!
 
 			var subclassObj: InterceptedObjectSubclass!
-			var subclassTuple: [Any?]?
+			var subclassTuple: [Any]!
 
 			beforeEach {
 				superclassObj = InterceptedObject()
@@ -547,51 +547,51 @@ class InterceptingSpec: QuickSpec {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.foo))
 					.observeValues { args in
-						superclassTuple = args
-				}
+						superclassTuple = args.map { $0 ?? NSNull() }
+					}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.foo))
 					.observeValues { args in
-						subclassTuple = args
-				}
+						subclassTuple = args.map { $0 ?? NSNull() }
+					}
 
 				expect(superclassObj.foo(40, "foo")) == "Not Subclass 40 foo"
 
 				let expectedValues = [40, "foo"] as NSArray
-				expect(superclassTuple as NSArray?) == expectedValues
+				expect(superclassTuple as NSArray) == expectedValues
 
 				expect(subclassObj.foo(40, "foo")) == "Subclass 40 foo"
 
-				expect(subclassTuple as NSArray?) == expectedValues
+				expect(subclassTuple as NSArray) == expectedValues
 			}
 
 			it("should not collide when the superclass is invoked asynchronously") {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
 					.observeValues { args in
-						superclassTuple = args
+						superclassTuple = args.map { $0 ?? NSNull() }
 				}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
 					.observeValues { args in
-						subclassTuple = args
+						subclassTuple = args.map { $0 ?? NSNull() }
 				}
 
 				superclassObj.set(first: "foo", second:"42")
 				expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == true
 
 				let expectedValues = ["foo", "42"] as NSArray
-				expect(superclassTuple as NSArray?) == expectedValues
+				expect(superclassTuple as NSArray) == expectedValues
 
 				subclassObj.set(first: "foo", second:"42")
 				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue) == false
 				expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).toEventually(beTruthy())
 
-				expect(subclassTuple as NSArray?) == expectedValues
+				expect(subclassTuple as NSArray) == expectedValues
 			}
 		}
 
@@ -668,19 +668,35 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: UInt) {
-					expect(arguments[0] as? CChar) == CChar.max - CChar(offset)
-					expect(arguments[1] as? CShort) == CShort.max - CShort(offset)
-					expect(arguments[2] as? CInt) == CInt.max - CInt(offset)
-					expect(arguments[3] as? CLong) == CLong.max - CLong(offset)
-					expect(arguments[4] as? CLongLong) == CLongLong.max - CLongLong(offset)
-					expect(arguments[5] as? CUnsignedChar) == CUnsignedChar.max - CUnsignedChar(offset)
-					expect(arguments[6] as? CUnsignedShort) == CUnsignedShort.max - CUnsignedShort(offset)
-					expect(arguments[7] as? CUnsignedInt) == CUnsignedInt.max - CUnsignedInt(offset)
-					expect(arguments[8] as? CUnsignedLong) == CUnsignedLong.max - CUnsignedLong(offset)
-					expect(arguments[9] as? CUnsignedLongLong) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
-					expect(arguments[10] as? CFloat) == CFloat.greatestFiniteMagnitude - CFloat(offset)
-					expect(arguments[11] as? CDouble) == CDouble.greatestFiniteMagnitude - CDouble(offset)
-					expect(arguments[12] as? CBool) == (offset % 2 == 0 ? true : false)
+					#if swift(>=3.1)
+					expect((arguments[0] as! CChar)) == CChar.max - CChar(offset)
+					expect((arguments[1] as! CShort)) == CShort.max - CShort(offset)
+					expect((arguments[2] as! CInt)) == CInt.max - CInt(offset)
+					expect((arguments[3] as! CLong)) == CLong.max - CLong(offset)
+					expect((arguments[4] as! CLongLong)) == CLongLong.max - CLongLong(offset)
+					expect((arguments[5] as! CUnsignedChar)) == CUnsignedChar.max - CUnsignedChar(offset)
+					expect((arguments[6] as! CUnsignedShort)) == CUnsignedShort.max - CUnsignedShort(offset)
+					expect((arguments[7] as! CUnsignedInt)) == CUnsignedInt.max - CUnsignedInt(offset)
+					expect((arguments[8] as! CUnsignedLong)) == CUnsignedLong.max - CUnsignedLong(offset)
+					expect((arguments[9] as! CUnsignedLongLong)) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
+					expect((arguments[10] as! CFloat)) == CFloat.greatestFiniteMagnitude - CFloat(offset)
+					expect((arguments[11] as! CDouble)) == CDouble.greatestFiniteMagnitude - CDouble(offset)
+					expect((arguments[12] as! Bool)) == (offset % 2 == 0 ? true : false)
+					#else
+					expect((arguments[0] as! NSNumber).int8Value) == CChar.max - CChar(offset)
+					expect((arguments[1] as! NSNumber).int16Value) == CShort.max - CShort(offset)
+					expect((arguments[2] as! NSNumber).int32Value) == CInt.max - CInt(offset)
+					expect((arguments[3] as! NSNumber).intValue) == CLong.max - CLong(offset)
+					expect((arguments[4] as! NSNumber).int64Value) == CLongLong.max - CLongLong(offset)
+					expect((arguments[5] as! NSNumber).uint8Value) == CUnsignedChar.max - CUnsignedChar(offset)
+					expect((arguments[6] as! NSNumber).uint16Value) == CUnsignedShort.max - CUnsignedShort(offset)
+					expect((arguments[7] as! NSNumber).uint32Value) == CUnsignedInt.max - CUnsignedInt(offset)
+					expect((arguments[8] as! NSNumber).uintValue) == CUnsignedLong.max - CUnsignedLong(offset)
+					expect((arguments[9] as! NSNumber).uint64Value) == CUnsignedLongLong.max - CUnsignedLongLong(offset)
+					expect((arguments[10] as! NSNumber).floatValue) == CFloat.greatestFiniteMagnitude - CFloat(offset)
+					expect((arguments[11] as! NSNumber).doubleValue) == CDouble.greatestFiniteMagnitude - CDouble(offset)
+					expect((arguments[12] as! NSNumber).boolValue) == (offset % 2 == 0 ? true : false)
+					#endif
 				}
 
 				call(offset: 0)
@@ -755,10 +771,21 @@ class InterceptingSpec: QuickSpec {
 				}
 
 				func validate(arguments: [Any?], offset: CGFloat) {
+					#if swift(>=3.1)
 					expect((arguments[0] as! CGPoint)) == CGPoint(x: offset, y: offset)
 					expect((arguments[1] as! CGSize)) == CGSize(width: offset, height: offset)
 					expect((arguments[2] as! CGRect)) == CGRect(x: offset, y: offset, width: offset, height: offset)
 					expect((arguments[3] as! CGAffineTransform)) == CGAffineTransform(translationX: offset, y: offset)
+					#elseif os(macOS)
+					expect((arguments[0] as! NSValue).pointValue) == CGPoint(x: offset, y: offset)
+					expect((arguments[1] as! NSValue).sizeValue) == CGSize(width: offset, height: offset)
+					expect((arguments[2] as! NSValue).rectValue) == CGRect(x: offset, y: offset, width: offset, height: offset)
+					#else
+					expect((arguments[0] as! NSValue).cgPointValue) == CGPoint(x: offset, y: offset)
+					expect((arguments[1] as! NSValue).cgSizeValue) == CGSize(width: offset, height: offset)
+					expect((arguments[2] as! NSValue).cgRectValue) == CGRect(x: offset, y: offset, width: offset, height: offset)
+					expect((arguments[3] as! NSValue).cgAffineTransformValue) == CGAffineTransform(translationX: offset, y: offset)
+					#endif
 				}
 
 				call(offset: 0)
@@ -880,27 +907,27 @@ private class InterceptedObjectSubclass: InterceptedObject {
 
 private class InterceptedObject: NSObject {
 	var counter = 0
-	dynamic var hasInvokedSetObjectValueAndSecondObjectValue = false
-	dynamic var objectValue: Any?
-	dynamic var secondObjectValue: Any?
+	@objc dynamic var hasInvokedSetObjectValueAndSecondObjectValue = false
+	@objc dynamic var objectValue: Any?
+	@objc dynamic var secondObjectValue: Any?
 
-	dynamic func increment() {
+	@objc dynamic func increment() {
 		counter += 1
 	}
 
-	dynamic func foo(_ number: Int, _ string: String) -> String {
+	@objc dynamic func foo(_ number: Int, _ string: String) -> String {
 		return "Not Subclass \(number) \(string)"
 	}
 
-	dynamic func lifeIsGood(_ value: Any?) {}
-	dynamic func set(first: Any?, second: Any?) {
+	@objc dynamic func lifeIsGood(_ value: Any?) {}
+	@objc dynamic func set(first: Any?, second: Any?) {
 		objectValue = first
 		secondObjectValue = second
 		
 		hasInvokedSetObjectValueAndSecondObjectValue = true
 	}
 	
-	dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
-	dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
-	dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
+	@objc dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
+	@objc dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
+	@objc dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
 }

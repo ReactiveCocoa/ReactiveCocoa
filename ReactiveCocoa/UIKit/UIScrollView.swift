@@ -31,4 +31,11 @@ extension Reactive where Base: UIScrollView {
 	public var maximumZoomScale: BindingTarget<CGFloat> {
 		return makeBindingTarget { $0.maximumZoomScale = $1 }
 	}
+	
+	#if os(iOS)
+	/// Sets whether the scroll view scrolls to the top when the menu is tapped.
+	public var scrollsToTop: BindingTarget<Bool> {
+		return makeBindingTarget { $0.scrollsToTop = $1 }
+	}
+	#endif
 }

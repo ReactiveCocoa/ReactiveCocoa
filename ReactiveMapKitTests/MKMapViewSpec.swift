@@ -1,5 +1,6 @@
 import ReactiveSwift
 import ReactiveCocoa
+import ReactiveMapKit
 import Quick
 import Nimble
 import enum Result.NoError
@@ -17,7 +18,9 @@ class MKMapViewSpec: QuickSpec {
 		}
 
 		afterEach {
-			mapView = nil
+			autoreleasepool {
+				mapView = nil
+			}
 			// FIXME: SDK_ISSUE
 			//
 			// Temporarily disabled since the expectation keeps failing with

@@ -22,12 +22,20 @@ extension Reactive where Base: NSControl {
 
 	/// Sets the value of the control with a `Bool`.
 	public var boolValue: BindingTarget<Bool> {
+		#if swift(>=4.0)
+		return makeBindingTarget { $0.integerValue = $1 ? NSControl.StateValue.on.rawValue : NSControl.StateValue.off.rawValue }
+		#else
 		return makeBindingTarget { $0.integerValue = $1 ? NSOnState : NSOffState }
+		#endif
 	}
 
 	/// A signal of values in `Bool`, emitted by the control.
 	public var boolValues: Signal<Bool, NoError> {
+		#if swift(>=4.0)
+		return proxy.invoked.map { $0.integerValue != NSControl.StateValue.off.rawValue }
+		#else
 		return proxy.invoked.map { $0.integerValue != NSOffState }
+		#endif
 	}
 
 	/// Sets the value of the control with a `Double`.

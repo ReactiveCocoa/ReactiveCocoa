@@ -1,68 +1,51 @@
 language: objective-c
-osx_image: xcode8.3
-before_install: true
+osx_image: xcode9
+before_install:
+  - brew uninstall carthage
+  - HOMEBREW_NO_AUTO_UPDATE=1 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/6ae4f69a652fb0ecb102b0c9216378679a4f1b92/Formula/carthage.rb # 0.22.0
 install: true
-git:
-  submodules: false
 branches:
   only:
     - master
-before_script:
-  - git submodule update --init --recursive
-script:
-  - script/build
-xcode_workspace: ReactiveCocoa.xcworkspace
-matrix:
+    - /^(\d+\.\d+\.\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
+    - /^hotfix-(\d+\.\d+\.\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
+cache:
+  directories:
+    - $HOME/Library/Caches/org.carthage.CarthageKit/dependencies
+    - Carthage/Build
+jobs:
   include:
-    - xcode_scheme: ReactiveCocoa-macOS
-      env:
-        - XCODE_SDK=macosx
-        - XCODE_ACTION="build test"
-        - XCODE_DESTINATION="arch=x86_64"
-        - XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
-        - PLAYGROUND="ReactiveCocoa-macOS.playground"
-    - xcode_scheme: ReactiveCocoa-iOS
-      env:
-        - XCODE_SDK=iphonesimulator
-        - XCODE_ACTION="build-for-testing test-without-building"
-        - XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
-#        - XCODE_PLAYGROUND_TARGET="x86_64-apple-ios9.3"
-#        - PLAYGROUND="ReactiveCocoa-iOS.playground"
-    - xcode_scheme: ReactiveCocoa-tvOS
-      env:
-        - XCODE_SDK=appletvsimulator
-        - XCODE_ACTION="build-for-testing test-without-building"
-        - XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
-#        - XCODE_PLAYGROUND_TARGET="x86_64-apple-tvos9.3"
-#        - PLAYGROUND="ReactiveCocoa-tvOS.playground"
-    - xcode_scheme: ReactiveCocoa-watchOS
-      env:
-        - XCODE_SDK=watchsimulator
-        - XCODE_ACTION=build
-        - XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
-    - script:
-        - carthage build --no-skip-current --platform mac
-      env:
-        - JOB=CARTHAGE-macOS
-    - script:
-        - carthage build --no-skip-current --platform iOS
-      env:
-        - JOB=CARTHAGE-iOS
-    - script:
-        - carthage build --no-skip-current --platform tvOS
-      env:
-        - JOB=CARTHAGE-tvOS
-    - script:
-        - carthage build --no-skip-current --platform watchOS
-      env:
-        - JOB=CARTHAGE-watchOS
-    - script:
+    - stage: unit tests
+      osx_image: xcode9
+      script:
+        - XCODE_SCHEME=ReactiveCocoa-macOS
+          XCODE_SDK=macosx
+          XCODE_ACTION="build test"
+          XCODE_DESTINATION="arch=x86_64"
+          XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
+          PLAYGROUND="ReactiveCocoa-macOS.playground"
+          script/build
+        - XCODE_SCHEME=ReactiveCocoa-iOS
+          XCODE_SDK=iphonesimulator
+          XCODE_ACTION="build-for-testing test-without-building"
+          XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
+          script/build
+        - XCODE_SCHEME=ReactiveCocoa-tvOS
+          XCODE_SDK=appletvsimulator
+          XCODE_ACTION="build-for-testing test-without-building"
+          XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
+          script/build
+        - XCODE_SCHEME=ReactiveCocoa-watchOS
+          XCODE_SDK=watchsimulator
+          XCODE_ACTION=build
+          XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
+          script/build
+    - stage: package manager tests
+      script:
       - gem install cocoapods
-      - pod repo update --silent
+      - pod repo update
       - pod lib lint ReactiveCocoa.podspec
+      - pod lib lint ReactiveMapKit.podspec --swift-version=3.2
       env:
         - JOB=PODSPEC
-notifications:
-  email: false
-  slack:
-    secure: C9QTry5wUG9CfeH3rm3Z19R5rDWqDO7EhHAqHDXBxT6CpGRkTPFliJexpjBYB4sroJ8CiY5ZgTI2sjRBiAdGoE5ZQkfnwSoKQhWXkwo19TnbSnufr3cKO2SZkUhBqOlZcA+mgfjZ7rm2wm7RhpCR/4z8oBXDN4/xv0U5R2fLCLE=
+    - script: carthage build --cache-builds --no-skip-current

@@ -2,7 +2,19 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
+private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextViewDelegate {
+	@objc func textViewDidChangeSelection(_ textView: UITextView) {
+		forwardee?.textViewDidChangeSelection?(textView)
+	}
+}
+
 extension Reactive where Base: UITextView {
+	private var proxy: TextViewDelegateProxy {
+		return .proxy(for: base,
+		              setter: #selector(setter: base.delegate),
+		              getter: #selector(getter: base.delegate))
+	}
+
 	/// Sets the text of the text view.
 	public var text: BindingTarget<String?> {
 		return makeBindingTarget { $0.text = $1 }
@@ -57,5 +69,11 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
 	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
 		return attributedTextValues(forName: .UITextViewTextDidChange)
+	}
+
+	/// A signal of range values emitted by the text view upon any selection change.
+	public var selectedRangeValues: Signal<NSRange, NoError> {
+		return proxy.intercept(#selector(UITextViewDelegate.textViewDidChangeSelection))
+			.map { [unowned base] in base.selectedRange }
 	}
 }

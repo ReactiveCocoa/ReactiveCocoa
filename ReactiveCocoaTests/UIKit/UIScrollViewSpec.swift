@@ -107,5 +107,18 @@ class UIScrollViewSpec: QuickSpec {
 			observer.send(value: 0)
 			expect(scrollView.maximumZoomScale) == 0
 		}
+
+		it("should accept changes from bindings to its scrolls to top state") {
+			scrollView.scrollsToTop = true
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			scrollView.reactive.scrollsToTop <~ SignalProducer(pipeSignal)
+
+			observer.send(value: true)
+			expect(scrollView.scrollsToTop) == true
+
+			observer.send(value: false)
+			expect(scrollView.scrollsToTop) == false
+		}
 	}
 }

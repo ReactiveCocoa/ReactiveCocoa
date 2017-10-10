@@ -9,10 +9,18 @@ class UITextViewSpec: QuickSpec {
 	override func spec() {
 		var textView: UITextView!
 		weak var _textView: UITextView?
+
+		#if swift(>=4.0)
+		let attributes: [NSAttributedStringKey: Any] = [
+			.font: UIFont.systemFont(ofSize: 18),
+			.foregroundColor: UIColor.red
+		]
+		#else
 		let attributes = [
 			NSFontAttributeName: UIFont.systemFont(ofSize: 18),
 			NSForegroundColorAttributeName: UIColor.red
 		]
+		#endif
 		
 		beforeEach {
 			autoreleasepool {
@@ -90,6 +98,20 @@ class UITextViewSpec: QuickSpec {
 			
 			NotificationCenter.default.post(name: .UITextViewTextDidChange, object: textView)
 			expect(latestValue) == textView.attributedText
+		}
+
+		it("should emit user initiated changes for selection") {
+			var latestValue: NSRange!
+			textView.reactive.selectedRangeValues.observeValues {
+				latestValue = $0
+			}
+
+			textView.text = "Test"
+			textView.selectedRange = NSRange(location: 1, length: 2)
+
+			textView.delegate!.textViewDidChangeSelection!(textView)
+			expect(latestValue.location) == 1
+			expect(latestValue.length) == 2
 		}
 	}
 }

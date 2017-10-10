@@ -1,3 +1,56 @@
+# master
+*Please put new entries at the top.
+
+1. ReactiveCocoa is now compatible with the Swift 4.0 language mode, in addition to the Swift 3.2 compatibility mode. (#3526, kudos to @andersio)
+
+# 7.0.0-alpha.1
+1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
+
+   Sources that use the MapKit bindings are now required to import ReactiveMapKit.
+
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+
+# 6.1.0-alpha.2
+# 6.1.0-alpha.1
+1. Added `cancelButtonClicked` signal to `UISearchBar`.
+1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
+
+   Example:
+   ```swift
+   label.reactive[\.text] <~ viewModel.title
+   ```
+
+# 6.0.2
+1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
+
+# 6.0.1
+1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
+
+# 6.0.0
+# 6.0.0-rc.3
+# 6.0.0-rc.2
+1. `NSObject` reactive extensions now work in generic environments that are limited to `NSObjectProtocol`. (#3484, kudos to @nickdomenicali)
+
+1. New reactive extension for `UIScrollView`: `scrollsToTop`. (#3481, kudos to @Qata)
+
+# 6.0.0-rc.1
+1. `UIButton.reactive.pressed` now reacts to the `primaryActionTriggered` control event, instead of `touchUpInside`, on iOS 9.0+ and tvOS 9.0+. (#3480, kudos to @andrei-kuzma)
+
+1. New reactive extension: `UITextField.reactive.selectedRangeValues`. (#3479, kudos to @Igor-Palaguta)
+
+# 6.0.0-alpha.1
+# 5.0.4
+1. UITextField text signals now react to `editingDidEndOnExit`. (#3474)
+
+1. Introduce `mapControlEvents(_:_:)` which is set to replace `controlEvents(_:_:)` in most cases. (#3472)
+
+   You should use `mapControlEvents` in general unless the state of the control — e.g. `text`, `state` — is **not** concerned. In other words, you should avoid using `map` on a control event signal to extract the state from the control.
+
+1. Resigning first responder when reacting to a `UITextField` signal no longer deadlocks. (#3453, #3472)
+
+1. New operator: `take(duringLifetimeOf:)`. (#3466, kudos to @andersio)
+   It is available on `Signal` and `SignalProducer`, and supports both Objective-C and native Swift objects.
+
 # 5.0
 
 ### Table of Contents
@@ -318,6 +371,7 @@ public final class MyController {
 	</tr>
 	</tbody>
 </table>
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

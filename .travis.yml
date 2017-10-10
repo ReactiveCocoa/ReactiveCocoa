@@ -45,7 +45,7 @@ jobs:
       - gem install cocoapods
       - pod repo update
       - pod lib lint ReactiveCocoa.podspec
-      - pod lib lint ReactiveMapKit.podspec
+      - pod lib lint ReactiveMapKit.podspec --swift-version=3.2
       env:
         - JOB=PODSPEC
     - script: carthage build --cache-builds --no-skip-current

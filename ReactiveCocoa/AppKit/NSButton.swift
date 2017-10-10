@@ -27,6 +27,17 @@ extension Reactive where Base: NSButton {
 		}
 	}
 
+	#if swift(>=4.0)
+	/// A signal of integer states (On, Off, Mixed), emitted by the button.
+	public var states: Signal<NSControl.StateValue, NoError> {
+		return proxy.invoked.map { $0.state }
+	}
+
+	/// Sets the button's state
+	public var state: BindingTarget<NSControl.StateValue> {
+		return makeBindingTarget { $0.state = $1 }
+	}
+	#else
 	/// A signal of integer states (On, Off, Mixed), emitted by the button.
 	public var states: Signal<Int, NoError> {
 		return proxy.invoked.map { $0.state }
@@ -36,6 +47,7 @@ extension Reactive where Base: NSButton {
 	public var state: BindingTarget<Int> {
 		return makeBindingTarget { $0.state = $1 }
 	}
+	#endif
 
 	/// Sets the button's image
 	public var image: BindingTarget<NSImage?> {

@@ -17,7 +17,11 @@ class NSControlSpec: QuickSpec {
 
 				control = NSButton(frame: .zero)
 				control.setButtonType(.onOff)
-				control.state = NSOffState
+				#if swift(>=4.0)
+				control.state = .off
+				#else
+				control.state = RACNSOffState
+				#endif
 
 				_control = control
 

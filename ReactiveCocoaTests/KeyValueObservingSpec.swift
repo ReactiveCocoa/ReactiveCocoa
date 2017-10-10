@@ -630,12 +630,12 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 private final class Token {}
 
 private class ObservableObject: NSObject {
-	dynamic var rac_value: Int = 0
+	@objc dynamic var rac_value: Int = 0
 
-	dynamic var target: AnyObject?
-	dynamic weak var weakTarget: AnyObject?
+	@objc dynamic var target: AnyObject?
+	@objc dynamic weak var weakTarget: AnyObject?
 
-	dynamic var rac_value_plusOne: NSDecimalNumber {
+	@objc dynamic var rac_value_plusOne: NSDecimalNumber {
 		return NSDecimalNumber(value: rac_value + 1)
 	}
 
@@ -649,8 +649,8 @@ private class ObservableObject: NSObject {
 }
 
 private class NestedObservableObject: NSObject {
-	dynamic var rac_object: ObservableObject = ObservableObject()
-	dynamic weak var rac_weakObject: ObservableObject?
+	@objc dynamic var rac_object: ObservableObject = ObservableObject()
+	@objc dynamic weak var rac_weakObject: ObservableObject?
 }
 
 private class TestAttributeQueryObject: NSObject {

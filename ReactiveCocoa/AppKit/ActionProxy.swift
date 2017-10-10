@@ -46,7 +46,7 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 				return proxy
 			}
 
-			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))
+			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))!
 
 			let proxy = ActionProxy<Base>(owner: base, lifetime: lifetime)
 			proxy.target = base.target

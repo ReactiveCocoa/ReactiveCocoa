@@ -205,6 +205,7 @@
 		9AA0BD9B1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
 		9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
 		9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */; };
+		9AADB6F41F84AECB00EFFD19 /* Swift4TestInteroperability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AADB6F31F84AECB00EFFD19 /* Swift4TestInteroperability.swift */; };
 		9AB15C7A1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
@@ -476,6 +477,7 @@
 		9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCRuntimeAliases.m; sourceTree = "<group>"; };
 		9AAD49871DED2C350068EC9B /* UIKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboard.swift; sourceTree = "<group>"; };
 		9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboardSpec.swift; sourceTree = "<group>"; };
+		9AADB6F31F84AECB00EFFD19 /* Swift4TestInteroperability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swift4TestInteroperability.swift; sourceTree = "<group>"; };
 		9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
 		9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveMapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC03A5A1F7CC3BF00EC33C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -779,6 +781,7 @@
 				D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */,
 				004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */,
 				834DE1001E4109750099F4E5 /* NSImageViewSpec.swift */,
+				9AADB6F31F84AECB00EFFD19 /* Swift4TestInteroperability.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -1547,6 +1550,7 @@
 				9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */,
 				CD8401831CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A9DFEE91DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
+				9AADB6F41F84AECB00EFFD19 /* Swift4TestInteroperability.swift in Sources */,
 				3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				CD42C69B1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
@@ -2180,7 +2184,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2201,7 +2205,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2321,7 +2325,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2391,7 +2395,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

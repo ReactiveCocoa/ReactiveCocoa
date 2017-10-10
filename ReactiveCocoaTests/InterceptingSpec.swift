@@ -353,7 +353,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   _rac_objc_msgForward,
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -375,7 +375,7 @@ class InterceptingSpec: QuickSpec {
 				let original2 = class_replaceMethod(originalClass,
 				                                    ObjCSelector.forwardInvocation,
 				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
-				                                    typeEncoding2)
+				                                    typeEncoding2) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        ObjCSelector.forwardInvocation,
@@ -399,7 +399,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   _rac_objc_msgForward,
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -421,7 +421,7 @@ class InterceptingSpec: QuickSpec {
 				let original2 = class_replaceMethod(originalClass,
 				                                    ObjCSelector.forwardInvocation,
 				                                    imp_implementationWithBlock(forwardInvocationBlock as Any),
-				                                    typeEncoding2)
+				                                    typeEncoding2) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        ObjCSelector.forwardInvocation,
@@ -438,7 +438,7 @@ class InterceptingSpec: QuickSpec {
 
 				let swizzledSelector = #selector(object.lifeIsGood)
 
-				let lifeIsGoodBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _ in
+				let lifeIsGoodBlock: @convention(block) (AnyObject, AnyObject) -> Void = { _, _ in
 					expect(invoked) == false
 					invoked = true
 				}
@@ -449,7 +449,7 @@ class InterceptingSpec: QuickSpec {
 				let original = class_replaceMethod(originalClass,
 				                                   swizzledSelector,
 				                                   imp_implementationWithBlock(lifeIsGoodBlock as Any),
-				                                   typeEncoding)
+				                                   typeEncoding) ?? noImplementation
 				defer {
 					_ = class_replaceMethod(originalClass,
 					                        swizzledSelector,
@@ -907,27 +907,27 @@ private class InterceptedObjectSubclass: InterceptedObject {
 
 private class InterceptedObject: NSObject {
 	var counter = 0
-	dynamic var hasInvokedSetObjectValueAndSecondObjectValue = false
-	dynamic var objectValue: Any?
-	dynamic var secondObjectValue: Any?
+	@objc dynamic var hasInvokedSetObjectValueAndSecondObjectValue = false
+	@objc dynamic var objectValue: Any?
+	@objc dynamic var secondObjectValue: Any?
 
-	dynamic func increment() {
+	@objc dynamic func increment() {
 		counter += 1
 	}
 
-	dynamic func foo(_ number: Int, _ string: String) -> String {
+	@objc dynamic func foo(_ number: Int, _ string: String) -> String {
 		return "Not Subclass \(number) \(string)"
 	}
 
-	dynamic func lifeIsGood(_ value: Any?) {}
-	dynamic func set(first: Any?, second: Any?) {
+	@objc dynamic func lifeIsGood(_ value: Any?) {}
+	@objc dynamic func set(first: Any?, second: Any?) {
 		objectValue = first
 		secondObjectValue = second
 		
 		hasInvokedSetObjectValueAndSecondObjectValue = true
 	}
 	
-	dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
-	dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
-	dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
+	@objc dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
+	@objc dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
+	@objc dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
 }

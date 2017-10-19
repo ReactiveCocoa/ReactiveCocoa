@@ -72,7 +72,7 @@ extension Reactive where Base: UIControl {
 	/// - returns: A signal that sends the reduced value from the control each time the
 	///            control event occurs.
 	public func mapControlEvents<Value>(_ controlEvents: UIControlEvents, _ transform: @escaping (Base) -> Value) -> Signal<Value, NoError> {
-		return Signal { observer in
+		return Signal { observer, signalLifetime in
 			let receiver = CocoaTarget(observer) { transform($0 as! Base) }
 			base.addTarget(receiver,
 			               action: #selector(receiver.invoke),
@@ -80,7 +80,7 @@ extension Reactive where Base: UIControl {
 
 			let disposable = lifetime.ended.observeCompleted(observer.sendCompleted)
 
-			return AnyDisposable { [weak base = self.base] in
+			signalLifetime.observeEnded { [weak base] in
 				disposable?.dispose()
 
 				base?.removeTarget(receiver,

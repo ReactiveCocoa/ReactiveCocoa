@@ -1,6 +1,12 @@
 # master
 *Please put new entries at the top.
 
+1. UISearchBar has gained more reactive bindings and signals. (#3531, kudos to @andersio)
+
+   **Signals:** Search Button Clicked, Bookmark Button Clicked, Results List Clicked, Selected Scope Button Index
+
+   **Binding Target:** Selected Scope Button Indices.
+
 # 7.0.0-alpha.2
 1. Requires ReactiveSwift 3.0.0 alpha 1.
 

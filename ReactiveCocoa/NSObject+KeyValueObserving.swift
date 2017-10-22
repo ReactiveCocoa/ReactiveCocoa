@@ -43,16 +43,14 @@ extension Reactive where Base: NSObject {
 	/// - returns: A producer emitting values of the property specified by the 
 	///            key path.
 	public func signal(forKeyPath keyPath: String) -> Signal<Any?, NoError> {
-		return Signal { observer in
-			let disposable = CompositeDisposable()
-			disposable += KeyValueObserver.observe(
+		return Signal { observer, signalLifetime in
+			signalLifetime += KeyValueObserver.observe(
 				self.base,
 				keyPath: keyPath,
 				options: [.new],
 				action: observer.send
 			)
-			disposable += self.lifetime.observeEnded(observer.sendCompleted)
-			return disposable
+			signalLifetime += lifetime.observeEnded(observer.sendCompleted)
 		}
 	}
 }

@@ -108,7 +108,7 @@ extension NSObject {
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
 
-			if let proxy = self as? _DelegateProxyProtocol {
+			if let proxy = self as? DelegateProxyProtocol {
 				return proxy.runtimeWillIntercept(selector, signal: state.signal)
 			} else {
 				return state.signal

@@ -4,10 +4,7 @@ import enum Result.NoError
 private let delegateProxySetupKey = AssociationKey<Bool>(default: false)
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
 
-public protocol DelegateProxyProtocol: class {}
-
-// This is supposedly private, and is made `internal` to circumvent a serializer bug.
-internal protocol _DelegateProxyProtocol: class {
+internal protocol DelegateProxyProtocol: class {
 	var _forwardee: AnyObject? { get }
 	func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError>
 }
@@ -18,7 +15,7 @@ public struct DelegateProxyConfiguration {
 	fileprivate let originalSetter: (AnyObject) -> Void
 }
 
-public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol, _DelegateProxyProtocol {
+public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol {
 	public final var delegateType: Delegate.Type {
 		return Delegate.self
 	}
@@ -163,14 +160,14 @@ extension Protocol {
 }
 
 internal func unsafeDelegateProxy(_ proxy: Unmanaged<NSObject>, didInvoke selector: Selector, with invocation: AnyObject) {
-	let proxy = proxy.takeUnretainedValue() as! _DelegateProxyProtocol
+	let proxy = proxy.takeUnretainedValue() as! DelegateProxyProtocol
 	if let forwardee = proxy._forwardee, forwardee.responds(to: selector) {
 		invocation.invoke(withTarget: forwardee)
 	}
 }
 
 internal func isDelegateProxy(_ type: AnyClass) -> Bool {
-	return type is _DelegateProxyProtocol.Type
+	return type is DelegateProxyProtocol.Type
 }
 
 extension Reactive where Base: NSObject {

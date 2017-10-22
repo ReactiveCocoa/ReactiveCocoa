@@ -1,4 +1,5 @@
-/// Whether the runtime subclass has already been prepared for message forwarding.
+/// Whether the runtime subclass has already been prepared for method
+/// interception.
 fileprivate let interceptedKey = AssociationKey(default: false)
 
 /// Holds the method signature cache of the runtime subclass.
@@ -6,6 +7,8 @@ fileprivate let signatureCacheKey = AssociationKey<SignatureCache>()
 
 /// Holds the method selector cache of the runtime subclass.
 fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
+
+internal let noImplementation: IMP = unsafeBitCast(Int(0), to: IMP.self)
 
 extension NSObject {
 	@discardableResult
@@ -46,98 +49,103 @@ extension NSObject {
 /// - parameters:
 ///   - realClass: The runtime subclass to be swizzled.
 private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: SelectorCache) {
-	let perceivedClass: AnyClass = class_getSuperclass(realClass)
+    let perceivedClass: AnyClass = class_getSuperclass(realClass)!
+    let isDelegateProxy = ReactiveCocoa.isDelegateProxy(realClass)
 
-	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
-	let newForwardInvocation: ForwardInvocationImpl = { [isDelegateProxy = isDelegateProxy(realClass)] objectRef, invocation in
-		let selector = invocation.selector!
-		let alias = selectorCache.alias(for: selector)
-		let interopAlias = selectorCache.interopAlias(for: selector)
+    typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
+    let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
+        let selector = invocation.selector!
+        let alias = selectorCache.alias(for: selector)
+        let interopAlias = selectorCache.interopAlias(for: selector)
 
-		defer { interceptingObject(objectRef, didInvokeSelectorOfAlias: alias, with: invocation) }
+        defer {
+            interceptingObject(objectRef.takeUnretainedValue(),
+                               didInvokeSelectorOfAlias: alias,
+                               with: invocation)
+        }
 
-		if let method = class_getInstanceMethod(perceivedClass, selector) {
-			let typeEncoding = method_getTypeEncoding(method)
+        let method = class_getInstanceMethod(perceivedClass, selector)!
+        let typeEncoding = method_getTypeEncoding(method)
 
-			if class_respondsToSelector(realClass, interopAlias) {
-				// RAC has preserved an immediate implementation found in the runtime
-				// subclass that was supplied by an external party.
-				//
-				// As the KVO setter relies on the selector to work, it has to be invoked
-				// by swapping in the preserved implementation and restore to the message
-				// forwarder afterwards.
-				//
-				// However, the IMP cache would be thrashed due to the swapping.
+        if class_respondsToSelector(realClass, interopAlias) {
+            // RAC has preserved an immediate implementation found in the runtime
+            // subclass that was supplied by an external party.
+            //
+            // As the KVO setter relies on the selector to work, it has to be invoked
+            // by swapping in the preserved implementation and restore to the message
+            // forwarder afterwards.
+            //
+            // However, the IMP cache would be thrashed due to the swapping.
 
-				let topLevelClass: AnyClass = object_getClass(objectRef.takeUnretainedValue())
+            let topLevelClass: AnyClass = object_getClass(objectRef.takeUnretainedValue())!
 
-				// The locking below prevents RAC swizzling attempts from intervening the
-				// invocation.
-				//
-				// Given the implementation of `swizzleClass`, `topLevelClass` can only be:
-				// (1) the same as `realClass`; or (2) a subclass of `realClass`. In other
-				// words, this would deadlock only if the locking order is not followed in
-				// other nested locking scenarios of these metaclasses at compile time.
+            // The locking below prevents RAC swizzling attempts from intervening the
+            // invocation.
+            //
+            // Given the implementation of `swizzleClass`, `topLevelClass` can only be:
+            // (1) the same as `realClass`; or (2) a subclass of `realClass`. In other
+            // words, this would deadlock only if the locking order is not followed in
+            // other nested locking scenarios of these metaclasses at compile time.
 
-				synchronized(topLevelClass) {
-					func swizzle() {
-						let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)
+            synchronized(topLevelClass) {
+                func swizzle() {
+                    let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)!
 
-						let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
-						invocation.invoke()
+                    let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
+                    invocation.invoke()
 
-						_ = class_replaceMethod(topLevelClass, selector, previousImpl, typeEncoding)
-					}
+                    _ = class_replaceMethod(topLevelClass, selector, previousImpl ?? noImplementation, typeEncoding)
+                }
 
-					if topLevelClass != realClass {
-						synchronized(realClass) {
-							// In addition to swapping in the implementation, the message
-							// forwarding needs to be temporarily disabled to prevent circular
-							// invocation.
-							_ = class_replaceMethod(realClass, selector, nil, typeEncoding)
-							swizzle()
-							_ = class_replaceMethod(realClass, selector, _rac_objc_msgForward, typeEncoding)
-						}
-					} else {
-						swizzle()
-					}
-				}
+                if topLevelClass != realClass {
+                    synchronized(realClass) {
+                        // In addition to swapping in the implementation, the message
+                        // forwarding needs to be temporarily disabled to prevent circular
+                        // invocation.
+                        _ = class_replaceMethod(realClass, selector, noImplementation, typeEncoding)
+                        swizzle()
+                        _ = class_replaceMethod(realClass, selector, _rac_objc_msgForward, typeEncoding)
+                    }
+                } else {
+                    swizzle()
+                }
+            }
 
-				return
-			}
+            return
+        }
 
-			if let impl = method_getImplementation(method), impl != _rac_objc_msgForward {
-				// The perceived class, or its ancestors, responds to the selector.
-				//
-				// The implementation is invoked through the selector alias, which
-				// reflects the latest implementation of the selector in the perceived
-				// class.
+        let impl = method_getImplementation(method)
+        if impl != _rac_objc_msgForward {
+            // The perceived class, or its ancestors, responds to the selector.
+            //
+            // The implementation is invoked through the selector alias, which
+            // reflects the latest implementation of the selector in the perceived
+            // class.
 
-				if class_getMethodImplementation(realClass, alias) != impl {
-					// Update the alias if and only if the implementation has changed, so as
-					// to avoid thrashing the IMP cache.
-					_ = class_replaceMethod(realClass, alias, impl, typeEncoding)
-				}
+            if class_getMethodImplementation(realClass, alias) != impl {
+                // Update the alias if and only if the implementation has changed, so as
+                // to avoid thrashing the IMP cache.
+                _ = class_replaceMethod(realClass, alias, impl, typeEncoding)
+            }
 
-				invocation.setSelector(alias)
-				invocation.invoke()
+			invocation.setSelector(alias)
+			invocation.invoke()
 
-				return
-			}
-		}
+			return
+        }
 
-		guard !isDelegateProxy else {
-			return unsafeDelegateProxy(objectRef, didInvoke: selector, with: invocation)
-		}
+        guard !isDelegateProxy else {
+            return unsafeDelegateProxy(objectRef, didInvoke: selector, with: invocation)
+        }
 
-		// Forward the invocation to the closest `forwardInvocation(_:)` in the
-		// inheritance hierarchy, or the default handler returned by the runtime
-		// if it finds no implementation.
-		typealias SuperForwardInvocation = @convention(c) (Unmanaged<NSObject>, Selector, AnyObject) -> Void
-		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
-		let forwardInvocation = unsafeBitCast(impl, to: SuperForwardInvocation.self)
-		forwardInvocation(objectRef, ObjCSelector.forwardInvocation, invocation)
-	}
+        // Forward the invocation to the closest `forwardInvocation(_:)` in the
+        // inheritance hierarchy, or the default handler returned by the runtime
+        // if it finds no implementation.
+        typealias SuperForwardInvocation = @convention(c) (Unmanaged<NSObject>, Selector, AnyObject) -> Void
+        let forwardInvocationImpl = class_getMethodImplementation(perceivedClass, ObjCSelector.forwardInvocation)
+        let forwardInvocation = unsafeBitCast(forwardInvocationImpl, to: SuperForwardInvocation.self)
+        forwardInvocation(objectRef, ObjCSelector.forwardInvocation, invocation)
+    }
 
 	_ = class_replaceMethod(realClass,
 	                        ObjCSelector.forwardInvocation,
@@ -152,17 +160,17 @@ private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: 
 ///   - realClass: The runtime subclass to be swizzled.
 ///   - signatureCache: The method signature cache.
 private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache: SignatureCache) {
-	let perceivedClass: AnyClass = class_getSuperclass(realClass)
+    let perceivedClass: AnyClass = class_getSuperclass(realClass)!
 
-	let newMethodSignatureForSelector: @convention(block) (Unmanaged<NSObject>, Selector) -> AnyObject? = { objectRef, selector in
-		if let signature = signatureCache[selector] {
-			return signature
-		}
+    let newMethodSignatureForSelector: @convention(block) (Unmanaged<NSObject>, Selector) -> AnyObject? = { objectRef, selector in
+        if let signature = signatureCache[selector] {
+            return signature
+        }
 
-		typealias SuperMethodSignatureForSelector = @convention(c) (Unmanaged<NSObject>, Selector, Selector) -> AnyObject?
-		let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.methodSignatureForSelector)
-		let methodSignatureForSelector = unsafeBitCast(impl, to: SuperMethodSignatureForSelector.self)
-		return methodSignatureForSelector(objectRef, ObjCSelector.methodSignatureForSelector, selector)
+        typealias SuperMethodSignatureForSelector = @convention(c) (Unmanaged<NSObject>, Selector, Selector) -> AnyObject?
+        let impl = class_getMethodImplementation(perceivedClass, ObjCSelector.methodSignatureForSelector)
+        let methodSignatureForSelector = unsafeBitCast(impl, to: SuperMethodSignatureForSelector.self)
+        return methodSignatureForSelector(objectRef, ObjCSelector.methodSignatureForSelector, selector)
 	}
 
 	_ = class_replaceMethod(realClass,

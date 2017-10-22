@@ -4,9 +4,15 @@ import enum Result.NoError
 
 extension Reactive where Base: NSTextField {
 	private var notifications: Signal<Notification, NoError> {
+		#if swift(>=4.0)
+		let name = NSControl.textDidChangeNotification
+		#else
+		let name = Notification.Name.NSControlTextDidChange
+		#endif
+
 		return NotificationCenter.default
 			.reactive
-			.notifications(forName: .NSControlTextDidChange, object: base)
+			.notifications(forName: name, object: base)
 			.take(during: lifetime)
 	}
 

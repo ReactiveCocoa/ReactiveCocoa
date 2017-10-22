@@ -19,16 +19,16 @@ import ReactiveSwift
 }
 
 private class RemanglingTestHelper: NSObject {
-	dynamic weak var privateDelegate: ObjectDelegate?
-	dynamic weak var internalDelegate: InternalObjectDelegate?
-	dynamic weak var publicDelegate: PublicObjectDelegate?
+	@objc dynamic weak var privateDelegate: ObjectDelegate?
+	@objc dynamic weak var internalDelegate: InternalObjectDelegate?
+	@objc dynamic weak var publicDelegate: PublicObjectDelegate?
 }
 
 private class Object: NSObject {
-	var delegateSetCount = 0
+	@objc var delegateSetCount = 0
 	var delegateSelectors: [Selector] = []
 
-	dynamic weak var delegate: ObjectDelegate? {
+	@objc dynamic weak var delegate: ObjectDelegate? {
 		didSet {
 			delegateSetCount += 1
 			delegateSelectors = Array()
@@ -75,7 +75,7 @@ private class ObjectDelegateCounter: NSObject, ObjectDelegate {
 private class TestProxyNonConformingInvalidSubclass: DelegateProxy<ArbitraryReturningDelegate> {
 	var fooCounter = 0
 
-	func foo() -> Int {
+	@objc func foo() -> Int {
 		fooCounter += 1
 		return forwardee?.foo() ?? 2048
 	}
@@ -85,12 +85,12 @@ private class TestProxyNonConformingSubclass: DelegateProxy<ArbitraryReturningDe
 	var fooCounter = 0
 	var barCounter = 0
 
-	func foo() -> Int {
+	@objc func foo() -> Int {
 		fooCounter += 1
 		return forwardee?.foo() ?? 2048
 	}
 
-	func bar() -> Double {
+	@objc func bar() -> Double {
 		barCounter += 1
 		return forwardee?.bar() ?? 2048.0
 	}
@@ -138,7 +138,7 @@ private class ArbitraryReturningCounter: NSObject, ArbitraryReturningDelegate {
 }
 
 private class ArbitraryReturningTestHelper: NSObject {
-	dynamic weak var delegate: ArbitraryReturningDelegate?
+	@objc dynamic weak var delegate: ArbitraryReturningDelegate?
 }
 
 class DelegateProxySpec: QuickSpec {
@@ -606,7 +606,7 @@ class DelegateProxySpec: QuickSpec {
 
 					expect(object.objcClass).to(beIdenticalTo(object2.objcClass))
 
-					let className = NSStringFromClass(object_getClass(object))
+					let className = NSStringFromClass(object_getClass(object)!)
 					expect(className).to(beginWith("NSKVONotifying_"))
 					expect(className).toNot(endWith("_RACSwift"))
 

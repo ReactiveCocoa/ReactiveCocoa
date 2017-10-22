@@ -104,9 +104,13 @@ extension NSObject {
 	}
 }
 
-internal func interceptingObject(_ object: Unmanaged<NSObject>, didInvokeSelectorOfAlias alias: Selector, with invocation: AnyObject) {
-	let stateKey = AssociationKey<InterceptingState?>(alias)
-	if let state = object.takeUnretainedValue().associations.value(forKey: stateKey) {
+internal func interceptingObject(
+	_ object: NSObject,
+	didInvokeSelectorOfAlias alias: Selector,
+	with invocation: AnyObject
+) {
+	let key = AssociationKey<InterceptingState?>(alias)
+	if let state = object.associations.value(forKey: key) {
 		state.observer.send(value: invocation)
 	}
 }

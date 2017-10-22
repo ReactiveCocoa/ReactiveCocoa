@@ -234,9 +234,9 @@ class DynamicPropertySpec: QuickSpec {
 }
 
 private class ObservableObject: NSObject {
-	dynamic var rac_value: Int = 0
-	dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
-	dynamic var rac_unbridged: Any = UnbridgedValue.starting
+	@objc dynamic var rac_value: Int = 0
+	@objc dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
+	@objc dynamic var rac_unbridged: Any = UnbridgedValue.starting
 }
 
 private class UnbridgedObject: NSObject {

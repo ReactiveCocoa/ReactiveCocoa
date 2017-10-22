@@ -7,6 +7,11 @@
 
 1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
 
+# 7.0.0-alpha.2
+1. Requires ReactiveSwift 3.0.0 alpha 1.
+
+1. ReactiveCocoa is now compatible with the Swift 4.0 language mode, in addition to the Swift 3.2 compatibility mode. (#3526, kudos to @andersio)
+
 # 7.0.0-alpha.1
 1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
 

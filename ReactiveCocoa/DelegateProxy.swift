@@ -196,7 +196,7 @@ extension Reactive where Base: NSObject {
 				// `name` refers to a private protocol.
 				let objcName = name as NSString
 
-				let (moduleNameRange, protocolNameRange, scopeNameRange) = (match.rangeAt(1), match.rangeAt(2), match.rangeAt(3))
+				let (moduleNameRange, protocolNameRange, scopeNameRange) = (match.range(at: 1), match.range(at: 2), match.range(at: 3))
 				let moduleName = objcName.substring(with: moduleNameRange)
 				let protocolName = objcName.substring(with: protocolNameRange)
 				let scopeName = objcName.substring(with: scopeNameRange)
@@ -205,7 +205,7 @@ extension Reactive where Base: NSObject {
 				return "_TtP\(moduleNameRange.length)\(moduleName)P\(scopeNameRange.length)\(scopeName)\(protocolNameRange.length)\(protocolName)_"
 			} else if let range = name.range(of: "__ObjC.") {
 				// `name` refers to an Objective-C protocol.
-				return name.substring(from: range.upperBound)
+				return String(name[range.upperBound...])
 			} else {
 				// `name` refers to a Swift protocol.
 				return name
@@ -225,7 +225,7 @@ extension Reactive where Base: NSObject {
 				return proxy as! Proxy
 			}
 
-			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))
+			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))!
 
 			let invokeSuperSetter: @convention(c) (Unmanaged<AnyObject>, AnyClass, Selector, Unmanaged<AnyObject>?) -> Void = { object, superclass, selector, delegate in
 				typealias Setter = @convention(c) (Unmanaged<AnyObject>, Selector, Unmanaged<AnyObject>?) -> Void
@@ -254,7 +254,8 @@ extension Reactive where Base: NSObject {
 			})
 
 			typealias Getter = @convention(c) (NSObject, Selector) -> AnyObject?
-			let getterImpl: IMP = class_getMethodImplementation(object_getClass(base), getter)
+
+			let getterImpl: IMP = class_getMethodImplementation(object_getClass(base), getter)!
 			let original = unsafeBitCast(getterImpl, to: Getter.self)(base, getter) as! Delegate?
 
 			// `proxy.forwardee` would invoke the original setter regardless of

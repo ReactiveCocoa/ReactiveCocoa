@@ -49,7 +49,7 @@ public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyP
 			let perceivedClass: AnyClass = (self as AnyObject).objcClass
 			let classAssociations = Associations(perceivedClass as AnyObject)
 
-			try! ReactiveCocoa.synchronized(perceivedClass) {
+			ReactiveCocoa.synchronized(perceivedClass) {
 				guard !classAssociations.value(forKey: delegateProxySetupKey) else { return }
 				classAssociations.setValue(true, forKey: delegateProxySetupKey)
 

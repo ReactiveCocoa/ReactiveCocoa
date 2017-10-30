@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
   s.module_map = "ReactiveCocoa/module.modulemap"
 
-  s.dependency 'ReactiveSwift', '3.0.0-alpha.1'
+  s.dependency 'ReactiveSwift', '3.0.0-rc.1'
 
   s.pod_target_xcconfig = { "OTHER_SWIFT_FLAGS[config=Release]" => "-suppress-warnings" }
 end

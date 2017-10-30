@@ -12,25 +12,17 @@ private let initialOtherPropertyValue = "InitialOtherValue"
 private let subsequentOtherPropertyValue = "SubsequentOtherValue"
 private let finalOtherPropertyValue = "FinalOtherValue"
 
-class DynamicPropertySpec: QuickSpec {
+class KVOKVCExtensionSpec: QuickSpec {
 	override func spec() {
-		describe("DynamicProperty") {
+		describe("Property(object:keyPath:)") {
 			var object: ObservableObject!
-			var property: DynamicProperty<Int>!
-
-			let propertyValue: () -> Int? = {
-				if let value: Any = property?.value {
-					return value as? Int
-				} else {
-					return nil
-				}
-			}
+			var property: Property<Int>!
 
 			beforeEach {
 				object = ObservableObject()
 				expect(object.rac_value) == 0
 
-				property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+				property = Property<Int>(object: object, keyPath: "rac_value")
 			}
 
 			afterEach {
@@ -38,16 +30,10 @@ class DynamicPropertySpec: QuickSpec {
 			}
 
 			it("should read the underlying object") {
-				expect(propertyValue()) == 0
+				expect(property.value) == 0
 
 				object.rac_value = 1
-				expect(propertyValue()) == 1
-			}
-
-			it("should write the underlying object") {
-				property.value = 1
-				expect(object.rac_value) == 1
-				expect(propertyValue()) == 1
+				expect(property.value) == 1
 			}
 
 			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {
@@ -58,7 +44,7 @@ class DynamicPropertySpec: QuickSpec {
 
 				expect(values) == [ 0 ]
 
-				property.value = 1
+				object.rac_value = 1
 				expect(values) == [ 0, 1 ]
 
 				object.rac_value = 2
@@ -73,7 +59,7 @@ class DynamicPropertySpec: QuickSpec {
 
 				expect(values) == [ 0 ]
 
-				property.value = 0
+				object.rac_value = 0
 				expect(values) == [ 0, 0 ]
 
 				object.rac_value = 0
@@ -83,13 +69,12 @@ class DynamicPropertySpec: QuickSpec {
 			it("should yield a signal that emits subsequent values for the key path of the underlying object") {
 				var values: [Int] = []
 				property.signal.observeValues { value in
-					expect(value).notTo(beNil())
 					values.append(value)
 				}
 
 				expect(values) == []
 
-				property.value = 1
+				object.rac_value = 1
 				expect(values) == [ 1 ]
 
 				object.rac_value = 2
@@ -104,7 +89,7 @@ class DynamicPropertySpec: QuickSpec {
 
 				expect(values) == []
 
-				property.value = 0
+				object.rac_value = 0
 				expect(values) == [ 0 ]
 
 				object.rac_value = 0
@@ -117,14 +102,14 @@ class DynamicPropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+					let property = Property<Int>(object: object, keyPath: "rac_value")
 
 					property.producer.startWithCompleted {
 						completed = true
 					}
 
 					expect(completed) == false
-					expect(property.value).notTo(beNil())
+					expect(property.value) == 0
 					return property
 				}()
 
@@ -137,7 +122,7 @@ class DynamicPropertySpec: QuickSpec {
 				property = {
 					// Use a closure so this object has a shorter lifetime.
 					let object = ObservableObject()
-					let property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
+					let property = Property<Int>(object: object, keyPath: "rac_value")
 
 					property.signal.observeCompleted {
 						completed = true
@@ -152,10 +137,25 @@ class DynamicPropertySpec: QuickSpec {
 			}
 
 			it("should not be retained by its underlying object"){
-				weak var dynamicProperty: DynamicProperty<Int>? = property
-				
+				weak var weakProperty: Property<Int>? = property
+
 				property = nil
-				expect(dynamicProperty).to(beNil())
+				expect(weakProperty).to(beNil())
+			}
+
+			it("should be accessible even if the underlying object has deinitialized") {
+				object.rac_value = .max
+				object = nil
+
+				expect(property.value) == Int.max
+
+				var latestValue: Int?
+				property.producer.startWithValues { latestValue = $0 }
+				expect(latestValue) == .max
+
+				var isInterrupted = false
+				property.signal.observeInterrupted { isInterrupted = true }
+				expect(isInterrupted) == true
 			}
 
 			it("should support un-bridged reference types") {
@@ -168,83 +168,6 @@ class DynamicPropertySpec: QuickSpec {
 				let dynamicProperty = DynamicProperty<UnbridgedValue>(object: object, keyPath: "rac_unbridged")
 				dynamicProperty.value = .changed
 				expect(object.rac_unbridged as? UnbridgedValue) == UnbridgedValue.changed
-			}
-
-			it("should expose a lifetime that ends upon the deinitialization of its underlying object") {
-				var isEnded = false
-				property!.lifetime.ended.observeCompleted {
-					isEnded = true
-				}
-
-				expect(isEnded) == false
-
-				property = nil
-				expect(isEnded) == false
-
-				object = nil
-				expect(isEnded) == true
-			}
-		}
-
-		describe("binding") {
-			describe("to a dynamic property") {
-				var object: ObservableObject!
-				var property: DynamicProperty<Int>!
-
-				beforeEach {
-					object = ObservableObject()
-					expect(object.rac_value) == 0
-
-					property = DynamicProperty<Int>(object: object, keyPath: "rac_value")
-				}
-
-				afterEach {
-					object = nil
-				}
-
-				it("should bridge values sent on a signal to Objective-C") {
-					let (signal, observer) = Signal<Int, NoError>.pipe()
-					property <~ signal
-					observer.send(value: 1)
-					expect(object.rac_value) == 1
-				}
-
-				it("should bridge values sent on a signal producer to Objective-C") {
-					let producer = SignalProducer<Int, NoError>(value: 1)
-					property <~ producer
-					expect(object.rac_value) == 1
-				}
-
-				it("should bridge values from a source property to Objective-C") {
-					let source = MutableProperty(1)
-					property <~ source
-					expect(object.rac_value) == 1
-				}
-
-				it("should bridge values sent on a signal to Objective-C, even if the view has deinitialized") {
-					let (signal, observer) = Signal<Int, NoError>.pipe()
-					property <~ signal
-					property = nil
-
-					observer.send(value: 1)
-					expect(object.rac_value) == 1
-				}
-
-				it("should bridge values sent on a signal producer to Objective-C, even if the view has deinitialized") {
-					let producer = SignalProducer<Int, NoError>(value: 1)
-					property <~ producer
-					property = nil
-
-					expect(object.rac_value) == 1
-				}
-
-				it("should bridge values from a source property to Objective-C, even if the view has deinitialized") {
-					let source = MutableProperty(1)
-					property <~ source
-					property = nil
-
-					expect(object.rac_value) == 1
-				}
 			}
 		}
 	}

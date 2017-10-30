@@ -2,31 +2,33 @@ import Foundation
 import ReactiveSwift
 import enum Result.NoError
 
-/// Wraps a `dynamic` property, or one defined in Objective-C, using Key-Value
-/// Coding and Key-Value Observing.
+/// A typed mutable property view to a certain key path of an Objective-C object using
+/// Key-Value Coding and Key-Value Observing.
 ///
-/// Use this class only as a last resort! `MutableProperty` is generally better
-/// unless KVC/KVO is required by the API you're using (for example,
-/// `NSOperation`).
+/// Bindings towards a `DynamicProperty` would be directed to the underlying Objective-C
+/// object, and would not be affected by the deinitialization of the `DynamicProperty`.
 public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
+	private let cache: Property<Value>
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
-	public var value: Value? {
-		get {
-			return object?.value(forKeyPath: keyPath) as! Value
-		}
-
-		set(newValue) {
-			object?.setValue(newValue, forKeyPath: keyPath)
-		}
+	public var value: Value {
+		get { return cache.value }
+		set { object?.setValue(newValue, forKeyPath: keyPath) }
 	}
 
 	/// The lifetime of the property.
 	public var lifetime: Lifetime {
 		return object?.reactive.lifetime ?? .empty
+	}
+
+	/// The binding target of the property.
+	public var bindingTarget: BindingTarget<Value> {
+		return BindingTarget(lifetime: lifetime) { [weak object, keyPath] value in
+			object?.setValue(value, forKey: keyPath)
+		}
 	}
 
 	/// A producer that will create a Key-Value Observer for the given object,
@@ -35,32 +37,24 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
-	public var producer: SignalProducer<Value?, NoError> {
-		return (object.map { $0.reactive.producer(forKeyPath: keyPath) } ?? .empty)
-			.map { $0 as! Value }
+	public var producer: SignalProducer<Value, NoError> {
+		return cache.producer
 	}
 
-	public private(set) lazy var signal: Signal<Value?, NoError> = {
-		var signal: Signal<DynamicProperty.Value, NoError>!
-		self.producer.startWithSignal { innerSignal, _ in signal = innerSignal }
-		return signal
-	}()
+	public var signal: Signal<Value, NoError> {
+		return cache.signal
+	}
 
-	/// Initializes a property that will observe and set the given key path of
-	/// the given object. The generic type `Value` can be any Swift type, and will
-	/// be bridged to Objective-C via `Any`.
-	///
-	/// - important: `object` must support weak references!
+	/// Create a typed mutable view to the given key path of the given Objective-C object.	
+	/// The generic type `Value` can be any Swift type, and will be bridged to Objective-C
+	/// via `Any`.
 	///
 	/// - parameters:
-	///   - object: An object to be observed.
-	///   - keyPath: Key path to observe on the object.
+	///   - object: The Objective-C object to be observed.
+	///   - keyPath: The key path to observe.
 	public init(object: NSObject, keyPath: String) {
 		self.object = object
 		self.keyPath = keyPath
-
-		/// A DynamicProperty will stay alive as long as its object is alive.
-		/// This is made possible by strong reference cycles.
-		_ = object.reactive.lifetime.ended.observeCompleted { _ = self }
+		self.cache = Property(object: object, keyPath: keyPath)
 	}
 }

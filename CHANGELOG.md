@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 7.0.0-rc.1
 1. UISearchBar has gained more reactive bindings and signals. (#3531, kudos to @andersio)
 
    **Signals:** Search Button Clicked, Bookmark Button Clicked, Results List Clicked, Selected Scope Button Index

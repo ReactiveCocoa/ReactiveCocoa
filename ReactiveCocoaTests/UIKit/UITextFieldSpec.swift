@@ -92,7 +92,7 @@ class UITextFieldSpec: QuickSpec {
 			expect(latestValue) == textField.attributedText
 		}
 
-		it("should emit user initiated changes to its attributed text value when the editing ends as a reuslt of the return key being pressed") {
+		it("should emit user initiated changes to its attributed text value when the editing ends as a result of the return key being pressed") {
 			textField.attributedText = NSAttributedString(string: "Test")
 
 			var latestValue: NSAttributedString?
@@ -116,6 +116,20 @@ class UITextFieldSpec: QuickSpec {
 				textField.sendActions(for: event)
 				expect(latestValue?.string) == textField.attributedText?.string
 			}
+		}
+
+		it("should accept changes from bindings to its placeholder attribute") {
+			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			textField.reactive.placeholder <~ pipeSignal
+
+			observer.send(value: "A placeholder")
+			expect(textField.placeholder).to(equal("A placeholder"))
+
+			observer.send(value: nil)
+			expect(textField.placeholder).to(beNil())
+
+			observer.send(value: "Another placeholder")
+			expect(textField.placeholder).to(equal("Another placeholder"))
 		}
 
 		it("should accept changes from bindings to its secureTextEntry attribute") {

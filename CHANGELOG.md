@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Update ReactiveSwift to 3.0.
+
 1. Added `placeholder` binding target to `UITextField`. (#3536)
 
 # 7.0.0-rc.1

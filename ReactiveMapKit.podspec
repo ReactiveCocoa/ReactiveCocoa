@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ReactiveMapKit"
-  s.version      = "7.0.0-rc.1"
+  s.version      = "7.0.0"
   s.summary      = "MapKit bindings for ReactiveCocoa."
   s.description  = <<-DESC
                    Provide MapKit bindings for ReactiveCocoa. ReactiveCocoa (RAC) is a Cocoa framework built on top of ReactiveSwift. It provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.

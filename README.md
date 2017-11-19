@@ -138,7 +138,7 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 ### In Development
 ### Plan of Record
 #### ABI stability release
-ReactiveCocoa is expected to declare library ABI stability when Swift rolls out resilence support. Until then, ReactiveCocoa would incrementally adopt new language features that help move towards to goal. The ETA is Swift 5.
+ReactiveCocoa is expected to declare library ABI stability when Swift rolls out resilence support in Swift 5. Until then, ReactiveCocoa will incrementally adopt new language features.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC

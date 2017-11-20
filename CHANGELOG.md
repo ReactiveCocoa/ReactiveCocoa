@@ -1,7 +1,14 @@
 # master
 *Please put new entries at the top.
 
-1. Added `tintColor` binding target to `UIView`. (#3542)
+1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
+1. Smart Key Paths for `Property`. (#3546, kudos to @iv-mexx)
+	
+	Example: 
+	```swift
+	let title = Property(object: viewController, keyPath: \UIViewController.title)
+	```
+
 
 # 7.0.0
 1. Update ReactiveSwift to 3.0.

@@ -23,7 +23,34 @@ extension Reactive where Base: NSObject {
 			)
 
 			lifetime.observeEnded(disposable.dispose)
+			
+			if let lifetimeDisposable = self.lifetime.observeEnded(observer.sendCompleted) {
+				lifetime.observeEnded(lifetimeDisposable.dispose)
+			}
+		}
+	}
 
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when the object deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer<Value>(forKeyPath keyPath: KeyPath<Base, Value>) -> SignalProducer<Value, NoError> {
+		return SignalProducer { observer, lifetime in
+			let disposable = KeyPathValueObserver.observe(
+				self.base,
+				keyPath: keyPath,
+				options: [.initial, .new],
+				action: observer.send
+			)
+			
+			lifetime.observeEnded(disposable.dispose)
+			
 			if let lifetimeDisposable = self.lifetime.observeEnded(observer.sendCompleted) {
 				lifetime.observeEnded(lifetimeDisposable.dispose)
 			}
@@ -53,6 +80,30 @@ extension Reactive where Base: NSObject {
 			signalLifetime += lifetime.observeEnded(observer.sendCompleted)
 		}
 	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func signal<Value>(forKeyPath keyPath: KeyPath<Base, Value>) -> Signal<Value, NoError> {
+		return Signal { observer, signalLifetime in
+			signalLifetime += KeyPathValueObserver.observe(
+				self.base,
+				keyPath: keyPath,
+				options: [.new],
+				action: observer.send
+			)
+			signalLifetime += lifetime.observeEnded(observer.sendCompleted)
+		}
+	}
 }
 
 extension Property {
@@ -66,6 +117,16 @@ extension Property {
 		// `Property(_:)` caches the latest value of the `DynamicProperty`, so it is
 		// saved to be used even after `object` deinitializes.
 		self.init(UnsafeKVOProperty(object: object, keyPath: keyPath))
+	}
+	
+	/// Create a property that observes the given key path of the given object. The
+	/// generic type `Value` can be any Swift type that is Objective-C bridgeable.
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: The key path to observe.
+	public convenience init<Base: NSObject>(object: Base, keyPath: KeyPath<Base, Value>) {
+		self.init(initial: object[keyPath: keyPath], then: object.reactive.producer(forKeyPath: keyPath))
 	}
 
 	// `Property(unsafeProducer:)` is private to ReactiveSwift. So the fact that
@@ -91,6 +152,67 @@ extension BindingTarget {
 	public init(object: NSObject, keyPath: String) {
 		self.init(lifetime: object.reactive.lifetime) { [weak object] value in
 			object?.setValue(value, forKey: keyPath)
+		}
+	}
+}
+
+internal final class KeyPathValueObserver<Base: NSObject, Value>: NSObject {
+	typealias Action = (_ object: Base) -> Void
+	let keyPath: KeyPath<Base, Value>
+	let action: Action
+	private let observation: NSKeyValueObservation
+	
+	fileprivate init(observing object: Base, keyPath: KeyPath<Base, Value>, options: NSKeyValueObservingOptions, action: @escaping Action) {
+		self.keyPath = keyPath
+		self.action = action
+		self.observation = object.observe(keyPath, options: options, changeHandler: { (object, change) in
+			action(object)
+		})
+		super.init()
+	}
+	
+	func detach() {
+		observation.invalidate()
+	}
+}
+
+extension KeyPathValueObserver {
+	/// Establish an observation to the property specified by the key path
+	/// of `object`.
+	///
+	/// - warning: The observation would not be automatically removed when
+	///            `object` deinitializes. You must manually dispose of the
+	///            returned disposable before `object` completes its
+	///            deinitialization.
+	///
+	/// - parameters:
+	///   - object: The object to be observed.
+	///   - keyPath: The key path of the property to be observed.
+	///   - options: The desired configuration of the observation.
+	///   - action: The action to be invoked upon arrival of changes.
+	///
+	/// - returns: A disposable that would tear down the observation upon
+	///            disposal.
+	static func observe(
+		_ object: Base,
+		keyPath: KeyPath<Base, Value>,
+		options: NSKeyValueObservingOptions,
+		action: @escaping (_ value: Value) -> Void
+		) -> AnyDisposable {
+
+		// Establish the observation.
+		//
+		// The initial value is also handled by the closure below, if `Initial` has
+		// been specified in the observation options.
+		let observer: KeyPathValueObserver
+
+		observer = KeyPathValueObserver(observing: object, keyPath: keyPath, options: options) { object in
+			// Send the latest value of the key.
+			action(object[keyPath: keyPath])
+		}
+		
+		return AnyDisposable {
+			observer.detach()
 		}
 	}
 }

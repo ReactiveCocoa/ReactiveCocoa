@@ -3,6 +3,8 @@
 
 1. Added `tintColor` binding target to `UIView`. (#3542)
 
+1. Made `makeBindingTarget` available on Reactive extensions on all objects, not just `NSObject`. (#3545)
+
 # 7.0.0
 1. Update ReactiveSwift to 3.0.
 

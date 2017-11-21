@@ -1,7 +1,8 @@
 # master
 *Please put new entries at the top.
 
-1. Added `tintColor` binding target to `UIView`. (#3542)
+1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
+1. Fixed `DynamicProperty` for optional properties. (#3548, kudos to @iv-mexx)
 
 # 7.0.0
 1. Update ReactiveSwift to 3.0.

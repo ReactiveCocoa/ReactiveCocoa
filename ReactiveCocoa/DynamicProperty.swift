@@ -11,12 +11,13 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	private weak var object: NSObject?
 	private let keyPath: String
 	private let cache: Property<Value>
+	private let transform: (Value) -> Any?
 
 	/// The current value of the property, as read and written using Key-Value
 	/// Coding.
 	public var value: Value {
 		get { return cache.value }
-		set { object?.setValue(newValue, forKeyPath: keyPath) }
+		set { object?.setValue(transform(newValue), forKeyPath: keyPath) }
 	}
 
 	/// The lifetime of the property.
@@ -45,10 +46,11 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 		return cache.signal
 	}
 
-	internal init(object: NSObject, keyPath: String, cache: Property<Value>) {
+	internal init(object: NSObject, keyPath: String, cache: Property<Value>, transform: @escaping (Value) -> Any?) {
 		self.object = object
 		self.keyPath = keyPath
 		self.cache = cache
+		self.transform = transform
 	}
 	
 	/// Create a typed mutable view to the given key path of the given Objective-C object.
@@ -59,19 +61,11 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///   - object: The Objective-C object to be observed.
 	///   - keyPath: The key path to observe.
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, cache: Property(object: object, keyPath: keyPath))
+		self.init(object: object, keyPath: keyPath, cache: Property(object: object, keyPath: keyPath), transform: { $0 })
 	}
 }
 
 extension DynamicProperty where Value: OptionalProtocol {
-	
-	/// The current value of the property, as read and written using Key-Value
-	/// Coding.
-	public var value: Value {
-		get { return cache.value }
-		set { object?.setValue(newValue.optional, forKeyPath: keyPath) }
-	}
-	
 	/// Create a typed mutable view to the given key path of the given Objective-C object.
 	/// The generic type `Value` can be any Swift type, and will be bridged to Objective-C
 	/// via `Any`.
@@ -80,7 +74,6 @@ extension DynamicProperty where Value: OptionalProtocol {
 	///   - object: The Objective-C object to be observed.
 	///   - keyPath: The key path to observe.
 	public convenience init(object: NSObject, keyPath: String) {
-		self.init(object: object, keyPath: keyPath, cache: Property(object: object, keyPath: keyPath))
+		self.init(object: object, keyPath: keyPath, cache: Property(object: object, keyPath: keyPath), transform: { $0.optional })
 	}
 }
-

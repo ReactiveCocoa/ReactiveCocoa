@@ -55,6 +55,20 @@ extension Reactive where Base: NSObject {
 	}
 }
 
+extension Property where Value: OptionalProtocol {
+	/// Create a property that observes the given key path of the given object. The
+	/// generic type `Value` can be any Swift type that is Objective-C bridgeable.
+	///
+	/// - parameters:
+	///   - object: An object to be observed.
+	///   - keyPath: The key path to observe.
+	public convenience init(object: NSObject, keyPath: String) {
+		// `Property(_:)` caches the latest value of the `DynamicProperty`, so it is
+		// saved to be used even after `object` deinitializes.
+		self.init(UnsafeKVOProperty(object: object, optionalAttributeKeyPath: keyPath))
+	}
+}
+
 extension Property {
 	/// Create a property that observes the given key path of the given object. The
 	/// generic type `Value` can be any Swift type that is Objective-C bridgeable.
@@ -65,19 +79,31 @@ extension Property {
 	public convenience init(object: NSObject, keyPath: String) {
 		// `Property(_:)` caches the latest value of the `DynamicProperty`, so it is
 		// saved to be used even after `object` deinitializes.
-		self.init(UnsafeKVOProperty(object: object, keyPath: keyPath))
+		self.init(UnsafeKVOProperty(object: object, nonOptionalAttributeKeyPath: keyPath))
 	}
+}
 
-	// `Property(unsafeProducer:)` is private to ReactiveSwift. So the fact that
-	// `Property(_:)` uses only the producer is explioted here to achieve the same effect.
-	private final class UnsafeKVOProperty: PropertyProtocol {
-		var value: Value { fatalError() }
-		var signal: Signal<Value, NoError> { fatalError() }
-		let producer: SignalProducer<Value, NoError>
+// `Property(unsafeProducer:)` is private to ReactiveSwift. So the fact that
+// `Property(_:)` uses only the producer is explioted here to achieve the same effect.
+private final class UnsafeKVOProperty<Value>: PropertyProtocol {
+	var value: Value { fatalError() }
+	var signal: Signal<Value, NoError> { fatalError() }
+	let producer: SignalProducer<Value, NoError>
+	
+	init(producer: SignalProducer<Value, NoError>) {
+		self.producer = producer
+	}
+	
+	convenience init(object: NSObject, nonOptionalAttributeKeyPath keyPath: String) {
+		self.init(producer: object.reactive.producer(forKeyPath: keyPath).map { $0 as! Value })
+	}
+}
 
-		init(object: NSObject, keyPath: String) {
-			self.producer = object.reactive.producer(forKeyPath: keyPath).map { $0 as! Value }
-		}
+private extension UnsafeKVOProperty where Value: OptionalProtocol {
+	convenience init(object: NSObject, optionalAttributeKeyPath keyPath: String) {
+		self.init(producer: object.reactive.producer(forKeyPath: keyPath).map {
+			return Value(reconstructing: $0.optional as? Value.Wrapped)
+		})
 	}
 }
 

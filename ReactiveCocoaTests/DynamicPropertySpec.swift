@@ -14,6 +14,63 @@ private let finalOtherPropertyValue = "FinalOtherValue"
 
 class DynamicPropertySpec: QuickSpec {
 	override func spec() {
+
+		describe("DynamicProperty with optional value") {
+			var object: ObservableObject!
+			var property: DynamicProperty<NSNumber?>!
+
+			beforeEach {
+				object = ObservableObject()
+				expect(object.rac_optional_value) == 0
+
+				property = DynamicProperty<NSNumber?>(object: object, keyPath: "rac_optional_value")
+			}
+
+			afterEach {
+				object = nil
+			}
+
+			let propertyValue: () -> NSNumber? = {
+				if let value: Any = property?.value {
+					return value as? NSNumber
+				} else {
+					return nil
+				}
+			}
+
+			it("should read the underlying object") {
+				expect(propertyValue()) == 0
+
+				object.rac_optional_value = nil
+				expect(propertyValue()).to(beNil())
+			}
+
+			it("should write the underlying object") {
+				property.value = nil
+				expect(object.rac_optional_value).to(beNil())
+				expect(propertyValue()).to(beNil())
+			}
+
+			it("should yield a producer that sends the current value and then the changes for the key path of the underlying object") {
+				var values: [NSNumber?] = []
+				property.producer.startWithValues { value in
+					values.append(value)
+				}
+				
+				expect(values).to(equal([0]))
+
+				property.value = nil
+				expect(values).to(equal([0, nil]))
+
+				object.rac_optional_value = 2
+				expect(values).to(equal([0, nil, 2]))
+
+				object.rac_optional_value = nil
+				expect(values).to(equal([0, nil, 2, nil]))
+				print(values)
+			}
+		}
+
 		describe("DynamicProperty") {
 			var object: ObservableObject!
 			var property: DynamicProperty<Int>!
@@ -153,7 +210,7 @@ class DynamicPropertySpec: QuickSpec {
 
 			it("should not be retained by its underlying object"){
 				weak var dynamicProperty: DynamicProperty<Int>? = property
-				
+
 				property = nil
 				expect(dynamicProperty).to(beNil())
 			}
@@ -252,6 +309,7 @@ class DynamicPropertySpec: QuickSpec {
 
 private class ObservableObject: NSObject {
 	@objc dynamic var rac_value: Int = 0
+	@objc dynamic var rac_optional_value: NSNumber? = 0
 	@objc dynamic var rac_reference: UnbridgedObject = UnbridgedObject("")
 	@objc dynamic var rac_unbridged: Any = UnbridgedValue.starting
 }

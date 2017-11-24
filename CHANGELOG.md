@@ -1,10 +1,12 @@
 # master
 *Please put new entries at the top.
 
+# 7.0.1
 1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
+
 1. Fixed `DynamicProperty` for optional properties. (#3548, kudos to @iv-mexx)
 
-1. Made `makeBindingTarget` available on Reactive extensions on all objects, not just `NSObject`. (#3545)
+1. Made `makeBindingTarget` available on Reactive extensions on all objects, not just `NSObject`. (#3545, kudos to @Burgestrand)
 
 # 7.0.0
 1. Update ReactiveSwift to 3.0.

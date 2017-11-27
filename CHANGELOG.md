@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Added reactive extension for AppKit's NSTextView
+
 # 7.0.1
 1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
 

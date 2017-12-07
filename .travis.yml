@@ -1,8 +1,6 @@
 language: objective-c
 osx_image: xcode9.2
-before_install:
-  - brew uninstall carthage
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/6ae4f69a652fb0ecb102b0c9216378679a4f1b92/Formula/carthage.rb # 0.22.0
+before_install: true
 install: true
 branches:
   only:

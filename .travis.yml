@@ -31,12 +31,12 @@ jobs:
         - XCODE_SCHEME=ReactiveCocoa-tvOS
           XCODE_SDK=appletvsimulator
           XCODE_ACTION="build-for-testing test-without-building"
-          XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
+          XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV"
           script/build
         - XCODE_SCHEME=ReactiveCocoa-watchOS
           XCODE_SDK=watchsimulator
           XCODE_ACTION=build
-          XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
+          XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 3 - 38mm"
           script/build
     - stage: package manager tests
       script:

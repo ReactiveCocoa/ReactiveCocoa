@@ -1,8 +1,6 @@
 language: objective-c
-osx_image: xcode9
-before_install:
-  - brew uninstall carthage
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/6ae4f69a652fb0ecb102b0c9216378679a4f1b92/Formula/carthage.rb # 0.22.0
+osx_image: xcode9.2
+before_install: true
 install: true
 branches:
   only:
@@ -16,7 +14,7 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode9
+      osx_image: xcode9.2
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx
@@ -33,12 +31,12 @@ jobs:
         - XCODE_SCHEME=ReactiveCocoa-tvOS
           XCODE_SDK=appletvsimulator
           XCODE_ACTION="build-for-testing test-without-building"
-          XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV 1080p"
+          XCODE_DESTINATION="platform=tvOS Simulator,name=Apple TV"
           script/build
         - XCODE_SCHEME=ReactiveCocoa-watchOS
           XCODE_SDK=watchsimulator
           XCODE_ACTION=build
-          XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch - 38mm,OS=2.2"
+          XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 3 - 38mm"
           script/build
     - stage: package manager tests
       script:

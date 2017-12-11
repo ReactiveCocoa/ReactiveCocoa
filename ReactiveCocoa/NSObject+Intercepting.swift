@@ -78,8 +78,7 @@ extension NSObject {
 			let subclass: AnyClass = swizzleClass(self)
 			let subclassAssociations = Associations(subclass as AnyObject)
 
-			// FIXME: Compiler asks to handle a mysterious throw.
-			try! ReactiveCocoa.synchronized(subclass) {
+			ReactiveCocoa.synchronized(subclass) {
 				let isSwizzled = subclassAssociations.value(forKey: interceptedKey)
 
 				let signatureCache: SignatureCache

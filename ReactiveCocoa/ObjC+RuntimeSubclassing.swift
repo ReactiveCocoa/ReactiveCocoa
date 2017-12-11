@@ -23,7 +23,7 @@ extension NSObject {
 	internal func swizzle(_ pairs: (Selector, Any)..., key hasSwizzledKey: AssociationKey<Bool>) {
 		let subclass: AnyClass = swizzleClass(self)
 
-		try! ReactiveCocoa.synchronized(subclass) {
+		ReactiveCocoa.synchronized(subclass) {
 			let subclassAssociations = Associations(subclass as AnyObject)
 
 			if !subclassAssociations.value(forKey: hasSwizzledKey) {

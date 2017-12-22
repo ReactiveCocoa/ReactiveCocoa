@@ -1,7 +1,9 @@
 # master
 *Please put new entries at the top.
 
-1. Added reactive extension for AppKit's NSTextView
+1. Requires ReactiveSwift 3.1.0 Release Candidate 1. (#3555)
+
+1. Added reactive extension for AppKit's NSTextView. (#3549, kudos to @Palleas)
 
 # 7.0.1
 1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)

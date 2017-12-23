@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 7.1.0-rc.1
 1. Requires ReactiveSwift 3.1.0 Release Candidate 1. (#3555)
 
 1. Added reactive extension for AppKit's NSTextView. (#3549, kudos to @Palleas)

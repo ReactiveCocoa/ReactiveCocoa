@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 7.1.0-rc.2
 1. Fix an issue preventing ReactiveCocoa from being built with the Swift 3.2 language mode. (#3556)
 
 # 7.1.0-rc.1

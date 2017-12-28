@@ -41,8 +41,8 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 
 	@objc(getArgumentTypeAtIndex:)
 	func argumentType(at index: UInt) -> UnsafePointer<CChar>
-    var methodReturnType: UnsafePointer<CChar> { get }
-    var methodReturnLength: UInt { get }
+	var methodReturnType: UnsafePointer<CChar> { get }
+	var methodReturnLength: UInt { get }
 
 	@objc(signatureWithObjCTypes:)
 	static func signature(withObjCTypes typeEncoding: UnsafePointer<Int8>) -> AnyObject

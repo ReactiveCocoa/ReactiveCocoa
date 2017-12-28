@@ -33,7 +33,10 @@ extension Reactive where Base: NSObject {
 
 	/// Create a signal which sends a `next` event, containing an array of 
 	/// bridged arguments, at the end of every invocation of `selector` on the 
-	/// object.  if includeReturnValue == true, then the last element of the array will include any return value of the invocation, if the 'selector' returns a value.  No value is appended if the method returns 'Void'.
+	/// object.  If includeReturnValue == true, then the last element of the
+	/// array will include any return value of the invocation, if the
+	/// 'selector' returns a value.  No value is appended if the 
+	/// method returns 'Void'.
 	///
 	/// It completes when the object deinitializes.
 	///
@@ -458,77 +461,73 @@ private func unpackInvocation(_ invocation: AnyObject, includeReturnValue: Bool)
 		bridged.append(value)
 	}
 
-
-
-    if includeReturnValue,
-        let returnSize = methodSignature.methodReturnLength,
-        returnSize > 0,
-        let retRawEncoding = methodSignature.methodReturnType {
-
-        let retEncoding = ObjCTypeEncoding(rawValue: retRawEncoding.pointee) ?? .undefined
-
-        func extractRet<U>(_ type: U.Type) -> U {
-            assert(returnSize == MemoryLayout<U>.size, "unexpected return size")
-            let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
-                                                           alignedTo: MemoryLayout<U>.alignment)
-            defer {
-                pointer.deallocate(bytes: MemoryLayout<U>.size,
-                                   alignedTo: MemoryLayout<U>.alignment)
-            }
-
-            invocation.copyReturnValue(to: pointer)
-            return pointer.assumingMemoryBound(to: type).pointee
-        }
-
-        let value: Any?
-
-        switch retEncoding {
-        case .char:
-            value = NSNumber(value: extractRet(CChar.self))
-        case .int:
-            value = NSNumber(value: extractRet(CInt.self))
-        case .short:
-            value = NSNumber(value: extractRet(CShort.self))
-        case .long:
-            value = NSNumber(value: extractRet(CLong.self))
-        case .longLong:
-            value = NSNumber(value: extractRet(CLongLong.self))
-        case .unsignedChar:
-            value = NSNumber(value: extractRet(CUnsignedChar.self))
-        case .unsignedInt:
-            value = NSNumber(value: extractRet(CUnsignedInt.self))
-        case .unsignedShort:
-            value = NSNumber(value: extractRet(CUnsignedShort.self))
-        case .unsignedLong:
-            value = NSNumber(value: extractRet(CUnsignedLong.self))
-        case .unsignedLongLong:
-            value = NSNumber(value: extractRet(CUnsignedLongLong.self))
-        case .float:
-            value = NSNumber(value: extractRet(CFloat.self))
-        case .double:
-            value = NSNumber(value: extractRet(CDouble.self))
-        case .bool:
-            value = NSNumber(value: extractRet(CBool.self))
-        case .object:
-            value = extractRet((AnyObject?).self)
-        case .type:
-            value = extractRet((AnyClass?).self)
-        case .selector:
-            value = extractRet((Selector?).self)
-        case .undefined:
-            var size = 0, alignment = 0
-            NSGetSizeAndAlignment(retRawEncoding, &size, &alignment)
-            let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
-            defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
-
-            invocation.copyReturnValue(to: buffer)
-            value = NSValue(bytes: buffer, objCType: retRawEncoding)
-        }
-
-        bridged.append(value)
-    }
-
-    
-
+	if includeReturnValue,
+		let returnSize = methodSignature.methodReturnLength,
+		returnSize > 0,
+		let retRawEncoding = methodSignature.methodReturnType {
+		
+		let retEncoding = ObjCTypeEncoding(rawValue: retRawEncoding.pointee) ?? .undefined
+		
+		func extractRet<U>(_ type: U.Type) -> U {
+			assert(returnSize == MemoryLayout<U>.size, "unexpected return size")
+			let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
+														   alignedTo: MemoryLayout<U>.alignment)
+			defer {
+				pointer.deallocate(bytes: MemoryLayout<U>.size,
+								   alignedTo: MemoryLayout<U>.alignment)
+			}
+			
+			invocation.copyReturnValue(to: pointer)
+			return pointer.assumingMemoryBound(to: type).pointee
+		}
+		
+		let value: Any?
+		
+		switch retEncoding {
+		case .char:
+			value = NSNumber(value: extractRet(CChar.self))
+		case .int:
+			value = NSNumber(value: extractRet(CInt.self))
+		case .short:
+			value = NSNumber(value: extractRet(CShort.self))
+		case .long:
+			value = NSNumber(value: extractRet(CLong.self))
+		case .longLong:
+			value = NSNumber(value: extractRet(CLongLong.self))
+		case .unsignedChar:
+			value = NSNumber(value: extractRet(CUnsignedChar.self))
+		case .unsignedInt:
+			value = NSNumber(value: extractRet(CUnsignedInt.self))
+		case .unsignedShort:
+			value = NSNumber(value: extractRet(CUnsignedShort.self))
+		case .unsignedLong:
+			value = NSNumber(value: extractRet(CUnsignedLong.self))
+		case .unsignedLongLong:
+			value = NSNumber(value: extractRet(CUnsignedLongLong.self))
+		case .float:
+			value = NSNumber(value: extractRet(CFloat.self))
+		case .double:
+			value = NSNumber(value: extractRet(CDouble.self))
+		case .bool:
+			value = NSNumber(value: extractRet(CBool.self))
+		case .object:
+			value = extractRet((AnyObject?).self)
+		case .type:
+			value = extractRet((AnyClass?).self)
+		case .selector:
+			value = extractRet((Selector?).self)
+		case .undefined:
+			var size = 0, alignment = 0
+			NSGetSizeAndAlignment(retRawEncoding, &size, &alignment)
+			let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
+			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
+			
+			invocation.copyReturnValue(to: buffer)
+			value = NSValue(bytes: buffer, objCType: retRawEncoding)
+		}
+		
+		bridged.append(value)
+	}
+	
 	return bridged
 }

@@ -33,6 +33,25 @@ extension Reactive where Base: NSObject {
 
 	/// Create a signal which sends a `next` event, containing an array of 
 	/// bridged arguments, at the end of every invocation of `selector` on the 
+	/// object.
+	///
+	/// It completes when the object deinitializes.
+	///
+	/// - note: Observers to the resulting signal should not call the method
+	///         specified by the selector.
+	///
+	/// - parameters:
+	///   - selector: The selector to observe.
+	///
+	/// - returns: A signal that sends an array of bridged arguments.
+	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+		return base.intercept(selector).map {
+			unpackInvocation($0, includeReturnValue: false)
+		}
+	}
+
+	/// Create a signal which sends a `next` event, containing an array of 
+	/// bridged arguments, at the end of every invocation of `selector` on the 
 	/// object.  If includeReturnValue == true, then the last element of the
 	/// array will include any return value of the invocation, if the
 	/// 'selector' returns a value.  No value is appended if the 
@@ -47,7 +66,7 @@ extension Reactive where Base: NSObject {
 	///   - selector: The selector to observe.
 	///   - includeReturnValue:  the array will include the value returned by the invocation.  Ignored if the selector returns Void.
 	/// - returns: A signal that sends an array of bridged arguments.
-	public func signal(for selector: Selector, includeReturnValue: Bool = false) -> Signal<[Any?], NoError> {
+	public func signal(for selector: Selector, includeReturnValue: Bool) -> Signal<[Any?], NoError> {
 		return base.intercept(selector).map {
 			unpackInvocation($0, includeReturnValue: includeReturnValue)
 		}

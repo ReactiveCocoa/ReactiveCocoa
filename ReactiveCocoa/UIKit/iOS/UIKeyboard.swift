@@ -12,7 +12,7 @@ public enum KeyboardEvent {
 	case didChangeFrame
 	
 	/// The name of the notification to observe system keyboard events.
-	var notificationName: Notification.Name {
+	fileprivate var notificationName: Notification.Name {
 		switch self {
 		case .willShow:
 			return .UIKeyboardWillShow

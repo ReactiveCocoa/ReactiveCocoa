@@ -2,9 +2,40 @@ import UIKit
 import ReactiveSwift
 import enum Result.NoError
 
+/// The type of system keyboard events.
+public enum KeyboardEvent {
+	case willShow
+	case didShow
+	case willHide
+	case didHide
+	case willChangeFrame
+	case didChangeFrame
+	
+	/// The name of the notification to observe system keyboard events.
+	var notificationName: Notification.Name {
+		switch self {
+		case .willShow:
+			return .UIKeyboardWillShow
+		case .didShow:
+			return .UIKeyboardDidShow
+		case .willHide:
+			return .UIKeyboardWillHide
+		case .didHide:
+			return .UIKeyboardDidHide
+		case .willChangeFrame:
+			return .UIKeyboardWillChangeFrame
+		case .didChangeFrame:
+			return .UIKeyboardDidChangeFrame
+		}
+	}
+}
+
 /// The context of an upcoming change in the frame of the system keyboard.
 public struct KeyboardChangeContext {
 	private let base: [AnyHashable: Any]
+	
+	/// The event type of the system keyboard.
+	public let event: KeyboardEvent
 
 	/// The current frame of the system keyboard.
 	public var beginFrame: CGRect {
@@ -37,19 +68,31 @@ public struct KeyboardChangeContext {
 		return base[UIKeyboardIsLocalUserInfoKey] as! Bool
 	}
 
-	fileprivate init(_ userInfo: [AnyHashable: Any]) {
+	fileprivate init(userInfo: [AnyHashable: Any], event: KeyboardEvent) {
 		base = userInfo
+		self.event = event
 	}
 }
 
 extension Reactive where Base: NotificationCenter {
+	/// Create a `Signal` that notifies whenever the system keyboard announces specified events.
+	///
+	/// - returns: A `Signal` that emits the context of system keyboard events.
+	public func keyboard(_ events: KeyboardEvent...) -> Signal<KeyboardChangeContext, NoError> {
+		return .merge(
+			events.map { event in
+				notifications(forName: event.notificationName)
+					.map { notification in KeyboardChangeContext(userInfo: notification.userInfo!, event: event) }
+			}
+		)
+	}
+	
 	/// Create a `Signal` that notifies whenever the system keyboard announces an
 	/// upcoming change in its frame.
 	///
 	/// - returns: A `Signal` that emits the context of every change in the
 	///            system keyboard's frame.
 	public var keyboardChange: Signal<KeyboardChangeContext, NoError> {
-		return notifications(forName: .UIKeyboardWillChangeFrame)
-			.map { notification in KeyboardChangeContext(notification.userInfo!) }
+		return keyboard(.willChangeFrame)
 	}
 }

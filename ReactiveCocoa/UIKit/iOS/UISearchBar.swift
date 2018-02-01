@@ -3,6 +3,10 @@ import enum Result.NoError
 import UIKit
 
 private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISearchBarDelegate {
+	@objc func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+		forwardee?.searchBarTextDidBeginEditing?(searchBar)
+	}
+
 	@objc func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
 		forwardee?.searchBarTextDidEndEditing?(searchBar)
 	}
@@ -90,5 +94,20 @@ extension Reactive where Base: UISearchBar {
 	/// A void signal emitted by the search bar upon any click on the bookmark button
 	public var resultsListButtonClicked: Signal<Void, NoError> {
 		return proxy.intercept(#selector(proxy.searchBarResultsListButtonClicked))
+	}
+
+	/// A void signal emitted by the search bar upon start of editing
+	public var textDidBeginEditing: Signal<Void, NoError> {
+		return proxy.intercept(#selector(proxy.searchBarTextDidBeginEditing))
+	}
+
+	/// A void signal emitted by the search bar upon end of editing
+	public var textDidEndEditing: Signal<Void, NoError> {
+		return proxy.intercept(#selector(proxy.searchBarTextDidEndEditing))
+	}
+
+	/// Shows and hides the cancel button of the search bar
+	public var showsCancelButton: BindingTarget<Bool> {
+		return makeBindingTarget { $0.showsCancelButton = $1 }
 	}
 }

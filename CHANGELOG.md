@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3565)
+
 # 7.1.0
 # 7.1.0-rc.2
 1. Fix an issue preventing ReactiveCocoa from being built with the Swift 3.2 language mode. (#3556)

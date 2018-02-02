@@ -80,12 +80,7 @@ extension Reactive where Base: NotificationCenter {
 	/// - returns: A `Signal` that emits the context of system keyboard events.
 	public func keyboard(_ first: KeyboardEvent, _ tail: KeyboardEvent...) -> Signal<KeyboardChangeContext, NoError> {
 		let events = [first] + tail
-		return .merge(
-			events.map { event in
-				notifications(forName: event.notificationName)
-					.map { notification in KeyboardChangeContext(userInfo: notification.userInfo!, event: event) }
-			}
-		)
+		return .merge(events.map(_keyboard))
 	}
 	
 	/// Create a `Signal` that notifies whenever the system keyboard announces an
@@ -94,6 +89,11 @@ extension Reactive where Base: NotificationCenter {
 	/// - returns: A `Signal` that emits the context of every change in the
 	///            system keyboard's frame.
 	public var keyboardChange: Signal<KeyboardChangeContext, NoError> {
-		return keyboard(.willChangeFrame)
+		return _keyboard(.willChangeFrame)
+	}
+	
+	private func _keyboard(_ event: KeyboardEvent) -> Signal<KeyboardChangeContext, NoError> {
+		return notifications(forName: event.notificationName)
+			.map { notification in KeyboardChangeContext(userInfo: notification.userInfo!, event: event) }
 	}
 }

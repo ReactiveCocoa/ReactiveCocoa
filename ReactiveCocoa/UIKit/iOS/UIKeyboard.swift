@@ -78,7 +78,8 @@ extension Reactive where Base: NotificationCenter {
 	/// Create a `Signal` that notifies whenever the system keyboard announces specified events.
 	///
 	/// - returns: A `Signal` that emits the context of system keyboard events.
-	public func keyboard(_ events: KeyboardEvent...) -> Signal<KeyboardChangeContext, NoError> {
+	public func keyboard(_ first: KeyboardEvent, _ tail: KeyboardEvent...) -> Signal<KeyboardChangeContext, NoError> {
+		let events = [first] + tail
 		return .merge(
 			events.map { event in
 				notifications(forName: event.notificationName)

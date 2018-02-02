@@ -171,11 +171,54 @@ class UISearchBarSpec: QuickSpec {
 			expect(isClicked) == true
 			expect(receiver.resultsListButtonClickedCounter) == 1
 		}
+
+
+		it("should notify when started editing") {
+			var didBegin: Bool?
+			searchBar.reactive.textDidBeginEditing
+				.observeValues { didBegin = true }
+
+			expect(didBegin).to(beNil())
+			expect(receiver.beginEditingCounter) == 0
+
+			searchBar.delegate!.searchBarTextDidBeginEditing!(searchBar)
+			expect(didBegin) == true
+			expect(receiver.beginEditingCounter) == 1
+		}
+
+
+		it("should notify when ended editing") {
+			var didEnd: Bool?
+			searchBar.reactive.textDidEndEditing
+				.observeValues { didEnd = true }
+
+			expect(didEnd).to(beNil())
+			expect(receiver.endEditingTexts.isEmpty) == true
+
+			searchBar.delegate!.searchBarTextDidEndEditing!(searchBar)
+			expect(didEnd) == true
+			expect(receiver.endEditingTexts.count) == 1
+		}
+
+
+		it("should accept changes from bindings to its hidden state of the cancel button") {
+			searchBar.showsCancelButton = false
+
+			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			searchBar.reactive.showsCancelButton <~ SignalProducer(pipeSignal)
+
+			observer.send(value: true)
+			expect(searchBar.showsCancelButton) == true
+
+			observer.send(value: false)
+			expect(searchBar.showsCancelButton) == false
+		}
 	}
 }
 
 class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
 	var texts: [String] = []
+	var beginEditingCounter = 0
 	var endEditingTexts: [String] = []
 	var searchButtonClickedCounter = 0
 	var cancelButtonClickedCounter = 0
@@ -189,6 +232,10 @@ class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
 
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		texts.append(searchText)
+	}
+
+	func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+		beginEditingCounter += 1
 	}
 
 	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {

@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3566)
+
 1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
 
 # 7.1.0

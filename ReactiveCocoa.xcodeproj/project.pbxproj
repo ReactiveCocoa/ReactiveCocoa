@@ -249,6 +249,7 @@
 		9AFCBFE31EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
 		9AFCBFE41EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
 		9AFCBFE51EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */; };
+		A91244E820389AEA0001BBCB /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
 		A9B315C91B3940980001CB9C /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
@@ -500,6 +501,7 @@
 		9AED64C41E496A3700321004 /* ActionProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxy.swift; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
 		9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVOKVCExtensionSpec.swift; sourceTree = "<group>"; };
+		A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKLocalSearchRequest.swift; sourceTree = "<group>"; };
 		A97451331B3A935E00F48E55 /* watchOS-Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Application.xcconfig"; sourceTree = "<group>"; };
 		A97451341B3A935E00F48E55 /* watchOS-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Base.xcconfig"; sourceTree = "<group>"; };
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
@@ -772,6 +774,7 @@
 			isa = PBXGroup;
 			children = (
 				53A6BED11DD4BCA90016C058 /* MKMapView.swift */,
+				A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */,
 				9AC03A5A1F7CC3BF00EC33C1 /* Info.plist */,
 			);
 			path = ReactiveMapKit;
@@ -1467,6 +1470,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AC03A611F7CC5E300EC33C1 /* MKMapView.swift in Sources */,
+				A91244E820389AEA0001BBCB /* MKLocalSearchRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

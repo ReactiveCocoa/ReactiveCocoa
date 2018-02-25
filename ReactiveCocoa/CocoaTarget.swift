@@ -16,7 +16,7 @@ public final class CocoaTarget<Value>: NSObject {
 
 	private var state: State
 
-	public init(_ observer: Signal<Value, NoError>.Observer, transform: @escaping (Any?) -> Value) {
+	public init(_ observer: Signal<Value, NoError>.Observer, _ transform: @escaping (Any?) -> Value) {
 		self.observer = observer
 		self.transform = transform
 		self.state = .idle
@@ -57,6 +57,6 @@ public final class CocoaTarget<Value>: NSObject {
 
 extension CocoaTarget where Value == Void {
 	public convenience init(_ observer: Signal<(), NoError>.Observer) {
-		self.init(observer, transform: { _ in })
+		self.init(observer) { _ in }
 	}
 }

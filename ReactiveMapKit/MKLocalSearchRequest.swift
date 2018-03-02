@@ -13,14 +13,14 @@ extension Reactive where Base: MKLocalSearchRequest {
 	public var search: SignalProducer<MKLocalSearchResponse, AnyError> {
 		return SignalProducer {[base = self.base] observer, lifetime in
 			let search = MKLocalSearch(request: base)
-			search.start(completionHandler: { response, error in
+			search.start { response, error in
 				if let response = response {
 					observer.send(value: response)
 					observer.sendCompleted()
 				} else {
 					observer.send(error: AnyError(error ?? defaultLocalSearchError))
 				}
-			})
+			}
 			lifetime.observeEnded(search.cancel)
 		}
 	}

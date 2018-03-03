@@ -3,21 +3,24 @@ import ReactiveSwift
 import enum Result.NoError
 
 /// A target that accepts action messages.
-internal final class CocoaTarget<Value>: NSObject {
+public final class CocoaTarget<Value>: NSObject {
 	private enum State {
 		case idle
 		case sending(queue: [Value])
 	}
+
+	public let selector: Selector
 
 	private let observer: Signal<Value, NoError>.Observer
 	private let transform: (Any?) -> Value
 
 	private var state: State
 
-	internal init(_ observer: Signal<Value, NoError>.Observer, transform: @escaping (Any?) -> Value) {
+	public init(_ observer: Signal<Value, NoError>.Observer, _ transform: @escaping (Any?) -> Value) {
 		self.observer = observer
 		self.transform = transform
 		self.state = .idle
+		selector = #selector(invoke(_:))
 	}
 
 	/// Broadcast the action message to all observers.
@@ -29,7 +32,7 @@ internal final class CocoaTarget<Value>: NSObject {
 	///
 	/// - parameters:
 	///   - sender: The object which sends the action message.
-	@objc internal func invoke(_ sender: Any?) {
+	@objc private func invoke(_ sender: Any?) {
 		switch state {
 		case .idle:
 			state = .sending(queue: [])
@@ -53,7 +56,7 @@ internal final class CocoaTarget<Value>: NSObject {
 }
 
 extension CocoaTarget where Value == Void {
-	internal convenience init(_ observer: Signal<(), NoError>.Observer) {
-		self.init(observer, transform: { _ in })
+	public convenience init(_ observer: Signal<(), NoError>.Observer) {
+		self.init(observer) { _ in }
 	}
 }

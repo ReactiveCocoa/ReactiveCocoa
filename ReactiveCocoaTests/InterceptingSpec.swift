@@ -852,6 +852,25 @@ class InterceptingSpec: QuickSpec {
 				}
 			}
 		}
+
+		describe("classes utilising the message forwarding mechanism") {
+			it("should receive the message without needing to implement it in the runtime") {
+				let entity = MessageForwardingEntity()
+				expect(entity.hasInvoked) == false
+
+				var latestValue: Bool?
+				entity.reactive
+					.signal(for: #selector(setter: entity.hasInvoked))
+					.observeValues { latestValue = $0[0] as? Bool }
+
+				expect(entity.hasInvoked) == false
+				expect(latestValue).to(beNil())
+
+				entity.perform(Selector(("_rac_test_forwarding")))
+				expect(entity.hasInvoked) == true
+				expect(latestValue) == true
+			}
+		}
 	}
 }
 

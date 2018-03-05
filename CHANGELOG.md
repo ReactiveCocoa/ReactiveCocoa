@@ -1,5 +1,5 @@
 # master
-*Please put new entries at the top.
+1. Adds `includeReturnValue` option to `reactive.signal(for Selector)` (#3557)
 
 1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
 

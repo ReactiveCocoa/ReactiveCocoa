@@ -643,6 +643,66 @@ class InterceptingSpec: QuickSpec {
 				expect(_object).to(beNil())
 			}
 
+			it("should send a return values") {
+
+				ReturnValueTest<CChar>(object: object).test()
+				ReturnValueTest<CShort>(object: object).test()
+				ReturnValueTest<CInt>(object: object).test()
+
+				ReturnValueTest<CLong>(object: object).test()
+				ReturnValueTest<CLongLong>(object: object).test()
+				ReturnValueTest<CUnsignedChar>(object: object).test()
+				ReturnValueTest<CUnsignedShort>(object: object).test()
+				ReturnValueTest<CUnsignedInt>(object: object).test()
+				ReturnValueTest<CUnsignedLong>(object: object).test()
+				ReturnValueTest<CUnsignedLongLong>(object: object).test()
+				ReturnValueTest<CFloat>(object: object).test()
+				ReturnValueTest<CDouble>(object: object).test()
+				ReturnValueTest<CBool>(object: object).test()
+
+				ReturnValueTest<NSObject>(object: object).test()
+
+			}
+
+			it("should send a return value nil") {
+				
+				let signal = object.reactive.signal(for: #selector(object.testReturnValuesObjectOptional(arg:)),
+													includeReturnValue:true)
+
+				var arguments = [[Any?]]()
+				signal.observeValues { arguments.append($0) }
+
+				expect(arguments.count) == 0
+
+				expect(object.testReturnValuesObjectOptional(arg: nil)).to(beNil())
+				expect(arguments.count) == 1
+
+				expect((arguments[0][0] as? NSObject)).to(beNil())
+				expect((arguments[0][1] as? NSObject)).to(beNil())
+
+			}
+
+			it("should send a return value AnyClass") {
+
+				let signal = object.reactive.signal(for: #selector(object.testReturnValuesClass(arg:)),
+													includeReturnValue:true)
+
+				var arguments = [[Any?]]()
+				signal.observeValues { arguments.append($0) }
+
+				expect(arguments.count) == 0
+
+				let c: AnyClass = InterceptedObject.self
+
+				expect(object.testReturnValuesClass(arg: c) is InterceptedObject.Type) == true
+				expect(arguments.count) == 1
+
+				expect((arguments[0][0] is InterceptedObject.Type)) == true
+				expect((arguments[0][1] is InterceptedObject.Type)) == true
+
+			}
+
+
 			it("should send a value with bridged numeric arguments") {
 				let signal = object.reactive.signal(for: #selector(object.testNumericValues(c:s:i:l:ll:uc:us:ui:ul:ull:f:d:b:)))
 
@@ -949,4 +1009,178 @@ private class InterceptedObject: NSObject {
 	@objc dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
 	@objc dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
 	@objc dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
+	@objc dynamic func testReturnValuesC(arg: CChar) -> CChar { return arg }
+	@objc dynamic func testReturnValuesS(arg: CShort) -> CShort { return arg }
+	@objc dynamic func testReturnValuesI(arg: CInt) -> CInt { return arg }
+	@objc dynamic func testReturnValuesL(arg: CLong) -> CLong { return arg }
+	@objc dynamic func testReturnValuesLL(arg: CLongLong) -> CLongLong { return arg }
+	@objc dynamic func testReturnValuesUC(arg: CUnsignedChar) -> CUnsignedChar { return arg }
+	@objc dynamic func testReturnValuesUS(arg: CUnsignedShort) -> CUnsignedShort { return arg }
+	@objc dynamic func testReturnValuesUI(arg: CUnsignedInt) -> CUnsignedInt { return arg }
+	@objc dynamic func testReturnValuesUL(arg: CUnsignedLong) -> CUnsignedLong { return arg }
+	@objc dynamic func testReturnValuesULL(arg: CUnsignedLongLong) -> CUnsignedLongLong { return arg }
+	@objc dynamic func testReturnValuesF(arg: CFloat) -> CFloat { return arg }
+	@objc dynamic func testReturnValuesD(arg: CDouble) -> CDouble { return arg }
+	@objc dynamic func testReturnValuesB(arg: CBool) -> CBool { return arg }
+	@objc dynamic func testReturnValuesObject(arg: NSObject) -> NSObject { return arg }
+	@objc dynamic func testReturnValuesObjectOptional(arg: NSObject?) -> NSObject? { return arg }
+	@objc dynamic func testReturnValuesClass(arg: AnyClass) -> AnyClass { return arg }
 }
+
+fileprivate struct ReturnValueTest<I: Equatable> {
+	var object: InterceptedObject
+	var selector: Selector {
+		switch I.self {
+		case is CChar.Type:
+			return #selector(InterceptedObject.testReturnValuesC(arg:))
+		case is CShort.Type:
+			return #selector(InterceptedObject.testReturnValuesS(arg:))
+		case is CInt.Type:
+			return #selector(InterceptedObject.testReturnValuesI(arg:))
+		case is CLong.Type:
+			return #selector(InterceptedObject.testReturnValuesL(arg:))
+		case is CLongLong.Type:
+			return #selector(InterceptedObject.testReturnValuesLL(arg:))
+		case is CUnsignedChar.Type:
+			return #selector(InterceptedObject.testReturnValuesUC(arg:))
+		case is CUnsignedShort.Type:
+			return #selector(InterceptedObject.testReturnValuesUS(arg:))
+		case is CUnsignedInt.Type:
+			return #selector(InterceptedObject.testReturnValuesUI(arg:))
+		case is CUnsignedLong.Type:
+			return #selector(InterceptedObject.testReturnValuesUL(arg:))
+		case is CUnsignedLongLong.Type:
+			return #selector(InterceptedObject.testReturnValuesULL(arg:))
+		case is CFloat.Type:
+			return #selector(InterceptedObject.testReturnValuesF(arg:))
+		case is CDouble.Type:
+			return #selector(InterceptedObject.testReturnValuesD(arg:))
+		case is CBool.Type:
+			return #selector(InterceptedObject.testReturnValuesB(arg:))
+		case is NSObject.Type:
+			return #selector(InterceptedObject.testReturnValuesObject(arg:))
+		default:
+			preconditionFailure("unsupported Type ReturnValueTest<\(I.self)>")
+		}
+
+	}
+
+	init(object: InterceptedObject) {
+		self.object = object
+	}
+
+	func argument(forOffset offset: UInt) -> I {
+		switch I.self {
+		case is CChar.Type:
+			return (CChar.max - CChar(offset)) as! I
+		case is CShort.Type:
+			return (CShort.max - CShort(offset)) as! I
+		case is CInt.Type:
+			return (CInt.max - CInt(offset)) as! I
+		case is CLong.Type:
+			return (CLong.max - CLong(offset)) as! I
+		case is CLongLong.Type:
+			return (CLongLong.max - CLongLong(offset)) as! I
+		case is CUnsignedChar.Type:
+			return (CUnsignedChar.max - CUnsignedChar(offset)) as! I
+		case is CUnsignedShort.Type:
+			return (CUnsignedShort.max - CUnsignedShort(offset)) as! I
+		case is CUnsignedInt.Type:
+			return (CUnsignedInt.max - CUnsignedInt(offset)) as! I
+		case is CUnsignedLong.Type:
+			return (CUnsignedLong.max - CUnsignedLong(offset)) as! I
+		case is CUnsignedLongLong.Type:
+			return (CUnsignedLongLong.max - CUnsignedLongLong(offset)) as! I
+		case is CFloat.Type:
+			return (CFloat.greatestFiniteMagnitude - CFloat(offset)) as! I
+		case is CDouble.Type:
+			return (CDouble.greatestFiniteMagnitude - CDouble(offset)) as! I
+		case is CBool.Type:
+			return (offset % 2 == 0 ? true : false) as! I
+		case is NSObject.Type:
+			let bool = (offset % 2 == 0 ? true : false)
+			return NSNumber(booleanLiteral: bool) as! I
+		default:
+			preconditionFailure("unsupported Type ReturnValueTest<\(I.self)>")
+		}
+	}
+
+	func call(offset: UInt) {
+		switch I.self {
+		case is CChar.Type:
+			let arg = CChar.max - CChar(offset)
+			expect(self.object.testReturnValuesC(arg: arg)) == arg
+		case is CShort.Type:
+			let arg = argument(forOffset: offset) as! CShort
+			expect(self.object.testReturnValuesS(arg: arg)) == arg
+		case is CInt.Type:
+			let arg = argument(forOffset: offset) as! CInt
+			expect(self.object.testReturnValuesI(arg: arg)) == arg
+		case is CLong.Type:
+			let arg = argument(forOffset: offset) as! CLong
+			expect(self.object.testReturnValuesL(arg: arg)) == arg
+		case is CLongLong.Type:
+			let arg = argument(forOffset: offset) as! CLongLong
+			expect(self.object.testReturnValuesLL(arg: arg)) == arg
+		case is CUnsignedChar.Type:
+			let arg = argument(forOffset: offset) as! CUnsignedChar
+			expect(self.object.testReturnValuesUC(arg: arg)) == arg
+		case is CUnsignedShort.Type:
+			let arg = argument(forOffset: offset) as! CUnsignedShort
+			expect(self.object.testReturnValuesUS(arg: arg)) == arg
+		case is CUnsignedInt.Type:
+			let arg = argument(forOffset: offset) as! CUnsignedInt
+			expect(self.object.testReturnValuesUI(arg: arg)) == arg
+		case is CUnsignedLong.Type:
+			let arg = argument(forOffset: offset) as! CUnsignedLong
+			expect(self.object.testReturnValuesUL(arg: arg)) == arg
+		case is CUnsignedLongLong.Type:
+			let arg = argument(forOffset: offset) as! CUnsignedLongLong
+			expect(self.object.testReturnValuesULL(arg: arg)) == arg
+		case is CFloat.Type:
+			let arg = argument(forOffset: offset) as! CFloat
+			expect(self.object.testReturnValuesF(arg: arg)) == arg
+		case is CDouble.Type:
+			let arg = argument(forOffset: offset) as! CDouble
+			expect(self.object.testReturnValuesD(arg: arg)) == arg
+		case is CBool.Type:
+			let arg = argument(forOffset: offset) as! CBool
+			expect(self.object.testReturnValuesB(arg: arg)) == arg
+		case is NSObject.Type:
+			let arg = argument(forOffset: offset) as! NSObject
+			expect(self.object.testReturnValuesObject(arg: arg)) == arg
+		default:
+			fail("unsupported Type ReturnValueTest<\(I.self)>")
+		}
+	}
+
+	func validate(arg: I, offset: UInt) {
+		expect(arg) == argument(forOffset: offset)
+	}
+
+	func validateAll(arguments: [Any?], offset: UInt) {
+		validate(arg: arguments[0] as! I, offset: offset)
+		validate(arg: arguments[1] as! I, offset: offset)
+	}
+
+	func test() {
+		let signal = object.reactive.signal(for:selector,
+											includeReturnValue:true)
+
+		var arguments = [[Any?]]()
+		signal.observeValues { arguments.append($0) }
+
+		expect(arguments.count) == 0
+
+		call(offset: 0)
+		expect(arguments.count) == 1
+		validateAll(arguments: arguments[0], offset: 0)
+
+		call(offset: 1)
+		expect(arguments.count) == 2
+		validateAll(arguments: arguments[1], offset: 1)
+	}
+
+}
+
+

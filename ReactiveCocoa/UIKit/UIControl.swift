@@ -2,6 +2,14 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
+protocol ReactiveUIControl {
+	var isEnabled: BindingTarget<Bool> { get }
+	var isSelected: BindingTarget<Bool> { get }
+	var isHighlighted: BindingTarget<Bool> { get }
+	var contentVerticalAlignment: BindingTarget<UIControlContentVerticalAlignment> { get }
+	var contentHorizontalAlignment: BindingTarget<UIControlContentHorizontalAlignment> { get }
+}
+
 extension Reactive where Base: UIControl {
 	/// The current associated action of `self`, with its registered event mask
 	/// and its disposable.
@@ -93,20 +101,5 @@ extension Reactive where Base: UIControl {
 	@available(*, unavailable, renamed: "controlEvents(_:)")
 	public func trigger(for controlEvents: UIControlEvents) -> Signal<(), NoError> {
 		fatalError()
-	}
-
-	/// Sets whether the control is enabled.
-	public var isEnabled: BindingTarget<Bool> {
-		return makeBindingTarget { $0.isEnabled = $1 }
-	}
-
-	/// Sets whether the control is selected.
-	public var isSelected: BindingTarget<Bool> {
-		return makeBindingTarget { $0.isSelected = $1 }
-	}
-
-	/// Sets whether the control is highlighted.
-	public var isHighlighted: BindingTarget<Bool> {
-		return makeBindingTarget { $0.isHighlighted = $1 }
 	}
 }

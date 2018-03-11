@@ -1,0 +1,18 @@
+import ReactiveSwift
+import UIKit
+
+{% for protocol in types.protocols %}
+{% if protocol.name|hasPrefix:"ReactiveUI" %}
+
+extension Reactive where Base: {{ protocol.name|replace:"Reactive",""}} {
+{% for variable in protocol.variables %}
+  /// Sets the {{variable.name}} of the {{ protocol.name|replace:"ReactiveUI",""|lowerFirstLetter}}
+  {{ variable.attributes.available}}
+  public var {{variable.name}}: {{variable.typeName}} {
+    return makeBindingTarget { $0.{{variable.name}} = $1 }
+  }
+
+{% endfor %}
+}
+{% endif %}
+{% endfor %}

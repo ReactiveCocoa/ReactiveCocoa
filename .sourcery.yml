@@ -1,0 +1,6 @@
+sources:
+  - ReactiveCocoa/UIKit
+templates:
+  - SourceryTemplates/
+output:
+  ReactiveCocoa/UIKit

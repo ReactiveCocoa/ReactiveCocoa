@@ -1,9 +1,15 @@
 import ReactiveSwift
 import UIKit
 
-extension Reactive where Base: UIProgressView {
-	/// Sets the relative progress to be reflected by the progress view.
-	public var progress: BindingTarget<Float> {
-		return makeBindingTarget { $0.progress = $1 }
-	}
+protocol ReactiveUIProgressView {
+	// Managing the Progress Bar
+	var progress: BindingTarget<Float> { get}
+	@available(iOS 9, *)
+	var observedProgress: BindingTarget<Progress?> { get}
+	// Configuring the Progress Bar
+	var progressViewStyle: BindingTarget<UIProgressViewStyle> { get}
+	var progressTintColor: BindingTarget<UIColor?> { get}
+	var progressImage: BindingTarget<UIImage?> { get}
+	var trackTintColor: BindingTarget<UIColor?> { get}
+	var trackImage: BindingTarget<UIImage?> { get}
 }

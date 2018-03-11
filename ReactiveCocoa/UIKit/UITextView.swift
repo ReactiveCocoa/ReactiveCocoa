@@ -8,16 +8,33 @@ private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextVi
 	}
 }
 
+protocol ReactiveUITextView {
+	// Configuring the Text Attributes
+	var text: BindingTarget<String?> { get }
+	var attributedText: BindingTarget<NSAttributedString?> { get }
+	var font: BindingTarget<UIFont?> { get }
+	var textColor: BindingTarget<UIColor?> { get }
+	var isEditable: BindingTarget<Bool> { get }
+	var allowsEditingTextAttributes: BindingTarget<Bool> { get }
+	var dataDetectorTypes: BindingTarget<UIDataDetectorTypes> { get }
+	var textAlignment: BindingTarget<NSTextAlignment> { get }
+	var typingAttributes: BindingTarget<[String : Any]> { get }
+	var linkTextAttributes: BindingTarget<[String : Any]> { get }
+	var textContainerInset: BindingTarget<UIEdgeInsets> { get }
+	// Working with the Selection
+	var selectedRange: BindingTarget<NSRange> { get }
+	var clearsOnInsertion: BindingTarget<Bool> { get }
+	var isSelectable: BindingTarget<Bool> { get }
+	// Replacing the System Input View
+	var inputView: BindingTarget<UIView?> { get }
+	var inputAccessoryView: BindingTarget<UIView?> { get }
+}
+
 extension Reactive where Base: UITextView {
 	private var proxy: TextViewDelegateProxy {
 		return .proxy(for: base,
 		              setter: #selector(setter: base.delegate),
 		              getter: #selector(getter: base.delegate))
-	}
-
-	/// Sets the text of the text view.
-	public var text: BindingTarget<String?> {
-		return makeBindingTarget { $0.text = $1 }
 	}
 
 	private func textValues(forName name: NSNotification.Name) -> Signal<String?, NoError> {
@@ -41,11 +58,6 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {
 		return textValues(forName: .UITextViewTextDidChange)
-	}
-	
-	/// Sets the attributed text of the text view.
-	public var attributedText: BindingTarget<NSAttributedString?> {
-		return makeBindingTarget { $0.attributedText = $1 }
 	}
 	
 	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString?, NoError> {

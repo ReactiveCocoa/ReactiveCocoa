@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		004FD0071E26CDB300A03A82 /* NSButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */; };
 		006518761E26865800C3139A /* NSButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006518751E26865800C3139A /* NSButton.swift */; };
+		21384489205563C4006C6648 /* BindingTarget.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21384488205563C4006C6648 /* BindingTarget.generated.swift */; };
 		3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
 		3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
 		3B30EE8E1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */; };
@@ -394,6 +395,7 @@
 /* Begin PBXFileReference section */
 		004FD0061E26CDB300A03A82 /* NSButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButtonSpec.swift; sourceTree = "<group>"; };
 		006518751E26865800C3139A /* NSButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSButton.swift; sourceTree = "<group>"; };
+		21384488205563C4006C6648 /* BindingTarget.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingTarget.generated.swift; sourceTree = "<group>"; };
 		3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecationsSpec.swift; sourceTree = "<group>"; };
 		3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControl.swift; sourceTree = "<group>"; };
 		3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIRefreshControlSpec.swift; sourceTree = "<group>"; };
@@ -718,6 +720,7 @@
 		9A1D05EB1D93E9F100ACF44C /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				21384488205563C4006C6648 /* BindingTarget.generated.swift */,
 				CD91E3D41DDAC67700FA70D0 /* iOS */,
 				9A6AAA221DB8F51C0013AAEA /* ReusableComponents.swift */,
 				9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */,
@@ -1595,6 +1598,7 @@
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
 				A9EB3D811E955602002A9BCC /* UIFeedbackGenerator.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
+				21384489205563C4006C6648 /* BindingTarget.generated.swift in Sources */,
 				9A9037501ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				A9EB3D831E955602002A9BCC /* UINotification​Feedback​Generator.swift in Sources */,

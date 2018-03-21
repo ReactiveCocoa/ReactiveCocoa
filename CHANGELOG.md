@@ -7,6 +7,8 @@
 
 1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
 
+1. Add extensions for several properties on `UINavigationItem`.
+
 # 7.1.0
 # 7.1.0-rc.2
 1. Fix an issue preventing ReactiveCocoa from being built with the Swift 3.2 language mode. (#3556)

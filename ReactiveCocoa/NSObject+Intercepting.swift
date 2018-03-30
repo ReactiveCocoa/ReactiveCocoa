@@ -102,7 +102,7 @@ extension NSObject {
 				selectorCache.cache(selector)
 
 				if signatureCache[selector] == nil {
-					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
+					let signature = NSMethodSignature.objcSignature(withObjCTypes: typeEncoding)
 					signatureCache[selector] = signature
 				}
 
@@ -162,9 +162,9 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			typeEncoding = String(cString: runtimeTypeEncoding)
 		} else {
 			let methodSignature = (objectRef.takeUnretainedValue() as AnyObject)
-				.methodSignature(for: selector)
-			let encodings = (0 ..< methodSignature.numberOfArguments!)
-				.map { UInt8(methodSignature.getArgumentType(at: $0).pointee) }
+				.objcMethodSignature(for: selector)
+			let encodings = (0 ..< methodSignature.objcNumberOfArguments!)
+				.map { UInt8(methodSignature.objcArgumentType(at: $0).pointee) }
 			typeEncoding = String(bytes: encodings, encoding: .ascii)!
 		}
 
@@ -193,7 +193,7 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 					let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)!
 
 					let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
-					invocation.invoke()
+					invocation.objcInvoke()
 
 					_ = class_replaceMethod(topLevelClass, selector, previousImpl ?? noImplementation, typeEncoding)
 				}
@@ -229,8 +229,8 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 				_ = class_replaceMethod(realClass, alias, impl, typeEncoding)
 			}
 
-			invocation.setSelector(alias)
-			invocation.invoke()
+			invocation.objcSetSelector(alias)
+			invocation.objcInvoke()
 
 			return
 		}
@@ -396,14 +396,14 @@ private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	let invocation = invocation as AnyObject
 	let methodSignature = invocation.objcMethodSignature!
-	let count = UInt(methodSignature.numberOfArguments!)
+	let count = methodSignature.objcNumberOfArguments!
 
 	var bridged = [Any?]()
 	bridged.reserveCapacity(Int(count - 2))
 
 	// Ignore `self` and `_cmd` at index 0 and 1.
 	for position in 2 ..< count {
-		let rawEncoding = methodSignature.argumentType(at: position)
+		let rawEncoding = methodSignature.objcArgumentType(at: position)
 		let encoding = ObjCTypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
 
 		func extract<U>(_ type: U.Type) -> U {
@@ -414,7 +414,7 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 				                   alignedTo: MemoryLayout<U>.alignment)
 			}
 
-			invocation.copy(to: pointer, forArgumentAt: Int(position))
+			invocation.objcCopy(to: pointer, forArgumentAt: Int(position))
 			return pointer.assumingMemoryBound(to: type).pointee
 		}
 
@@ -459,7 +459,7 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 			let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
 			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
 
-			invocation.copy(to: buffer, forArgumentAt: Int(position))
+			invocation.objcCopy(to: buffer, forArgumentAt: Int(position))
 			value = NSValue(bytes: buffer, objCType: rawEncoding)
 		}
 

@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)
+
 1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
 
 1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3566)

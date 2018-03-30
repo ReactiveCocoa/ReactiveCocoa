@@ -16,7 +16,7 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 	var objcClass: AnyClass! { get }
 
 	@objc(methodSignatureForSelector:)
-	func methodSignature(for selector: Selector) -> AnyObject
+	func objcMethodSignature(for selector: Selector) -> AnyObject
 }
 
 // Methods of `NSInvocation`.

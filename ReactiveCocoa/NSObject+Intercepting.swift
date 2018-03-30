@@ -162,9 +162,9 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			typeEncoding = String(cString: runtimeTypeEncoding)
 		} else {
 			let methodSignature = (objectRef.takeUnretainedValue() as AnyObject)
-				.methodSignature(for: selector)
-			let encodings = (0 ..< methodSignature.numberOfArguments!)
-				.map { UInt8(methodSignature.getArgumentType(at: $0).pointee) }
+				.objcMethodSignature(for: selector)
+			let encodings = (0 ..< methodSignature.objcNumberOfArguments!)
+				.map { UInt8(methodSignature.objcArgumentType(at: $0).pointee) }
 			typeEncoding = String(bytes: encodings, encoding: .ascii)!
 		}
 

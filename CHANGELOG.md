@@ -6,7 +6,7 @@
 
 1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
 
-1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3566)
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3565, kudos to @banjun)
 
 1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
 

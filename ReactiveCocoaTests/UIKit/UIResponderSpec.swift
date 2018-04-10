@@ -15,7 +15,6 @@ class UIResponderSpec: QuickSpec {
 			expect(textField.isFirstResponder).to(beTrue())
 			textField.reactive.resignFirstResponder <~ SignalProducer(value: ())
 			expect(textField.isFirstResponder).to(beFalse())
-			
 		}
 	}
 }

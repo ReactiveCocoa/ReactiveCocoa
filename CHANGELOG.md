@@ -7,6 +7,7 @@
 1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
 2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
 3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).
+4. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
 
 # 7.2.0
 1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)

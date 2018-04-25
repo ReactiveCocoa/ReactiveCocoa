@@ -1,6 +1,9 @@
 # master
 *Please put new entries at the top.
 
+# 7.X.0
+1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
+
 # 7.2.0
 1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)
 

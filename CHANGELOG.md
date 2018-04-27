@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
+
 1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
 
 # 7.2.0
@@ -54,7 +56,7 @@
 
    Sources that use the MapKit bindings are now required to import ReactiveMapKit.
 
-   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry.
 
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
@@ -160,16 +162,16 @@ Lots has changed, but if you're already migrating to Swift 3 then that should no
 #### Foundation: Object Interception
 
 RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered for ReactiveSwift.
-	
+
 1. **Method Call Interception**
 
 	Create signals that are sourced by intercepting Objective-C objects.
-	
+
 	```swift
 	// Notify after every time `viewWillAppear(_:)` is called.
 	let appearing = viewController.reactive.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
 	```
-	
+
 1. **Object Lifetime**
 
 	Obtain a `Lifetime` token for any `NSObject` to observe their deinitialization.
@@ -183,7 +185,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 
 	Establish key-value observations in the form of [`SignalProducer`][]s and
 	strong-typed `DynamicProperty`s, and enjoy the inherited composability.
-	
+
 	```swift
 	// A producer that sends the current value of `keyPath`, followed by
 	// subsequent changes.
@@ -191,7 +193,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 	// Terminate the KVO observation if the lifetime of `self` ends.
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
-	
+
 	// A parameterized property that represents the supplied key path of the
 	// wrapped object. It holds a weak reference to the wrapped object.
 	let property = DynamicProperty<String>(object: person,
@@ -218,19 +220,19 @@ UI components now expose a collection of binding targets to which can be bound f
 
 	Interactive UI components expose [`Signal`][]s for control events
 	and updates in the control value upon user interactions.
-	
+
 	A selected set of controls provide a convenience, expressive binding
 	API for [`Action`][]s.
-	
-	
+
+
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
-	preferences.allowsCookies <~ toggle.reactive.isOnValues 
-	
+	preferences.allowsCookies <~ toggle.reactive.isOnValues
+
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.
 	textField.reactive.continuousTextValues.map { $0.characters.count }
-	
+
 	// Trigger `commit` whenever the button is pressed.
 	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```
@@ -285,7 +287,7 @@ let old = atomicCount.modify { value in
 The new `BindingTargetProtocol` protocol has been formally introduced to represent an entity to which can form a unidirectional binding using the `<~` operator. A new type `BindingTarget` has also been introduced to represent non-observable targets that are expected to only be written to.
 
 ```swift
-// The `UIControl` exposes a `isEnabled` binding target. 
+// The `UIControl` exposes a `isEnabled` binding target.
 control.isEnabled <~ viewModel.isEnabled
 ```
 
@@ -297,7 +299,7 @@ control.isEnabled <~ viewModel.isEnabled
 public final class MyController {
 	private let token = Lifetime.Token()
 	public let lifetime: Lifetime
-	
+
 	public init() {
 		lifetime = Lifetime(token)
 	}

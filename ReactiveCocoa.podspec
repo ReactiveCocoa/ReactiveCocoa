@@ -21,8 +21,6 @@ Pod::Spec.new do |s|
   s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}", "ReactiveCocoa/UIKit/iOS/*.{swift}"
   s.tvos.source_files = "ReactiveCocoa/UIKit/*.{swift}"
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
-  # s.module_map = "ReactiveCocoa/module.modulemap"
-  s.static_framework = true
   s.module_name = 'ReactiveCocoa'
 
   s.dependency 'ReactiveSwift', '~> 3.1'

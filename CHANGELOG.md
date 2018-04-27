@@ -1,16 +1,20 @@
 # master
 *Please put new entries at the top.
 
+1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
+
 # 7.2.0
 1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)
 
 1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
 
-1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3565, kudos to @banjun)
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar`. (#3565, kudos to @banjun)
 
 1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
 
-1. Add extensions for several properties on `UINavigationItem` (#3576, kudos to @asmallteapot).
+1. Add extensions for several properties on `UINavigationItem`. (#3576, kudos to @asmallteapot)
+
+1. Add extension for `search` on MKLocalSearchRequest. (#3571, kudos to @Marcocanc)
 
 # 7.1.0
 # 7.1.0-rc.2

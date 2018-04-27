@@ -259,6 +259,10 @@
 		A91244E820389AEA0001BBCB /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
 		A9B315C91B3940980001CB9C /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		A9B315CA1B3940AB0001CB9C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A9D8BA71207CD7090031733D /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D8BA70207CD7090031733D /* UIResponder.swift */; };
+		A9D8BA72207CD7090031733D /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D8BA70207CD7090031733D /* UIResponder.swift */; };
+		A9D8BA74207CD8430031733D /* UIResponderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D8BA73207CD8430031733D /* UIResponderSpec.swift */; };
+		A9D8BA75207CD8430031733D /* UIResponderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D8BA73207CD8430031733D /* UIResponderSpec.swift */; };
 		A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
 		A9EB3D211E94F0AF002A9BCC /* UINavigationItemSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */; };
 		A9EB3D221E94F308002A9BCC /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
@@ -519,6 +523,8 @@
 		A97451351B3A935E00F48E55 /* watchOS-Framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		A97451361B3A935E00F48E55 /* watchOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "watchOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		A9B315541B3940610001CB9C /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9D8BA70207CD7090031733D /* UIResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
+		A9D8BA73207CD8430031733D /* UIResponderSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIResponderSpec.swift; sourceTree = "<group>"; };
 		A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationItem.swift; sourceTree = "<group>"; };
 		A9EB3D1E1E94ED84002A9BCC /* UINavigationItemSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationItemSpec.swift; sourceTree = "<group>"; };
 		A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITabBarItem.swift; sourceTree = "<group>"; };
@@ -745,6 +751,7 @@
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
 				9A1D05FC1D93E9F100ACF44C /* UIView.swift */,
 				4EE6372D2090EEFA00ECD02A /* UIViewController.swift */,
+				A9D8BA70207CD7090031733D /* UIResponder.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -780,6 +787,7 @@
 				4EE637302090EFD300ECD02A /* UIViewControllerSpec.swift */,
 				9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */,
 				3BCAAC7B1DEE1A2300B30335 /* UIRefreshControlSpec.swift */,
+				A9D8BA73207CD8430031733D /* UIResponderSpec.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -1421,6 +1429,7 @@
 				9A1D06191D93EA0100ACF44C /* UILabel.swift in Sources */,
 				4A0E11021D2A92720065D310 /* NSObject+Lifetime.swift in Sources */,
 				9ADFE5A81DC0001C001E11F7 /* NSObject+Synchronizing.swift in Sources */,
+				A9D8BA72207CD7090031733D /* UIResponder.swift in Sources */,
 				CD0C45E11CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				A9EB3D2D1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */,
 				9AA0BD921DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
@@ -1471,6 +1480,7 @@
 				9A6AAA101DB6A4CF0013AAEA /* InterceptingSpec.swift in Sources */,
 				4ABEFE221DCFCF0A0066A8C2 /* UITableViewSpec.swift in Sources */,
 				9A1D06491D93EA7E00ACF44C /* UIProgressViewSpec.swift in Sources */,
+				A9D8BA75207CD8430031733D /* UIResponderSpec.swift in Sources */,
 				4ABEFE291DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */,
 				9A54A2131DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
 				BEE020661D637B0000DF261F /* TestError.swift in Sources */,
@@ -1622,6 +1632,7 @@
 				9AA0BD821DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
 				9A1D060F1D93EA0000ACF44C /* UIView.swift in Sources */,
 				9A1D06051D93EA0000ACF44C /* UIDatePicker.swift in Sources */,
+				A9D8BA71207CD7090031733D /* UIResponder.swift in Sources */,
 				9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				9A1D06041D93EA0000ACF44C /* UIControl.swift in Sources */,
 				9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */,
@@ -1684,6 +1695,7 @@
 				3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A54A2121DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
+				A9D8BA74207CD8430031733D /* UIResponderSpec.swift in Sources */,
 				9ADFE5A21DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,

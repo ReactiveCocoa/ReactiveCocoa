@@ -12,15 +12,15 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
-	public var textValues: Signal<String?, NoError> {
-		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.text }
+	public var textValues: Signal<String, NoError> {
+		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.text ?? "" }
 	}
 
 	/// A signal of text values emitted by the text field upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
-	public var continuousTextValues: Signal<String?, NoError> {
-		return mapControlEvents(.allEditingEvents) { $0.text }
+	public var continuousTextValues: Signal<String, NoError> {
+		return mapControlEvents(.allEditingEvents) { $0.text ?? "" }
 	}
 	
 	/// Sets the attributed text of the text field.

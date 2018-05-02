@@ -20,7 +20,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
-	private func textValues(forName name: NSNotification.Name) -> Signal<String?, NoError> {
+	private func textValues(forName name: NSNotification.Name) -> Signal<String, NoError> {
 		return NotificationCenter.default
 			.reactive
 			.notifications(forName: name, object: base)
@@ -32,14 +32,14 @@ extension Reactive where Base: UITextView {
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
-	public var textValues: Signal<String?, NoError> {
+	public var textValues: Signal<String, NoError> {
 		return textValues(forName: .UITextViewTextDidEndEditing)
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
-	public var continuousTextValues: Signal<String?, NoError> {
+	public var continuousTextValues: Signal<String, NoError> {
 		return textValues(forName: .UITextViewTextDidChange)
 	}
 	
@@ -48,7 +48,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.attributedText = $1 }
 	}
 	
-	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString?, NoError> {
+	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString, NoError> {
 		return NotificationCenter.default
 			.reactive
 			.notifications(forName: name, object: base)
@@ -60,14 +60,14 @@ extension Reactive where Base: UITextView {
 	///
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
-	public var attributedTextValues: Signal<NSAttributedString?, NoError> {
+	public var attributedTextValues: Signal<NSAttributedString, NoError> {
 		return attributedTextValues(forName: .UITextViewTextDidEndEditing)
 	}
 	
 	/// A signal of attributed text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
-	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
+	public var continuousAttributedTextValues: Signal<NSAttributedString, NoError> {
 		return attributedTextValues(forName: .UITextViewTextDidChange)
 	}
 

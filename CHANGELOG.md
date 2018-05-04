@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
+
 1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
 2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
 3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).

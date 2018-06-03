@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode9.2
+osx_image: xcode9.3
 before_install: true
 install: true
 branches:
@@ -14,7 +14,7 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode9.2
+      osx_image: xcode9.3
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx
@@ -43,7 +43,6 @@ jobs:
       - gem install cocoapods
       - pod repo update
       - pod lib lint ReactiveCocoa.podspec
-      - pod lib lint ReactiveCocoa.podspec --swift-version=3.2
       - pod lib lint ReactiveMapKit.podspec
       env:
         - JOB=PODSPEC

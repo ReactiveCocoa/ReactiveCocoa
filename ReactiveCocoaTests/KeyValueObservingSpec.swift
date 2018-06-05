@@ -452,6 +452,44 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					expect(weakOriginalInner).to(beNil())
 				}
+
+				it("should not observe changes on a replaced inner object in a nested key path") {
+					let parentObject = NestedObservableObject()
+
+					// This test case requires a nil value which `rac_object` doesn't
+					// allow, so we are going to use `rac_weakObject` instead.
+					// The tested inner objects are not meant to be weak in any way.
+					let oldInnerObject = ObservableObject()
+					parentObject.rac_weakObject = oldInnerObject
+
+					var values: [Int?] = []
+
+					context.weakNestedChanges(parentObject).startWithValues {
+						values.append($0 as! Int?)
+					}
+
+					expect(values) == []
+
+					oldInnerObject.rac_value = 1
+					expect(values) == [1]
+
+					parentObject.rac_weakObject = nil
+					expect(values) == [1, nil]
+
+					oldInnerObject.rac_value = 2
+					expect(values) == [1, nil]
+
+					let newInnerObject = ObservableObject()
+					parentObject.rac_weakObject = newInnerObject
+
+					expect(values) == [1, nil, 0]
+
+					oldInnerObject.rac_value = 3
+					expect(values) == [1, nil, 0]
+
+					newInnerObject.rac_value = 4
+					expect(values) == [1, nil, 0, 4]
+				}
 			}
 
 			describe("thread safety") {

@@ -223,11 +223,7 @@ extension KeyValueObserver {
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options.union(.initial)) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
-					if let headDisposable = headSerialDisposable.inner {
-						headDisposable.dispose()
-						headSerialDisposable.inner = nil
-					}
-
+					headSerialDisposable.inner = nil
 					action(nil)
 					return
 				}

@@ -1896,7 +1896,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Debug;
 		};
@@ -1911,7 +1911,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Test;
 		};
@@ -1926,7 +1926,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Release;
 		};
@@ -1941,7 +1941,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Profile;
 		};

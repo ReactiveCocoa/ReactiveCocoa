@@ -1895,7 +1895,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
 				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
 			};
 			name = Debug;
@@ -1910,7 +1910,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
 				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
 			};
 			name = Test;
@@ -1925,7 +1925,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
 				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
 			};
 			name = Release;
@@ -1940,7 +1940,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
 				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
 			};
 			name = Profile;

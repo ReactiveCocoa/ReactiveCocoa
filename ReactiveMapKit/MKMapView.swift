@@ -2,7 +2,6 @@ import ReactiveSwift
 import ReactiveCocoa
 import MapKit
 
-#if os(iOS) || os(tvOS) || os(macOS)
 @available(tvOS 9.2, *)
 extension Reactive where Base: MKMapView {
 
@@ -33,4 +32,3 @@ extension Reactive where Base: MKMapView {
 	}
 	#endif
 }
-#endif

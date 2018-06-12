@@ -1261,7 +1261,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = GitHub;
 				TargetAttributes = {
 					57A4D1AF1BA13D7A00F7D4B1 = {
@@ -1895,8 +1895,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Debug;
 		};
@@ -1910,8 +1910,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Test;
 		};
@@ -1925,8 +1925,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Release;
 		};
@@ -1940,8 +1940,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator watchsimulator appletvos watchos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7 armv7k";
+				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
+				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Profile;
 		};
@@ -1999,6 +1999,10 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_TESTABILITY = YES;
@@ -2020,6 +2024,10 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2129,6 +2137,10 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2193,6 +2205,10 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 8.0.0-rc.1
 1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
 
 1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)

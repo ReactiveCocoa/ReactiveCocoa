@@ -173,7 +173,7 @@ class UITextFieldSpec: QuickSpec {
 				var values: [String] = []
 
 				textField.reactive.continuousTextValues.observeValues { text in
-					values.append(text ?? "")
+					values.append(text)
 
 					if text == "2" {
 						textField.resignFirstResponder()

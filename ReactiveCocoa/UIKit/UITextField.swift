@@ -42,15 +42,15 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
-	public var attributedTextValues: Signal<NSAttributedString?, NoError> {
-		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.attributedText }
+	public var attributedTextValues: Signal<NSAttributedString, NoError> {
+		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.attributedText ?? NSAttributedString() }
 	}
 	
 	/// A signal of attributed text values emitted by the text field upon any changes.
 	///
 	/// - note: To observe attributed text values only when editing ends, see `attributedTextValues`.
-	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
-		return mapControlEvents(.allEditingEvents) { $0.attributedText }
+	public var continuousAttributedTextValues: Signal<NSAttributedString, NoError> {
+		return mapControlEvents(.allEditingEvents) { $0.attributedText ?? NSAttributedString() }
 	}
 
 	/// Sets the secure text entry attribute on the text field.

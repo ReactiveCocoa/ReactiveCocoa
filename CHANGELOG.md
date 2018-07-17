@@ -1,7 +1,6 @@
 # master
 *Please put new entries at the top.
 
-# 8.0.0-rc.2
 1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
 
 # 8.0.0-rc.1

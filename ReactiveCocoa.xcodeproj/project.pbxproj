@@ -52,6 +52,9 @@
 		696CCF1720FE0682003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1620FE0682003981E8 /* Observer.swift */; };
 		696CCF1820FE069C003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1620FE0682003981E8 /* Observer.swift */; };
 		696CCF1920FE069D003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1620FE0682003981E8 /* Observer.swift */; };
+		696CCF1D20FE073A003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1B20FE0732003981E8 /* Observer.swift */; };
+		696CCF1E20FE073A003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1B20FE0732003981E8 /* Observer.swift */; };
+		696CCF1F20FE073C003981E8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696CCF1B20FE0732003981E8 /* Observer.swift */; };
 		7A8BA0FA1FCC86FC003241C7 /* NSTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */; };
 		7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
 		7DFBED141CDB8CE600EE435B /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
@@ -435,6 +438,7 @@
 		57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		696CCF1620FE0682003981E8 /* Observer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observer.swift; sourceTree = "<group>"; };
+		696CCF1B20FE0732003981E8 /* Observer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observer.swift; sourceTree = "<group>"; };
 		7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSTextView.swift; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		834DE1001E4109750099F4E5 /* NSImageViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageViewSpec.swift; sourceTree = "<group>"; };
@@ -689,6 +693,7 @@
 			isa = PBXGroup;
 			children = (
 				538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */,
+				696CCF1B20FE0732003981E8 /* Observer.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -1480,6 +1485,7 @@
 				9AD841DE204C29B90040F0C0 /* MessageForwardingEntity.m in Sources */,
 				A9EB3D2B1E94F3D9002A9BCC /* UITabBarItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
+				696CCF1F20FE073C003981E8 /* Observer.swift in Sources */,
 				9ADFE5A31DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06411D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
 				9AFCBFE51EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
@@ -1591,6 +1597,7 @@
 				9ADE4A8F1DA6DA20005C2AC8 /* NSControlSpec.swift in Sources */,
 				D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,
 				9AFCBFE31EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
+				696CCF1D20FE073A003981E8 /* Observer.swift in Sources */,
 				9ADFE5A11DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */,
 				B696FB811A7640C00075236D /* TestError.swift in Sources */,
@@ -1704,6 +1711,7 @@
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A54A2121DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
 				A9D8BA74207CD8430031733D /* UIResponderSpec.swift in Sources */,
+				696CCF1E20FE073A003981E8 /* Observer.swift in Sources */,
 				9ADFE5A21DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,

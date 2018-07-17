@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
+
 # 8.0.0-rc.1
 1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
 

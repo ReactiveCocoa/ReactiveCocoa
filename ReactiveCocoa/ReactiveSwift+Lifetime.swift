@@ -10,7 +10,7 @@ extension Signal {
 	///
 	/// - returns: A signal that will deliver events until `object` deinitializes.
 	public func take(duringLifetimeOf object: AnyObject) -> Signal<Value, Error> {
-		return take(during: lifetime(of: object))
+		return take(during: Lifetime.of(object))
 	}
 }
 

@@ -265,7 +265,7 @@ extension KeyValueObserver {
 				// For a direct key path, the deinitialization needs to be
 				// observed only if the key path is a weak property.
 				if shouldObserveDeinit && isWeak {
-					let disposable = lifetime(of: value).observeEnded {
+					let disposable = Lifetime.of(value).observeEnded {
 						action(nil)
 					}
 

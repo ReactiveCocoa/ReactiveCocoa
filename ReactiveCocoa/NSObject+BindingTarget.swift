@@ -14,7 +14,7 @@ extension Reactive where Base: AnyObject {
 	/// - returns: A binding target that holds no strong references to the 
 	///            object.
 	public func makeBindingTarget<U>(on scheduler: Scheduler = UIScheduler(), _ action: @escaping (Base, U) -> Void) -> BindingTarget<U> {
-		return BindingTarget(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: base)) { [weak base = self.base] value in
+		return BindingTarget(on: scheduler, lifetime: Lifetime.of(base)) { [weak base = self.base] value in
 			if let base = base {
 				action(base, value)
 			}
@@ -32,7 +32,7 @@ extension Reactive where Base: AnyObject {
 	///
 	/// - returns: A binding target.
 	public subscript<Value>(keyPath: ReferenceWritableKeyPath<Base, Value>) -> BindingTarget<Value> {
-		return BindingTarget(on: UIScheduler(), lifetime: ReactiveCocoa.lifetime(of: base), object: base, keyPath: keyPath)
+		return BindingTarget(on: UIScheduler(), lifetime: Lifetime.of(base), object: base, keyPath: keyPath)
 	}
 
 	/// Creates a binding target that writes to the object with the given key path.
@@ -43,7 +43,7 @@ extension Reactive where Base: AnyObject {
 	///
 	/// - returns: A binding target.
 	public subscript<Value>(keyPath: ReferenceWritableKeyPath<Base, Value>, on scheduler: Scheduler) -> BindingTarget<Value> {
-		return BindingTarget(on: scheduler, lifetime: ReactiveCocoa.lifetime(of: base), object: base, keyPath: keyPath)
+		return BindingTarget(on: scheduler, lifetime: Lifetime.of(base), object: base, keyPath: keyPath)
 	}
 }
 #endif

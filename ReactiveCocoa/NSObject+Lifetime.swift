@@ -34,7 +34,7 @@ internal func lifetime(of object: AnyObject) -> Lifetime {
 extension Reactive where Base: AnyObject & NSObjectProtocol {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
-		return base.synchronized {
+		return synchronized(base) {
 			if let lifetime = base.associations.value(forKey: lifetimeKey) {
 				return lifetime
 			}

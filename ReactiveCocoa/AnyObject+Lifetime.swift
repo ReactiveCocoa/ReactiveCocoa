@@ -102,7 +102,7 @@ public extension Lifetime {
 	}
 }
 
-extension Reactive where Base: AnyObject & NSObjectProtocol {
+extension Reactive where Base: AnyObject {
 	/// Returns a lifetime that ends when the object is deallocated.
 	@nonobjc public var lifetime: Lifetime {
 		return .of(base)

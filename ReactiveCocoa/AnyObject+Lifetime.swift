@@ -2,6 +2,13 @@ import Foundation
 import ReactiveSwift
 
 public extension Lifetime {
+	/// Retrive the associated lifetime of given object.
+	/// The lifetime is ends when the object is deallocated.
+	///
+	/// - parameters:
+	///   - object: An object that is the owner of the lifetime to be returns.
+	///
+	/// - returns: A lifetime that ends when the given object is deallocated.
 	public static func of(_ object: AnyObject) -> Lifetime {
 		enum Keys {
 			/// Holds the `Lifetime` of the object.

@@ -41,7 +41,7 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 	internal var proxy: ActionProxy<Base> {
 		let key = AssociationKey<ActionProxy<Base>?>((#function as StaticString))
 
-		return base.synchronized {
+		return synchronized(base) {
 			if let proxy = base.associations.value(forKey: key) {
 				return proxy
 			}

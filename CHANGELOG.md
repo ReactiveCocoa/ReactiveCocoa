@@ -1,7 +1,7 @@
 # master
 *Please put new entries at the top.
 
-1. Add `Lifetime.of(_:)` for retrieve the lifetime of AnyObject and AnyObject.reactive.lifetime is now available. (#3614, kudos to @ra1028)
+1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)
 
 # 8.0.0
 1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).

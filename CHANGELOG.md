@@ -1,6 +1,8 @@
 # master
 *Please put new entries at the top.
 
+1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)
+
 # 8.0.0
 1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
 

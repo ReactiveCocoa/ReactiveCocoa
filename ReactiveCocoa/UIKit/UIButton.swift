@@ -35,6 +35,11 @@ extension Reactive where Base: UIButton {
 	public func title(for state: UIControlState) -> BindingTarget<String> {
 		return makeBindingTarget { $0.setTitle($1, for: state) }
 	}
+	
+	/// Sets the title color of the button for the specified state.
+	public func titleColor(for state: UIControlState) -> BindingTarget<UIColor> {
+		return makeBindingTarget { $0.setTitleColor($1, for: state) }
+	}
 
 	/// Sets the image of the button for the specified state.
 	public func image(for state: UIControlState) -> BindingTarget<UIImage?> {

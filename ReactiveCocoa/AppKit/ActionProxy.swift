@@ -41,12 +41,12 @@ extension Reactive where Base: NSObject, Base: ActionMessageSending {
 	internal var proxy: ActionProxy<Base> {
 		let key = AssociationKey<ActionProxy<Base>?>((#function as StaticString))
 
-		return base.synchronized {
+		return synchronized(base) {
 			if let proxy = base.associations.value(forKey: key) {
 				return proxy
 			}
 
-			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))
+			let superclass: AnyClass = class_getSuperclass(swizzleClass(base))!
 
 			let proxy = ActionProxy<Base>(owner: base, lifetime: lifetime)
 			proxy.target = base.target

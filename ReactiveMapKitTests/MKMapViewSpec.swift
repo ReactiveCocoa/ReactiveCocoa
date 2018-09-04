@@ -1,5 +1,6 @@
 import ReactiveSwift
 import ReactiveCocoa
+import ReactiveMapKit
 import Quick
 import Nimble
 import enum Result.NoError

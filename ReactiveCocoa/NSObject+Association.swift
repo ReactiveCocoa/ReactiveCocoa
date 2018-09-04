@@ -48,7 +48,7 @@ internal struct Associations<Base: AnyObject> {
 	}
 }
 
-extension Reactive where Base: NSObject {
+extension Reactive where Base: NSObjectProtocol {
 	/// Retrieve the associated value for the specified key. If the value does not
 	/// exist, `initial` would be called and the returned value would be
 	/// associated subsequently.
@@ -72,8 +72,8 @@ extension Reactive where Base: NSObject {
 	}
 }
 
-extension NSObject {
-	@nonobjc internal var associations: Associations<NSObject> {
+extension NSObjectProtocol {
+	@nonobjc internal var associations: Associations<Self> {
 		return Associations(self)
 	}
 }

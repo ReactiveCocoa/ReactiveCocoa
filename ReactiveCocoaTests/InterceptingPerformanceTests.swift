@@ -5,27 +5,27 @@ import ReactiveSwift
 private let iterationCount = 500
 
 private final class Receiver1: NSObject {
-	dynamic func message() {}
+	@objc dynamic func message() {}
 }
 
 private final class Receiver2: NSObject {
-	dynamic var value: Int = 0
+	@objc dynamic var value: Int = 0
 }
 
 private final class Receiver3: NSObject {
-	dynamic var value: Int = 0
+	@objc dynamic var value: Int = 0
 }
 
 private final class Receiver4: NSObject {
-	dynamic var value: Int = 0
+	@objc dynamic var value: Int = 0
 }
 
 private final class Receiver5: NSObject {
-	dynamic var value: Int = 0
+	@objc dynamic var value: Int = 0
 }
 
 private final class Receiver6: NSObject {
-	dynamic var value: Int = 0
+	@objc dynamic var value: Int = 0
 }
 
 class InterceptingTests: XCTestCase {

@@ -77,5 +77,21 @@ class UIViewSpec: QuickSpec {
 			observer.send(value: .red)
 			expect(view.backgroundColor) == .red
 		}
+
+		it("should accept changes from bindings to its tint color") {
+			view.tintColor = .white
+			
+			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			view.reactive.tintColor <~ SignalProducer(pipeSignal)
+			
+			observer.send(value: .yellow)
+			expect(view.tintColor) == .yellow
+			
+			observer.send(value: .green)
+			expect(view.tintColor) == .green
+			
+			observer.send(value: .red)
+			expect(view.tintColor) == .red
+		}
 	}
 }

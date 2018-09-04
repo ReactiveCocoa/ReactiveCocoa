@@ -1,6 +1,99 @@
 # master
 *Please put new entries at the top.
 
+1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)
+
+# 8.0.0
+1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
+
+# 8.0.0-rc.1
+1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
+
+1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
+2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
+3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).
+
+# 7.2.0
+1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)
+
+1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
+
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar`. (#3565, kudos to @banjun)
+
+1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
+
+1. Add extensions for several properties on `UINavigationItem`. (#3576, kudos to @asmallteapot)
+
+1. Add extension for `search` on MKLocalSearchRequest. (#3571, kudos to @Marcocanc)
+
+# 7.1.0
+# 7.1.0-rc.2
+1. Fix an issue preventing ReactiveCocoa from being built with the Swift 3.2 language mode. (#3556)
+
+# 7.1.0-rc.1
+1. Requires ReactiveSwift 3.1.0 Release Candidate 1. (#3555)
+
+1. Added reactive extension for AppKit's NSTextView. (#3549, kudos to @Palleas)
+
+# 7.0.1
+1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
+
+1. Fixed `DynamicProperty` for optional properties. (#3548, kudos to @iv-mexx)
+
+1. Made `makeBindingTarget` available on Reactive extensions on all objects, not just `NSObject`. (#3545, kudos to @Burgestrand)
+
+# 7.0.0
+1. Update ReactiveSwift to 3.0.
+
+1. Added `placeholder` binding target to `UITextField`. (#3536)
+
+# 7.0.0-rc.1
+1. UISearchBar has gained more reactive bindings and signals. (#3531, kudos to @andersio)
+
+   **Signals:** Search Button Clicked, Bookmark Button Clicked, Results List Clicked, Selected Scope Button Index
+
+   **Binding Target:** Selected Scope Button Indices.
+
+# 7.0.0-alpha.2
+1. Requires ReactiveSwift 3.0.0 alpha 1.
+
+1. ReactiveCocoa is now compatible with the Swift 4.0 language mode, in addition to the Swift 3.2 compatibility mode. (#3526, kudos to @andersio)
+
+# 7.0.0-alpha.1
+1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
+
+   Sources that use the MapKit bindings are now required to import ReactiveMapKit.
+
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+
+# 6.1.0-alpha.2
+# 6.1.0-alpha.1
+1. Added `cancelButtonClicked` signal to `UISearchBar`.
+1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
+
+   Example:
+   ```swift
+   label.reactive[\.text] <~ viewModel.title
+   ```
+
+# 6.0.2
+1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
+
+# 6.0.1
+1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
+
+# 6.0.0
+# 6.0.0-rc.3
+# 6.0.0-rc.2
+1. `NSObject` reactive extensions now work in generic environments that are limited to `NSObjectProtocol`. (#3484, kudos to @nickdomenicali)
+
+1. New reactive extension for `UIScrollView`: `scrollsToTop`. (#3481, kudos to @Qata)
+
+# 6.0.0-rc.1
+1. `UIButton.reactive.pressed` now reacts to the `primaryActionTriggered` control event, instead of `touchUpInside`, on iOS 9.0+ and tvOS 9.0+. (#3480, kudos to @andrei-kuzma)
+
+1. New reactive extension: `UITextField.reactive.selectedRangeValues`. (#3479, kudos to @Igor-Palaguta)
+
 # 6.0.0-alpha.1
 # 5.0.4
 1. UITextField text signals now react to `editingDidEndOnExit`. (#3474)
@@ -334,6 +427,7 @@ public final class MyController {
 	</tr>
 	</tbody>
 </table>
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

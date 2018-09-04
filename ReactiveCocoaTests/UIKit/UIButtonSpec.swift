@@ -40,7 +40,7 @@ class UIButtonSpec: QuickSpec {
 			expect(button.title(for: .selected)) == ""
 		}
 
-		it("should execute the `pressed` action upon receiving a `touchUpInside` action message.") {
+		let pressedTest: (UIButton, UIControlEvents) -> Void = { button, event in
 			button.isEnabled = true
 			button.isUserInteractionEnabled = true
 
@@ -53,9 +53,21 @@ class UIButtonSpec: QuickSpec {
 
 			button.reactive.pressed = CocoaAction(action)
 			expect(pressed.value) == false
-			
-			button.sendActions(for: .touchUpInside)
+
+			button.sendActions(for: event)
+
 			expect(pressed.value) == true
+		}
+
+		if #available(iOS 9.0, tvOS 9.0, *) {
+			it("should execute the `pressed` action upon receiving a `primaryActionTriggered` action message.") {
+				pressedTest(button, .primaryActionTriggered)
+			}
+		} else {
+			it("should execute the `pressed` action upon receiving a `touchUpInside` action message.") {
+				pressedTest(button, .touchUpInside)
+			}
 		}
 	}
 }
+

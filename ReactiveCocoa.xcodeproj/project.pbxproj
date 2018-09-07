@@ -319,6 +319,8 @@
 		D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */; };
 		D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */; };
+		E3AA54C12142918B0077B206 /* WKInterfaceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */; };
+		E3AA54C3214292550077B206 /* WKInterfaceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AA54C2214292540077B206 /* WKInterfaceButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -576,6 +578,8 @@
 		D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicPropertySpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButtonSpec.swift; sourceTree = "<group>"; };
 		D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButton.swift; sourceTree = "<group>"; };
+		E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceLabel.swift; sourceTree = "<group>"; };
+		E3AA54C2214292540077B206 /* WKInterfaceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -910,6 +914,7 @@
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */,
+				E3AA54BF214291590077B206 /* WatchKit */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
@@ -1038,6 +1043,15 @@
 				D047263B19E49FE8006002AA /* Mac-StaticLibrary.xcconfig */,
 			);
 			path = "Mac OS X";
+			sourceTree = "<group>";
+		};
+		E3AA54BF214291590077B206 /* WatchKit */ = {
+			isa = PBXGroup;
+			children = (
+				E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */,
+				E3AA54C2214292540077B206 /* WKInterfaceButton.swift */,
+			);
+			path = WatchKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1510,6 +1524,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
+				E3AA54C3214292550077B206 /* WKInterfaceButton.swift in Sources */,
 				9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
 				9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
@@ -1521,6 +1536,7 @@
 				9ADFE5A71DC0001C001E11F7 /* Synchronizing.swift in Sources */,
 				9ADE4A7E1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9AA0BD831DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
+				E3AA54C12142918B0077B206 /* WKInterfaceLabel.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AA0BD911DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,

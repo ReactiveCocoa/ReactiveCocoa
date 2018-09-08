@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode9.3
+osx_image: xcode9.4
 before_install: true
 install: true
 branches:
@@ -14,7 +14,7 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx
@@ -40,7 +40,6 @@ jobs:
           script/build
     - stage: package manager tests
       script:
-      - gem install cocoapods
       - pod repo update
       - pod lib lint ReactiveCocoa.podspec
       - pod lib lint ReactiveMapKit.podspec

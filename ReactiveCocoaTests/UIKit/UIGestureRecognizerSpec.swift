@@ -82,9 +82,9 @@ private final class TestTapGestureRecognizer: UITapGestureRecognizer {
 	}
 
 	private var targetActionPair: TargetActionPair?
-	private var forceState: UIGestureRecognizerState = .ended
+	private var forceState: UIGestureRecognizer.State = .ended
 
-	fileprivate override var state: UIGestureRecognizerState {
+	fileprivate override var state: UIGestureRecognizer.State {
 		get { return forceState }
 		set { self.state = newValue }
 	}
@@ -93,7 +93,7 @@ private final class TestTapGestureRecognizer: UITapGestureRecognizer {
 		targetActionPair = TargetActionPair(target: target as AnyObject, action: action)
 	}
 	
-	fileprivate func fireGestureEvent(_ state: UIGestureRecognizerState) {
+	fileprivate func fireGestureEvent(_ state: UIGestureRecognizer.State) {
 		guard let targetAction = self.targetActionPair else { return }
 		forceState = state
 		_ = targetAction.target.perform(targetAction.action, with: self)

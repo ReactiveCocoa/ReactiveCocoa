@@ -16,17 +16,17 @@ class UIKeyboardSpec: QuickSpec {
 					.observeValues { context = $0 }
 				
 				var dummyInfo: [AnyHashable: Any] = [
-					UIKeyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: 10),
-					UIKeyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
-					UIKeyboardAnimationDurationUserInfoKey: 1.0,
-					UIKeyboardAnimationCurveUserInfoKey: NSNumber(value: UIViewAnimationCurve.easeInOut.rawValue)
+					UIResponder.keyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: 10),
+					UIResponder.keyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
+					UIResponder.keyboardAnimationDurationUserInfoKey: 1.0,
+					UIResponder.keyboardAnimationCurveUserInfoKey: NSNumber(value: UIView.AnimationCurve.easeInOut.rawValue)
 				]
 				
 				if #available(*, iOS 9.0) {
-					dummyInfo[UIKeyboardIsLocalUserInfoKey] = NSNumber(value: true)
+					dummyInfo[UIResponder.keyboardIsLocalUserInfoKey] = NSNumber(value: true)
 				}
 				
-				testCenter.post(name: .UIKeyboardWillShow,
+				testCenter.post(name: UIResponder.keyboardWillShowNotification,
 				                object: nil,
 				                userInfo: dummyInfo)
 				
@@ -55,18 +55,18 @@ class UIKeyboardSpec: QuickSpec {
 				
 				func makeDummyInfo(beginFrameHeight: CGFloat) -> [AnyHashable: Any] {
 					var dummyInfo: [AnyHashable: Any] = [
-						UIKeyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: beginFrameHeight),
-						UIKeyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
-						UIKeyboardAnimationDurationUserInfoKey: 1.0,
-						UIKeyboardAnimationCurveUserInfoKey: NSNumber(value: UIViewAnimationCurve.easeInOut.rawValue)
+						UIResponder.keyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: beginFrameHeight),
+						UIResponder.keyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
+						UIResponder.keyboardAnimationDurationUserInfoKey: 1.0,
+						UIResponder.keyboardAnimationCurveUserInfoKey: NSNumber(value: UIView.AnimationCurve.easeInOut.rawValue)
 					]
 					if #available(*, iOS 9.0) {
-						dummyInfo[UIKeyboardIsLocalUserInfoKey] = NSNumber(value: true)
+						dummyInfo[UIResponder.keyboardIsLocalUserInfoKey] = NSNumber(value: true)
 					}
 					return dummyInfo
 				}
 				
-				testCenter.post(name: .UIKeyboardWillShow,
+				testCenter.post(name: UIResponder.keyboardWillShowNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 10))
 				
@@ -82,7 +82,7 @@ class UIKeyboardSpec: QuickSpec {
 					expect(context?.isLocal) == true
 				}
 				
-				testCenter.post(name: .UIKeyboardDidShow,
+				testCenter.post(name: UIResponder.keyboardDidShowNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 20))
 				
@@ -96,7 +96,7 @@ class UIKeyboardSpec: QuickSpec {
 					expect(context?.isLocal) == true
 				}
 				
-				testCenter.post(name: .UIKeyboardWillHide,
+				testCenter.post(name: UIResponder.keyboardWillHideNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 30))
 				
@@ -110,7 +110,7 @@ class UIKeyboardSpec: QuickSpec {
 					expect(context?.isLocal) == true
 				}
 				
-				testCenter.post(name: .UIKeyboardDidHide,
+				testCenter.post(name: UIResponder.keyboardDidHideNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 40))
 				
@@ -124,7 +124,7 @@ class UIKeyboardSpec: QuickSpec {
 					expect(context?.isLocal) == true
 				}
 				
-				testCenter.post(name: .UIKeyboardWillChangeFrame,
+				testCenter.post(name: UIResponder.keyboardWillChangeFrameNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 50))
 				
@@ -138,7 +138,7 @@ class UIKeyboardSpec: QuickSpec {
 					expect(context?.isLocal) == true
 				}
 				
-				testCenter.post(name: .UIKeyboardDidChangeFrame,
+				testCenter.post(name: UIResponder.keyboardDidChangeFrameNotification,
 				                object: nil,
 				                userInfo: makeDummyInfo(beginFrameHeight: 60))
 				
@@ -164,17 +164,17 @@ class UIKeyboardSpec: QuickSpec {
 					.observeValues { context = $0 }
 
 				var dummyInfo: [AnyHashable: Any] = [
-					UIKeyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: 10),
-					UIKeyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
-					UIKeyboardAnimationDurationUserInfoKey: 1.0,
-					UIKeyboardAnimationCurveUserInfoKey: NSNumber(value: UIViewAnimationCurve.easeInOut.rawValue)
+					UIResponder.keyboardFrameBeginUserInfoKey: CGRect(x: 10, y: 10, width: 10, height: 10),
+					UIResponder.keyboardFrameEndUserInfoKey: CGRect(x: 20, y: 20, width: 20, height: 20),
+					UIResponder.keyboardAnimationDurationUserInfoKey: 1.0,
+					UIResponder.keyboardAnimationCurveUserInfoKey: NSNumber(value: UIView.AnimationCurve.easeInOut.rawValue)
 				]
 
 				if #available(*, iOS 9.0) {
-					dummyInfo[UIKeyboardIsLocalUserInfoKey] = NSNumber(value: true)
+					dummyInfo[UIResponder.keyboardIsLocalUserInfoKey] = NSNumber(value: true)
 				}
 
-				testCenter.post(name: .UIKeyboardWillChangeFrame,
+				testCenter.post(name: UIResponder.keyboardWillChangeFrameNotification,
 				                object: nil,
 				                userInfo: dummyInfo)
 

@@ -46,7 +46,7 @@ private final class TestTableView: UITableView {
 	let reloadDataSignal: Signal<(), NoError>
 	private let reloadDataObserver: Signal<(), NoError>.Observer
 
-	override init(frame: CGRect, style: UITableViewStyle) {
+	override init(frame: CGRect, style: UITableView.Style) {
 		(reloadDataSignal, reloadDataObserver) = Signal.pipe()
 		super.init(frame: frame, style: style)
 	}

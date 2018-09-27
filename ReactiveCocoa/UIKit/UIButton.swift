@@ -30,6 +30,10 @@ extension Reactive where Base: UIButton {
 	public var title: BindingTarget<String> {
 		return makeBindingTarget { $0.setTitle($1, for: .normal) }
 	}
+    
+    #if swift(>=4.2)
+        public typealias UIControlState = UIControl.State
+    #endif
 
 	/// Sets the title of the button for the specified state.
 	public func title(for state: UIControlState) -> BindingTarget<String> {

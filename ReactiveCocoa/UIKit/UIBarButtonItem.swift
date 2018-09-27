@@ -26,6 +26,10 @@ extension Reactive where Base: UIBarButtonItem {
 				.disposable?.dispose()
 		}
 	}
+    
+    #if swift(>=4.2)
+        public typealias UIBarButtonItemStyle = UIBarButtonItem.Style
+    #endif
 
 	/// Sets the style of the bar button item.
 	public var style: BindingTarget<UIBarButtonItemStyle> {

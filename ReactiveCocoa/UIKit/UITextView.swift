@@ -33,14 +33,22 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String?, NoError> {
-		return textValues(forName: .UITextViewTextDidEndEditing)
+        #if swift(>=4.2)
+            return textValues(forName: UITextView.textDidEndEditingNotification)
+        #else
+            return textValues(forName: .UITextViewTextDidEndEditing)
+        #endif
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String?, NoError> {
-		return textValues(forName: .UITextViewTextDidChange)
+        #if swift(>=4.2)
+            return textValues(forName: UITextView.textDidChangeNotification)
+        #else
+            return textValues(forName: .UITextViewTextDidChange)
+        #endif
 	}
 	
 	/// Sets the attributed text of the text view.
@@ -61,14 +69,22 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
 	public var attributedTextValues: Signal<NSAttributedString?, NoError> {
-		return attributedTextValues(forName: .UITextViewTextDidEndEditing)
+        #if swift(>=4.2)
+            return attributedTextValues(forName: UITextView.textDidEndEditingNotification)
+        #else
+            return attributedTextValues(forName: .UITextViewTextDidEndEditing)
+        #endif
 	}
 	
 	/// A signal of attributed text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
 	public var continuousAttributedTextValues: Signal<NSAttributedString?, NoError> {
-		return attributedTextValues(forName: .UITextViewTextDidChange)
+        #if swift(>=4.2)
+            return attributedTextValues(forName: UITextView.textDidChangeNotification)
+        #else
+            return attributedTextValues(forName: .UITextViewTextDidChange)
+        #endif
 	}
 
 	/// A signal of range values emitted by the text view upon any selection change.

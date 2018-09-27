@@ -3,6 +3,11 @@ import UIKit
 import enum Result.NoError
 
 extension Reactive where Base: UIControl {
+    
+    #if swift(>=4.2)
+        public typealias UIControlEvents = UIControl.Event
+    #endif
+    
 	/// The current associated action of `self`, with its registered event mask
 	/// and its disposable.
 	internal var associatedAction: Atomic<(action: CocoaAction<Base>, controlEvents: UIControlEvents, disposable: Disposable)?> {

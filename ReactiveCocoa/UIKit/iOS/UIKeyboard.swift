@@ -13,20 +13,37 @@ public enum KeyboardEvent {
 	
 	/// The name of the notification to observe system keyboard events.
 	fileprivate var notificationName: Notification.Name {
-		switch self {
-		case .willShow:
-			return .UIKeyboardWillShow
-		case .didShow:
-			return .UIKeyboardDidShow
-		case .willHide:
-			return .UIKeyboardWillHide
-		case .didHide:
-			return .UIKeyboardDidHide
-		case .willChangeFrame:
-			return .UIKeyboardWillChangeFrame
-		case .didChangeFrame:
-			return .UIKeyboardDidChangeFrame
-		}
+        #if swift(>=4.2)
+            switch self {
+            case .willShow:
+                return UIResponder.keyboardWillShowNotification
+            case .didShow:
+                return UIResponder.keyboardDidShowNotification
+            case .willHide:
+                return UIResponder.keyboardWillHideNotification
+            case .didHide:
+                return UIResponder.keyboardDidHideNotification
+            case .willChangeFrame:
+                return UIResponder.keyboardWillChangeFrameNotification
+            case .didChangeFrame:
+                return UIResponder.keyboardDidChangeFrameNotification
+            }
+        #else
+            switch self {
+            case .willShow:
+                return .UIKeyboardWillShow
+            case .didShow:
+                return .UIKeyboardDidShow
+            case .willHide:
+                return .UIKeyboardWillHide
+            case .didHide:
+                return .UIKeyboardDidHide
+            case .willChangeFrame:
+                return .UIKeyboardWillChangeFrame
+            case .didChangeFrame:
+                return .UIKeyboardDidChangeFrame
+            }
+        #endif
 	}
 }
 
@@ -39,25 +56,45 @@ public struct KeyboardChangeContext {
 
 	/// The current frame of the system keyboard.
 	public var beginFrame: CGRect {
-		return base[UIKeyboardFrameBeginUserInfoKey] as! CGRect
+        #if swift(>=4.2)
+            return base[UIResponder.keyboardFrameBeginUserInfoKey] as! CGRect
+        #else
+            return base[UIKeyboardFrameBeginUserInfoKey] as! CGRect
+        #endif
 	}
 
 	/// The final frame of the system keyboard.
 	public var endFrame: CGRect {
-		return base[UIKeyboardFrameEndUserInfoKey] as! CGRect
+        #if swift(>=4.2)
+            return base[UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
+        #else
+            return base[UIKeyboardFrameEndUserInfoKey] as! CGRect
+        #endif
 	}
+    
+    #if swift(>=4.2)
+        public typealias UIViewAnimationCurve = UIView.AnimationCurve
+    #endif
 
 	/// The animation curve which the system keyboard will use to animate the
 	/// change in its frame.
-	public var animationCurve: UIViewAnimationCurve {
-		let value = base[UIKeyboardAnimationCurveUserInfoKey] as! NSNumber
+    public var animationCurve: UIViewAnimationCurve {
+        #if swift(>=4.2)
+            let value = base[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber
+        #else
+            let value = base[UIKeyboardAnimationCurveUserInfoKey] as! NSNumber
+        #endif
 		return UIViewAnimationCurve(rawValue: value.intValue)!
 	}
 
 	/// The duration in which the system keyboard expects to animate the change in
 	/// its frame.
 	public var animationDuration: Double {
-		return base[UIKeyboardAnimationDurationUserInfoKey] as! Double
+        #if swift(>=4.2)
+            return base[UIResponder.keyboardAnimationDurationUserInfoKey] as! Double
+        #else
+            return base[UIKeyboardAnimationDurationUserInfoKey] as! Double
+        #endif
 	}
 
 	/// Indicates whether the change is triggered locally. Used in iPad
@@ -65,7 +102,11 @@ public struct KeyboardChangeContext {
 	/// in the system keyboard's frame.
 	@available(iOS 9.0, *)
 	public var isLocal: Bool {
-		return base[UIKeyboardIsLocalUserInfoKey] as! Bool
+        #if swift(>=4.2)
+            return base[UIResponder.keyboardIsLocalUserInfoKey] as! Bool
+        #else
+            return base[UIKeyboardIsLocalUserInfoKey] as! Bool
+        #endif
 	}
 
 	fileprivate init(userInfo: [AnyHashable: Any], event: KeyboardEvent) {

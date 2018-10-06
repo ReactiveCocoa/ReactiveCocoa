@@ -19,4 +19,5 @@ Pod::Spec.new do |s|
   s.dependency 'ReactiveCocoa', "#{s.version}"
 
   s.pod_target_xcconfig = { "OTHER_SWIFT_FLAGS[config=Release]" => "$(inherited) -suppress-warnings" }
+  s.swift_version = '4.1.2'
 end

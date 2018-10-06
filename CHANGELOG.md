@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 8.0.1
 1. Add extensions for several properties on `WKInterfaceLabel` and `WKInterfaceButton`. (#3616, kudos to @yoching)
 1. Add `swift_version` to podspecs (#3622, kudos to @olejnjak)
 1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)

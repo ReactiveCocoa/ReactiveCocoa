@@ -90,6 +90,34 @@
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9AC03A561F7CC3BF00EC33C1"
+               BuildableName = "ReactiveMapKit.framework"
+               BlueprintName = "ReactiveMapKit-macOS"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9A73DFDF216D3CEB0069AD76"
+               BuildableName = "ReactiveMapKitTests.xctest"
+               BlueprintName = "ReactiveMapKitTests-macOS"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -112,9 +140,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9A16753C1F80C35100B63650"
+               BlueprintIdentifier = "9A73DFDF216D3CEB0069AD76"
                BuildableName = "ReactiveMapKitTests.xctest"
-               BlueprintName = "ReactiveMapKitTests"
+               BlueprintName = "ReactiveMapKitTests-macOS"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </TestableReference>

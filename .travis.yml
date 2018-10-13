@@ -41,8 +41,8 @@ jobs:
     - stage: package manager tests
       script:
       - pod repo update
-      - pod lib lint ReactiveCocoa.podspec
-      - pod lib lint ReactiveMapKit.podspec
+      - pod lib lint ReactiveCocoa.podspec --use-libraries
+      - pod lib lint ReactiveMapKit.podspec --use-libraries
       env:
         - JOB=PODSPEC
     - script: carthage build --cache-builds --no-skip-current

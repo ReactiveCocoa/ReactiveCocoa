@@ -63,23 +63,9 @@
 		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
 		9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */; };
-		9A16754B1F80C3E300B63650 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
-		9A16754C1F80C3EC00B63650 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
-		9A1675501F80C40C00B63650 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A16754F1F80C40200B63650 /* Result.framework */; };
 		9A1675511F80C41F00B63650 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A1675521F80C41F00B63650 /* Result.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A16754F1F80C40200B63650 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A1675531F80C41F00B63650 /* ReactiveSwift.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A1675571F80C44F00B63650 /* Nimble.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A1675561F80C44100B63650 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A1675581F80C45300B63650 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A1675561F80C44100B63650 /* Nimble.framework */; };
-		9A1675591F80DDDE00B63650 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
-		9A16755A1F80DDE100B63650 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
-		9A16755B1F80DDE400B63650 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
-		9A16755C1F80DDE700B63650 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
 		9A16755D1F80DE1C00B63650 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A16755E1F80DE2F00B63650 /* ReactiveMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; };
 		9A16755F1F80DE3900B63650 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A1675601F80DF9600B63650 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
-		9A1675641F80DFAB00B63650 /* Quick.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A1675631F80DFA400B63650 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -149,6 +135,10 @@
 		9A2E425F1DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
 		9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
 		9A2E42611DAA6737006D909F /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
+		9A3C54EB21726A1200E98207 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3C54EA21726A1200E98207 /* Nimble.framework */; };
+		9A3C54ED21726A1200E98207 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3C54EC21726A1200E98207 /* Quick.framework */; };
+		9A3C54F121726BD200E98207 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3C54F021726BD200E98207 /* Nimble.framework */; };
+		9A3C54F321726BD200E98207 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3C54F221726BD200E98207 /* Quick.framework */; };
 		9A54A2111DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */; };
 		9A54A2121DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */; };
 		9A54A2131DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */; };
@@ -169,6 +159,51 @@
 		9A6AAA2B1DB8F85C0013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2E1DB903A20013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
 		9A6AAA2F1DB903A40013AAEA /* ReusableComponentsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */; };
+		9A73DFAE216D3C550069AD76 /* MKMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED11DD4BCA90016C058 /* MKMapView.swift */; };
+		9A73DFAF216D3C550069AD76 /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
+		9A73DFBF216D3C570069AD76 /* MKMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED11DD4BCA90016C058 /* MKMapView.swift */; };
+		9A73DFC0216D3C570069AD76 /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
+		9A73DFE3216D3CEB0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
+		9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9A73DFFE216D3CEE0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
+		9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9A73E015216D3E660069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
+		9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
+		9A73E030216D3FAF0069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
+		9A73E036216D3FC50069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E038216D3FC50069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E039216D3FEB0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03A216D3FF10069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03B216D3FF50069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03C216D3FFC0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03D216D40070069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03E216D400D0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E03F216D400D0069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E040216D40170069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E041216D40170069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E042216D40280069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E043216D40280069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E049216D40800069AD76 /* ReactiveMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */; };
+		9A73E04A216D40850069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
+		9A73E04C216D408D0069AD76 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E04B216D408D0069AD76 /* Nimble.framework */; };
+		9A73E04E216D408D0069AD76 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E04D216D408D0069AD76 /* Quick.framework */; };
+		9A73E04F216D40980069AD76 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E04B216D408D0069AD76 /* Nimble.framework */; };
+		9A73E050216D40980069AD76 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E04D216D408D0069AD76 /* Quick.framework */; };
+		9A73E051216D40A20069AD76 /* ReactiveMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73DFBB216D3C550069AD76 /* ReactiveMapKit.framework */; };
+		9A73E052216D40AC0069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
+		9A73E053216D40C80069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
+		9A73E054216D40CD0069AD76 /* ReactiveMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; };
+		9A73E055216D40D10069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E056216D40D10069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E059216D40E30069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E05A216D40E30069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E05B216D40EC0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E05C216D40EC0069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E05D216D40F70069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
+		9A73E05E216D40F70069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E037216D3FC50069AD76 /* Result.framework */; };
+		9A73E05F216D41FA0069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
 		9A7488481E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
 		9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
@@ -216,9 +251,6 @@
 		9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AB15C7D1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
 		9AC03A611F7CC5E300EC33C1 /* MKMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED11DD4BCA90016C058 /* MKMapView.swift */; };
-		9AC03A621F7CC6B300EC33C1 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */; };
-		9AC03A641F7CC6B300EC33C1 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
-		9AC03A651F7CC6B300EC33C1 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06B1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
 		9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
@@ -297,7 +329,6 @@
 		CD8401841CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
 		CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */; };
 		CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
-		CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		CDC42E331AE7AC6D00965373 /* Result.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CDF066CA1CDC1CA200199626 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
@@ -308,12 +339,10 @@
 		D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D037671719EDA60000A782A9 /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
 		D037671819EDA60000A782A9 /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
-		D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
 		D037672F19EDA78B00A782A9 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; };
 		D04725F019E49ED7006002AA /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
 		D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
-		D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D0A2260E1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
 		D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */; };
@@ -331,12 +360,26 @@
 			remoteGlobalIDString = 57A4D1AF1BA13D7A00F7D4B1;
 			remoteInfo = "ReactiveCocoa-tvOS";
 		};
-		9A1675651F813EAA00B63650 /* PBXContainerItemProxy */ = {
+		9A73DFE1216D3CEB0069AD76 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D04725E119E49ED7006002AA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 9AC03A561F7CC3BF00EC33C1;
 			remoteInfo = ReactiveMapKit;
+		};
+		9A73E045216D404D0069AD76 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A73DFAC216D3C550069AD76;
+			remoteInfo = "ReactiveMapKit-iOS";
+		};
+		9A73E047216D40550069AD76 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D04725E119E49ED7006002AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A73DFBD216D3C570069AD76;
+			remoteInfo = "ReactiveMapKit-tvOS";
 		};
 		D04725F719E49ED7006002AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -375,12 +418,32 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				9A1675641F80DFAB00B63650 /* Quick.framework in Copy Files */,
-				9A1675571F80C44F00B63650 /* Nimble.framework in Copy Files */,
 				9A1675511F80C41F00B63650 /* ReactiveCocoa.framework in Copy Files */,
-				9A1675521F80C41F00B63650 /* Result.framework in Copy Files */,
-				9A1675531F80C41F00B63650 /* ReactiveSwift.framework in Copy Files */,
 				9A16755F1F80DE3900B63650 /* ReactiveMapKit.framework in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFEC216D3CEB0069AD76 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */,
+				9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73E007216D3CEE0069AD76 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */,
+				9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -442,9 +505,6 @@
 		9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxySpec.swift; sourceTree = "<group>"; };
 		9A16753D1F80C35100B63650 /* ReactiveMapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveMapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1675411F80C35100B63650 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9A16754F1F80C40200B63650 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9A1675561F80C44100B63650 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9A1675631F80DFA400B63650 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Association.swift"; sourceTree = "<group>"; };
 		9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIActivityIndicatorView.swift; sourceTree = "<group>"; };
 		9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
@@ -479,6 +539,10 @@
 		9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyValueObservingSpec.swift; sourceTree = "<group>"; };
 		9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwizzlingSpec.swift; sourceTree = "<group>"; };
 		9A2E425D1DAA6737006D909F /* CocoaTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CocoaTarget.swift; sourceTree = "<group>"; };
+		9A3C54EA21726A1200E98207 /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A3C54EC21726A1200E98207 /* Quick.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A3C54F021726BD200E98207 /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A3C54F221726BD200E98207 /* Quick.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingPerformanceTests.swift; sourceTree = "<group>"; };
 		9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Selector.swift"; sourceTree = "<group>"; };
 		9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptingSpec.swift; sourceTree = "<group>"; };
@@ -486,6 +550,14 @@
 		9A6AAA251DB8F5280013AAEA /* ReusableComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponents.swift; sourceTree = "<group>"; };
 		9A6AAA271DB8F7EB0013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
 		9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableComponentsSpec.swift; sourceTree = "<group>"; };
+		9A73DFBB216D3C550069AD76 /* ReactiveMapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveMapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveMapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73DFF8216D3CEB0069AD76 /* ReactiveMapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveMapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73E013216D3CEE0069AD76 /* ReactiveMapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveMapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73E037216D3FC50069AD76 /* Result.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Result.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73E04B216D408D0069AD76 /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A73E04D216D408D0069AD76 /* Quick.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxy.swift; sourceTree = "<group>"; };
 		9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindingTargetSpec.swift; sourceTree = "<group>"; };
 		9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateProxySpec.swift; sourceTree = "<group>"; };
@@ -502,7 +574,6 @@
 		9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Deprecations+Removals.swift"; sourceTree = "<group>"; };
 		9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveMapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC03A5A1F7CC3BF00EC33C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+KeyValueObserving.swift"; sourceTree = "<group>"; };
 		9AD841D6204C29B90040F0C0 /* ReactiveCocoaTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoaTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		9AD841DA204C29B90040F0C0 /* MessageForwardingEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageForwardingEntity.h; sourceTree = "<group>"; };
@@ -588,7 +659,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				57A4D2081BA13D7A00F7D4B1 /* Result.framework in Frameworks */,
-				9A16755C1F80DDE700B63650 /* ReactiveSwift.framework in Frameworks */,
+				9A73E03C216D3FFC0069AD76 /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,6 +670,8 @@
 				CDF066CA1CDC1CA200199626 /* Nimble.framework in Frameworks */,
 				CDF066CB1CDC1CA200199626 /* Quick.framework in Frameworks */,
 				7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */,
+				9A73E059216D40E30069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E05A216D40E30069AD76 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -606,12 +679,58 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A16755E1F80DE2F00B63650 /* ReactiveMapKit.framework in Frameworks */,
-				9A1675581F80C45300B63650 /* Nimble.framework in Frameworks */,
-				9A16754B1F80C3E300B63650 /* ReactiveCocoa.framework in Frameworks */,
-				9A16754C1F80C3EC00B63650 /* ReactiveSwift.framework in Frameworks */,
-				9A1675501F80C40C00B63650 /* Result.framework in Frameworks */,
-				9A1675601F80DF9600B63650 /* Quick.framework in Frameworks */,
+				9A73E043216D40280069AD76 /* Result.framework in Frameworks */,
+				9A73E042216D40280069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E052216D40AC0069AD76 /* ReactiveCocoa.framework in Frameworks */,
+				9A73E051216D40A20069AD76 /* ReactiveMapKit.framework in Frameworks */,
+				9A73E04F216D40980069AD76 /* Nimble.framework in Frameworks */,
+				9A73E050216D40980069AD76 /* Quick.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFB0216D3C550069AD76 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */,
+				9A73E03E216D400D0069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E03F216D400D0069AD76 /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFC1216D3C570069AD76 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73E05F216D41FA0069AD76 /* ReactiveCocoa.framework in Frameworks */,
+				9A73E036216D3FC50069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E038216D3FC50069AD76 /* Result.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFE4216D3CEB0069AD76 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A3C54F121726BD200E98207 /* Nimble.framework in Frameworks */,
+				9A3C54F321726BD200E98207 /* Quick.framework in Frameworks */,
+				9A73E056216D40D10069AD76 /* Result.framework in Frameworks */,
+				9A73E055216D40D10069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E053216D40C80069AD76 /* ReactiveCocoa.framework in Frameworks */,
+				9A73E054216D40CD0069AD76 /* ReactiveMapKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFFF216D3CEE0069AD76 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73E041216D40170069AD76 /* Result.framework in Frameworks */,
+				9A73E040216D40170069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E04A216D40850069AD76 /* ReactiveCocoa.framework in Frameworks */,
+				9A73E049216D40800069AD76 /* ReactiveMapKit.framework in Frameworks */,
+				9A73E04C216D408D0069AD76 /* Nimble.framework in Frameworks */,
+				9A73E04E216D408D0069AD76 /* Quick.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -619,9 +738,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AC03A641F7CC6B300EC33C1 /* ReactiveCocoa.framework in Frameworks */,
-				9AC03A621F7CC6B300EC33C1 /* ReactiveSwift.framework in Frameworks */,
-				9AC03A651F7CC6B300EC33C1 /* Result.framework in Frameworks */,
+				9A73E030216D3FAF0069AD76 /* Result.framework in Frameworks */,
+				9A73E03D216D40070069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E015216D3E660069AD76 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -630,7 +749,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9B315C91B3940980001CB9C /* Result.framework in Frameworks */,
-				9A16755B1F80DDE400B63650 /* ReactiveSwift.framework in Frameworks */,
+				9A73E03B216D3FF50069AD76 /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -639,7 +758,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CDC42E2F1AE7AB8B00965373 /* Result.framework in Frameworks */,
-				9A1675591F80DDDE00B63650 /* ReactiveSwift.framework in Frameworks */,
+				9A73E039216D3FEB0069AD76 /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -647,10 +766,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDC42E301AE7AB8B00965373 /* Result.framework in Frameworks */,
-				D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */,
-				D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */,
+				9A3C54EB21726A1200E98207 /* Nimble.framework in Frameworks */,
+				9A3C54ED21726A1200E98207 /* Quick.framework in Frameworks */,
 				D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */,
+				9A73E05D216D40F70069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E05E216D40F70069AD76 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,7 +779,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CDC42E311AE7AB8B00965373 /* Result.framework in Frameworks */,
-				9A16755A1F80DDE100B63650 /* ReactiveSwift.framework in Frameworks */,
+				9A73E03A216D3FF10069AD76 /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,6 +790,8 @@
 				D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */,
 				D037672F19EDA78B00A782A9 /* Quick.framework in Frameworks */,
 				D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */,
+				9A73E05B216D40EC0069AD76 /* ReactiveSwift.framework in Frameworks */,
+				9A73E05C216D40EC0069AD76 /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -796,6 +918,21 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
+		9A73E026216D3F670069AD76 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9A3C54F021726BD200E98207 /* Nimble.framework */,
+				9A3C54F221726BD200E98207 /* Quick.framework */,
+				9A3C54EA21726A1200E98207 /* Nimble.framework */,
+				9A3C54EC21726A1200E98207 /* Quick.framework */,
+				9A73E04B216D408D0069AD76 /* Nimble.framework */,
+				9A73E04D216D408D0069AD76 /* Quick.framework */,
+				9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */,
+				9A73E037216D3FC50069AD76 /* Result.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9AC03A581F7CC3BF00EC33C1 /* ReactiveMapKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -833,17 +970,6 @@
 			path = watchOS;
 			sourceTree = "<group>";
 		};
-		BE330A0D1D634F1E00806963 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				9A1675631F80DFA400B63650 /* Quick.framework */,
-				9A1675561F80C44100B63650 /* Nimble.framework */,
-				9A16754F1F80C40200B63650 /* Result.framework */,
-				9AC03A631F7CC6B300EC33C1 /* ReactiveSwift.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		CD91E3D41DDAC67700FA70D0 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -872,7 +998,7 @@
 				9AC03A581F7CC3BF00EC33C1 /* ReactiveMapKit */,
 				9A16753E1F80C35100B63650 /* ReactiveMapKitTests */,
 				D04725EB19E49ED7006002AA /* Products */,
-				BE330A0D1D634F1E00806963 /* Frameworks */,
+				9A73E026216D3F670069AD76 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
@@ -889,6 +1015,10 @@
 				7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */,
 				9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */,
 				9A16753D1F80C35100B63650 /* ReactiveMapKitTests.xctest */,
+				9A73DFBB216D3C550069AD76 /* ReactiveMapKit.framework */,
+				9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */,
+				9A73DFF8216D3CEB0069AD76 /* ReactiveMapKitTests.xctest */,
+				9A73E013216D3CEE0069AD76 /* ReactiveMapKitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1066,6 +1196,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9A73DFB4216D3C550069AD76 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFC5216D3C570069AD76 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9AC03A541F7CC3BF00EC33C1 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1140,9 +1284,9 @@
 			productReference = 7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		9A16753C1F80C35100B63650 /* ReactiveMapKitTests */ = {
+		9A16753C1F80C35100B63650 /* ReactiveMapKitTests-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9A1675451F80C35100B63650 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests" */;
+			buildConfigurationList = 9A1675451F80C35100B63650 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-iOS" */;
 			buildPhases = (
 				9A1675391F80C35100B63650 /* Sources */,
 				9A16753A1F80C35100B63650 /* Frameworks */,
@@ -1152,16 +1296,90 @@
 			buildRules = (
 			);
 			dependencies = (
-				9A1675661F813EAA00B63650 /* PBXTargetDependency */,
+				9A73E046216D404D0069AD76 /* PBXTargetDependency */,
 			);
-			name = ReactiveMapKitTests;
+			name = "ReactiveMapKitTests-iOS";
 			productName = ReactiveMapKitTests;
 			productReference = 9A16753D1F80C35100B63650 /* ReactiveMapKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit */ = {
+		9A73DFAC216D3C550069AD76 /* ReactiveMapKit-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9AC03A5C1F7CC3BF00EC33C1 /* Build configuration list for PBXNativeTarget "ReactiveMapKit" */;
+			buildConfigurationList = 9A73DFB6216D3C550069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-iOS" */;
+			buildPhases = (
+				9A73DFAD216D3C550069AD76 /* Sources */,
+				9A73DFB0216D3C550069AD76 /* Frameworks */,
+				9A73DFB4216D3C550069AD76 /* Headers */,
+				9A73DFB5216D3C550069AD76 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveMapKit-iOS";
+			productName = ReactiveMapKit;
+			productReference = 9A73DFBB216D3C550069AD76 /* ReactiveMapKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		9A73DFBD216D3C570069AD76 /* ReactiveMapKit-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A73DFC7216D3C570069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-tvOS" */;
+			buildPhases = (
+				9A73DFBE216D3C570069AD76 /* Sources */,
+				9A73DFC1216D3C570069AD76 /* Frameworks */,
+				9A73DFC5216D3C570069AD76 /* Headers */,
+				9A73DFC6216D3C570069AD76 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveMapKit-tvOS";
+			productName = ReactiveMapKit;
+			productReference = 9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		9A73DFDF216D3CEB0069AD76 /* ReactiveMapKitTests-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A73DFF3216D3CEB0069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-macOS" */;
+			buildPhases = (
+				9A73DFE2216D3CEB0069AD76 /* Sources */,
+				9A73DFE4216D3CEB0069AD76 /* Frameworks */,
+				9A73DFEB216D3CEB0069AD76 /* Resources */,
+				9A73DFEC216D3CEB0069AD76 /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9A73DFE0216D3CEB0069AD76 /* PBXTargetDependency */,
+			);
+			name = "ReactiveMapKitTests-macOS";
+			productName = ReactiveMapKitTests;
+			productReference = 9A73DFF8216D3CEB0069AD76 /* ReactiveMapKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9A73DFFA216D3CEE0069AD76 /* ReactiveMapKitTests-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A73E00E216D3CEE0069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-tvOS" */;
+			buildPhases = (
+				9A73DFFD216D3CEE0069AD76 /* Sources */,
+				9A73DFFF216D3CEE0069AD76 /* Frameworks */,
+				9A73E006216D3CEE0069AD76 /* Resources */,
+				9A73E007216D3CEE0069AD76 /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9A73E048216D40550069AD76 /* PBXTargetDependency */,
+			);
+			name = "ReactiveMapKitTests-tvOS";
+			productName = ReactiveMapKitTests;
+			productReference = 9A73E013216D3CEE0069AD76 /* ReactiveMapKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AC03A5C1F7CC3BF00EC33C1 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-macOS" */;
 			buildPhases = (
 				9AC03A521F7CC3BF00EC33C1 /* Sources */,
 				9AC03A531F7CC3BF00EC33C1 /* Frameworks */,
@@ -1172,7 +1390,7 @@
 			);
 			dependencies = (
 			);
-			name = ReactiveMapKit;
+			name = "ReactiveMapKit-macOS";
 			productName = ReactiveMapKit;
 			productReference = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1334,8 +1552,12 @@
 				A9B315531B3940610001CB9C /* ReactiveCocoa-watchOS */,
 				57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */,
 				7DFBED021CDB8C9500EE435B /* ReactiveCocoa-tvOSTests */,
-				9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit */,
-				9A16753C1F80C35100B63650 /* ReactiveMapKitTests */,
+				9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit-macOS */,
+				9A73DFDF216D3CEB0069AD76 /* ReactiveMapKitTests-macOS */,
+				9A73DFAC216D3C550069AD76 /* ReactiveMapKit-iOS */,
+				9A16753C1F80C35100B63650 /* ReactiveMapKitTests-iOS */,
+				9A73DFBD216D3C570069AD76 /* ReactiveMapKit-tvOS */,
+				9A73DFFA216D3CEE0069AD76 /* ReactiveMapKitTests-tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -1357,6 +1579,34 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9A16753B1F80C35100B63650 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFB5216D3C550069AD76 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFC6216D3C570069AD76 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFEB216D3CEB0069AD76 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73E006216D3CEE0069AD76 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1507,6 +1757,40 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A16755D1F80DE1C00B63650 /* MKMapViewSpec.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFAD216D3C550069AD76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73DFAE216D3C550069AD76 /* MKMapView.swift in Sources */,
+				9A73DFAF216D3C550069AD76 /* MKLocalSearchRequest.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFBE216D3C570069AD76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73DFBF216D3C570069AD76 /* MKMapView.swift in Sources */,
+				9A73DFC0216D3C570069AD76 /* MKLocalSearchRequest.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFE2216D3CEB0069AD76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73DFE3216D3CEB0069AD76 /* MKMapViewSpec.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A73DFFD216D3CEE0069AD76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A73DFFE216D3CEE0069AD76 /* MKMapViewSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1743,10 +2027,20 @@
 			target = 57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */;
 			targetProxy = 7DFBED091CDB8C9500EE435B /* PBXContainerItemProxy */;
 		};
-		9A1675661F813EAA00B63650 /* PBXTargetDependency */ = {
+		9A73DFE0216D3CEB0069AD76 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit */;
-			targetProxy = 9A1675651F813EAA00B63650 /* PBXContainerItemProxy */;
+			target = 9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit-macOS */;
+			targetProxy = 9A73DFE1216D3CEB0069AD76 /* PBXContainerItemProxy */;
+		};
+		9A73E046216D404D0069AD76 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A73DFAC216D3C550069AD76 /* ReactiveMapKit-iOS */;
+			targetProxy = 9A73E045216D404D0069AD76 /* PBXContainerItemProxy */;
+		};
+		9A73E048216D40550069AD76 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A73DFBD216D3C570069AD76 /* ReactiveMapKit-tvOS */;
+			targetProxy = 9A73E047216D40550069AD76 /* PBXContainerItemProxy */;
 		};
 		D04725F819E49ED7006002AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1856,9 +2150,8 @@
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphonesimulator appletvsimulator watchsimulator";
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -1869,9 +2162,8 @@
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphonesimulator appletvsimulator watchsimulator";
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = iphoneos;
 			};
 			name = Test;
 		};
@@ -1882,9 +2174,8 @@
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphonesimulator appletvsimulator watchsimulator";
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -1895,9 +2186,208 @@
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = iphoneos;
+			};
+			name = Profile;
+		};
+		9A73DFB7216D3C550069AD76 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		9A73DFB8216D3C550069AD76 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = iphoneos;
+			};
+			name = Test;
+		};
+		9A73DFB9216D3C550069AD76 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+		9A73DFBA216D3C550069AD76 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = iphoneos;
+			};
+			name = Profile;
+		};
+		9A73DFC8216D3C570069AD76 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = appletvos;
+			};
+			name = Debug;
+		};
+		9A73DFC9216D3C570069AD76 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = appletvos;
+			};
+			name = Test;
+		};
+		9A73DFCA216D3C570069AD76 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = appletvos;
+			};
+			name = Release;
+		};
+		9A73DFCB216D3C570069AD76 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
+				PRODUCT_NAME = ReactiveMapKit;
+				SDKROOT = appletvos;
+			};
+			name = Profile;
+		};
+		9A73DFF4216D3CEB0069AD76 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphonesimulator appletvsimulator watchsimulator";
+			};
+			name = Debug;
+		};
+		9A73DFF5216D3CEB0069AD76 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = macosx;
+			};
+			name = Test;
+		};
+		9A73DFF6216D3CEB0069AD76 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9A73DFF7216D3CEB0069AD76 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = macosx;
+			};
+			name = Profile;
+		};
+		9A73E00F216D3CEE0069AD76 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = appletvos;
+			};
+			name = Debug;
+		};
+		9A73E010216D3CEE0069AD76 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = appletvos;
+			};
+			name = Test;
+		};
+		9A73E011216D3CEE0069AD76 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = appletvos;
+			};
+			name = Release;
+		};
+		9A73E012216D3CEE0069AD76 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
+				PRODUCT_NAME = ReactiveMapKitTests;
+				SDKROOT = appletvos;
 			};
 			name = Profile;
 		};
@@ -1909,10 +2399,8 @@
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ReactiveMapKit;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Debug;
 		};
@@ -1924,10 +2412,8 @@
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ReactiveMapKit;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Test;
 		};
@@ -1939,10 +2425,8 @@
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ReactiveMapKit;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Release;
 		};
@@ -1954,10 +2438,8 @@
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ReactiveMapKit;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx appletvsimulator appletvos iphoneos iphonesimulator";
-				VALID_ARCHS = "i386 x86_64 armv7s arm64 armv7";
 			};
 			name = Profile;
 		};
@@ -2309,7 +2791,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9A1675451F80C35100B63650 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests" */ = {
+		9A1675451F80C35100B63650 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9A1675461F80C35100B63650 /* Debug */,
@@ -2320,7 +2802,51 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9AC03A5C1F7CC3BF00EC33C1 /* Build configuration list for PBXNativeTarget "ReactiveMapKit" */ = {
+		9A73DFB6216D3C550069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A73DFB7216D3C550069AD76 /* Debug */,
+				9A73DFB8216D3C550069AD76 /* Test */,
+				9A73DFB9216D3C550069AD76 /* Release */,
+				9A73DFBA216D3C550069AD76 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A73DFC7216D3C570069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A73DFC8216D3C570069AD76 /* Debug */,
+				9A73DFC9216D3C570069AD76 /* Test */,
+				9A73DFCA216D3C570069AD76 /* Release */,
+				9A73DFCB216D3C570069AD76 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A73DFF3216D3CEB0069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A73DFF4216D3CEB0069AD76 /* Debug */,
+				9A73DFF5216D3CEB0069AD76 /* Test */,
+				9A73DFF6216D3CEB0069AD76 /* Release */,
+				9A73DFF7216D3CEB0069AD76 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A73E00E216D3CEE0069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKitTests-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A73E00F216D3CEE0069AD76 /* Debug */,
+				9A73E010216D3CEE0069AD76 /* Test */,
+				9A73E011216D3CEE0069AD76 /* Release */,
+				9A73E012216D3CEE0069AD76 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AC03A5C1F7CC3BF00EC33C1 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9AC03A5D1F7CC3BF00EC33C1 /* Debug */,

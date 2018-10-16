@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 8.0.2
 1. ReactiveMapKit has now platform specific build targets and schemes. (#3625, kudos to @andersio)
 
 # 8.0.1

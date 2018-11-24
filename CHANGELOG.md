@@ -1,6 +1,6 @@
 # master
 *Please put new entries at the top.
-1. Add extension for `isHidden` property of `NSView` class. (#3621, kudos to @eimantas)
+1. Add extension for `isHidden` property of `NSView` class. (#3634, kudos to @eimantas)
 
 # 8.0.2
 1. ReactiveMapKit has now platform specific build targets and schemes. (#3625, kudos to @andersio)

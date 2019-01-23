@@ -1,5 +1,26 @@
 # master
 *Please put new entries at the top.
+1. Add extension for `alphaValue` property of `NSView` class. (#3636, kuds to @eimantas)
+1. Add extension for `isHidden` property of `NSView` class. (#3634, kudos to @eimantas)
+
+# 8.0.2
+1. ReactiveMapKit has now platform specific build targets and schemes. (#3625, kudos to @andersio)
+
+# 8.0.1
+1. Add extensions for several properties on `WKInterfaceLabel` and `WKInterfaceButton`. (#3616, kudos to @yoching)
+1. Add `swift_version` to podspecs (#3622, kudos to @olejnjak)
+1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)
+1. Fixed an issue of `SignalProducer.take(duringLifetimeOf:)` incorrectly retaining its argument. (#3615, kudos to @andrei-kuzma)
+
+# 8.0.0
+1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
+
+# 8.0.0-rc.1
+1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
+
+1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
+2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
+3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).
 
 # 7.X.0
 1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
@@ -9,11 +30,13 @@
 
 1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
 
-1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar` (#3565, kudos to @banjun)
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar`. (#3565, kudos to @banjun)
 
 1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
 
-1. Add extensions for several properties on `UINavigationItem` (#3576, kudos to @asmallteapot).
+1. Add extensions for several properties on `UINavigationItem`. (#3576, kudos to @asmallteapot)
+
+1. Add extension for `search` on MKLocalSearchRequest. (#3571, kudos to @Marcocanc)
 
 # 7.1.0
 # 7.1.0-rc.2

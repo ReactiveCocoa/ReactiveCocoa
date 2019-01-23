@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ReactiveCocoa"
-  s.version      = "7.2.0"
+  s.version      = "8.0.2"
   s.summary      = "Streams of values over time"
   s.description  = <<-DESC
                    ReactiveCocoa (RAC) is a Cocoa framework built on top of ReactiveSwift. It provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.
@@ -16,14 +16,16 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :tag => "#{s.version}" }
   s.source_files = "ReactiveCocoa/*.{swift,h,m}", "ReactiveCocoa/Shared/*.{swift}"
-  s.private_header_files = "ReactiveCocoa/ObjCRuntimeAliases.h"
+  s.public_header_files = "ReactiveCocoa/ObjCRuntimeAliases.h"
   s.osx.source_files = "ReactiveCocoa/AppKit/*.{swift}"
   s.ios.source_files = "ReactiveCocoa/UIKit/*.{swift}", "ReactiveCocoa/UIKit/iOS/*.{swift}"
   s.tvos.source_files = "ReactiveCocoa/UIKit/*.{swift}"
   s.watchos.exclude_files = "ReactiveCocoa/Shared/*.{swift}"
-  s.module_map = "ReactiveCocoa/module.modulemap"
+  s.watchos.source_files = "ReactiveCocoa/WatchKit/*.{swift}"
+  s.module_name = 'ReactiveCocoa'
 
-  s.dependency 'ReactiveSwift', '~> 3.1'
+  s.dependency 'ReactiveSwift', '~> 4.0'
 
   s.pod_target_xcconfig = { "OTHER_SWIFT_FLAGS[config=Release]" => "$(inherited) -suppress-warnings" }
+  s.swift_version = '4.1.2'
 end

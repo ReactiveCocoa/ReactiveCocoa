@@ -66,7 +66,7 @@ extension NSObject {
 		let typeEncoding = method_getTypeEncoding(method)!
 		assert(checkTypeEncoding(typeEncoding))
 
-		return synchronized {
+		return synchronized(self) {
 			let alias = selector.alias
 			let stateKey = AssociationKey<InterceptingState?>(alias)
 			let interopAlias = selector.interopAlias

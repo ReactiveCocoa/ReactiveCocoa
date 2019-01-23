@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode9.2
+osx_image: xcode10
 before_install: true
 install: true
 branches:
@@ -14,11 +14,11 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode9.2
+      osx_image: xcode10
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx
-          XCODE_ACTION="build test"
+          XCODE_ACTION="build-for-testing test-without-building"
           XCODE_DESTINATION="arch=x86_64"
           XCODE_PLAYGROUND_TARGET="x86_64-apple-macosx10.10"
           PLAYGROUND="ReactiveCocoa-macOS.playground"
@@ -40,11 +40,9 @@ jobs:
           script/build
     - stage: package manager tests
       script:
-      - gem install cocoapods
       - pod repo update
-      - pod lib lint ReactiveCocoa.podspec
-      - pod lib lint ReactiveCocoa.podspec --swift-version=3.2
-      - pod lib lint ReactiveMapKit.podspec
+      - pod lib lint ReactiveCocoa.podspec --use-libraries
+      - pod lib lint ReactiveMapKit.podspec --use-libraries
       env:
         - JOB=PODSPEC
     - script: carthage build --cache-builds --no-skip-current

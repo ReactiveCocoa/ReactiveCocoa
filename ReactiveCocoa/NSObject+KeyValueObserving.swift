@@ -223,6 +223,7 @@ extension KeyValueObserver {
 		if isNested {
 			observer = KeyValueObserver(observing: object, key: keyPathHead, options: options.union(.initial)) { object in
 				guard let value = object?.value(forKey: keyPathHead) as! NSObject? else {
+					headSerialDisposable.inner = nil
 					action(nil)
 					return
 				}
@@ -264,7 +265,7 @@ extension KeyValueObserver {
 				// For a direct key path, the deinitialization needs to be
 				// observed only if the key path is a weak property.
 				if shouldObserveDeinit && isWeak {
-					let disposable = lifetime(of: value).observeEnded {
+					let disposable = Lifetime.of(value).observeEnded {
 						action(nil)
 					}
 

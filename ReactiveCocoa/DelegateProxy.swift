@@ -63,7 +63,7 @@ extension DelegateProxy {
 		setter: Selector,
 		getter: Selector
 	) -> AnyObject {
-		return instance.synchronized {
+		return synchronized(instance) {
 			let key = AssociationKey<AnyObject?>(setter.delegateProxyAlias)
 
 			if let proxy = instance.associations.value(forKey: key) {

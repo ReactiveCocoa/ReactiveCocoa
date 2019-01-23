@@ -35,8 +35,6 @@
 		4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */; };
 		4EE637362090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
 		4EE637372090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
-		4EE637392090F9F600ECD02A /* UIApplicationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637382090F9F600ECD02A /* UIApplicationSpec.swift */; };
-		4EE6373A2090F9F600ECD02A /* UIApplicationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637382090F9F600ECD02A /* UIApplicationSpec.swift */; };
 		531866F81DD7920400D1285F /* UIStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F71DD7920400D1285F /* UIStepper.swift */; };
 		531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F91DD7925600D1285F /* UIStepperSpec.swift */; };
 		538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
@@ -413,7 +411,6 @@
 		4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionView.swift; sourceTree = "<group>"; };
 		4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSpec.swift; sourceTree = "<group>"; };
 		4EE637352090F92600ECD02A /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
-		4EE637382090F9F600ECD02A /* UIApplicationSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplicationSpec.swift; sourceTree = "<group>"; };
 		531866F71DD7920400D1285F /* UIStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepper.swift; sourceTree = "<group>"; };
 		531866F91DD7925600D1285F /* UIStepperSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepperSpec.swift; sourceTree = "<group>"; };
 		538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraint.swift; sourceTree = "<group>"; };
@@ -754,7 +751,6 @@
 			children = (
 				9A6AAA291DB8F7F10013AAEA /* ReusableComponentsSpec.swift */,
 				9A1D06241D93EA7E00ACF44C /* UIActivityIndicatorViewSpec.swift */,
-				4EE637382090F9F600ECD02A /* UIApplicationSpec.swift */,
 				9A1D06251D93EA7E00ACF44C /* UIBarButtonItemSpec.swift */,
 				9A1D06261D93EA7E00ACF44C /* UIButtonSpec.swift */,
 				4ABEFE271DCFCFA90066A8C2 /* UICollectionViewSpec.swift */,
@@ -1464,7 +1460,6 @@
 				9AD841DE204C29B90040F0C0 /* MessageForwardingEntity.m in Sources */,
 				A9EB3D2B1E94F3D9002A9BCC /* UITabBarItemSpec.swift in Sources */,
 				7DFBED6D1CDB8F7D00EE435B /* SignalProducerNimbleMatchers.swift in Sources */,
-				4EE6373A2090F9F600ECD02A /* UIApplicationSpec.swift in Sources */,
 				9ADFE5A31DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06411D93EA7E00ACF44C /* UIControlSpec.swift in Sources */,
 				9AFCBFE51EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift in Sources */,
@@ -1684,7 +1679,6 @@
 				3B30EE8D1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				9A9DFEEA1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				9A54A2121DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
-				4EE637392090F9F600ECD02A /* UIApplicationSpec.swift in Sources */,
 				9ADFE5A21DBFFBCF001E11F7 /* LifetimeSpec.swift in Sources */,
 				9A1D06421D93EA7E00ACF44C /* UIDatePickerSpec.swift in Sources */,
 				53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */,

@@ -1,5 +1,6 @@
 # master
 *Please put new entries at the top.
+1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
 1. Add extension for `alphaValue` property of `NSView` class. (#3636, kuds to @eimantas)
 1. Add extension for `isHidden` property of `NSView` class. (#3634, kudos to @eimantas)
 
@@ -21,9 +22,6 @@
 1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
 2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
 3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).
-
-# 7.X.0
-1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
 
 # 7.2.0
 1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)

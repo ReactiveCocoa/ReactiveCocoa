@@ -11,9 +11,12 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 // Signatures defined in `@objc` protocols would be available for ObjC message
 // sending via `AnyObject`.
 @objc internal protocol ObjCClassReporting {
-// An alias for `-class`, which is unavailable in Swift.
+	// An alias for `-class`, which is unavailable in Swift.
 	@objc(class)
 	var objcClass: AnyClass! { get }
+
+	@objc(methodSignatureForSelector:)
+	func objcMethodSignature(for selector: Selector) -> AnyObject
 }
 
 // Methods of `NSInvocation`.
@@ -22,27 +25,29 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 	func setTarget(_ target: Any?)
 
 	@objc(setSelector:)
-	func setSelector(_ selector: Selector)
+	func objcSetSelector(_ selector: Selector)
 
 	@objc(methodSignature)
 	var objcMethodSignature: AnyObject { get }
 
 	@objc(getArgument:atIndex:)
-	func copy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
+	func objcCopy(to buffer: UnsafeMutableRawPointer?, forArgumentAt index: Int)
 
-	func invoke()
+	@objc(invoke)
+	func objcInvoke()
 
 	@objc(invocationWithMethodSignature:)
-	static func invocation(withMethodSignature signature: AnyObject) -> AnyObject
+	static func objcInvocation(withMethodSignature signature: AnyObject) -> AnyObject
 }
 
 // Methods of `NSMethodSignature`.
 @objc internal protocol ObjCMethodSignature {
-	var numberOfArguments: UInt { get }
+	@objc(numberOfArguments)
+	var objcNumberOfArguments: UInt { get }
 
 	@objc(getArgumentTypeAtIndex:)
-	func argumentType(at index: UInt) -> UnsafePointer<CChar>
+	func objcArgumentType(at index: UInt) -> UnsafePointer<CChar>
 
 	@objc(signatureWithObjCTypes:)
-	static func signature(withObjCTypes typeEncoding: UnsafePointer<Int8>) -> AnyObject
+	static func objcSignature(withObjCTypes typeEncoding: UnsafePointer<Int8>) -> AnyObject
 }

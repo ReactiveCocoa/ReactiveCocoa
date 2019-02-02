@@ -78,7 +78,7 @@ __ReactiveCocoa__ wraps various aspects of Cocoa frameworks with the declarative
 	// subsequent changes.
 	//
 	// Terminate the KVO observation if the lifetime of `self` ends.
-	let producer = object.reactive.values(forKeyPath: #keyPath(key))
+	let producer = object.reactive.producer(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
 
 	// A parameterized property that represents the supplied key path of the
@@ -100,7 +100,7 @@ If you use [Carthage][] to manage your dependencies, simply add
 ReactiveCocoa to your `Cartfile`:
 
 ```
-github "ReactiveCocoa/ReactiveCocoa" ~> 6.0
+github "ReactiveCocoa/ReactiveCocoa" ~> 8.0
 ```
 
 If you use Carthage to build your dependencies, make sure you have added `ReactiveCocoa.framework`, `ReactiveSwift.framework`, and `Result.framework` to the "_Linked Frameworks and Libraries_" section of your target, and have included them in your Carthage framework copying build phase.
@@ -111,7 +111,7 @@ If you use [CocoaPods][] to manage your dependencies, simply add
 ReactiveCocoa to your `Podfile`:
 
 ```
-pod 'ReactiveCocoa', '~> 6.0'
+pod 'ReactiveCocoa', '~> 8.0'
 ```
 
 #### Git submodule
@@ -136,14 +136,9 @@ If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. 
 **Current Stable Release:**<br />[![GitHub release](https://img.shields.io/github/release/ReactiveCocoa/ReactiveCocoa.svg)](https://github.com/ReactiveCocoa/ReactiveCocoa/releases)
 
 ### In Development
-#### Swift 3.2 and Swift 4.0 compatibility
-While the development would be Swift 3.2 and Swift 4.0 aware, ReactiveCocoa 6.0 would not declare official support until Swift 3.2 and Swift 4.0 launch.
-
-The official release for Swift 3.2 and Swift 4.0 is expected to be a minor 6.x release with full API compatibility.
-
 ### Plan of Record
-#### ReactiveCocoa 7.0
-ReactiveCocoa 7.0 is expected to declare library ABI stability as it adopts generics features arriving in a later Swift 4 release, e.g. conditional conformance. There is no ETA for now.
+#### ABI stability release
+ReactiveCocoa is expected to declare library ABI stability when Swift rolls out resilence support in Swift 5. Until then, ReactiveCocoa will incrementally adopt new language features.
 
 [ReactiveSwift]: https://github.com/ReactiveCocoa/ReactiveSwift
 [ReactiveObjC]: https://github.com/ReactiveCocoa/ReactiveObjC

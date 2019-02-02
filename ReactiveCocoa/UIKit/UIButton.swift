@@ -41,6 +41,7 @@ extension Reactive where Base: UIButton {
 		return makeBindingTarget { $0.setImage($1, for: state) }
 	}
 
+	/// Sets the image of the button for the .normal state
 	public var image: BindingTarget<UIImage?> {
 		return image(for: .normal)
 	}

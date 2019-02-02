@@ -66,7 +66,7 @@ extension NSObject {
 		let typeEncoding = method_getTypeEncoding(method)!
 		assert(checkTypeEncoding(typeEncoding))
 
-		return synchronized {
+		return synchronized(self) {
 			let alias = selector.alias
 			let stateKey = AssociationKey<InterceptingState?>(alias)
 			let interopAlias = selector.interopAlias
@@ -80,7 +80,7 @@ extension NSObject {
 				selectorCache.cache(selector)
 
 				if signatureCache[selector] == nil {
-					let signature = NSMethodSignature.signature(withObjCTypes: typeEncoding)
+					let signature = NSMethodSignature.objcSignature(withObjCTypes: typeEncoding)
 					signatureCache[selector] = signature
 				}
 
@@ -169,8 +169,18 @@ private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: 
 			}
 		}
 
-		let method = class_getInstanceMethod(perceivedClass, selector)!
-		let typeEncoding = method_getTypeEncoding(method)
+		let method = class_getInstanceMethod(perceivedClass, selector)
+		let typeEncoding: String
+
+		if let runtimeTypeEncoding = method.flatMap(method_getTypeEncoding) {
+			typeEncoding = String(cString: runtimeTypeEncoding)
+		} else {
+			let methodSignature = (objectRef.takeUnretainedValue() as AnyObject)
+				.objcMethodSignature(for: selector)
+			let encodings = (0 ..< methodSignature.objcNumberOfArguments!)
+				.map { UInt8(methodSignature.objcArgumentType(at: $0).pointee) }
+			typeEncoding = String(bytes: encodings, encoding: .ascii)!
+		}
 
 		if class_respondsToSelector(realClass, interopAlias) {
 			// RAC has preserved an immediate implementation found in the runtime
@@ -197,7 +207,7 @@ private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: 
 					let interopImpl = class_getMethodImplementation(topLevelClass, interopAlias)!
 
 					let previousImpl = class_replaceMethod(topLevelClass, selector, interopImpl, typeEncoding)
-					invocation.invoke()
+					invocation.objcInvoke()
 
 					_ = class_replaceMethod(topLevelClass, selector, previousImpl ?? noImplementation, typeEncoding)
 				}
@@ -219,7 +229,7 @@ private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: 
 			return
 		}
 
-		let impl = method_getImplementation(method)
+		let impl: IMP = method.map(method_getImplementation) ?? _rac_objc_msgForward
 		if impl != _rac_objc_msgForward {
 			// The perceived class, or its ancestors, responds to the selector.
 			//
@@ -233,8 +243,8 @@ private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: 
 				_ = class_replaceMethod(realClass, alias, impl, typeEncoding)
 			}
 
-			invocation.setSelector(alias)
-			invocation.invoke()
+			invocation.objcSetSelector(alias)
+			invocation.objcInvoke()
 
 			return
 		}
@@ -404,25 +414,24 @@ private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 	let invocation = invocation as AnyObject
 	let methodSignature = invocation.objcMethodSignature!
-	let count = UInt(methodSignature.numberOfArguments!)
+	let count = methodSignature.objcNumberOfArguments!
 
 	var bridged = [Any?]()
 	bridged.reserveCapacity(Int(count - 2))
 
 	// Ignore `self` and `_cmd` at index 0 and 1.
 	for position in 2 ..< count {
-		let rawEncoding = methodSignature.argumentType(at: position)
+		let rawEncoding = methodSignature.objcArgumentType(at: position)
 		let encoding = ObjCTypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
 
 		func extract<U>(_ type: U.Type) -> U {
-			let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
-			                                               alignedTo: MemoryLayout<U>.alignment)
+			let pointer = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<U>.size,
+														   alignment: MemoryLayout<U>.alignment)
 			defer {
-				pointer.deallocate(bytes: MemoryLayout<U>.size,
-				                   alignedTo: MemoryLayout<U>.alignment)
+				pointer.deallocate()
 			}
 
-			invocation.copy(to: pointer, forArgumentAt: Int(position))
+			invocation.objcCopy(to: pointer, forArgumentAt: Int(position))
 			return pointer.assumingMemoryBound(to: type).pointee
 		}
 
@@ -464,10 +473,10 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 		case .undefined:
 			var size = 0, alignment = 0
 			NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
-			let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
-			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
+			let buffer = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
+			defer { buffer.deallocate() }
 
-			invocation.copy(to: buffer, forArgumentAt: Int(position))
+			invocation.objcCopy(to: buffer, forArgumentAt: Int(position))
 			value = NSValue(bytes: buffer, objCType: rawEncoding)
 		}
 

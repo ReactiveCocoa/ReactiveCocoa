@@ -61,7 +61,7 @@ public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyP
 					return { selector, types in
 						defer {
 							selectorCache.cache(selector)
-							signatureCache[selector] = NSMethodSignature.signature(withObjCTypes: types)
+							signatureCache[selector] = NSMethodSignature.objcSignature(withObjCTypes: types)
 						}
 
 						if required && allRequiredMethodsImplemented {
@@ -188,19 +188,7 @@ extension Reactive where Base: NSObject {
 	/// - returns: The proxy.
 	public func proxy<Delegate, Proxy: DelegateProxy<Delegate>>(_: Delegate.Type = Delegate.self, forKey key: String) -> Proxy {
 		func remangleIfNeeded(_ name: String) -> String {
-			let expression = try! NSRegularExpression(pattern: "^([a-zA-Z0-9\\_\\.]+)\\.\\(([a-zA-Z0-9\\_]+)\\sin\\s([a-zA-Z0-9\\_]+)\\)$")
-			if let match = expression.firstMatch(in: name, range: NSMakeRange(0, name.characters.count)) {
-				// `name` refers to a private protocol.
-				let objcName = name as NSString
-
-				let (moduleNameRange, protocolNameRange, scopeNameRange) = (match.range(at: 1), match.range(at: 2), match.range(at: 3))
-				let moduleName = objcName.substring(with: moduleNameRange)
-				let protocolName = objcName.substring(with: protocolNameRange)
-				let scopeName = objcName.substring(with: scopeNameRange)
-
-				// Example: _TtP18ReactiveCocoaTestsP33_B2B708E0A88135A5DA71A5A2AAFA457014ObjectDelegate_
-				return "_TtP\(moduleNameRange.length)\(moduleName)P\(scopeNameRange.length)\(scopeName)\(protocolNameRange.length)\(protocolName)_"
-			} else if let range = name.range(of: "__ObjC.") {
+			if let range = name.range(of: "__C.") {
 				// `name` refers to an Objective-C protocol.
 				return String(name[range.upperBound...])
 			} else {
@@ -212,9 +200,9 @@ extension Reactive where Base: NSObject {
 		let mangledName = remangleIfNeeded(String(reflecting: Delegate.self))
 		let objcProtocol = NSProtocolFromString(mangledName)!
 
-		return base.synchronized {
+		return synchronized(base) {
 			let getter = Selector(((key)))
-			let setter = Selector((("set\(String(key.characters.first!).uppercased())\(String(key.characters.dropFirst())):")))
+			let setter = Selector((("set\(String(key.first!).uppercased())\(String(key.dropFirst())):")))
 
 			let proxyKey = AssociationKey<AnyObject?>(setter.delegateProxyAlias)
 

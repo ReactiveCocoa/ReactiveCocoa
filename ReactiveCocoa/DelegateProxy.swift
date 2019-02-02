@@ -186,7 +186,7 @@ extension Reactive where Base: NSObject {
 	///   - key: The key of the property that stores the delegate reference.
 	///
 	/// - returns: The proxy.
-	public func proxy<Delegate, Proxy: DelegateProxy<Delegate>>(_: Delegate.Type = Delegate.self, forKey key: String) -> Proxy {
+	public func proxy<Delegate, Proxy: DelegateProxy<Delegate>>(_: Delegate.Type = Delegate.self, keyPath: KeyPath<Base, Delegate?>) -> Proxy {
 		func remangleIfNeeded(_ name: String) -> String {
 			if let range = name.range(of: "__C.") {
 				// `name` refers to an Objective-C protocol.
@@ -201,6 +201,10 @@ extension Reactive where Base: NSObject {
 		let objcProtocol = NSProtocolFromString(mangledName)!
 
 		return synchronized(base) {
+			guard let key = keyPath._kvcKeyPathString else {
+				fatalError("DelegateProxy cannot be used on a non Objective-C property.")
+			}
+
 			let getter = Selector(((key)))
 			let setter = Selector((("set\(String(key.first!).uppercased())\(String(key.dropFirst())):")))
 

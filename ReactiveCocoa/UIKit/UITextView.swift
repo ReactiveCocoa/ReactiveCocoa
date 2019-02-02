@@ -10,7 +10,7 @@ private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextVi
 
 extension Reactive where Base: UITextView {
 	private var proxy: TextViewDelegateProxy {
-		return self.proxy(forKey: #keyPath(UITextView.delegate))
+		return self.proxy(keyPath: \.delegate)
 	}
 
 	/// Sets the text of the text view.

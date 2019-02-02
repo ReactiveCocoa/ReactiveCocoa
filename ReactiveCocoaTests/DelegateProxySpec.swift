@@ -149,7 +149,7 @@ class DelegateProxySpec: QuickSpec {
 
 			beforeEach {
 				object = Object()
-				proxy = object.reactive.proxy(forKey: #keyPath(Object.delegate))
+				proxy = object.reactive.proxy(keyPath: \.delegate)
 			}
 
 			afterEach {
@@ -174,9 +174,9 @@ class DelegateProxySpec: QuickSpec {
 
 			it("should create proxies without issue") {
 				let testHelper = RemanglingTestHelper()
-				let _: DelegateProxy<ObjectDelegate> = testHelper.reactive.proxy(forKey: #keyPath(RemanglingTestHelper.privateDelegate))
-				let _: DelegateProxy<InternalObjectDelegate> = testHelper.reactive.proxy(forKey: #keyPath(RemanglingTestHelper.internalDelegate))
-				let _: DelegateProxy<PublicObjectDelegate> = testHelper.reactive.proxy(forKey: #keyPath(RemanglingTestHelper.publicDelegate))
+				let _: DelegateProxy<ObjectDelegate> = testHelper.reactive.proxy(keyPath: \.privateDelegate)
+				let _: DelegateProxy<InternalObjectDelegate> = testHelper.reactive.proxy(keyPath: \.internalDelegate)
+				let _: DelegateProxy<PublicObjectDelegate> = testHelper.reactive.proxy(keyPath: \.publicDelegate)
 			}
 
 			it("should be automatically set as the object's delegate.") {
@@ -331,7 +331,7 @@ class DelegateProxySpec: QuickSpec {
 
 			it("should not have proxies of the same delegate type intervening with each other.") {
 				let anotherObject = Object()
-				let anotherProxy: DelegateProxy<ObjectDelegate> = anotherObject.reactive.proxy(forKey: #keyPath(Object.delegate))
+				let anotherProxy: DelegateProxy<ObjectDelegate> = anotherObject.reactive.proxy(keyPath: \.delegate)
 
 				// The expected initial count is accounted for the proxy setup.
 				expect(object.delegateSetCount) == 1
@@ -388,14 +388,14 @@ class DelegateProxySpec: QuickSpec {
 				#if arch(x86_64)
 				it("should trap") {
 					expect {
-						_ = object.reactive.proxy(forKey: #keyPath(ArbitraryReturningTestHelper.delegate)) as TestProxyNonConformingInvalidSubclass
+						_ = object.reactive.proxy(keyPath: \.delegate) as TestProxyNonConformingInvalidSubclass
 						return nil
 					}.to(throwAssertion())
 				}
 				#endif
 
 				it("should not retain the delegate") {
-					let proxy = object.reactive.proxy(forKey: #keyPath(ArbitraryReturningTestHelper.delegate)) as TestProxyNonConformingSubclass
+					let proxy = object.reactive.proxy(keyPath: \.delegate) as TestProxyNonConformingSubclass
 
 					var counter: ArbitraryReturningCounter? = ArbitraryReturningCounter()
 					weak var weakCounter = counter
@@ -413,7 +413,7 @@ class DelegateProxySpec: QuickSpec {
 				}
 
 				it("should establish a proxy and intercept calls as usual") {
-					let proxy = object.reactive.proxy(forKey: #keyPath(ArbitraryReturningTestHelper.delegate)) as TestProxyNonConformingSubclass
+					let proxy = object.reactive.proxy(keyPath: \.delegate) as TestProxyNonConformingSubclass
 					let counter = ArbitraryReturningCounter()
 					proxy.forwardee = counter
 
@@ -490,7 +490,7 @@ class DelegateProxySpec: QuickSpec {
 				}
 
 				it("should establish a proxy and intercept calls as usual") {
-					let proxy = object.reactive.proxy(forKey: #keyPath(ArbitraryReturningTestHelper.delegate)) as TestProxyConformingSubclass
+					let proxy = object.reactive.proxy(keyPath: \.delegate) as TestProxyConformingSubclass
 					let counter = ArbitraryReturningCounter()
 					proxy.forwardee = counter
 
@@ -589,7 +589,7 @@ class DelegateProxySpec: QuickSpec {
 				}
 
 				func setProxy() {
-					proxy = object.reactive.proxy(forKey: #keyPath(Object.delegate))
+					proxy = object.reactive.proxy(keyPath: \.delegate)
 
 					let signal: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 					signal.observeValues { fooCounter += 1 }

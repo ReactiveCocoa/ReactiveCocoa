@@ -4,7 +4,7 @@ import UIKit
 
 extension Reactive where Base: UIPickerView {
 	private var proxy: DelegateProxy<UIPickerViewDelegate> {
-		return proxy(forKey: #keyPath(UIPickerView.delegate))
+		return proxy(keyPath: \.delegate)
 	}
 
 	/// Sets the selected row in the specified component, without animating the

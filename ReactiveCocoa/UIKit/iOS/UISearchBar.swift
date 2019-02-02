@@ -2,46 +2,9 @@ import ReactiveSwift
 import enum Result.NoError
 import UIKit
 
-//<<<<<<< HEAD
-//=======
-//private class SearchBarDelegateProxy: DelegateProxy<UISearchBarDelegate>, UISearchBarDelegate {
-//	@objc func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarTextDidBeginEditing?(searchBar)
-//	}
-//
-//	@objc func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarTextDidEndEditing?(searchBar)
-//	}
-//
-//	@objc func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//		forwardee?.searchBar?(searchBar, textDidChange: searchText)
-//	}
-//
-//	@objc func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarCancelButtonClicked?(searchBar)
-//	}
-//
-//	@objc func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarSearchButtonClicked?(searchBar)
-//	}
-//
-//	@objc func searchBarBookmarkButtonClicked(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarBookmarkButtonClicked?(searchBar)
-//	}
-//
-//	@objc func searchBarResultsListButtonClicked(_ searchBar: UISearchBar) {
-//		forwardee?.searchBarResultsListButtonClicked?(searchBar)
-//	}
-//
-//	@objc func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-//		forwardee?.searchBar?(searchBar, selectedScopeButtonIndexDidChange: selectedScope)
-//	}
-//}
-//
-//>>>>>>> origin/master
 extension Reactive where Base: UISearchBar {
 	private var proxy: DelegateProxy<UISearchBarDelegate> {
-		return proxy(forKey: #keyPath(UISearchBar.delegate))
+		return proxy(keyPath: \.delegate)
 	}
 
 	/// Sets the text of the search bar.

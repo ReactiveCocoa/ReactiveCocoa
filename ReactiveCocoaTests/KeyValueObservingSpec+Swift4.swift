@@ -51,8 +51,6 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 				expect(values) == [0]
 			}
 
-			// NOTE: Xcode 9.0 b2 does not support optional chaining in key paths yet.
-			/*
 			it("should send the initial value for weak nested key path") {
 				let parentObject = NestedObservableObject()
 				let innerObject = Optional(ObservableObject())
@@ -66,7 +64,6 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 
 				expect(values) == [0]
 			}
-			*/
 
 			itBehavesLike("a reactive key value observer using Swift 4 Smart Key Path") {
 				["observe": "producer"]
@@ -123,22 +120,17 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			return observe(object, \.rac_object.rac_value)
 		}
 
-		// NOTE: Xcode 9.0 b2 does not support optional chaining in key paths yet.
-		//
-		// func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int, NoError> {
-		//	return observe(object, \.rac_weakObject?.rac_value)
-		// }
+		func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int?, NoError> {
+			return observe(object, \.rac_weakObject?.rac_value)
+		}
 
 		func strongReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
 			return observe(object, \.target)
 		}
 
-		// NOTE: Compiler segfault with key path literals refering to weak
-		//       properties.
-		//
-		// func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
-		//	return observe(object, \.weakTarget)
-		//}
+		func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
+			return observe(object, \.weakTarget)
+		}
 
 		func dependentKeyChanges(_ object: ObservableObject) -> SignalProducer<NSDecimalNumber, NoError> {
 			return observe(object, \.rac_value_plusOne)
@@ -285,7 +277,6 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 
 				// NOTE: Compiler segfault with key path literals refering to weak
 				//       properties.
-				/*
 				it("should emit a `nil` when the key path is being cleared due to the deallocation of the Objective-C object it held.") {
 					let object = ObservableObject()
 					let null = ObjectIdentifier(NSNull())
@@ -343,7 +334,6 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 					expect(ids) == [tokenId, null]
 					expect(object.weakTarget).to(beNil())
 				}
-				*/
 			}
 
 			describe("nested key paths") {
@@ -371,13 +361,11 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 					expect(values) == [1, 0, 10]
 				}
 
-				// NOTE: Xcode 9.0 b2 does not support optional chaining in key paths yet.
-				/*
 				it("should observe changes in a nested weak key path") {
 					let parentObject = NestedObservableObject()
 					var innerObject = Optional(ObservableObject())
 					parentObject.rac_weakObject = innerObject
-					var values: [Int] = []
+					var values: [Int?] = []
 
 					context.weakNestedChanges(parentObject).startWithValues {
 						values.append($0)
@@ -402,7 +390,6 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 					innerObject?.rac_value = 10
 					expect(values) == [1, 0, 10]
 				}
-				*/
 
 				it("should not retain replaced value in a nested key path") {
 					// NOTE: The producer version of this test cases somehow

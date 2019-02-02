@@ -9,6 +9,7 @@ internal protocol DelegateProxyProtocol: class {
 	func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError>
 }
 
+/// An opaque delegate proxy configuration.
 public struct DelegateProxyConfiguration {
 	fileprivate let objcProtocol: Protocol
 	fileprivate let lifetime: Lifetime
@@ -34,7 +35,17 @@ public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyP
 	private final let originalSetter: (AnyObject) -> Void
 	private final let objcProtocol: Protocol
 
+	/// Initialize a `DelegateProxy` with the given opaque configuration.
+	///
+	/// When you subclass `DelegateProxy`, pass the opaque configuration through to the super initializer.
+	///
+	/// - parameters:
+	///   - config: An opqaue configuration created by ReactiveCocoa internal.
 	public required init(config: DelegateProxyConfiguration) {
+		// NOTE: As we allow subclassing `DelegateProxy` for customization, we must keep a required initializer that can
+		//       be used by RAC internals to instantiate instances through the metatype instance (i.e. unknown type at
+		//       static time).
+
 		interceptedSelectors = []
 		objcProtocol = config.objcProtocol
 		lifetime = config.lifetime

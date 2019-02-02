@@ -26,4 +26,24 @@ extension Reactive where Base: UIBarButtonItem {
 				.disposable?.dispose()
 		}
 	}
+
+	/// Sets the style of the bar button item.
+	public var style: BindingTarget<UIBarButtonItemStyle> {
+		return makeBindingTarget { $0.style = $1 }
+	}
+
+	/// Sets the width of the bar button item.
+	public var width: BindingTarget<CGFloat> {
+		return makeBindingTarget { $0.width = $1 }
+	}
+
+	/// Sets the possible titles of the bar button item.
+	public var possibleTitles: BindingTarget<Set<String>?> {
+		return makeBindingTarget { $0.possibleTitles = $1 }
+	}
+
+	/// Sets the custom view of the bar button item.
+	public var customView: BindingTarget<UIView?> {
+		return makeBindingTarget { $0.customView = $1 }
+	}
 }

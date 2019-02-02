@@ -27,6 +27,11 @@ extension Reactive where Base: UITextField {
 	public var attributedText: BindingTarget<NSAttributedString?> {
 		return makeBindingTarget { $0.attributedText = $1 }
 	}
+
+	/// Sets the placeholder text of the text field.
+	public var placeholder: BindingTarget<String?> {
+		return makeBindingTarget { $0.placeholder = $1 }
+	}
 	
 	/// Sets the textColor of the text field.
 	public var textColor: BindingTarget<UIColor> {

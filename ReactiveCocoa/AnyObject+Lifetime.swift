@@ -2,49 +2,66 @@ import Foundation
 import ReactiveSwift
 
 /// Holds the `Lifetime` of the object.
-fileprivate let isSwizzledKey = AssociationKey<Bool>(default: false)
+private let isSwizzledKey = AssociationKey<Bool>(default: false)
 
 /// Holds the `Lifetime` of the object.
-fileprivate let lifetimeKey = AssociationKey<Lifetime?>(default: nil)
+private let lifetimeKey = AssociationKey<Lifetime?>(default: nil)
 
 /// Holds the `Lifetime.Token` of the object.
-fileprivate let lifetimeTokenKey = AssociationKey<Lifetime.Token?>(default: nil)
+private let lifetimeTokenKey = AssociationKey<Lifetime.Token?>(default: nil)
 
-internal func lifetime(of object: AnyObject) -> Lifetime {
-	if let object = object as? NSObject {
-		return object.reactive.lifetime
-	}
-
-	return synchronized(object) {
-		let associations = Associations(object)
-
-		if let lifetime = associations.value(forKey: lifetimeKey) {
-			return lifetime
+public extension Lifetime {
+	/// Retrive the associated lifetime of given object.
+	/// The lifetime ends when the given object is deinitialized.
+	///
+	/// - parameters:
+	///   - object: The object for which the lifetime is obtained.
+	///
+	/// - returns: The lifetime ends when the given object is deinitialized.
+	public static func of(_ object: AnyObject) -> Lifetime {
+		if let object = object as? NSObject {
+			return .of(object)
 		}
 
-		let (lifetime, token) = Lifetime.make()
+		return synchronized(object) {
+			let associations = Associations(object)
 
-		associations.setValue(token, forKey: lifetimeTokenKey)
-		associations.setValue(lifetime, forKey: lifetimeKey)
-
-		return lifetime
-	}
-}
-
-extension Reactive where Base: NSObjectProtocol {
-	/// Returns a lifetime that ends when the object is deallocated.
-	@nonobjc public var lifetime: Lifetime {
-		return base.synchronized {
-			if let lifetime = base.associations.value(forKey: lifetimeKey) {
+			if let lifetime = associations.value(forKey: lifetimeKey) {
 				return lifetime
 			}
 
 			let (lifetime, token) = Lifetime.make()
 
-			let objcClass: AnyClass = (base as AnyObject).objcClass
+			associations.setValue(token, forKey: lifetimeTokenKey)
+			associations.setValue(lifetime, forKey: lifetimeKey)
+
+			return lifetime
+		}
+	}
+
+	/// Retrive the associated lifetime of given object.
+	/// The lifetime ends when the given object is deinitialized.
+	///
+	/// - parameters:
+	///   - object: The object for which the lifetime is obtained.
+	///
+	/// - returns: The lifetime ends when the given object is deinitialized.
+	public static func of(_ object: NSObject) -> Lifetime {
+		return synchronized(object) {
+			if let lifetime = object.associations.value(forKey: lifetimeKey) {
+				return lifetime
+			}
+
+			let (lifetime, token) = Lifetime.make()
+
+			let objcClass: AnyClass = (object as AnyObject).objcClass
 			let objcClassAssociations = Associations(objcClass as AnyObject)
 
+			#if swift(>=4.0)
+			let deallocSelector = sel_registerName("dealloc")
+			#else
 			let deallocSelector = sel_registerName("dealloc")!
+			#endif
 
 			// Swizzle `-dealloc` so that the lifetime token is released at the
 			// beginning of the deallocation chain, and only after the KVO `-dealloc`.
@@ -70,8 +87,8 @@ extension Reactive where Base: NSObjectProtocol {
 						if let existingImpl = existingImpl {
 							impl = existingImpl
 						} else {
-							let superclass: AnyClass = class_getSuperclass(objcClass)
-							impl = class_getMethodImplementation(superclass, deallocSelector)
+							let superclass: AnyClass = class_getSuperclass(objcClass)!
+							impl = class_getMethodImplementation(superclass, deallocSelector)!
 						}
 
 						typealias Impl = @convention(c) (UnsafeRawPointer, Selector) -> Void
@@ -82,7 +99,7 @@ extension Reactive where Base: NSObjectProtocol {
 
 					if !class_addMethod(objcClass, deallocSelector, newImpl, "v@:") {
 						// The class has an existing `dealloc`. Preserve that as `existingImpl`.
-						let deallocMethod = class_getInstanceMethod(objcClass, deallocSelector)
+						let deallocMethod = class_getInstanceMethod(objcClass, deallocSelector)!
 
 						// Store the existing implementation to `existingImpl` to ensure it is
 						// available before our version is swapped in.
@@ -95,10 +112,17 @@ extension Reactive where Base: NSObjectProtocol {
 				}
 			}
 
-			base.associations.setValue(token, forKey: lifetimeTokenKey)
-			base.associations.setValue(lifetime, forKey: lifetimeKey)
+			object.associations.setValue(token, forKey: lifetimeTokenKey)
+			object.associations.setValue(lifetime, forKey: lifetimeKey)
 
 			return lifetime
 		}
+	}
+}
+
+extension Reactive where Base: AnyObject {
+	/// Returns a lifetime that ends when the object is deallocated.
+	@nonobjc public var lifetime: Lifetime {
+		return .of(base)
 	}
 }

@@ -452,6 +452,44 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					expect(weakOriginalInner).to(beNil())
 				}
+
+				it("should not observe changes on a replaced inner object in a nested key path") {
+					let parentObject = NestedObservableObject()
+
+					// This test case requires a nil value which `rac_object` doesn't
+					// allow, so we are going to use `rac_weakObject` instead.
+					// The tested inner objects are not meant to be weak in any way.
+					let oldInnerObject = ObservableObject()
+					parentObject.rac_weakObject = oldInnerObject
+
+					var values: [Int?] = []
+
+					context.weakNestedChanges(parentObject).startWithValues {
+						values.append($0 as! Int?)
+					}
+
+					expect(values) == []
+
+					oldInnerObject.rac_value = 1
+					expect(values) == [1]
+
+					parentObject.rac_weakObject = nil
+					expect(values) == [1, nil]
+
+					oldInnerObject.rac_value = 2
+					expect(values) == [1, nil]
+
+					let newInnerObject = ObservableObject()
+					parentObject.rac_weakObject = newInnerObject
+
+					expect(values) == [1, nil, 0]
+
+					oldInnerObject.rac_value = 3
+					expect(values) == [1, nil, 0]
+
+					newInnerObject.rac_value = 4
+					expect(values) == [1, nil, 0, 4]
+				}
 			}
 
 			describe("thread safety") {
@@ -630,12 +668,12 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 private final class Token {}
 
 private class ObservableObject: NSObject {
-	dynamic var rac_value: Int = 0
+	@objc dynamic var rac_value: Int = 0
 
-	dynamic var target: AnyObject?
-	dynamic weak var weakTarget: AnyObject?
+	@objc dynamic var target: AnyObject?
+	@objc dynamic weak var weakTarget: AnyObject?
 
-	dynamic var rac_value_plusOne: NSDecimalNumber {
+	@objc dynamic var rac_value_plusOne: NSDecimalNumber {
 		return NSDecimalNumber(value: rac_value + 1)
 	}
 
@@ -649,8 +687,8 @@ private class ObservableObject: NSObject {
 }
 
 private class NestedObservableObject: NSObject {
-	dynamic var rac_object: ObservableObject = ObservableObject()
-	dynamic weak var rac_weakObject: ObservableObject?
+	@objc dynamic var rac_object: ObservableObject = ObservableObject()
+	@objc dynamic weak var rac_weakObject: ObservableObject?
 }
 
 private class TestAttributeQueryObject: NSObject {

@@ -1,5 +1,93 @@
 # master
 *Please put new entries at the top.
+1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
+1. Add extension for `alphaValue` property of `NSView` class. (#3636, kuds to @eimantas)
+1. Add extension for `isHidden` property of `NSView` class. (#3634, kudos to @eimantas)
+
+# 8.0.2
+1. ReactiveMapKit has now platform specific build targets and schemes. (#3625, kudos to @andersio)
+
+# 8.0.1
+1. Add extensions for several properties on `WKInterfaceLabel` and `WKInterfaceButton`. (#3616, kudos to @yoching)
+1. Add `swift_version` to podspecs (#3622, kudos to @olejnjak)
+1. Introduce Lifetime.of(_:) which retrieves the lifetime of any Objective-C or Swift native object. (#3614, kudos to @ra1028)
+1. Fixed an issue of `SignalProducer.take(duringLifetimeOf:)` incorrectly retaining its argument. (#3615, kudos to @andrei-kuzma)
+
+# 8.0.0
+1. Add extensions for several properties on `UIBarButtonItem` (#3586, kudos to @asmallteapot).
+
+# 8.0.0-rc.1
+1. Add support for Cocoapods 1.5.0 static frameworks (#3590, kudos to @mishagray)
+
+1. Add `becomeFirstResponder` and `resignFirstResponder` extensions to `UIResponder`. (#3585, kudos to @Marcocanc)
+2. Added `title` binding target to `UIViewController` (#3588, kudos to @cocoahero).
+3. Added several trigger signals for view lifecycle events to `UIViewController` (#3588, kudos to @cocoahero).
+
+# 7.2.0
+1. Fixed a compilation issue related to [SR-7299](https://bugs.swift.org/browse/SR-7299). (#3580)
+
+1. Improved the interoperability of method interception. (#3570, kudos to @andersio)
+
+1. Add `showsCancelButton`, `textDidBeginEditing` and `textDidEndEditing` extensions to `UISearchBar`. (#3565, kudos to @banjun)
+
+1. `NotificationCenter.reactive.keyboard(_:)` for system keyboard notification by the event types. (#3566, kudos to @ra1028)
+
+1. Add extensions for several properties on `UINavigationItem`. (#3576, kudos to @asmallteapot)
+
+1. Add extension for `search` on MKLocalSearchRequest. (#3571, kudos to @Marcocanc)
+
+# 7.1.0
+# 7.1.0-rc.2
+1. Fix an issue preventing ReactiveCocoa from being built with the Swift 3.2 language mode. (#3556)
+
+# 7.1.0-rc.1
+1. Requires ReactiveSwift 3.1.0 Release Candidate 1. (#3555)
+
+1. Added reactive extension for AppKit's NSTextView. (#3549, kudos to @Palleas)
+
+# 7.0.1
+1. Added `tintColor` binding target to `UIView`. (#3542, kudos to @iv-mexx)
+
+1. Fixed `DynamicProperty` for optional properties. (#3548, kudos to @iv-mexx)
+
+1. Made `makeBindingTarget` available on Reactive extensions on all objects, not just `NSObject`. (#3545, kudos to @Burgestrand)
+
+# 7.0.0
+1. Update ReactiveSwift to 3.0.
+
+1. Added `placeholder` binding target to `UITextField`. (#3536)
+
+# 7.0.0-rc.1
+1. UISearchBar has gained more reactive bindings and signals. (#3531, kudos to @andersio)
+
+   **Signals:** Search Button Clicked, Bookmark Button Clicked, Results List Clicked, Selected Scope Button Index
+
+   **Binding Target:** Selected Scope Button Indices.
+
+# 7.0.0-alpha.2
+1. Requires ReactiveSwift 3.0.0 alpha 1.
+
+1. ReactiveCocoa is now compatible with the Swift 4.0 language mode, in addition to the Swift 3.2 compatibility mode. (#3526, kudos to @andersio)
+
+# 7.0.0-alpha.1
+1. MapKit reactive bindings have been moved to a new **ReactiveMapKit** framework. (#3524)
+
+   Sources that use the MapKit bindings are now required to import ReactiveMapKit.
+
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+
+# 6.1.0-alpha.2
+# 6.1.0-alpha.1
+1. Added `cancelButtonClicked` signal to `UISearchBar`.
+1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
+
+   Example:
+   ```swift
+   label.reactive[\.text] <~ viewModel.title
+   ```
+
+# 6.0.2
+1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
 
 1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)
 
@@ -353,6 +441,7 @@ public final class MyController {
 	</tr>
 	</tbody>
 </table>
+
 # 4.0
 
 If you’re new to the Swift API and migrating from RAC 2, start with the [3.0 changes](#30). This section only covers the differences between `3.0` and `4.0`.

@@ -5,10 +5,10 @@ import ReactiveSwift
 @testable import ReactiveCocoa
 
 private class Object: NSObject, ActionMessageSending {
-	dynamic var objectValue: AnyObject? = nil
+	@objc dynamic var objectValue: AnyObject? = nil
 
-	dynamic weak var target: AnyObject?
-	dynamic var action: Selector?
+	@objc dynamic weak var target: AnyObject?
+	@objc dynamic var action: Selector?
 
 	deinit {
 		target = nil
@@ -19,7 +19,7 @@ private class Object: NSObject, ActionMessageSending {
 private class Receiver: NSObject {
 	var counter = 0
 
-	func foo() {
+	@objc func foo() {
 		counter += 1
 	}
 }
@@ -154,7 +154,7 @@ class ActionProxySpec: QuickSpec {
 
 					expect(object.objcClass).to(beIdenticalTo(object2.objcClass))
 
-					let className = NSStringFromClass(object_getClass(object))
+					let className = NSStringFromClass(object_getClass(object)!)
 					expect(className).to(beginWith("NSKVONotifying_"))
 					expect(className).toNot(endWith("_RACSwift"))
 

@@ -1,5 +1,6 @@
 # master
 *Please put new entries at the top.
+1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)
 1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
 1. Add extension for `alphaValue` property of `NSView` class. (#3636, kuds to @eimantas)
 1. Add extension for `isHidden` property of `NSView` class. (#3634, kudos to @eimantas)
@@ -89,11 +90,7 @@
 # 6.0.2
 1. Disabled code coverage data to allow app submissions with Xcode 9.0 (see https://github.com/Carthage/Carthage/issues/2056, kudos to @NachoSoto)
 
-1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)
-
-
 # 6.0.1
-
 1. [Xcode 9 beta 5] Fixed an issue causing infinite recursion in the Swift runtime. (#3498, kudos to @andersio)
 
 # 6.0.0

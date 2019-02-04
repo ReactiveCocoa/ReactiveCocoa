@@ -433,20 +433,19 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 				}
 
 				it("should not retain replaced value in a nested key path") {
-					// NOTE: The producer version of this test cases somehow
-					//       fails when the spec is being run alone.
+					weak var weakOriginalInner: ObservableObject?
 					let parentObject = NestedObservableObject()
 
-					weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
-					expect(weakOriginalInner).toNot(beNil())
-
 					autoreleasepool {
+						parentObject.rac_object = ObservableObject()
+						weakOriginalInner = parentObject.rac_object
+
+						expect(weakOriginalInner).toNot(beNil())
+
 						_ = context
 							.nestedChanges(parentObject)
 							.start()
-					}
 
-					autoreleasepool {
 						parentObject.rac_object = ObservableObject()
 					}
 

@@ -1,6 +1,6 @@
 import Foundation
 @testable import ReactiveCocoa
-import ReactiveSwift
+@testable import ReactiveSwift
 import enum Result.NoError
 import Quick
 import Nimble
@@ -433,20 +433,19 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 				}
 
 				it("should not retain replaced value in a nested key path") {
-					// NOTE: The producer version of this test cases somehow
-					//       fails when the spec is being run alone.
+					weak var weakOriginalInner: ObservableObject?
 					let parentObject = NestedObservableObject()
 
-					weak var weakOriginalInner: ObservableObject? = parentObject.rac_object
-					expect(weakOriginalInner).toNot(beNil())
-
 					autoreleasepool {
+						parentObject.rac_object = ObservableObject()
+						weakOriginalInner = parentObject.rac_object
+
+						expect(weakOriginalInner).toNot(beNil())
+
 						_ = context
 							.nestedChanges(parentObject)
 							.start()
-					}
 
-					autoreleasepool {
 						parentObject.rac_object = ObservableObject()
 					}
 
@@ -597,9 +596,10 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 					expect(atomicCounter).toEventually(equal(Int64(numIterations * 2)), timeout: 30.0)
 				}
 
-				// ReactiveCocoa/ReactiveCocoa#1122
+				// Direct port of https://github.com/ReactiveCocoa/ReactiveObjC/blob/3.1.0/ReactiveObjCTests/RACKVOProxySpec.m#L196
 				it("async disposal of observer") {
 					let serialDisposable = SerialDisposable()
+					let lock = Lock.make()
 
 					iterationQueue.async {
 						DispatchQueue.concurrentPerform(iterations: numIterations) { index in
@@ -609,7 +609,11 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 							serialDisposable.inner = disposable
 
 							concurrentQueue.async {
+								// TestObject in the ObjC version has manual getter, setter and KVO notification. Here
+								// we just wrap the call with a `Lock` to emulate the effect.
+								lock.lock()
 								testObject.rac_value = index
+								lock.unlock()
 							}
 						}
 					}
@@ -619,6 +623,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 					}
 				}
 
+				// Direct port of https://github.com/ReactiveCocoa/ReactiveObjC/blob/3.1.0/ReactiveObjCTests/RACKVOProxySpec.m#L196
 				it("async disposal of signal with in-flight changes") {
 					let otherScheduler: QueueScheduler
 

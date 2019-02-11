@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode10
+osx_image: xcode10.1
 before_install: true
 install: true
 branches:
@@ -14,7 +14,7 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode10
+      osx_image: xcode10.1
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx

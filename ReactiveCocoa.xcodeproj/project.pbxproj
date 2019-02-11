@@ -33,12 +33,12 @@
 		4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */; };
 		4ABEFE301DCFD0530066A8C2 /* NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */; };
 		4ABEFE331DCFD0630066A8C2 /* NSCollectionViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */; };
-		4EE637362090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
-		4EE637372090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
 		4EE6372E2090EEFA00ECD02A /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
 		4EE6372F2090EEFA00ECD02A /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
 		4EE637332090EFDD00ECD02A /* UIViewControllerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637302090EFD300ECD02A /* UIViewControllerSpec.swift */; };
 		4EE637342090EFDF00ECD02A /* UIViewControllerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637302090EFD300ECD02A /* UIViewControllerSpec.swift */; };
+		4EE637362090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
+		4EE637372090F92600ECD02A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
 		531866F81DD7920400D1285F /* UIStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F71DD7920400D1285F /* UIStepper.swift */; };
 		531866FA1DD7925600D1285F /* UIStepperSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F91DD7925600D1285F /* UIStepperSpec.swift */; };
 		537EC08121A950CA00D6EE18 /* NSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537EC08021A950CA00D6EE18 /* NSView.swift */; };
@@ -53,6 +53,9 @@
 		53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */; };
 		57A4D2081BA13D7A00F7D4B1 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		654DE7B02205F9DE0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		654DE7B22205FA0A0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		654DE7B32205FA200048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7A8BA0FA1FCC86FC003241C7 /* NSTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */; };
 		7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
 		7DFBED141CDB8CE600EE435B /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
@@ -67,9 +70,7 @@
 		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
 		9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */; };
-		9A1675511F80C41F00B63650 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A16755D1F80DE1C00B63650 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A16755F1F80DE3900B63650 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E11D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
 		9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -168,11 +169,7 @@
 		9A73DFBF216D3C570069AD76 /* MKMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED11DD4BCA90016C058 /* MKMapView.swift */; };
 		9A73DFC0216D3C570069AD76 /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
 		9A73DFE3216D3CEB0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A73DFFE216D3CEE0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A73E015216D3E660069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
 		9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
 		9A73E030216D3FAF0069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
@@ -402,6 +399,36 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		654DE7AE2205F9C30048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B32205FA200048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		654DE7AF2205F9D60048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B02205F9DE0048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		654DE7B12205F9F60048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B22205FA0A0048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7DFBED151CDB8CEC00EE435B /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -414,42 +441,6 @@
 				7DFBED1E1CDB8D7000EE435B /* ReactiveCocoa.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A16754A1F80C3AC00B63650 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A1675511F80C41F00B63650 /* ReactiveCocoa.framework in Copy Files */,
-				9A16755F1F80DE3900B63650 /* ReactiveMapKit.framework in Copy Files */,
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A73DFEC216D3CEB0069AD76 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */,
-				9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */,
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A73E007216D3CEE0069AD76 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */,
-				9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */,
-			);
-			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D01B7B6119EDD8F600D26E01 /* Copy Frameworks */ = {
@@ -485,9 +476,9 @@
 		4ABEFE2C1DCFD0180066A8C2 /* NSTableViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTableViewSpec.swift; sourceTree = "<group>"; };
 		4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionView.swift; sourceTree = "<group>"; };
 		4ABEFE311DCFD05F0066A8C2 /* NSCollectionViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSpec.swift; sourceTree = "<group>"; };
-		4EE637352090F92600ECD02A /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		4EE6372D2090EEFA00ECD02A /* UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		4EE637302090EFD300ECD02A /* UIViewControllerSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerSpec.swift; sourceTree = "<group>"; };
+		4EE637352090F92600ECD02A /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		531866F71DD7920400D1285F /* UIStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepper.swift; sourceTree = "<group>"; };
 		531866F91DD7925600D1285F /* UIStepperSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStepperSpec.swift; sourceTree = "<group>"; };
 		537EC08021A950CA00D6EE18 /* NSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSView.swift; sourceTree = "<group>"; };
@@ -1301,7 +1292,7 @@
 				9A1675391F80C35100B63650 /* Sources */,
 				9A16753A1F80C35100B63650 /* Frameworks */,
 				9A16753B1F80C35100B63650 /* Resources */,
-				9A16754A1F80C3AC00B63650 /* Copy Files */,
+				654DE7B12205F9F60048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1356,7 +1347,7 @@
 				9A73DFE2216D3CEB0069AD76 /* Sources */,
 				9A73DFE4216D3CEB0069AD76 /* Frameworks */,
 				9A73DFEB216D3CEB0069AD76 /* Resources */,
-				9A73DFEC216D3CEB0069AD76 /* Copy Files */,
+				654DE7AF2205F9D60048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1375,7 +1366,7 @@
 				9A73DFFD216D3CEE0069AD76 /* Sources */,
 				9A73DFFF216D3CEE0069AD76 /* Frameworks */,
 				9A73E006216D3CEE0069AD76 /* Resources */,
-				9A73E007216D3CEE0069AD76 /* Copy Files */,
+				654DE7AE2205F9C30048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2159,7 +2150,7 @@
 		};
 		9A1675461F80C35100B63650 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2171,7 +2162,7 @@
 		};
 		9A1675471F80C35100B63650 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2183,7 +2174,7 @@
 		};
 		9A1675481F80C35100B63650 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2195,7 +2186,7 @@
 		};
 		9A1675491F80C35100B63650 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2207,7 +2198,7 @@
 		};
 		9A73DFB7216D3C550069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2220,7 +2211,7 @@
 		};
 		9A73DFB8216D3C550069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2233,7 +2224,7 @@
 		};
 		9A73DFB9216D3C550069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2246,7 +2237,7 @@
 		};
 		9A73DFBA216D3C550069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2259,7 +2250,7 @@
 		};
 		9A73DFC8216D3C570069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2272,7 +2263,7 @@
 		};
 		9A73DFC9216D3C570069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2285,7 +2276,7 @@
 		};
 		9A73DFCA216D3C570069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2298,7 +2289,7 @@
 		};
 		9A73DFCB216D3C570069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2311,7 +2302,7 @@
 		};
 		9A73DFF4216D3CEB0069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2323,7 +2314,7 @@
 		};
 		9A73DFF5216D3CEB0069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2335,7 +2326,7 @@
 		};
 		9A73DFF6216D3CEB0069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2347,7 +2338,7 @@
 		};
 		9A73DFF7216D3CEB0069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2359,7 +2350,7 @@
 		};
 		9A73E00F216D3CEE0069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2371,7 +2362,7 @@
 		};
 		9A73E010216D3CEE0069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2383,7 +2374,7 @@
 		};
 		9A73E011216D3CEE0069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2395,7 +2386,7 @@
 		};
 		9A73E012216D3CEE0069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2407,7 +2398,7 @@
 		};
 		9AC03A5D1F7CC3BF00EC33C1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2420,7 +2411,7 @@
 		};
 		9AC03A5E1F7CC3BF00EC33C1 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2433,7 +2424,7 @@
 		};
 		9AC03A5F1F7CC3BF00EC33C1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2446,7 +2437,7 @@
 		};
 		9AC03A601F7CC3BF00EC33C1 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

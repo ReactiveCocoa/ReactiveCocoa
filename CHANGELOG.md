@@ -1,5 +1,7 @@
 # master
 *Please put new entries at the top.
+1. Fix warnings for deprecated use of Swift's allocate/deallocate methods.
+1. Update Quick (2.0.0) and Nimble (8.0.1).
 1. Update ReactiveSwift to 5.0.
 1. Added `applicationIconBadgeNumber` binding target to `UIApplication` (#3589, kudos to @cocoahero).
 1. Add extension for `alphaValue` property of `NSView` class. (#3636, kuds to @eimantas)

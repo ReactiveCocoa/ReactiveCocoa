@@ -18,7 +18,7 @@ public extension Lifetime {
 	///   - object: The object for which the lifetime is obtained.
 	///
 	/// - returns: The lifetime ends when the given object is deinitialized.
-	public static func of(_ object: AnyObject) -> Lifetime {
+	static func of(_ object: AnyObject) -> Lifetime {
 		if let object = object as? NSObject {
 			return .of(object)
 		}
@@ -46,7 +46,7 @@ public extension Lifetime {
 	///   - object: The object for which the lifetime is obtained.
 	///
 	/// - returns: The lifetime ends when the given object is deinitialized.
-	public static func of(_ object: NSObject) -> Lifetime {
+	static func of(_ object: NSObject) -> Lifetime {
 		return synchronized(object) {
 			if let lifetime = object.associations.value(forKey: lifetimeKey) {
 				return lifetime

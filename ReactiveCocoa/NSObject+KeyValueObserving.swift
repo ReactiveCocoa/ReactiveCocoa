@@ -54,13 +54,12 @@ extension Reactive where Base: NSObject {
 		}
 	}
 
-	#if swift(>=3.2)
 	private func producer<U>(
 		for keyPath: KeyPath<Base, U>,
 		transform: @escaping (Any?) -> U
 	) -> SignalProducer<U, NoError> {
 		guard let kvcKeyPath = keyPath._kvcKeyPathString else {
-			fatalError("Cannot use `signal(for:)` on a non Objective-C property.")
+			fatalError("Cannot use `producer(for:)` on a non Objective-C property.")
 		}
 
 		return SignalProducer { observer, lifetime in
@@ -153,7 +152,6 @@ extension Reactive where Base: NSObject {
 	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, NoError> {
 		return signal(for: keyPath) { $0 as! U }
 	}
-	#endif
 }
 
 extension Property where Value: OptionalProtocol {

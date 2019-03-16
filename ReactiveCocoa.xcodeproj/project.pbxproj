@@ -53,6 +53,9 @@
 		53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */; };
 		57A4D2081BA13D7A00F7D4B1 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		654DE7B02205F9DE0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		654DE7B22205FA0A0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		654DE7B32205FA200048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7A8BA0FA1FCC86FC003241C7 /* NSTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */; };
 		7DFBED081CDB8C9500EE435B /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; };
 		7DFBED141CDB8CE600EE435B /* test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = D03766B119EDA60000A782A9 /* test-data.json */; };
@@ -166,11 +169,7 @@
 		9A73DFBF216D3C570069AD76 /* MKMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED11DD4BCA90016C058 /* MKMapView.swift */; };
 		9A73DFC0216D3C570069AD76 /* MKLocalSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */; };
 		9A73DFE3216D3CEB0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A73DFFE216D3CEE0069AD76 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
-		9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 9AC03A571F7CC3BF00EC33C1 /* ReactiveMapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A73E015216D3E660069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
 		9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
 		9A73E030216D3FAF0069AD76 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC42E2E1AE7AB8B00965373 /* Result.framework */; };
@@ -403,6 +402,36 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		654DE7AE2205F9C30048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B32205FA200048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		654DE7AF2205F9D60048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B02205F9DE0048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		654DE7B12205F9F60048FE14 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				654DE7B22205FA0A0048FE14 /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7DFBED151CDB8CEC00EE435B /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -415,40 +444,6 @@
 				7DFBED1E1CDB8D7000EE435B /* ReactiveCocoa.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A16754A1F80C3AC00B63650 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A73DFEC216D3CEB0069AD76 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A73DFEF216D3CEB0069AD76 /* ReactiveCocoa.framework in Copy Files */,
-				9A73DFF2216D3CEB0069AD76 /* ReactiveMapKit.framework in Copy Files */,
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A73E007216D3CEE0069AD76 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A73E00A216D3CEE0069AD76 /* ReactiveCocoa.framework in Copy Files */,
-				9A73E00D216D3CEE0069AD76 /* ReactiveMapKit.framework in Copy Files */,
-			);
-			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D01B7B6119EDD8F600D26E01 /* Copy Frameworks */ = {
@@ -1302,7 +1297,7 @@
 				9A1675391F80C35100B63650 /* Sources */,
 				9A16753A1F80C35100B63650 /* Frameworks */,
 				9A16753B1F80C35100B63650 /* Resources */,
-				9A16754A1F80C3AC00B63650 /* Copy Files */,
+				654DE7B12205F9F60048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1357,7 +1352,7 @@
 				9A73DFE2216D3CEB0069AD76 /* Sources */,
 				9A73DFE4216D3CEB0069AD76 /* Frameworks */,
 				9A73DFEB216D3CEB0069AD76 /* Resources */,
-				9A73DFEC216D3CEB0069AD76 /* Copy Files */,
+				654DE7AF2205F9D60048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1376,7 +1371,7 @@
 				9A73DFFD216D3CEE0069AD76 /* Sources */,
 				9A73DFFF216D3CEE0069AD76 /* Frameworks */,
 				9A73E006216D3CEE0069AD76 /* Resources */,
-				9A73E007216D3CEE0069AD76 /* Copy Files */,
+				654DE7AE2205F9C30048FE14 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1504,52 +1499,66 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = GitHub;
 				TargetAttributes = {
 					57A4D1AF1BA13D7A00F7D4B1 = {
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 1020;
 					};
 					7DFBED021CDB8C9500EE435B = {
 						CreatedOnToolsVersion = 7.3.1;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 					};
 					9A16753C1F80C35100B63650 = {
 						CreatedOnToolsVersion = 9.0;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
+					};
+					9A73DFAC216D3C550069AD76 = {
+						LastSwiftMigration = 1020;
+					};
+					9A73DFBD216D3C570069AD76 = {
+						LastSwiftMigration = 1020;
+					};
+					9A73DFDF216D3CEB0069AD76 = {
+						LastSwiftMigration = 1020;
+					};
+					9A73DFFA216D3CEE0069AD76 = {
+						LastSwiftMigration = 1020;
 					};
 					9AC03A561F7CC3BF00EC33C1 = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 1020;
 					};
 					A9B315531B3940610001CB9C = {
 						CreatedOnToolsVersion = 7.0;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 1020;
 					};
 					D04725E919E49ED7006002AA = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 1020;
 					};
 					D04725F419E49ED7006002AA = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 					};
 					D047260B19E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 1020;
 					};
 					D047261519E49F82006002AA = {
 						CreatedOnToolsVersion = 6.1;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
 			buildConfigurationList = D04725E419E49ED7006002AA /* Build configuration list for PBXProject "ReactiveCocoa" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = D04725E019E49ED7006002AA;
 			productRefGroup = D04725EB19E49ED7006002AA /* Products */;
@@ -2163,7 +2172,7 @@
 		};
 		9A1675461F80C35100B63650 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2175,7 +2184,7 @@
 		};
 		9A1675471F80C35100B63650 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2187,7 +2196,7 @@
 		};
 		9A1675481F80C35100B63650 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2199,7 +2208,7 @@
 		};
 		9A1675491F80C35100B63650 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2211,7 +2220,7 @@
 		};
 		9A73DFB7216D3C550069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2224,7 +2233,7 @@
 		};
 		9A73DFB8216D3C550069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2237,7 +2246,7 @@
 		};
 		9A73DFB9216D3C550069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2250,7 +2259,7 @@
 		};
 		9A73DFBA216D3C550069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2263,7 +2272,7 @@
 		};
 		9A73DFC8216D3C570069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2276,7 +2285,7 @@
 		};
 		9A73DFC9216D3C570069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2289,7 +2298,7 @@
 		};
 		9A73DFCA216D3C570069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2302,7 +2311,7 @@
 		};
 		9A73DFCB216D3C570069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = 57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2315,10 +2324,11 @@
 		};
 		9A73DFF4216D3CEB0069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 				SDKROOT = macosx;
@@ -2327,10 +2337,11 @@
 		};
 		9A73DFF5216D3CEB0069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 				SDKROOT = macosx;
@@ -2339,10 +2350,11 @@
 		};
 		9A73DFF6216D3CEB0069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 				SDKROOT = macosx;
@@ -2351,10 +2363,11 @@
 		};
 		9A73DFF7216D3CEB0069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 				SDKROOT = macosx;
@@ -2363,7 +2376,7 @@
 		};
 		9A73E00F216D3CEE0069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2375,7 +2388,7 @@
 		};
 		9A73E010216D3CEE0069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2387,7 +2400,7 @@
 		};
 		9A73E011216D3CEE0069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2399,7 +2412,7 @@
 		};
 		9A73E012216D3CEE0069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262E19E49FE8006002AA /* Application.xcconfig */;
+			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
@@ -2411,7 +2424,7 @@
 		};
 		9AC03A5D1F7CC3BF00EC33C1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2424,7 +2437,7 @@
 		};
 		9AC03A5E1F7CC3BF00EC33C1 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2437,7 +2450,7 @@
 		};
 		9AC03A5F1F7CC3BF00EC33C1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2450,7 +2463,7 @@
 		};
 		9AC03A601F7CC3BF00EC33C1 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047262F19E49FE8006002AA /* Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2515,6 +2528,7 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -2540,6 +2554,7 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -2589,6 +2604,7 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2599,6 +2615,7 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2654,6 +2671,7 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -2689,6 +2707,7 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2722,6 +2741,7 @@
 			buildSettings = {
 				APPLETVOS_DEPLOYMENT_TARGET = 9.0;
 				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -2757,6 +2777,7 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};

@@ -407,11 +407,10 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 		let encoding = ObjCTypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
 
 		func extract<U>(_ type: U.Type) -> U {
-			let pointer = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<U>.size,
-			                                               alignedTo: MemoryLayout<U>.alignment)
+			let pointer = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<U>.size,
+			                                               alignment: MemoryLayout<U>.alignment)
 			defer {
-				pointer.deallocate(bytes: MemoryLayout<U>.size,
-				                   alignedTo: MemoryLayout<U>.alignment)
+				pointer.deallocate()
 			}
 
 			invocation.objcCopy(to: pointer, forArgumentAt: Int(position))
@@ -456,8 +455,8 @@ private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
 		case .undefined:
 			var size = 0, alignment = 0
 			NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
-			let buffer = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: alignment)
-			defer { buffer.deallocate(bytes: size, alignedTo: alignment) }
+			let buffer = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
+			defer { buffer.deallocate() }
 
 			invocation.objcCopy(to: buffer, forArgumentAt: Int(position))
 			value = NSValue(bytes: buffer, objCType: rawEncoding)

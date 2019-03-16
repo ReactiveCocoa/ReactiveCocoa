@@ -30,8 +30,8 @@ extension Selector {
 
 		let cString = UnsafeMutablePointer<Int8>.allocate(capacity: prefixedLength + 1)
 		defer {
-			cString.deinitialize()
-			cString.deallocate(capacity: prefixedLength + 1)
+			cString.deinitialize(count: prefixedLength + 1)
+			cString.deallocate()
 		}
 
 		cString.initialize(from: asciiPrefix, count: prefix.utf8CodeUnitCount)

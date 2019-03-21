@@ -6,6 +6,7 @@
    It is no longer necessary to subclass a `DelegateProxy` for delegate interception. However, note that `DelegateProxy` does not support protocols containing methods that are non-void returning. Unless you manually subclass `DelegateProxy` and provide implementations for these requirements, it would trap immediately when the proxy initializes with a protocol containing such a required method, or when the proxy is asked to intercept such an optional method.
 
 1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
+1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)
 1. Fix warnings for deprecated use of Swift's allocate/deallocate methods.
 1. Update Quick (2.0.0) and Nimble (8.0.1).
 1. Update ReactiveSwift to 5.0.

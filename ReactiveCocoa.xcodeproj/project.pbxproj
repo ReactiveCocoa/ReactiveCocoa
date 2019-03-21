@@ -244,6 +244,9 @@
 		9AA0BD991DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
 		9AA0BD9A1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
 		9AA0BD9B1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
+		9AA6A1E51F11F9B000CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */; };
+		9AA6A1E61F11F9B100CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */; };
+		9AA6A1E71F11F9B100CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */; };
 		9AAD49881DED2C350068EC9B /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
 		9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */; };
 		9AADB6F41F84AECB00EFFD19 /* Swift4TestInteroperability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AADB6F31F84AECB00EFFD19 /* Swift4TestInteroperability.swift */; };
@@ -566,6 +569,7 @@
 		9AA0BD891DDE153A00531FCF /* ObjC+Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Constants.swift"; sourceTree = "<group>"; };
 		9AA0BD8E1DDE29F800531FCF /* NSObject+ObjCRuntime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+ObjCRuntime.swift"; sourceTree = "<group>"; };
 		9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCRuntimeAliases.m; sourceTree = "<group>"; };
+		9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyValueObservingSpec+Swift4.swift"; sourceTree = "<group>"; };
 		9AAD49871DED2C350068EC9B /* UIKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboard.swift; sourceTree = "<group>"; };
 		9AAD49891DED2F380068EC9B /* UIKeyboardSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKeyboardSpec.swift; sourceTree = "<group>"; };
 		9AADB6F31F84AECB00EFFD19 /* Swift4TestInteroperability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swift4TestInteroperability.swift; sourceTree = "<group>"; };
@@ -1081,6 +1085,7 @@
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
 				B696FB801A7640C00075236D /* TestError.swift */,
 				9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */,
+				9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */,
 				9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */,
 				9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */,
 				9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */,
@@ -1736,6 +1741,7 @@
 				9A9DFEEB1DA7EFB60039EE1B /* AssociationSpec.swift in Sources */,
 				CD8401851CEE8ED7009F0ABF /* CocoaActionSpec.swift in Sources */,
 				9A1E72BC1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
+				9AA6A1E71F11F9B100CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */,
 				9A1D06451D93EA7E00ACF44C /* UIImageViewSpec.swift in Sources */,
 				9A1D06551D93EA7E00ACF44C /* UITextViewSpec.swift in Sources */,
 				9A7990D01F1085D8001493A3 /* BindingTargetSpec.swift in Sources */,
@@ -1918,6 +1924,7 @@
 				9AADB6F41F84AECB00EFFD19 /* Swift4TestInteroperability.swift in Sources */,
 				3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				CD42C69B1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
+				9AA6A1E51F11F9B000CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */,
 			);
@@ -1991,6 +1998,7 @@
 			files = (
 				A9EB3D211E94F0AF002A9BCC /* UINavigationItemSpec.swift in Sources */,
 				9A1D06581D93EA7E00ACF44C /* UIViewSpec.swift in Sources */,
+				9AA6A1E61F11F9B100CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */,
 				9AAD498A1DED2F380068EC9B /* UIKeyboardSpec.swift in Sources */,
 				BFCF77621DFAD9440058006E /* UISearchBarSpec.swift in Sources */,
 				D0A2260F1A72F16D00D33B74 /* DynamicPropertySpec.swift in Sources */,

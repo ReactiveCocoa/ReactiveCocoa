@@ -2,14 +2,8 @@ import ReactiveSwift
 import UIKit
 import enum Result.NoError
 
-private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextViewDelegate {
-	@objc func textViewDidChangeSelection(_ textView: UITextView) {
-		forwardee?.textViewDidChangeSelection?(textView)
-	}
-}
-
 extension Reactive where Base: UITextView {
-	private var proxy: TextViewDelegateProxy {
+	private var proxy: DelegateProxy<UITextViewDelegate> {
 		return self.proxy(keyPath: \.delegate)
 	}
 

@@ -16,7 +16,7 @@ public struct DelegateProxyConfiguration {
 	fileprivate let originalSetter: (AnyObject) -> Void
 }
 
-public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol {
+public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyProtocol {
 	public final var delegateType: Delegate.Type {
 		return Delegate.self
 	}
@@ -41,7 +41,7 @@ public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyP
 	///
 	/// - parameters:
 	///   - config: An opqaue configuration created by ReactiveCocoa internal.
-	public required init(config: DelegateProxyConfiguration) {
+	init(config: DelegateProxyConfiguration) {
 		// NOTE: As we allow subclassing `DelegateProxy` for customization, we must keep a required initializer that can
 		//       be used by RAC internals to instantiate instances through the metatype instance (i.e. unknown type at
 		//       static time).
@@ -134,11 +134,11 @@ public class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, DelegateProxyP
 		return reactive.signal(for: selector)
 	}
 
-	open override func conforms(to aProtocol: Protocol) -> Bool {
+	public override func conforms(to aProtocol: Protocol) -> Bool {
 		return aProtocol === objcProtocol || super.conforms(to: aProtocol)
 	}
 
-	open override func responds(to selector: Selector!) -> Bool {
+	public override func responds(to selector: Selector!) -> Bool {
 		return protocol_getMethodDescription(objcProtocol, selector, true, true).name != nil
 			|| interceptedSelectors.contains(selector)
 			|| NSObject.instancesRespond(to: selector)

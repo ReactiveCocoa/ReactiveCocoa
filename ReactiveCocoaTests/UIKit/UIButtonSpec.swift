@@ -30,17 +30,17 @@ class UIButtonSpec: QuickSpec {
 			button.setTitle("", for: .highlighted)
 
 			observer.send(value: firstTitle)
-			expect(button.title(for: UIControlState())) == firstTitle
+			expect(button.title(for: UIControl.State())) == firstTitle
 			expect(button.title(for: .highlighted)) == ""
 			expect(button.title(for: .selected)) == ""
 
 			observer.send(value: secondTitle)
-			expect(button.title(for: UIControlState())) == secondTitle
+			expect(button.title(for: UIControl.State())) == secondTitle
 			expect(button.title(for: .highlighted)) == ""
 			expect(button.title(for: .selected)) == ""
 		}
 
-		let pressedTest: (UIButton, UIControlEvents) -> Void = { button, event in
+		let pressedTest: (UIButton, UIControl.Event) -> Void = { button, event in
 			button.isEnabled = true
 			button.isUserInteractionEnabled = true
 

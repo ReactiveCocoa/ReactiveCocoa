@@ -18,7 +18,7 @@ extension Reactive where Base: UIButton {
 		}
 	}
 
-    private var pressEvent: UIControlEvents {
+	private var pressEvent: UIControl.Event {
 		if #available(iOS 9.0, tvOS 9.0, *) {
 			return .primaryActionTriggered
 		} else {
@@ -32,12 +32,12 @@ extension Reactive where Base: UIButton {
 	}
 
 	/// Sets the title of the button for the specified state.
-	public func title(for state: UIControlState) -> BindingTarget<String> {
+	public func title(for state: UIControl.State) -> BindingTarget<String> {
 		return makeBindingTarget { $0.setTitle($1, for: state) }
 	}
 
 	/// Sets the image of the button for the specified state.
-	public func image(for state: UIControlState) -> BindingTarget<UIImage?> {
+	public func image(for state: UIControl.State) -> BindingTarget<UIImage?> {
 		return makeBindingTarget { $0.setImage($1, for: state) }
 	}
 

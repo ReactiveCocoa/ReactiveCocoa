@@ -12,4 +12,4 @@
 	url = https://github.com/antitypical/Result.git
 [submodule "Carthage/Checkouts/ReactiveSwift"]
 	path = Carthage/Checkouts/ReactiveSwift
-	url = https://github.com/ReactiveCocoa/ReactiveSwift.git
+	url = https://github.com/NachoSoto/ReactiveSwift.git

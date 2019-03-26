@@ -1,1 +1,1 @@
-github "ReactiveCocoa/ReactiveSwift" ~> 5.0
+github "NachoSoto/ReactiveSwift" "remove-result"

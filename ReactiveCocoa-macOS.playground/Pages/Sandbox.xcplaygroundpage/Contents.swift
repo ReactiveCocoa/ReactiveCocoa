@@ -13,7 +13,6 @@
 1. Choose `View > Show Debug Area`
 */
 
-import Result
 import ReactiveCocoa
 import ReactiveSwift
 import AppKit

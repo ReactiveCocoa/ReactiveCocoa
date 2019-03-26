@@ -1,6 +1,5 @@
 import ReactiveSwift
 import ReactiveCocoa
-import Result
 import Quick
 import Nimble
 

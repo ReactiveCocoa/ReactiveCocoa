@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveCocoa
 import ReactiveSwift
-import Result
 import AppKit
 
 final class NSTableViewSpec: QuickSpec {

@@ -33,14 +33,14 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
 	public var textValues: Signal<String, NoError> {
-		return textValues(forName: .UITextViewTextDidEndEditing)
+		return textValues(forName: UITextView.textDidEndEditingNotification)
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
 	public var continuousTextValues: Signal<String, NoError> {
-		return textValues(forName: .UITextViewTextDidChange)
+		return textValues(forName: UITextView.textDidChangeNotification)
 	}
 	
 	/// Sets the attributed text of the text view.
@@ -61,14 +61,14 @@ extension Reactive where Base: UITextView {
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
 	public var attributedTextValues: Signal<NSAttributedString, NoError> {
-		return attributedTextValues(forName: .UITextViewTextDidEndEditing)
+		return attributedTextValues(forName: UITextView.textDidEndEditingNotification)
 	}
 	
 	/// A signal of attributed text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
 	public var continuousAttributedTextValues: Signal<NSAttributedString, NoError> {
-		return attributedTextValues(forName: .UITextViewTextDidChange)
+		return attributedTextValues(forName: UITextView.textDidChangeNotification)
 	}
 
 	/// A signal of range values emitted by the text view upon any selection change.

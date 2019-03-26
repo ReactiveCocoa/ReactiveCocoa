@@ -62,7 +62,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its style") {
-			let (pipeSignal, observer) = Signal<UIBarButtonItemStyle, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIBarButtonItem.Style, NoError>.pipe()
 			barButtonItem.reactive.style <~ SignalProducer(pipeSignal)
 
 			observer.send(value: .done)

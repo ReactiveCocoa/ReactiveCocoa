@@ -7,9 +7,9 @@ private let defaultLocalSearchError = NSError(domain: "org.reactivecocoa.Reactiv
 											  code: 1,
 											  userInfo: nil)
 @available(tvOS 9.2, *)
-extension Reactive where Base: MKLocalSearchRequest {
+extension Reactive where Base: MKLocalSearch.Request {
 	/// A SignalProducer which performs an `MKLocalSearch`.
-	public var search: SignalProducer<MKLocalSearchResponse, AnyError> {
+	public var search: SignalProducer<MKLocalSearch.Response, AnyError> {
 		return SignalProducer {[base = self.base] observer, lifetime in
 			let search = MKLocalSearch(request: base)
 			search.start { response, error in

@@ -56,7 +56,7 @@ class UITextFieldSpec: QuickSpec {
 				latestValue = text
 			}
 
-			for event in UIControlEvents.editingEvents {
+			for event in UIControl.Event.editingEvents {
 				textField.text = "Test \(event)"
 
 				textField.sendActions(for: event)
@@ -110,7 +110,7 @@ class UITextFieldSpec: QuickSpec {
 				latestValue = attributedText
 			}
 
-			for event in UIControlEvents.editingEvents {
+			for event in UIControl.Event.editingEvents {
 				textField.attributedText = NSAttributedString(string: "Test \(event)")
 
 				textField.sendActions(for: event)
@@ -195,8 +195,8 @@ class UITextFieldSpec: QuickSpec {
 	}
 }
 
-extension UIControlEvents {
-	fileprivate static var editingEvents: [UIControlEvents] {
+extension UIControl.Event {
+	fileprivate static var editingEvents: [UIControl.Event] {
 		return [.allEditingEvents, .editingDidBegin, .editingChanged, .editingDidEndOnExit, .editingDidEnd]
 	}
 }

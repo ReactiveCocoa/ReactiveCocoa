@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveSwift
 import ReactiveCocoa
-import Result
 
 class UIRefreshControlSpec: QuickSpec {
 	override func spec() {

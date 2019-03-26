@@ -6,7 +6,7 @@ import ReactiveCocoa
 
 class CocoaActionSpec: QuickSpec {
 	override func spec() {
-		var action: Action<Int, Int, NoError>!
+		var action: Action<Int, Int, Never>!
 		#if os(OSX)
 			var cocoaAction: CocoaAction<NSControl>!
 		#else

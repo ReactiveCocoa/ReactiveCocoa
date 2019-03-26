@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveCocoa
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 class UISliderSpec: QuickSpec {
@@ -23,7 +22,7 @@ class UISliderSpec: QuickSpec {
 		it("should accept changes from bindings to its value") {
 			expect(slider.value) == 0.0
 
-			let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Float, Never>.pipe()
 
 			slider.reactive.value <~ pipeSignal
 
@@ -34,7 +33,7 @@ class UISliderSpec: QuickSpec {
 		it("should accept changes from bindings to its minimum value") {
 			expect(slider.minimumValue) == 0.0
 
-			let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Float, Never>.pipe()
 
 			slider.reactive.minimumValue <~ pipeSignal
 
@@ -45,7 +44,7 @@ class UISliderSpec: QuickSpec {
 		it("should accept changes from bindings to its maximum value") {
 			expect(slider.maximumValue) == 1.0
 
-			let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Float, Never>.pipe()
 
 			slider.reactive.maximumValue <~ pipeSignal
 

@@ -1,6 +1,5 @@
 import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 /// Whether the runtime subclass has already been prepared for method
 /// interception.
@@ -27,7 +26,7 @@ extension Reactive where Base: NSObject {
 	///   - selector: The selector to observe.
 	///
 	/// - returns: A trigger signal.
-	public func trigger(for selector: Selector) -> Signal<(), NoError> {
+	public func trigger(for selector: Selector) -> Signal<(), Never> {
 		return base.intercept(selector).map { _ in }
 	}
 
@@ -44,7 +43,7 @@ extension Reactive where Base: NSObject {
 	///   - selector: The selector to observe.
 	///
 	/// - returns: A signal that sends an array of bridged arguments.
-	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+	public func signal(for selector: Selector) -> Signal<[Any?], Never> {
 		return base.intercept(selector).map(unpackInvocation)
 	}
 }
@@ -58,7 +57,7 @@ extension NSObject {
 	///
 	/// - returns: A signal that sends the corresponding `NSInvocation` after 
 	///            every invocation of the method.
-	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, NoError> {
+	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, Never> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
 			fatalError("Selector `\(selector)` does not exist in class `\(String(describing: objcClass))`.")
 		}
@@ -278,7 +277,7 @@ private func setupMethodSignatureCaching(_ realClass: AnyClass, _ signatureCache
 
 /// The state of an intercepted method specific to an instance.
 private final class InterceptingState {
-	let (signal, observer) = Signal<AnyObject, NoError>.pipe()
+	let (signal, observer) = Signal<AnyObject, Never>.pipe()
 
 	/// Initialize a state specific to an instance.
 	///

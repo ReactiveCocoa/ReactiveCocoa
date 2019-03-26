@@ -11,7 +11,7 @@ class UISegmentedControlSpec: QuickSpec {
 			s.selectedSegmentIndex = UISegmentedControl.noSegment
 			expect(s.numberOfSegments) == 3
 
-			let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Int, Never>.pipe()
 			s.reactive.selectedSegmentIndex <~ SignalProducer(pipeSignal)
 
 			expect(s.selectedSegmentIndex) == UISegmentedControl.noSegment

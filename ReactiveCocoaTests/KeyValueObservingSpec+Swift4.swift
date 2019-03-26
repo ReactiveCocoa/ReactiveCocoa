@@ -1,7 +1,6 @@
 import Foundation
 @testable import ReactiveCocoa
 import ReactiveSwift
-import enum Result.NoError
 import Quick
 import Nimble
 
@@ -82,7 +81,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			self.context = context
 		}
 
-		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U?>) -> SignalProducer<U?, NoError> {
+		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U?>) -> SignalProducer<U?, Never> {
 			switch context["observe"] {
 			case let context as String where context == "signal":
 				return SignalProducer(object.reactive.signal(for: keyPath))
@@ -95,7 +94,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			}
 		}
 
-		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U>) -> SignalProducer<U, NoError> {
+		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U>) -> SignalProducer<U, Never> {
 			switch context["observe"] {
 			case let context as String where context == "signal":
 				return SignalProducer(object.reactive.signal(for: keyPath))
@@ -108,31 +107,31 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			}
 		}
 
-		func isFinished(_ object: Operation) -> SignalProducer<Bool, NoError> {
+		func isFinished(_ object: Operation) -> SignalProducer<Bool, Never> {
 			return observe(object, \.isFinished)
 		}
 
-		func changes(_ object: ObservableObject) -> SignalProducer<Int, NoError> {
+		func changes(_ object: ObservableObject) -> SignalProducer<Int, Never> {
 			return observe(object, \.rac_value)
 		}
 
-		func nestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int, NoError> {
+		func nestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int, Never> {
 			return observe(object, \.rac_object.rac_value)
 		}
 
-		func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int?, NoError> {
+		func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int?, Never> {
 			return observe(object, \.rac_weakObject?.rac_value)
 		}
 
-		func strongReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
+		func strongReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, Never> {
 			return observe(object, \.target)
 		}
 
-		func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
+		func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, Never> {
 			return observe(object, \.weakTarget)
 		}
 
-		func dependentKeyChanges(_ object: ObservableObject) -> SignalProducer<NSDecimalNumber, NoError> {
+		func dependentKeyChanges(_ object: ObservableObject) -> SignalProducer<NSDecimalNumber, Never> {
 			return observe(object, \.rac_value_plusOne)
 		}
 	}

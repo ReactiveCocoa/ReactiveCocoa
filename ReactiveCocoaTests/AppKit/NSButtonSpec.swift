@@ -3,7 +3,6 @@ import Nimble
 import ReactiveSwift
 import ReactiveCocoa
 import AppKit
-import enum Result.NoError
 
 class NSButtonSpec: QuickSpec {
 	override func spec() {
@@ -30,7 +29,7 @@ class NSButtonSpec: QuickSpec {
 		it("should accept changes from bindings to its enabling state") {
 			button.isEnabled = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			button.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -44,7 +43,7 @@ class NSButtonSpec: QuickSpec {
 			button.allowsMixedState = true
 			button.state = RACNSOffState
 
-			let (pipeSignal, observer) = Signal<RACNSControlState, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<RACNSControlState, Never>.pipe()
 			button.reactive.state <~ SignalProducer(pipeSignal)
 
 			observer.send(value: RACNSOffState)
@@ -129,8 +128,8 @@ class NSButtonSpec: QuickSpec {
 
 			let pressed = MutableProperty(false)
 
-			let (executionSignal, observer) = Signal<Bool, NoError>.pipe()
-			let action = Action<(), Bool, NoError> { _ in
+			let (executionSignal, observer) = Signal<Bool, Never>.pipe()
+			let action = Action<(), Bool, Never> { _ in
 				SignalProducer(executionSignal)
 			}
 

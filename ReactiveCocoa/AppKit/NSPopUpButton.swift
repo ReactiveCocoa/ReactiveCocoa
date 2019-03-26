@@ -1,11 +1,10 @@
 import ReactiveSwift
 import AppKit
-import enum Result.NoError
 
 extension Reactive where Base: NSPopUpButton {
 	
 	/// A signal of selected indexes
-	public var selectedIndexes: Signal<Int, NoError> {
+	public var selectedIndexes: Signal<Int, Never> {
 		return proxy.invoked.map { $0.indexOfSelectedItem }
 	}
 	
@@ -17,7 +16,7 @@ extension Reactive where Base: NSPopUpButton {
 	}
 	
 	/// A signal of selected title
-	public var selectedTitles: Signal<String, NoError> {
+	public var selectedTitles: Signal<String, Never> {
 		return proxy.invoked.map { $0.titleOfSelectedItem }.skipNil()
 	}
 	
@@ -29,13 +28,13 @@ extension Reactive where Base: NSPopUpButton {
 		}
 	}
 
-	public var selectedItems: Signal<NSMenuItem, NoError> {
+	public var selectedItems: Signal<NSMenuItem, Never> {
 		return proxy.invoked.map { $0.selectedItem }.skipNil()
 	}
 
 
 	/// A signal of selected tags
-	public var selectedTags: Signal<Int, NoError> {
+	public var selectedTags: Signal<Int, Never> {
 		return proxy.invoked.map { $0.selectedTag() }
 	}
 

@@ -1,5 +1,4 @@
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UISwitch {
@@ -24,7 +23,7 @@ extension Reactive where Base: UISwitch {
 	}
 
 	/// A signal of on-off states in `Bool` emitted by the switch.
-	public var isOnValues: Signal<Bool, NoError> {
+	public var isOnValues: Signal<Bool, Never> {
 		return mapControlEvents(.valueChanged) { $0.isOn }
 	}
 }

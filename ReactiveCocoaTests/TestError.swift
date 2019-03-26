@@ -16,8 +16,8 @@ internal extension SignalProducer {
 	/// Halts if an error is emitted in the receiver signal.
 	/// This is useful in tests to be able to just use `startWithNext`
 	/// in cases where we know that an error won't be emitted.
-	func assumeNoErrors() -> SignalProducer<Value, NoError> {
-		return lift { $0.assumeNoErrors() }
+	func assumeNevers() -> SignalProducer<Value, Never> {
+		return lift { $0.assumeNevers() }
 	}
 }
 
@@ -25,7 +25,7 @@ internal extension Signal {
 	/// Halts if an error is emitted in the receiver signal.
 	/// This is useful in tests to be able to just use `startWithNext`
 	/// in cases where we know that an error won't be emitted.
-	func assumeNoErrors() -> Signal<Value, NoError> {
+	func assumeNevers() -> Signal<Value, Never> {
 		return mapError { error in
 			fatalError("Unexpected error: \(error)")
 

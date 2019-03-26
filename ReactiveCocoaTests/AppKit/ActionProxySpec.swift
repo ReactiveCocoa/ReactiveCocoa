@@ -1,6 +1,5 @@
 import Quick
 import Nimble
-import enum Result.NoError
 import ReactiveSwift
 @testable import ReactiveCocoa
 

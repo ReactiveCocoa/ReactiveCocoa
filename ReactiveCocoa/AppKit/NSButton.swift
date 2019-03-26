@@ -1,5 +1,4 @@
 import ReactiveSwift
-import enum Result.NoError
 import AppKit
 
 extension Reactive where Base: NSButton {
@@ -29,7 +28,7 @@ extension Reactive where Base: NSButton {
 
 	#if swift(>=4.0)
 	/// A signal of integer states (On, Off, Mixed), emitted by the button.
-	public var states: Signal<NSControl.StateValue, NoError> {
+	public var states: Signal<NSControl.StateValue, Never> {
 		return proxy.invoked.map { $0.state }
 	}
 
@@ -39,7 +38,7 @@ extension Reactive where Base: NSButton {
 	}
 	#else
 	/// A signal of integer states (On, Off, Mixed), emitted by the button.
-	public var states: Signal<Int, NoError> {
+	public var states: Signal<Int, Never> {
 		return proxy.invoked.map { $0.state }
 	}
 

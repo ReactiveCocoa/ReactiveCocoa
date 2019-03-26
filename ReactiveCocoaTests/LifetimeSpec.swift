@@ -1,7 +1,6 @@
 import Foundation
 import ReactiveCocoa
 import ReactiveSwift
-import enum Result.NoError
 import Quick
 import Nimble
 
@@ -97,7 +96,7 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 
 				withExtendedLifetime(observer) {
 					signal
@@ -119,7 +118,7 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 
 				withExtendedLifetime(observer) {
 					signal
@@ -143,7 +142,7 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 
 				withExtendedLifetime(observer) {
 					SignalProducer(signal)
@@ -165,7 +164,7 @@ class LifetimeSpec: QuickSpec {
 				weak var weakObject = object
 				var isCompleted = false
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 
 				withExtendedLifetime(observer) {
 					SignalProducer(signal)

@@ -1,5 +1,4 @@
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 private class PickerViewDelegateProxy: DelegateProxy<UIPickerViewDelegate>, UIPickerViewDelegate {
@@ -35,7 +34,7 @@ extension Reactive where Base: UIPickerView {
 	/// Create a signal which sends a `value` event for each row selection
 	///
 	/// - returns: A trigger signal.
-	public var selections: Signal<(row: Int, component: Int), NoError> {
+	public var selections: Signal<(row: Int, component: Int), Never> {
 		return proxy.intercept(#selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
 			.map { (row: $0[1] as! Int, component: $0[2] as! Int) }
 	}

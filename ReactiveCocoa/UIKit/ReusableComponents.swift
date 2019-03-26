@@ -1,13 +1,12 @@
 import UIKit
 import ReactiveSwift
-import enum Result.NoError
 
 @objc public protocol Reusable: class {
 	func prepareForReuse()
 }
 
 extension Reactive where Base: NSObject, Base: Reusable {
-	public var prepareForReuse: Signal<(), NoError> {
+	public var prepareForReuse: Signal<(), Never> {
 		return trigger(for: #selector(base.prepareForReuse))
 	}
 }

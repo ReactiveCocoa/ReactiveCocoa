@@ -1,6 +1,5 @@
 import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 /// A typed mutable property view to a certain key path of an Objective-C object using
 /// Key-Value Coding and Key-Value Observing.
@@ -38,11 +37,11 @@ public final class DynamicProperty<Value>: MutablePropertyProtocol {
 	///
 	/// - important: This only works if the object given to init() is KVO-compliant.
 	///              Most UI controls are not!
-	public var producer: SignalProducer<Value, NoError> {
+	public var producer: SignalProducer<Value, Never> {
 		return cache.producer
 	}
 
-	public var signal: Signal<Value, NoError> {
+	public var signal: Signal<Value, Never> {
 		return cache.signal
 	}
 

@@ -3,7 +3,6 @@ import Nimble
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
-import enum Result.NoError
 
 class UIGestureRecognizerSpec: QuickSpec {
 	override func spec() {

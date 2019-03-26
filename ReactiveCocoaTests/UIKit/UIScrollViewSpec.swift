@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 private final class UIScrollViewDelegateForZooming: NSObject, UIScrollViewDelegate {
 	func viewForZooming(in scrollView: UIScrollView) -> UIView? {
@@ -29,7 +28,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its content inset value") {
 			scrollView.contentInset = .zero
 
-			let (pipeSignal, observer) = Signal<UIEdgeInsets, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIEdgeInsets, Never>.pipe()
 			scrollView.reactive.contentInset <~ SignalProducer(pipeSignal)
 
 			observer.send(value: UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4))
@@ -42,7 +41,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its scroll indicator insets value") {
 			scrollView.scrollIndicatorInsets = .zero
 
-			let (pipeSignal, observer) = Signal<UIEdgeInsets, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIEdgeInsets, Never>.pipe()
 			scrollView.reactive.scrollIndicatorInsets <~ SignalProducer(pipeSignal)
 
 			observer.send(value: UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4))
@@ -55,7 +54,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its scroll enabled state") {
 			scrollView.isScrollEnabled = true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			scrollView.reactive.isScrollEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -75,7 +74,7 @@ class UIScrollViewSpec: QuickSpec {
 			scrollView.maximumZoomScale = 5
 			scrollView.zoomScale = 1
 
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 			scrollView.reactive.zoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 3)
@@ -87,7 +86,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its minimum zoom scale value") {
 			scrollView.minimumZoomScale = 0
 
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 			scrollView.reactive.minimumZoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 42)
@@ -99,7 +98,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its maximum zoom scale value") {
 			scrollView.maximumZoomScale = 0
 
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 			scrollView.reactive.maximumZoomScale <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 42)
@@ -111,7 +110,7 @@ class UIScrollViewSpec: QuickSpec {
 		it("should accept changes from bindings to its scrolls to top state") {
 			scrollView.scrollsToTop = true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			scrollView.reactive.scrollsToTop <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)

@@ -30,7 +30,7 @@ class BindingTargetSpec: QuickSpec {
 				}
 				expect(object.value) == 0
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				target <~ signal
 				expect(object.value) == 0
 
@@ -50,7 +50,7 @@ class BindingTargetSpec: QuickSpec {
 				}
 				expect(object.value) == 0
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				target <~ signal
 				observer.send(value: ())
 				expect(object.value) == 0
@@ -74,7 +74,7 @@ class BindingTargetSpec: QuickSpec {
 				}
 				expect(object.value) == 0
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				target <~ signal
 				expect(object.value) == 0
 
@@ -94,7 +94,7 @@ class BindingTargetSpec: QuickSpec {
 				}
 				expect(object.value) == 0
 
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				target <~ signal
 				observer.send(value: ())
 				expect(object.value) == 0

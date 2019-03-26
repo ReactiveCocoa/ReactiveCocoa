@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UIControlSpec: QuickSpec {
 	override func spec() {
@@ -22,7 +21,7 @@ class UIControlSpec: QuickSpec {
 		it("should accept changes from bindings to its enabling state") {
 			control.isEnabled = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			control.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -35,7 +34,7 @@ class UIControlSpec: QuickSpec {
 		it("should accept changes from bindings to its selecting state") {
 			control.isSelected = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			control.reactive.isSelected <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -48,7 +47,7 @@ class UIControlSpec: QuickSpec {
 		it("should accept changes from bindings to its highlighting state") {
 			control.isHighlighted = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			control.reactive.isHighlighted <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -62,8 +61,8 @@ class UIControlSpec: QuickSpec {
 			control.isSelected = false
 			control.isEnabled = false
 
-			let (pipeSignalSelected, observerSelected) = Signal<Bool, NoError>.pipe()
-			let (pipeSignalEnabled, observerEnabled) = Signal<Bool, NoError>.pipe()
+			let (pipeSignalSelected, observerSelected) = Signal<Bool, Never>.pipe()
+			let (pipeSignalEnabled, observerEnabled) = Signal<Bool, Never>.pipe()
 			control.reactive.isSelected <~ SignalProducer(pipeSignalSelected)
 			control.reactive.isEnabled <~ SignalProducer(pipeSignalEnabled)
 

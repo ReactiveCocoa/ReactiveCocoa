@@ -1,6 +1,5 @@
 import UIKit
 import ReactiveSwift
-import enum Result.NoError
 
 extension Reactive where Base: UISlider {
 
@@ -24,7 +23,7 @@ extension Reactive where Base: UISlider {
 	///
 	/// - note: If slider's `isContinuous` property is `false` then values are
 	///         sent only when user releases the slider.
-	public var values: Signal<Float, NoError> {
+	public var values: Signal<Float, Never> {
 		return mapControlEvents(.valueChanged) { $0.value }
 	}
 }

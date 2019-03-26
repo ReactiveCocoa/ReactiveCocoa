@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UILabelSpec: QuickSpec {
 	override func spec() {
@@ -26,7 +25,7 @@ class UILabelSpec: QuickSpec {
 
 			label.text = ""
 
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			label.reactive.text <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -45,7 +44,7 @@ class UILabelSpec: QuickSpec {
 
 			label.attributedText = NSAttributedString(string: "")
 
-			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<NSAttributedString?, Never>.pipe()
 			label.reactive.attributedText <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -61,7 +60,7 @@ class UILabelSpec: QuickSpec {
 
 			let label = UILabel(frame: .zero)
 
-			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIColor, Never>.pipe()
 			label.textColor = UIColor.black
 			label.reactive.textColor <~ SignalProducer(pipeSignal)
 

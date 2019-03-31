@@ -16,7 +16,7 @@ class DeprecationsSpec: QuickSpec {
                 let object = TestKVOObject()
                 var values: [Int] = []
 
-                object.reactive.values(forKeyPath: #keyPath(TestKVOObject.value)).startWithValues { value in
+                object.reactive.producer(forKeyPath: #keyPath(TestKVOObject.value)).startWithValues { value in
                     values.append(value as! Int)
                 }
 

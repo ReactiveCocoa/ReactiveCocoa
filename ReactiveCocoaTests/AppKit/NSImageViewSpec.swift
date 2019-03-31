@@ -38,11 +38,7 @@ class NSImageViewSpec: QuickSpec {
 			let (pipeSignal, observer) = Signal<NSImage?, NoError>.pipe()
 			imageView.reactive.image <~ SignalProducer(pipeSignal)
 
-			#if swift(>=4.0)
-			let theImage = NSImage(named: .user)
-			#else
-			let theImage = NSImage(named: NSImageNameUser)
-			#endif
+			let theImage = NSImage(named: NSImage.userName)
 
 			observer.send(value: theImage)
 			expect(imageView.image) == theImage

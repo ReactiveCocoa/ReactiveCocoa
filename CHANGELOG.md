@@ -1,6 +1,9 @@
 # master
 *Please put new entries at the top.
 
+1. Update ReactiveSwift to 6.0
+1. Remove dependency on antitypical/Result
+
 # 9.0.0
 1. Make UITextField and UITextView text and attributedText values non-optional. (#3591, kudos to @Marcocanc)
 1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)

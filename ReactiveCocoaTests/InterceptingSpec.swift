@@ -1,7 +1,6 @@
 import Foundation
 @testable import ReactiveCocoa
 import ReactiveSwift
-import enum Result.NoError
 import Quick
 import Nimble
 import CoreGraphics

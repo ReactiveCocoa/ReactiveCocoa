@@ -1,5 +1,4 @@
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UITextField {
@@ -12,14 +11,14 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
-	public var textValues: Signal<String, NoError> {
+	public var textValues: Signal<String, Never> {
 		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.text ?? "" }
 	}
 
 	/// A signal of text values emitted by the text field upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
-	public var continuousTextValues: Signal<String, NoError> {
+	public var continuousTextValues: Signal<String, Never> {
 		return mapControlEvents(.allEditingEvents) { $0.text ?? "" }
 	}
 	
@@ -42,14 +41,14 @@ extension Reactive where Base: UITextField {
 	///
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
-	public var attributedTextValues: Signal<NSAttributedString, NoError> {
+	public var attributedTextValues: Signal<NSAttributedString, Never> {
 		return mapControlEvents([.editingDidEnd, .editingDidEndOnExit]) { $0.attributedText ?? NSAttributedString() }
 	}
 	
 	/// A signal of attributed text values emitted by the text field upon any changes.
 	///
 	/// - note: To observe attributed text values only when editing ends, see `attributedTextValues`.
-	public var continuousAttributedTextValues: Signal<NSAttributedString, NoError> {
+	public var continuousAttributedTextValues: Signal<NSAttributedString, Never> {
 		return mapControlEvents(.allEditingEvents) { $0.attributedText ?? NSAttributedString() }
 	}
 

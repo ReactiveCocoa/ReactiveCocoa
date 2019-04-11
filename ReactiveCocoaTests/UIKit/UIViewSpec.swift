@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UIViewSpec: QuickSpec {
 	override func spec() {
@@ -23,7 +22,7 @@ class UIViewSpec: QuickSpec {
 		it("should accept changes from bindings to its hiding state") {
 			view.isHidden = true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			view.reactive.isHidden <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -39,7 +38,7 @@ class UIViewSpec: QuickSpec {
 			let firstChange = CGFloat(0.5)
 			let secondChange = CGFloat(0.7)
 
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 			view.reactive.alpha <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -52,7 +51,7 @@ class UIViewSpec: QuickSpec {
 		it("should accept changes from bindings to its user interaction enabling state") {
 			view.isUserInteractionEnabled = true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			view.reactive.isUserInteractionEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -65,7 +64,7 @@ class UIViewSpec: QuickSpec {
 		it("should accept changes from bindings to its background color") {
 			view.backgroundColor = .white
 
-			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIColor, Never>.pipe()
 			view.reactive.backgroundColor <~ SignalProducer(pipeSignal)
 
 			observer.send(value: .yellow)
@@ -81,7 +80,7 @@ class UIViewSpec: QuickSpec {
 		it("should accept changes from bindings to its tint color") {
 			view.tintColor = .white
 			
-			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIColor, Never>.pipe()
 			view.reactive.tintColor <~ SignalProducer(pipeSignal)
 			
 			observer.send(value: .yellow)

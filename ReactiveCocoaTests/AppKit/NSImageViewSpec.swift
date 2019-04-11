@@ -3,7 +3,6 @@ import Nimble
 import ReactiveSwift
 import ReactiveCocoa
 import AppKit
-import enum Result.NoError
 
 class NSImageViewSpec: QuickSpec {
 	override func spec() {
@@ -23,7 +22,7 @@ class NSImageViewSpec: QuickSpec {
 		it("should accept changes from bindings to its enabling state") {
 			imageView.isEnabled = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			imageView.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -35,7 +34,7 @@ class NSImageViewSpec: QuickSpec {
 
 		it("should accept changes from bindings to its image") {
 
-			let (pipeSignal, observer) = Signal<NSImage?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<NSImage?, Never>.pipe()
 			imageView.reactive.image <~ SignalProducer(pipeSignal)
 
 			let theImage = NSImage(named: NSImage.userName)

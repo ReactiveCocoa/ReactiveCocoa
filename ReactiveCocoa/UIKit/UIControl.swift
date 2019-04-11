@@ -1,6 +1,5 @@
 import ReactiveSwift
 import UIKit
-import enum Result.NoError
 
 extension Reactive where Base: UIControl {
 	/// The current associated action of `self`, with its registered event mask
@@ -48,7 +47,7 @@ extension Reactive where Base: UIControl {
 	///   - controlEvents: The control event mask.
 	///
 	/// - returns: A signal that sends the control each time the control event occurs.
-	public func controlEvents(_ controlEvents: UIControl.Event) -> Signal<Base, NoError> {
+	public func controlEvents(_ controlEvents: UIControl.Event) -> Signal<Base, Never> {
 		return mapControlEvents(controlEvents, { $0 })
 	}
 
@@ -71,7 +70,7 @@ extension Reactive where Base: UIControl {
 	///
 	/// - returns: A signal that sends the reduced value from the control each time the
 	///            control event occurs.
-	public func mapControlEvents<Value>(_ controlEvents: UIControl.Event, _ transform: @escaping (Base) -> Value) -> Signal<Value, NoError> {
+	public func mapControlEvents<Value>(_ controlEvents: UIControl.Event, _ transform: @escaping (Base) -> Value) -> Signal<Value, Never> {
 		return Signal { observer, signalLifetime in
 			let receiver = CocoaTarget(observer) { transform($0 as! Base) }
 			base.addTarget(receiver,
@@ -91,7 +90,7 @@ extension Reactive where Base: UIControl {
 	}
 
 	@available(*, unavailable, renamed: "controlEvents(_:)")
-	public func trigger(for controlEvents: UIControl.Event) -> Signal<(), NoError> {
+	public func trigger(for controlEvents: UIControl.Event) -> Signal<(), Never> {
 		fatalError()
 	}
 

@@ -3,7 +3,6 @@ import ReactiveCocoa
 import ReactiveMapKit
 import Quick
 import Nimble
-import enum Result.NoError
 import MapKit
 
 @available(tvOS 9.2, *)
@@ -35,7 +34,7 @@ class MKMapViewSpec: QuickSpec {
 		it("should accept changes from bindings to its map type") {
 			expect(mapView.mapType) == MKMapType.standard
 
-			let (pipeSignal, observer) = Signal<MKMapType, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<MKMapType, Never>.pipe()
 
 			mapView.reactive.mapType <~ pipeSignal
 
@@ -49,7 +48,7 @@ class MKMapViewSpec: QuickSpec {
 		it("should accept changes from bindings to its zoom enabled state") {
 			expect(mapView.isZoomEnabled) == true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 
 			mapView.reactive.isZoomEnabled <~ pipeSignal
 
@@ -60,7 +59,7 @@ class MKMapViewSpec: QuickSpec {
 		it("should accept changes from bindings to its scroll enabled state") {
 			expect(mapView.isScrollEnabled) == true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 
 			mapView.reactive.isScrollEnabled <~ pipeSignal
 
@@ -72,7 +71,7 @@ class MKMapViewSpec: QuickSpec {
 		it("should accept changes from bindings to its pitch enabled state") {
 			expect(mapView.isPitchEnabled) == true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 
 			mapView.reactive.isPitchEnabled <~ pipeSignal
 
@@ -83,7 +82,7 @@ class MKMapViewSpec: QuickSpec {
 		it("should accept changes from bindings to its rotate enabled state") {
 			expect(mapView.isRotateEnabled) == true
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 
 			mapView.reactive.isRotateEnabled <~ pipeSignal
 

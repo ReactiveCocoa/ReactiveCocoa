@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 private final class PickerDataSource: NSObject, UIPickerViewDataSource {
 	@objc func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -42,10 +41,10 @@ final class UIPickerViewSpec: QuickSpec {
 
 		it("should accept changes from bindings to selected rows") {
 
-			let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Int, Never>.pipe()
 			pickerView.reactive.selectedRow(inComponent: 0) <~ SignalProducer(pipeSignal)
 
-			let (anotherPipeSignal, anotherObserver) = Signal<Int, NoError>.pipe()
+			let (anotherPipeSignal, anotherObserver) = Signal<Int, Never>.pipe()
 			pickerView.reactive.selectedRow(inComponent: 1) <~ SignalProducer(anotherPipeSignal)
 
 			observer.send(value: 1)
@@ -76,7 +75,7 @@ final class UIPickerViewSpec: QuickSpec {
 		}
 
 		it("invokes reloadAllComponents whenever the bound signal sends a value") {
-			let (signal, observer) = Signal<(), NoError>.pipe()
+			let (signal, observer) = Signal<(), Never>.pipe()
 
 			var reloadAllComponentsCount = 0
 
@@ -93,7 +92,7 @@ final class UIPickerViewSpec: QuickSpec {
 		}
 
 		it("invokes reloadComponent whenever the bound signal sends a value") {
-			let (signal, observer) = Signal<Int, NoError>.pipe()
+			let (signal, observer) = Signal<Int, Never>.pipe()
 
 			var reloadFirstComponentCount = 0
 			var reloadSecondComponentCount = 0
@@ -123,11 +122,11 @@ final class UIPickerViewSpec: QuickSpec {
 }
 
 private final class TestPickerView: UIPickerView {
-	let reloadAllComponentsSignal: Signal<(), NoError>
-	private let reloadAllComponentsObserver: Signal<(), NoError>.Observer
+	let reloadAllComponentsSignal: Signal<(), Never>
+	private let reloadAllComponentsObserver: Signal<(), Never>.Observer
 
-	let reloadComponentSignal: Signal<Int, NoError>
-	private let reloadComponentObserver: Signal<Int, NoError>.Observer
+	let reloadComponentSignal: Signal<Int, Never>
+	private let reloadComponentObserver: Signal<Int, Never>.Observer
 
 	init() {
 		(reloadAllComponentsSignal, reloadAllComponentsObserver) = Signal.pipe()

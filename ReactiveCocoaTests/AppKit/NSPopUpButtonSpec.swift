@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveCocoa
 import ReactiveSwift
-import Result
 import AppKit
 
 final class NSPopUpButtonSpec: QuickSpec {
@@ -56,7 +55,7 @@ final class NSPopUpButtonSpec: QuickSpec {
 			}
 			
 			it("should accept changes from its bindings to its index values") {
-				let (signal, observer) = Signal<Int?, NoError>.pipe()
+				let (signal, observer) = Signal<Int?, Never>.pipe()
 				button.reactive.selectedIndex <~ SignalProducer(signal)
 				
 				observer.send(value: 1)
@@ -71,7 +70,7 @@ final class NSPopUpButtonSpec: QuickSpec {
 			}
 			
 			it("should accept changes from its bindings to its title values") {
-				let (signal, observer) = Signal<String?, NoError>.pipe()
+				let (signal, observer) = Signal<String?, Never>.pipe()
 				button.reactive.selectedTitle <~ SignalProducer(signal)
 				
 				observer.send(value: "1")
@@ -107,7 +106,7 @@ final class NSPopUpButtonSpec: QuickSpec {
 			}
 
 			it("should accept changes from its bindings to its tag values") {
-				let (signal, observer) = Signal<Int, NoError>.pipe()
+				let (signal, observer) = Signal<Int, Never>.pipe()
 				button.reactive.selectedTag <~ SignalProducer(signal)
 
 				observer.send(value: 1001)

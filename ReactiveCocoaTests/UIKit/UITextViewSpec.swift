@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UITextViewSpec: QuickSpec {
 	override func spec() {
@@ -66,7 +65,7 @@ class UITextViewSpec: QuickSpec {
 			
 			textView.attributedText = NSAttributedString(string: "")
 			
-			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<NSAttributedString?, Never>.pipe()
 			textView.reactive.attributedText <~ SignalProducer(pipeSignal)
 			
 			observer.send(value: firstChange)

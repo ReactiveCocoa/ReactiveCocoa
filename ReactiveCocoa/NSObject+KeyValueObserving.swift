@@ -1,6 +1,5 @@
 import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 extension Reactive where Base: NSObject {
 	/// Create a producer which sends the current value and all the subsequent
@@ -13,7 +12,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
-	public func producer(forKeyPath keyPath: String) -> SignalProducer<Any?, NoError> {
+	public func producer(forKeyPath keyPath: String) -> SignalProducer<Any?, Never> {
 		return SignalProducer { observer, lifetime in
 			let disposable = KeyValueObserver.observe(
 				self.base,
@@ -42,7 +41,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the 
 	///            key path.
-	public func signal(forKeyPath keyPath: String) -> Signal<Any?, NoError> {
+	public func signal(forKeyPath keyPath: String) -> Signal<Any?, Never> {
 		return Signal { observer, signalLifetime in
 			signalLifetime += KeyValueObserver.observe(
 				self.base,
@@ -57,7 +56,7 @@ extension Reactive where Base: NSObject {
 	private func producer<U>(
 		for keyPath: KeyPath<Base, U>,
 		transform: @escaping (Any?) -> U
-	) -> SignalProducer<U, NoError> {
+	) -> SignalProducer<U, Never> {
 		guard let kvcKeyPath = keyPath._kvcKeyPathString else {
 			fatalError("Cannot use `producer(for:)` on a non Objective-C property.")
 		}
@@ -77,7 +76,7 @@ extension Reactive where Base: NSObject {
 	private func signal<U>(
 		for keyPath: KeyPath<Base, U>,
 		transform: @escaping (Any?) -> U
-	) -> Signal<U, NoError> {
+	) -> Signal<U, Never> {
 		guard let kvcKeyPath = keyPath._kvcKeyPathString else {
 			fatalError("Cannot use `signal(for:)` on a non Objective-C property.")
 		}
@@ -103,7 +102,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
-	public func producer<U>(for keyPath: KeyPath<Base, U?>) -> SignalProducer<U?, NoError> {
+	public func producer<U>(for keyPath: KeyPath<Base, U?>) -> SignalProducer<U?, Never> {
 		return producer(for: keyPath) { $0 as! U? }
 	}
 
@@ -119,7 +118,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
-	public func signal<U>(for keyPath: KeyPath<Base, U?>) -> Signal<U?, NoError> {
+	public func signal<U>(for keyPath: KeyPath<Base, U?>) -> Signal<U?, Never> {
 		return signal(for: keyPath) { $0 as! U? }
 	}
 
@@ -133,7 +132,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
-	public func producer<U>(for keyPath: KeyPath<Base, U>) -> SignalProducer<U, NoError> {
+	public func producer<U>(for keyPath: KeyPath<Base, U>) -> SignalProducer<U, Never> {
 		return producer(for: keyPath) { $0 as! U }
 	}
 
@@ -149,7 +148,7 @@ extension Reactive where Base: NSObject {
 	///
 	/// - returns: A producer emitting values of the property specified by the
 	///            key path.
-	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, NoError> {
+	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, Never> {
 		return signal(for: keyPath) { $0 as! U }
 	}
 }
@@ -186,10 +185,10 @@ extension Property {
 // `Property(_:)` uses only the producer is explioted here to achieve the same effect.
 private final class UnsafeKVOProperty<Value>: PropertyProtocol {
 	var value: Value { fatalError() }
-	var signal: Signal<Value, NoError> { fatalError() }
-	let producer: SignalProducer<Value, NoError>
+	var signal: Signal<Value, Never> { fatalError() }
+	let producer: SignalProducer<Value, Never>
 	
-	init(producer: SignalProducer<Value, NoError>) {
+	init(producer: SignalProducer<Value, Never>) {
 		self.producer = producer
 	}
 	

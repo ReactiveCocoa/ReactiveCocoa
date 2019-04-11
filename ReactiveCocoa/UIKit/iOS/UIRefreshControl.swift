@@ -1,5 +1,4 @@
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UIRefreshControl {

@@ -3,7 +3,6 @@ import Nimble
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
-import enum Result.NoError
 
 class UIButtonSpec: QuickSpec {
 	override func spec() {
@@ -24,7 +23,7 @@ class UIButtonSpec: QuickSpec {
 			let firstTitle = "First title"
 			let secondTitle = "Second title"
 
-			let (pipeSignal, observer) = Signal<String, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String, Never>.pipe()
 			button.reactive.title <~ SignalProducer(pipeSignal)
 			button.setTitle("", for: .selected)
 			button.setTitle("", for: .highlighted)
@@ -45,7 +44,7 @@ class UIButtonSpec: QuickSpec {
 			button.isUserInteractionEnabled = true
 
 			let pressed = MutableProperty(false)
-			let action = Action<(), Bool, NoError> { _ in
+			let action = Action<(), Bool, Never> { _ in
 				SignalProducer(value: true)
 			}
 

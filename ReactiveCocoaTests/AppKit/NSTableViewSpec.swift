@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveCocoa
 import ReactiveSwift
-import Result
 import AppKit
 
 final class NSTableViewSpec: QuickSpec {
@@ -14,13 +13,13 @@ final class NSTableViewSpec: QuickSpec {
 		}
 
 		describe("reloadData") {
-			var bindingSignal: Signal<(), NoError>!
-			var bindingObserver: Signal<(), NoError>.Observer!
+			var bindingSignal: Signal<(), Never>!
+			var bindingObserver: Signal<(), Never>.Observer!
 
 			var reloadDataCount = 0
 
 			beforeEach {
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				(bindingSignal, bindingObserver) = (signal, observer)
 
 				reloadDataCount = 0
@@ -43,8 +42,8 @@ final class NSTableViewSpec: QuickSpec {
 }
 
 private final class TestTableView: NSTableView {
-	let reloadDataSignal: Signal<(), NoError>
-	private let reloadDataObserver: Signal<(), NoError>.Observer
+	let reloadDataSignal: Signal<(), Never>
+	private let reloadDataObserver: Signal<(), Never>.Observer
 
 	override init(frame: CGRect) {
 		(reloadDataSignal, reloadDataObserver) = Signal.pipe()

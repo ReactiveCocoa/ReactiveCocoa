@@ -1,6 +1,5 @@
 import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 /// A target that accepts action messages.
 internal final class CocoaTarget<Value>: NSObject {
@@ -9,12 +8,12 @@ internal final class CocoaTarget<Value>: NSObject {
 		case sending(queue: [Value])
 	}
 
-	private let observer: Signal<Value, NoError>.Observer
+	private let observer: Signal<Value, Never>.Observer
 	private let transform: (Any?) -> Value
 
 	private var state: State
 
-	internal init(_ observer: Signal<Value, NoError>.Observer, transform: @escaping (Any?) -> Value) {
+	internal init(_ observer: Signal<Value, Never>.Observer, transform: @escaping (Any?) -> Value) {
 		self.observer = observer
 		self.transform = transform
 		self.state = .idle
@@ -53,7 +52,7 @@ internal final class CocoaTarget<Value>: NSObject {
 }
 
 extension CocoaTarget where Value == Void {
-	internal convenience init(_ observer: Signal<(), NoError>.Observer) {
+	internal convenience init(_ observer: Signal<(), Never>.Observer) {
 		self.init(observer, transform: { _ in })
 	}
 }

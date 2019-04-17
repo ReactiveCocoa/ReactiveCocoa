@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UISearchBarSpec: QuickSpec {
 	override func spec() {
@@ -37,7 +36,7 @@ class UISearchBarSpec: QuickSpec {
 
 			searchBar.text = ""
 
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			searchBar.reactive.text <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -86,7 +85,7 @@ class UISearchBarSpec: QuickSpec {
 
 			searchBar.scopeButtonTitles = ["First", "Second", "Third"]
 
-			let (pipeSignal, observer) = Signal<Int, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Int, Never>.pipe()
 			searchBar.reactive.selectedScopeButtonIndex <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -204,7 +203,7 @@ class UISearchBarSpec: QuickSpec {
 		it("should accept changes from bindings to its hidden state of the cancel button") {
 			searchBar.showsCancelButton = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			searchBar.reactive.showsCancelButton <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)

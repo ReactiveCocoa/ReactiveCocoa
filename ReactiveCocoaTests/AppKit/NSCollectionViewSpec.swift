@@ -2,7 +2,6 @@ import Quick
 import Nimble
 import ReactiveCocoa
 import ReactiveSwift
-import Result
 import AppKit
 
 @available(macOS 10.11, *)
@@ -15,13 +14,13 @@ final class NSCollectionViewSpec: QuickSpec {
 		}
 
 		describe("reloadData") {
-			var bindingSignal: Signal<(), NoError>!
-			var bindingObserver: Signal<(), NoError>.Observer!
+			var bindingSignal: Signal<(), Never>!
+			var bindingObserver: Signal<(), Never>.Observer!
 
 			var reloadDataCount = 0
 
 			beforeEach {
-				let (signal, observer) = Signal<(), NoError>.pipe()
+				let (signal, observer) = Signal<(), Never>.pipe()
 				(bindingSignal, bindingObserver) = (signal, observer)
 
 				reloadDataCount = 0
@@ -45,8 +44,8 @@ final class NSCollectionViewSpec: QuickSpec {
 
 @available(macOS 10.11, *)
 private final class TestCollectionView: NSCollectionView {
-	let reloadDataSignal: Signal<(), NoError>
-	private let reloadDataObserver: Signal<(), NoError>.Observer
+	let reloadDataSignal: Signal<(), Never>
+	private let reloadDataObserver: Signal<(), Never>.Observer
 
 	override init(frame: CGRect) {
 		(reloadDataSignal, reloadDataObserver) = Signal.pipe()

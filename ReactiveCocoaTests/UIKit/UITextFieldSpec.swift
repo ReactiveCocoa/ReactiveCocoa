@@ -3,7 +3,6 @@ import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UITextFieldSpec: QuickSpec {
 	override func spec() {
@@ -70,7 +69,7 @@ class UITextFieldSpec: QuickSpec {
 			
 			textField.attributedText = NSAttributedString(string: "")
 			
-			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<NSAttributedString?, Never>.pipe()
 			textField.reactive.attributedText <~ SignalProducer(pipeSignal)
 			
 			observer.send(value: firstChange)
@@ -119,7 +118,7 @@ class UITextFieldSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its placeholder attribute") {
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			textField.reactive.placeholder <~ pipeSignal
 
 			observer.send(value: "A placeholder")
@@ -133,7 +132,7 @@ class UITextFieldSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its secureTextEntry attribute") {
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			textField.reactive.isSecureTextEntry <~ pipeSignal
 
 			observer.send(value: true)
@@ -144,7 +143,7 @@ class UITextFieldSpec: QuickSpec {
 		}
 		
 		it("should accept changes from bindings to its textColor attribute") {
-			let (pipeSignal, observer) = Signal<UIColor, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIColor, Never>.pipe()
 			textField.reactive.textColor <~ pipeSignal
 			
 			observer.send(value: UIColor.red)

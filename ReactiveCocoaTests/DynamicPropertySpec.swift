@@ -1,5 +1,4 @@
 import ReactiveSwift
-import Result
 import Nimble
 import Quick
 import ReactiveCocoa
@@ -260,14 +259,14 @@ class DynamicPropertySpec: QuickSpec {
 				}
 
 				it("should bridge values sent on a signal to Objective-C") {
-					let (signal, observer) = Signal<Int, NoError>.pipe()
+					let (signal, observer) = Signal<Int, Never>.pipe()
 					property <~ signal
 					observer.send(value: 1)
 					expect(object.rac_value) == 1
 				}
 
 				it("should bridge values sent on a signal producer to Objective-C") {
-					let producer = SignalProducer<Int, NoError>(value: 1)
+					let producer = SignalProducer<Int, Never>(value: 1)
 					property <~ producer
 					expect(object.rac_value) == 1
 				}
@@ -279,7 +278,7 @@ class DynamicPropertySpec: QuickSpec {
 				}
 
 				it("should bridge values sent on a signal to Objective-C, even if the view has deinitialized") {
-					let (signal, observer) = Signal<Int, NoError>.pipe()
+					let (signal, observer) = Signal<Int, Never>.pipe()
 					property <~ signal
 					property = nil
 
@@ -288,7 +287,7 @@ class DynamicPropertySpec: QuickSpec {
 				}
 
 				it("should bridge values sent on a signal producer to Objective-C, even if the view has deinitialized") {
-					let producer = SignalProducer<Int, NoError>(value: 1)
+					let producer = SignalProducer<Int, Never>(value: 1)
 					property <~ producer
 					property = nil
 

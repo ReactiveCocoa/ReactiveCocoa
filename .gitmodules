@@ -7,9 +7,6 @@
 [submodule "Carthage/Checkouts/xcconfigs"]
 	path = Carthage/Checkouts/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git
-[submodule "Carthage/Checkouts/Result"]
-	path = Carthage/Checkouts/Result
-	url = https://github.com/antitypical/Result.git
 [submodule "Carthage/Checkouts/ReactiveSwift"]
 	path = Carthage/Checkouts/ReactiveSwift
 	url = https://github.com/ReactiveCocoa/ReactiveSwift.git

@@ -4,6 +4,12 @@
 1. Update ReactiveSwift to 6.0
 1. Remove dependency on antitypical/Result
 
+**Upgrade to master**
+
+* If you have used `Result` only as dependency of `ReactiveSwift`, remove all instances of `import Result`, `import enum Result.NoError` or `import struct Result.AnyError` and remove the `Result` Framework from your project.
+* Replace all cases where `NoError` was used in a `Signal` or `SignalProducer` with `Never`
+* Replace all cases where `AnyError` was used in a `Signal` or `SignalProducer` with `Swift.Error`
+
 # 9.0.0
 1. Make UITextField and UITextView text and attributedText values non-optional. (#3591, kudos to @Marcocanc)
 1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)

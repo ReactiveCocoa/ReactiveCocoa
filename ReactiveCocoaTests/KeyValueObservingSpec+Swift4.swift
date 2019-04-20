@@ -7,7 +7,7 @@ import Nimble
 #if swift(>=3.2)
 class KeyValueObservingSwift4Spec: QuickSpec {
 	override func spec() {
-		describe("NSObject.signal(forKeyPath:)") {
+		describe("NSObject.signal(for:)") {
 			it("should not send the initial value") {
 				let object = ObservableObject()
 				var values: [Int] = []
@@ -24,7 +24,7 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 			}
 		}
 
-		describe("NSObject.producer(forKeyPath:)") {
+		describe("NSObject.producer(for:)") {
 			it("should send the initial value") {
 				let object = ObservableObject()
 				var values: [Int] = []

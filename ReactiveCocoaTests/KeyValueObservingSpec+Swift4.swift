@@ -19,6 +19,19 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 				expect(values) == []
 			}
 
+			it("automatically converts enums") {
+				let object = ObservableObject()
+				var values: [ObservableEnum] = []
+
+				object.reactive
+					.signal(for: \.rac_enum)
+					.observeValues { values.append($0) }
+
+				object.rac_enum = .two
+
+				expect(values) == [.two]
+			}
+
 			itBehavesLike("a reactive key value observer using Swift 4 Smart Key Path") {
 				["observe": "signal"]
 			}
@@ -62,6 +75,21 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 					.startWithValues { values.append(($0 as! NSNumber).intValue) }
 
 				expect(values) == [0]
+			}
+
+			it("should automatically convert enums") {
+				let object = ObservableObject()
+				var values: [ObservableEnum] = []
+
+				object.reactive
+					.producer(for: \.rac_enum)
+					.startWithValues { value in
+						values.append(value)
+				}
+
+				object.rac_enum = .one
+
+				expect(values) == [.zero, .one]
 			}
 
 			itBehavesLike("a reactive key value observer using Swift 4 Smart Key Path") {
@@ -584,8 +612,15 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 
 private final class Token {}
 
+@objc private enum ObservableEnum: Int {
+	case zero
+	case one
+	case two
+}
+
 private class ObservableObject: NSObject {
 	@objc dynamic var rac_value: Int = 0
+	@objc dynamic var rac_enum: ObservableEnum = .zero
 
 	@objc dynamic var target: AnyObject?
 	@objc dynamic weak var weakTarget: AnyObject?

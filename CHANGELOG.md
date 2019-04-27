@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 
+# 10.0.0
 1. Update ReactiveSwift to 6.0
 1. Remove dependency on antitypical/Result
 

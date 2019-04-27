@@ -16,6 +16,7 @@ profile
 PlaygroundUtility.remap
 *.xctimeline
 *.xcscmblueprint
+*.o
 
 # SwiftPM
 .build

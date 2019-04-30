@@ -106,6 +106,22 @@ extension Reactive where Base: NSObject {
 		return producer(for: keyPath) { $0 as! U? }
 	}
 
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when the object deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer<U>(for keyPath: KeyPath<Base, U?>) -> SignalProducer<U?, Never> where U: RawRepresentable {
+		return producer(for: keyPath) {
+			$0.flatMap { value in U(rawValue: value as! U.RawValue)! }
+		}
+	}
+
 	/// Create a signal all changes of the property specified by the key path.
 	///
 	/// The signal completes when the object deinitializes.
@@ -122,6 +138,24 @@ extension Reactive where Base: NSObject {
 		return signal(for: keyPath) { $0 as! U? }
 	}
 
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func signal<U>(for keyPath: KeyPath<Base, U?>) -> Signal<U?, Never> where U: RawRepresentable {
+		return signal(for: keyPath) {
+			$0.flatMap { value in U(rawValue: value as! U.RawValue) }
+		}
+	}
+
 	/// Create a producer which sends the current value and all the subsequent
 	/// changes of the property specified by the key path.
 	///
@@ -134,6 +168,20 @@ extension Reactive where Base: NSObject {
 	///            key path.
 	public func producer<U>(for keyPath: KeyPath<Base, U>) -> SignalProducer<U, Never> {
 		return producer(for: keyPath) { $0 as! U }
+	}
+
+	/// Create a producer which sends the current value and all the subsequent
+	/// changes of the property specified by the key path.
+	///
+	/// The producer completes when the object deinitializes.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func producer<U>(for keyPath: KeyPath<Base, U>) -> SignalProducer<U, Never> where U: RawRepresentable {
+		return producer(for: keyPath) { U(rawValue: $0 as! U.RawValue)! }
 	}
 
 	/// Create a signal all changes of the property specified by the key path.
@@ -150,6 +198,22 @@ extension Reactive where Base: NSObject {
 	///            key path.
 	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, Never> {
 		return signal(for: keyPath) { $0 as! U }
+	}
+
+	/// Create a signal all changes of the property specified by the key path.
+	///
+	/// The signal completes when the object deinitializes.
+	///
+	/// - note:
+	///	  Does not send the initial value. See `producer(forKeyPath:)`.
+	///
+	/// - parameters:
+	///   - keyPath: The key path of the property to be observed.
+	///
+	/// - returns: A producer emitting values of the property specified by the
+	///            key path.
+	public func signal<U>(for keyPath: KeyPath<Base, U>) -> Signal<U, Never> where U: RawRepresentable {
+		return signal(for: keyPath) { U(rawValue: $0 as! U.RawValue)! }
 	}
 }
 

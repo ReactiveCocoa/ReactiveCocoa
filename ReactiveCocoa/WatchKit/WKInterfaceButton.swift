@@ -3,7 +3,7 @@ import WatchKit
 
 extension Reactive where Base: WKInterfaceButton {
 	/// Sets the title of the button.
-	public var text: BindingTarget<String?> {
+	public var title: BindingTarget<String?> {
 		return makeBindingTarget { $0.setTitle($1) }
 	}
 	

@@ -13,7 +13,7 @@ extension Reactive where Base: WKInterfaceLabel {
 	}
 	
 	/// Sets the color of the text of the label.
-	public var textColor: BindingTarget<UIColor> {
+	public var textColor: BindingTarget<UIColor?> {
 		return makeBindingTarget { $0.setTextColor($1) }
 	}
 }

@@ -11,3 +11,13 @@ extension Reactive where Base: NSObject {
 		return producer(forKeyPath: keyPath)
 	}
 }
+
+#if os(watchOS)
+import WatchKit
+extension Reactive where Base: WKInterfaceButton {
+	@available(*, deprecated, renamed: "title")
+	public var text: BindingTarget<String?> {
+		return title
+	}
+}
+#endif

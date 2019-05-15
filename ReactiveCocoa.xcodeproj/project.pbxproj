@@ -339,6 +339,20 @@
 		D9558AB91DFF86C0003254E1 /* NSPopUpButtonSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9558AB51DFF7B90003254E1 /* NSPopUpButtonSpec.swift */; };
 		E3AA54C12142918B0077B206 /* WKInterfaceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */; };
 		E3AA54C3214292550077B206 /* WKInterfaceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AA54C2214292540077B206 /* WKInterfaceButton.swift */; };
+		E921428C2284A136007E412D /* WKInterfaceObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921428A2284A12B007E412D /* WKInterfaceObject.swift */; };
+		E921428E2284A44F007E412D /* WKInterfaceDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921428D2284A44F007E412D /* WKInterfaceDate.swift */; };
+		E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */; };
+		E92142922284AA64007E412D /* WKInterfaceSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142912284AA64007E412D /* WKInterfaceSwitch.swift */; };
+		E92142942284ABDF007E412D /* WKInterfaceSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142932284ABDF007E412D /* WKInterfaceSlider.swift */; };
+		E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */; };
+		E92142982284AEF0007E412D /* WKInterfaceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142972284AEF0007E412D /* WKInterfaceGroup.swift */; };
+		E921429A2284AF99007E412D /* WKInterfaceSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142992284AF99007E412D /* WKInterfaceSeparator.swift */; };
+		E921429C2284B0A8007E412D /* WKInterfaceImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921429B2284B0A8007E412D /* WKInterfaceImage.swift */; };
+		E921429E2284B1C4007E412D /* WKInterfaceVolumeControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921429D2284B1C4007E412D /* WKInterfaceVolumeControl.swift */; };
+		E92142A02284B4FF007E412D /* WKInterfacePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921429F2284B4FF007E412D /* WKInterfacePicker.swift */; };
+		E92142A22284B64E007E412D /* WKInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142A12284B64E007E412D /* WKInterfaceController.swift */; };
+		E92142A9228552CC007E412D /* WKInterfaceMovie.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142A8228552CC007E412D /* WKInterfaceMovie.swift */; };
+		E92142AB228553C5007E412D /* WKInterfaceInlineMovie.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -634,6 +648,20 @@
 		D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButton.swift; sourceTree = "<group>"; };
 		E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceLabel.swift; sourceTree = "<group>"; };
 		E3AA54C2214292540077B206 /* WKInterfaceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceButton.swift; sourceTree = "<group>"; };
+		E921428A2284A12B007E412D /* WKInterfaceObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceObject.swift; sourceTree = "<group>"; };
+		E921428D2284A44F007E412D /* WKInterfaceDate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceDate.swift; sourceTree = "<group>"; };
+		E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceTimer.swift; sourceTree = "<group>"; };
+		E92142912284AA64007E412D /* WKInterfaceSwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSwitch.swift; sourceTree = "<group>"; };
+		E92142932284ABDF007E412D /* WKInterfaceSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSlider.swift; sourceTree = "<group>"; };
+		E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceActivityRing.swift; sourceTree = "<group>"; };
+		E92142972284AEF0007E412D /* WKInterfaceGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceGroup.swift; sourceTree = "<group>"; };
+		E92142992284AF99007E412D /* WKInterfaceSeparator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSeparator.swift; sourceTree = "<group>"; };
+		E921429B2284B0A8007E412D /* WKInterfaceImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceImage.swift; sourceTree = "<group>"; };
+		E921429D2284B1C4007E412D /* WKInterfaceVolumeControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceVolumeControl.swift; sourceTree = "<group>"; };
+		E921429F2284B4FF007E412D /* WKInterfacePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfacePicker.swift; sourceTree = "<group>"; };
+		E92142A12284B64E007E412D /* WKInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceController.swift; sourceTree = "<group>"; };
+		E92142A8228552CC007E412D /* WKInterfaceMovie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceMovie.swift; sourceTree = "<group>"; };
+		E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceInlineMovie.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1016,9 +1044,9 @@
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */,
-				E3AA54BF214291590077B206 /* WatchKit */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
+				E3AA54BF214291590077B206 /* WatchKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
 				9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */,
@@ -1150,8 +1178,22 @@
 		E3AA54BF214291590077B206 /* WatchKit */ = {
 			isa = PBXGroup;
 			children = (
+				E921428A2284A12B007E412D /* WKInterfaceObject.swift */,
 				E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */,
 				E3AA54C2214292540077B206 /* WKInterfaceButton.swift */,
+				E921428D2284A44F007E412D /* WKInterfaceDate.swift */,
+				E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */,
+				E92142912284AA64007E412D /* WKInterfaceSwitch.swift */,
+				E92142932284ABDF007E412D /* WKInterfaceSlider.swift */,
+				E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */,
+				E921429B2284B0A8007E412D /* WKInterfaceImage.swift */,
+				E92142A8228552CC007E412D /* WKInterfaceMovie.swift */,
+				E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */,
+				E921429D2284B1C4007E412D /* WKInterfaceVolumeControl.swift */,
+				E92142972284AEF0007E412D /* WKInterfaceGroup.swift */,
+				E92142992284AF99007E412D /* WKInterfaceSeparator.swift */,
+				E921429F2284B4FF007E412D /* WKInterfacePicker.swift */,
+				E92142A12284B64E007E412D /* WKInterfaceController.swift */,
 			);
 			path = WatchKit;
 			sourceTree = "<group>";
@@ -1797,26 +1839,40 @@
 			files = (
 				9A2E42601DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				E3AA54C3214292550077B206 /* WKInterfaceButton.swift in Sources */,
+				E92142942284ABDF007E412D /* WKInterfaceSlider.swift in Sources */,
 				9A74884A1E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
+				E92142A9228552CC007E412D /* WKInterfaceMovie.swift in Sources */,
 				9A9DFEE51DA7B5500039EE1B /* NSObject+Intercepting.swift in Sources */,
+				E921429E2284B1C4007E412D /* WKInterfaceVolumeControl.swift in Sources */,
 				9A54A21D1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
 				9AB15C7C1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
+				E92142982284AEF0007E412D /* WKInterfaceGroup.swift in Sources */,
 				9AA0BD7E1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
+				E921428C2284A136007E412D /* WKInterfaceObject.swift in Sources */,
 				9AA0BD9A1DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */,
 				9ADE4A931DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
+				E92142A02284B4FF007E412D /* WKInterfacePicker.swift in Sources */,
 				9AA0BD8C1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9ADFE5A71DC0001C001E11F7 /* Synchronizing.swift in Sources */,
 				9ADE4A7E1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
+				E921429A2284AF99007E412D /* WKInterfaceSeparator.swift in Sources */,
 				9AA0BD831DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,
 				E3AA54C12142918B0077B206 /* WKInterfaceLabel.swift in Sources */,
+				E92142922284AA64007E412D /* WKInterfaceSwitch.swift in Sources */,
 				CD0C45E01CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				9AA0BD911DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
+				E92142A22284B64E007E412D /* WKInterfaceController.swift in Sources */,
+				E92142AB228553C5007E412D /* WKInterfaceInlineMovie.swift in Sources */,
+				E921428E2284A44F007E412D /* WKInterfaceDate.swift in Sources */,
+				E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
+				E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */,
 				9A1D05E21D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				4A0E11011D2A92720065D310 /* AnyObject+Lifetime.swift in Sources */,
 				9AE7C2A61DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
 				9AD0F06C1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
+				E921429C2284B0A8007E412D /* WKInterfaceImage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

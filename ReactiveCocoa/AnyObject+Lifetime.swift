@@ -1,6 +1,8 @@
 import Foundation
 import ReactiveSwift
 
+#if !SWIFT_PACKAGE
+
 /// Holds the `Lifetime` of the object.
 private let isSwizzledKey = AssociationKey<Bool>(default: false)
 
@@ -38,7 +40,6 @@ public extension Lifetime {
 			return lifetime
 		}
 	}
-
 	/// Retrive the associated lifetime of given object.
 	/// The lifetime ends when the given object is deinitialized.
 	///
@@ -126,3 +127,5 @@ extension Reactive where Base: AnyObject {
 		return .of(base)
 	}
 }
+
+#endif

@@ -812,6 +812,15 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		5713B78E22A5F68F00C1E886 /* ObjCRuntime */ = {
+			isa = PBXGroup;
+			children = (
+				9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */,
+				9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */,
+			);
+			path = ObjCRuntime;
+			sourceTree = "<group>";
+		};
 		57A4D2431BA13F9700F7D4B1 /* tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1058,8 +1067,7 @@
 			isa = PBXGroup;
 			children = (
 				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
-				9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */,
-				9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */,
+				5713B78E22A5F68F00C1E886 /* ObjCRuntime */,
 				9AE7C2A21DDD768500F7534C /* module.modulemap */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
 			);
@@ -2112,7 +2120,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2124,7 +2132,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2136,7 +2144,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2148,7 +2156,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2504,7 +2512,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2516,7 +2524,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2528,7 +2536,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2540,7 +2548,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2605,7 +2613,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2617,7 +2625,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2651,7 +2659,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2663,7 +2671,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2720,7 +2728,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2743,7 +2751,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2790,7 +2798,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2813,7 +2821,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};

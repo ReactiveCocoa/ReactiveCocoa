@@ -10,7 +10,12 @@ let package = Package(
         .package(url: "https://github.com/ReactiveCocoa/ReactiveSwift.git", .branch("event-promote-value"))
     ],
     targets: [
-        .target(name: "ReactiveCocoa", dependencies: ["ReactiveSwift"], path: "ReactiveCocoa"),
+        .target(
+            name: "ReactiveCocoa",
+            dependencies: ["ReactiveSwift"],
+            path: "ReactiveCocoa",
+            exclude: ["ObjCRuntime"]
+        ),
     ],
     swiftLanguageVersions: [.v5]
 )

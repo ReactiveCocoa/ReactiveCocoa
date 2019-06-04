@@ -1,3 +1,5 @@
+#if !SWIFT_PACKAGE
+
 #import <objc/runtime.h>
 #import <objc/message.h>
 
@@ -10,3 +12,5 @@ extern const IMP _rac_objc_msgForward;
 void _rac_objc_setAssociatedObject(const void* object, const void* key, id _Nullable value, objc_AssociationPolicy policy);
 
 NS_ASSUME_NONNULL_END
+
+#endif

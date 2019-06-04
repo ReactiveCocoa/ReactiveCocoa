@@ -120,6 +120,8 @@ extension Associations {
 	}
 }
 
+#if !SWIFT_PACKAGE
+
 /// Set the associated value for the specified key.
 ///
 /// - parameters:
@@ -129,3 +131,5 @@ extension Associations {
 internal func unsafeSetAssociatedValue<Value>(_ value: Value?, forKey key: AssociationKey<Value>, forObjectAt address: UnsafeRawPointer) {
 	_rac_objc_setAssociatedObject(address, key.address, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 }
+
+#endif

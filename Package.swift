@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ReactiveCocoa",
+    platforms: [.iOS(.v8)],
     products: [
         .library(name: "ReactiveCocoa", targets: ["ReactiveCocoa"]),
     ],
@@ -14,7 +15,7 @@ let package = Package(
             name: "ReactiveCocoa",
             dependencies: ["ReactiveSwift"],
             path: "ReactiveCocoa",
-            exclude: ["ObjCRuntime"]
+            exclude: ["ObjCRuntime", "AppKit"]
         ),
     ],
     swiftLanguageVersions: [.v5]

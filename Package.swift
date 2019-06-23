@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "ReactiveCocoa", targets: ["ReactiveCocoa"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/ReactiveCocoa/ReactiveSwift.git", .branch("event-promote-value"))
+        .package(url: "https://github.com/ReactiveCocoa/ReactiveSwift.git", from: "6.1.0")
     ],
     targets: [
         .target(

@@ -1,4 +1,5 @@
 import ReactiveSwift
+import Foundation
 
 internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 	internal weak var forwardee: Delegate? {

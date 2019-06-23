@@ -15,7 +15,7 @@ let package = Package(
             name: "ReactiveCocoa",
             dependencies: ["ReactiveSwift"],
             path: "ReactiveCocoa",
-            exclude: ["ObjCRuntime", "AppKit"]
+            exclude: ["ObjCRuntime", "AppKit", "WatchKit"]
         ),
     ],
     swiftLanguageVersions: [.v5]

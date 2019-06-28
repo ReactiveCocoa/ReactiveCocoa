@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -15,3 +16,4 @@ extension Reactive where Base: UITabBarItem {
 		return makeBindingTarget { $0.badgeColor = $1 }
 	}
 }
+#endif

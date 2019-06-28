@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -121,3 +122,4 @@ class UIScrollViewSpec: QuickSpec {
 		}
 	}
 }
+#endif

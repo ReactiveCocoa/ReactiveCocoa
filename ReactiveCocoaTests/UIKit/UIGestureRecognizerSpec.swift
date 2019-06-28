@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -98,3 +99,4 @@ private final class TestTapGestureRecognizer: UITapGestureRecognizer {
 		_ = targetAction.target.perform(targetAction.action, with: self)
 	}
 }
+#endif

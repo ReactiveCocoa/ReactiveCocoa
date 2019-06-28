@@ -1,3 +1,5 @@
+#if canImport(UIKit) && !os(tvOS)
+import UIKit
 import Quick
 import Nimble
 import ReactiveSwift
@@ -23,3 +25,4 @@ class UISegmentedControlSpec: QuickSpec {
 		}
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -55,3 +56,4 @@ class ReusableComponentsSpec: QuickSpec {
 		}
 	}
 }
+#endif

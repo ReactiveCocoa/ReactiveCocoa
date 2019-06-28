@@ -1,5 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension Reactive where Base: NSButton {
 
@@ -53,3 +54,4 @@ extension Reactive where Base: NSButton {
 		return makeBindingTarget { $0.image = $1 }
 	}
 }
+#endif

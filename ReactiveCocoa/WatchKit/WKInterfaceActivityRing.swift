@@ -1,6 +1,7 @@
+#if canImport(WatchKit)
+import HealthKit
 import ReactiveSwift
 import WatchKit
-import HealthKit
 
 @available(watchOSApplicationExtension 2.2, *)
 extension Reactive where Base: WKInterfaceActivityRing {
@@ -11,3 +12,4 @@ extension Reactive where Base: WKInterfaceActivityRing {
 		return makeBindingTarget { $0.setActivitySummary($1, animated: animated) }
 	}
 }
+#endif

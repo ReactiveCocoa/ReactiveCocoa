@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -257,3 +258,4 @@ class SearchBarDelegateReceiver: NSObject, UISearchBarDelegate {
 		selectedScopeButtonIndices.append(selectedScope)
 	}
 }
+#endif

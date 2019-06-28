@@ -1,3 +1,5 @@
+#if canImport(UIKit) && !os(tvOS)
+import UIKit
 import Quick
 import Nimble
 import ReactiveSwift
@@ -68,3 +70,4 @@ class UISwitchSpec: QuickSpec {
 		}
 	}
 }
+#endif

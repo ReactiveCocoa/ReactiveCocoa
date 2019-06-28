@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import UIKit
 import ReactiveSwift
 import ReactiveCocoa
@@ -193,3 +194,4 @@ class UIKeyboardSpec: QuickSpec {
 		}
 	}
 }
+#endif

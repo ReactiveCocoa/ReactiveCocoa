@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -47,4 +48,4 @@ class NSImageViewSpec: QuickSpec {
 		}
 	}
 }
-
+#endif

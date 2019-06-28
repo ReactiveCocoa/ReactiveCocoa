@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import AppKit
 import ReactiveSwift
 
@@ -7,3 +8,4 @@ extension Reactive where Base: NSCollectionView {
 		return makeBindingTarget { base, _ in base.reloadData() }
 	}
 }
+#endif

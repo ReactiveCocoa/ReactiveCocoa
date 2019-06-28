@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import ReactiveSwift
 
 #if os(macOS)
@@ -14,3 +15,4 @@ extension Reactive where Base: NSLayoutConstraint {
 	}
 
 }
+#endif

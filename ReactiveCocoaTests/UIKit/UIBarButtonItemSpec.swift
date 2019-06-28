@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -120,3 +121,4 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 	}
 }
+#endif

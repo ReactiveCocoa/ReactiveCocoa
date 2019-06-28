@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -27,3 +28,4 @@ extension Reactive where Base: WKInterfaceSwitch {
 		return makeBindingTarget { $0.setEnabled($1) }
 	}
 }
+#endif

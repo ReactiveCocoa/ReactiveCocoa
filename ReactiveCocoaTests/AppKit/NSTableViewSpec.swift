@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
 import ReactiveCocoa
@@ -60,3 +61,4 @@ private final class TestTableView: NSTableView {
 		reloadDataObserver.send(value: ())
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import Quick
 import Nimble
 import ReactiveCocoa
@@ -66,3 +67,4 @@ class UIStepperSpec: QuickSpec {
 		}
 	}
 }
+#endif

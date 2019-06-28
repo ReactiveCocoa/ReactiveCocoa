@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -81,3 +82,4 @@ class UIControlSpec: QuickSpec {
 		}
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import Quick
 import Nimble
 import ReactiveCocoa
@@ -64,5 +65,6 @@ class UISliderSpec: QuickSpec {
 			slider.sendActions(for: .valueChanged)
 			expect(updatedValue) ≈ 0.25
 		}
-    }
+	}
 }
+#endif

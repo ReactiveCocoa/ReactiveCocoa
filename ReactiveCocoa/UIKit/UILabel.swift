@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -17,3 +18,4 @@ extension Reactive where Base: UILabel {
 		return makeBindingTarget { $0.textColor = $1 }
 	}
 }
+#endif

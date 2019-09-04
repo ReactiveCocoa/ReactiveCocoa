@@ -1,6 +1,7 @@
 # master
 *Please put new entries at the top.
 1. Add reactive extensions for standard WatchKit interface objects.
+1. Update ReactiveSwift to 6.1 to support Xcode 11 builds.
 
 # 10.0.0
 1. Update ReactiveSwift to 6.0

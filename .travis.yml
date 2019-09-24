@@ -39,10 +39,11 @@ jobs:
           XCODE_DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 3 - 38mm"
           script/build
     - stage: package manager tests
+      install: gem update cocoapods
       script:
       - pod repo update
       - pod lib lint ReactiveCocoa.podspec --use-libraries
-      - pod lib lint ReactiveMapKit.podspec --use-libraries
+      - pod lib lint ReactiveMapKit.podspec --use-libraries --include-podspecs=ReactiveCocoa.podspec
       env:
         - JOB=PODSPEC
     - script: carthage build --cache-builds --no-skip-current

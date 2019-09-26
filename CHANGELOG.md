@@ -1,7 +1,11 @@
 # master
 *Please put new entries at the top.
-1. Add reactive extensions for standard WatchKit interface objects.
+
+# 10.1.0
 1. Update dependencies so ReactiveCocoa can be used with Xcode 11 (#3677, kudos to @olejnjak)
+1. Add a binding target for the `barTintColor` of `UINavigationBar` (#3675, kudos to @rehatkathuria)
+1. Add reactive extensions for standard WatchKit interface objects. (#3670, kudos to @tdimeco)
+1. Fix crashes of `NSObject.signal(for:)` and `NSObject.producer(for:)` with Objective-C enums (#3667, kudos to @gfontenot)
 
 # 10.0.0
 1. Update ReactiveSwift to 6.0

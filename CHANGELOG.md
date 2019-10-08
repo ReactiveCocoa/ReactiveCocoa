@@ -1,5 +1,6 @@
 # master
 *Please put new entries at the top.
+1. Updated `README.md` to reflect Swift 5.1 compatibility and point snippets to 10.1.0 (#3691, kudos to @Marcocanc)
 
 # 10.1.0
 1. Update dependencies so ReactiveCocoa can be used with Xcode 11 (#3677, kudos to @olejnjak)

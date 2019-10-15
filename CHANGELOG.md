@@ -1,5 +1,7 @@
 # master
 *Please put new entries at the top.
+1. Add platform checks and update project's file organization in preparation of Swift Package Manager support [#3692](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3692)
+
 
 # 10.1.0
 1. Update dependencies so ReactiveCocoa can be used with Xcode 11 (#3677, kudos to @olejnjak)

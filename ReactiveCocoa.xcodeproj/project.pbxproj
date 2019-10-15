@@ -1063,10 +1063,8 @@
 				9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */,
 				9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */,
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
-				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */,
-				9AE7C2A21DDD768500F7534C /* module.modulemap */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
 				538DCB761DCA5E1600332880 /* Shared */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
@@ -1079,6 +1077,8 @@
 		D04725ED19E49ED7006002AA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
+				9AE7C2A21DDD768500F7534C /* module.modulemap */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
 			);
 			name = "Supporting Files";

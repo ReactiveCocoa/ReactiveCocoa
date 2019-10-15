@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -27,3 +28,4 @@ extension Reactive where Base: UIView {
 		return makeBindingTarget { $0.tintColor = $1 }
 	}
 }
+#endif

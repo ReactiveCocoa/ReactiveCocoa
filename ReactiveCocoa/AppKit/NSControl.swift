@@ -1,5 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension NSControl: ActionMessageSending {}
 
@@ -97,5 +98,4 @@ extension Reactive where Base: NSControl {
 		return proxy.invoked.map { $0.stringValue }
 	}
 }
-
-
+#endif

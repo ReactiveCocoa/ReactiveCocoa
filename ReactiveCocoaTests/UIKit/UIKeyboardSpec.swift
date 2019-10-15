@@ -1,6 +1,7 @@
-import UIKit
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
+import UIKit
 import Quick
 import Nimble
 
@@ -193,3 +194,4 @@ class UIKeyboardSpec: QuickSpec {
 		}
 	}
 }
+#endif

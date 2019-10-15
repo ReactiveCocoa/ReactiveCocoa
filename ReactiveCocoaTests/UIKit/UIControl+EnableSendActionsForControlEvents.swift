@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 private func rac_swizzle() {
@@ -38,3 +39,4 @@ extension UIControl {
 		_ = target?.perform(action, with: self)
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -32,3 +33,4 @@ extension Reactive where Base: WKInterfaceGroup {
 		return makeBindingTarget { $0.setContentInset($1) }
 	}
 }
+#endif

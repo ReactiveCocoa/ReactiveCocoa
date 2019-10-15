@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -28,3 +29,4 @@ extension Reactive where Base: WKInterfaceInlineMovie {
 		return makeBindingTarget { $0.setAutoplays($1) }
 	}
 }
+#endif

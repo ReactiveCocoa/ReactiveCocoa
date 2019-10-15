@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -12,3 +13,4 @@ extension Reactive where Base: UISegmentedControl {
 		return mapControlEvents(.valueChanged) { $0.selectedSegmentIndex }
 	}
 }
+#endif

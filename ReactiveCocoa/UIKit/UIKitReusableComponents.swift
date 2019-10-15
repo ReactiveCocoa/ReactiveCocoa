@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import ReactiveSwift
 
@@ -14,3 +15,4 @@ extension Reactive where Base: NSObject, Base: Reusable {
 extension UITableViewCell: Reusable {}
 extension UITableViewHeaderFooterView: Reusable {}
 extension UICollectionReusableView: Reusable {}
+#endif

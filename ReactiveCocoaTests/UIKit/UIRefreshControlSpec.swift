@@ -1,7 +1,9 @@
-import Quick
-import Nimble
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
+import UIKit
+import Quick
+import Nimble
 
 class UIRefreshControlSpec: QuickSpec {
 	override func spec() {
@@ -81,3 +83,4 @@ class UIRefreshControlSpec: QuickSpec {
 		}
 	}
 }
+#endif

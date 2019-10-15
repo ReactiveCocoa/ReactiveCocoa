@@ -1,5 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension Reactive where Base: NSTextField {
 	private var notifications: Signal<Notification, Never> {
@@ -45,3 +46,4 @@ extension Reactive where Base: NSTextField {
 		return makeBindingTarget { $0.textColor = $1 }
 	}
 }
+#endif

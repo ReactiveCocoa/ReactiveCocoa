@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -150,3 +151,4 @@ private final class TestPickerView: UIPickerView {
 		reloadComponentObserver.send(value: component)
 	}
 }
+#endif

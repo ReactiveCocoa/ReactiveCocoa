@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -22,3 +23,4 @@ extension Reactive where Base: WKInterfaceMovie {
 		return makeBindingTarget { $0.setLoops($1) }
 	}
 }
+#endif

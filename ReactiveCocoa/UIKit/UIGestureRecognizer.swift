@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -21,3 +22,4 @@ extension Reactive where Base: UIGestureRecognizer {
 		}
 	}
 }
+#endif

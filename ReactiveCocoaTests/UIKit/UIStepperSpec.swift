@@ -1,8 +1,9 @@
+#if canImport(UIKit) && !os(tvOS)
+import ReactiveSwift
+import ReactiveCocoa
+import UIKit
 import Quick
 import Nimble
-import ReactiveCocoa
-import ReactiveSwift
-import UIKit
 
 class UIStepperSpec: QuickSpec {
 	override func spec() {
@@ -66,3 +67,4 @@ class UIStepperSpec: QuickSpec {
 		}
 	}
 }
+#endif

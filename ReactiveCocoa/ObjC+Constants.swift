@@ -1,3 +1,5 @@
+import Foundation
+
 // Unavailable selectors in Swift.
 internal enum ObjCSelector {
 	static let forwardInvocation = Selector((("forwardInvocation:")))

@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 import UIKit
 import ReactiveSwift
 
@@ -107,3 +108,4 @@ extension Reactive where Base: NotificationCenter {
 		return keyboard(.willChangeFrame)
 	}
 }
+#endif

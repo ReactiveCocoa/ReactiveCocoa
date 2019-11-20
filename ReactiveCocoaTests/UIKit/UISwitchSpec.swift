@@ -1,7 +1,9 @@
-import Quick
-import Nimble
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
+import UIKit
+import Quick
+import Nimble
 
 class UISwitchSpec: QuickSpec {
 	override func spec() {
@@ -68,3 +70,4 @@ class UISwitchSpec: QuickSpec {
 		}
 	}
 }
+#endif

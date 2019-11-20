@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -7,3 +8,4 @@ extension Reactive where Base: UINavigationBar {
 		return makeBindingTarget { $0.barTintColor = $1 }
 	}
 }
+#endif

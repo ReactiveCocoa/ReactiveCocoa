@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -6,3 +7,4 @@ extension Reactive where Base: UICollectionView {
 		return makeBindingTarget { base, _ in base.reloadData() }
 	}
 }
+#endif

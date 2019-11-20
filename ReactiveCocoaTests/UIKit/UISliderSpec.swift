@@ -1,8 +1,9 @@
+#if canImport(UIKit) && !os(tvOS)
+import ReactiveSwift
+import ReactiveCocoa
+import UIKit
 import Quick
 import Nimble
-import ReactiveCocoa
-import ReactiveSwift
-import UIKit
 
 class UISliderSpec: QuickSpec {
     override func spec() {
@@ -64,5 +65,6 @@ class UISliderSpec: QuickSpec {
 			slider.sendActions(for: .valueChanged)
 			expect(updatedValue) ≈ 0.25
 		}
-    }
+	}
 }
+#endif

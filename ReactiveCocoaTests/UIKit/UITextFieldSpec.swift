@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -199,3 +200,4 @@ extension UIControl.Event {
 		return [.allEditingEvents, .editingDidBegin, .editingChanged, .editingDidEndOnExit, .editingDidEnd]
 	}
 }
+#endif

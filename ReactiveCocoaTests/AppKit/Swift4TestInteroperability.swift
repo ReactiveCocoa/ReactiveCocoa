@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import AppKit
 
 #if swift(>=4.0)
@@ -10,4 +11,5 @@ internal typealias RACNSControlState = Int
 internal let RACNSOnState = NSOnState
 internal let RACNSOffState = NSOffState
 internal let RACNSMixedState = NSMixedState
+#endif
 #endif

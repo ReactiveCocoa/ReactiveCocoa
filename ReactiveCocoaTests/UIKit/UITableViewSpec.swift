@@ -1,8 +1,9 @@
+#if canImport(UIKit)
+import ReactiveSwift
+import ReactiveCocoa
+import UIKit
 import Quick
 import Nimble
-import ReactiveCocoa
-import ReactiveSwift
-import UIKit
 
 final class UITableViewSpec: QuickSpec {
 	override func spec() {
@@ -60,3 +61,4 @@ private final class TestTableView: UITableView {
 		reloadDataObserver.send(value: ())
 	}
 }
+#endif

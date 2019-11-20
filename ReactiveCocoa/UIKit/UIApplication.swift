@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -7,3 +8,4 @@ extension Reactive where Base: UIApplication {
 		return makeBindingTarget({ $0.applicationIconBadgeNumber = $1 })
 	}
 }
+#endif

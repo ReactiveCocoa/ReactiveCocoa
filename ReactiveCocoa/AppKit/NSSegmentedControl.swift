@@ -1,5 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension Reactive where Base: NSSegmentedControl {
 	/// Changes the selected segment of the segmented control.
@@ -19,3 +20,4 @@ extension Reactive where Base: NSSegmentedControl {
 	/// A signal of indexes of selections emitted by the segmented control.
 	public var selectedSegmentIndexes: Signal<Int, Never> { return selectedSegments }
 }
+#endif

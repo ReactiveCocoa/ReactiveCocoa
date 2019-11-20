@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -148,4 +149,4 @@ class NSButtonSpec: QuickSpec {
 		}
 	}
 }
-
+#endif

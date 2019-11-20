@@ -1,3 +1,11 @@
+#if canImport(AppKit) || canImport(UIKit)
+
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+
 import ReactiveSwift
 import ReactiveCocoa
 import Quick
@@ -33,3 +41,4 @@ class NSLayoutConstraintSpec: QuickSpec {
 		}
     }
 }
+#endif

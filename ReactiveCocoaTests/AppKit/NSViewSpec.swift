@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
 import ReactiveSwift
@@ -35,3 +36,4 @@ class NSViewSpec: QuickSpec {
 		}
 	}
 }
+#endif

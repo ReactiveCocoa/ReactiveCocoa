@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -12,3 +13,4 @@ extension Reactive where Base: WKInterfaceObject {
 		return makeBindingTarget { $0.setHidden($1) }
 	}
 }
+#endif

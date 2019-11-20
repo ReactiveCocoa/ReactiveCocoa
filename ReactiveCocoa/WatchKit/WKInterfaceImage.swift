@@ -1,3 +1,4 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
@@ -22,3 +23,4 @@ extension Reactive where Base: WKInterfaceImage {
 		return makeBindingTarget { $0.setTintColor($1) }
 	}
 }
+#endif

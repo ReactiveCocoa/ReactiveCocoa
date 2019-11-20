@@ -1,3 +1,4 @@
+import Foundation
 import ReactiveSwift
 
 /// Whether the runtime subclass has already been swizzled.

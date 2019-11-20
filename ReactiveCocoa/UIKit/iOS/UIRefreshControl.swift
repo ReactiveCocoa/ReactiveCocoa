@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -29,3 +30,4 @@ extension Reactive where Base: UIRefreshControl {
 		}
 	}
 }
+#endif

@@ -1,3 +1,5 @@
+#if canImport(AppKit)
+import Foundation
 import Quick
 import Nimble
 import ReactiveSwift
@@ -298,3 +300,4 @@ class ActionProxySpec: QuickSpec {
 		}
 	}
 }
+#endif

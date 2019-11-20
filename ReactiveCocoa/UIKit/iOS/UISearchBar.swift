@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 import ReactiveSwift
 import UIKit
 
@@ -110,3 +111,4 @@ extension Reactive where Base: UISearchBar {
 		return makeBindingTarget { $0.showsCancelButton = $1 }
 	}
 }
+#endif

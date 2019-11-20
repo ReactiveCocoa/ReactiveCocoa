@@ -1,3 +1,4 @@
+#if canImport(AppKit)
 import AppKit
 import ReactiveSwift
 
@@ -13,3 +14,4 @@ extension Reactive where Base: NSObject, Base: NSCollectionViewElement {
 		return trigger(for: #selector(base.prepareForReuse))
 	}
 }
+#endif

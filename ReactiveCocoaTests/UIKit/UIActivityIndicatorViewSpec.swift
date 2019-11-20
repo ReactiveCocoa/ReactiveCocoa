@@ -1,3 +1,5 @@
+#if canImport(UIKit)
+import UIKit
 import Quick
 import Nimble
 import ReactiveSwift
@@ -30,3 +32,4 @@ class UIActivityIndicatorSpec: QuickSpec {
 		}
 	}
 }
+#endif

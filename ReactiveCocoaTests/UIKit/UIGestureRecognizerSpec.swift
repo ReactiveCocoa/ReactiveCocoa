@@ -1,8 +1,9 @@
-import Quick
-import Nimble
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
+import Quick
+import Nimble
 
 class UIGestureRecognizerSpec: QuickSpec {
 	override func spec() {
@@ -98,3 +99,4 @@ private final class TestTapGestureRecognizer: UITapGestureRecognizer {
 		_ = targetAction.target.perform(targetAction.action, with: self)
 	}
 }
+#endif

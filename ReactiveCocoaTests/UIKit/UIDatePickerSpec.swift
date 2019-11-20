@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -45,3 +46,4 @@ class UIDatePickerSpec: QuickSpec {
 		}
 	}
 }
+#endif

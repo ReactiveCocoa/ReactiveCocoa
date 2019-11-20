@@ -1,5 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension Reactive where Base: NSSlider {
 
@@ -8,3 +9,4 @@ extension Reactive where Base: NSSlider {
 	public var value: BindingTarget<Float> { return floatValue }
 	public var values: Signal<Float, Never> { return floatValues }
 }
+#endif

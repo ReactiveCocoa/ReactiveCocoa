@@ -103,6 +103,12 @@ class NSButtonSpec: QuickSpec {
 				let stackView = NSStackView()
 				stackView.addArrangedSubview(button1)
 				stackView.addArrangedSubview(button2)
+
+				// The following works around an issue where the NSStackView can't remove
+				// itself as an observer of the "isHidden" property from the added NSButtons,
+				// due to either bugs in the OS or some issue with class/method swizzling.
+				// See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/3690
+				stackView.detachesHiddenViews = false
 				
 				window.contentView?.addSubview(stackView)
 				

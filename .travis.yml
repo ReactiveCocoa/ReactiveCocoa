@@ -47,3 +47,4 @@ jobs:
       env:
         - JOB=PODSPEC
     - script: carthage build --cache-builds --no-skip-current
+    - script: swift build

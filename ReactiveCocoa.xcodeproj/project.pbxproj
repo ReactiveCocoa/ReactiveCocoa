@@ -583,7 +583,6 @@
 		9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTextField.swift; sourceTree = "<group>"; };
 		9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifetimeSpec.swift; sourceTree = "<group>"; };
 		9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Synchronizing.swift; sourceTree = "<group>"; };
-		9AE7C2A21DDD768500F7534C /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjC+Messages.swift"; sourceTree = "<group>"; };
 		9AED64C41E496A3700321004 /* ActionProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxy.swift; sourceTree = "<group>"; };
 		9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+BindingTarget.swift"; sourceTree = "<group>"; };
@@ -662,6 +661,7 @@
 		E92142A12284B64E007E412D /* WKInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceController.swift; sourceTree = "<group>"; };
 		E92142A8228552CC007E412D /* WKInterfaceMovie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceMovie.swift; sourceTree = "<group>"; };
 		E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceInlineMovie.swift; sourceTree = "<group>"; };
+		F440783A2371BE3D00F103E7 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -799,8 +799,8 @@
 		056D088022C00A6A00291F50 /* ReactiveCocoaObjC */ = {
 			isa = PBXGroup;
 			children = (
-				9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */,
 				9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */,
+				F44078372371B6E400F103E7 /* include */,
 			);
 			path = ReactiveCocoaObjC;
 			sourceTree = "<group>";
@@ -808,8 +808,8 @@
 		056D088222C00B2700291F50 /* ReactiveCocoaObjCTestSupport */ = {
 			isa = PBXGroup;
 			children = (
-				9AD841DA204C29B90040F0C0 /* MessageForwardingEntity.h */,
 				9AD841DB204C29B90040F0C0 /* MessageForwardingEntity.m */,
+				F440783B2371C00800F103E7 /* include */,
 			);
 			path = ReactiveCocoaObjCTestSupport;
 			sourceTree = "<group>";
@@ -1066,6 +1066,7 @@
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */,
 				9A1D05E91D93E9F100ACF44C /* AppKit */,
+				F44078392371BE3D00F103E7 /* include */,
 				538DCB761DCA5E1600332880 /* Shared */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
@@ -1077,8 +1078,6 @@
 		D04725ED19E49ED7006002AA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
-				9AE7C2A21DDD768500F7534C /* module.modulemap */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -1212,6 +1211,31 @@
 				E92142A12284B64E007E412D /* WKInterfaceController.swift */,
 			);
 			path = WatchKit;
+			sourceTree = "<group>";
+		};
+		F44078372371B6E400F103E7 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */,
+				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		F44078392371BE3D00F103E7 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				F440783A2371BE3D00F103E7 /* module.modulemap */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		F440783B2371C00800F103E7 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				9AD841DA204C29B90040F0C0 /* MessageForwardingEntity.h */,
+			);
+			path = include;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2128,7 +2152,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2140,7 +2164,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2152,7 +2176,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2164,7 +2188,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2520,7 +2544,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2532,7 +2556,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2544,7 +2568,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2556,7 +2580,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2621,7 +2645,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2633,7 +2657,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2667,7 +2691,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
 		};
@@ -2679,7 +2703,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
 		};
@@ -2736,7 +2760,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2759,7 +2783,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
 		};
@@ -2806,7 +2830,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};
@@ -2829,7 +2853,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/module.modulemap";
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;
 		};

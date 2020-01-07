@@ -1,4 +1,8 @@
 import Foundation
+#if SWIFT_PACKAGE
+import ReactiveCocoaObjC
+import ReactiveCocoaObjCTestSupport
+#endif
 @testable import ReactiveCocoa
 import ReactiveSwift
 import Quick

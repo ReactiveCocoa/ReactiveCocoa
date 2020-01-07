@@ -50,7 +50,9 @@ class ActionProxySpec: QuickSpec {
 			}
 
 			func sendMessage() {
-				_ = object.action.map { object.target?.perform($0, with: nil) }
+				autoreleasepool {
+					_ = object.action.map { object.target?.perform($0, with: nil) }
+				}
 			}
 
 			it("should not retain the target") {

@@ -17,7 +17,7 @@ fileprivate let selectorCacheKey = AssociationKey<SelectorCache>()
 internal let noImplementation: IMP = unsafeBitCast(Int(0), to: IMP.self)
 
 extension Reactive where Base: NSObject {
-	/// Create a signal which sends a `next` event at the end of every 
+	/// Create a signal which sends a `next` event at the end of every
 	/// invocation of `selector` on the object.
 	///
 	/// It completes when the object deinitializes.
@@ -33,8 +33,8 @@ extension Reactive where Base: NSObject {
 		return base.intercept(selector).map { _ in }
 	}
 
-	/// Create a signal which sends a `next` event, containing an array of 
-	/// bridged arguments, at the end of every invocation of `selector` on the 
+	/// Create a signal which sends a `next` event, containing an array of
+	/// bridged arguments, at the end of every invocation of `selector` on the
 	/// object.
 	///
 	/// It completes when the object deinitializes.
@@ -58,7 +58,7 @@ extension NSObject {
 	///   - object: The object to be intercepted.
 	///   - selector: The selector of the method to be intercepted.
 	///
-	/// - returns: A signal that sends the corresponding `NSInvocation` after 
+	/// - returns: A signal that sends the corresponding `NSInvocation` after
 	///            every invocation of the method.
 	@nonobjc fileprivate func intercept(_ selector: Selector) -> Signal<AnyObject, Never> {
 		guard let method = class_getInstanceMethod(objcClass, selector) else {
@@ -77,30 +77,8 @@ extension NSObject {
 				return state.signal
 			}
 
-			let subclass: AnyClass = swizzleClass(self)
-			let subclassAssociations = Associations(subclass as AnyObject)
-
-			ReactiveCocoa.synchronized(subclass) {
-				let isSwizzled = subclassAssociations.value(forKey: interceptedKey)
-
-				let signatureCache: SignatureCache
-				let selectorCache: SelectorCache
-
-				if isSwizzled {
-					signatureCache = subclassAssociations.value(forKey: signatureCacheKey)
-					selectorCache = subclassAssociations.value(forKey: selectorCacheKey)
-				} else {
-					signatureCache = SignatureCache()
-					selectorCache = SelectorCache()
-
-					subclassAssociations.setValue(signatureCache, forKey: signatureCacheKey)
-					subclassAssociations.setValue(selectorCache, forKey: selectorCacheKey)
-					subclassAssociations.setValue(true, forKey: interceptedKey)
-
-					enableMessageForwarding(subclass, selectorCache)
-					setupMethodSignatureCaching(subclass, signatureCache)
-				}
-
+			// FIXME: Compiler asks to handle a mysterious throw.
+			let subclass: AnyClass = enableMessageForwarding { subclass, selectorCache, signatureCache in
 				selectorCache.cache(selector)
 
 				if signatureCache[selector] == nil {
@@ -132,7 +110,42 @@ extension NSObject {
 			// Start forwarding the messages of the selector.
 			_ = class_replaceMethod(subclass, selector, _rac_objc_msgForward, typeEncoding)
 
-			return state.signal
+			if let proxy = self as? DelegateProxyProtocol {
+				return proxy.runtimeWillIntercept(selector, signal: state.signal)
+			} else {
+				return state.signal
+			}
+		}
+	}
+
+	@discardableResult
+	@nonobjc internal func enableMessageForwarding(_ action: (AnyClass, SelectorCache, SignatureCache) -> Void) -> AnyClass {
+		let subclass: AnyClass = swizzleClass(self)
+		let subclassAssociations = Associations(subclass as AnyObject)
+
+		return ReactiveCocoa.synchronized(subclass) {
+			let isSwizzled = subclassAssociations.value(forKey: interceptedKey)
+
+			let signatureCache: SignatureCache
+			let selectorCache: SelectorCache
+
+			if isSwizzled {
+				signatureCache = subclassAssociations.value(forKey: signatureCacheKey)
+				selectorCache = subclassAssociations.value(forKey: selectorCacheKey)
+			} else {
+				signatureCache = SignatureCache()
+				selectorCache = SelectorCache()
+
+				subclassAssociations.setValue(signatureCache, forKey: signatureCacheKey)
+				subclassAssociations.setValue(selectorCache, forKey: selectorCacheKey)
+				subclassAssociations.setValue(true, forKey: interceptedKey)
+
+				implementForwardInvocation(subclass, selectorCache)
+				setupMethodSignatureCaching(subclass, signatureCache)
+			}
+
+			action(subclass, selectorCache, signatureCache)
+			return subclass
 		}
 	}
 }
@@ -141,8 +154,9 @@ extension NSObject {
 ///
 /// - parameters:
 ///   - realClass: The runtime subclass to be swizzled.
-private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: SelectorCache) {
+private func implementForwardInvocation(_ realClass: AnyClass, _ selectorCache: SelectorCache) {
 	let perceivedClass: AnyClass = class_getSuperclass(realClass)!
+	let isDelegateProxy = ReactiveCocoa.isDelegateProxy(realClass)
 
 	typealias ForwardInvocationImpl = @convention(block) (Unmanaged<NSObject>, AnyObject) -> Void
 	let newForwardInvocation: ForwardInvocationImpl = { objectRef, invocation in
@@ -237,6 +251,10 @@ private func enableMessageForwarding(_ realClass: AnyClass, _ selectorCache: Sel
 			return
 		}
 
+		if isDelegateProxy {
+			return unsafeDelegateProxy(objectRef, didInvoke: selector, with: invocation)
+		}
+
 		// Forward the invocation to the closest `forwardInvocation(_:)` in the
 		// inheritance hierarchy, or the default handler returned by the runtime
 		// if it finds no implementation.
@@ -291,7 +309,7 @@ private final class InterceptingState {
 	}
 }
 
-private final class SelectorCache {
+internal final class SelectorCache {
 	private var map: [Selector: (main: Selector, interop: Selector)] = [:]
 
 	init() {}
@@ -342,7 +360,7 @@ private final class SelectorCache {
 //
 // Read-copy-update is used here, since the cache has multiple readers but only
 // one writer.
-private final class SignatureCache {
+internal final class SignatureCache {
 	// `Dictionary` takes 8 bytes for the reference to its storage and does CoW.
 	// So it should not encounter any corrupted, partially updated state.
 	private var map: [Selector: AnyObject] = [:]

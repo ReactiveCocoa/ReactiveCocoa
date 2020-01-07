@@ -1,6 +1,11 @@
 # master
 *Please put new entries at the top.
 
+1. Intercept delegate calls with `DelegateProxy`. It can be constructed via `NSObject.reactive.proxy(forKey:)`. (#3467, kudos to @andersio)
+
+   It is no longer necessary to subclass a `DelegateProxy` for delegate interception. However, note that `DelegateProxy` does not support protocols containing methods that are non-void returning. Unless you manually subclass `DelegateProxy` and provide implementations for these requirements, it would trap immediately when the proxy initializes with a protocol containing such a required method, or when the proxy is asked to intercept such an optional method.
+
+1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
 1. Updated `README.md` to reflect Swift 5.1 compatibility and point snippets to 10.1.0 (#3691, kudos to @Marcocanc)
 1. Support for Swift Package Manager (#3692, #3676 & #3693, kudos to @fabio-cerdeiral-ck, @sharplet and @simba909)
 
@@ -19,6 +24,7 @@
 * If you have used `Result` only as dependency of `ReactiveSwift`, remove all instances of `import Result`, `import enum Result.NoError` or `import struct Result.AnyError` and remove the `Result` Framework from your project.
 * Replace all cases where `NoError` was used in a `Signal` or `SignalProducer` with `Never`
 * Replace all cases where `AnyError` was used in a `Signal` or `SignalProducer` with `Swift.Error`
+>>>>>>> origin/master
 
 # 9.0.0
 1. Make UITextField and UITextView text and attributedText values non-optional. (#3591, kudos to @Marcocanc)
@@ -105,6 +111,7 @@
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
 1. Added `cancelButtonClicked` signal to `UISearchBar`.
+
 1. Subscripting `reactive` with a key path now yields a corresponding `BindingTarget` under Swift 3.2+. (#3489, kudos to @andersio)
 
    Example:

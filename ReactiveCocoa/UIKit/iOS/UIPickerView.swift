@@ -3,18 +3,9 @@ import Foundation
 import ReactiveSwift
 import UIKit
 
-private class PickerViewDelegateProxy: DelegateProxy<UIPickerViewDelegate>, UIPickerViewDelegate {
-	@objc func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-		forwardee?.pickerView?(pickerView, didSelectRow: row, inComponent: component)
-	}
-}
-
 extension Reactive where Base: UIPickerView {
-
-	private var proxy: PickerViewDelegateProxy {
-		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+	private var proxy: DelegateProxy<UIPickerViewDelegate> {
+		return proxy(keyPath: \.delegate)
 	}
 
 	/// Sets the selected row in the specified component, without animating the
@@ -37,7 +28,7 @@ extension Reactive where Base: UIPickerView {
 	///
 	/// - returns: A trigger signal.
 	public var selections: Signal<(row: Int, component: Int), Never> {
-		return proxy.intercept(#selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
+		return proxy.signal(for: #selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
 			.map { (row: $0[1] as! Int, component: $0[2] as! Int) }
 	}
 }

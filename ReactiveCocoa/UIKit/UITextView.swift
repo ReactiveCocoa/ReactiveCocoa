@@ -2,17 +2,9 @@
 import ReactiveSwift
 import UIKit
 
-private class TextViewDelegateProxy: DelegateProxy<UITextViewDelegate>, UITextViewDelegate {
-	@objc func textViewDidChangeSelection(_ textView: UITextView) {
-		forwardee?.textViewDidChangeSelection?(textView)
-	}
-}
-
 extension Reactive where Base: UITextView {
-	private var proxy: TextViewDelegateProxy {
-		return .proxy(for: base,
-		              setter: #selector(setter: base.delegate),
-		              getter: #selector(getter: base.delegate))
+	private var proxy: DelegateProxy<UITextViewDelegate> {
+		return self.proxy(keyPath: \.delegate)
 	}
 
 	/// Sets the text of the text view.
@@ -73,7 +65,7 @@ extension Reactive where Base: UITextView {
 
 	/// A signal of range values emitted by the text view upon any selection change.
 	public var selectedRangeValues: Signal<NSRange, Never> {
-		return proxy.intercept(#selector(UITextViewDelegate.textViewDidChangeSelection))
+		return proxy.trigger(for: #selector(UITextViewDelegate.textViewDidChangeSelection))
 			.map { [unowned base] in base.selectedRange }
 	}
 }

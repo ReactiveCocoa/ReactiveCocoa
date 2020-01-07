@@ -10,6 +10,20 @@ import ReactiveSwift
 	@objc optional func nop()
 }
 
+@objc internal protocol InternalObjectDelegate: NSObjectProtocol {
+	func foo()
+}
+
+@objc public protocol PublicObjectDelegate: NSObjectProtocol {
+	func foo()
+}
+
+private class RemanglingTestHelper: NSObject {
+	@objc dynamic weak var privateDelegate: ObjectDelegate?
+	@objc dynamic weak var internalDelegate: InternalObjectDelegate?
+	@objc dynamic weak var publicDelegate: PublicObjectDelegate?
+}
+
 private class Object: NSObject {
 	@objc var delegateSetCount = 0
 	var delegateSelectors: [Selector] = []
@@ -52,14 +66,34 @@ private class ObjectDelegateCounter: NSObject, ObjectDelegate {
 	}
 }
 
-private class ObjectDelegateProxy: DelegateProxy<ObjectDelegate>, ObjectDelegate {
-	func foo() {
-		forwardee?.foo()
+@objc private protocol ArbitraryReturningDelegate: NSObjectProtocol {
+	func foo() -> Int
+	func bar() -> Double
+	func nop()
+}
+
+private class ArbitraryReturningCounter: NSObject, ArbitraryReturningDelegate {
+	var fooCounter = 0
+	var barCounter = 0
+	var nopCounter = 0
+
+	func foo() -> Int {
+		fooCounter += 1
+		return 1024
 	}
 
-	func bar() {
-		forwardee?.bar?()
+	func bar() -> Double {
+		barCounter += 1
+		return 1024.0
 	}
+
+	func nop() {
+		nopCounter += 1
+	}
+}
+
+private class ArbitraryReturningTestHelper: NSObject {
+	@objc dynamic weak var delegate: ArbitraryReturningDelegate?
 }
 
 class DelegateProxySpec: QuickSpec {
@@ -70,20 +104,53 @@ class DelegateProxySpec: QuickSpec {
 
 			beforeEach {
 				object = Object()
-				proxy = ObjectDelegateProxy.proxy(for: object,
-				                                  setter: #selector(setter: object.delegate),
-				                                  getter: #selector(getter: object.delegate))
+				proxy = object.reactive.proxy(keyPath: \.delegate)
 			}
 
 			afterEach {
 				weak var weakObject = object
+				weak var weakProxy = proxy
 
-				object = nil
+				autoreleasepool {
+					object = nil
+					proxy = nil
+				}
+
 				expect(weakObject).to(beNil())
+				expect(weakProxy).to(beNil())
+			}
+
+			it("should respond to the protocol requirement checks.") {
+				expect(proxy.conforms(to: ObjectDelegate.self)) == true
+				expect(proxy.responds(to: #selector(ObjectDelegate.foo))) == true
+				expect(proxy.responds(to: #selector(ObjectDelegate.bar))) == false
+				expect(proxy.responds(to: #selector(ObjectDelegate.nop))) == false
+			}
+
+			it("should create proxies without issue") {
+				let testHelper = RemanglingTestHelper()
+				let _: DelegateProxy<ObjectDelegate> = testHelper.reactive.proxy(keyPath: \.privateDelegate)
+				let _: DelegateProxy<InternalObjectDelegate> = testHelper.reactive.proxy(keyPath: \.internalDelegate)
+				let _: DelegateProxy<PublicObjectDelegate> = testHelper.reactive.proxy(keyPath: \.publicDelegate)
 			}
 
 			it("should be automatically set as the object's delegate.") {
 				expect(object.delegate).to(beIdenticalTo(proxy))
+			}
+
+			it("should not retain the delegate") {
+				var counter: ObjectDelegateCounter? = ObjectDelegateCounter()
+				weak var weakCounter = counter
+				proxy.forwardee = counter
+
+				object.delegate?.foo()
+				expect(counter?.fooCounter) == 1
+
+				autoreleasepool {
+					counter = nil
+				}
+
+				expect(weakCounter).to(beNil())
 			}
 
 			it("should not be erased when the delegate is set with a new one.") {
@@ -97,16 +164,10 @@ class DelegateProxySpec: QuickSpec {
 				expect(proxy.forwardee).to(beIdenticalTo(counter))
 			}
 
-			it("should respond to the protocol requirement checks.") {
-				expect(proxy.responds(to: #selector(ObjectDelegate.foo))) == true
-				expect(proxy.responds(to: #selector(ObjectDelegate.bar))) == true
-				expect(proxy.responds(to: #selector(ObjectDelegate.nop))) == false
-			}
-
 			it("should complete its signals when the object deinitializes") {
 				var isCompleted = false
 
-				let foo: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeCompleted { isCompleted = true }
 
 				expect(isCompleted) == false
@@ -120,7 +181,7 @@ class DelegateProxySpec: QuickSpec {
 
 				object = nil
 
-				let foo: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeInterrupted { isInterrupted = true }
 
 				expect(isInterrupted) == true
@@ -130,10 +191,10 @@ class DelegateProxySpec: QuickSpec {
 				var fooCount = 0
 				var barCount = 0
 
-				let foo: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
-				let bar: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.bar))
+				let bar: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.bar))
 				bar.observeValues { barCount += 1 }
 
 				expect(fooCount) == 0
@@ -168,7 +229,7 @@ class DelegateProxySpec: QuickSpec {
 
 				var fooCount = 0
 
-				let foo: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
 				expect(fooCount) == 0
@@ -189,8 +250,8 @@ class DelegateProxySpec: QuickSpec {
 
 				var barCount = 0
 
-				let bar: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.bar))
-				bar.observeValues { barCount += 1 }
+				let bar: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.bar))
+                bar.observeValues { barCount += 1 }
 
 				object.delegate?.bar?()
 				expect(barCount) == 1
@@ -209,20 +270,69 @@ class DelegateProxySpec: QuickSpec {
 			it("should invoke the original delegate setter whenever the forwardee is updated.") {
 				// The expected initial count is accounted for the proxy setup.
 				expect(object.delegateSetCount) == 1
-				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.bar)]
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo)]
 
 				let forwardee = ObjectDelegateCounter()
 				proxy.forwardee = forwardee
 				expect(object.delegateSetCount) == 2
-				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.bar), #selector(ObjectDelegate.nop)]
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.nop)]
 				expect(object.delegate).to(beIdenticalTo(proxy))
 
 				proxy.forwardee = nil
 				expect(object.delegateSetCount) == 3
-				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.bar)]
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo)]
 				expect(object.delegate).to(beIdenticalTo(proxy))
 			}
-			
+
+			it("should not have proxies of the same delegate type intervening with each other.") {
+				let anotherObject = Object()
+				let anotherProxy: DelegateProxy<ObjectDelegate> = anotherObject.reactive.proxy(keyPath: \.delegate)
+
+				// The expected initial count is accounted for the proxy setup.
+				expect(object.delegateSetCount) == 1
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+				expect(anotherObject.delegateSetCount) == 1
+				expect(anotherObject.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+
+				let forwardee = ObjectDelegateCounter()
+				proxy.forwardee = forwardee
+
+				expect(object.delegateSetCount) == 2
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.nop)]
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(anotherObject.delegateSetCount) == 1
+				expect(anotherObject.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+				expect(anotherObject.delegate).to(beIdenticalTo(anotherProxy))
+
+				let forwardee2 = ObjectDelegateCounter()
+				anotherProxy.forwardee = forwardee2
+
+				expect(object.delegateSetCount) == 2
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.nop)]
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(anotherObject.delegateSetCount) == 2
+				expect(anotherObject.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.nop)]
+				expect(anotherObject.delegate).to(beIdenticalTo(anotherProxy))
+
+				proxy.forwardee = nil
+
+				expect(object.delegateSetCount) == 3
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(anotherObject.delegateSetCount) == 2
+				expect(anotherObject.delegateSelectors) == [#selector(ObjectDelegate.foo), #selector(ObjectDelegate.nop)]
+				expect(anotherObject.delegate).to(beIdenticalTo(anotherProxy))
+
+				anotherProxy.forwardee = nil
+
+				expect(object.delegateSetCount) == 3
+				expect(object.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+				expect(object.delegate).to(beIdenticalTo(proxy))
+				expect(anotherObject.delegateSetCount) == 3
+				expect(anotherObject.delegateSelectors) == [#selector(ObjectDelegate.foo)]
+				expect(anotherObject.delegate).to(beIdenticalTo(anotherProxy))
+			}
+
 			describe("interoperability") {
 				var object: Object!
 				var proxy: DelegateProxy<ObjectDelegate>!
@@ -234,12 +344,10 @@ class DelegateProxySpec: QuickSpec {
 				}
 
 				func setProxy() {
-					proxy = ObjectDelegateProxy.proxy(for: object,
-					                                  setter: #selector(setter: object.delegate),
-					                                  getter: #selector(getter: object.delegate))
+					proxy = object.reactive.proxy(keyPath: \.delegate)
 
-					let signal: Signal<(), Never> = proxy.intercept(#selector(ObjectDelegate.foo))
-					signal.observeValues { fooCounter += 1 }
+					let signal: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+                    signal.observeValues { fooCounter += 1 }
 				}
 
 				it("should not affect instances sharing the same runtime subclass") {

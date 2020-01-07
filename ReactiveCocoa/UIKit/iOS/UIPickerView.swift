@@ -1,5 +1,6 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
+import Foundation
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UIPickerView {
@@ -26,8 +27,9 @@ extension Reactive where Base: UIPickerView {
 	/// Create a signal which sends a `value` event for each row selection
 	///
 	/// - returns: A trigger signal.
-	public var selections: Signal<(row: Int, component: Int), NoError> {
+	public var selections: Signal<(row: Int, component: Int), Never> {
 		return proxy.signal(for: #selector(UIPickerViewDelegate.pickerView(_:didSelectRow:inComponent:)))
 			.map { (row: $0[1] as! Int, component: $0[2] as! Int) }
 	}
 }
+#endif

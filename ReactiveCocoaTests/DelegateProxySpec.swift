@@ -1,6 +1,6 @@
+import Foundation
 import Quick
 import Nimble
-import enum Result.NoError
 import ReactiveSwift
 @testable import ReactiveCocoa
 
@@ -167,7 +167,7 @@ class DelegateProxySpec: QuickSpec {
 			it("should complete its signals when the object deinitializes") {
 				var isCompleted = false
 
-				let foo: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeCompleted { isCompleted = true }
 
 				expect(isCompleted) == false
@@ -181,7 +181,7 @@ class DelegateProxySpec: QuickSpec {
 
 				object = nil
 
-				let foo: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeInterrupted { isInterrupted = true }
 
 				expect(isInterrupted) == true
@@ -191,10 +191,10 @@ class DelegateProxySpec: QuickSpec {
 				var fooCount = 0
 				var barCount = 0
 
-				let foo: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
-				let bar: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.bar))
+				let bar: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.bar))
 				bar.observeValues { barCount += 1 }
 
 				expect(fooCount) == 0
@@ -229,7 +229,7 @@ class DelegateProxySpec: QuickSpec {
 
 				var fooCount = 0
 
-				let foo: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+				let foo: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
 				foo.observeValues { fooCount += 1 }
 
 				expect(fooCount) == 0
@@ -250,8 +250,8 @@ class DelegateProxySpec: QuickSpec {
 
 				var barCount = 0
 
-				let bar: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.bar))
-				bar.observeValues { barCount += 1 }
+				let bar: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.bar))
+                bar.observeValues { barCount += 1 }
 
 				object.delegate?.bar?()
 				expect(barCount) == 1
@@ -346,8 +346,8 @@ class DelegateProxySpec: QuickSpec {
 				func setProxy() {
 					proxy = object.reactive.proxy(keyPath: \.delegate)
 
-					let signal: Signal<(), NoError> = proxy.trigger(for: #selector(ObjectDelegate.foo))
-					signal.observeValues { fooCounter += 1 }
+					let signal: Signal<(), Never> = proxy.trigger(for: #selector(ObjectDelegate.foo))
+                    signal.observeValues { fooCounter += 1 }
 				}
 
 				it("should not affect instances sharing the same runtime subclass") {

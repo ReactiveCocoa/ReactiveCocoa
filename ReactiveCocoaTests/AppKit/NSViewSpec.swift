@@ -1,6 +1,6 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
-import Result
 import ReactiveSwift
 import ReactiveCocoa
 import AppKit
@@ -15,7 +15,7 @@ class NSViewSpec: QuickSpec {
 			}
 
 			it("should allow binding of `isHidden` property") {
-				let (hSignal, hSink) = Signal<Bool, NoError>.pipe()
+				let (hSignal, hSink) = Signal<Bool, Never>.pipe()
 				expect(view.isHidden) == false
 
 				view.reactive.isHidden <~ hSignal
@@ -25,7 +25,7 @@ class NSViewSpec: QuickSpec {
 			}
 
 			it("should allow binding of `alphaValue` property") {
-				let (avSignal, avSink) = Signal<CGFloat, NoError>.pipe()
+				let (avSignal, avSink) = Signal<CGFloat, Never>.pipe()
 				expect(view.alphaValue) == 1.0
 
 				view.reactive.alphaValue <~ avSignal
@@ -36,3 +36,4 @@ class NSViewSpec: QuickSpec {
 		}
 	}
 }
+#endif

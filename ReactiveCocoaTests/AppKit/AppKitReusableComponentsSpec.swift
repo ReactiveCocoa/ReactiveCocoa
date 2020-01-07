@@ -1,6 +1,6 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
-import Result
 import ReactiveSwift
 import ReactiveCocoa
 import AppKit
@@ -48,3 +48,4 @@ private class TestViewItem: NSCollectionViewItem {
 		view = NSView()
 	}
 }
+#endif

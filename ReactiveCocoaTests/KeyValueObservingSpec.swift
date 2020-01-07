@@ -1,7 +1,6 @@
 import Foundation
 @testable import ReactiveCocoa
 @testable import ReactiveSwift
-import enum Result.NoError
 import Quick
 import Nimble
 
@@ -138,42 +137,42 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 			self.context = context
 		}
 
-		func observe(_ object: NSObject, _ keyPath: String) -> SignalProducer<Any?, NoError> {
-			if let block = context["observe"] as? (NSObject, String) -> Signal<Any?, NoError> {
+		func observe(_ object: NSObject, _ keyPath: String) -> SignalProducer<Any?, Never> {
+			if let block = context["observe"] as? (NSObject, String) -> Signal<Any?, Never> {
 				return SignalProducer(block(object, keyPath))
-			} else if let block = context["observe"] as? (NSObject, String) -> SignalProducer<Any?, NoError> {
+			} else if let block = context["observe"] as? (NSObject, String) -> SignalProducer<Any?, Never> {
 				return block(object, keyPath).skip(first: 1)
 			} else {
 				fatalError("What is this?")
 			}
 		}
 
-		func isFinished(_ object: Operation) -> SignalProducer<Any?, NoError> {
+		func isFinished(_ object: Operation) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(Operation.isFinished))
 		}
 
-		func changes(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func changes(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(ObservableObject.rac_value))
 		}
 
-		func nestedChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func nestedChanges(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(NestedObservableObject.rac_object.rac_value))
 		}
 
-		func weakNestedChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func weakNestedChanges(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			// `#keyPath` does not work with weak relationships.
 			return observe(object, "rac_weakObject.rac_value")
 		}
 
-		func strongReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func strongReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(ObservableObject.target))
 		}
 
-		func weakReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func weakReferenceChanges(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(ObservableObject.weakTarget))
 		}
 
-		func dependentKeyChanges(_ object: NSObject) -> SignalProducer<Any?, NoError> {
+		func dependentKeyChanges(_ object: NSObject) -> SignalProducer<Any?, Never> {
 			return observe(object, #keyPath(ObservableObject.rac_value_plusOne))
 		}
 	}

@@ -1,6 +1,6 @@
-import ReactiveSwift
-import enum Result.NoError
+#if canImport(AppKit)
 import AppKit
+import ReactiveSwift
 
 extension Reactive where Base: NSImageView {
 	/// Sets the currently displayed image
@@ -8,3 +8,4 @@ extension Reactive where Base: NSImageView {
 		return makeBindingTarget { $0.image = $1 }
 	}
 }
+#endif

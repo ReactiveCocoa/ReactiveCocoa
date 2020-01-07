@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UIImageViewSpec: QuickSpec {
 	override func spec() {
@@ -24,7 +24,7 @@ class UIImageViewSpec: QuickSpec {
 			let firstChange = UIImage()
 			let secondChange = UIImage()
 
-			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIImage?, Never>.pipe()
 			imageView.reactive.image <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -38,7 +38,7 @@ class UIImageViewSpec: QuickSpec {
 			let firstChange = UIImage()
 			let secondChange = UIImage()
 
-			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIImage?, Never>.pipe()
 			imageView.reactive.highlightedImage <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -49,3 +49,4 @@ class UIImageViewSpec: QuickSpec {
 		}
 	}
 }
+#endif

@@ -6,10 +6,28 @@
    It is no longer necessary to subclass a `DelegateProxy` for delegate interception. However, note that `DelegateProxy` does not support protocols containing methods that are non-void returning. Unless you manually subclass `DelegateProxy` and provide implementations for these requirements, it would trap immediately when the proxy initializes with a protocol containing such a required method, or when the proxy is asked to intercept such an optional method.
 
 1. Fixed a memory leak related to the use of `forwardingTarget(for:)` in `DelegateProxy`. (#3467)
+1. Updated `README.md` to reflect Swift 5.1 compatibility and point snippets to 10.1.0 (#3691, kudos to @Marcocanc)
+1. Support for Swift Package Manager (#3692, #3676 & #3693, kudos to @fabio-cerdeiral-ck, @sharplet and @simba909)
+
+# 10.1.0
+1. Update dependencies so ReactiveCocoa can be used with Xcode 11 (#3677, kudos to @olejnjak)
+1. Add a binding target for the `barTintColor` of `UINavigationBar` (#3675, kudos to @rehatkathuria)
+1. Add reactive extensions for standard WatchKit interface objects. (#3670, kudos to @tdimeco)
+1. Fix crashes of `NSObject.signal(for:)` and `NSObject.producer(for:)` with Objective-C enums (#3667, kudos to @gfontenot)
+
+# 10.0.0
+1. Update ReactiveSwift to 6.0
+1. Remove dependency on antitypical/Result
+
+**Upgrade to master**
+
+* If you have used `Result` only as dependency of `ReactiveSwift`, remove all instances of `import Result`, `import enum Result.NoError` or `import struct Result.AnyError` and remove the `Result` Framework from your project.
+* Replace all cases where `NoError` was used in a `Signal` or `SignalProducer` with `Never`
+* Replace all cases where `AnyError` was used in a `Signal` or `SignalProducer` with `Swift.Error`
+>>>>>>> origin/master
 
 # 9.0.0
 1. Make UITextField and UITextView text and attributedText values non-optional. (#3591, kudos to @Marcocanc)
->>>>>>> origin/master
 1. KVO observations can now be made with Smart Key Path in Swift 3.2+, using `producer(for:)` and `signal(for:)` available on `NSObject.reactive`. (#3491, kudos to @andersio)
 1. Fix warnings for deprecated use of Swift's allocate/deallocate methods.
 1. Update Quick (2.0.0) and Nimble (8.0.1).
@@ -88,7 +106,7 @@
 
    Sources that use the MapKit bindings are now required to import ReactiveMapKit.
 
-   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry. 
+   For all Xcode project users (including Carthage), targets need to be configured to link against ReactiveMapKit. For CocoaPods users, the framework is offered as a standalone podspec, so the Podfile needs to be updated with a new entry.
 
 # 6.1.0-alpha.2
 # 6.1.0-alpha.1
@@ -195,16 +213,16 @@ Lots has changed, but if you're already migrating to Swift 3 then that should no
 #### Foundation: Object Interception
 
 RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered for ReactiveSwift.
-	
+
 1. **Method Call Interception**
 
 	Create signals that are sourced by intercepting Objective-C objects.
-	
+
 	```swift
 	// Notify after every time `viewWillAppear(_:)` is called.
 	let appearing = viewController.reactive.trigger(for: #selector(UIViewController.viewWillAppear(_:)))
 	```
-	
+
 1. **Object Lifetime**
 
 	Obtain a `Lifetime` token for any `NSObject` to observe their deinitialization.
@@ -218,7 +236,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 
 	Establish key-value observations in the form of [`SignalProducer`][]s and
 	strong-typed `DynamicProperty`s, and enjoy the inherited composability.
-	
+
 	```swift
 	// A producer that sends the current value of `keyPath`, followed by
 	// subsequent changes.
@@ -226,7 +244,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 	// Terminate the KVO observation if the lifetime of `self` ends.
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
-	
+
 	// A parameterized property that represents the supplied key path of the
 	// wrapped object. It holds a weak reference to the wrapped object.
 	let property = DynamicProperty<String>(object: person,
@@ -253,19 +271,19 @@ UI components now expose a collection of binding targets to which can be bound f
 
 	Interactive UI components expose [`Signal`][]s for control events
 	and updates in the control value upon user interactions.
-	
+
 	A selected set of controls provide a convenience, expressive binding
 	API for [`Action`][]s.
-	
-	
+
+
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
-	preferences.allowsCookies <~ toggle.reactive.isOnValues 
-	
+	preferences.allowsCookies <~ toggle.reactive.isOnValues
+
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.
 	textField.reactive.continuousTextValues.map { $0.characters.count }
-	
+
 	// Trigger `commit` whenever the button is pressed.
 	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```
@@ -320,7 +338,7 @@ let old = atomicCount.modify { value in
 The new `BindingTargetProtocol` protocol has been formally introduced to represent an entity to which can form a unidirectional binding using the `<~` operator. A new type `BindingTarget` has also been introduced to represent non-observable targets that are expected to only be written to.
 
 ```swift
-// The `UIControl` exposes a `isEnabled` binding target. 
+// The `UIControl` exposes a `isEnabled` binding target.
 control.isEnabled <~ viewModel.isEnabled
 ```
 
@@ -332,7 +350,7 @@ control.isEnabled <~ viewModel.isEnabled
 public final class MyController {
 	private let token = Lifetime.Token()
 	public let lifetime: Lifetime
-	
+
 	public init() {
 		lifetime = Lifetime(token)
 	}

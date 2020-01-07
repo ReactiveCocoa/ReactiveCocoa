@@ -1,8 +1,9 @@
-import Quick
-import Nimble
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
-import Result
+import UIKit
+import Quick
+import Nimble
 
 class UISwitchSpec: QuickSpec {
 	override func spec() {
@@ -24,7 +25,7 @@ class UISwitchSpec: QuickSpec {
 		it("should accept changes from bindings to its `isOn` state") {
 			toggle.isOn = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			toggle.reactive.isOn <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -49,7 +50,7 @@ class UISwitchSpec: QuickSpec {
 			toggle.isUserInteractionEnabled = true
 			
 			let isOn = MutableProperty(false)
-			let action = Action<Bool, Bool, NoError> { isOn in
+			let action = Action<Bool, Bool, Never> { isOn in
 				return SignalProducer(value: isOn)
 			}
 			isOn <~ SignalProducer(action.values)
@@ -69,3 +70,4 @@ class UISwitchSpec: QuickSpec {
 		}
 	}
 }
+#endif

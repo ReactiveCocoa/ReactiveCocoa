@@ -5,6 +5,8 @@
 // These `@objc` protocols host the method signatures so that they can be used
 // with `AnyObject`.
 
+import Foundation
+
 internal let NSInvocation: AnyClass = NSClassFromString("NSInvocation")!
 internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature")!
 

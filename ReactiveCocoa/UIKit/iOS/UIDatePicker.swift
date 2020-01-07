@@ -1,5 +1,5 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 import ReactiveSwift
-import enum Result.NoError
 import UIKit
 
 extension Reactive where Base: UIDatePicker {
@@ -9,7 +9,8 @@ extension Reactive where Base: UIDatePicker {
 	}
 
 	/// A signal of dates emitted by the date picker.
-	public var dates: Signal<Date, NoError> {
+	public var dates: Signal<Date, Never> {
 		return mapControlEvents(.valueChanged) { $0.date }
 	}
 }
+#endif

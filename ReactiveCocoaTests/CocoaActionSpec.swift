@@ -1,13 +1,15 @@
+#if canImport(AppKit)
+import AppKit
+#endif
 import ReactiveSwift
-import Result
 import Nimble
 import Quick
 import ReactiveCocoa
 
 class CocoaActionSpec: QuickSpec {
 	override func spec() {
-		var action: Action<Int, Int, NoError>!
-		#if os(OSX)
+		var action: Action<Int, Int, Never>!
+		#if canImport(AppKit)
 			var cocoaAction: CocoaAction<NSControl>!
 		#else
 			var cocoaAction: CocoaAction<UIControl>!
@@ -21,7 +23,7 @@ class CocoaActionSpec: QuickSpec {
 			expect(cocoaAction.isEnabled.value).toEventually(beTruthy())
 		}
 
-		#if os(OSX)
+		#if canImport(AppKit)
 			it("should be compatible with AppKit") {
 				let control = NSControl(frame: NSZeroRect)
 				control.target = cocoaAction
@@ -45,7 +47,7 @@ class CocoaActionSpec: QuickSpec {
 			expect(values) == [ true ]
 
 			let result = action.apply(0).first()
-			expect(result?.value) == 1
+			expect { try result?.get() } == 1
 			expect(values).toEventually(equal([ true, false, true ]))
 			
 			_ = cocoaAction
@@ -60,7 +62,7 @@ class CocoaActionSpec: QuickSpec {
 			expect(values) == [ false ]
 
 			let result = action.apply(0).first()
-			expect(result?.value) == 1
+			expect { try result?.get() } == 1
 			expect(values).toEventually(equal([ false, true, false ]))
 			
 			_ = cocoaAction

@@ -1,6 +1,6 @@
+#if canImport(AppKit)
 import Quick
 import Nimble
-import Result
 import ReactiveSwift
 import ReactiveCocoa
 import AppKit
@@ -187,3 +187,4 @@ private final class TestTarget {
 		counter += 1
 	}
 }
+#endif

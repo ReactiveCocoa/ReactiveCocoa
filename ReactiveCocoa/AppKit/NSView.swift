@@ -1,6 +1,6 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
-import enum Result.NoError
+import ReactiveSwift
 
 extension Reactive where Base: NSView {
 	/// Sets the visibility of the view.
@@ -13,3 +13,4 @@ extension Reactive where Base: NSView {
 		return makeBindingTarget { $0.alphaValue = $1 }
 	}
 }
+#endif

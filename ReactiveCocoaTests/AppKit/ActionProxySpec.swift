@@ -1,6 +1,7 @@
+#if canImport(AppKit)
+import Foundation
 import Quick
 import Nimble
-import enum Result.NoError
 import ReactiveSwift
 @testable import ReactiveCocoa
 
@@ -325,3 +326,4 @@ class ActionProxySpec: QuickSpec {
 		}
 	}
 }
+#endif

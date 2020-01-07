@@ -1,8 +1,9 @@
-import Quick
-import Nimble
+#if canImport(UIKit) && !os(tvOS)
 import ReactiveSwift
 import ReactiveCocoa
-import Result
+import UIKit
+import Quick
+import Nimble
 
 class UIRefreshControlSpec: QuickSpec {
 	override func spec() {
@@ -20,7 +21,7 @@ class UIRefreshControlSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its refreshing state") {
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			refreshControl.reactive.isRefreshing <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -31,7 +32,7 @@ class UIRefreshControlSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its attributed title state") {
-			let (pipeSignal, observer) = Signal<NSAttributedString?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<NSAttributedString?, Never>.pipe()
 			refreshControl.reactive.attributedTitle <~ SignalProducer(pipeSignal)
 
 			let string = NSAttributedString(string: "test")
@@ -51,7 +52,7 @@ class UIRefreshControlSpec: QuickSpec {
 			refreshControl.isUserInteractionEnabled = true
 
 			let refreshed = MutableProperty(false)
-			let action = Action<(), Bool, NoError> { _ in
+			let action = Action<(), Bool, Never> { _ in
 				SignalProducer(value: true)
 			}
 
@@ -68,7 +69,7 @@ class UIRefreshControlSpec: QuickSpec {
 			refreshControl.isEnabled = true
 			refreshControl.isUserInteractionEnabled = true
 
-			let action = Action<(), Bool, NoError> { _ in
+			let action = Action<(), Bool, Never> { _ in
 				SignalProducer(value: true).delay(1, on: QueueScheduler.main)
 			}
 
@@ -82,3 +83,4 @@ class UIRefreshControlSpec: QuickSpec {
 		}
 	}
 }
+#endif

@@ -1,9 +1,9 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
-import enum Result.NoError
+import ReactiveSwift
 
 extension Reactive where Base: NSTextField {
-	private var notifications: Signal<Notification, NoError> {
+	private var notifications: Signal<Notification, Never> {
 		#if swift(>=4.0)
 		let name = NSControl.textDidChangeNotification
 		#else
@@ -17,14 +17,14 @@ extension Reactive where Base: NSTextField {
 	}
 
 	/// A signal of values in `String` from the text field upon any changes.
-	public var continuousStringValues: Signal<String, NoError> {
+	public var continuousStringValues: Signal<String, Never> {
 		return notifications
 			.map { ($0.object as! NSTextField).stringValue }
 	}
 
 	/// A signal of values in `NSAttributedString` from the text field upon any
 	/// changes.
-	public var continuousAttributedStringValues: Signal<NSAttributedString, NoError> {
+	public var continuousAttributedStringValues: Signal<NSAttributedString, Never> {
 		return notifications
 			.map { ($0.object as! NSTextField).attributedStringValue }
 	}
@@ -46,3 +46,4 @@ extension Reactive where Base: NSTextField {
 		return makeBindingTarget { $0.textColor = $1 }
 	}
 }
+#endif

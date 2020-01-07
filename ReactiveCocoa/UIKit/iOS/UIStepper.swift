@@ -1,6 +1,6 @@
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 import UIKit
 import ReactiveSwift
-import enum Result.NoError
 
 extension Reactive where Base: UIStepper {
 
@@ -21,7 +21,8 @@ extension Reactive where Base: UIStepper {
 
 	/// A signal of double values emitted by the stepper upon each user's
 	/// interaction.
-	public var values: Signal<Double, NoError> {
+	public var values: Signal<Double, Never> {
 		return mapControlEvents(.valueChanged) { $0.value }
 	}
 }
+#endif

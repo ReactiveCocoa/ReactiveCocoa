@@ -1,4 +1,5 @@
 @testable import ReactiveCocoa
+import Foundation
 import Quick
 import Nimble
 

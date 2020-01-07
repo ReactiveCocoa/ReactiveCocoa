@@ -1,5 +1,5 @@
+import Foundation
 import ReactiveSwift
-import Result
 import Nimble
 import Quick
 @testable import ReactiveCocoa

@@ -1,6 +1,6 @@
+#if canImport(UIKit) && !os(watchOS)
 import ReactiveSwift
 import UIKit
-import enum Result.NoError
 
 extension Reactive where Base: UITextView {
 	private var proxy: DelegateProxy<UITextViewDelegate> {
@@ -12,7 +12,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.text = $1 }
 	}
 
-	private func textValues(forName name: NSNotification.Name) -> Signal<String, NoError> {
+	private func textValues(forName name: NSNotification.Name) -> Signal<String, Never> {
 		return NotificationCenter.default
 			.reactive
 			.notifications(forName: name, object: base)
@@ -24,14 +24,14 @@ extension Reactive where Base: UITextView {
 	///
 	/// - note: To observe text values that change on all editing events,
 	///   see `continuousTextValues`.
-	public var textValues: Signal<String, NoError> {
+	public var textValues: Signal<String, Never> {
 		return textValues(forName: UITextView.textDidEndEditingNotification)
 	}
 
 	/// A signal of text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `textValues`.
-	public var continuousTextValues: Signal<String, NoError> {
+	public var continuousTextValues: Signal<String, Never> {
 		return textValues(forName: UITextView.textDidChangeNotification)
 	}
 	
@@ -40,7 +40,7 @@ extension Reactive where Base: UITextView {
 		return makeBindingTarget { $0.attributedText = $1 }
 	}
 	
-	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString, NoError> {
+	private func attributedTextValues(forName name: NSNotification.Name) -> Signal<NSAttributedString, Never> {
 		return NotificationCenter.default
 			.reactive
 			.notifications(forName: name, object: base)
@@ -52,20 +52,21 @@ extension Reactive where Base: UITextView {
 	///
 	/// - note: To observe attributed text values that change on all editing events,
 	///   see `continuousAttributedTextValues`.
-	public var attributedTextValues: Signal<NSAttributedString, NoError> {
+	public var attributedTextValues: Signal<NSAttributedString, Never> {
 		return attributedTextValues(forName: UITextView.textDidEndEditingNotification)
 	}
 	
 	/// A signal of attributed text values emitted by the text view upon any changes.
 	///
 	/// - note: To observe text values only when editing ends, see `attributedTextValues`.
-	public var continuousAttributedTextValues: Signal<NSAttributedString, NoError> {
+	public var continuousAttributedTextValues: Signal<NSAttributedString, Never> {
 		return attributedTextValues(forName: UITextView.textDidChangeNotification)
 	}
 
 	/// A signal of range values emitted by the text view upon any selection change.
-	public var selectedRangeValues: Signal<NSRange, NoError> {
+	public var selectedRangeValues: Signal<NSRange, Never> {
 		return proxy.trigger(for: #selector(UITextViewDelegate.textViewDidChangeSelection))
 			.map { [unowned base] in base.selectedRange }
 	}
 }
+#endif

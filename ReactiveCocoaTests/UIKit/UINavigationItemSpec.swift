@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UINavigationItemSpec: QuickSpec {
 	override func spec() {
@@ -26,7 +26,7 @@ class UINavigationItemSpec: QuickSpec {
 			
 			navigationItem.title = ""
 			
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			navigationItem.reactive.title <~ pipeSignal
 			
 			observer.send(value: firstChange)
@@ -48,7 +48,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.titleView = nil
 
-			let (pipeSignal, observer) = Signal<UIView?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIView?, Never>.pipe()
 			navigationItem.reactive.titleView <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -68,7 +68,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.prompt = ""
 
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			navigationItem.reactive.prompt <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -87,7 +87,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.backBarButtonItem = nil
 
-			let (pipeSignal, observer) = Signal<UIBarButtonItem?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIBarButtonItem?, Never>.pipe()
 			navigationItem.reactive.backBarButtonItem <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -106,7 +106,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.hidesBackButton = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			navigationItem.reactive.hidesBackButton <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -130,7 +130,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.leftBarButtonItems = nil
 
-			let (pipeSignal, observer) = Signal<[UIBarButtonItem]?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<[UIBarButtonItem]?, Never>.pipe()
 			navigationItem.reactive.leftBarButtonItems <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -156,7 +156,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.rightBarButtonItems = nil
 
-			let (pipeSignal, observer) = Signal<[UIBarButtonItem]?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<[UIBarButtonItem]?, Never>.pipe()
 			navigationItem.reactive.rightBarButtonItems <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -175,7 +175,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.leftBarButtonItem = nil
 
-			let (pipeSignal, observer) = Signal<UIBarButtonItem?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIBarButtonItem?, Never>.pipe()
 			navigationItem.reactive.leftBarButtonItem <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -194,7 +194,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.rightBarButtonItem = nil
 
-			let (pipeSignal, observer) = Signal<UIBarButtonItem?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIBarButtonItem?, Never>.pipe()
 			navigationItem.reactive.rightBarButtonItem <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -214,7 +214,7 @@ class UINavigationItemSpec: QuickSpec {
 
 			navigationItem.leftItemsSupplementBackButton = false
 
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			navigationItem.reactive.leftItemsSupplementBackButton <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -231,7 +231,7 @@ class UINavigationItemSpec: QuickSpec {
 
 				navigationItem.largeTitleDisplayMode = .automatic
 
-				let (pipeSignal, observer) = Signal<UINavigationItem.LargeTitleDisplayMode, NoError>.pipe()
+				let (pipeSignal, observer) = Signal<UINavigationItem.LargeTitleDisplayMode, Never>.pipe()
 				navigationItem.reactive.largeTitleDisplayMode <~ pipeSignal
 
 				observer.send(value: firstChange)
@@ -250,7 +250,7 @@ class UINavigationItemSpec: QuickSpec {
 
 				navigationItem.searchController = nil
 
-				let (pipeSignal, observer) = Signal<UISearchController?, NoError>.pipe()
+				let (pipeSignal, observer) = Signal<UISearchController?, Never>.pipe()
 				navigationItem.reactive.searchController <~ pipeSignal
 
 				observer.send(value: firstChange)
@@ -269,7 +269,7 @@ class UINavigationItemSpec: QuickSpec {
 
 				navigationItem.hidesSearchBarWhenScrolling = false
 
-				let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+				let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 				navigationItem.reactive.hidesSearchBarWhenScrolling <~ pipeSignal
 
 				observer.send(value: firstChange)
@@ -282,3 +282,4 @@ class UINavigationItemSpec: QuickSpec {
 #endif
 	}
 }
+#endif

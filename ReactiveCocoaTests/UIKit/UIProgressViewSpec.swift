@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UIProgressViewSpec: QuickSpec {
 	override func spec() {
@@ -26,7 +26,7 @@ class UIProgressViewSpec: QuickSpec {
 
 			progressView.progress = 1.0
 
-			let (pipeSignal, observer) = Signal<Float, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Float, Never>.pipe()
 			progressView.reactive.progress <~ SignalProducer(pipeSignal)
 
 			observer.send(value: firstChange)
@@ -37,3 +37,4 @@ class UIProgressViewSpec: QuickSpec {
 		}
 	}
 }
+#endif

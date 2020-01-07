@@ -1,9 +1,10 @@
+#if canImport(WatchKit)
 import ReactiveSwift
 import WatchKit
 
 extension Reactive where Base: WKInterfaceButton {
 	/// Sets the title of the button.
-	public var text: BindingTarget<String?> {
+	public var title: BindingTarget<String?> {
 		return makeBindingTarget { $0.setTitle($1) }
 	}
 	
@@ -37,3 +38,4 @@ extension Reactive where Base: WKInterfaceButton {
 		return makeBindingTarget { $0.setEnabled($1) }
 	}
 }
+#endif

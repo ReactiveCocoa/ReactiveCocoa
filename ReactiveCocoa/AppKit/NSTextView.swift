@@ -1,9 +1,9 @@
-import ReactiveSwift
+#if canImport(AppKit)
 import AppKit
-import enum Result.NoError
+import ReactiveSwift
 
 extension Reactive where Base: NSTextView {
-	private var notifications: Signal<Notification, NoError> {
+	private var notifications: Signal<Notification, Never> {
 		#if swift(>=4.0)
 		let name = NSTextView.didChangeNotification
 		#else
@@ -17,7 +17,7 @@ extension Reactive where Base: NSTextView {
 	}
 
 	/// A signal of values in `String` from the text field upon any changes.
-	public var continuousStringValues: Signal<String, NoError> {
+	public var continuousStringValues: Signal<String, Never> {
 		return notifications
 			.map { notification in
 				let textView = notification.object as! NSTextView
@@ -31,9 +31,10 @@ extension Reactive where Base: NSTextView {
 
 	/// A signal of values in `NSAttributedString` from the text field upon any
 	/// changes.
-	public var continuousAttributedStringValues: Signal<NSAttributedString, NoError> {
+	public var continuousAttributedStringValues: Signal<NSAttributedString, Never> {
 		return notifications
 			.map { ($0.object as! NSTextView).attributedString() }
 	}
 
 }
+#endif

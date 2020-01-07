@@ -1,8 +1,15 @@
+#if canImport(AppKit) || canImport(UIKit)
+
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+
 import ReactiveSwift
 import ReactiveCocoa
 import Quick
 import Nimble
-import enum Result.NoError
 
 class NSLayoutConstraintSpec: QuickSpec {
     override func spec() {
@@ -22,7 +29,7 @@ class NSLayoutConstraintSpec: QuickSpec {
 		it("should accept changes from bindings to its constant") {
 			expect(constraint.constant).to(equal(0.0))
 
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 
 			constraint.reactive.constant <~ pipeSignal
 
@@ -34,3 +41,4 @@ class NSLayoutConstraintSpec: QuickSpec {
 		}
     }
 }
+#endif

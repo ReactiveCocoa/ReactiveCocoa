@@ -1,6 +1,6 @@
+#if canImport(UIKit)
 import Quick
 import Nimble
-import Result
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
@@ -56,3 +56,4 @@ class ReusableComponentsSpec: QuickSpec {
 		}
 	}
 }
+#endif

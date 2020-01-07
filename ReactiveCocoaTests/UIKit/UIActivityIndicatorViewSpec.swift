@@ -1,8 +1,9 @@
+#if canImport(UIKit)
+import UIKit
 import Quick
 import Nimble
 import ReactiveSwift
 import ReactiveCocoa
-import Result
 
 class UIActivityIndicatorSpec: QuickSpec {
 	override func spec() {
@@ -20,7 +21,7 @@ class UIActivityIndicatorSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its animating state") {
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			activityIndicatorView.reactive.isAnimating <~ SignalProducer(pipeSignal)
 
 			observer.send(value: true)
@@ -31,3 +32,4 @@ class UIActivityIndicatorSpec: QuickSpec {
 		}
 	}
 }
+#endif

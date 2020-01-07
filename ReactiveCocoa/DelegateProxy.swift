@@ -1,12 +1,12 @@
+import Foundation
 import ReactiveSwift
-import enum Result.NoError
 
 private let delegateProxySetupKey = AssociationKey<Bool>(default: false)
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
 
 internal protocol DelegateProxyProtocol: class {
 	var _forwardee: AnyObject? { get }
-	func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError>
+	func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, Never>) -> Signal<AnyObject, Never>
 }
 
 /// An opaque delegate proxy configuration.
@@ -113,7 +113,7 @@ public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, Delegate
 	///   - selector: The selector to observe.
 	///
 	/// - returns: A trigger signal.
-	public func trigger(for selector: Selector) -> Signal<(), NoError> {
+	public func trigger(for selector: Selector) -> Signal<(), Never> {
 		return reactive.trigger(for: selector)
 	}
 
@@ -130,7 +130,7 @@ public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, Delegate
 	///   - selector: The selector to observe.
 	///
 	/// - returns: A signal that sends an array of bridged arguments.
-	public func signal(for selector: Selector) -> Signal<[Any?], NoError> {
+	public func signal(for selector: Selector) -> Signal<[Any?], Never> {
 		return reactive.signal(for: selector)
 	}
 
@@ -145,7 +145,7 @@ public final class DelegateProxy<Delegate: NSObjectProtocol>: NSObject, Delegate
 			|| forwardee?.responds(to: selector) ?? false
 	}
 
-	internal func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, NoError>) -> Signal<AnyObject, NoError> {
+	internal func runtimeWillIntercept(_ selector: Selector, signal: Signal<AnyObject, Never>) -> Signal<AnyObject, Never> {
 		writeLock.lock()
 		defer { writeLock.unlock() }
 		interceptedSelectors.insert(selector)

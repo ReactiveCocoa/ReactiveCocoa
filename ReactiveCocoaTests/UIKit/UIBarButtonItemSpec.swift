@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import Quick
 import Nimble
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
-import enum Result.NoError
 
 class UIBarButtonItemSpec: QuickSpec {
 	override func spec() {
@@ -21,12 +21,12 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should not be retained with the presence of a `pressed` action") {
-			let action = Action<(),(),NoError> { SignalProducer(value: ()) }
+			let action = Action<(),(),Never> { SignalProducer(value: ()) }
 			barButtonItem.reactive.pressed = CocoaAction(action)
 		}
 
 		it("should accept changes from bindings to its enabling state") {
-			let (pipeSignal, observer) = Signal<Bool, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
 			barButtonItem.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
 			observer.send(value: false)
@@ -37,7 +37,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its title") {
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			barButtonItem.reactive.title <~ SignalProducer(pipeSignal)
 
 			observer.send(value: "title")
@@ -48,7 +48,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its image") {
-			let (pipeSignal, observer) = Signal<UIImage?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIImage?, Never>.pipe()
 			barButtonItem.reactive.image <~ SignalProducer(pipeSignal)
 
 			let image = UIImage()
@@ -62,7 +62,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its style") {
-			let (pipeSignal, observer) = Signal<UIBarButtonItem.Style, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIBarButtonItem.Style, Never>.pipe()
 			barButtonItem.reactive.style <~ SignalProducer(pipeSignal)
 
 			observer.send(value: .done)
@@ -73,7 +73,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its width") {
-			let (pipeSignal, observer) = Signal<CGFloat, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<CGFloat, Never>.pipe()
 			barButtonItem.reactive.width <~ SignalProducer(pipeSignal)
 
 			observer.send(value: 42.0)
@@ -87,7 +87,7 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 
 		it("should accept changes from bindings to its possible titles") {
-			let (pipeSignal, observer) = Signal<Set<String>?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Set<String>?, Never>.pipe()
 			barButtonItem.reactive.possibleTitles <~ SignalProducer(pipeSignal)
 
 			let possibleTitles = Set(["Unread (123,456,789)", "Unread"])
@@ -107,7 +107,7 @@ class UIBarButtonItemSpec: QuickSpec {
 
 			barButtonItem.customView = nil
 
-			let (pipeSignal, observer) = Signal<UIView?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<UIView?, Never>.pipe()
 			barButtonItem.reactive.customView <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -121,3 +121,4 @@ class UIBarButtonItemSpec: QuickSpec {
 		}
 	}
 }
+#endif

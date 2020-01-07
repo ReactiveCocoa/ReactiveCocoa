@@ -1,9 +1,9 @@
+#if canImport(UIKit) && !os(tvOS)
+import ReactiveSwift
+import ReactiveCocoa
+import UIKit
 import Quick
 import Nimble
-import ReactiveCocoa
-import ReactiveSwift
-import enum Result.NoError
-import UIKit
 
 class UIStepperSpec: QuickSpec {
 	override func spec() {
@@ -23,7 +23,7 @@ class UIStepperSpec: QuickSpec {
 		it("should accept changes from bindings to its value") {
 			expect(stepper.value) == 0.0
 
-			let (pipeSignal, observer) = Signal<Double, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Double, Never>.pipe()
 
 			stepper.reactive.value <~ pipeSignal
 
@@ -34,7 +34,7 @@ class UIStepperSpec: QuickSpec {
 		it("should accept changes from bindings to its minimum value") {
 			expect(stepper.minimumValue) == 0.0
 
-			let (pipeSignal, observer) = Signal<Double, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Double, Never>.pipe()
 
 			stepper.reactive.minimumValue <~ pipeSignal
 
@@ -45,7 +45,7 @@ class UIStepperSpec: QuickSpec {
 		it("should accept changes from bindings to its maximum value") {
 			expect(stepper.maximumValue) == 100.0
 
-			let (pipeSignal, observer) = Signal<Double, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<Double, Never>.pipe()
 
 			stepper.reactive.maximumValue <~ pipeSignal
 
@@ -67,3 +67,4 @@ class UIStepperSpec: QuickSpec {
 		}
 	}
 }
+#endif

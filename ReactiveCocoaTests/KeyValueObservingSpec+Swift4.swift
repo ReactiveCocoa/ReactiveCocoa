@@ -1,14 +1,13 @@
 import Foundation
 @testable import ReactiveCocoa
 import ReactiveSwift
-import enum Result.NoError
 import Quick
 import Nimble
 
 #if swift(>=3.2)
 class KeyValueObservingSwift4Spec: QuickSpec {
 	override func spec() {
-		describe("NSObject.signal(forKeyPath:)") {
+		describe("NSObject.signal(for:)") {
 			it("should not send the initial value") {
 				let object = ObservableObject()
 				var values: [Int] = []
@@ -20,12 +19,25 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 				expect(values) == []
 			}
 
+			it("automatically converts enums") {
+				let object = ObservableObject()
+				var values: [ObservableEnum] = []
+
+				object.reactive
+					.signal(for: \.rac_enum)
+					.observeValues { values.append($0) }
+
+				object.rac_enum = .two
+
+				expect(values) == [.two]
+			}
+
 			itBehavesLike("a reactive key value observer using Swift 4 Smart Key Path") {
 				["observe": "signal"]
 			}
 		}
 
-		describe("NSObject.producer(forKeyPath:)") {
+		describe("NSObject.producer(for:)") {
 			it("should send the initial value") {
 				let object = ObservableObject()
 				var values: [Int] = []
@@ -65,6 +77,21 @@ class KeyValueObservingSwift4Spec: QuickSpec {
 				expect(values) == [0]
 			}
 
+			it("should automatically convert enums") {
+				let object = ObservableObject()
+				var values: [ObservableEnum] = []
+
+				object.reactive
+					.producer(for: \.rac_enum)
+					.startWithValues { value in
+						values.append(value)
+				}
+
+				object.rac_enum = .one
+
+				expect(values) == [.zero, .one]
+			}
+
 			itBehavesLike("a reactive key value observer using Swift 4 Smart Key Path") {
 				["observe": "producer"]
 			}
@@ -82,7 +109,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			self.context = context
 		}
 
-		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U?>) -> SignalProducer<U?, NoError> {
+		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U?>) -> SignalProducer<U?, Never> {
 			switch context["observe"] {
 			case let context as String where context == "signal":
 				return SignalProducer(object.reactive.signal(for: keyPath))
@@ -95,7 +122,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			}
 		}
 
-		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U>) -> SignalProducer<U, NoError> {
+		func observe<Object: NSObject, U>(_ object: Object, _ keyPath: KeyPath<Object, U>) -> SignalProducer<U, Never> {
 			switch context["observe"] {
 			case let context as String where context == "signal":
 				return SignalProducer(object.reactive.signal(for: keyPath))
@@ -108,31 +135,31 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 			}
 		}
 
-		func isFinished(_ object: Operation) -> SignalProducer<Bool, NoError> {
+		func isFinished(_ object: Operation) -> SignalProducer<Bool, Never> {
 			return observe(object, \.isFinished)
 		}
 
-		func changes(_ object: ObservableObject) -> SignalProducer<Int, NoError> {
+		func changes(_ object: ObservableObject) -> SignalProducer<Int, Never> {
 			return observe(object, \.rac_value)
 		}
 
-		func nestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int, NoError> {
+		func nestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int, Never> {
 			return observe(object, \.rac_object.rac_value)
 		}
 
-		func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int?, NoError> {
+		func weakNestedChanges(_ object: NestedObservableObject) -> SignalProducer<Int?, Never> {
 			return observe(object, \.rac_weakObject?.rac_value)
 		}
 
-		func strongReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
+		func strongReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, Never> {
 			return observe(object, \.target)
 		}
 
-		func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, NoError> {
+		func weakReferenceChanges(_ object: ObservableObject) -> SignalProducer<AnyObject?, Never> {
 			return observe(object, \.weakTarget)
 		}
 
-		func dependentKeyChanges(_ object: ObservableObject) -> SignalProducer<NSDecimalNumber, NoError> {
+		func dependentKeyChanges(_ object: ObservableObject) -> SignalProducer<NSDecimalNumber, Never> {
 			return observe(object, \.rac_value_plusOne)
 		}
 	}
@@ -585,8 +612,15 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 
 private final class Token {}
 
+@objc private enum ObservableEnum: Int {
+	case zero
+	case one
+	case two
+}
+
 private class ObservableObject: NSObject {
 	@objc dynamic var rac_value: Int = 0
+	@objc dynamic var rac_enum: ObservableEnum = .zero
 
 	@objc dynamic var target: AnyObject?
 	@objc dynamic weak var weakTarget: AnyObject?

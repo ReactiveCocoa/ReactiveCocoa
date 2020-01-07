@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UIViewControllerSpec: QuickSpec {
 	override func spec() {
@@ -26,7 +26,7 @@ class UIViewControllerSpec: QuickSpec {
 
 			viewController.title = ""
 
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			viewController.reactive.title <~ pipeSignal
 
 			observer.send(value: firstChange)
@@ -112,3 +112,4 @@ class UIViewControllerSpec: QuickSpec {
 		}
 	}
 }
+#endif

@@ -1,9 +1,9 @@
+#if canImport(UIKit)
 import ReactiveSwift
 import ReactiveCocoa
 import UIKit
 import Quick
 import Nimble
-import enum Result.NoError
 
 class UITabBarSpec: QuickSpec {
 	override func spec() {
@@ -26,7 +26,7 @@ class UITabBarSpec: QuickSpec {
 			
 			tabBarItem.badgeValue = ""
 			
-			let (pipeSignal, observer) = Signal<String?, NoError>.pipe()
+			let (pipeSignal, observer) = Signal<String?, Never>.pipe()
 			tabBarItem.reactive.badgeValue <~ pipeSignal
 			
 			observer.send(value: firstChange)
@@ -46,7 +46,7 @@ class UITabBarSpec: QuickSpec {
 				
 				tabBarItem.badgeColor = .blue
 				
-				let (pipeSignal, observer) = Signal<UIColor?, NoError>.pipe()
+				let (pipeSignal, observer) = Signal<UIColor?, Never>.pipe()
 				tabBarItem.reactive.badgeColor <~ pipeSignal
 				
 				observer.send(value: firstChange)
@@ -61,3 +61,4 @@ class UITabBarSpec: QuickSpec {
 		}
 	}
 }
+#endif

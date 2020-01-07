@@ -1,8 +1,8 @@
 # master
 *Please put new entries at the top.
-1. Add support for Swift Package Manager
-1. Add platform checks and update project's file organization in preparation of Swift Package Manager support [#3692](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3692)
 
+1. Updated `README.md` to reflect Swift 5.1 compatibility and point snippets to 10.1.0 (#3691, kudos to @Marcocanc)
+1. Support for Swift Package Manager (#3692, #3676 & #3693, kudos to @fabio-cerdeiral-ck, @sharplet and @simba909)
 
 # 10.1.0
 1. Update dependencies so ReactiveCocoa can be used with Xcode 11 (#3677, kudos to @olejnjak)

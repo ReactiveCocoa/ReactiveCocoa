@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/Quick/Nimble.git",
         "state": {
           "branch": null,
-          "revision": "6abeb3f5c03beba2b9e4dbe20886e773b5b629b6",
-          "version": "8.0.4"
+          "revision": "b02b00b30b6353632aa4a5fb6124f8147f7140c0",
+          "version": "8.0.5"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/ReactiveCocoa/ReactiveSwift",
         "state": {
           "branch": null,
-          "revision": "b772fa0b624926e6e2f21acbb79297736a05c585",
-          "version": "6.1.0"
+          "revision": "e8703715afe26a8efbb2ecfdb3454d648f58d691",
+          "version": "6.2.0"
         }
       }
     ]

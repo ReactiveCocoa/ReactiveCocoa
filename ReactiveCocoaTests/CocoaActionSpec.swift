@@ -1,4 +1,4 @@
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 import AppKit
 #endif
 import ReactiveSwift
@@ -9,7 +9,7 @@ import ReactiveCocoa
 class CocoaActionSpec: QuickSpec {
 	override func spec() {
 		var action: Action<Int, Int, Never>!
-		#if canImport(AppKit)
+		#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 			var cocoaAction: CocoaAction<NSControl>!
 		#else
 			var cocoaAction: CocoaAction<UIControl>!
@@ -23,7 +23,7 @@ class CocoaActionSpec: QuickSpec {
 			expect(cocoaAction.isEnabled.value).toEventually(beTruthy())
 		}
 
-		#if canImport(AppKit)
+		#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 			it("should be compatible with AppKit") {
 				let control = NSControl(frame: NSZeroRect)
 				control.target = cocoaAction

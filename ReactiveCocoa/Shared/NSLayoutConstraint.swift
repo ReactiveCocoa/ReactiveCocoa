@@ -1,7 +1,7 @@
 #if !os(watchOS)
 import ReactiveSwift
 
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 import AppKit
 #else
 import UIKit

@@ -1,5 +1,5 @@
 # master
-*Please put new entries at the top.
+1. Don't include code which uses unavailable classes (like `NSSlider`) when targeting macOS Catalyst (#3698, kudos to @nkristek)
 
 # 10.2.0
 1. Update ReactiveSwift to 6.2.

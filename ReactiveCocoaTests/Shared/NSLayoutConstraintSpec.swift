@@ -1,6 +1,6 @@
 #if canImport(AppKit) || canImport(UIKit)
 
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 import AppKit
 #elseif canImport(UIKit)
 import UIKit

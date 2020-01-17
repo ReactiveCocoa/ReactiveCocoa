@@ -28,6 +28,11 @@ jobs:
           XCODE_ACTION="build-for-testing test-without-building"
           XCODE_DESTINATION="platform=iOS Simulator,name=iPhone 6s"
           script/build
+        - XCODE_SCHEME=ReactiveCocoa-iOS
+          XCODE_SDK=macosx
+          XCODE_ACTION="build-for-testing test-without-building"
+          XCODE_DESTINATION="platform=macOS,variant=Mac Catalyst"
+          script/build
         - XCODE_SCHEME=ReactiveCocoa-tvOS
           XCODE_SDK=appletvsimulator
           XCODE_ACTION="build-for-testing test-without-building"

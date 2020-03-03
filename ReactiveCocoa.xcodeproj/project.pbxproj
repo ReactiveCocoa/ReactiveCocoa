@@ -67,6 +67,11 @@
 		834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */; };
 		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
+		8EAB2FF3240E424E00D2191D /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */; };
+		8EAB2FF4240E424E00D2191D /* ReactiveSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8EAB2FF6240E428A00D2191D /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */; };
+		8EAB2FF7240E428A00D2191D /* ReactiveSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8EAB2FFA240E46AE00D2191D /* Useless.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAB2FF9240E46AE00D2191D /* Useless.swift */; };
 		9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */; };
 		9A16755D1F80DE1C00B63650 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -172,11 +177,9 @@
 		9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
 		9A73E036216D3FC50069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E039216D3FEB0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
-		9A73E03A216D3FF10069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E03B216D3FF50069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E03C216D3FFC0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E03D216D40070069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
-		9A73E03E216D400D0069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E040216D40170069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E042216D40280069AD76 /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		9A73E049216D40800069AD76 /* ReactiveMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */; };
@@ -444,6 +447,28 @@
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8EAB2FF5240E424E00D2191D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				8EAB2FF4240E424E00D2191D /* ReactiveSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EAB2FF8240E428A00D2191D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				8EAB2FF7240E428A00D2191D /* ReactiveSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D01B7B6119EDD8F600D26E01 /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -500,6 +525,8 @@
 		834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSegmentedControl.swift; sourceTree = "<group>"; };
 		834DE1131E4122910099F4E5 /* NSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSlider.swift; sourceTree = "<group>"; };
 		8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
+		8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = Carthage/Build/iOS/ReactiveSwift.framework; sourceTree = "<group>"; };
+		8EAB2FF9240E46AE00D2191D /* Useless.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Useless.swift; sourceTree = "<group>"; };
 		9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxySpec.swift; sourceTree = "<group>"; };
 		9A16753D1F80C35100B63650 /* ReactiveMapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveMapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1675411F80C35100B63650 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -701,7 +728,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A73E01C216D3E700069AD76 /* ReactiveCocoa.framework in Frameworks */,
-				9A73E03E216D400D0069AD76 /* ReactiveSwift.framework in Frameworks */,
+				8EAB2FF6240E428A00D2191D /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -778,7 +805,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A73E03A216D3FF10069AD76 /* ReactiveSwift.framework in Frameworks */,
+				8EAB2FF3240E424E00D2191D /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -939,6 +966,7 @@
 		9A73E026216D3F670069AD76 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8EAB2FF2240E424E00D2191D /* ReactiveSwift.framework */,
 				9A3C54F021726BD200E98207 /* Nimble.framework */,
 				9A3C54F221726BD200E98207 /* Quick.framework */,
 				9A3C54EA21726A1200E98207 /* Nimble.framework */,
@@ -1071,6 +1099,7 @@
 				D04725ED19E49ED7006002AA /* Supporting Files */,
 				9A1D05EB1D93E9F100ACF44C /* UIKit */,
 				E3AA54BF214291590077B206 /* WatchKit */,
+				8EAB2FF9240E46AE00D2191D /* Useless.swift */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -1365,6 +1394,7 @@
 				9A73DFB0216D3C550069AD76 /* Frameworks */,
 				9A73DFB4216D3C550069AD76 /* Headers */,
 				9A73DFB5216D3C550069AD76 /* Resources */,
+				8EAB2FF8240E428A00D2191D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1511,6 +1541,7 @@
 				D047260819E49F82006002AA /* Frameworks */,
 				D047260919E49F82006002AA /* Headers */,
 				D047260A19E49F82006002AA /* Resources */,
+				8EAB2FF5240E424E00D2191D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2033,6 +2064,7 @@
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
+				8EAB2FFA240E46AE00D2191D /* Useless.swift in Sources */,
 				BF4335651E02AC7600AC88DD /* UIScrollView.swift in Sources */,
 				4A0E11001D2A92720065D310 /* AnyObject+Lifetime.swift in Sources */,
 				9ADE4A921DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
@@ -2286,6 +2318,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
@@ -2299,6 +2335,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
@@ -2312,6 +2352,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
@@ -2325,6 +2369,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
@@ -2690,6 +2738,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2702,6 +2754,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2782,6 +2838,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2852,6 +2912,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};

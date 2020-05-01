@@ -18,7 +18,7 @@ import WatchKit
 extension Reactive where Base: WKInterfaceButton {
 	@available(*, deprecated, renamed: "title")
 	public var text: BindingTarget<String?> {
-		return title
+		fatalError()
 	}
 }
 #endif

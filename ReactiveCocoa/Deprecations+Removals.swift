@@ -16,9 +16,9 @@ extension Reactive where Base: NSObject {
 #if os(watchOS)
 import WatchKit
 extension Reactive where Base: WKInterfaceButton {
-	@available(*, deprecated, renamed: "title")
+	@available(*, unavailable, renamed: "title")
 	public var text: BindingTarget<String?> {
-		return title
+		fatalError()
 	}
 }
 #endif

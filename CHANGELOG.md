@@ -1,5 +1,8 @@
 # master
+
+# 10.3.0
 1. Don't include code which uses unavailable classes (like `NSSlider`) when targeting macOS Catalyst (#3698, kudos to @nkristek)
+1. Fixed watchOS build issues. (#3703, kudos to @JaviSoto)
 
 # 10.2.0
 1. Update ReactiveSwift to 6.2.
@@ -12,6 +15,7 @@
 1. Add reactive extensions for standard WatchKit interface objects. (#3670, kudos to @tdimeco)
 1. Fix crashes of `NSObject.signal(for:)` and `NSObject.producer(for:)` with Objective-C enums (#3667, kudos to @gfontenot)
 
+# 10.3.0
 # 10.0.0
 1. Update ReactiveSwift to 6.0
 1. Remove dependency on antitypical/Result

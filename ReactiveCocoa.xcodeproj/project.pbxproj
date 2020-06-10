@@ -344,7 +344,6 @@
 		E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */; };
 		E92142922284AA64007E412D /* WKInterfaceSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142912284AA64007E412D /* WKInterfaceSwitch.swift */; };
 		E92142942284ABDF007E412D /* WKInterfaceSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142932284ABDF007E412D /* WKInterfaceSlider.swift */; };
-		E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */; };
 		E92142982284AEF0007E412D /* WKInterfaceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142972284AEF0007E412D /* WKInterfaceGroup.swift */; };
 		E921429A2284AF99007E412D /* WKInterfaceSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142992284AF99007E412D /* WKInterfaceSeparator.swift */; };
 		E921429C2284B0A8007E412D /* WKInterfaceImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921429B2284B0A8007E412D /* WKInterfaceImage.swift */; };
@@ -652,7 +651,6 @@
 		E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceTimer.swift; sourceTree = "<group>"; };
 		E92142912284AA64007E412D /* WKInterfaceSwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSwitch.swift; sourceTree = "<group>"; };
 		E92142932284ABDF007E412D /* WKInterfaceSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSlider.swift; sourceTree = "<group>"; };
-		E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceActivityRing.swift; sourceTree = "<group>"; };
 		E92142972284AEF0007E412D /* WKInterfaceGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceGroup.swift; sourceTree = "<group>"; };
 		E92142992284AF99007E412D /* WKInterfaceSeparator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSeparator.swift; sourceTree = "<group>"; };
 		E921429B2284B0A8007E412D /* WKInterfaceImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceImage.swift; sourceTree = "<group>"; };
@@ -1200,7 +1198,6 @@
 				E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */,
 				E92142912284AA64007E412D /* WKInterfaceSwitch.swift */,
 				E92142932284ABDF007E412D /* WKInterfaceSlider.swift */,
-				E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */,
 				E921429B2284B0A8007E412D /* WKInterfaceImage.swift */,
 				E92142A8228552CC007E412D /* WKInterfaceMovie.swift */,
 				E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */,
@@ -1904,7 +1901,6 @@
 				E92142A22284B64E007E412D /* WKInterfaceController.swift in Sources */,
 				E92142AB228553C5007E412D /* WKInterfaceInlineMovie.swift in Sources */,
 				E921428E2284A44F007E412D /* WKInterfaceDate.swift in Sources */,
-				E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */,

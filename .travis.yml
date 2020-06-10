@@ -14,7 +14,6 @@ cache:
 jobs:
   include:
     - stage: unit tests
-      osx_image: xcode10.2
       script:
         - XCODE_SCHEME=ReactiveCocoa-macOS
           XCODE_SDK=macosx

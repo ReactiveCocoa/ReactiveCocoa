@@ -654,7 +654,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 						}
 
 						if index == half {
-							iterationQueue.async(flags: .barrier) {
+							iterationQueue.async {
 								token = nil
 								expect(replayProducer.last()).toNot(beNil())
 							}
@@ -662,7 +662,10 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 					}
 
 					iterationQueue.resume()
-					iterationQueue.sync(flags: .barrier, execute: {})
+
+					waitUntil { done in
+						iterationQueue.async(flags: .barrier, execute: done)
+					}
 				}
 			}
 		}

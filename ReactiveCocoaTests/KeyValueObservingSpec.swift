@@ -571,12 +571,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 				}
 
 				it("attach observers") {
-					let deliveringObserver: QueueScheduler
-					if #available(*, OSX 10.10) {
-						deliveringObserver = QueueScheduler(name: "\(#file):\(#line)")
-					} else {
-						deliveringObserver = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
-					}
+					let deliveringObserver = QueueScheduler.makeForTesting()
 
 					var atomicCounter = Int64(0)
 
@@ -624,16 +619,10 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 				// Direct port of https://github.com/ReactiveCocoa/ReactiveObjC/blob/3.1.0/ReactiveObjCTests/RACKVOProxySpec.m#L196
 				it("async disposal of signal with in-flight changes") {
-					let otherScheduler: QueueScheduler
+					let otherScheduler = QueueScheduler.makeForTesting()
 
 					var token = Optional(Lifetime.Token())
 					let lifetime = Lifetime(token!)
-
-					if #available(*, OSX 10.10) {
-						otherScheduler = QueueScheduler(name: "\(#file):\(#line)")
-					} else {
-						otherScheduler = QueueScheduler(queue: DispatchQueue(label: "\(#file):\(#line)"))
-					}
 
 					let replayProducer = context.changes(testObject)
 						.map { ($0 as! NSNumber).intValue }
@@ -663,7 +652,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					iterationQueue.resume()
 
-					waitUntil { done in
+					waitUntil(timeout: 3.0) { done in
 						iterationQueue.async(flags: .barrier, execute: done)
 					}
 				}

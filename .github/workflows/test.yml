@@ -1,0 +1,62 @@
+on: pull_request
+name: Test
+jobs:
+  test:
+    name: Test
+    runs-on: macos-latest
+    strategy:
+        fail-fast: false
+        matrix:
+          destination: [macOS, macCatalyst, iOS, tvOS, watchOS]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Recover cached dependencies
+        uses: actions/cache@v1
+        id: dependency-cache
+        with:
+          path: Carthage/Checkouts
+          key: carthage-${{ hashFiles('Cartfile.resolved') }}
+      - name: Pull dependencies
+        if: steps.dependency-cache.outputs.cache-hit != 'true'
+        run: |
+          carthage checkout
+      - name: Test via xcodebuild
+        run: |
+          ACTION=test
+          DESTINATION=unknown
+          SCHEME=unknown
+          case "${{ matrix.destination }}" in
+          "iOS")
+            DESTINATION="platform=iOS Simulator,name=iPhone 11 Pro"
+            SCHEME=ReactiveCocoa-iOS
+            ;;
+          "tvOS")
+            DESTINATION="platform=tvOS Simulator,name=Apple TV 4K"
+            SCHEME=ReactiveCocoa-tvOS
+            ;;
+          "watchOS")
+            ACTION=build
+            DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 5 - 44mm"
+            SCHEME=ReactiveCocoa-watchOS
+            ;;
+          "macCatalyst")
+            DESTINATION="platform=macOS,variant=Mac Catalyst"
+            SCHEME=ReactiveCocoa-iOS
+            ;;
+          "macOS")
+            DESTINATION="platform=macOS,arch=x86_64"
+            SCHEME=ReactiveCocoa-macOS
+            ;;
+          *)
+            echo "Unknown destination."
+            exit 1
+            ;;
+          esac
+          xcodebuild clean ${ACTION} \
+            -destination "${DESTINATION}" \
+            -scheme ${SCHEME} \
+            -workspace ReactiveCocoa.xcworkspace \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            ONLY_ACTIVE_ARCH=YES

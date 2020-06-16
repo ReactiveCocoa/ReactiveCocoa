@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [labeled]
+    branches:
+      - master
+name: Verification
+jobs:
+  carthage:
+    if: ${{ github.event_name == 'push' || ( github.event_name == 'pull_request' && github.event.label.name == 'ci:verify' ) }}
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Recover cached dependencies
+        uses: actions/cache@v1
+        id: dependency-cache
+        with:
+          path: ~/Library/Caches/org.carthage.CarthageKit
+          key: 4-carthage-verification-${{ runner.os }}-${{ hashFiles('Cartfile.resolved') }}
+      - name: Carthage verification
+        run: |
+          carthage checkout
+          carthage build --cache-builds --no-skip-current
+  swiftpm-macos:
+    if: ${{ github.event_name == 'push' || ( github.event_name == 'pull_request' && github.event.label.name == 'ci:verify' ) }}
+    name: SwiftPM macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Pull dependencies
+        run: |
+          swift package resolve
+      - name: Test via SwiftPM
+        run: |
+          swift --version
+          swift build
+  cocoapods:
+    if: ${{ github.event_name == 'push' || ( github.event_name == 'pull_request' && github.event.label.name == 'ci:verify' ) }}
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: CocoaPods verification
+        run: |
+          # To work around the lint error: "ERROR | swift: Specification `ReactiveCocoa` specifies an inconsistent `swift_version` (`4.1`) compared to the one present in your `.swift-version` file (`4.1.2`). Please remove the `.swift-version` file which is now deprecated and only use the `swift_version` attribute within your podspec."
+          # `.swift-version` is for swiftenv, not for CocoaPods, so we can't remove the file as suggested.
+          rm .swift-version
+          pod repo update
+          pod lib lint --use-libraries

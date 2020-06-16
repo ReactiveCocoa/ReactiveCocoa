@@ -52,6 +52,9 @@
 		53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CB1DD6F97400C799E1 /* UISlider.swift */; };
 		53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5B76DE402498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
+		5B76DE412498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
+		5B76DE422498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
 		654DE7B02205F9DE0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		654DE7B22205FA0A0048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		654DE7B32205FA200048FE14 /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -344,7 +347,6 @@
 		E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */; };
 		E92142922284AA64007E412D /* WKInterfaceSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142912284AA64007E412D /* WKInterfaceSwitch.swift */; };
 		E92142942284ABDF007E412D /* WKInterfaceSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142932284ABDF007E412D /* WKInterfaceSlider.swift */; };
-		E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */; };
 		E92142982284AEF0007E412D /* WKInterfaceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142972284AEF0007E412D /* WKInterfaceGroup.swift */; };
 		E921429A2284AF99007E412D /* WKInterfaceSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92142992284AF99007E412D /* WKInterfaceSeparator.swift */; };
 		E921429C2284B0A8007E412D /* WKInterfaceImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E921429B2284B0A8007E412D /* WKInterfaceImage.swift */; };
@@ -494,6 +496,7 @@
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
 		57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QueueScheduler+Factory.swift"; sourceTree = "<group>"; };
 		7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSTextView.swift; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		834DE1001E4109750099F4E5 /* NSImageViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageViewSpec.swift; sourceTree = "<group>"; };
@@ -652,7 +655,6 @@
 		E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceTimer.swift; sourceTree = "<group>"; };
 		E92142912284AA64007E412D /* WKInterfaceSwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSwitch.swift; sourceTree = "<group>"; };
 		E92142932284ABDF007E412D /* WKInterfaceSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSlider.swift; sourceTree = "<group>"; };
-		E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceActivityRing.swift; sourceTree = "<group>"; };
 		E92142972284AEF0007E412D /* WKInterfaceGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceGroup.swift; sourceTree = "<group>"; };
 		E92142992284AF99007E412D /* WKInterfaceSeparator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceSeparator.swift; sourceTree = "<group>"; };
 		E921429B2284B0A8007E412D /* WKInterfaceImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceImage.swift; sourceTree = "<group>"; };
@@ -1118,6 +1120,7 @@
 				D03766B119EDA60000A782A9 /* test-data.json */,
 				BFA6B94A1A76044800C846D1 /* SignalProducerNimbleMatchers.swift */,
 				D04725FB19E49ED7006002AA /* Info.plist */,
+				5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1200,7 +1203,6 @@
 				E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */,
 				E92142912284AA64007E412D /* WKInterfaceSwitch.swift */,
 				E92142932284ABDF007E412D /* WKInterfaceSlider.swift */,
-				E92142952284AD19007E412D /* WKInterfaceActivityRing.swift */,
 				E921429B2284B0A8007E412D /* WKInterfaceImage.swift */,
 				E92142A8228552CC007E412D /* WKInterfaceMovie.swift */,
 				E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */,
@@ -1818,6 +1820,7 @@
 				4ABEFE291DCFCFA90066A8C2 /* UICollectionViewSpec.swift in Sources */,
 				9A54A2131DDF5B4D001739B3 /* InterceptingPerformanceTests.swift in Sources */,
 				BEE020661D637B0000DF261F /* TestError.swift in Sources */,
+				5B76DE422498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */,
 				9A1D06531D93EA7E00ACF44C /* UITextFieldSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1904,7 +1907,6 @@
 				E92142A22284B64E007E412D /* WKInterfaceController.swift in Sources */,
 				E92142AB228553C5007E412D /* WKInterfaceInlineMovie.swift in Sources */,
 				E921428E2284A44F007E412D /* WKInterfaceDate.swift in Sources */,
-				E92142962284AD19007E412D /* WKInterfaceActivityRing.swift in Sources */,
 				9AF0EA771D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				9A9037511ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				E92142902284A4EF007E412D /* WKInterfaceTimer.swift in Sources */,
@@ -1987,6 +1989,7 @@
 				3B30EE8C1E7BE529007CC8EF /* DeprecationsSpec.swift in Sources */,
 				CD42C69B1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift in Sources */,
 				9AA6A1E51F11F9B000CA2257 /* KeyValueObservingSpec+Swift4.swift in Sources */,
+				5B76DE402498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */,
 				9A1E72BA1D4DE96500CC20C3 /* KeyValueObservingSpec.swift in Sources */,
 				4ABEFE2E1DCFD01F0066A8C2 /* NSTableViewSpec.swift in Sources */,
 			);
@@ -2104,6 +2107,7 @@
 				A9EB3D291E94F3D3002A9BCC /* UITabBarItemSpec.swift in Sources */,
 				538DCB7E1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */,
 				9A1D06521D93EA7E00ACF44C /* UITextFieldSpec.swift in Sources */,
+				5B76DE412498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */,
 				4EE637342090EFDF00ECD02A /* UIViewControllerSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2236,6 +2240,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
@@ -2248,6 +2253,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
@@ -2260,6 +2266,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
@@ -2272,6 +2279,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
@@ -2711,6 +2719,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2721,6 +2730,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2791,6 +2801,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2861,6 +2872,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";

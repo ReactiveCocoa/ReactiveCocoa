@@ -39,5 +39,6 @@ let package = Package(
                 "Nimble"
             ],
             path: "ReactiveCocoaTests"),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]    
 )

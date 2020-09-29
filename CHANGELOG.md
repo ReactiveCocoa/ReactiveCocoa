@@ -1,6 +1,7 @@
 # master
 
 
+# 11.1.0
 # 11.0.01. Binding for `WKInterfaceActivityRing` has been removed, since it causes watchOS builds to be linked with HealthKit, leading to potential App Store rejections for apps who do not use HealthKit. (#3706)
 
    Users who depend on the `WKInterfaceActivityRing` binding [should consider replicating them in their projects instead](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/10.3.0/ReactiveCocoa/WatchKit/WKInterfaceActivityRing.swift).

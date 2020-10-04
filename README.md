@@ -134,6 +134,26 @@ of your package in `Package.swift`:
     `ReactiveCocoa.framework` and `ReactiveSwift.framework` to the “Embedded Binaries” section.
  1. If your application target does not contain Swift code at all, you should also
     set the `EMBEDDED_CONTENT_CONTAINS_SWIFT` build setting to “Yes”.
+    
+    ## Setup
+
+There are various ways you can add BadgeSwift to your Xcode project.
+
+**Add source (iOS 7+)**
+
+Simply add [BadgeSwift.swift](https://github.com/evgenyneu/swift-badge/blob/master/BadgeSwift/BadgeSwift.swift) file to your project.
+
+#### Setup with Carthage (iOS 8+)
+
+Alternatively, add `github "evgenyneu/swift-badge" ~> 8.0` to your Cartfile and run `carthage update`.
+
+#### Setup with CocoaPods (iOS 8+)
+
+If you are using CocoaPods add this text to your Podfile and run `pod install`.
+
+    use_frameworks!
+    target 'Your target name'
+    pod 'BadgeSwift', '~> 8.0'
 
 ## Have a question?
 If you need any help, please visit our [GitHub issues][] or [Stack Overflow][]. Feel free to file an issue if you do not manage to find any solution from the archives.

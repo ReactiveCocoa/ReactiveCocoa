@@ -1,5 +1,5 @@
 # master
-
+1. Fix iOS deployment targets in ReactiveCocoa.podspec and ReactiveMapKit.podspec
 
 # 11.1.0
 # 11.0.01. Binding for `WKInterfaceActivityRing` has been removed, since it causes watchOS builds to be linked with HealthKit, leading to potential App Store rejections for apps who do not use HealthKit. (#3706)

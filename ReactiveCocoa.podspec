@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ReactiveCocoa"
-  s.version      = "11.1.0"
+  s.version      = "11.2.0"
   s.summary      = "Streams of values over time"
   s.description  = <<-DESC
                    ReactiveCocoa (RAC) is a Cocoa framework built on top of ReactiveSwift. It provides APIs for using ReactiveSwift with Apple's Cocoa frameworks.
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.author       = "ReactiveCocoa"
 
   s.osx.deployment_target = "10.9"
-  s.ios.deployment_target = "8.0"
+  s.ios.deployment_target = "9.0"
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
 
@@ -24,8 +24,8 @@ Pod::Spec.new do |s|
   s.watchos.source_files = "ReactiveCocoa/WatchKit/*.{swift}"
   s.module_name = 'ReactiveCocoa'
 
-  s.dependency 'ReactiveSwift', '~> 6.2'
+  s.dependency 'ReactiveSwift', '~> 6.6'
 
   s.pod_target_xcconfig = { "OTHER_SWIFT_FLAGS[config=Release]" => "$(inherited) -suppress-warnings" }
-  s.swift_versions = ['5.0', '5.1', '5.2']
+  s.swift_versions = ['5.1', '5.2']
 end

@@ -587,7 +587,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					testObject.rac_value = 2
 
-					expect(atomicCounter).toEventually(equal(Int64(numIterations * 2)), timeout: 30.0)
+					expect(atomicCounter).toEventually(equal(Int64(numIterations * 2)), timeout: .seconds(30))
 				}
 
 				// Direct port of https://github.com/ReactiveCocoa/ReactiveObjC/blob/3.1.0/ReactiveObjCTests/RACKVOProxySpec.m#L196
@@ -652,7 +652,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					iterationQueue.resume()
 
-					waitUntil(timeout: 3.0) { done in
+					waitUntil(timeout: .seconds(3)) { done in
 						iterationQueue.async(flags: .barrier, execute: done)
 					}
 				}

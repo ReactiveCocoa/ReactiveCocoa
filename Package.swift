@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ReactiveCocoa/ReactiveSwift", from: "6.6.0"),
         .package(url: "https://github.com/Quick/Quick.git", from: "3.0.0"),
-        .package(url: "https://github.com/Quick/Nimble.git", from: "8.0.0"),
+        .package(url: "https://github.com/Quick/Nimble.git", from: "9.0.0"),
     ],
     targets: [
         .target(

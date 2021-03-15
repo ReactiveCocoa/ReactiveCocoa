@@ -44,7 +44,7 @@ public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError mayb
 		if sentValues != values {
 			let message = ExpectationMessage.expectedCustomValueTo(
 				"send values <\(values)>",
-				"<\(sentValues)>"
+				actual: "<\(sentValues)>"
 			)
 			return PredicateResult(status: .doesNotMatch, message: message)
 		}
@@ -52,7 +52,7 @@ public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError mayb
 		if sentError != maybeSendError {
 			let message = ExpectationMessage.expectedCustomValueTo(
 				"send error <\(String(describing: maybeSendError))>",
-				"<\(String(describing: sentError))>"
+				actual: "<\(String(describing: sentError))>"
 			)
 			return PredicateResult(status: .doesNotMatch, message: message)
 		}

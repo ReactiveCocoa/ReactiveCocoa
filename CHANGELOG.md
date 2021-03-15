@@ -1,5 +1,7 @@
 # master
 
+1. Requires ReactiveSwift 6.6.0 or later.
+1. The minimum deployment target for iOS has been raised consistently to 9.0 across all integration mediums.
 
 # 11.1.0
 # 11.0.01. Binding for `WKInterfaceActivityRing` has been removed, since it causes watchOS builds to be linked with HealthKit, leading to potential App Store rejections for apps who do not use HealthKit. (#3706)

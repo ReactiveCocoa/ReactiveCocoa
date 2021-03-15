@@ -23,7 +23,7 @@ jobs:
       - name: Carthage verification
         run: |
           carthage checkout
-          carthage build --cache-builds --no-skip-current
+          carthage build --cache-builds --no-skip-current --use-xcframeworks
   swiftpm-macos:
     if: ${{ github.event_name == 'push' || ( github.event_name == 'pull_request' && github.event.label.name == 'ci:verify' ) }}
     name: SwiftPM macOS

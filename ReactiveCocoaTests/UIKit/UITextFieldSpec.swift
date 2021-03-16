@@ -154,6 +154,7 @@ class UITextFieldSpec: QuickSpec {
 			expect(textField.textColor == UIColor.red) == false
 		}
 
+		#if !targetEnvironment(macCatalyst)
 		it("should not deadlock when the text field is asked to resign first responder by any of its observers") {
 			UIView.setAnimationsEnabled(false)
 			defer { UIView.setAnimationsEnabled(true) }
@@ -192,6 +193,7 @@ class UITextFieldSpec: QuickSpec {
 				expect(values) == ["1", "2", "2"]
 			}
 		}
+		#endif
 	}
 }
 

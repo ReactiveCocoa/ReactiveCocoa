@@ -79,7 +79,7 @@ class UIRefreshControlSpec: QuickSpec {
 			refreshControl.sendActions(for: .valueChanged)
 			expect(refreshControl.isRefreshing) == true
 
-			expect(refreshControl.isRefreshing).toEventually(equal(false), timeout: 2)
+			expect(refreshControl.isRefreshing).toEventually(equal(false), timeout: .seconds(2))
 		}
 	}
 }

@@ -24,7 +24,7 @@ class MKMapViewSpec: QuickSpec {
 			//
 			// Temporarily disabled since the expectation keeps failing with
 			// Xcode 8.3 and macOS Sierra 10.12.4.
-			#if !os(macOS)
+			#if !os(macOS) && !targetEnvironment(macCatalyst)
 			// using toEventually(beNil()) here
 			// since it takes time to release MKMapView
 			expect(_mapView).toEventually(beNil())

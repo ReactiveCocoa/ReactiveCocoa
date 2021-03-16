@@ -1,5 +1,8 @@
 # master
 
+
+# 11.2.0
+
 1. Requires ReactiveSwift 6.6.0 or later.
 1. The minimum deployment target for iOS has been raised consistently to 9.0 across all integration mediums.
 

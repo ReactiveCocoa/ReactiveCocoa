@@ -1,6 +1,9 @@
 # master
 
-1. Adds support for Xcode 12.5
+
+# 11.2.1
+
+1. Fixed missing Foundation import when building with SPM in Xcode 12.5. (#3725, kudos to @TimPapler)
 
 # 11.2.0
 

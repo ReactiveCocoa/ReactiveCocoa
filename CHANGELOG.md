@@ -1,5 +1,6 @@
 # master
 
+1. Adds support for Xcode 12.5
 
 # 11.2.0
 

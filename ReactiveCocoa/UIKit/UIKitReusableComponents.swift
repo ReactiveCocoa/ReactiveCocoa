@@ -2,7 +2,7 @@
 import UIKit
 import ReactiveSwift
 
-@objc public protocol Reusable: class {
+@objc public protocol Reusable: AnyObject {
 	func prepareForReuse()
 }
 

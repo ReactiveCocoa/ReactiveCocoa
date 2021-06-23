@@ -32,7 +32,7 @@ internal final class ActionProxy<Owner: AnyObject>: NSObject {
 
 private let hasSwizzledKey = AssociationKey<Bool>(default: false)
 
-@objc internal protocol ActionMessageSending: class {
+@objc internal protocol ActionMessageSending: AnyObject {
 	weak var target: AnyObject? { get set }
 	var action: Selector? { get set }
 }

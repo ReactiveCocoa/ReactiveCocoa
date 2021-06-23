@@ -70,6 +70,9 @@
 		834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */; };
 		834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834DE1131E4122910099F4E5 /* NSSlider.swift */; };
 		8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */; };
+		84ADBDAB26660EA800ACE342 /* UIImpactFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ADBDA826660EA800ACE342 /* UIImpactFeedbackGenerator.swift */; };
+		84ADBDB026660EE800ACE342 /* UINotificationFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ADBDAE26660EE800ACE342 /* UINotificationFeedbackGenerator.swift */; };
+		84ADBDB126660EE800ACE342 /* UISelectionFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ADBDAF26660EE800ACE342 /* UISelectionFeedbackGenerator.swift */; };
 		9A0726F31E912B610081F3F7 /* ActionProxySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */; };
 		9A16755D1F80DE1C00B63650 /* MKMapViewSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */; };
 		9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
@@ -299,9 +302,6 @@
 		A9EB3D2C1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */; };
 		A9EB3D2D1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */; };
 		A9EB3D811E955602002A9BCC /* UIFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D7D1E955602002A9BCC /* UIFeedbackGenerator.swift */; };
-		A9EB3D821E955602002A9BCC /* UIImpact​Feedback​Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D7E1E955602002A9BCC /* UIImpact​Feedback​Generator.swift */; };
-		A9EB3D831E955602002A9BCC /* UINotification​Feedback​Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D7F1E955602002A9BCC /* UINotification​Feedback​Generator.swift */; };
-		A9EB3D841E955602002A9BCC /* UISelection​Feedback​Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D801E955602002A9BCC /* UISelection​Feedback​Generator.swift */; };
 		B696FB811A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		B696FB821A7640C00075236D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
 		BEE020661D637B0000DF261F /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B696FB801A7640C00075236D /* TestError.swift */; };
@@ -503,6 +503,9 @@
 		834DE1111E4120340099F4E5 /* NSSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSegmentedControl.swift; sourceTree = "<group>"; };
 		834DE1131E4122910099F4E5 /* NSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSSlider.swift; sourceTree = "<group>"; };
 		8392D8FC1DB93E5E00504ED4 /* NSImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
+		84ADBDA826660EA800ACE342 /* UIImpactFeedbackGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImpactFeedbackGenerator.swift; sourceTree = "<group>"; };
+		84ADBDAE26660EE800ACE342 /* UINotificationFeedbackGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINotificationFeedbackGenerator.swift; sourceTree = "<group>"; };
+		84ADBDAF26660EE800ACE342 /* UISelectionFeedbackGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UISelectionFeedbackGenerator.swift; sourceTree = "<group>"; };
 		9A0726F21E912B610081F3F7 /* ActionProxySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionProxySpec.swift; sourceTree = "<group>"; };
 		9A16753D1F80C35100B63650 /* ReactiveMapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveMapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A1675411F80C35100B63650 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -603,9 +606,6 @@
 		A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITabBarItem.swift; sourceTree = "<group>"; };
 		A9EB3D261E94F3C7002A9BCC /* UITabBarItemSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITabBarItemSpec.swift; sourceTree = "<group>"; };
 		A9EB3D7D1E955602002A9BCC /* UIFeedbackGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFeedbackGenerator.swift; sourceTree = "<group>"; };
-		A9EB3D7E1E955602002A9BCC /* UIImpact​Feedback​Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImpact​Feedback​Generator.swift"; sourceTree = "<group>"; };
-		A9EB3D7F1E955602002A9BCC /* UINotification​Feedback​Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINotification​Feedback​Generator.swift"; sourceTree = "<group>"; };
-		A9EB3D801E955602002A9BCC /* UISelection​Feedback​Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UISelection​Feedback​Generator.swift"; sourceTree = "<group>"; };
 		B696FB801A7640C00075236D /* TestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
 		BF4335641E02AC7600AC88DD /* UIScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollView.swift; sourceTree = "<group>"; };
 		BF4335661E02EEDE00AC88DD /* UIScrollViewSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIScrollViewSpec.swift; sourceTree = "<group>"; };
@@ -995,9 +995,9 @@
 			children = (
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				A9EB3D7D1E955602002A9BCC /* UIFeedbackGenerator.swift */,
-				A9EB3D7E1E955602002A9BCC /* UIImpact​Feedback​Generator.swift */,
-				A9EB3D7F1E955602002A9BCC /* UINotification​Feedback​Generator.swift */,
-				A9EB3D801E955602002A9BCC /* UISelection​Feedback​Generator.swift */,
+				84ADBDA826660EA800ACE342 /* UIImpactFeedbackGenerator.swift */,
+				84ADBDAE26660EE800ACE342 /* UINotificationFeedbackGenerator.swift */,
+				84ADBDAF26660EE800ACE342 /* UISelectionFeedbackGenerator.swift */,
 				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
 				BFE145881E43991A00208736 /* UIPickerView.swift */,
 				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
@@ -2000,14 +2000,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9EB3D201E94F08A002A9BCC /* UINavigationItem.swift in Sources */,
-				A9EB3D841E955602002A9BCC /* UISelection​Feedback​Generator.swift in Sources */,
 				4ABEFE251DCFCF630066A8C2 /* UICollectionView.swift in Sources */,
 				9A1D06011D93EA0000ACF44C /* UIBarItem.swift in Sources */,
 				A9EB3D811E955602002A9BCC /* UIFeedbackGenerator.swift in Sources */,
 				9A1D060D1D93EA0000ACF44C /* UITextField.swift in Sources */,
 				9A9037501ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9AB15C7B1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
-				A9EB3D831E955602002A9BCC /* UINotification​Feedback​Generator.swift in Sources */,
 				9A6AAA231DB8F51C0013AAEA /* UIKitReusableComponents.swift in Sources */,
 				9A7488491E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9A1D060E1D93EA0000ACF44C /* UITextView.swift in Sources */,
@@ -2029,12 +2027,12 @@
 				9A1D06021D93EA0000ACF44C /* UIButton.swift in Sources */,
 				4EE6372E2090EEFA00ECD02A /* UIViewController.swift in Sources */,
 				9AA0BD901DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
-				A9EB3D821E955602002A9BCC /* UIImpact​Feedback​Generator.swift in Sources */,
 				419139461DB910570043C9D1 /* UIGestureRecognizer.swift in Sources */,
 				9AA0BD7D1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
 				BFE1458A1E439AB000208736 /* UIPickerView.swift in Sources */,
 				9A1D060A1D93EA0000ACF44C /* UISwitch.swift in Sources */,
 				9A1D065C1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
+				84ADBDB026660EE800ACE342 /* UINotificationFeedbackGenerator.swift in Sources */,
 				9A1D06071D93EA0000ACF44C /* UILabel.swift in Sources */,
 				BF4335651E02AC7600AC88DD /* UIScrollView.swift in Sources */,
 				4A0E11001D2A92720065D310 /* AnyObject+Lifetime.swift in Sources */,
@@ -2046,9 +2044,11 @@
 				531866F81DD7920400D1285F /* UIStepper.swift in Sources */,
 				A9EB3D2C1E94F5A2002A9BCC /* UITabBarItem.swift in Sources */,
 				538DCB7A1DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
+				84ADBDB126660EE800ACE342 /* UISelectionFeedbackGenerator.swift in Sources */,
 				9A1D06001D93EA0000ACF44C /* UIBarButtonItem.swift in Sources */,
 				9AA0BD991DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */,
 				9A1D05FF1D93EA0000ACF44C /* UIActivityIndicatorView.swift in Sources */,
+				84ADBDAB26660EA800ACE342 /* UIImpactFeedbackGenerator.swift in Sources */,
 				9A54A21C1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
 				9AA0BD8B1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9A1D06091D93EA0000ACF44C /* UISegmentedControl.swift in Sources */,

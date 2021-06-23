@@ -1,4 +1,4 @@
 github "Quick/Nimble" "v9.0.0"
 github "Quick/Quick" "v3.1.2"
-github "ReactiveCocoa/ReactiveSwift" "6.6.0"
+github "ReactiveCocoa/ReactiveSwift" "6.6.1"
 github "xcconfigs/xcconfigs" "1.1"

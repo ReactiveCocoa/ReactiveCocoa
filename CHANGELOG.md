@@ -1,6 +1,6 @@
 # master
 
-1. Use preferred AnyObject keyword.
+1. Building from Xcode project no longer warns about use of deprecated `class` keyword usage. (#3726, kudos to @michalsrutek)
 
 # 11.2.1
 

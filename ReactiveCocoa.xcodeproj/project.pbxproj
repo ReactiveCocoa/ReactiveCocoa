@@ -2247,7 +2247,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -2260,7 +2259,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Test;
 		};
@@ -2273,7 +2271,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -2286,7 +2283,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Profile;
 		};
@@ -2299,7 +2295,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -2312,7 +2307,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Test;
 		};
@@ -2325,7 +2319,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -2338,7 +2331,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Profile;
 		};
@@ -2351,7 +2343,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Debug;
 		};
@@ -2364,7 +2355,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Test;
 		};
@@ -2377,7 +2367,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Release;
 		};
@@ -2390,7 +2379,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Profile;
 		};
@@ -2403,7 +2391,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -2416,7 +2403,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Test;
 		};
@@ -2429,7 +2415,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -2442,7 +2427,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Profile;
 		};
@@ -2454,7 +2438,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Debug;
 		};
@@ -2466,7 +2449,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Test;
 		};
@@ -2478,7 +2460,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Release;
 		};
@@ -2490,7 +2471,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Profile;
 		};
@@ -2503,7 +2483,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -2516,7 +2495,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Test;
 		};
@@ -2529,7 +2507,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -2542,7 +2519,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Profile;
 		};

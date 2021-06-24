@@ -1,6 +1,7 @@
 # master
 
 1. Building from Xcode project no longer warns about use of deprecated `class` keyword usage. (#3726, kudos to @michalsrutek)
+2. Updated Carthage xcconfig dependency to 1.1 for proper building arm64 macOS variants.
 
 # 11.2.1
 

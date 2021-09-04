@@ -838,13 +838,14 @@ class InterceptingSpec: QuickSpec {
 			}
 
 			it("should not deadlock") {
+				let queue = DispatchQueue.global()
 				for _ in 1 ... 10 {
 					var isDeadlocked = true
 
-					DispatchQueue.global(priority: .high).async {
+					queue.async {
 						_ = object.reactive.signal(for: #selector(object.increment))
 
-						DispatchQueue.global(priority: .high).async {
+						queue.async {
 							_ = object.reactive.signal(for: #selector(object.increment))
 
 							isDeadlocked = false

@@ -638,11 +638,11 @@
 		D047263319E49FE8006002AA /* iOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Base.xcconfig"; sourceTree = "<group>"; };
 		D047263419E49FE8006002AA /* iOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		D047263519E49FE8006002AA /* iOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
-		D047263719E49FE8006002AA /* Mac-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Application.xcconfig"; sourceTree = "<group>"; };
-		D047263819E49FE8006002AA /* Mac-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Base.xcconfig"; sourceTree = "<group>"; };
-		D047263919E49FE8006002AA /* Mac-DynamicLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-DynamicLibrary.xcconfig"; sourceTree = "<group>"; };
-		D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Framework.xcconfig"; sourceTree = "<group>"; };
-		D047263B19E49FE8006002AA /* Mac-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		D047263719E49FE8006002AA /* macOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Application.xcconfig"; sourceTree = "<group>"; };
+		D047263819E49FE8006002AA /* macOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Base.xcconfig"; sourceTree = "<group>"; };
+		D047263919E49FE8006002AA /* macOS-DynamicLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-DynamicLibrary.xcconfig"; sourceTree = "<group>"; };
+		D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Framework.xcconfig"; sourceTree = "<group>"; };
+		D047263B19E49FE8006002AA /* macOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicPropertySpec.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -650,6 +650,7 @@
 		D9558AB71DFF805A003254E1 /* NSPopUpButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPopUpButton.swift; sourceTree = "<group>"; };
 		E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceLabel.swift; sourceTree = "<group>"; };
 		E3AA54C2214292540077B206 /* WKInterfaceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKInterfaceButton.swift; sourceTree = "<group>"; };
+		E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-XCTest.xcconfig"; sourceTree = "<group>"; };
 		E921428A2284A12B007E412D /* WKInterfaceObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceObject.swift; sourceTree = "<group>"; };
 		E921428D2284A44F007E412D /* WKInterfaceDate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceDate.swift; sourceTree = "<group>"; };
 		E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKInterfaceTimer.swift; sourceTree = "<group>"; };
@@ -801,8 +802,8 @@
 		056D088022C00A6A00291F50 /* ReactiveCocoaObjC */ = {
 			isa = PBXGroup;
 			children = (
-				9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */,
 				F44078372371B6E400F103E7 /* include */,
+				9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */,
 			);
 			path = ReactiveCocoaObjC;
 			sourceTree = "<group>";
@@ -810,8 +811,8 @@
 		056D088222C00B2700291F50 /* ReactiveCocoaObjCTestSupport */ = {
 			isa = PBXGroup;
 			children = (
-				9AD841DB204C29B90040F0C0 /* MessageForwardingEntity.m */,
 				F440783B2371C00800F103E7 /* include */,
+				9AD841DB204C29B90040F0C0 /* MessageForwardingEntity.m */,
 			);
 			path = ReactiveCocoaObjCTestSupport;
 			sourceTree = "<group>";
@@ -846,8 +847,8 @@
 		9A16753E1F80C35100B63650 /* ReactiveMapKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */,
 				9A1675411F80C35100B63650 /* Info.plist */,
+				53A6BED51DD4BD2C0016C058 /* MKMapViewSpec.swift */,
 			);
 			path = ReactiveMapKitTests;
 			sourceTree = "<group>";
@@ -856,6 +857,7 @@
 			isa = PBXGroup;
 			children = (
 				9AED64C41E496A3700321004 /* ActionProxy.swift */,
+				9A6AAA251DB8F5280013AAEA /* AppKitReusableComponents.swift */,
 				006518751E26865800C3139A /* NSButton.swift */,
 				4ABEFE2F1DCFD0530066A8C2 /* NSCollectionView.swift */,
 				9ADE4A881DA6D206005C2AC8 /* NSControl.swift */,
@@ -867,7 +869,6 @@
 				9ADE4A951DA6F018005C2AC8 /* NSTextField.swift */,
 				7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */,
 				537EC08021A950CA00D6EE18 /* NSView.swift */,
-				9A6AAA251DB8F5280013AAEA /* AppKitReusableComponents.swift */,
 			);
 			path = AppKit;
 			sourceTree = "<group>";
@@ -876,7 +877,6 @@
 			isa = PBXGroup;
 			children = (
 				CD91E3D41DDAC67700FA70D0 /* iOS */,
-				9A6AAA221DB8F51C0013AAEA /* UIKitReusableComponents.swift */,
 				9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */,
 				4EE637352090F92600ECD02A /* UIApplication.swift */,
 				9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */,
@@ -886,18 +886,19 @@
 				9A1D05F11D93E9F100ACF44C /* UIControl.swift */,
 				419139431DB910570043C9D1 /* UIGestureRecognizer.swift */,
 				9A1D05F31D93E9F100ACF44C /* UIImageView.swift */,
+				9A6AAA221DB8F51C0013AAEA /* UIKitReusableComponents.swift */,
 				9A1D05F41D93E9F100ACF44C /* UILabel.swift */,
 				A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */,
 				9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */,
+				A9D8BA70207CD7090031733D /* UIResponder.swift */,
 				BF4335641E02AC7600AC88DD /* UIScrollView.swift */,
 				9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */,
-				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */,
+				4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */,
 				9A1D05FA1D93E9F100ACF44C /* UITextField.swift */,
 				9A1D05FB1D93E9F100ACF44C /* UITextView.swift */,
 				9A1D05FC1D93E9F100ACF44C /* UIView.swift */,
 				4EE6372D2090EEFA00ECD02A /* UIViewController.swift */,
-				A9D8BA70207CD7090031733D /* UIResponder.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -955,9 +956,9 @@
 		9AC03A581F7CC3BF00EC33C1 /* ReactiveMapKit */ = {
 			isa = PBXGroup;
 			children = (
-				53A6BED11DD4BCA90016C058 /* MKMapView.swift */,
-				A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */,
 				9AC03A5A1F7CC3BF00EC33C1 /* Info.plist */,
+				A91244E720389AEA0001BBCB /* MKLocalSearchRequest.swift */,
+				53A6BED11DD4BCA90016C058 /* MKMapView.swift */,
 			);
 			path = ReactiveMapKit;
 			sourceTree = "<group>";
@@ -996,12 +997,12 @@
 				9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */,
 				A9EB3D7D1E955602002A9BCC /* UIFeedbackGenerator.swift */,
 				A9EB3D7E1E955602002A9BCC /* UIImpact​Feedback​Generator.swift */,
-				A9EB3D7F1E955602002A9BCC /* UINotification​Feedback​Generator.swift */,
-				A9EB3D801E955602002A9BCC /* UISelection​Feedback​Generator.swift */,
 				9AAD49871DED2C350068EC9B /* UIKeyboard.swift */,
+				A9EB3D7F1E955602002A9BCC /* UINotification​Feedback​Generator.swift */,
 				BFE145881E43991A00208736 /* UIPickerView.swift */,
 				3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */,
 				BFCF775E1DFAD8A50058006E /* UISearchBar.swift */,
+				A9EB3D801E955602002A9BCC /* UISelection​Feedback​Generator.swift */,
 				53AC46CB1DD6F97400C799E1 /* UISlider.swift */,
 				531866F71DD7920400D1285F /* UIStepper.swift */,
 				9A1D05F71D93E9F100ACF44C /* UISwitch.swift */,
@@ -1048,6 +1049,12 @@
 		D04725EC19E49ED7006002AA /* ReactiveCocoa */ = {
 			isa = PBXGroup;
 			children = (
+				F44078392371BE3D00F103E7 /* include */,
+				9A1D05E91D93E9F100ACF44C /* AppKit */,
+				538DCB761DCA5E1600332880 /* Shared */,
+				D04725ED19E49ED7006002AA /* Supporting Files */,
+				9A1D05EB1D93E9F100ACF44C /* UIKit */,
+				E3AA54BF214291590077B206 /* WatchKit */,
 				4A0E10FE1D2A92720065D310 /* AnyObject+Lifetime.swift */,
 				9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */,
 				9A2E425D1DAA6737006D909F /* CocoaTarget.swift */,
@@ -1067,12 +1074,6 @@
 				9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */,
 				9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */,
 				9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */,
-				9A1D05E91D93E9F100ACF44C /* AppKit */,
-				F44078392371BE3D00F103E7 /* include */,
-				538DCB761DCA5E1600332880 /* Shared */,
-				D04725ED19E49ED7006002AA /* Supporting Files */,
-				9A1D05EB1D93E9F100ACF44C /* UIKit */,
-				E3AA54BF214291590077B206 /* WatchKit */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -1089,25 +1090,25 @@
 			isa = PBXGroup;
 			children = (
 				9ADE4A8C1DA6D94C005C2AC8 /* AppKit */,
-				9A1D06231D93EA7E00ACF44C /* UIKit */,
 				538DCB771DCA5E3200332880 /* Shared */,
+				D04725FA19E49ED7006002AA /* Supporting Files */,
+				9A1D06231D93EA7E00ACF44C /* UIKit */,
+				9AD841D6204C29B90040F0C0 /* ReactiveCocoaTests-Bridging-Header.h */,
 				9A9DFEE81DA7EFB60039EE1B /* AssociationSpec.swift */,
 				9A7990CD1F1085D8001493A3 /* BindingTargetSpec.swift */,
 				CD8401821CEE8ED7009F0ABF /* CocoaActionSpec.swift */,
 				9A892D8E1E8D19BE00EA35F3 /* DelegateProxySpec.swift */,
+				3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */,
 				D0A2260D1A72F16D00D33B74 /* DynamicPropertySpec.swift */,
-				B696FB801A7640C00075236D /* TestError.swift */,
+				9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */,
+				9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */,
 				9A1E72B91D4DE96500CC20C3 /* KeyValueObservingSpec.swift */,
 				9AA6A1E31F11F9A800CA2257 /* KeyValueObservingSpec+Swift4.swift */,
 				9AFCBFE21EB1ABC0004B4C74 /* KVOKVCExtensionSpec.swift */,
-				9A6AAA0D1DB6A4CF0013AAEA /* InterceptingSpec.swift */,
-				9A54A2101DDF5B4D001739B3 /* InterceptingPerformanceTests.swift */,
 				9ADFE5A01DBFFBCF001E11F7 /* LifetimeSpec.swift */,
-				9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */,
-				3B30EE8B1E7BE529007CC8EF /* DeprecationsSpec.swift */,
 				CD42C69A1E951F6900AA9504 /* ReactiveCocoaTestsConfiguration.swift */,
-				D04725FA19E49ED7006002AA /* Supporting Files */,
-				9AD841D6204C29B90040F0C0 /* ReactiveCocoaTests-Bridging-Header.h */,
+				9A24A8431DE1429600987AF9 /* SwizzlingSpec.swift */,
+				B696FB801A7640C00075236D /* TestError.swift */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1130,7 +1131,7 @@
 			children = (
 				D047262619E49FE8006002AA /* Base */,
 				D047263119E49FE8006002AA /* iOS */,
-				D047263619E49FE8006002AA /* Mac OS X */,
+				D047263619E49FE8006002AA /* macOS */,
 				A97451321B3A935E00F48E55 /* watchOS */,
 				57A4D2431BA13F9700F7D4B1 /* tvOS */,
 				D047263C19E49FE8006002AA /* README.md */,
@@ -1181,36 +1182,37 @@
 			path = iOS;
 			sourceTree = "<group>";
 		};
-		D047263619E49FE8006002AA /* Mac OS X */ = {
+		D047263619E49FE8006002AA /* macOS */ = {
 			isa = PBXGroup;
 			children = (
-				D047263719E49FE8006002AA /* Mac-Application.xcconfig */,
-				D047263819E49FE8006002AA /* Mac-Base.xcconfig */,
-				D047263919E49FE8006002AA /* Mac-DynamicLibrary.xcconfig */,
-				D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */,
-				D047263B19E49FE8006002AA /* Mac-StaticLibrary.xcconfig */,
+				D047263719E49FE8006002AA /* macOS-Application.xcconfig */,
+				D047263819E49FE8006002AA /* macOS-Base.xcconfig */,
+				D047263919E49FE8006002AA /* macOS-DynamicLibrary.xcconfig */,
+				D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */,
+				D047263B19E49FE8006002AA /* macOS-StaticLibrary.xcconfig */,
+				E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */,
 			);
-			path = "Mac OS X";
+			path = macOS;
 			sourceTree = "<group>";
 		};
 		E3AA54BF214291590077B206 /* WatchKit */ = {
 			isa = PBXGroup;
 			children = (
-				E921428A2284A12B007E412D /* WKInterfaceObject.swift */,
-				E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */,
 				E3AA54C2214292540077B206 /* WKInterfaceButton.swift */,
-				E921428D2284A44F007E412D /* WKInterfaceDate.swift */,
-				E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */,
-				E92142912284AA64007E412D /* WKInterfaceSwitch.swift */,
-				E92142932284ABDF007E412D /* WKInterfaceSlider.swift */,
-				E921429B2284B0A8007E412D /* WKInterfaceImage.swift */,
-				E92142A8228552CC007E412D /* WKInterfaceMovie.swift */,
-				E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */,
-				E921429D2284B1C4007E412D /* WKInterfaceVolumeControl.swift */,
-				E92142972284AEF0007E412D /* WKInterfaceGroup.swift */,
-				E92142992284AF99007E412D /* WKInterfaceSeparator.swift */,
-				E921429F2284B4FF007E412D /* WKInterfacePicker.swift */,
 				E92142A12284B64E007E412D /* WKInterfaceController.swift */,
+				E921428D2284A44F007E412D /* WKInterfaceDate.swift */,
+				E92142972284AEF0007E412D /* WKInterfaceGroup.swift */,
+				E921429B2284B0A8007E412D /* WKInterfaceImage.swift */,
+				E92142AA228553C5007E412D /* WKInterfaceInlineMovie.swift */,
+				E3AA54C02142918B0077B206 /* WKInterfaceLabel.swift */,
+				E92142A8228552CC007E412D /* WKInterfaceMovie.swift */,
+				E921428A2284A12B007E412D /* WKInterfaceObject.swift */,
+				E921429F2284B4FF007E412D /* WKInterfacePicker.swift */,
+				E92142992284AF99007E412D /* WKInterfaceSeparator.swift */,
+				E92142932284ABDF007E412D /* WKInterfaceSlider.swift */,
+				E92142912284AA64007E412D /* WKInterfaceSwitch.swift */,
+				E921428F2284A4EF007E412D /* WKInterfaceTimer.swift */,
+				E921429D2284B1C4007E412D /* WKInterfaceVolumeControl.swift */,
 			);
 			path = WatchKit;
 			sourceTree = "<group>";
@@ -2154,7 +2156,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2166,7 +2167,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2178,7 +2178,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2190,7 +2189,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2240,12 +2238,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -2253,12 +2248,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Test;
 		};
@@ -2266,12 +2258,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -2279,12 +2268,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = iphoneos;
 			};
 			name = Profile;
 		};
@@ -2297,7 +2283,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -2310,7 +2295,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Test;
 		};
@@ -2323,7 +2307,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -2336,7 +2319,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = iphoneos;
 			};
 			name = Profile;
 		};
@@ -2349,7 +2331,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Debug;
 		};
@@ -2362,7 +2343,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Test;
 		};
@@ -2375,7 +2355,6 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Release;
 		};
@@ -2388,59 +2367,50 @@
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = appletvos;
 			};
 			name = Profile;
 		};
 		9A73DFF4216D3CEB0069AD76 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		9A73DFF5216D3CEB0069AD76 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Test;
 		};
 		9A73DFF6216D3CEB0069AD76 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		9A73DFF7216D3CEB0069AD76 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = macosx;
 			};
 			name = Profile;
 		};
@@ -2449,10 +2419,8 @@
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Debug;
 		};
@@ -2461,10 +2429,8 @@
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Test;
 		};
@@ -2473,10 +2439,8 @@
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Release;
 		};
@@ -2485,62 +2449,56 @@
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
-				SDKROOT = appletvos;
 			};
 			name = Profile;
 		};
 		9AC03A5D1F7CC3BF00EC33C1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		9AC03A5E1F7CC3BF00EC33C1 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Test;
 		};
 		9AC03A5F1F7CC3BF00EC33C1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		9AC03A601F7CC3BF00EC33C1 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveMapKit/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKit;
 				PRODUCT_NAME = ReactiveMapKit;
-				SDKROOT = macosx;
 			};
 			name = Profile;
 		};
@@ -2550,7 +2508,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2562,7 +2519,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2574,7 +2530,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2586,7 +2541,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
@@ -2606,10 +2560,12 @@
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_TESTABILITY = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -2632,11 +2588,13 @@
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -2647,7 +2605,7 @@
 		};
 		D047260119E49ED7006002AA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2659,7 +2617,7 @@
 		};
 		D047260219E49ED7006002AA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2671,7 +2629,7 @@
 		};
 		D047260419E49ED7006002AA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -2682,7 +2640,7 @@
 		};
 		D047260519E49ED7006002AA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -2697,7 +2655,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
@@ -2710,7 +2667,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
@@ -2721,7 +2677,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2732,7 +2687,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2752,10 +2706,12 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -2766,7 +2722,7 @@
 		};
 		D047263E19E4A008006002AA /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2778,7 +2734,7 @@
 		};
 		D047263F19E4A008006002AA /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -2793,7 +2749,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
@@ -2804,7 +2759,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
@@ -2824,10 +2778,12 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -2838,7 +2794,7 @@
 		};
 		D047264319E4A00B006002AA /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D047263A19E49FE8006002AA /* macOS-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2850,7 +2806,7 @@
 		};
 		D047264419E4A00B006002AA /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D047263719E49FE8006002AA /* Mac-Application.xcconfig */;
+			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -2865,7 +2821,6 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
@@ -2876,7 +2831,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D047263219E49FE8006002AA /* iOS-Application.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";

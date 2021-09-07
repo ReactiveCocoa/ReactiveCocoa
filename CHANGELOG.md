@@ -1,6 +1,11 @@
 # master
 
 
+# 11.2.2
+
+1. Building from Xcode project no longer warns about use of deprecated `class` keyword usage. (#3726, kudos to @michalsrutek)
+2. Updated Carthage xcconfig dependency to 1.1 for proper building arm64 macOS variants.
+
 # 11.2.1
 
 1. Fixed missing Foundation import when building with SPM in Xcode 12.5. (#3725, kudos to @TimPapler)

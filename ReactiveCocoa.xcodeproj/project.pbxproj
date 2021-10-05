@@ -51,6 +51,22 @@
 		538DCB7F1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB7C1DCA5E9B00332880 /* NSLayoutConstraintSpec.swift */; };
 		53AC46CC1DD6F97400C799E1 /* UISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CB1DD6F97400C799E1 /* UISlider.swift */; };
 		53AC46CF1DD6FC0000C799E1 /* UISliderSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CE1DD6FC0000C799E1 /* UISliderSpec.swift */; };
+		57911A0D270C43AE00E26A24 /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F71D93E9F100ACF44C /* UISwitch.swift */; };
+		57911A0E270C43B200E26A24 /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */; };
+		57911A0F270C43B600E26A24 /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */; };
+		57911A10270C43BA00E26A24 /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */; };
+		57911A11270C43BC00E26A24 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EF1D93E9F100ACF44C /* UIButton.swift */; };
+		57911A12270C43BF00E26A24 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */; };
+		57911A13270C43C100E26A24 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F11D93E9F100ACF44C /* UIControl.swift */; };
+		57911A14270C43C400E26A24 /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
+		57911A15270C43C600E26A24 /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F31D93E9F100ACF44C /* UIImageView.swift */; };
+		57911A16270C43CB00E26A24 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F41D93E9F100ACF44C /* UILabel.swift */; };
+		57911A17270C43CE00E26A24 /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
+		57911A18270C43D400E26A24 /* UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335641E02AC7600AC88DD /* UIScrollView.swift */; };
+		57911A19270C43D800E26A24 /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */; };
+		57911A1B270C43E000E26A24 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */; };
+		57911A1C270C43E700E26A24 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FC1D93E9F100ACF44C /* UIView.swift */; };
+		57911A1D270C43EA00E26A24 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5B76DE402498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
 		5B76DE412498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
@@ -1927,34 +1943,50 @@
 				4ABEFE2B1DCFD0030066A8C2 /* NSTableView.swift in Sources */,
 				CD0C45DE1CC9A288009F5BF0 /* DynamicProperty.swift in Sources */,
 				4ABEFE301DCFD0530066A8C2 /* NSCollectionView.swift in Sources */,
+				57911A1C270C43E700E26A24 /* UIView.swift in Sources */,
+				57911A1D270C43EA00E26A24 /* UIViewController.swift in Sources */,
+				57911A14270C43C400E26A24 /* UIGestureRecognizer.swift in Sources */,
+				57911A13270C43C100E26A24 /* UIControl.swift in Sources */,
 				537EC08121A950CA00D6EE18 /* NSView.swift in Sources */,
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9AA0BD8F1DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
+				57911A10270C43BA00E26A24 /* UIBarItem.swift in Sources */,
+				57911A0D270C43AE00E26A24 /* UISwitch.swift in Sources */,
 				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,
 				9A7488481E3B8ACE00CD0317 /* DelegateProxy.swift in Sources */,
 				9AE7C2A41DDD7F5100F7534C /* ObjC+Messages.swift in Sources */,
+				57911A16270C43CB00E26A24 /* UILabel.swift in Sources */,
 				006518761E26865800C3139A /* NSButton.swift in Sources */,
 				9A54A21B1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
+				57911A11270C43BC00E26A24 /* UIButton.swift in Sources */,
+				57911A0F270C43B600E26A24 /* UIBarButtonItem.swift in Sources */,
 				9AA0BD8A1DDE153A00531FCF /* ObjC+Constants.swift in Sources */,
 				9AED64C51E496A3700321004 /* ActionProxy.swift in Sources */,
 				9A6AAA261DB8F5280013AAEA /* AppKitReusableComponents.swift in Sources */,
 				9A90374F1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift in Sources */,
 				9AA0BD7C1DDE03DE00531FCF /* ObjC+Runtime.swift in Sources */,
 				9ADFE5A51DC0001C001E11F7 /* Synchronizing.swift in Sources */,
+				57911A0E270C43B200E26A24 /* UIActivityIndicatorView.swift in Sources */,
 				9ADE4A7C1DA44A9E005C2AC8 /* CocoaAction.swift in Sources */,
 				9ADE4A961DA6F018005C2AC8 /* NSTextField.swift in Sources */,
 				9AA0BD981DDE7A2200531FCF /* ObjCRuntimeAliases.m in Sources */,
+				57911A1B270C43E000E26A24 /* UITableView.swift in Sources */,
+				57911A18270C43D400E26A24 /* UIScrollView.swift in Sources */,
+				57911A19270C43D800E26A24 /* UISegmentedControl.swift in Sources */,
 				7A8BA0FA1FCC86FC003241C7 /* NSTextView.swift in Sources */,
+				57911A17270C43CE00E26A24 /* UINavigationItem.swift in Sources */,
 				9A2E425E1DAA6737006D909F /* CocoaTarget.swift in Sources */,
 				9AB15C7A1E26CD9A00997378 /* Deprecations+Removals.swift in Sources */,
 				8392D8FD1DB93E5E00504ED4 /* NSImageView.swift in Sources */,
+				57911A12270C43BF00E26A24 /* UICollectionView.swift in Sources */,
 				9ADE4A891DA6D206005C2AC8 /* NSControl.swift in Sources */,
 				9AF0EA751D9A7FF700F27DDF /* NSObject+BindingTarget.swift in Sources */,
 				D9558AB81DFF805A003254E1 /* NSPopUpButton.swift in Sources */,
 				834DE1141E4122910099F4E5 /* NSSlider.swift in Sources */,
 				9ADE4A911DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
 				834DE1121E4120340099F4E5 /* NSSegmentedControl.swift in Sources */,
+				57911A15270C43C600E26A24 /* UIImageView.swift in Sources */,
 				9A1D065B1D93EC6E00ACF44C /* NSObject+Intercepting.swift in Sources */,
 				4A0E10FF1D2A92720065D310 /* AnyObject+Lifetime.swift in Sources */,
 				9AA0BD811DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift in Sources */,

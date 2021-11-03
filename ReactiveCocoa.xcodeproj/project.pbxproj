@@ -67,6 +67,7 @@
 		57911A1B270C43E000E26A24 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */; };
 		57911A1C270C43E700E26A24 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FC1D93E9F100ACF44C /* UIView.swift */; };
 		57911A1D270C43EA00E26A24 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
+		579C7D4E2731BC43009F8A2F /* UIKitReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* UIKitReusableComponents.swift */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5B76DE402498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
 		5B76DE412498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
@@ -1951,6 +1952,7 @@
 				9AD0F06A1D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift in Sources */,
 				9AA0BD8F1DDE29F800531FCF /* NSObject+ObjCRuntime.swift in Sources */,
 				57911A10270C43BA00E26A24 /* UIBarItem.swift in Sources */,
+				579C7D4E2731BC43009F8A2F /* UIKitReusableComponents.swift in Sources */,
 				57911A0D270C43AE00E26A24 /* UISwitch.swift in Sources */,
 				9A1D05E01D93E99100ACF44C /* NSObject+Association.swift in Sources */,
 				538DCB791DCA5E6C00332880 /* NSLayoutConstraint.swift in Sources */,

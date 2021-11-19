@@ -1,5 +1,6 @@
 # master
 
+1. Requires ReactiveSwift 7.0.
 
 # 11.2.2
 

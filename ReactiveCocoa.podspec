@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.watchos.source_files = "ReactiveCocoa/WatchKit/*.{swift}"
   s.module_name = 'ReactiveCocoa'
 
-  s.dependency 'ReactiveSwift', '~> 6.6'
+  s.dependency 'ReactiveSwift', '~> 7.0'
 
   s.pod_target_xcconfig = { "OTHER_SWIFT_FLAGS[config=Release]" => "$(inherited) -suppress-warnings" }
   s.swift_versions = ['5.1', '5.2']

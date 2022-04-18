@@ -1326,9 +1326,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 57A4D23C1BA13D7A00F7D4B1 /* Build configuration list for PBXNativeTarget "ReactiveCocoa-tvOS" */;
 			buildPhases = (
+				57A4D2091BA13D7A00F7D4B1 /* Headers */,
 				57A4D1B01BA13D7A00F7D4B1 /* Sources */,
 				57A4D2071BA13D7A00F7D4B1 /* Frameworks */,
-				57A4D2091BA13D7A00F7D4B1 /* Headers */,
 				57A4D23B1BA13D7A00F7D4B1 /* Resources */,
 			);
 			buildRules = (
@@ -1382,9 +1382,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9A73DFB6216D3C550069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-iOS" */;
 			buildPhases = (
+				9A73DFB4216D3C550069AD76 /* Headers */,
 				9A73DFAD216D3C550069AD76 /* Sources */,
 				9A73DFB0216D3C550069AD76 /* Frameworks */,
-				9A73DFB4216D3C550069AD76 /* Headers */,
 				9A73DFB5216D3C550069AD76 /* Resources */,
 			);
 			buildRules = (
@@ -1400,9 +1400,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9A73DFC7216D3C570069AD76 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-tvOS" */;
 			buildPhases = (
+				9A73DFC5216D3C570069AD76 /* Headers */,
 				9A73DFBE216D3C570069AD76 /* Sources */,
 				9A73DFC1216D3C570069AD76 /* Frameworks */,
-				9A73DFC5216D3C570069AD76 /* Headers */,
 				9A73DFC6216D3C570069AD76 /* Resources */,
 			);
 			buildRules = (
@@ -1456,9 +1456,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9AC03A5C1F7CC3BF00EC33C1 /* Build configuration list for PBXNativeTarget "ReactiveMapKit-macOS" */;
 			buildPhases = (
+				9AC03A541F7CC3BF00EC33C1 /* Headers */,
 				9AC03A521F7CC3BF00EC33C1 /* Sources */,
 				9AC03A531F7CC3BF00EC33C1 /* Frameworks */,
-				9AC03A541F7CC3BF00EC33C1 /* Headers */,
 				9AC03A551F7CC3BF00EC33C1 /* Resources */,
 			);
 			buildRules = (
@@ -1474,9 +1474,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A9B3155D1B3940610001CB9C /* Build configuration list for PBXNativeTarget "ReactiveCocoa-watchOS" */;
 			buildPhases = (
+				A9B315511B3940610001CB9C /* Headers */,
 				A9B3154F1B3940610001CB9C /* Sources */,
 				A9B315501B3940610001CB9C /* Frameworks */,
-				A9B315511B3940610001CB9C /* Headers */,
 				A9B315521B3940610001CB9C /* Resources */,
 			);
 			buildRules = (
@@ -1492,9 +1492,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D047260019E49ED7006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-macOS" */;
 			buildPhases = (
+				D04725E719E49ED7006002AA /* Headers */,
 				D04725E519E49ED7006002AA /* Sources */,
 				D04725E619E49ED7006002AA /* Frameworks */,
-				D04725E719E49ED7006002AA /* Headers */,
 				D04725E819E49ED7006002AA /* Resources */,
 			);
 			buildRules = (
@@ -1528,9 +1528,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D047261F19E49F82006002AA /* Build configuration list for PBXNativeTarget "ReactiveCocoa-iOS" */;
 			buildPhases = (
+				D047260919E49F82006002AA /* Headers */,
 				D047260719E49F82006002AA /* Sources */,
 				D047260819E49F82006002AA /* Frameworks */,
-				D047260919E49F82006002AA /* Headers */,
 				D047260A19E49F82006002AA /* Resources */,
 			);
 			buildRules = (

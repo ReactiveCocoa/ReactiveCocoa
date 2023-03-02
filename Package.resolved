@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/mattgallagher/CwlCatchException.git",
         "state": {
           "branch": null,
-          "revision": "682841464136f8c66e04afe5dbd01ab51a3a56f2",
-          "version": "2.1.0"
+          "revision": "35f9e770f54ce62dd8526470f14c6e137cef3eea",
+          "version": "2.1.1"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/mattgallagher/CwlPreconditionTesting.git",
         "state": {
           "branch": null,
-          "revision": "02b7a39a99c4da27abe03cab2053a9034379639f",
-          "version": "2.0.0"
+          "revision": "c21f7bab5ca8eee0a9998bbd17ca1d0eb45d4688",
+          "version": "2.1.0"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/Quick/Nimble.git",
         "state": {
           "branch": null,
-          "revision": "af1730dde4e6c0d45bf01b99f8a41713ce536790",
-          "version": "9.2.0"
+          "revision": "c93f16c25af5770f0d3e6af27c9634640946b068",
+          "version": "9.2.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/ReactiveCocoa/ReactiveSwift",
         "state": {
           "branch": null,
-          "revision": "efb2f0a6f6c8739cce8fb14148a5bd3c83f2f91d",
-          "version": "7.0.0"
+          "revision": "40c465af19b993344e84355c00669ba2022ca3cd",
+          "version": "7.1.1"
         }
       }
     ]

@@ -9,10 +9,10 @@ Pod::Spec.new do |s|
   s.license      = { :type => "MIT", :file => "LICENSE.md" }
   s.author       = "ReactiveCocoa"
 
-  s.osx.deployment_target = "10.9"
-  s.ios.deployment_target = "9.0"
-  s.tvos.deployment_target = "9.0"
-  s.watchos.deployment_target = "2.0"
+  s.osx.deployment_target = "10.13"
+  s.ios.deployment_target = "11.0"
+  s.tvos.deployment_target = "11.0"
+  s.watchos.deployment_target = "4.0"
 
   s.source       = { :git => "https://github.com/ReactiveCocoa/ReactiveCocoa.git", :tag => "#{s.version}" }
   s.source_files = "ReactiveCocoa/*.{swift,h,m}", "ReactiveCocoa/Shared/*.{swift}", "ReactiveCocoaObjC/**/*.{h,m}"

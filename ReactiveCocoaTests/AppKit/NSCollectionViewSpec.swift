@@ -5,7 +5,6 @@ import ReactiveCocoa
 import ReactiveSwift
 import AppKit
 
-@available(macOS 10.11, *)
 final class NSCollectionViewSpec: QuickSpec {
 	override func spec() {
 		var collectionView: TestCollectionView!
@@ -43,7 +42,6 @@ final class NSCollectionViewSpec: QuickSpec {
 	}
 }
 
-@available(macOS 10.11, *)
 private final class TestCollectionView: NSCollectionView {
 	let reloadDataSignal: Signal<(), Never>
 	private let reloadDataObserver: Signal<(), Never>.Observer

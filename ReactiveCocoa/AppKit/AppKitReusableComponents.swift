@@ -9,7 +9,6 @@ extension Reactive where Base: NSView {
 }
 
 extension Reactive where Base: NSObject, Base: NSCollectionViewElement {
-	@available(macOS 10.11, *)
 	public var prepareForReuse: Signal<(), Never> {
 		return trigger(for: #selector(base.prepareForReuse))
 	}

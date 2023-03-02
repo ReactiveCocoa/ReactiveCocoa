@@ -32,12 +32,12 @@ jobs:
             SCHEME=ReactiveCocoa-iOS
             ;;
           "tvOS")
-            DESTINATION="platform=tvOS Simulator,name=Apple TV 4K"
+            DESTINATION="platform=tvOS Simulator,name=Apple TV"
             SCHEME=ReactiveCocoa-tvOS
             ;;
           "watchOS")
             ACTION=build
-            DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 5 - 44mm"
+            DESTINATION="platform=watchOS Simulator,name=Apple Watch Series 5 (44mm)"
             SCHEME=ReactiveCocoa-watchOS
             ;;
           "macCatalyst")

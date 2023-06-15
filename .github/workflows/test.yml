@@ -10,9 +10,9 @@ jobs:
           destination: [macOS, macCatalyst, iOS, tvOS, watchOS]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Recover cached dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         id: dependency-cache
         with:
           path: Carthage/Checkouts
@@ -55,7 +55,7 @@ jobs:
           esac
           xcodebuild clean ${ACTION} \
             -destination "${DESTINATION}" \
-            -scheme ${SCHEME} \
+            -scheme "${SCHEME}" \
             -workspace ReactiveCocoa.xcworkspace \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \

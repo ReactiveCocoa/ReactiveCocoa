@@ -2409,7 +2409,6 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 			};
@@ -2420,7 +2419,6 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 			};
@@ -2431,7 +2429,6 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 			};
@@ -2442,7 +2439,6 @@
 			baseConfigurationReference = D047263719E49FE8006002AA /* macOS-Application.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveMapKitTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactivecocoa.ReactiveMapKitTests;
 				PRODUCT_NAME = ReactiveMapKitTests;
 			};
@@ -2599,16 +2595,16 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_TESTABILITY = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+				WATCHOS_DEPLOYMENT_TARGET = 4.0;
 			};
 			name = Debug;
 		};
@@ -2627,17 +2623,17 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+				WATCHOS_DEPLOYMENT_TARGET = 4.0;
 			};
 			name = Release;
 		};
@@ -2672,7 +2668,6 @@
 			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2683,7 +2678,6 @@
 			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2696,7 +2690,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Debug;
@@ -2708,7 +2701,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Release;
@@ -2747,16 +2739,16 @@
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+				WATCHOS_DEPLOYMENT_TARGET = 4.0;
 			};
 			name = Profile;
 		};
@@ -2778,7 +2770,6 @@
 			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2791,7 +2782,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Profile;
@@ -2820,16 +2810,16 @@
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactivecocoa.$(PRODUCT_NAME:rfc1034identifier)-Tests";
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+				WATCHOS_DEPLOYMENT_TARGET = 4.0;
 			};
 			name = Test;
 		};
@@ -2851,7 +2841,6 @@
 			baseConfigurationReference = E6124BA8267DF3C0005A3490 /* macOS-XCTest.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(PROJECT_NAME)Tests";
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Bridging-Header.h";
 			};
@@ -2864,7 +2853,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
 			};
 			name = Test;

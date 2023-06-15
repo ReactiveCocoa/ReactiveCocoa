@@ -23,21 +23,19 @@ class ReusableComponentsSpec: QuickSpec {
 			}
 		}
 
-		if #available(macOS 10.11, *) {
-			describe("NSCollectionViewItem") {
-				it("should send a `value` event when `prepareForReuse` is triggered") {
-					let item = TestViewItem()
+		describe("NSCollectionViewItem") {
+			it("should send a `value` event when `prepareForReuse` is triggered") {
+				let item = TestViewItem()
 
-					var isTriggered = false
-					item.reactive.prepareForReuse.observeValues {
-						isTriggered = true
-					}
-
-					expect(isTriggered) == false
-
-					item.prepareForReuse()
-					expect(isTriggered) == true
+				var isTriggered = false
+				item.reactive.prepareForReuse.observeValues {
+					isTriggered = true
 				}
+
+				expect(isTriggered) == false
+
+				item.prepareForReuse()
+				expect(isTriggered) == true
 			}
 		}
 	}

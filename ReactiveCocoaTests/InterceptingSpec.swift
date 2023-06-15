@@ -85,11 +85,7 @@ class InterceptingSpec: QuickSpec {
 					var isDeadlocked = true
 
 					func createQueue() -> DispatchQueue {
-						if #available(*, macOS 10.10) {
-							return .global(qos: .userInitiated)
-						} else {
-							return .global(priority: .high)
-						}
+						.global(qos: .userInitiated)
 					}
 
 					createQueue().async {

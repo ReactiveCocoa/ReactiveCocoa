@@ -1,7 +1,10 @@
 # master
 
+1. Add compatibility with ReactiveSwift 7.1.1 and bump minimum deployment targets to macOS 10.13, iOS 11.0, tvOS 11.0 and watchOS 4.0.
 
-# 12.0.01. Requires ReactiveSwift 7.0.
+# 12.0.0
+
+1. Requires ReactiveSwift 7.0.
 
 # 11.2.2
 

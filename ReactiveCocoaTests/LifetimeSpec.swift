@@ -27,11 +27,7 @@ class LifetimeSpec: QuickSpec {
 					var isDeadlocked = true
 
 					func createQueue() -> DispatchQueue {
-						if #available(*, macOS 10.10) {
-							return .global(qos: .userInitiated)
-						} else {
-							return .global(priority: .high)
-						}
+						.global(qos: .userInitiated)
 					}
 
 					createQueue().async {
@@ -68,11 +64,7 @@ class LifetimeSpec: QuickSpec {
 					var isDeadlocked = true
 
 					func createQueue() -> DispatchQueue {
-						if #available(*, macOS 10.10) {
-							return .global(qos: .userInitiated)
-						} else {
-							return .global(priority: .high)
-						}
+						return .global(qos: .userInitiated)
 					}
 
 					createQueue().async {

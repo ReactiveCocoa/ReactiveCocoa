@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "ReactiveCocoa",
     platforms: [
-        .macOS(.v10_10), .iOS(.v9), .tvOS(.v9), .watchOS(.v2)
+        .macOS(.v10_13), .iOS(.v11), .tvOS(.v11), .watchOS(.v4)
     ],
     products: [
         .library(name: "ReactiveCocoa", targets: ["ReactiveCocoa"])
@@ -40,5 +40,5 @@ let package = Package(
             ],
             path: "ReactiveCocoaTests"),
     ],
-    swiftLanguageVersions: [.v5]    
+    swiftLanguageVersions: [.v5]
 )

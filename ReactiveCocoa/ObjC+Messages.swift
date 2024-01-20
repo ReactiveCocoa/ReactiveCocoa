@@ -35,6 +35,9 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 	@objc(invoke)
 	func objcInvoke()
 
+	@objc(getReturnValue:)
+	func objcCopyReturnValue(to buffer: UnsafeMutableRawPointer?)
+
 	@objc(invocationWithMethodSignature:)
 	static func objcInvocation(withMethodSignature signature: AnyObject) -> AnyObject
 }
@@ -43,6 +46,9 @@ internal let NSMethodSignature: AnyClass = NSClassFromString("NSMethodSignature"
 @objc internal protocol ObjCMethodSignature {
 	@objc(numberOfArguments)
 	var objcNumberOfArguments: UInt { get }
+
+	@objc(methodReturnType)
+	var objcMethodReturnType: UnsafePointer<CChar> { get }
 
 	@objc(getArgumentTypeAtIndex:)
 	func objcArgumentType(at index: UInt) -> UnsafePointer<CChar>

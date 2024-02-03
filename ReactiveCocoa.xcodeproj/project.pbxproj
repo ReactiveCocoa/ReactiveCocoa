@@ -69,6 +69,60 @@
 		57911A1D270C43EA00E26A24 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
 		579C7D4E2731BC43009F8A2F /* UIKitReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* UIKitReusableComponents.swift */; };
 		57A4D20A1BA13D7A00F7D4B1 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		57C885112A47756D00FC133C /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		57C885122A47756D00FC133C /* ObjCRuntimeAliases.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A1D06751D9415FB00ACF44C /* ObjCRuntimeAliases.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		57C885142A47756D00FC133C /* UINavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D1C1E94ECAC002A9BCC /* UINavigationItem.swift */; };
+		57C885152A47756D00FC133C /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFE231DCFCF5C0066A8C2 /* UICollectionView.swift */; };
+		57C885162A47756D00FC133C /* UIBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EE1D93E9F100ACF44C /* UIBarItem.swift */; };
+		57C885182A47756D00FC133C /* UITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FA1D93E9F100ACF44C /* UITextField.swift */; };
+		57C885192A47756D00FC133C /* ReactiveSwift+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A90374E1ED61C6300345D62 /* ReactiveSwift+Lifetime.swift */; };
+		57C8851A2A47756D00FC133C /* Deprecations+Removals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB15C791E26CD9A00997378 /* Deprecations+Removals.swift */; };
+		57C8851B2A47756D00FC133C /* UIKitReusableComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AAA221DB8F51C0013AAEA /* UIKitReusableComponents.swift */; };
+		57C8851C2A47756D00FC133C /* DelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7488471E3B8ACE00CD0317 /* DelegateProxy.swift */; };
+		57C8851D2A47756D00FC133C /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FB1D93E9F100ACF44C /* UITextView.swift */; };
+		57C8851E2A47756D00FC133C /* UISearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF775E1DFAD8A50058006E /* UISearchBar.swift */; };
+		57C8851F2A47756D00FC133C /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F31D93E9F100ACF44C /* UIImageView.swift */; };
+		57C885202A47756D00FC133C /* NSObject+BindingTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF0EA741D9A7FF700F27DDF /* NSObject+BindingTarget.swift */; };
+		57C885212A47756D00FC133C /* DynamicProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C45DD1CC9A288009F5BF0 /* DynamicProperty.swift */; };
+		57C885222A47756D00FC133C /* ObjC+Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7C2A31DDD7F5100F7534C /* ObjC+Messages.swift */; };
+		57C885232A47756D00FC133C /* CocoaTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2E425D1DAA6737006D909F /* CocoaTarget.swift */; };
+		57C885242A47756D00FC133C /* UIKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAD49871DED2C350068EC9B /* UIKeyboard.swift */; };
+		57C885252A47756D00FC133C /* UISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AC46CB1DD6F97400C799E1 /* UISlider.swift */; };
+		57C885262A47756D00FC133C /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE637352090F92600ECD02A /* UIApplication.swift */; };
+		57C885272A47756D00FC133C /* ObjC+RuntimeSubclassing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD801DDE03F500531FCF /* ObjC+RuntimeSubclassing.swift */; };
+		57C885282A47756D00FC133C /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05FC1D93E9F100ACF44C /* UIView.swift */; };
+		57C885292A47756D00FC133C /* UIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F21D93E9F100ACF44C /* UIDatePicker.swift */; };
+		57C8852A2A47756D00FC133C /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D8BA70207CD7090031733D /* UIResponder.swift */; };
+		57C8852B2A47756D00FC133C /* NSObject+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05DF1D93E99100ACF44C /* NSObject+Association.swift */; };
+		57C8852C2A47756D00FC133C /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F11D93E9F100ACF44C /* UIControl.swift */; };
+		57C8852D2A47756D00FC133C /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EF1D93E9F100ACF44C /* UIButton.swift */; };
+		57C8852E2A47756D00FC133C /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE6372D2090EEFA00ECD02A /* UIViewController.swift */; };
+		57C8852F2A47756D00FC133C /* NSObject+ObjCRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD8E1DDE29F800531FCF /* NSObject+ObjCRuntime.swift */; };
+		57C885302A47756D00FC133C /* UIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419139431DB910570043C9D1 /* UIGestureRecognizer.swift */; };
+		57C885312A47756D00FC133C /* ObjC+Runtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD771DDE03DE00531FCF /* ObjC+Runtime.swift */; };
+		57C885322A47756D00FC133C /* UIPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE145881E43991A00208736 /* UIPickerView.swift */; };
+		57C885332A47756D00FC133C /* UISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F71D93E9F100ACF44C /* UISwitch.swift */; };
+		57C885342A47756D00FC133C /* NSObject+Intercepting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D065A1D93EC6E00ACF44C /* NSObject+Intercepting.swift */; };
+		57C885362A47756D00FC133C /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F41D93E9F100ACF44C /* UILabel.swift */; };
+		57C885372A47756D00FC133C /* UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4335641E02AC7600AC88DD /* UIScrollView.swift */; };
+		57C885382A47756D00FC133C /* AnyObject+Lifetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0E10FE1D2A92720065D310 /* AnyObject+Lifetime.swift */; };
+		57C885392A47756D00FC133C /* NSObject+ReactiveExtensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADE4A901DA6EA40005C2AC8 /* NSObject+ReactiveExtensionsProvider.swift */; };
+		57C8853A2A47756D00FC133C /* Synchronizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFE5A41DC0001C001E11F7 /* Synchronizing.swift */; };
+		57C8853B2A47756D00FC133C /* NSObject+KeyValueObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD0F0691D48BA4800ADFAB7 /* NSObject+KeyValueObserving.swift */; };
+		57C8853C2A47756D00FC133C /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABEFDE11DCFC8560066A8C2 /* UITableView.swift */; };
+		57C8853D2A47756D00FC133C /* UIProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F51D93E9F100ACF44C /* UIProgressView.swift */; };
+		57C8853E2A47756D00FC133C /* UIStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531866F71DD7920400D1285F /* UIStepper.swift */; };
+		57C8853F2A47756D00FC133C /* UITabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB3D241E94F335002A9BCC /* UITabBarItem.swift */; };
+		57C885402A47756D00FC133C /* NSLayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538DCB781DCA5E6C00332880 /* NSLayoutConstraint.swift */; };
+		57C885422A47756D00FC133C /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05ED1D93E9F100ACF44C /* UIBarButtonItem.swift */; };
+		57C885432A47756D00FC133C /* ObjCRuntimeAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD971DDE7A2200531FCF /* ObjCRuntimeAliases.m */; };
+		57C885442A47756D00FC133C /* UIActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05EC1D93E9F100ACF44C /* UIActivityIndicatorView.swift */; };
+		57C885462A47756D00FC133C /* ObjC+Selector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A54A21A1DE00D09001739B3 /* ObjC+Selector.swift */; };
+		57C885472A47756D00FC133C /* ObjC+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA0BD891DDE153A00531FCF /* ObjC+Constants.swift */; };
+		57C885482A47756D00FC133C /* UISegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1D05F61D93E9F100ACF44C /* UISegmentedControl.swift */; };
+		57C885492A47756D00FC133C /* CocoaAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADE4A7B1DA44A9E005C2AC8 /* CocoaAction.swift */; };
+		57C8854A2A47756D00FC133C /* UIRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCAAC791DEE19BC00B30335 /* UIRefreshControl.swift */; };
+		57C8854C2A47756D00FC133C /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A73E035216D3FC50069AD76 /* ReactiveSwift.framework */; };
 		5B76DE402498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
 		5B76DE412498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
 		5B76DE422498EDDC00E8B4F3 /* QueueScheduler+Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */; };
@@ -513,6 +567,7 @@
 		57A4D2451BA13F9700F7D4B1 /* tvOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Base.xcconfig"; sourceTree = "<group>"; };
 		57A4D2461BA13F9700F7D4B1 /* tvOS-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-Framework.xcconfig"; sourceTree = "<group>"; };
 		57A4D2471BA13F9700F7D4B1 /* tvOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "tvOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		57C885532A47756D00FC133C /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B76DE3F2498EDDC00E8B4F3 /* QueueScheduler+Factory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QueueScheduler+Factory.swift"; sourceTree = "<group>"; };
 		7A8BA0F91FCC86FC003241C7 /* NSTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSTextView.swift; sourceTree = "<group>"; };
 		7DFBED031CDB8C9500EE435B /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -690,6 +745,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A73E03C216D3FFC0069AD76 /* ReactiveSwift.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57C8854B2A47756D00FC133C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57C8854C2A47756D00FC133C /* ReactiveSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1059,6 +1122,7 @@
 				9A73DFCC216D3C570069AD76 /* ReactiveMapKit.framework */,
 				9A73DFF8216D3CEB0069AD76 /* ReactiveMapKitTests.xctest */,
 				9A73E013216D3CEE0069AD76 /* ReactiveMapKitTests.xctest */,
+				57C885532A47756D00FC133C /* ReactiveCocoa.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1271,6 +1335,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		57C885102A47756D00FC133C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57C885112A47756D00FC133C /* ReactiveCocoa.h in Headers */,
+				57C885122A47756D00FC133C /* ObjCRuntimeAliases.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A73DFB4216D3C550069AD76 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1338,6 +1411,24 @@
 			name = "ReactiveCocoa-tvOS";
 			productName = "ReactiveCocoa-tvOS";
 			productReference = 57A4D2411BA13D7A00F7D4B1 /* ReactiveCocoa.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		57C8850F2A47756D00FC133C /* ReactiveCocoa-xrOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 57C8854E2A47756D00FC133C /* Build configuration list for PBXNativeTarget "ReactiveCocoa-xrOS" */;
+			buildPhases = (
+				57C885102A47756D00FC133C /* Headers */,
+				57C885132A47756D00FC133C /* Sources */,
+				57C8854B2A47756D00FC133C /* Frameworks */,
+				57C8854D2A47756D00FC133C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ReactiveCocoa-xrOS";
+			productName = "ReactiveCocoa-iOS";
+			productReference = 57C885532A47756D00FC133C /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		7DFBED021CDB8C9500EE435B /* ReactiveCocoa-tvOSTests */ = {
@@ -1641,6 +1732,7 @@
 				A9B315531B3940610001CB9C /* ReactiveCocoa-watchOS */,
 				57A4D1AF1BA13D7A00F7D4B1 /* ReactiveCocoa-tvOS */,
 				7DFBED021CDB8C9500EE435B /* ReactiveCocoa-tvOSTests */,
+				57C8850F2A47756D00FC133C /* ReactiveCocoa-xrOS */,
 				9AC03A561F7CC3BF00EC33C1 /* ReactiveMapKit-macOS */,
 				9A73DFDF216D3CEB0069AD76 /* ReactiveMapKitTests-macOS */,
 				9A73DFAC216D3C550069AD76 /* ReactiveMapKit-iOS */,
@@ -1653,6 +1745,13 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		57A4D23B1BA13D7A00F7D4B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57C8854D2A47756D00FC133C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1795,6 +1894,64 @@
 				9A1D06111D93EA0100ACF44C /* UIActivityIndicatorView.swift in Sources */,
 				9A1D061B1D93EA0100ACF44C /* UISegmentedControl.swift in Sources */,
 				9A54A21E1DE00D09001739B3 /* ObjC+Selector.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57C885132A47756D00FC133C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57C885142A47756D00FC133C /* UINavigationItem.swift in Sources */,
+				57C885152A47756D00FC133C /* UICollectionView.swift in Sources */,
+				57C885162A47756D00FC133C /* UIBarItem.swift in Sources */,
+				57C885182A47756D00FC133C /* UITextField.swift in Sources */,
+				57C885192A47756D00FC133C /* ReactiveSwift+Lifetime.swift in Sources */,
+				57C8851A2A47756D00FC133C /* Deprecations+Removals.swift in Sources */,
+				57C8851B2A47756D00FC133C /* UIKitReusableComponents.swift in Sources */,
+				57C8851C2A47756D00FC133C /* DelegateProxy.swift in Sources */,
+				57C8851D2A47756D00FC133C /* UITextView.swift in Sources */,
+				57C8851E2A47756D00FC133C /* UISearchBar.swift in Sources */,
+				57C8851F2A47756D00FC133C /* UIImageView.swift in Sources */,
+				57C885202A47756D00FC133C /* NSObject+BindingTarget.swift in Sources */,
+				57C885212A47756D00FC133C /* DynamicProperty.swift in Sources */,
+				57C885222A47756D00FC133C /* ObjC+Messages.swift in Sources */,
+				57C885232A47756D00FC133C /* CocoaTarget.swift in Sources */,
+				57C885242A47756D00FC133C /* UIKeyboard.swift in Sources */,
+				57C885252A47756D00FC133C /* UISlider.swift in Sources */,
+				57C885262A47756D00FC133C /* UIApplication.swift in Sources */,
+				57C885272A47756D00FC133C /* ObjC+RuntimeSubclassing.swift in Sources */,
+				57C885282A47756D00FC133C /* UIView.swift in Sources */,
+				57C885292A47756D00FC133C /* UIDatePicker.swift in Sources */,
+				57C8852A2A47756D00FC133C /* UIResponder.swift in Sources */,
+				57C8852B2A47756D00FC133C /* NSObject+Association.swift in Sources */,
+				57C8852C2A47756D00FC133C /* UIControl.swift in Sources */,
+				57C8852D2A47756D00FC133C /* UIButton.swift in Sources */,
+				57C8852E2A47756D00FC133C /* UIViewController.swift in Sources */,
+				57C8852F2A47756D00FC133C /* NSObject+ObjCRuntime.swift in Sources */,
+				57C885302A47756D00FC133C /* UIGestureRecognizer.swift in Sources */,
+				57C885312A47756D00FC133C /* ObjC+Runtime.swift in Sources */,
+				57C885322A47756D00FC133C /* UIPickerView.swift in Sources */,
+				57C885332A47756D00FC133C /* UISwitch.swift in Sources */,
+				57C885342A47756D00FC133C /* NSObject+Intercepting.swift in Sources */,
+				57C885362A47756D00FC133C /* UILabel.swift in Sources */,
+				57C885372A47756D00FC133C /* UIScrollView.swift in Sources */,
+				57C885382A47756D00FC133C /* AnyObject+Lifetime.swift in Sources */,
+				57C885392A47756D00FC133C /* NSObject+ReactiveExtensionsProvider.swift in Sources */,
+				57C8853A2A47756D00FC133C /* Synchronizing.swift in Sources */,
+				57C8853B2A47756D00FC133C /* NSObject+KeyValueObserving.swift in Sources */,
+				57C8853C2A47756D00FC133C /* UITableView.swift in Sources */,
+				57C8853D2A47756D00FC133C /* UIProgressView.swift in Sources */,
+				57C8853E2A47756D00FC133C /* UIStepper.swift in Sources */,
+				57C8853F2A47756D00FC133C /* UITabBarItem.swift in Sources */,
+				57C885402A47756D00FC133C /* NSLayoutConstraint.swift in Sources */,
+				57C885422A47756D00FC133C /* UIBarButtonItem.swift in Sources */,
+				57C885432A47756D00FC133C /* ObjCRuntimeAliases.m in Sources */,
+				57C885442A47756D00FC133C /* UIActivityIndicatorView.swift in Sources */,
+				57C885462A47756D00FC133C /* ObjC+Selector.swift in Sources */,
+				57C885472A47756D00FC133C /* ObjC+Constants.swift in Sources */,
+				57C885482A47756D00FC133C /* UISegmentedControl.swift in Sources */,
+				57C885492A47756D00FC133C /* CocoaAction.swift in Sources */,
+				57C8854A2A47756D00FC133C /* UIRefreshControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2228,6 +2385,58 @@
 			};
 			name = Profile;
 		};
+		57C8854F2A47756D00FC133C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
+				SDKROOT = xros;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Debug;
+		};
+		57C885502A47756D00FC133C /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
+				SDKROOT = xros;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Test;
+		};
+		57C885512A47756D00FC133C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
+				SDKROOT = xros;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Release;
+		};
+		57C885522A47756D00FC133C /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				MODULEMAP_FILE = "$(SRCROOT)/ReactiveCocoa/include/module.modulemap";
+				SDKROOT = xros;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Profile;
+		};
 		7DFBED0B1CDB8C9500EE435B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 57A4D2441BA13F9700F7D4B1 /* tvOS-Application.xcconfig */;
@@ -2605,6 +2814,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Debug;
 		};
@@ -2621,7 +2831,6 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
@@ -2634,6 +2843,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Release;
 		};
@@ -2749,6 +2959,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Profile;
 		};
@@ -2820,6 +3031,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Test;
 		};
@@ -2877,6 +3089,17 @@
 				57A4D23E1BA13D7A00F7D4B1 /* Test */,
 				57A4D23F1BA13D7A00F7D4B1 /* Release */,
 				57A4D2401BA13D7A00F7D4B1 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		57C8854E2A47756D00FC133C /* Build configuration list for PBXNativeTarget "ReactiveCocoa-xrOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				57C8854F2A47756D00FC133C /* Debug */,
+				57C885502A47756D00FC133C /* Test */,
+				57C885512A47756D00FC133C /* Release */,
+				57C885522A47756D00FC133C /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

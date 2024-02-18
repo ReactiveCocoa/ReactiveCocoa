@@ -45,8 +45,9 @@ extension Reactive where Base: NSObject {
 	/// - parameters:
 	///   - selector: The selector to observe.
 	///
-	/// - returns: A signal that sends an array of bridged arguments.
-	public func signal(for selector: Selector) -> Signal<[Any?], Never> {
+	/// - returns: 
+	///   - A signal that sends a tuple of arguments and returned value
+	public func signal(for selector: Selector) -> Signal<(args: [Any?], output: Any?), Never> {
 		return base.intercept(selector).map(unpackInvocation)
 	}
 }
@@ -394,78 +395,97 @@ private func checkTypeEncoding(_ types: UnsafePointer<CChar>) -> Bool {
 /// - parameters:
 ///   - invocation: The `NSInvocation` to unpack.
 ///
-/// - returns: An array of objects.
-private func unpackInvocation(_ invocation: AnyObject) -> [Any?] {
+/// - returns: A tuple of arguments and returned value
+private func unpackInvocation(_ invocation: AnyObject) -> (args: [Any?], output: Any?) {
 	let invocation = invocation as AnyObject
 	let methodSignature = invocation.objcMethodSignature!
 	let count = methodSignature.objcNumberOfArguments!
 
-	var bridged = [Any?]()
-	bridged.reserveCapacity(Int(count - 2))
+	var args = [Any?]()
+	args.reserveCapacity(Int(count - 2))
 
 	// Ignore `self` and `_cmd` at index 0 and 1.
-	for position in 2 ..< count {
-		let rawEncoding = methodSignature.objcArgumentType(at: position)
-		let encoding = ObjCTypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
-
-		func extract<U>(_ type: U.Type) -> U {
-			let pointer = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<U>.size,
-			                                               alignment: MemoryLayout<U>.alignment)
-			defer {
-				pointer.deallocate()
-			}
-
-			invocation.objcCopy(to: pointer, forArgumentAt: Int(position))
-			return pointer.assumingMemoryBound(to: type).pointee
-		}
-
-		let value: Any?
-
-		switch encoding {
-		case .char:
-			value = NSNumber(value: extract(CChar.self))
-		case .int:
-			value = NSNumber(value: extract(CInt.self))
-		case .short:
-			value = NSNumber(value: extract(CShort.self))
-		case .long:
-			value = NSNumber(value: extract(CLong.self))
-		case .longLong:
-			value = NSNumber(value: extract(CLongLong.self))
-		case .unsignedChar:
-			value = NSNumber(value: extract(CUnsignedChar.self))
-		case .unsignedInt:
-			value = NSNumber(value: extract(CUnsignedInt.self))
-		case .unsignedShort:
-			value = NSNumber(value: extract(CUnsignedShort.self))
-		case .unsignedLong:
-			value = NSNumber(value: extract(CUnsignedLong.self))
-		case .unsignedLongLong:
-			value = NSNumber(value: extract(CUnsignedLongLong.self))
-		case .float:
-			value = NSNumber(value: extract(CFloat.self))
-		case .double:
-			value = NSNumber(value: extract(CDouble.self))
-		case .bool:
-			value = NSNumber(value: extract(CBool.self))
-		case .object:
-			value = extract((AnyObject?).self)
-		case .type:
-			value = extract((AnyClass?).self)
-		case .selector:
-			value = extract((Selector?).self)
-		case .undefined:
-			var size = 0, alignment = 0
-			NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
-			let buffer = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
-			defer { buffer.deallocate() }
-
-			invocation.objcCopy(to: buffer, forArgumentAt: Int(position))
-			value = NSValue(bytes: buffer, objCType: rawEncoding)
-		}
-
-		bridged.append(value)
+	for position in 2..<count {
+		args.append(decodeValueFromInvocation(
+			rawEncoding: methodSignature.objcArgumentType(at: position),
+			value: { invocation.objcCopy(to: $0, forArgumentAt: Int(position)) }
+		))
 	}
 
-	return bridged
+	let output = decodeValueFromInvocation(
+		rawEncoding: methodSignature.objcMethodReturnType,
+		value: { invocation.objcCopyReturnValue(to: $0) }
+	)
+
+	return (args, output)
+}
+
+func decodeValueFromInvocation(
+	rawEncoding: UnsafePointer<CChar>,
+	value extractValueToBuffer: (UnsafeMutableRawPointer) -> Void
+) -> Any? {
+	let encoding = ObjCTypeEncoding(rawValue: rawEncoding.pointee) ?? .undefined
+	let value: Any?
+
+	func extract<T>(_ type: T.Type) -> T {
+		let pointer = UnsafeMutableRawPointer.allocate(
+			byteCount: MemoryLayout<T>.size,
+			alignment: MemoryLayout<T>.alignment
+		)
+
+		defer {
+			pointer.deallocate()
+		}
+
+		extractValueToBuffer(pointer)
+		return pointer.assumingMemoryBound(to: type).pointee
+	}
+
+	switch encoding {
+	case .char:
+		value = NSNumber(value: extract(CChar.self))
+	case .int:
+		value = NSNumber(value: extract(CInt.self))
+	case .short:
+		value = NSNumber(value: extract(CShort.self))
+	case .long:
+		value = NSNumber(value: extract(CLong.self))
+	case .longLong:
+		value = NSNumber(value: extract(CLongLong.self))
+	case .unsignedChar:
+		value = NSNumber(value: extract(CUnsignedChar.self))
+	case .unsignedInt:
+		value = NSNumber(value: extract(CUnsignedInt.self))
+	case .unsignedShort:
+		value = NSNumber(value: extract(CUnsignedShort.self))
+	case .unsignedLong:
+		value = NSNumber(value: extract(CUnsignedLong.self))
+	case .unsignedLongLong:
+		value = NSNumber(value: extract(CUnsignedLongLong.self))
+	case .float:
+		value = NSNumber(value: extract(CFloat.self))
+	case .double:
+		value = NSNumber(value: extract(CDouble.self))
+	case .bool:
+		value = NSNumber(value: extract(CBool.self))
+	case .object:
+		value = extract((AnyObject?).self)
+	case .type:
+		value = extract((AnyClass?).self)
+	case .selector:
+		value = extract((Selector?).self)
+	case .void:
+		value = ()
+	case .undefined:
+		var size = 0
+		var alignment = 0
+		NSGetSizeAndAlignment(rawEncoding, &size, &alignment)
+		let buffer = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
+		defer { buffer.deallocate() }
+
+		extractValueToBuffer(buffer)
+		value = NSValue(bytes: buffer, objCType: rawEncoding)
+	}
+
+	return value
 }

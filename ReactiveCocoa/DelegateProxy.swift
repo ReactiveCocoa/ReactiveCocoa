@@ -28,7 +28,7 @@ internal class DelegateProxy<Delegate: NSObjectProtocol>: NSObject {
 		return self.reactive.trigger(for: selector).take(during: lifetime)
 	}
 
-	func intercept(_ selector: Selector) -> Signal<[Any?], Never> {
+	func intercept(_ selector: Selector) -> Signal<(args: [Any?], output: Any?), Never> {
 		interceptedSelectors.insert(selector)
 		originalSetter(self)
 		return self.reactive.signal(for: selector).take(during: lifetime)

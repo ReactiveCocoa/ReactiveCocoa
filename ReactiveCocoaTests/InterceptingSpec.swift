@@ -142,8 +142,8 @@ class InterceptingSpec: QuickSpec {
 				object.reactive
 					.signal(for: #selector(object.set(first:second:)))
 					.observeValues { x in
-						firstValue = x[0] as! Bool?
-						secondValue = x[1] as! String?
+						firstValue = x.args[0] as! Bool?
+						secondValue = x.args[1] as! String?
 				}
 
 				object.set(first: true, second: "Winner")
@@ -171,7 +171,7 @@ class InterceptingSpec: QuickSpec {
 
 				var value: Bool?
 				object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
-					value = x[0] as! Bool?
+					value = x.args[0] as! Bool?
 				}
 
 				object.objectValue = true
@@ -186,7 +186,7 @@ class InterceptingSpec: QuickSpec {
 
 				var value: Bool?
 				object.reactive.signal(for: #selector(setter: object.objectValue)).observeValues { x in
-					value = x[0] as! Bool?
+					value = x.args[0] as! Bool?
 				}
 
 				var latestValue: Bool?
@@ -213,8 +213,8 @@ class InterceptingSpec: QuickSpec {
 				var secondValue: String?
 
 				object.reactive.signal(for: #selector(object.set(first:second:))).observeValues { x in
-					firstValue = x[0] as! Bool?
-					secondValue = x[1] as! String?
+					firstValue = x.args[0] as! Bool?
+					secondValue = x.args[1] as! String?
 				}
 
 				var latestValue: Bool?
@@ -295,12 +295,12 @@ class InterceptingSpec: QuickSpec {
 
 				var value1: Int?
 				object1.reactive.signal(for: selector).observeValues { x in
-					value1 = x[0] as! Int?
+					value1 = x.args[0] as! Int?
 				}
 
 				var value2: Int?
 				object2.reactive.signal(for: selector).observeValues { x in
-					value2 = x[0] as! Int?
+					value2 = x.args[0] as! Int?
 				}
 
 				object1.lifeIsGood(42)
@@ -469,7 +469,7 @@ class InterceptingSpec: QuickSpec {
 			object.reactive
 				.signal(for: #selector(getter: object.description))
 				.observeValues { x in
-					value = x
+					value = x.args
 			}
 
 			expect(value).to(beNil())
@@ -486,7 +486,7 @@ class InterceptingSpec: QuickSpec {
 				object.reactive
 					.signal(for: #selector(object.lifeIsGood))
 					.observeValues { x in
-						value = x[0] as! Int?
+						value = x.args[0] as! Int?
 				}
 
 				object.lifeIsGood(42)
@@ -508,7 +508,7 @@ class InterceptingSpec: QuickSpec {
 				object.reactive
 					.signal(for: #selector(object.lifeIsGood))
 					.observeValues { x in
-						value = x[0] as! Int?
+						value = x.args[0] as! Int?
 				}
 
 				object.reactive
@@ -545,15 +545,15 @@ class InterceptingSpec: QuickSpec {
 			it("should not collide") {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.foo))
-					.observeValues { args in
-						superclassTuple = args.map { $0 ?? NSNull() }
+					.observeValues { invocation in
+						superclassTuple = invocation.args.map { $0 ?? NSNull() }
 					}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.foo))
-					.observeValues { args in
-						subclassTuple = args.map { $0 ?? NSNull() }
+					.observeValues { invocation in
+						subclassTuple = invocation.args.map { $0 ?? NSNull() }
 					}
 
 				expect(superclassObj.foo(40, "foo")) == "Not Subclass 40 foo"
@@ -569,15 +569,15 @@ class InterceptingSpec: QuickSpec {
 			it("should not collide when the superclass is invoked asynchronously") {
 				superclassObj.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
-					.observeValues { args in
-						superclassTuple = args.map { $0 ?? NSNull() }
+					.observeValues { invocation in
+						superclassTuple = invocation.args.map { $0 ?? NSNull() }
 				}
 
 				subclassObj
 					.reactive
 					.signal(for: #selector(InterceptedObject.set(first:second:)))
-					.observeValues { args in
-						subclassTuple = args.map { $0 ?? NSNull() }
+					.observeValues { invocation in
+						subclassTuple = invocation.args.map { $0 ?? NSNull() }
 				}
 
 				superclassObj.set(first: "foo", second:"42")
@@ -643,27 +643,31 @@ class InterceptingSpec: QuickSpec {
 			}
 
 			it("should send a value with bridged numeric arguments") {
-				let signal = object.reactive.signal(for: #selector(object.testNumericValues(c:s:i:l:ll:uc:us:ui:ul:ull:f:d:b:)))
+				let signal = object.reactive.signal(
+					for: #selector(object.testNumericValues(c:s:i:l:ll:uc:us:ui:ul:ull:f:d:b:))
+				)
 
 				var arguments = [[Any?]]()
-				signal.observeValues { arguments.append($0) }
+				signal.observeValues { arguments.append($0.args) }
 
 				expect(arguments.count) == 0
 
 				func call(offset: UInt) {
-					object.testNumericValues(c: CChar.max - CChar(offset),
-					                         s: CShort.max - CShort(offset),
-					                         i: CInt.max - CInt(offset),
-					                         l: CLong.max - CLong(offset),
-					                         ll: CLongLong.max - CLongLong(offset),
-					                         uc: CUnsignedChar.max - CUnsignedChar(offset),
-					                         us: CUnsignedShort.max - CUnsignedShort(offset),
-					                         ui: CUnsignedInt.max - CUnsignedInt(offset),
-					                         ul: CUnsignedLong.max - CUnsignedLong(offset),
-					                         ull: CUnsignedLongLong.max - CUnsignedLongLong(offset),
-					                         f: CFloat.greatestFiniteMagnitude - CFloat(offset),
-					                         d: CDouble.greatestFiniteMagnitude - CDouble(offset),
-					                         b: offset % 2 == 0 ? true : false)
+					object.testNumericValues(
+						c: CChar.max - CChar(offset),
+						s: CShort.max - CShort(offset),
+						i: CInt.max - CInt(offset),
+						l: CLong.max - CLong(offset),
+						ll: CLongLong.max - CLongLong(offset),
+						uc: CUnsignedChar.max - CUnsignedChar(offset),
+						us: CUnsignedShort.max - CUnsignedShort(offset),
+						ui: CUnsignedInt.max - CUnsignedInt(offset),
+						ul: CUnsignedLong.max - CUnsignedLong(offset),
+						ull: CUnsignedLongLong.max - CUnsignedLongLong(offset),
+						f: CFloat.greatestFiniteMagnitude - CFloat(offset),
+						d: CDouble.greatestFiniteMagnitude - CDouble(offset),
+						b: offset % 2 == 0 ? true : false
+					)
 				}
 
 				func validate(arguments: [Any?], offset: UInt) {
@@ -715,7 +719,7 @@ class InterceptingSpec: QuickSpec {
 				let signal = object.reactive.signal(for: #selector(object.testReferences(nonnull:nullable:iuo:class:nullableClass:iuoClass:)))
 
 				var arguments = [[Any?]]()
-				signal.observeValues { arguments.append($0) }
+				signal.observeValues { arguments.append($0.args) }
 
 				expect(arguments.count) == 0
 
@@ -758,7 +762,11 @@ class InterceptingSpec: QuickSpec {
 				let signal = object.reactive.signal(for: #selector(object.testBridgedStructs(p:s:r:a:)))
 
 				var arguments = [[Any?]]()
-				signal.observeValues { arguments.append($0) }
+				var outputs = [[Any?]]()
+				signal.observeValues {
+					arguments.append($0.args)
+					outputs.append($0.output.flatMap { $0 as? [Any?] } ?? [])
+				}
 
 				expect(arguments.count) == 0
 
@@ -789,15 +797,21 @@ class InterceptingSpec: QuickSpec {
 
 				call(offset: 0)
 				expect(arguments.count) == 1
+				expect(outputs.count) == 1
 				validate(arguments: arguments[0], offset: 0)
+				validate(arguments: outputs[0], offset: 0)
 
 				call(offset: 1)
 				expect(arguments.count) == 2
+				expect(outputs.count) == 2
 				validate(arguments: arguments[1], offset: 1)
+				validate(arguments: outputs[1], offset: 1)
 
 				call(offset: 2)
 				expect(arguments.count) == 3
+				expect(outputs.count) == 3
 				validate(arguments: arguments[2], offset: 2)
+				validate(arguments: outputs[2], offset: 2)
 			}
 
 			it("should complete when the object deinitializes") {
@@ -861,7 +875,7 @@ class InterceptingSpec: QuickSpec {
 				var latestValue: Bool?
 				entity.reactive
 					.signal(for: #selector(setter: entity.hasInvoked))
-					.observeValues { latestValue = $0[0] as? Bool }
+					.observeValues { latestValue = $0.args[0] as? Bool }
 
 				expect(entity.hasInvoked) == false
 				expect(latestValue).to(beNil())
@@ -946,7 +960,42 @@ private class InterceptedObject: NSObject {
 		hasInvokedSetObjectValueAndSecondObjectValue = true
 	}
 	
-	@objc dynamic func testNumericValues(c: CChar, s: CShort, i: CInt, l: CLong, ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt, ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble, b: CBool) {}
-	@objc dynamic func testReferences(nonnull: NSObject, nullable: NSObject?, iuo: NSObject!, class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!) {}
-	@objc dynamic func testBridgedStructs(p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform) {}
+	// Returns arguments as an array of Any for easier testability
+	// same validation is used for both inputs and outputs interception
+	@discardableResult
+	@objc dynamic func testNumericValues(
+		c: CChar, s: CShort, i: CInt, l: CLong, 
+		ll: CLongLong, uc: CUnsignedChar, us: CUnsignedShort, ui: CUnsignedInt,
+		ul: CUnsignedLong, ull: CUnsignedLongLong, f: CFloat, d: CDouble,
+		b: CBool
+	) -> [Any] {
+		return [
+			c, s, i, l,
+			ll, uc, us, ui,
+			ul, ull, f, d,
+			b
+		]
+	}
+
+	// Returns arguments as an array of Any for easier testability
+	// same validation is used for both inputs and outputs interception
+	@discardableResult
+	@objc dynamic func testReferences(
+		nonnull: NSObject, nullable: NSObject?, iuo: NSObject!,
+		class: AnyClass, nullableClass: AnyClass?, iuoClass: AnyClass!
+	) -> [Any] {
+		return [
+			nonnull, nullable ?? NSNull(), iuo ?? NSNull(),
+			`class`, nullableClass ?? NSNull(), iuoClass ?? NSNull()
+		]
+	}
+
+	// Returns arguments as an array of Any for easier testability
+	// same validation is used for both inputs and outputs interception
+	@discardableResult
+	@objc dynamic func testBridgedStructs(
+		p: CGPoint, s: CGSize, r: CGRect, a: CGAffineTransform
+	) -> [Any] {
+		return [p, s, r, a]
+	}
 }

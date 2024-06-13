@@ -1,6 +1,7 @@
 # master
 
 1. Add compatibility with ReactiveSwift 7.1.1 and bump minimum deployment targets to macOS 10.13, iOS 11.0, tvOS 11.0 and watchOS 4.0.
+1. Improve interception API by including intercepted function output value to interception signal
 
 # 12.0.0
 
@@ -268,7 +269,7 @@ RAC 5.0 includes a few object interception tools from ReactiveObjC, remastered f
 	// Terminate the KVO observation if the lifetime of `self` ends.
 	let producer = object.reactive.values(forKeyPath: #keyPath(key))
 		.take(during: self.reactive.lifetime)
-
+	
 	// A parameterized property that represents the supplied key path of the
 	// wrapped object. It holds a weak reference to the wrapped object.
 	let property = DynamicProperty<String>(object: person,
@@ -303,11 +304,11 @@ UI components now expose a collection of binding targets to which can be bound f
 	```swift
 	// Update `allowsCookies` whenever the toggle is flipped.
 	preferences.allowsCookies <~ toggle.reactive.isOnValues
-
+	
 	// Compute live character counts from the continuous stream of user initiated
 	// changes in the text.
 	textField.reactive.continuousTextValues.map { $0.characters.count }
-
+	
 	// Trigger `commit` whenever the button is pressed.
 	button.reactive.pressed = CocoaAction(viewModel.commit)
 	```

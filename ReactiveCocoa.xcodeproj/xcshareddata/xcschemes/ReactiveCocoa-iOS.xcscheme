@@ -90,6 +90,20 @@
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9A16753C1F80C35100B63650"
+               BuildableName = "ReactiveMapKitTests.xctest"
+               BlueprintName = "ReactiveMapKitTests-iOS"
+               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -121,16 +135,6 @@
                   Identifier = "UISearchBarSpec">
                </Test>
             </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9A16753C1F80C35100B63650"
-               BuildableName = "ReactiveMapKitTests.xctest"
-               BlueprintName = "ReactiveMapKitTests-iOS"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-            </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>

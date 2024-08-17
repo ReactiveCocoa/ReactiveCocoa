@@ -7,15 +7,15 @@ import AppKit
 
 class NSControlSpec: QuickSpec {
 	override func spec() {
-		describe("NSControl") {
-			var window: NSWindow!
-			var control: NSButton!
-			weak var _control: NSControl?
 
-			beforeEach {
-				window = NSWindow()
+		// Creates a temporary test subject, runs the specified testing block that receives the subject,
+		// and checks if the subject is released.
+		func test(_ subject: (NSButton) -> Void) {
+			weak var reference: NSControl?
+			autoreleasepool {
+				let window = NSWindow()
+				let control = NSButton(frame: .zero)
 
-				control = NSButton(frame: .zero)
 				control.setButtonType(.onOff)
 				#if swift(>=4.0)
 				control.state = .off
@@ -23,21 +23,16 @@ class NSControlSpec: QuickSpec {
 				control.state = RACNSOffState
 				#endif
 
-				_control = control
-
-				window.contentView!.addSubview(control)
+				reference = control
+				window.contentView?.addSubview(control)
+				subject(control)
+				control.removeFromSuperview()
 			}
+			expect(reference).to(beNil())
+		}
 
-			afterEach {
-				autoreleasepool {
-					control.removeFromSuperview()
-					control = nil
-				}
-
-				expect(_control).to(beNil())
-			}
-
-			it("should emit changes in Int") {
+		it("should emit changes in Int") {
+			test { control in
 				var values = [Int]()
 				control.reactive.integerValues.observeValues { values.append($0) }
 
@@ -46,8 +41,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [1, 0]
 			}
+		}
 
-			it("should emit changes in Bool") {
+		it("should emit changes in Bool") {
+			test { control in
 				var values = [Bool]()
 				control.reactive.boolValues.observeValues { values.append($0) }
 
@@ -56,8 +53,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [true, false]
 			}
+		}
 
-			it("should emit changes in Int32") {
+		it("should emit changes in Int32") {
+			test { control in
 				var values = [Int32]()
 				control.reactive.intValues.observeValues { values.append($0) }
 
@@ -66,8 +65,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [1, 0]
 			}
+		}
 
-			it("should emit changes in Double") {
+		it("should emit changes in Double") {
+			test { control in
 				var values = [Double]()
 				control.reactive.doubleValues.observeValues { values.append($0) }
 
@@ -76,8 +77,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [1.0, 0.0]
 			}
+		}
 
-			it("should emit changes in Float") {
+		it("should emit changes in Float") {
+			test { control in
 				var values = [Float]()
 				control.reactive.floatValues.observeValues { values.append($0) }
 
@@ -86,8 +89,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [1.0, 0.0]
 			}
+		}
 
-			it("should emit changes in String") {
+		it("should emit changes in String") {
+			test { control in
 				var values = [String]()
 				control.reactive.stringValues.observeValues { values.append($0) }
 
@@ -96,8 +101,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == ["1", "0"]
 			}
+		}
 
-			it("should emit changes in AttributedString") {
+		it("should emit changes in AttributedString") {
+			test { control in
 				var values = [NSAttributedString]()
 				control.reactive.attributedStringValues.observeValues { values.append($0) }
 
@@ -106,8 +113,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [NSAttributedString(string: "1"), NSAttributedString(string: "0")]
 			}
+		}
 
-			it("should emit changes as objects") {
+		it("should emit changes as objects") {
+			test { control in
 				let values = NSMutableArray()
 				control.reactive.objectValues.observeValues { values.add($0!) }
 
@@ -116,8 +125,10 @@ class NSControlSpec: QuickSpec {
 
 				expect(values) == [NSNumber(value: 1), NSNumber(value: 0)]
 			}
+		}
 
-			it("should emit changes for multiple signals") {
+		it("should emit changes for multiple signals") {
+			test { control in
 				var valuesA = [String]()
 				control.reactive.stringValues.observeValues { valuesA.append($0) }
 
@@ -134,8 +145,10 @@ class NSControlSpec: QuickSpec {
 				expect(valuesB) == [true, false]
 				expect(valuesC) == [1, 0]
 			}
+		}
 
-			it("should not overwrite the existing target") {
+		it("should not overwrite the existing target") {
+			test { control in
 				let target = TestTarget()
 				control.target = target
 				control.action = #selector(target.execute)
@@ -155,8 +168,10 @@ class NSControlSpec: QuickSpec {
 				expect(signalCounter) == 2
 				expect(target.counter) == 3
 			}
+		}
 
-			it("should not overwrite the proxy") {
+		it("should not overwrite the proxy") {
+			test { control in
 				var signalCounter = 0
 				control.reactive.integerValues.observeValues { _ in signalCounter += 1 }
 

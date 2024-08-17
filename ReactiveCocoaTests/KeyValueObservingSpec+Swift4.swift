@@ -164,7 +164,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 		}
 	}
 
-	override class func configure(_ configuration: Configuration) {
+	override class func configure(_ configuration: QCKConfiguration) {
 		sharedExamples("a reactive key value observer using Swift 4 Smart Key Path") { (sharedExampleContext: @escaping SharedExampleContext) in
 			var context: Context!
 
@@ -299,7 +299,7 @@ fileprivate class KeyValueObservingSwift4SpecConfiguration: QuickConfiguration {
 
 					let token = Token()
 					object.target = token
-					expect(value).to(beIdenticalTo(token))
+					expect(value as AnyObject?).to(beIdenticalTo(token))
 				}
 
 				// NOTE: Compiler segfault with key path literals refering to weak

@@ -7,35 +7,31 @@ import AppKit
 
 final class NSPopUpButtonSpec: QuickSpec {
 	override func spec() {
-		describe("NSPopUpButton") {
-			var button: NSPopUpButton!
-			var window: NSWindow!
-			weak var _button: NSButton?
-			let testTitles = (0..<100).map { $0.description }
-			
-			beforeEach {
-				window = NSWindow()
-				button = NSPopUpButton(frame: .zero)
-				_button = button
+		let testTitles = (0..<100).map { $0.description }
+
+		// Creates a temporary test subject, runs the specified testing block that receives the subject,
+		// and checks if the subject is released.
+		func test(_ subject: (NSPopUpButton) -> Void) {
+			weak var reference: AnyObject?
+			autoreleasepool {
+				let window = NSWindow()
+				let button = NSPopUpButton(frame: .zero)
 				for (i, title) in testTitles.enumerated() {
 					let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
 					item.tag = 1000 + i
-
 					button.menu?.addItem(item)
 				}
-
+				reference = button
 				window.contentView?.addSubview(button)
+				subject(button)
+				button.removeFromSuperview()
 			}
-			
-			afterEach {
-				autoreleasepool {
-					button.removeFromSuperview()
-					button = nil
-				}
-				expect(_button).to(beNil())
-			}
-			
-			it("should emit selected index changes") {
+
+			expect(reference).to(beNil())
+		}
+
+		it("should emit selected index changes") {
+			test { button in
 				var values = [Int]()
 				button.reactive.selectedIndexes.observeValues { values.append($0) }
 		
@@ -44,8 +40,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 			
 				expect(values) == [1, 99]
 			}
-			
-			it("should emit selected title changes") {
+		}
+
+		it("should emit selected title changes") {
+			test { button in
 				var values = [String]()
 				button.reactive.selectedTitles.observeValues { values.append($0) }
 			
@@ -54,8 +52,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 				
 				expect(values) == ["1", "99"]
 			}
-			
-			it("should accept changes from its bindings to its index values") {
+		}
+
+		it("should accept changes from its bindings to its index values") {
+			test { button in
 				let (signal, observer) = Signal<Int?, Never>.pipe()
 				button.reactive.selectedIndex <~ SignalProducer(signal)
 				
@@ -69,8 +69,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 				expect(button.indexOfSelectedItem) == -1
 				expect(button.selectedItem?.title).to(beNil())
 			}
-			
-			it("should accept changes from its bindings to its title values") {
+		}
+
+		it("should accept changes from its bindings to its title values") {
+			test { button in
 				let (signal, observer) = Signal<String?, Never>.pipe()
 				button.reactive.selectedTitle <~ SignalProducer(signal)
 				
@@ -84,8 +86,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 				expect(button.selectedItem?.title).to(beNil())
 				expect(button.indexOfSelectedItem) == -1
 			}
+		}
 
-			it("should emit selected item changes") {
+		it("should emit selected item changes") {
+			test { button in
 				var values = [NSMenuItem]()
 				button.reactive.selectedItems.observeValues { values.append($0) }
 
@@ -95,8 +99,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 				let titles = values.map { $0.title }
 				expect(titles) == ["1", "99"]
 			}
+		}
 
-			it("should emit selected tag changes") {
+		it("should emit selected tag changes") {
+			test { button in
 				var values = [Int]()
 				button.reactive.selectedTags.observeValues { values.append($0) }
 
@@ -105,8 +111,10 @@ final class NSPopUpButtonSpec: QuickSpec {
 
 				expect(values) == [1001, 1099]
 			}
+		}
 
-			it("should accept changes from its bindings to its tag values") {
+		it("should accept changes from its bindings to its tag values") {
+			test { button in
 				let (signal, observer) = Signal<Int, Never>.pipe()
 				button.reactive.selectedTag <~ SignalProducer(signal)
 

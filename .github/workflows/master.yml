@@ -13,9 +13,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Recover cached dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         id: dependency-cache
         with:
           path: ~/Library/Caches/org.carthage.CarthageKit
@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Pull dependencies
         run: |
           swift package resolve
@@ -43,7 +43,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: CocoaPods verification
         run: |
           # To work around the lint error: "ERROR | swift: Specification `ReactiveCocoa` specifies an inconsistent `swift_version` (`4.1`) compared to the one present in your `.swift-version` file (`4.1.2`). Please remove the `.swift-version` file which is now deprecated and only use the `swift_version` attribute within your podspec."

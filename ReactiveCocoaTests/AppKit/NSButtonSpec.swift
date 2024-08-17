@@ -7,81 +7,82 @@ import AppKit
 
 class NSButtonSpec: QuickSpec {
 	override func spec() {
-		var button: NSButton!
-		weak var _button: NSButton?
-		
-		var window: NSWindow!
 
-		beforeEach {
-			button = NSButton(frame: .zero)
-			_button = button
-			window = NSWindow()
-			window.contentView?.addSubview(button)
-		}
-
-		afterEach {
+		// Creates a temporary test subject, runs the specified testing block that receives the subject,
+		// and checks if the subject is released.
+		func test(_ subject: (NSButton) -> Void) {
+			weak var reference: NSButton?
 			autoreleasepool {
+				let window = NSWindow()
+				let button = NSButton(frame: .zero)
+				reference = button
+				window.contentView?.addSubview(button)
+				subject(button)
 				button.removeFromSuperview()
-				button = nil
 			}
-			expect(_button).to(beNil())
+			expect(reference).to(beNil())
 		}
 
 		it("should accept changes from bindings to its enabling state") {
-			button.isEnabled = false
+			test { button in
+				button.isEnabled = false
 
-			let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
-			button.reactive.isEnabled <~ SignalProducer(pipeSignal)
+				let (pipeSignal, observer) = Signal<Bool, Never>.pipe()
+				button.reactive.isEnabled <~ SignalProducer(pipeSignal)
 
-			observer.send(value: true)
-			expect(button.isEnabled) == true
+				observer.send(value: true)
+				expect(button.isEnabled) == true
 
-			observer.send(value: false)
-			expect(button.isEnabled) == false
+				observer.send(value: false)
+				expect(button.isEnabled) == false
+			}
 		}
 
 		it("should accept changes from bindings to its state") {
-			button.allowsMixedState = true
-			button.state = RACNSOffState
+			test { button in
+				button.allowsMixedState = true
+				button.state = RACNSOffState
 
-			let (pipeSignal, observer) = Signal<RACNSControlState, Never>.pipe()
-			button.reactive.state <~ SignalProducer(pipeSignal)
+				let (pipeSignal, observer) = Signal<RACNSControlState, Never>.pipe()
+				button.reactive.state <~ SignalProducer(pipeSignal)
 
-			observer.send(value: RACNSOffState)
-			expect(button.state) == RACNSOffState
+				observer.send(value: RACNSOffState)
+				expect(button.state) == RACNSOffState
 
-			observer.send(value: RACNSMixedState)
-			expect(button.state) == RACNSMixedState
+				observer.send(value: RACNSMixedState)
+				expect(button.state) == RACNSMixedState
 
-			observer.send(value: RACNSOnState)
-			expect(button.state) == RACNSOnState
+				observer.send(value: RACNSOnState)
+				expect(button.state) == RACNSOnState
+			}
 		}
 
 		it("should send along state changes") {
-			button.setButtonType(.pushOnPushOff)
-			button.allowsMixedState = false
-			button.state = RACNSOffState
+			test { button in
+				button.setButtonType(.pushOnPushOff)
+				button.allowsMixedState = false
+				button.state = RACNSOffState
 
-			let state = MutableProperty(RACNSOffState)
-			state <~ button.reactive.states
+				let state = MutableProperty(RACNSOffState)
+				state <~ button.reactive.states
 
-			button.performClick(nil)
-			expect(state.value) == RACNSOnState
+				button.performClick(nil)
+				expect(state.value) == RACNSOnState
 
-			button.performClick(nil)
-			expect(state.value) == RACNSOffState
+				button.performClick(nil)
+				expect(state.value) == RACNSOffState
 
-			button.allowsMixedState = true
+				button.allowsMixedState = true
 
-			button.performClick(nil)
-			expect(state.value) == RACNSMixedState
+				button.performClick(nil)
+				expect(state.value) == RACNSMixedState
 
-			button.performClick(nil)
-			expect(state.value) == RACNSOnState
+				button.performClick(nil)
+				expect(state.value) == RACNSOnState
 
-			button.performClick(nil)
-			expect(state.value) == RACNSOffState
-
+				button.performClick(nil)
+				expect(state.value) == RACNSOffState
+			}
 		}
 		
 		it("should send along state changes embedded within NSStackView") {
@@ -124,27 +125,29 @@ class NSButtonSpec: QuickSpec {
 		}
 
 		it("should execute the `pressed` action upon receiving a click") {
-			button.isEnabled = true
+			test { button in
+				button.isEnabled = true
 
-			let pressed = MutableProperty(false)
+				let pressed = MutableProperty(false)
 
-			let (executionSignal, observer) = Signal<Bool, Never>.pipe()
-			let action = Action<(), Bool, Never> { _ in
-				SignalProducer(executionSignal)
+				let (executionSignal, observer) = Signal<Bool, Never>.pipe()
+				let action = Action<(), Bool, Never> { _ in
+					SignalProducer(executionSignal)
+				}
+
+				pressed <~ SignalProducer(action.values)
+				button.reactive.pressed = CocoaAction(action)
+				expect(pressed.value) == false
+
+				button.performClick(nil)
+				expect(button.isEnabled) == false
+
+				observer.send(value: true)
+				observer.sendCompleted()
+
+				expect(button.isEnabled) == true
+				expect(pressed.value) == true
 			}
-
-			pressed <~ SignalProducer(action.values)
-			button.reactive.pressed = CocoaAction(action)
-			expect(pressed.value) == false
-
-			button.performClick(nil)
-			expect(button.isEnabled) == false
-
-			observer.send(value: true)
-			observer.sendCompleted()
-
-			expect(button.isEnabled) == true
-			expect(pressed.value) == true
 		}
 	}
 }

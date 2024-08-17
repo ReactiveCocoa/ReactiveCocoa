@@ -11,11 +11,11 @@ import Foundation
 import ReactiveSwift
 import Nimble
 
-public func sendValue<T: Equatable, E: Equatable>(_ value: T?, sendError: E?, complete: Bool) -> Predicate<SignalProducer<T, E>> {
+public func sendValue<T: Equatable, E: Equatable>(_ value: T?, sendError: E?, complete: Bool) -> Nimble.Predicate<SignalProducer<T, E>> {
 	return sendValues(value.map { [$0] } ?? [], sendError: sendError, complete: complete)
 }
 
-public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError maybeSendError: E?, complete: Bool) -> Predicate<SignalProducer<T, E>> {
+public func sendValues<T: Equatable, E: Equatable>(_ values: [T], sendError maybeSendError: E?, complete: Bool) -> Nimble.Predicate<SignalProducer<T, E>> {
 	return Predicate<SignalProducer<T, E>> { actualExpression in
 		precondition(maybeSendError == nil || !complete, "Signals can't both send an error and complete")
 		guard let signalProducer = try actualExpression.evaluate() else {

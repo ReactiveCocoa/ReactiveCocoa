@@ -4,7 +4,7 @@ import UIKit
 #endif
 
 class ReactiveCocoaTestsConfiguration: QuickConfiguration {
-	override class func configure(_ configuration: Configuration) {
+	override class func configure(_ configuration: QCKConfiguration) {
 		#if canImport(UIKit)
 			configuration.beforeSuite {
 				UIControl._initialize()

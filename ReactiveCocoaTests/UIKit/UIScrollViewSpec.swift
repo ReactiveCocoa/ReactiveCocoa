@@ -23,7 +23,9 @@ class UIScrollViewSpec: QuickSpec {
 
 		afterEach {
 			scrollView = nil
-			expect(_scrollView).to(beNil())
+			// Something keeps retaining the reference for a short while after it gets released,
+			// using `toEventually` ensures the tests are passing.
+			expect(_scrollView).toEventually(beNil())
 		}
 
 		it("should accept changes from bindings to its content inset value") {

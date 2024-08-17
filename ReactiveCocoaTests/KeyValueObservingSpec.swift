@@ -177,7 +177,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 		}
 	}
 
-	override class func configure(_ configuration: Configuration) {
+	override class func configure(_ configuration: QCKConfiguration) {
 		sharedExamples("a reactive key value observer") { (sharedExampleContext: @escaping SharedExampleContext) in
 			var context: Context!
 
@@ -314,7 +314,7 @@ fileprivate class KeyValueObservingSpecConfiguration: QuickConfiguration {
 
 					let token = Token()
 					object.target = token
-					expect(value).to(beIdenticalTo(token))
+					expect(value as AnyObject).to(beIdenticalTo(token))
 				}
 
 				it("should emit a `nil` when the key path is being cleared due to the deallocation of the Objective-C object it held.") {

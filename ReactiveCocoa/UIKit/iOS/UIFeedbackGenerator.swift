@@ -1,4 +1,4 @@
-#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 import ReactiveSwift
 import UIKit
 

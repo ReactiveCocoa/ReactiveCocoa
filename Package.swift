@@ -23,7 +23,10 @@ let package = Package(
 
         .target(
             name: "ReactiveCocoa",
-            dependencies: ["ReactiveSwift", "ReactiveCocoaObjC"],
+            dependencies: [
+                .product(name: "ReactiveSwift", package: "ReactiveSwift"),
+                "ReactiveCocoaObjC"
+            ],
             path: "ReactiveCocoa"),
 
         .target(
@@ -35,8 +38,8 @@ let package = Package(
             dependencies: [
                 "ReactiveCocoa",
                 "ReactiveCocoaObjCTestSupport",
-                "Quick",
-                "Nimble"
+                .product(name: "Quick", package: "Quick"),
+                .product(name: "Nimble", package: "Nimble")
             ],
             path: "ReactiveCocoaTests"),
     ],
